@@ -14,7 +14,7 @@ var AnalysisScriptChecker = function(io) {
   // Sockets object
   var memberSockets = io.sockets;
   // Script checker class
-  var memberScriptChecker = new (require('../core/ScriptChecker.js'))();
+  var memberScriptChecker = new (require('../core/ScriptChecker'))();
 
   // Socket connection event
   memberSockets.on('connection', function(client) {

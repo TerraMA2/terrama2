@@ -13,7 +13,7 @@
 #include <terrama2/services/analysis/core/DataManager.hpp>
 
 #include <terrama2/impl/Utils.hpp>
-#include <terrama2_config.hpp>
+#include <terrama2/Config.hpp>
 
 #include <iostream>
 

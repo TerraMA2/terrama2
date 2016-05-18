@@ -49,6 +49,15 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief The %Collector Service provides thread and time management for Collector processess.
+
+          This class is used to manage thread sync and timer listening to access
+          process and store data based on Collector.
+
+          The %Collector Service has a main thread that will check for new data to collect
+          and a threadpool that will be allocated to actively collect and store the data.
+        */
         class Service : public terrama2::core::Service
         {
             Q_OBJECT
@@ -73,9 +82,9 @@ namespace terrama2
 
           protected:
             // comments on base class
-            virtual bool mainLoopWaitCondition() noexcept override;
+            virtual bool hasDataOnQueue() noexcept override;
             // comments on base class
-            virtual bool checkNextData() override;
+            virtual bool processNextData() override;
 
             virtual void prepareTask(CollectorId collectorId);
 

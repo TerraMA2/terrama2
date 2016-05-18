@@ -22,7 +22,7 @@
 #include <terrama2/services/analysis/core/Analysis.hpp>
 
 #include <terrama2/impl/Utils.hpp>
-#include <terrama2_config.hpp>
+#include <terrama2/Config.hpp>
 
 //STL
 #include <iostream>

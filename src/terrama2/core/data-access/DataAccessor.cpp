@@ -179,7 +179,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
   }
 
   if(filter.discardAfter.get() && filter.discardBefore.get()
-      && filter.discardAfter <= filter.discardBefore)
+      && (*filter.discardAfter) < (*filter.discardBefore))
   {
     QString errMsg = QObject::tr("Empty filter time range.");
 
