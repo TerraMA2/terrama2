@@ -88,11 +88,12 @@ terrama2::core::DataProviderPtr buildOutputProvider()
 
   QUrl postgisUri;
   postgisUri.setScheme("postgis");
-  postgisUri.setHost("localhost");
-  postgisUri.setPort(5432);
-  postgisUri.setUserName("postgres");
-  postgisUri.setPassword("postgres");
-  postgisUri.setPath("/basedeteste");
+  postgisUri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
+  postgisUri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
+  postgisUri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
+  postgisUri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
+  postgisUri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
+  
   dataProvider->id = 2;
   dataProvider->projectId = 1;
   dataProvider->name = "Output provider";
