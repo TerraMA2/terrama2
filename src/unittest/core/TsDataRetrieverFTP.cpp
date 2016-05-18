@@ -1,3 +1,26 @@
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
+/*!
+  \file terrama2/unittest/core/TsDataRetrieverFTP.cpp
+  \brief Tests for Class DataRetrieverFTP
+  \author Evandro Delatin
+*/
+
 // TerraMA2
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
@@ -8,8 +31,8 @@
 #include <terrama2/core/data-access/DataRetriever.hpp>
 #include <terrama2/core/Exception.hpp>
 
-#include "MockDataRetriever.hpp"
 #include "TsDataRetrieverFTP.hpp"
+#include "MockCurlWrapper.hpp"
 
 // STL
 #include <iostream>
@@ -31,11 +54,8 @@
 #include <gtest/gtest.h>
 
 
-using ::testing::AtLeast;
 using ::testing::Return;
 using ::testing::_;
-using ::testing::DoAll;
-
 
 void TsDataRetrieverFTP::TestFailUriInvalid()
 {  
@@ -62,21 +82,17 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
     //empty filter
     terrama2::core::Filter filter;
 
-    //accessing data
-    std::string path;
-    std::string mask = "exporta_20160101_0130.csv";
+    MockCurlWrapper mock_;
 
-    std::shared_ptr<MockDataRetriever> mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
-
-
-    EXPECT_CALL(*mock_.get(), retrieveData(mask,_)).WillOnce(Return(path));
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
 
     try
     {
-      path = mock_->retrieveData(mask, filter);
-      QFAIL("Exception expected!");
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+
+      QFAIL("Exception expected - DataRetrieverException!");
     }
-    catch(terrama2::Exception& e)
+    catch(terrama2::core::DataRetrieverException& e)
     {
 
     }
@@ -122,22 +138,18 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    //accessing data
 
-    std::string path;
-    std::string mask = "exporta_20160101_0130.csv";
+    MockCurlWrapper mock_;
 
-    std::shared_ptr<MockDataRetriever> mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
-
-
-    EXPECT_CALL(*mock_.get(), retrieveData(mask,_)).WillOnce(Return(path));
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_LOGIN_DENIED));
 
     try
     {
-      path = mock_->retrieveData(mask, filter);
-      QFAIL("Exception expected!");
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+
+      QFAIL("Exception expected - DataRetrieverException!");
     }
-    catch(terrama2::Exception& e)
+    catch(terrama2::core::DataRetrieverException& e)
     {
 
     }
@@ -159,8 +171,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
 }
 
-
-void TsDataRetrieverFTP::TestOkUriMaskAndLoginValid()
+void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 {
   try
   {
@@ -184,22 +195,18 @@ void TsDataRetrieverFTP::TestOkUriMaskAndLoginValid()
 
     //empty filter
     terrama2::core::Filter filter;
-    //accessing data
 
-    std::string path;
-    std::string mask = "exporta_20160101_0130.csv";
+    MockCurlWrapper mock_;
 
-    std::shared_ptr<MockDataRetriever> mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
-
-
-    EXPECT_CALL(*mock_.get(), retrieveData(mask,_)).WillOnce(Return(path));
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
 
     try
     {
-      path = mock_->retrieveData(mask, filter);
-      QFAIL("Exception expected!");
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+
+      QFAIL("Exception expected - DataRetrieverException!");
     }
-    catch(terrama2::Exception& e)
+    catch(terrama2::core::DataRetrieverException& e)
     {
 
     }
@@ -221,63 +228,3 @@ void TsDataRetrieverFTP::TestOkUriMaskAndLoginValid()
 
 }
 
-void TsDataRetrieverFTP::TestFailMaskInvalid()
-{
-  try
-  {
-    QUrl url;
-    url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/focos_operacao/");
-    url.setScheme("FTP");
-    url.setPort(21);
-    url.setUserName("queimadas");
-    url.setPassword("inpe_2012");
-
-    curl_global_init(CURL_GLOBAL_ALL);
-
-    //DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = url.url().toStdString();
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FTP";
-    dataProvider->active = true;
-
-    //empty filter
-    terrama2::core::Filter filter;
-    //accessing data
-
-    std::string path;
-    std::string mask = "exporta";
-
-    std::shared_ptr<MockDataRetriever> mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
-
-
-    EXPECT_CALL(*mock_.get(), retrieveData(mask,_)).WillOnce(Return(path));
-
-    try
-    {
-      path = mock_->retrieveData(mask, filter);
-      QFAIL("Exception expected!");
-    }
-    catch(terrama2::Exception& e)
-    {
-
-    }
-
-    curl_global_cleanup();
-
-  }
-  catch(terrama2::Exception& e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-
-  catch(...)
-  {
-    QFAIL("Exception unexpected!");
-  }
-
- return;
-
-}

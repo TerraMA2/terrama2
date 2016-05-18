@@ -42,18 +42,8 @@ int main(int argc, char **argv)
   //  TsLogger testLogger;
   //  ret = QTest::qExec(&testLogger, argc, argv);
 
-
-  //TsDataAccessorDcpInpe testDataAccessorDcpInpe;
-  //int ret = QTest::qExec(&testDataAccessorDcpInpe, argc, argv);
-
-  //TsDataAccessorDcpToa5 testDataAccessorDcpToa5;
-  //int ret = QTest::qExec(&testDataAccessorDcpToa5, argc, argv);
-
   TsDataRetrieverFTP testDataRetrieverFTP;
   int ret = QTest::qExec(&testDataRetrieverFTP, argc, argv);
-
-  //TsDataAccessorGeoTiff testDataAccessorGeoTiff;
-  //int ret = QTest::qExec(&testDataAccessorGeoTiff, argc, argv);
 
   terrama2::core::finalizeTerraMA();
 
