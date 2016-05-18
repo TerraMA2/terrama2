@@ -60,6 +60,13 @@ terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSer
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
+  if(dataProvider_->id != dataSeries_->dataProviderId)
+  {
+    QString errMsg = QObject::tr("Input DataProvider different from DataSeries' DataProvider.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
   boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
   lastDateTime_ = std::make_shared<te::dt::TimeInstantTZ>(boostTime);
 }
