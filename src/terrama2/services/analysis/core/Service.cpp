@@ -86,10 +86,6 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
   {
     Analysis analysis = dataManager_->findAnalysis(analysisId);
 
-    std::map<std::string, std::string> connInfo = terrama2::core::ServiceManager::getInstance().logConnectionInfo();
-    std::shared_ptr< AnalysisLogger > analysisLog(new AnalysisLogger(analysisId, connInfo));
-    loggers_.emplace(analysisId, analysisLog);
-
     auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
     connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);

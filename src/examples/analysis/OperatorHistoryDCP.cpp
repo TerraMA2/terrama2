@@ -53,12 +53,11 @@ int main(int argc, char* argv[])
 
   QUrl uri;
   uri.setScheme("postgis");
-  uri.setHost(TERRAMA2_DATABASE_HOST);
-  uri.setPort(atoi(TERRAMA2_DATABASE_PORT));
-  uri.setUserName(TERRAMA2_DATABASE_USERNAME);
-  uri.setPassword(TERRAMA2_DATABASE_PASSWORD);
-  uri.setPath("/");
-  uri.setPath(uri.path() + TERRAMA2_DATABASE_DBNAME);
+  uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
+  uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
+  uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
+  uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
+  uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
 
   // DataProvider information
   terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
@@ -225,6 +224,7 @@ int main(int argc, char* argv[])
 
   // Starts the service and adds the analysis
   Service service(dataManager);
+  service.updateLoggerConnectionInfo(connInfo);
   service.start();
   service.addAnalysis(1);
 
