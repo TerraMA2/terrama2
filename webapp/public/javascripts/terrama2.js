@@ -2,6 +2,14 @@ $(document).ready(function(){
   var socket = io(window.location.origin);
 
   socket.on('checkPythonScriptResponse', function(result) {
+    $('#checkAnalysisScript > .loading').css('display', 'none');
+    $('#checkAnalysisScript > .text').css('display', '');
+
+    $('#checkAnalysisScript').removeAttr('disabled');
+    $('#analysisSaveButton').removeAttr('disabled');
+    $('#analysisCancelButton').removeAttr('disabled');
+    $('#analysisCancelButton').css('pointer-events', '');
+
     if(result.hasError || result.hasPythonError) {
       if(result.hasError) {
         $('#systemError').text(result.systemError);
@@ -15,14 +23,6 @@ $(document).ready(function(){
       $('#systemError').css('display', 'none');
       $('#analysisSaveButton').removeAttr('disabled');
     }
-
-    $('#checkAnalysisScript > .loading').css('display', 'none');
-    $('#checkAnalysisScript > .text').css('display', '');
-
-    $('#checkAnalysisScript').removeAttr('disabled');
-    $('#analysisSaveButton').removeAttr('disabled');
-    $('#analysisCancelButton').removeAttr('disabled');
-    $('#analysisCancelButton').css('pointer-events', '');
 
     $('#scriptCheckResult').text(result.messages);
   });
