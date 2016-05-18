@@ -75,6 +75,8 @@ namespace terrama2
           OBJECT_WITHOUT_INTERN = 5 //!< Geometry minus internal buffer.
         };
 
+        std::unique_ptr<te::gm::Geometry> createBuffer(BufferType bufferType, std::shared_ptr<te::gm::Geometry> geometry, double distance);
+
         /*!
           \brief Creates a buffer for each given geometry with the given distance.
 
@@ -84,7 +86,7 @@ namespace terrama2
           \param bufferType The type of the buffer.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.
         */
-        std::shared_ptr<te::mem::DataSet> createBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance, BufferType);
+        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance, BufferType bufferType);
 
       } // end namespace core
     }   // end namespace analysis

@@ -51,6 +51,15 @@ namespace te
   }
 }
 
+// Forward declaration
+namespace te
+{
+  namespace gm
+  {
+    class Geometry;
+  }
+}
+
 namespace terrama2
 {
   namespace core
@@ -97,7 +106,10 @@ namespace terrama2
     */
     void enableLogger();
 
-
+    /*!
+      \brief Returns the SRID of a UTM projection based on the zone of given coordinate.
+    */
+    int getUTMSrid(te::gm::Geometry* geom);
 
   } // end namespace core
 }   // end namespace terrama2

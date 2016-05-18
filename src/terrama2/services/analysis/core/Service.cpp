@@ -82,24 +82,23 @@ void terrama2::services::analysis::core::Service::updateNumberOfThreads(int numb
 
 void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
 {
-  Analysis analysis = dataManager_->findAnalysis(analysisId);
   try
   {
-    if(analysis.active)
-    {
-      auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
-      terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
-      connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
-      timers_.emplace(analysisId, timer);
-    }
-  }
-  catch(terrama2::core::InvalidFrequencyException& e)
-  {
-    // invalid schedule, already logged
-  }
+    Analysis analysis = dataManager_->findAnalysis(analysisId);
 
-  // add to queue to run now
-  addToQueue(analysisId);
+    auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
+    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
+    connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+    timers_.emplace(analysisId, timer);
+
+    // add to queue to run now
+    addToQueue(analysisId);
+  }
+  catch(terrama2::Exception& e)
+  {
+    QString errMsg = QObject::tr("Could not add analysis %1 to the queue").arg(analysisId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+  }
 }
 
 void terrama2::services::analysis::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
