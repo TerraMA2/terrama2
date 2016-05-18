@@ -144,83 +144,91 @@ int terrama2::services::analysis::core::occurrenceCount(const std::string& dataS
 
   std::shared_ptr<ContextDataSeries> contextDataset;
 
-  for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
+  try
   {
-    auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
-    if(dataSeries->name == dataSeriesName)
+    for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
     {
-      found = true;
-
-      Context::getInstance().addDataset(analysisId, dataSeries, dateFilter, true);
-
-      auto datasets = dataSeries->datasetList;
-
-      for(auto dataset : datasets)
+      auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+      if(dataSeries->name == dataSeriesName)
       {
+        found = true;
 
-        contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
-        if(!contextDataset)
-        {
-          continue;
-        }
+        Context::getInstance().addDataset(analysisId, dataSeries, dateFilter, true);
 
+        auto datasets = dataSeries->datasetList;
 
-        std::vector<uint64_t> indexes;
-        terrama2::core::SyncronizedDataSetPtr syncDs = contextDataset->series.syncDataSet;
-
-        if(syncDs->size() == 0)
-        {
-          continue;
-        }
-
-
-        // Converts the monitored object to the same srid of the occurrences
-        if(contextDataset->series.syncDataSet->size() > 0)
+        for(auto dataset : datasets)
         {
 
-          auto sampleGeom = syncDs->getGeometry(0, contextDataset->geometryPos);
-
-          auto geomResult = createBuffer(bufferType, moGeom, distance);
-
-          // Transform monitored object to occurrences SRID
-          geomResult->transform(sampleGeom->getSRID());
-
-          // Searchs in the spatial index for the occurrences that intersects the monitored object box
-          contextDataset->rtree.search(*geomResult->getMBR(), indexes);
-
-
-          std::vector<std::shared_ptr<te::gm::Geometry> > geometries;
-          for(uint64_t i : indexes)
+          contextDataset = Context::getInstance().getContextDataset(analysisId, dataset->id, dateFilter);
+          if(!contextDataset)
           {
-            // Verifies if the occurrence intersects the monitored object
-            auto occurenceGeom = syncDs->getGeometry(i, contextDataset->geometryPos);
-            if(occurenceGeom->intersects(geomResult.get()))
+            continue;
+          }
+
+
+          std::vector<uint64_t> indexes;
+          terrama2::core::SyncronizedDataSetPtr syncDs = contextDataset->series.syncDataSet;
+
+          if(syncDs->size() == 0)
+          {
+            continue;
+          }
+
+
+          // Converts the monitored object to the same srid of the occurrences
+          if(contextDataset->series.syncDataSet->size() > 0)
+          {
+
+            auto sampleGeom = syncDs->getGeometry(0, contextDataset->geometryPos);
+
+            auto geomResult = createBuffer(bufferType, moGeom, distance);
+
+            // Transform monitored object to occurrences SRID
+            moGeom->transform(sampleGeom->getSRID());
+
+            // Searchs in the spatial index for the occurrences that intersects the monitored object box
+            contextDataset->rtree.search(*geomResult->getMBR(), indexes);
+
+
+            std::vector<std::shared_ptr<te::gm::Geometry> > geometries;
+            for(uint64_t i : indexes)
             {
-              geometries.push_back(occurenceGeom);
+              // Verifies if the occurrence intersects the monitored object
+              auto occurenceGeom = syncDs->getGeometry(i, contextDataset->geometryPos);
+              if(occurenceGeom->intersects(geomResult.get()))
+              {
+                geometries.push_back(occurenceGeom);
+              }
+            }
+
+            count = geometries.size();
+
+            if(!geometries.empty())
+            {
+              // Creates aggregation buffer
+              std::shared_ptr<te::gm::Envelope> box(syncDs->dataset()->getExtent(contextDataset->geometryPos));
+              if(distance != 0.)
+              {
+                auto bufferDs = createAggregationBuffer(geometries, box, distance, bufferType);
+                count = bufferDs->size();
+              }
+              else
+              {
+                count = geometries.size();
+              }
             }
           }
 
-          count = geometries.size();
-
-          if(!geometries.empty())
-          {
-            // Creates aggregation buffer
-            std::shared_ptr<te::gm::Envelope> box(syncDs->dataset()->getExtent(contextDataset->geometryPos));
-            if(distance != 0.)
-            {
-              auto bufferDs = createAggregationBuffer(geometries, box, distance, bufferType);
-              count = bufferDs->size();
-            }
-            else
-            {
-              count = geometries.size();
-            }
-          }
         }
-
       }
     }
   }
+  catch(std::exception e)
+  {
+    std::cout << e.what() << std::endl;
+  }
+
 
   // All operations are done, acquires the GIL and set the return value
   //Py_END_ALLOW_THREADS

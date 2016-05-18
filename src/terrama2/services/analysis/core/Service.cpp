@@ -82,28 +82,36 @@ void terrama2::services::analysis::core::Service::updateNumberOfThreads(int numb
 
 void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
 {
-  Analysis analysis = dataManager_->findAnalysis(analysisId);
-
-  std::map<std::string, std::string> connInfo = terrama2::core::ServiceManager::getInstance().logConnectionInfo();
-  std::shared_ptr< AnalysisLogger > analysisLog(new AnalysisLogger(analysisId, connInfo));
-  loggers_.emplace(analysisId, analysisLog);
-
   try
   {
-    if(analysis.active)
-    {
-      terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, analysisLog);
-      connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
-      timers_.emplace(analysisId, timer);
-    }
-  }
-  catch(terrama2::core::InvalidFrequencyException& e)
-  {
-    // invalid schedule, already logged
-  }
+    Analysis analysis = dataManager_->findAnalysis(analysisId);
 
-  // add to queue to run now
-  addToQueue(analysisId);
+    std::map<std::string, std::string> connInfo = terrama2::core::ServiceManager::getInstance().logConnectionInfo();
+    std::shared_ptr< AnalysisLogger > analysisLog(new AnalysisLogger(analysisId, connInfo));
+    loggers_.emplace(analysisId, analysisLog);
+
+    try
+    {
+      if(analysis.active)
+      {
+        terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, analysisLog);
+        connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+        timers_.emplace(analysisId, timer);
+      }
+    }
+    catch(terrama2::core::InvalidFrequencyException& e)
+    {
+      // invalid schedule, already logged
+    }
+
+    // add to queue to run now
+    addToQueue(analysisId);
+  }
+  catch(terrama2::Exception& e)
+  {
+    QString errMsg = QObject::tr("Could not add analysis %1 to the queue").arg(analysisId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+  }
 }
 
 void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)

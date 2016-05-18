@@ -165,6 +165,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       dataStorager->store(item.second, *outputDataSet);
     }
 
+    TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
+
     //TODO: logger->done(logId);
   }
   catch(const terrama2::Exception& e)

@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
     analysis.name = "Analysis";
     analysis.active = false;
 
-    std::string script = "x = occurrence.count(\"Occurrence\", 2000, Buffer.OBJECT_PLUS_EXTERN, \"48h\", \"\")\n"
+    std::string script = "x = occurrence.count(\"Occurrence\", 2000, Buffer.OBJECT_PLUS_EXTERN, \"500d\", \"\")\n"
                          "add_value(\"Count\", x)";
 
 

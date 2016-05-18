@@ -217,6 +217,7 @@ void terrama2::core::initializeTerraMA()
   semanticsManager.addSemantics("DCP-toa5", "TOA5 DCP format", terrama2::core::DataSeriesSemantics::DCP, "CSV", {"FILE", "FTP"});
   semanticsManager.addSemantics("DCP-postgis", "DCP PostGIS", terrama2::core::DataSeriesSemantics::DCP, "POSTGIS",  {"POSTGIS"});
   semanticsManager.addSemantics("ANALYSIS_MONITORED_OBJECT-postgis", "Monitored object analysis result", terrama2::core::DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT, "POSTGIS", {"POSTGIS"});
+  semanticsManager.addSemantics("GRID-geotiff", "GeoTIFF grid", terrama2::core::DataSeriesSemantics::GRID, "GEOTIFF",  {"FILE", "FTP"});
 }
 
 void terrama2::core::finalizeTerraMA()

@@ -54,9 +54,19 @@ terrama2::core::ProcessLogger::ProcessLogger(const uint64_t processID, const std
 {
   dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
   dataSource_->setConnectionInfo(connInfo);
-  dataSource_->open();
 
-  if(!dataSource_->isOpened())
+  try
+  {
+    dataSource_->open();
+
+    if(!dataSource_->isOpened())
+    {
+      QString errMsg = QObject::tr("Could not connect to database");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw LogException() << ErrorDescription(errMsg);
+    }
+  }
+  catch(std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg;
