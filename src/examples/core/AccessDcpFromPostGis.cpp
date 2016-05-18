@@ -16,14 +16,13 @@ int main(int argc, char* argv[])
   terrama2::core::initializeTerralib();
 
   {
-    //TODO: get configuration from CMAKE
     QUrl uri;
     uri.setScheme("postgis");
-    uri.setHost("localhost");
-    uri.setPort(5432);
-    uri.setUserName("postgres");
-    uri.setPassword("postgres");
-    uri.setPath("/basedeteste");
+    uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
+    uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
+    uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
+    uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
+    uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();

@@ -50,7 +50,7 @@ namespace terrama2
       namespace core
       {
         /*!
-          \brief The Collector groups the information to aquire data from a server and storage at another.
+          \brief The Collector groups the information to aquire data from a source server and store at a destination.
         */
         struct Collector
         {
