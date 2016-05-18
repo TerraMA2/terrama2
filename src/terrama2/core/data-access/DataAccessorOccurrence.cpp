@@ -48,9 +48,3 @@ terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getO
 
   return occurrenceSeries;
 }
-
-te::dt::TimeInstantTZ terrama2::core::DataAccessorOccurrence::lastDateTime() const
-{
-  //TODO: implement lastDateTime
-  assert(0);
-}

@@ -59,7 +59,7 @@ namespace terrama2
 
       using terrama2::core::DataAccessor::getSeries;
       // Doc in base class
-      virtual Series getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet) const override;
+      virtual DataSetSeries getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet) const override;
 
     protected:
       // Doc in base class
@@ -73,6 +73,8 @@ namespace terrama2
                                      std::vector<te::da::Expression*>& where) const;
       virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
                                      std::vector<te::da::Expression*>& where) const;
+
+      void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const;
     };
   }
 }

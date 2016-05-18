@@ -49,13 +49,6 @@ terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const
   return dcpSeries;
 }
 
-
-te::dt::TimeInstantTZ terrama2::core::DataAccessorDcp::lastDateTime() const
-{
-  //TODO: implement lastDateTime
-  assert(0);
-}
-
 bool terrama2::core::DataAccessorDcp::intersects(DataSetPtr dataset, const Filter& filter) const
 {
   if(!filter.region.get())

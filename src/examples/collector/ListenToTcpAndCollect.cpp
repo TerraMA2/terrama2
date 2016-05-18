@@ -47,7 +47,7 @@ terrama2::core::DataProviderPtr buildInputProvider()
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
 
-  QString uri = QString("file://%1/fire_system").arg(TERRAMA2_DATA_DIR);
+  QString uri = QString("file://%1/fire_system").arg(QString::fromStdString(TERRAMA2_DATA_DIR));
   dataProvider->id = 1;
   dataProvider->projectId = 1;
   dataProvider->name = "Provider";

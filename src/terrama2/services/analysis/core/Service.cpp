@@ -32,7 +32,6 @@
 #include "DataManager.hpp"
 #include "AnalysisExecutor.hpp"
 #include "PythonInterpreter.hpp"
-#include "AnalysisLogger.hpp"
 #include "Context.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 #include "../../../core/utility/Logger.hpp"
@@ -63,7 +62,7 @@ bool terrama2::services::analysis::core::Service::checkNextData()
   if(analysisQueue_.empty())
     return false;
 
-  uint64_t analysisId = analysisQueue_.front();
+  AnalysisId analysisId = analysisQueue_.front();
   //prepare task for collecting
   prepareTask(analysisId);
 
@@ -90,19 +89,10 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     std::shared_ptr< AnalysisLogger > analysisLog(new AnalysisLogger(analysisId, connInfo));
     loggers_.emplace(analysisId, analysisLog);
 
-    try
-    {
-      if(analysis.active)
-      {
-        terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, analysisLog);
-        connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
-        timers_.emplace(analysisId, timer);
-      }
-    }
-    catch(terrama2::core::InvalidFrequencyException& e)
-    {
-      // invalid schedule, already logged
-    }
+    auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
+    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
+    connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+    timers_.emplace(analysisId, timer);
 
     // add to queue to run now
     addToQueue(analysisId);
@@ -112,6 +102,11 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     QString errMsg = QObject::tr("Could not add analysis %1 to the queue").arg(analysisId);
     TERRAMA2_LOG_ERROR() << errMsg;
   }
+}
+
+void terrama2::services::analysis::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
+{
+  logger_ = std::make_shared<AnalysisLogger>(connInfo);
 }
 
 void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)

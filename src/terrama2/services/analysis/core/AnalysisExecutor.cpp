@@ -367,7 +367,7 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
 
     std::shared_ptr<terrama2::core::SyncronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SyncronizedDataSet>(ds);
 
-    terrama2::core::Series series;
+    terrama2::core::DataSetSeries series;
     series.teDataSetType.reset(dt);
     series.syncDataSet.swap(syncDataSet);
 

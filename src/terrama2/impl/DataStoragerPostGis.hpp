@@ -44,29 +44,17 @@ namespace terrama2
   {
     class DataStoragerPostGis : public DataStorager
     {
-    public:
-      DataStoragerPostGis(DataProviderPtr outputDataProvider)
-       : DataStorager(outputDataProvider) {}
-      ~DataStoragerPostGis() {}
+      public:
+        DataStoragerPostGis(DataProviderPtr outputDataProvider)
+          : DataStorager(outputDataProvider) {}
+        ~DataStoragerPostGis() {}
 
-      static DataStorager* make(DataProviderPtr dataProvider);
+        static DataStorager* make(DataProviderPtr dataProvider);
 
-      virtual void store(Series series, DataSetPtr outputDataSet) const override;
+        virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
 
-    protected:
-      std::string getDataSetName(DataSetPtr dataSet) const
-      {
-        try
-        {
-          return dataSet->format.at("table_name");
-        }
-        catch (...)
-        {
-          QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          throw UndefinedTagException() << ErrorDescription(errMsg);
-        }
-      }
+      protected:
+        std::string getDataSetName(DataSetPtr dataSet) const;
     };
   }
 }

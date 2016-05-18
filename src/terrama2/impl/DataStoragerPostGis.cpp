@@ -43,7 +43,7 @@
 //Qt
 #include <QUrl>
 
-void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr outputDataSet) const
+void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   QUrl url(dataProvider_->uri.c_str());
 
@@ -105,4 +105,18 @@ void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr output
 terrama2::core::DataStorager* terrama2::core::DataStoragerPostGis::make(DataProviderPtr dataProvider)
 {
   return new DataStoragerPostGis(dataProvider);
+}
+
+std::string terrama2::core::DataStoragerPostGis::getDataSetName(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("table_name");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
 }

@@ -59,6 +59,9 @@ terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSer
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
+
+  boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
+  lastDateTime_ = std::make_shared<te::dt::TimeInstantTZ>(boostTime);
 }
 
 te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const
@@ -163,7 +166,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
+std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
 {
 
   //if data provider is not active, nothing to do
@@ -171,11 +174,20 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   {
     QString errMsg = QObject::tr("Disabled data provider (Should not arrive here!)");
 
-    throw DataProviderException() << ErrorDescription(errMsg);
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw DataProviderException() << ErrorDescription(errMsg);
   }
 
-  std::map<DataSetPtr, Series > series;
+  if(filter.discardAfter.get() && filter.discardBefore.get()
+      && filter.discardAfter <= filter.discardBefore)
+  {
+    QString errMsg = QObject::tr("Empty filter time range.");
+
+    TERRAMA2_LOG_WARNING() << errMsg.toStdString();
+    throw DataProviderException() << ErrorDescription(errMsg);
+  }
+
+  std::map<DataSetPtr,DataSetSeries> series;
 
   try
   {
@@ -203,10 +215,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
         uri = dataProvider_->uri;
 
       //TODO: Set last date collected in filter
-      std::shared_ptr<te::mem::DataSet> memDataSet;
-      std::shared_ptr<te::da::DataSetType> dataSetType;
-
-      Series tempSeries = getSeries(uri, filter, dataset);
+      DataSetSeries tempSeries = getSeries(uri, filter, dataset);
       series.emplace(dataset, tempSeries);
 
 
@@ -224,7 +233,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
   }
   catch(const boost::exception& e)
   {
-    std::cout << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString() << std::endl;
+    std::cout << boost::diagnostic_information(e) << std::endl;
   }
   catch(const std::exception& e)
   {

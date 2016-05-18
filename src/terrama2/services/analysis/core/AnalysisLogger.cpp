@@ -29,11 +29,11 @@
 
 // TerraMA2
 #include "AnalysisLogger.hpp"
+#include "../../../core/utility/ServiceManager.hpp"
 
-terrama2::services::analysis::core::AnalysisLogger::AnalysisLogger(AnalysisId id, std::map< std::string, std::string > connInfo)
- : ProcessLogger(id, connInfo)
+terrama2::services::analysis::core::AnalysisLogger::AnalysisLogger(std::map< std::string, std::string > connInfo)
+ : ProcessLogger(connInfo)
 {
-  // FIXME: use instance id in table prefix name
-  setTableName("analysis_");
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  setTableName("analysis_"+std::to_string(serviceManager.instanceId()));
 }
-

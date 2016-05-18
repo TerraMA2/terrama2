@@ -33,7 +33,6 @@
 
 //Terralib
 #include <terralib/common/UnitsOfMeasureManager.h>
-#include <terralib/datatype/TimeInstant.h>
 
 // TerraMA2
 #include "Timer.hpp"
@@ -50,17 +49,17 @@ struct terrama2::core::Timer::Impl
     Schedule             dataSchedule_;
     QTimer               timer_;//<! Timer to next collection.
     te::dt::TimeDuration schedule_;//<! Schedule to next collection.
-    uint64_t             processId_;
+    ProcessId             processId_;
     std::shared_ptr< te::dt::TimeInstantTZ > lastEmit_;
 };
 
-terrama2::core::Timer::Timer(const Schedule& dataSchedule, uint64_t processId, std::shared_ptr< ProcessLogger > log)
+terrama2::core::Timer::Timer(const Schedule& dataSchedule, ProcessId processId, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit)
 {
 
   impl_ = new Impl();
   impl_->dataSchedule_ = dataSchedule;
   impl_->processId_ = processId;
-  impl_->lastEmit_ = log->getLastProcessTimestamp();
+  impl_->lastEmit_ = lastEmit;
 
   prepareTimer(dataSchedule);
 }
@@ -168,7 +167,7 @@ double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
   return 0.0;
 }
 
-uint64_t terrama2::core::Timer::processId() const
+ProcessId terrama2::core::Timer::processId() const
 {
   return impl_->processId_;
 }

@@ -46,11 +46,6 @@ terrama2::core::GridSeriesPtr terrama2::core::DataAccessorGrid::getGridSeries(co
   return gridSeries;
 }
 
-te::dt::TimeInstantTZ terrama2::core::DataAccessorGrid::lastDateTime() const
-{
-  throw; //implemnt last date time
-}
-
 void terrama2::core::DataAccessorGrid::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   for(std::size_t i = 0, size = datasetType->size(); i < size; ++i)

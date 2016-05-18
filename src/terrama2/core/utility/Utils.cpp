@@ -92,7 +92,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
     return eval_path.string();
 
   // 2rd: look for an environment variable defined by macro TERRAMA2_DIR_VAR_NAME
-  const char* tma_env = getenv(TERRAMA2_DIR_VAR_NAME);
+  const char* tma_env = getenv(TERRAMA2_DIR_VAR_NAME.c_str());
 
   if(tma_env != nullptr)
   {

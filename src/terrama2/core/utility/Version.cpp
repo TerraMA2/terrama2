@@ -51,8 +51,7 @@ int terrama2::core::Version::patchNumber()
 
 std::string terrama2::core::Version::releaseStatus()
 {
-  assert(TERRAMA2_VERSION_STATUS);
-  return std::string(TERRAMA2_VERSION_STATUS);
+  return TERRAMA2_VERSION_STATUS;
 }
 
 std::string terrama2::core::Version::buildDate()
@@ -63,12 +62,10 @@ std::string terrama2::core::Version::buildDate()
 
 std::string terrama2::core::Version::asString()
 {
-  assert(TERRAMA2_VERSION_STRING);
-  return std::string(TERRAMA2_VERSION_STRING);
+  return TERRAMA2_VERSION_STRING;
 }
 
 int terrama2::core::Version::asInt()
 {
   return TERRAMA2_VERSION;
 }
-

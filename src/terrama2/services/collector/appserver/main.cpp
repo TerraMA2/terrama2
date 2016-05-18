@@ -73,15 +73,6 @@ int main(int argc, char* argv[])
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     serviceManager.setServiceType("Collector");
     serviceManager.setListeningPort(listeningPort);
-    std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
-                                                  {"PG_PORT", "5432"},
-                                                  {"PG_USER", "postgres"},
-                                                  {"PG_PASSWORD", "postgres"},
-                                                  {"PG_DB_NAME", "nodejs"},
-                                                  {"PG_CONNECT_TIMEOUT", "4"},
-                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
-                                                };
-    serviceManager.setLogConnectionInfo(connInfo);
 
     terrama2::core::TcpManager tcpManager(dataManager);
     tcpManager.listen(QHostAddress::Any, serviceManager.listeningPort());
@@ -90,6 +81,7 @@ int main(int argc, char* argv[])
     terrama2::services::collector::core::Service service(dataManager);
 
     QObject::connect(&serviceManager, &terrama2::core::ServiceManager::numberOfThreadsUpdated, &service, &terrama2::services::collector::core::Service::updateNumberOfThreads);
+    QObject::connect(&serviceManager, &terrama2::core::ServiceManager::logConnectionInfoUpdated, &service, &terrama2::services::collector::core::Service::updateLoggerConnectionInfo);
 
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::collector::core::Service::addToQueue);
     QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::collector::core::Service::stop);

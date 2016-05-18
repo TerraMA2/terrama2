@@ -32,18 +32,22 @@
 #include <string>
 
 //! Unique identifier of the ServiceInstance
-typedef uint64_t ServiceInstanceId;
+typedef uint32_t ServiceInstanceId;
 //! Unique identifier for Project
-typedef uint64_t ProjectId;
+typedef uint32_t ProjectId;
 //! Unique identifier for Schedule
-typedef uint64_t ScheduleId;
+typedef uint32_t ScheduleId;
 //! Unique identifier for DataSet
-typedef uint64_t DataSetId;
+typedef uint32_t DataSetId;
 //! Unique identifier for DataSeries
-typedef uint64_t DataSeriesId;
+typedef uint32_t DataSeriesId;
 //! Unique identifier for DataProvider
-typedef uint64_t DataProviderId;
-
+typedef uint32_t DataProviderId;
+//! Unique identifier for Processes (Collector, Analysis,...)
+typedef uint32_t ProcessId;
+//! Unique identifier for Processes log
+typedef uint32_t RegisterId;
+//! DataProviderType code
 typedef std::string DataProviderType;
 
 namespace terrama2
@@ -51,7 +55,7 @@ namespace terrama2
   namespace core
   {
     //! Defines an invalid ID
-    inline uint64_t InvalidId() { return 0;}
+    inline uint32_t InvalidId() { return 0;}
   } /* core */
 } /* terrama2 */
 

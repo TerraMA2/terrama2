@@ -55,12 +55,19 @@ namespace terrama2
       public:
         //! Default constructor
         DataAccessorDcp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
-        //! Default destructor
-        virtual ~DataAccessorDcp() {}
+        //! Default destructor.
+        virtual ~DataAccessorDcp() = default;
+        //! Default copy constructor
+        DataAccessorDcp(const DataAccessorDcp& other) = default;
+        //! Default move constructor
+        DataAccessorDcp(DataAccessorDcp&& other) = default;
+        //! Default const assignment operator
+        DataAccessorDcp& operator=(const DataAccessorDcp& other) = default;
+        //! Default assignment operator
+        DataAccessorDcp& operator=(DataAccessorDcp&& other) = default;
+
         //! Returns a DcpSeries filtered by Filter
         virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
-        // Doc in base class
-        virtual te::dt::TimeInstantTZ lastDateTime() const override;
 
       protected:
         // Doc in base class

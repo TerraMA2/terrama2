@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 #define __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 
+#include "../Typedef.hpp"
+
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/datatype/TimeInstantTZ.h>
@@ -70,7 +72,7 @@ namespace terrama2
        * \param processID ID of the process to log.
        * \param connInfo Datasource connection information.
        */
-      ProcessLogger(const uint64_t processID, const std::map < std::string, std::string > connInfo);
+      ProcessLogger(const std::map < std::string, std::string > connInfo);
 
       /*!
        * \brief Class destructor
@@ -81,62 +83,62 @@ namespace terrama2
        * \brief Log the start of the process.
        * \return The ID of table register
        */
-      uint64_t start() const;
+      RegisterId start(ProcessId processId) const;
 
       /*!
        * \brief Store data in a Json to be logged after
        * \param tag A tag to identify data
        * \param value The data
        */
-      void addValue(const std::string tag, const std::string value, const uint64_t registerId) const;
+      void addValue(const std::string tag, const std::string value, const RegisterId registerId) const;
 
       /*!
        * \brief Log an error in the process
        * \param description Error description
        */
-      void error(const std::string description, const uint64_t registerId) const;
+      void error(const std::string description, const RegisterId registerId) const;
 
       /*!
        * \brief Log the end of process
        * \param dataTimestamp The las timestamp of data.
        */
-      void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const uint64_t registerId) const;
+      void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
 
       /*!
        * \brief Returns the process last log timestamp
        * \return A TimeInstantTZ with the last time that process logged something
        */
-      std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp() const;
+      std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
 
       /*!
        * \brief Returns the last timestamp of a data
        * \return A TimeInstantTZ with the data last timestamp
        */
-      std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp() const;
+      std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const RegisterId registerId) const;
 
       /*!
        * \brief Returns the process ID
        * \return Returns the process ID
        */
-      uint64_t processID() const;
+      ProcessId processID(const RegisterId registerId) const;
 
     protected:
       /*!
        * \brief Store the table name of the process log
        * \param tableName The log table name
        */
-      void setTableName(const std::string tablePrefixName);
+      void setTableName(const std::string tableName);
+      std::string getMessagesTableName(const RegisterId registerId) const;
 
 
     private:
       /*!
        * \brief Log in the log table the data stored in Json
        */
-      void updateData(const uint64_t registerId, const QJsonObject obj) const;
+      void updateData(const RegisterId registerId, const QJsonObject obj) const;
 
 
     private:
-      uint64_t processID_ = 0;
       std::string tableName_ = "";
       std::string messagesTableName_ = "";
       std::shared_ptr< te::da::DataSource > dataSource_;
