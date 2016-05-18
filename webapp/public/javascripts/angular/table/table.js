@@ -40,11 +40,15 @@ angular.module('terrama2.table', ['terrama2'])
           $('#myModal').modal();
         };
 
+        $scope.resetObjectToRemove = function() {
+          $scope.objectToRemove = null;
+        };
+
         // remove function
         $scope.removeOperation = function() {
           if($scope.objectToRemove !== null) {
             var object = $scope.objectToRemove;
-            $scope.objectToRemove = null;
+            $scope.resetObjectToRemove();
 
             // callback
             var callback = $scope.extra.removeOperationCallback;
