@@ -43,7 +43,7 @@
 //Qt
 #include <QUrl>
 
-void terrama2::core::DataStoragerPostGis::store(Series series, DataSetPtr outputDataSet) const
+void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   QUrl url(dataProvider_->uri.c_str());
 

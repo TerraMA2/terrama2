@@ -430,7 +430,7 @@ if(TERRAMA2_EXAMPLES_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_examples_collector)
 endif()
 
-if(TERRAMA2_EXAMPLES_COLLECTOR_ENABLED)
+if(TERRAMA2_EXAMPLES_MAPS_ENABLED)
   add_subdirectory(terrama2_examples_maps)
 endif()
 

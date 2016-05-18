@@ -55,17 +55,25 @@ namespace terrama2
           virtual void updateNumberOfThreads(int) override;
 
         protected:
+
           /*!
              \brief Returns true if the main loop should continue.
              \return True if there is data to be tasked OR is stop is true.
            */
           virtual bool mainLoopWaitCondition() override;
 
+
           /*!
              \brief Check if there is data to be processed.
              \return True if there is more data to be processed.
            */
           virtual bool checkNextData() override;
+
+
+          /*!
+           * \brief makeMap
+           */
+          static void buildMap();
         };
       }
     }

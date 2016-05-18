@@ -50,7 +50,7 @@ namespace terrama2
       \class Series
       \brief Struct that holds information of the DataSet, a SyncronizedDataSet of the data and te::da::DataSetType
     */
-    struct Series
+    struct DataSetSeries
     {
       DataSetPtr dataSet;
       SyncronizedDataSetPtr syncDataSet;

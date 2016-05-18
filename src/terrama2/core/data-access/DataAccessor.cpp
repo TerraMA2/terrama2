@@ -163,7 +163,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
+std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
 {
 
   //if data provider is not active, nothing to do
@@ -175,7 +175,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
 
-  std::map<DataSetPtr, Series > series;
+  std::map<DataSetPtr, DataSetSeries > series;
 
   try
   {
@@ -206,7 +206,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::Series > terrama2::core::Da
       std::shared_ptr<te::mem::DataSet> memDataSet;
       std::shared_ptr<te::da::DataSetType> dataSetType;
 
-      Series tempSeries = getSeries(uri, filter, dataset);
+      DataSetSeries tempSeries = getSeries(uri, filter, dataset);
       series.emplace(dataset, tempSeries);
 
 

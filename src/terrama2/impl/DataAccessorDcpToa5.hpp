@@ -103,7 +103,7 @@ namespace terrama2
          * \param filter Filter applyed to the dataset;
          * \param dataSet It contains description of a dataset. Ex. information of DCP-TOA5;
          */      
-        virtual Series getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
+        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
 
       private:
         /*!

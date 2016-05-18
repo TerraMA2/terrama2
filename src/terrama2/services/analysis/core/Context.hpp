@@ -65,7 +65,7 @@ namespace terrama2
         */
         struct ContextDataSeries
         {
-          terrama2::core::Series series; //!< Dataset information.
+          terrama2::core::DataSetSeries series; //!< Dataset information.
           std::string identifier; //!< Identifier column.
           int64_t geometryPos = -1; //!< Geometry column position.
           te::sam::rtree::Index<uint64_t, 8> rtree; //!< Spatial index in memory

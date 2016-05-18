@@ -207,7 +207,7 @@ void terrama2::core::DataAccessorDcpToa5::addColumns(std::shared_ptr<te::da::Dat
   // the converter will add columns
 }
 
-terrama2::core::Series terrama2::core::DataAccessorDcpToa5::getSeries(const std::string& uri,
+terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(const std::string& uri,
                                                                    const terrama2::core::Filter& filter,
                                                                    terrama2::core::DataSetPtr dataSet) const
 

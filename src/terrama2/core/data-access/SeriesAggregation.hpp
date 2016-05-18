@@ -47,9 +47,9 @@ namespace terrama2
     {
       public:
         //! Returns a map of DataSet data.
-        const std::map<DataSetPtr, Series>& getSeries();
+        const std::map<DataSetPtr, DataSetSeries>& getSeries();
       protected:
-        std::map<DataSetPtr, Series> dataSeriesMap_;//!< Map of DataSet data.
+        std::map<DataSetPtr, DataSetSeries> dataSeriesMap_;//!< Map of DataSet data.
     };
   }
 }

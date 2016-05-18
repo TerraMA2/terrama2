@@ -48,12 +48,12 @@ namespace terrama2
     {
       public:
         //! Add a group of DataSet data to the OccurrenceSeries.
-        void addOccurrences(std::map<DataSetPtr, Series > seriesMap);
+        void addOccurrences(std::map<DataSetPtr, DataSetSeries > seriesMap);
         //! Returns a map of DataSetOccurrence data.
-        const std::map<DataSetOccurrencePtr, Series>& getOccurrences();
+        const std::map<DataSetOccurrencePtr, DataSetSeries>& getOccurrences();
 
       private:
-        std::map<DataSetOccurrencePtr, Series> occurrenceMap;//!< Map of DataSetOccurrence data.
+        std::map<DataSetOccurrencePtr, DataSetSeries> occurrenceMap;//!< Map of DataSetOccurrence data.
 
     };
   }

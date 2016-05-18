@@ -85,7 +85,7 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
   return std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 }
 
-terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
+terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
     const terrama2::core::Filter& filter,
     terrama2::core::DataSetPtr dataSet) const
 {
@@ -100,7 +100,7 @@ terrama2::core::Series terrama2::core::DataAccessorFile::getSeries(const std::st
   }
 
   //return value
-  Series series;
+  DataSetSeries series;
   series.dataSet = dataSet;
 
   std::shared_ptr<te::da::DataSet> completeDataset(nullptr);

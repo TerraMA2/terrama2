@@ -28,16 +28,21 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-SET(TERRAMA2_EXAMPLE_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/maps/")
+SET(TERRAMA2_EXAMPLE_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/maps/")
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_DIR}*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_DIR}*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.hpp)
 
 include_directories (
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${CMAKE_BINARY_DIR}
 )
 
-include_directories ( SYSTEM)
+include_directories ( SYSTEM
+  ${Boost_INCLUDE_DIR}
+  ${terralib_INCLUDE_DIRS}
+  ${terralib_DIR}
+)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -47,11 +52,15 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 foreach(FILE ${TERRAMA2_SRC_FILES})
    STRING(REGEX REPLACE ".cpp" "" EXAMPLE "${FILE}")
-   STRING(REGEX REPLACE "${TERRAMA2_EXAMPLE_DIR}" "" EXAMPLE "${EXAMPLE}")
+   STRING(REGEX REPLACE "${TERRAMA2_EXAMPLE_COLLECTOR_DIR}" "" EXAMPLE "${EXAMPLE}")
 
 
    add_executable(${EXAMPLE} ${FILE})
 
+   qt5_use_modules(${EXAMPLE} Core )
+
    target_link_libraries(${EXAMPLE} terrama2_maps_core
-                                    ${PYTHON_LIBRARIES})
+                                    terralib_mod_common
+                                    terralib_mod_qt_widgets
+                                    terralib_mod_maptools)
 endforeach()

@@ -226,7 +226,7 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
-  std::map<terrama2::core::DataSetPtr, terrama2::core::Series > seriesMap = accessor->getSeries(filter);
+  std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
 
   for(auto mapItem : seriesMap)
   {
@@ -336,7 +336,7 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
-  std::map<terrama2::core::DataSetPtr, terrama2::core::Series > seriesMap = accessor->getSeries(filter);
+  std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
 
   for(auto mapItem : seriesMap)
   {

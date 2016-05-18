@@ -52,3 +52,9 @@ bool terrama2::services::maps::core::Service::checkNextData()
 {
   return true;
 }
+
+// TODO:
+void terrama2::services::maps::core::Service::buildMap()
+{
+
+}
