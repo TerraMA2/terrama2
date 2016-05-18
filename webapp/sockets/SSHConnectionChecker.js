@@ -7,17 +7,14 @@
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
  * @property {object} memberSockets - Sockets object.
- * @property {object} memberSshClient - Ssh client.
- * @property {object} memberUtils - Utils class.
+ * @property {object} memberSSHDispatcher - Ssh class.
  */
 var SSHConnectionChecker = function(io) {
 
   // Sockets object
   var memberSockets = io.sockets;
-  // Ssh client
-  var memberSshClient = require('ssh2').Client;
-  // Utils class
-  var memberUtils = require("../core/Utils");
+  // Ssh class
+  var memberSSHDispatcher = require("../core/SSHDispatcher");
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
@@ -29,44 +26,26 @@ var SSHConnectionChecker = function(io) {
         message: ""
       };
 
-      try {
-        json.privateKey = require('fs').readFileSync(memberUtils.getUserHome() + '/.ssh/id_rsa');
-      } catch(err) {
+      var serviceInstance = {
+        host: json.host,
+        sshPort: json.port,
+        sshUser: json.username
+      };
+
+      var ssh = new memberSSHDispatcher();
+
+      ssh.connect(serviceInstance).then(function() {
+        ssh.disconnect();
+
+        returnObject.message = "Success";
+
+        client.emit('testSSHConnectionResponse', returnObject);
+      }).catch(function(err) {
         returnObject.error = true;
         returnObject.message = err.toString();
-      }
 
-      if(!returnObject.error) {
-        var sshClient = new memberSshClient();
-
-        sshClient.on('ready', function() {
-          sshClient.end();
-
-          returnObject.message = "Success";
-
-          client.emit('testSSHConnectionResponse', returnObject);
-        });
-
-        sshClient.on('error', function(err) {
-          sshClient.end();
-
-          returnObject.error = true;
-          returnObject.message = err.toString();
-
-          client.emit('testSSHConnectionResponse', returnObject);
-        });
-
-        try {
-          sshClient.connect(json);
-        } catch(err) {
-          returnObject.error = true;
-          returnObject.message = err.toString();
-
-          client.emit('testSSHConnectionResponse', returnObject);
-        }
-      } else {
         client.emit('testSSHConnectionResponse', returnObject);
-      }
+      });
     });
   });
 };
