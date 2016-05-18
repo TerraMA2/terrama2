@@ -406,7 +406,10 @@
                     </ul>
                   </div>
 
-                  <button class="btn btn-default pull-right" id="checkAnalysisScript">{[ __('Validate') ]}</button>
+                  <button class="btn btn-default pull-right" id="checkAnalysisScript">
+                    <span class="loading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
+                    <span class="text">{[ __('Validate') ]}</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -421,7 +424,7 @@
 
     <div class="box-footer">
       <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton" disabled="disabled">{[ __('OK') ]}</button>
-      <a href="/configuration/analyses/" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
+      <a href="/configuration/analyses/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
   </div>
 </div> <!-- end col md 12 -->
