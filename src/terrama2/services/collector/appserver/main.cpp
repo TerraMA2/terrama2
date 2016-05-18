@@ -75,7 +75,12 @@ int main(int argc, char* argv[])
     serviceManager.setListeningPort(listeningPort);
 
     terrama2::core::TcpManager tcpManager(dataManager);
-    tcpManager.listen(QHostAddress::Any, serviceManager.listeningPort());
+    if(!tcpManager.listen(QHostAddress::Any, serviceManager.listeningPort()))
+    {
+      std::cerr << QObject::tr("\nUnable to listen to port: ").toStdString() << serviceManager.listeningPort() << "\n" << std::endl;
+      return TCP_SERVER_ERROR;
+    }
+
     QObject::connect(&serviceManager, &terrama2::core::ServiceManager::listeningPortUpdated, &tcpManager, &terrama2::core::TcpManager::updateListeningPort);
 
     terrama2::services::collector::core::Service service(dataManager);
