@@ -54,18 +54,19 @@ terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::se
 
 void terrama2::services::collector::core::Service::updateNumberOfThreads(int numberOfThreads)
 {
+  numberOfThreads = verifyNumberOfThreads(numberOfThreads);
   //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
   stop();
   start(numberOfThreads);
 }
 
 
-bool terrama2::services::collector::core::Service::mainLoopWaitCondition() noexcept
+bool terrama2::services::collector::core::Service::hasDataOnQueue() noexcept
 {
-  return !collectorQueue_.empty() || stop_;
+  return !collectorQueue_.empty();
 }
 
-bool terrama2::services::collector::core::Service::checkNextData()
+bool terrama2::services::collector::core::Service::processNextData()
 {
   // check if there is data to collect
   if(collectorQueue_.empty())

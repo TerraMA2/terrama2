@@ -51,12 +51,12 @@ terrama2::services::analysis::core::Service::~Service()
 
 
 
-bool terrama2::services::analysis::core::Service::mainLoopWaitCondition() noexcept
+bool terrama2::services::analysis::core::Service::hasDataOnQueue() noexcept
 {
-  return !analysisQueue_.empty() || stop_;
+  return !analysisQueue_.empty();
 }
 
-bool terrama2::services::analysis::core::Service::checkNextData()
+bool terrama2::services::analysis::core::Service::processNextData()
 {
   //check if there is data to collect
   if(analysisQueue_.empty())
@@ -75,6 +75,7 @@ bool terrama2::services::analysis::core::Service::checkNextData()
 
 void terrama2::services::analysis::core::Service::updateNumberOfThreads(int numberOfThreads)
 {
+  numberOfThreads = verifyNumberOfThreads(numberOfThreads);
   stop();
   start(numberOfThreads);
 }

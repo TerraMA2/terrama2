@@ -1,7 +1,7 @@
 # TerraMA²
 
 **NOTE:**
-* **Until we reach version 4.0.0 this codebase will be instable and not fully operational.**
+* **Until we reach version 4.0.0 this codebase will be unstable and not fully operational.**
 * **TerraMA² is under active development. We are preparing this site to host it!**
 * **If you want to try the old version, please, look at http://www.dpi.inpe.br/terrama2.**
 * **If you have any question, please, send us an e-mail at: terrama2-team@dpi.inpe.br.**
@@ -388,4 +388,3 @@ Any problem should be reported to terrama2-team@dpi.inpe.br.
 
 
 For more information on TerraMA², please, visit its main web page at: http://www.dpi.inpe.br/terrama2.
-
