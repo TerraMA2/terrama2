@@ -117,5 +117,6 @@
 	"Region": "Region",
 	"Influence Data Series": "Influence Data Series",
 	"Influence Attribute": "Influence Attribute",
-	"": ""
+	"": "",
+	"Ssh Connection": "Ssh Connection"
 }
