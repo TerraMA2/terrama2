@@ -44,11 +44,11 @@ namespace terrama2
         class CollectorLogger : public terrama2::core::ProcessLogger
         {
         public:
-          CollectorLogger(CollectorId id, std::map<std::string, std::string> connInfo);
+          CollectorLogger(std::map<std::string, std::string> connInfo);
 
-          void addInput(std::string value, uint64_t registerID);
+          void addInput(std::string value, RegisterId registerID);
 
-          void addOutput(std::string value, uint64_t registerID);
+          void addOutput(std::string value, RegisterId registerID);
 
         };
       }

@@ -69,6 +69,7 @@ namespace terrama2
             void updateCollector(CollectorPtr collector);
             void removeCollector(CollectorId collectorId);
             virtual void updateNumberOfThreads(int) override;
+            virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;
 
           protected:
             // comments on base class
@@ -85,8 +86,8 @@ namespace terrama2
             std::weak_ptr<DataManager> dataManager_;
 
             std::map<CollectorId, terrama2::core::TimerPtr> timers_;
-            std::map<CollectorId, std::shared_ptr< CollectorLogger > > loggers_;
             std::deque<CollectorId> collectorQueue_;
+            std::shared_ptr< CollectorLogger > logger_;
         };
 
       } // end namespace core

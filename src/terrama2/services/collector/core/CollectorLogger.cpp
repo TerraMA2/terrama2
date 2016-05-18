@@ -29,20 +29,22 @@
 
 // TerraMA2
 #include "CollectorLogger.hpp"
+#include "../../../core/utility/ServiceManager.hpp"
 
-terrama2::services::collector::core::CollectorLogger::CollectorLogger(CollectorId id , std::map< std::string, std::string > connInfo)
- : ProcessLogger(id, connInfo)
+
+terrama2::services::collector::core::CollectorLogger::CollectorLogger(std::map< std::string, std::string > connInfo)
+ : ProcessLogger(connInfo)
 {
-  // FIXME: use instance id in table prefix name
-  setTableName("collector_");
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  setTableName("collector_"+std::to_string(serviceManager.instanceId()));
 }
 
-void terrama2::services::collector::core::CollectorLogger::addInput(std::string value, uint64_t registerID)
+void terrama2::services::collector::core::CollectorLogger::addInput(std::string value, RegisterId registerID)
 {
   addValue("input", value, registerID);
 }
 
-void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value, uint64_t registerID)
+void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value, RegisterId registerID)
 {
   addValue("output", value, registerID);
 }

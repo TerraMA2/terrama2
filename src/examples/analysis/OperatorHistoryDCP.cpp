@@ -94,17 +94,17 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
+  std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
                        "add_value(\"history_sum\",x)\n"
-                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
+                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
                        "add_value(\"history_max\",x)\n"
-                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
+                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
                        "add_value(\"history_min\",x)\n"
-                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
+                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
                        "add_value(\"history_mean\",x)\n"
-                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
+                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
                        "add_value(\"history_median\",x)\n"
-                       "x = dcp.history.standardDeviation(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"2h\")\n"
+                       "x = dcp.history.standardDeviation(\"DCP-Angra\", \"pluvio\", 2, 0, Buffer.NONE, \"10y\")\n"
                        "add_value(\"history_standardDeviation\",x)\n";
 
   Analysis analysis;
@@ -115,6 +115,11 @@ int main(int argc, char* argv[])
   analysis.type = MONITORED_OBJECT_TYPE;
   analysis.outputDataSeriesId = 3;
   analysis.active = false;
+
+
+  analysis.metadata["INFLUENCE_TYPE"] = 1;
+  analysis.metadata["INFLUENCE_RADIUS"] = 1;
+  analysis.metadata["INFLUENCE_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);

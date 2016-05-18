@@ -41,19 +41,35 @@ namespace terrama2
   {
     struct Filter;
     /*!
-      \class DataAccessorGeoTiff
+      \brief DataAccessor for GRID DataSeries in GeoTiff format.
 
     */
     class DataAccessorGeoTiff : public DataAccessorGrid, public DataAccessorFile
     {
     public:
+
       DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorGeoTiff() {}
+      //! Default destructor.
+      virtual ~DataAccessorGeoTiff() = default;
+      //! Default copy constructor
+      DataAccessorGeoTiff(const DataAccessorGeoTiff& other) = default;
+      //! Default move constructor
+      DataAccessorGeoTiff(DataAccessorGeoTiff&& other) = default;
+      //! Default const assignment operator
+      DataAccessorGeoTiff& operator=(const DataAccessorGeoTiff& other) = default;
+      //! Default assignment operator
+      DataAccessorGeoTiff& operator=(DataAccessorGeoTiff&& other) = default;
 
       inline static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
         return new DataAccessorGeoTiff(dataProvider, dataSeries, filter);
       }
+
+      virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
+
+      virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+                                        std::shared_ptr<te::da::DataSet> dataSet,
+                                        std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const override;
 
     protected:
       virtual std::string dataSourceType() const override;

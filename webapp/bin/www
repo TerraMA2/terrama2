@@ -58,14 +58,20 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
     // detecting sigint error and then close server
     process.on('SIGINT', function(){
       DataManager.finalize().then(function() {
-        TcpManager.close(function() {
+        var _closeServer = function() {
           server.close(function() {
             console.log("TerraMA2 finalized");
           });
 
           for (var key in connections)
             connections[key].destroy();
-        });
+        };
+
+        TcpManager.disconnect().then(function() {
+          _closeServer();
+        }).catch(function(err) {
+          _closeServer();
+        })
       });
     });
 

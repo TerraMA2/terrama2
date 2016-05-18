@@ -77,7 +77,7 @@ namespace terrama2
 
           \return The geometric attribute value in the given position.
         */
-        std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, uint64_t columnIndex) const;
+        std::shared_ptr<te::gm::Geometry> getGeometry(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a string value attribute.
@@ -87,7 +87,7 @@ namespace terrama2
 
           \return The string attribute value in the given position.
         */
-        std::string getString(uint64_t row, uint64_t columnIndex) const;
+        std::string getString(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a double value attribute.
@@ -97,7 +97,7 @@ namespace terrama2
 
           \return The double attribute value in the given position.
         */
-        double getDouble(uint64_t row, uint64_t columnIndex) const;
+        double getDouble(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a bool value attribute.
@@ -107,7 +107,7 @@ namespace terrama2
 
           \return The bool attribute value in the given position.
         */
-        bool getBool(uint64_t row, uint64_t columnIndex) const;
+        bool getBool(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a int16_t value attribute.
@@ -117,7 +117,7 @@ namespace terrama2
 
           \return The int16_t attribute value in the given position.
         */
-        int16_t getInt16(uint64_t row, uint64_t columnIndex) const;
+        int16_t getInt16(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a int32_t value attribute.
@@ -127,7 +127,7 @@ namespace terrama2
 
           \return The int32_t attribute value in the given position.
         */
-        int32_t getInt32(uint64_t row, uint64_t columnIndex) const;
+        int32_t getInt32(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a int64_t value attribute.
@@ -137,7 +137,7 @@ namespace terrama2
 
           \return The int64_t attribute value in the given position.
         */
-        int64_t getInt64(uint64_t row, uint64_t columnIndex) const;
+        int64_t getInt64(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a raster attribute value.
@@ -154,7 +154,7 @@ namespace terrama2
                      <li>the maximum number of simultaneous accesses has been reached</li>
                      </ul>
         */
-        std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, uint64_t columnIndex) const;
+        std::shared_ptr<te::rst::Raster> getRaster(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a date and time attribute value.
@@ -164,7 +164,7 @@ namespace terrama2
 
           \return The date and time attribute value in the given position.
         */
-        std::shared_ptr<te::dt::DateTime> getDateTime(uint64_t row, uint64_t columnIndex) const;
+        std::shared_ptr<te::dt::DateTime> getDateTime(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief It checks if the attribute value is NULL.
@@ -174,7 +174,7 @@ namespace terrama2
 
           \return True if the attribute value is NULL.
         */
-        bool isNull(uint64_t row, std::size_t columnIndex) const;
+        bool isNull(std::size_t row, std::size_t columnIndex) const;
 
         /*!
           \brief Method for retrieving a geometric attribute value.
@@ -184,7 +184,7 @@ namespace terrama2
 
           \return The geometric attribute value in the given position.
         */
-        std::shared_ptr<te::gm::Geometry> getGeometry(uint64_t row, std::string columnName) const;
+        std::shared_ptr<te::gm::Geometry> getGeometry(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a string value attribute.
@@ -194,7 +194,7 @@ namespace terrama2
 
           \return The string attribute value in the given position.
         */
-        std::string getString(uint64_t row, std::string columnName) const;
+        std::string getString(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a double value attribute.
@@ -204,7 +204,7 @@ namespace terrama2
 
           \return The double attribute value in the given position.
         */
-        double getDouble(uint64_t row, std::string columnName) const;
+        double getDouble(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a bool value attribute.
@@ -214,7 +214,7 @@ namespace terrama2
 
           \return The bool attribute value in the given position.
         */
-        bool getBool(uint64_t row, std::string columnName) const;
+        bool getBool(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a int16_t value attribute.
@@ -224,7 +224,7 @@ namespace terrama2
 
           \return The int16_t attribute value in the given position.
         */
-        int16_t getInt16(uint64_t row, std::string columnName) const;
+        int16_t getInt16(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a int32_t value attribute.
@@ -234,7 +234,7 @@ namespace terrama2
 
           \return The int32_t attribute value in the given position.
         */
-        int32_t getInt32(uint64_t row, std::string columnName) const;
+        int32_t getInt32(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a int64_t value attribute.
@@ -244,7 +244,7 @@ namespace terrama2
 
           \return The int64_t attribute value in the given position.
         */
-        int64_t getInt64(uint64_t row, std::string columnName) const;
+        int64_t getInt64(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a raster attribute value.
@@ -261,7 +261,7 @@ namespace terrama2
                      <li>the maximum number of simultaneous accesses has been reached</li>
                      </ul>
         */
-        std::shared_ptr<te::rst::Raster> getRaster(uint64_t row, std::string columnName) const;
+        std::shared_ptr<te::rst::Raster> getRaster(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a string value attribute.
@@ -271,7 +271,7 @@ namespace terrama2
 
           \return The string attribute value in the given position.
         */
-        std::shared_ptr<te::dt::DateTime> getDateTime(uint64_t row, std::string columnName) const;
+        std::shared_ptr<te::dt::DateTime> getDateTime(std::size_t row, std::string columnName) const;
 
         /*!
           \brief It checks if the attribute value is NULL.
@@ -281,7 +281,7 @@ namespace terrama2
 
           \return True if the attribute value is NULL.
         */
-        bool isNull(uint64_t row, std::string columnName) const;
+        bool isNull(std::size_t row, std::string columnName) const;
 
         /*!
           \brief It returns the collection size, if it is known.
@@ -291,7 +291,7 @@ namespace terrama2
 
           \return The size of the collection, if it is known.
         */
-        uint64_t size() const;
+        std::size_t size() const;
 
         /*!
           \brief It returns a smart pointer to the TerraLib dataset.

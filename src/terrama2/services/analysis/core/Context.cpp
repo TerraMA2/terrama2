@@ -40,8 +40,6 @@
 #include "../../../core/Exception.hpp"
 #include "../../../core/Typedef.hpp"
 
-
-
 // QT
 #include <QString>
 #include <QObject>
@@ -51,6 +49,8 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/sam/kdtree.h>
 #include <terralib/common/UnitsOfMeasureManager.h>
+#include <terralib/srs/SpatialReferenceSystemManager.h>
+#include <terralib/srs/SpatialReferenceSystem.h>
 
 #include <ctime>
 #include <iomanip>
@@ -64,7 +64,7 @@ std::map<std::string, std::map<std::string, double> > terrama2::services::analys
   return analysisResult_[analysisId];
 }
 
-void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t analysisId, const std::string& geomId, const std::string& attribute, double result)
+void terrama2::services::analysis::core::Context::setAnalysisResult(AnalysisId analysisId, const std::string& geomId, const std::string& attribute, double result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto& geomIdMap = analysisResult_[analysisId];
@@ -73,7 +73,7 @@ void terrama2::services::analysis::core::Context::setAnalysisResult(uint64_t ana
 }
 
 
-std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::Context::getContextDataset(const AnalysisId analysisId, const uint64_t datasetId, const std::string& dateFilter) const
+std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::Context::getContextDataset(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -246,6 +246,26 @@ void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analys
       TERRAMA2_LOG_ERROR() << msg;
       throw InvalidDataSetException() << terrama2::ErrorDescription(msg);
     }
+
+    int srid  = dcpDataset->position->getSRID();
+    if(srid == 0)
+    {
+      if(format.find("srid") != format.end())
+      {
+        srid = std::stoi(format["srid"]);
+        dcpDataset->position->setSRID(srid);
+      }
+    }
+
+    // if data projection is in decimal degrees we need to convert it to a meter projection.
+    auto spatialReferenceSystem = te::srs::SpatialReferenceSystemManager::getInstance().getSpatialReferenceSystem(dcpDataset->position->getSRID());
+    std::string unitName = spatialReferenceSystem->getUnitName();
+    if(unitName == "degree")
+    {
+      // Converts the data to UTM
+      dcpDataset->position->transform(29193);
+    }
+
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
 

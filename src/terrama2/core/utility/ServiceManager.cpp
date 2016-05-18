@@ -23,6 +23,7 @@
 
 #include "TimeUtils.hpp"
 #include "ServiceManager.hpp"
+#include "../../Version.hpp"
 
 terrama2::core::ServiceManager::ServiceManager()
  : startTime_(terrama2::core::TimeUtils::nowUTC())
@@ -83,10 +84,6 @@ int terrama2::core::ServiceManager::numberOfThreads() const
   return numberOfThreads_;
 }
 
-const std::string& terrama2::core::ServiceManager::terrama2Version() const
-{
-  return terrama2Version_;
-}
 const std::shared_ptr< te::dt::TimeInstantTZ >& terrama2::core::ServiceManager::startTime() const
 {
   return startTime_;
@@ -97,7 +94,8 @@ QJsonObject terrama2::core::ServiceManager::status() const
   obj.insert("instance_id", static_cast<int>(instanceId()));
   obj.insert("instance_name", QString::fromStdString(instanceName()));
   obj.insert("start_time", QString::fromStdString(startTime_->toString()));
-  obj.insert("terrama2_version",  QString::fromStdString(terrama2Version()));
+  obj.insert("terrama2_version",  QString::fromStdString(TERRAMA2_VERSION_STRING));
+  obj.insert("shutting_down",  isShuttingDown_);
   //TODO: Define status message
   return obj;
 }
@@ -108,6 +106,17 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
   setInstanceName(obj["instance_name"].toString().toStdString());
   setListeningPort(obj["listening_port"].toInt());
   setNumberOfThreads(obj["number_of_threads"].toInt());
+  auto logDatabaseObj = obj["log_database"].toObject();
+
+  std::map<std::string, std::string> connInfo { {"PG_HOST", logDatabaseObj["PG_HOST"].toString().toStdString()},
+                                                {"PG_PORT", logDatabaseObj["PG_PORT"].toString().toStdString()},
+                                                {"PG_USER", logDatabaseObj["PG_USER"].toString().toStdString()},
+                                                {"PG_PASSWORD", logDatabaseObj["PG_PASSWORD"].toString().toStdString()},
+                                                {"PG_DB_NAME", logDatabaseObj["PG_DB_NAME"].toString().toStdString()},
+                                                {"PG_CONNECT_TIMEOUT", "4"},
+                                                {"PG_CLIENT_ENCODING", "UTF-8"}
+                                              };
+  setLogConnectionInfo(connInfo);
 }
 
 void terrama2::core::ServiceManager::setLogConnectionInfo(std::map<std::string, std::string> connInfo)
@@ -118,4 +127,9 @@ void terrama2::core::ServiceManager::setLogConnectionInfo(std::map<std::string, 
 std::map<std::string, std::string> terrama2::core::ServiceManager::logConnectionInfo() const
 {
   return connInfo_;
+}
+
+void terrama2::core::ServiceManager::setShuttingDownProcessInitiated()
+{
+  isShuttingDown_ = true;
 }

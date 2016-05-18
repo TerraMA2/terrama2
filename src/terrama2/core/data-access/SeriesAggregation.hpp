@@ -33,7 +33,7 @@
 //TerraMA2
 #include "../../Config.hpp"
 #include "../Shared.hpp"
-#include "Series.hpp"
+#include "DataSetSeries.hpp"
 
 namespace terrama2
 {
@@ -47,9 +47,9 @@ namespace terrama2
     {
       public:
         //! Returns a map of DataSet data.
-        const std::map<DataSetPtr, DataSetSeries>& getSeries();
+        const std::map<DataSetPtr,DataSetSeries >& getSeries();
       protected:
-        std::map<DataSetPtr, DataSetSeries> dataSeriesMap_;//!< Map of DataSet data.
+        std::map<DataSetPtr,DataSetSeries > dataSeriesMap_;//!< Map of DataSet data.
     };
   }
 }

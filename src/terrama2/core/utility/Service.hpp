@@ -78,6 +78,7 @@ namespace terrama2
       void stop() noexcept;
 
       virtual void updateNumberOfThreads(int) = 0;
+      virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) = 0;
 
     protected:
       /*!

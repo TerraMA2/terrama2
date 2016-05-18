@@ -33,7 +33,7 @@
 //TerraMA2
 #include "../Shared.hpp"
 #include "../data-model/DataManager.hpp"
-#include "../data-access/Series.hpp"
+#include "../data-access/DataSetSeries.hpp"
 
 namespace te
 {
@@ -48,24 +48,29 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataStorager
-      \brief Base classe for storager classes.
-
-      Derived classes are responsible for storing a te::da::DataSet in a DataSet.
+      \brief DataStorager provides an interface to store a DataSetSeries.
     */
     class DataStorager
     {
       public:
         /*!
           \brief The constructor stores the destination server information.
+          \exception DataStoragerException Raised if the DataProvider is NULL
         */
         DataStorager(DataProviderPtr outputDataProvider);
-        //!< Default destructor.
-        ~DataStorager();
+        //! Default destructor.
+        virtual ~DataStorager() = default;
+        //! Default copy constructor
+        DataStorager(const DataStorager& other) = default;
+        //! Default move constructor
+        DataStorager(DataStorager&& other) = default;
+        //! Default const assignment operator
+        DataStorager& operator=(const DataStorager& other) = default;
+        //! Default assignment operator
+        DataStorager& operator=(DataStorager&& other) = default;
+
         /*!
           \brief Store the data series in outputDataSet.
-
-          The data will be stored in the DataProvider given in constructor.
         */
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const = 0;
 

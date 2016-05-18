@@ -46,7 +46,7 @@
 #include <QObject>
 
 
-void terrama2::core::DcpSeries::addDcpSeries(std::map<DataSetPtr, DataSetSeries > seriesMap)
+void terrama2::core::DcpSeries::addDcpSeries(std::map<DataSetPtr,DataSetSeries> seriesMap)
 {
   dataSeriesMap_ = seriesMap;
   for(const auto& item : seriesMap)

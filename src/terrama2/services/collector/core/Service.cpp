@@ -88,7 +88,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 {
   try
   {
-    taskQueue_.emplace(std::bind(&collect, collectorId, loggers_.at(collectorId), dataManager_));
+    taskQueue_.emplace(std::bind(&collect, collectorId, logger_, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -116,7 +116,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
   try
   {
-    auto logId = logger->start();
+    auto logId = logger->start(collectorId);
 
     TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
@@ -142,14 +142,25 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     //  recovering data
 
     terrama2::core::Filter filter = collectorPtr->filter;
+    //update filter based on last collected data timestamp
+    auto lastCollectedDataTimestamp = logger->getDataLastTimestamp(logId);
+    if(lastCollectedDataTimestamp.get() && filter.discardBefore.get())
+    {
+      if(filter.discardBefore < lastCollectedDataTimestamp)
+        filter.discardBefore = lastCollectedDataTimestamp;
+    }
+    else if(lastCollectedDataTimestamp.get())
+      filter.discardBefore = lastCollectedDataTimestamp;
+
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
-      //TODO: logger->done(logId);
+      logger->done(nullptr, logId);
       TERRAMA2_LOG_WARNING() << tr("No data to collect.");
       return;
     }
+    auto lastDateTime = dataAccessor->lastDateTime();
 
     /////////////////////////////////////////////////////////////////////////
     // storing data
@@ -165,7 +176,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       dataStorager->store(item.second, *outputDataSet);
     }
 
-    //TODO: logger->done(logId);
+    logger->done(lastDateTime, logId);
   }
   catch(const terrama2::Exception& e)
   {
@@ -197,23 +208,30 @@ void terrama2::services::collector::core::Service::connectDataManager()
           &terrama2::services::collector::core::Service::updateCollector);
 }
 
+void terrama2::services::collector::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
+{
+  logger_ = std::make_shared<CollectorLogger>(connInfo);
+}
+
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
 {
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    std::map<std::string, std::string> connInfo = terrama2::core::ServiceManager::getInstance().logConnectionInfo();
-    std::shared_ptr< CollectorLogger > collectorLog = std::make_shared<CollectorLogger>(collector->id, connInfo);
-    loggers_.emplace(collector->id, collectorLog);
-
-    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, collectorLog);
+    auto lastProcess = logger_->getLastProcessTimestamp(collector->id);
+    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, lastProcess);
     connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(collector->id, timer);
   }
   catch(terrama2::core::InvalidFrequencyException& e)
   {
     // invalid schedule, already logged
+  }
+  catch(const te::common::Exception& e)
+  {
+    //TODO: should be caught elsewhere?
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 
   addToQueue(collector->id);

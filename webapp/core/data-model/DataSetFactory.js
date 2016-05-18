@@ -8,7 +8,10 @@ var DataSet = require("./DataSet");
 function build(params) {
   // checking if there a position key for DCP
   if (params.hasOwnProperty("position"))
-    return new DataSetDcp(params);
+    if (params.position)
+      return new DataSetDcp(params);
+    else
+      return new DataSet(params);
   // checking for monitored object
   if (params.hasOwnProperty('time_column') && params.hasOwnProperty('geometry_column')) {
     return new DataSetMonitored(params);
