@@ -20,6 +20,7 @@
   angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
     .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', function($scope, $window, ServiceInstanceFactory) {
       $scope.service = {[ service|json|safe ]} || {sshPort: 22};
+      $scope.log = {};
 
       $scope.update = false;
       if ($scope.service.name)
@@ -62,7 +63,10 @@
         $scope.errorFound = false;
         $scope.alertBox.title = "Service Registration";
 
-        ServiceInstanceFactory.post($scope.service).success(function(data) {
+        ServiceInstanceFactory.post({
+          service: $scope.service,
+          log: $scope.log
+        }).success(function(data) {
           $scope.alertBox.message = "Service saved";
           $scope.errorFound = false;
         }).error(function(err) {
