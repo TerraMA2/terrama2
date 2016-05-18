@@ -24,7 +24,17 @@ $(document).ready(function(){
   });
 
   socket.on('testSSHConnectionResponse', function(result) {
-    console.log(result);
+    if(result.error) {
+      if($('#sshModal').hasClass('modal-success')) $('#sshModal').removeClass('modal-success');
+      if(!$('#sshModal').hasClass('modal-danger')) $('#sshModal').addClass('modal-danger');
+    } else {
+      if($('#sshModal').hasClass('modal-danger')) $('#sshModal').removeClass('modal-danger');
+      if(!$('#sshModal').hasClass('modal-success')) $('#sshModal').addClass('modal-success');
+    }
+
+    $('#sshModal > .modal-dialog > .modal-content > .modal-body').text(result.message);
+
+    $('#sshModal').modal();
   });
 
   $('#serviceCheckConnection').on('click', function() {
