@@ -304,7 +304,7 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   if(!(json.contains("id")
       && json.contains("frequency")
       && json.contains("frequency_unit")
-      && json.contains("schedule_day")
+      && json.contains("schedule")
       && json.contains("schedule_timestamp")
       && json.contains("schedule_unit")
       && json.contains("schedule_retry")
@@ -322,7 +322,7 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   schedule.id = json["id"].toInt();
   schedule.frequency = json["frequency"].toInt();
   schedule.frequencyUnit = json["frequency_unit"].toString().toStdString();
-  schedule.scheduleDay = json["schedule_day"].toInt();
+  schedule.scheduleDay = json["schedule"].toInt();
   schedule.scheduleTimestamp = json["schedule_timestamp"].toString().toStdString();
   schedule.scheduleUnit = json["schedule_unit"].toString().toStdString();
   schedule.scheduleRetry = json["schedule_retry"].toInt();
