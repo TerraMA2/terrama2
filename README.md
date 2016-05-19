@@ -1,5 +1,7 @@
 # TerraMA²
 
+[![Build Status](http://www.dpi.inpe.br/jenkins/job/build-terrama2-master/badge/icon)](http://www.dpi.inpe.br/jenkins/job/build-terrama2-master/)
+
 **NOTE:**
 * **Until we reach version 4.0.0 this codebase will be unstable and not fully operational.**
 * **TerraMA² is under active development. We are preparing this site to host it!**

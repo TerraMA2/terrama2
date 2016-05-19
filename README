@@ -1,6 +1,8 @@
   TerraMA2
   ========
 
+[![Build Status](http://www.dpi.inpe.br/jenkins/job/build-terrama2-master/badge/icon)](http://www.dpi.inpe.br/jenkins/job/build-terrama2-master/)
+
 TerraMA2 is a free and open source computational platform for early warning systems.
 
 You can build applications to monitor, analyze and issue early warnings related to air quality, water quality, pipelines, tailings dams for mining, forest fires, landslides and debris-mud flows, floods and droughts.
