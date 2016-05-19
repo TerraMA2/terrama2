@@ -12,7 +12,7 @@ module.exports = function(app) {
     
     edit: function(request, response) {
       DataManager.getServiceInstance({id: request.params.id}).then(function(service) {
-        return response.render('administration/service', {service: service});
+        return response.render('administration/service', {service: service.rawObject()});
       }).catch(function(err) {
         response.json({status: 400, message: err.message});
       })
