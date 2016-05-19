@@ -58,4 +58,4 @@ target_link_libraries(terrama2_unittest_core terrama2_core
                                              ${GTEST_BOTH_LIBRARIES}
                                              ${GMOCK_BOTH_LIBRARIES})
 
-
+add_test(NAME terrama2_unittest_core COMMAND terrama2_unittest_core)
