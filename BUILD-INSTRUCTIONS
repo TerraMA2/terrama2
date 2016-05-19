@@ -60,6 +60,13 @@ Notes:
   g) To turn on the check of undefined macros, add the following flag:
      -DCMAKE_CXX_FLAGS:STRING="-Wundef"
 
+  h) To run tests you must define a database that will be used to retrieve and store data:
+     -DTERRAMA2_DATABASE_HOST="localhost"
+     -DTERRAMA2_DATABASE_PORT=5432
+     -DTERRAMA2_DATABASE_USERNAME="postgres"
+     -DTERRAMA2_DATABASE_PASSWORD="postgres"
+     -DTERRAMA2_DATABASE_DBNAME="terrama2"
+
 1.5 Building (with 4 process in parallel):
 $ make -j 4
 
@@ -147,5 +154,3 @@ For more information on TerraMA2, please, visit its main web page at: http://www
 
 
   August 2015, TerraMA2 Team <terrama2-team@dpi.inpe.br>
-
-

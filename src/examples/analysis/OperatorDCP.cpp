@@ -13,7 +13,7 @@
 #include <terrama2/services/analysis/core/DataManager.hpp>
 
 #include <terrama2/impl/Utils.hpp>
-#include <terrama2_config.hpp>
+#include <terrama2/Config.hpp>
 
 #include <iostream>
 
@@ -52,12 +52,11 @@ int main(int argc, char* argv[])
 
   QUrl uri;
   uri.setScheme("postgis");
-  uri.setHost(TERRAMA2_DATABASE_HOST);
-  uri.setPort(atoi(TERRAMA2_DATABASE_PORT));
-  uri.setUserName(TERRAMA2_DATABASE_USERNAME);
-  uri.setPassword(TERRAMA2_DATABASE_PASSWORD);
-  uri.setPath("/");
-  uri.setPath(uri.path() + TERRAMA2_DATABASE_DBNAME);
+  uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
+  uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
+  uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
+  uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
+  uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
 
   // DataProvider information
   terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
@@ -99,7 +98,7 @@ int main(int argc, char* argv[])
                        "add_value(\"mean\", x)\n"
                        "x = dcp.median(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
                        "add_value(\"median\", x)\n"
-                       "x = dcp.standardDeviation(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
+                       "x = dcp.standard_deviation(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
                        "add_value(\"standardDeviation\", x)\n";
 
   Analysis analysis;
@@ -112,7 +111,7 @@ int main(int argc, char* argv[])
   analysis.outputDataSeriesId = 3;
 
   analysis.metadata["INFLUENCE_TYPE"] = "1";
-  analysis.metadata["INFLUENCE_RADIUS"] = "1";
+  analysis.metadata["INFLUENCE_RADIUS"] = "50";
   analysis.metadata["INFLUENCE_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -141,9 +140,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "estados_2010.shp");
-  dataSet->format.emplace("srid", "4618");
-  dataSet->format.emplace("identifier", "NOME");
+  dataSet->format.emplace("mask", "municipios_afetados.shp");
+  dataSet->format.emplace("identifier", "objet_id_5");
   dataSet->id = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
@@ -219,6 +217,7 @@ int main(int argc, char* argv[])
 
   // Starts the service and adds the analysis
   Service service(dataManager);
+  service.updateLoggerConnectionInfo(connInfo);
   service.start();
   service.addAnalysis(1);
 

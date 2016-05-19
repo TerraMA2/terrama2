@@ -15,7 +15,7 @@ module.exports = function(app) {
       var serviceId = request.body.service;
 
       if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-        DataManager.getServiceInstance({service_type_id: serviceId}).then(function(serviceResult) {
+        DataManager.getServiceInstance({id: serviceId}).then(function(serviceResult) {
           DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(collectorResult) {
             var collector = collectorResult.collector;
             collector['project_id'] = app.locals.activeProject.id;
@@ -25,10 +25,16 @@ module.exports = function(app) {
               "Collectors": [collector.toObject()]
             };
 
-            TcpManager.sendData(output);
+            DataManager.listServiceInstances().then(function(servicesInstance) {
+              servicesInstance.forEach(function (service) {
+                TcpManager.sendData(service, output);
+              });
 
-            var token = Utils.generateToken(app, TokenCode.SAVE, collectorResult.output.name);
-            return response.json({status: 200, output: output, token: token});
+              var token = Utils.generateToken(app, TokenCode.SAVE, collectorResult.output.name);
+              return response.json({status: 200, output: output, token: token});
+            }).catch(function(err) {
+              return Utils.handleRequestError(response, err, 400);
+            })
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           });

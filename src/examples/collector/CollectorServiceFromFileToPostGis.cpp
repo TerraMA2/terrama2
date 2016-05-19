@@ -100,13 +100,14 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
 {
   ///////////////////////////////////////////////
   //     output
+
   QUrl uri;
   uri.setScheme("postgis");
-  uri.setHost("localhost");
-  uri.setPort(5432);
-  uri.setUserName("postgres");
-  uri.setPassword("postgres");
-  uri.setPath("/basedeteste");
+  uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
+  uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
+  uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
+  uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
+  uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
 
   // DataProvider information
   terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();

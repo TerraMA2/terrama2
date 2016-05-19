@@ -42,6 +42,8 @@ var Schedule = require('./data-model/Schedule');
 var Collector = require('./data-model/Collector');
 var Analysis = require('./data-model/Analysis');
 var AnalysisDataSeries = require('./data-model/AnalysisDataSeries');
+var Service = require('./data-model/Service');
+var Log = require('./data-model/Log');
 
 
 // Available DataSeriesType
@@ -302,13 +304,13 @@ var DataManager = {
 
                         if (dataSet.DataSetDcp) {
                           var dcpDset = dataSet.DataSetDcp.get();
-                          
+
                           // checking dcp position is null
                           if (dcpDset.position) {
                             self.getWKT(dcpDset.position).then(function(wktPosition) {
                               dcpDset.position = wktPosition;
                               Object.assign(dSetObject, dcpDset);
-                              
+
                               _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
                             }).catch(_rejectClean);
                           } else {
@@ -482,9 +484,23 @@ var DataManager = {
     return new Promise(function(resolve, reject){
       lock.writeLock(function(release) {
         models.db.ServiceInstance.create(serviceObject).then(function(serviceResult){
-          resolve(serviceResult.get())
-          release();
+          var service = new Service(serviceResult);
+          var logObject = serviceObject.log;
+          logObject.service_instance_id = serviceResult.id;
+          models.db['Log'].create(logObject).then(function(logResult) {
+            var log = new Log(logResult);
+            service.log = log.toObject();
+
+            resolve(service);
+            release();
+          }).catch(function(err) {
+            console.log(err);
+            Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
+            release();
+          });
+          
         }).catch(function(e) {
+          console.log(e);
           var message = "Could not save service instance: ";
           if (e.errors)
             message += e.errors[0].message;
@@ -497,13 +513,22 @@ var DataManager = {
 
   listServiceInstances: function(restriction) {
     return new Promise(function(resolve, reject){
-      models.db['ServiceInstance'].findAll({where: restriction}).then(function(services) {
+      models.db['ServiceInstance'].findAll({
+        where: restriction,
+        include: [models.db.Log]
+      }).then(function(services) {
         var output = [];
         services.forEach(function(service){
-          output.push(service.get());
+          var serviceObject = new Service(service.get());
+          var logObject = new Log(service.Log || {});
+          serviceObject.log = logObject.toObject();
+          output.push(serviceObject);
         });
 
         resolve(output);
+      }).catch(function(err) {
+        console.log(err);
+        reject(new Error("Could not retrieve services " + err.message));
       });
     });
   },
@@ -1408,7 +1433,7 @@ var DataManager = {
         }).catch(function(err) {
           reject(err);
         })
-      }
+      };
 
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
@@ -1757,6 +1782,27 @@ var DataManager = {
           resolve(output);
         }).catch(_reject); // end catch AnalysisDataSeries
       }).catch(_reject);
+    });
+  },
+
+  /**
+   * It removes Analysis from param. It should be an object containing either id identifier or name identifier.
+   *
+   * @param {Object} analysisParam - An object containing Analysis identifier to get it.
+   * @param {bool} cascade - A bool value to delete on cascade
+   * @return {Promise} - a 'bluebird' module with Analysis instance or error callback
+   */
+  removeAnalysis: function(analysisParam, cascade) {
+    return new Promise(function(resolve, reject) {
+      if(!cascade)
+        cascade = false;
+
+      models.db.Analysis.destroy({where: {id: analysisParam.id}}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
+      });
     });
   }
 

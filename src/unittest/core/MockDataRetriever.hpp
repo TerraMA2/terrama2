@@ -35,6 +35,10 @@
 #include <terrama2/core/data-access/DataRetriever.hpp>
 #include <terrama2/impl/DataRetrieverFTP.hpp>
 
+// Libcurl
+#include <curl/curl.h>
+
+
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
@@ -47,13 +51,13 @@
 class MockDataRetriever: public terrama2::core::DataRetrieverFTP
 {
   public:
-   MockDataRetriever(terrama2::core::DataProviderPtr dataProvider) : DataRetrieverFTP(dataProvider) {};
+   MockDataRetriever(terrama2::core::DataProviderPtr dataProvider, terrama2::core::CurlWrapper c) : DataRetrieverFTP(dataProvider, c) {};
 
    MOCK_METHOD2(retrieveData,std::string(const std::string& query, const terrama2::core::Filter& filter));
 
    MOCK_METHOD0(isRetrivable,bool());
 
-   terrama2::core::DataRetriever* makeMockRetriever(terrama2::core::DataProviderPtr dataProvider) {return new MockDataRetriever(dataProvider); };
+   terrama2::core::DataRetriever* makeMockRetriever(terrama2::core::DataProviderPtr dataProvider, terrama2::core::CurlWrapper c) {return new MockDataRetriever(dataProvider, c); };
 };
 
 #endif //__TERRAMA2_UNITTEST_CORE_MOCKDATARETRIEVER__

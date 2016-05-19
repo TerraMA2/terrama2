@@ -10,7 +10,7 @@
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2_config.hpp>
+#include <terrama2/Config.hpp>
 
 //STL
 #include <iostream>
