@@ -20,7 +20,7 @@
   angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
     .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', function($scope, $window, ServiceInstanceFactory) {
       $scope.service = {[ service|json|safe ]} || {sshPort: 22};
-      $scope.log = {};
+      $scope.log = {[ log|json|safe ]} || {};
 
       $scope.update = false;
       if ($scope.service.name)
@@ -52,6 +52,15 @@
       $scope.save = function() {
         if ($scope.serviceForm.$invalid) {
           angular.forEach($scope.serviceForm.$error, function (field) {
+            angular.forEach(field, function(errorField){
+              errorField.$setDirty();
+            })
+          });
+          return;
+        }
+
+        if ($scope.logForm.$invalid) {
+          angular.forEach($scope.logForm.$error, function (field) {
             angular.forEach(field, function(errorField){
               errorField.$setDirty();
             })
@@ -141,7 +150,7 @@
                       <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.type.$dirty && serviceForm.type.$invalid, 'has-success': serviceForm.type.$dirty && serviceForm.type.$valid}">
                         <label>{[ __("Type") ]}:</label>
                         <select class="form-control" name="type" ng-disabled="update" ng-model="service.service_type_id" required>
-                          <option ng-value="1">Collect</option>
+                          <option ng-value="1">Collector</option>
                           <option ng-value="2">Analysis</option>
                         </select>
 
