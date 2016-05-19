@@ -5,6 +5,10 @@ var util = require('util');
 var Utils = require("./Utils");
 
 
+/**
+ * Class responsible for handling ssh connection.
+ * @class SSHDispatcher
+ */
 var SSHDispatcher = module.exports = function() {
   this.client = new Client();
   this.connected = false;
@@ -74,13 +78,19 @@ SSHDispatcher.prototype.execute = function(command) {
 
       stream.on('exit', function(code, signal) {
         console.log("ssh-EXIT: ", code, signal);
-        if (code == 0)
-          return resolve(code);
-        return reject(new Error("Error occurred while remote command: code \"" + code + "\", signal: \"" + signal + "\""));
       });
 
       stream.on('close', function(code, signal) {
         console.log('code: ' + code + ', signal: ' + signal);
+
+        self.client.end();
+        self.connected = false;
+
+        if (code == 0) {
+          resolve(code);
+        } else {
+          reject(new Error("Error occurred while remote command: code \"" + code + "\", signal: \"" + signal + "\""));
+        }
       }).on('data', function(data) {
         console.log('ssh-STDOUT: ' + data);
       }).stderr.on('data', function(data) {
@@ -103,11 +113,12 @@ SSHDispatcher.prototype.startService = function() {
       if (process.plataform == 'win32') {
         command = "start " + util.format("%s %s", executable.endsWith(".exe") ? executable : executable + ".exe", port);
       } else {
-        command = "nohup " + util.format("%s %s %s", executable, port, (!self.serviceInstance.pathToBinary.endsWith("&") ? " > /dev/null 2>&1 &" : ""));
+        // avoiding nohup lock ssh session
+        command = "nohup " + util.format("%s %s  > terrama2.out 2> terrama2.err < /dev/null %s", executable, port, (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : ""));
       }
 
       console.log(command);
-
+      
       self.execute(command).then(function(code) {
         resolve(code);
       }).catch(function(err, code) {

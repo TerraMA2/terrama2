@@ -52,7 +52,21 @@
                 // if (!service.hasOwnProperty('online'))
                 //   service.online = false;
               });
+
               $scope.model = services;
+
+              services.forEach(function(service) {
+                service.loading = true;
+                $http.post("/api/Remote/status/" + service.id, {}).success(function(data) {
+                  service.online = data.online;
+                }).error(function(err) {
+                  console.log("Could not retrieve status of " + service.name);
+                  console.log(err);
+                  service.online = err.online;
+                }).finally(function() {
+                  service.loading = false;
+                })
+              });
 
               // todo: ping each one to check current state
             }).error(function(err) {

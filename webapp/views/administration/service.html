@@ -261,7 +261,7 @@
 
                         <span class="form-control-feedback glyphicon" ng-show="logForm.host.$dirty" ng-class="{'glyphicon-ok': logForm.host.$valid, 'glyphicon-remove': logForm.host.$invalid }"></span>
 
-                        <span class="help-block has-error" ng-show="logForm.host.$dirty && logForm.host.$error.required">{[ __('Ssh host is required') ]}</span>
+                        <span class="help-block has-error" ng-show="logForm.host.$dirty && logForm.host.$error.required">{[ __('Log host is required') ]}</span>
                       </div>
                     </div>
 
@@ -282,7 +282,7 @@
                     <div class="col-md-6">
                       <div class="form-group has-feedback" ng-class="{'has-error': logForm.user.$dirty && logForm.user.$invalid, 'has-success': logForm.user.$dirty && logForm.user.$valid}">
                         <label>{[ __("User") ]}:</label>
-                        <input class="form-control" name="user" ng-disabled="update" ng-model="log.user" placeholder="{[ __('Ssh username') ]}" type="text" required>
+                        <input class="form-control" name="user" ng-disabled="update" ng-model="log.user" placeholder="{[ __('Log username') ]}" type="text" required>
 
                         <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
 
@@ -293,11 +293,9 @@
                     <div class="col-md-6">
                       <div class="form-group has-feedback" ng-class="{'has-error': logForm.password.$dirty && logForm.password.$invalid, 'has-success': logForm.password.$dirty && logForm.password.$valid}">
                         <label>{[ __("Password") ]}:</label>
-                        <input class="form-control" name="password" ng-disabled="update" ng-model="log.password" placeholder="{[ __('Ssh username') ]}" type="password">
+                        <input class="form-control" name="password" ng-disabled="update" ng-model="log.password" placeholder="{[ __('Log password') ]}" type="password">
 
                         <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
-
-                        <span class="help-block has-error" ng-show="logForm.user.$dirty && logForm.user.$error.required">{[ __('Password is required') ]}</span>
                       </div>
                     </div>
                   </div>
