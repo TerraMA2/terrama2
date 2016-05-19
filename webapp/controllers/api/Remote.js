@@ -6,7 +6,6 @@ var _handleError = function(response, err) {
   console.log(err);
   response.status(400);
   response.json({status: 400, message: err.message, online: false});
-  Utils.handleRequestError(response, err, 400);
 };
 
 module.exports = function(app) {
@@ -41,7 +40,7 @@ module.exports = function(app) {
                 // error during connection
                 _handleError(response, err);
               });
-            }, 1000);
+            }, 2000);
           } catch (e) {
             _handleError(response, e);
           }
@@ -66,6 +65,19 @@ module.exports = function(app) {
             //   _handleError(response, err)
             // });
           }, 4000);
+        }).catch(function(err) {
+          _handleError(response, err);
+        })
+      }).catch(function(err) {
+        _handleError(response, err);
+      });
+    },
+
+    statusService: function(request, response) {
+      var serviceId = request.params.id;
+      DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
+        TcpManager.statusService(serviceInstance).then(function(result) {
+          response.json({status: 200, online: Object.keys(result).length > 0})
         }).catch(function(err) {
           _handleError(response, err);
         })

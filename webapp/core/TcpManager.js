@@ -3,6 +3,8 @@ var Signals = require('./Signals.js');
 var SSH = require("./SSHDispatcher");
 var Promise = require('bluebird');
 var Utils = require('./Utils');
+var _ = require('lodash');
+var Service = require('./Service');
 
 var TcpManager = module.exports = {};
 
@@ -27,10 +29,6 @@ function parseByteArray(byteArray) {
     message: jsonMessage
   }
 }
-
-
-// ssh structure
-var ssh = new SSH();
 
 
 /** 
@@ -58,6 +56,7 @@ function _getClient(connection) {
     }
 
     var closeCallbackCalled = false;
+    var exception;
 
     if (!client) {
       client = {
@@ -76,13 +75,13 @@ function _getClient(connection) {
       client.socket.on('error', function(err) {
         console.log("\n\n[ERROR] ", err);
 
-        reject(new Error(err));
-        closeCallbackCalled = true;
+        exception = new Error(err);
+        reject(exception);
       });
 
       client.socket.on('close', function() {
         console.log('\n\n[CLIENT] Connection closed');
-        if (!closeCallbackCalled)
+        if (!exception)
           resolve();
       });
     } else {
@@ -108,23 +107,27 @@ function makeBuffer(signal, object) {
     if(isNaN(signal))
      throw TypeError(signal + " is not a valid signal!");
 
-    // Stringifies the message
-    // var jsonMessage = '\x00\x00\x01\x01{"DataProviders": [{"active": true,"class": "DataProvider","data_provider_type": "FILE","description": "Testing provider","id": 1,"intent": 0,"name": "Provider","project_id": 1,"uri": "file:///home/jsimas/MyDevel/dpi/terrama2-build/data/PCD_serrmar_INPE"}]}';
-    
-    //home/jsimas/MyDevel/dpi/terrama2-build/data/fire_system
-    //'\x00\x00\x01\x01'
-    var jsonMessage = JSON.stringify(object).replace(/\":/g, "\": ");
+    var totalSize;
+    var jsonMessage;
 
-    console.log(jsonMessage);
+    var hasMessage = !_.isEmpty(object);
 
-    // The size of the message plus the size of two integers, 4 bytes each
-    var totalSize = jsonMessage.length + 4;
+    if (hasMessage) {
+      jsonMessage = JSON.stringify(object).replace(/\":/g, "\": ");
+
+      // The size of the message plus the size of two integers, 4 bytes each
+      totalSize = jsonMessage.length + 4;
+    } else
+      totalSize = 4;
+  
 
     // Creates the buffer and fills it with zeros
     var buffer = new Buffer(totalSize + 4);
 
-    // Writes the message (string) in the buffer with UTF-8 encoding
-    buffer.write(jsonMessage, 8, jsonMessage.length);
+    if (hasMessage) {
+      // Writes the message (string) in the buffer with UTF-8 encoding
+      buffer.write(jsonMessage, 8, jsonMessage.length);
+    }
 
     // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(totalSize, 0);
@@ -146,6 +149,8 @@ This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
 TcpManager.sendData = function(serviceInstance, data) {
   try {
     var buffer = makeBuffer(Signals.ADD_DATA_SIGNAL, data);
+
+    console.log(buffer);
     
     // getting client and writing in the channel
     _getClient(serviceInstance).then(function(client) {
@@ -169,7 +174,7 @@ This method sends a UPDATE_SERVICE_SIGNAL with service instance values to tcp so
 TcpManager.updateService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
     try {
-      var buffer = makeBuffer(Signals.UPDATE_SERVICE_SIGNAL, serviceInstance);
+      var buffer = makeBuffer(Signals.UPDATE_SERVICE_SIGNAL, serviceInstance.toObject());
       _getClient(serviceInstance).then(function(client) {
         // sending buffer (async)
         client.socket.write(buffer);
@@ -179,6 +184,7 @@ TcpManager.updateService = function(serviceInstance) {
         reject(err);
       });
 
+      resolve();
     } catch (e) {
       reject(e)
     }
@@ -192,6 +198,9 @@ This method connects via ssh to service host and sends terminal command to start
 */
 TcpManager.startService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
+    // ssh structure
+    var ssh = new SSH();
+
     ssh.connect(serviceInstance).then(function() {
 
       ssh.startService().then(function(code) {
@@ -201,7 +210,7 @@ TcpManager.startService = function(serviceInstance) {
       });
 
     }).catch(function(err) {
-      console.log('ssh connect')
+      console.log('ssh startservice error')
       reject(err);
     });
   })
@@ -217,6 +226,7 @@ TcpManager.statusService = function(serviceInstance) {
     var closeCallbackCalled = true;
     try {
       var buffer = makeBuffer(Signals.STATUS_SIGNAL, {});
+      console.log(buffer);
 
       _getClient(serviceInstance).then(function(client) {
         // sending buffer
@@ -225,7 +235,7 @@ TcpManager.statusService = function(serviceInstance) {
         closeCallbackCalled = false;
 
         client.socket.on('data', function(data) {
-          console.log('\n\n[CLIENT] Received:\n');
+          console.log('\n\n[CLIENT-status] Received:\n');
           console.log("BYTES: ", data);
           console.log("JSON: ", data.toString());
           try {
@@ -264,7 +274,7 @@ TcpManager.stopService = function(serviceInstance) {
         client.socket.write(buffer);
 
         client.socket.on('data', function(data) {
-          console.log('\n\n[CLIENT] Received:\n');
+          console.log('\n\n[CLIENT-stop] Received:\n');
           console.log("BYTES: ", data);
           console.log("JSON: ", data.toString());
           try {
@@ -277,6 +287,11 @@ TcpManager.stopService = function(serviceInstance) {
               return reject(e);
           }
         });
+
+        client.socket.on('end', function() {
+          console.log("end connection");
+          resolve();
+        })
 
         // resolve();
       }).catch(function(err) {
