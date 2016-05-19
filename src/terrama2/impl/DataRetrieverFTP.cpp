@@ -40,6 +40,7 @@
 #include "../core/utility/Logger.hpp"
 #include "../core/data-model/Filter.hpp"
 #include "../core/utility/FilterUtils.hpp"
+#include "../core/utility/CurlWrapper.hpp"
 
 // Libcurl
 #include <curl/curl.h>
@@ -52,7 +53,7 @@
 #include <QDir>
 #include <QDebug>
 
-terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider)
+terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlWrapper curlwrapper )
   : DataRetriever(dataprovider)
 {
   temporaryFolder_ = "/tmp/terrama2-download/";
@@ -65,31 +66,21 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider)
 
   CURLcode status;
 
-  CurlPtr curl;
-
-  curl.init();
-
   // Verifies that the FTP address is valid
   try
   {
-    if(curl.fcurl())
+    std::string url = dataprovider->uri.c_str();
+
+    status = curlwrapper.verifyURL(url);
+
+    if (status != CURLE_OK)
     {
-      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, dataprovider->uri.c_str());
-      curl_easy_setopt(curl.fcurl(), CURLOPT_FTPLISTONLY, 1);
-      curl_easy_setopt(curl.fcurl(), CURLOPT_CONNECTTIMEOUT, 3);
-      curl_easy_setopt(curl.fcurl(), CURLOPT_NOBODY, 1);
+      QString errMsg = QObject::tr("FTP address is invalid. \n\n");
+      errMsg.append(curl_easy_strerror(status));
 
-      status = curl_easy_perform(curl.fcurl());
-
-      if (status != CURLE_OK)
-      {
-        QString errMsg = QObject::tr("FTP address is invalid. \n\n");
-        errMsg.append(curl_easy_strerror(status));
-
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw DataRetrieverException() << ErrorDescription(errMsg);
-      }
-    }
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataRetrieverException() << ErrorDescription(errMsg);
+     }
   }
   catch(const std::exception& e)
   {
@@ -236,7 +227,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   return scheme_+temporaryFolder_;
 }
 
-terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
+terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider, CurlWrapper curlwrapper)
 {
-  return new DataRetrieverFTP(dataProvider);
+  return new DataRetrieverFTP(dataProvider,curlwrapper);
 }

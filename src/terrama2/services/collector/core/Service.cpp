@@ -183,6 +183,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       dataStorager->store(item.second, *outputDataSet);
     }
 
+    TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
+
     if(logger.get())
       logger->done(lastDateTime, logId);
   }

@@ -100,6 +100,7 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
 {
   ///////////////////////////////////////////////
   //     output
+
   QUrl uri;
   uri.setScheme("postgis");
   uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));

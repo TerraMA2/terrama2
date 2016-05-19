@@ -17,6 +17,7 @@
     "express-load": "^1.1.15",
     "express-session": "^1.13.0",
     "ftp": "^0.3.10",
+    "glob": "^7.0.3",
     "i18n": "0.8.1",
     "i18n-node-angular": "^1.4.0",
     "lodash": "4.6.1",

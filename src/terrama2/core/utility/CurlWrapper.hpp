@@ -16,39 +16,48 @@
 */
 
 /*!
-  \file terrama2/unittest/core/TsDataRetrieverFTP.hpp
-  \brief Tests for Class DataRetrieverFTP
+  \file terrama2/core/utility/CurlWrapper.hpp
+  \brief Utility classes for CurlWrapper.
+
   \author Evandro Delatin
 */
 
+#ifndef __TERRAMA2_CORE_UTILITY_CURLWRAPPER_HPP__
+#define __TERRAMA2_CORE_UTILITY_CURLWRAPPER_HPP__
 
-#ifndef __TERRAMA2_UNITTEST_CORE_DATA_RETRIEVER_FTP_HPP__
-#define __TERRAMA2_UNITTEST_CORE_DATA_RETRIEVER_FTP_HPP__
+// STL
+#include <memory>
+#include <cassert>
 
+// TerraMA2
+#include "Raii.hpp"
+#include "../../impl/DataRetrieverFTP.hpp"
 
-#include <terrama2/impl/DataRetrieverFTP.hpp>
-#include "MockDataRetriever.hpp"
-#include <QtTest>
+// LibCurl
+#include <curl/curl.h>
 
-
-class TsDataRetrieverFTP: public QObject
+namespace terrama2
 {
-  Q_OBJECT
+  namespace core
+  {
+    class CurlWrapper
+    {
+      public:
 
-   private slots:
+        CURLcode verifyURL(std::string url)
+        {
+          CurlPtr curl;
+          curl.init();
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+          curl_easy_setopt(curl.fcurl(), CURLOPT_URL, url.c_str());
+          curl_easy_setopt(curl.fcurl(), CURLOPT_FTPLISTONLY, 1);
+          curl_easy_setopt(curl.fcurl(), CURLOPT_CONNECTTIMEOUT, 3);
+          curl_easy_setopt(curl.fcurl(), CURLOPT_NOBODY, 1);
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+          return curl_easy_perform(curl.fcurl());
+        }
+    };
+  }
+}
 
-    //******Test functions********
-
-    void TestFailUriInvalid();
-    void TestFailLoginInvalid();
-    void TestOkUriAndLoginValid();
-
-};
-
-#endif //__TERRAMA2_UNITTEST_CORE_DATA_RETRIEVER_FTP_HPP__
+#endif //__TERRAMA2_CORE_UTILITY_CURLWRAPPER_HPP__
