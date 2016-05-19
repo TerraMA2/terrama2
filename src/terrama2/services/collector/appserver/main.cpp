@@ -36,6 +36,8 @@
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/ErrorCodes.hpp>
 
+#include <boost/exception/diagnostic_information.hpp>
+
 // STL
 #include <memory>
 #include <iostream>
@@ -106,6 +108,14 @@ int main(int argc, char* argv[])
     {
       return TERRAMA2_FINALIZATION_ERROR;
     }
+  }
+  catch(boost::exception& e)
+  {
+    std::cout << boost::diagnostic_information(e) << std::endl;
+  }
+  catch(std::exception& e)
+  {
+    std::cout << e.what() << std::endl;
   }
   catch(...)
   {

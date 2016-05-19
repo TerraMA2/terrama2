@@ -259,5 +259,6 @@
 	"Service path is required": "Service path is required",
 	"Service Port": "Service Port",
 	"Service port is required": "Service port is required",
-	"Service port is invalid": "Service port is invalid"
+	"Service port is invalid": "Service port is invalid",
+	"Ssh Connection": "Ssh Connection"
 }
