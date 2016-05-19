@@ -50,23 +50,46 @@ namespace terrama2
     /*!
       \class DataManager
 
-      \brief Manages all the metadata about data providers and its related dataseries.
+      \brief Manages all the metadata about data providers and dataseries.
 
-      The DataManager is responsible for loading metadata about
-      data providers and dataseries. It works like a database cache with TerraMA2
-      concepts.
+      For pratical means, the DataManager is the input of all metadata in a service,
+      when new metadata arrives, usually as a JSon, the DataManager instantiate
+      the appropriate classes and send signals that will be catch by the services.
 
-      Take care to keep it synchronized.
+      The services should have their own derived DataManager that will handle service
+      specific structures and abstractions.
+
+      ## Thread safety ##
+
+      The DataManager is thread safe but some times this is not enough.
+
+      In some cases you need to make a serie of calls from DataManager and
+      be sure the state is consistent, for that there is getLock().
+
+      The getLock() will lock the DataManager and return a std::unique_lock,
+      it will keep the DataManager locked until released. Because of this it
+      should be used with extreme caution.
+
+      ## Order of things ##
+
+      Some things should be kept in mind, dependent classes should be added **after**
+      the classes they depend on. Ex.: First add DataSeries, than add DataProvider
+
+      Dependent classes should be removed **before** the classes they depend on.
+      Ex.: First remove DataProvider, than remove DataSeries
+
+      This is also true for the services DataManager, when implementing addJSon()
+      and removeJSon() keep this in mind.
      */
     class DataManager : public QObject
     {
         Q_OBJECT
 
       public:
-        //! Default constructor
+        //! Constructor
         DataManager();
 
-        //! Destructor.
+        //! Default destructor.
         virtual ~DataManager() = default;
         DataManager(const DataManager& other) = delete;
         DataManager(DataManager&& other) = delete;
@@ -76,7 +99,25 @@ namespace terrama2
         /*!
           \brief Lock the DataManager and returns a lock handle.
 
-          This method is necessary to ensure data consistency when many querys are made.
+          This method is necessary to ensure data consistency when many calls are made.
+
+          When using this method you'll receive a std::unique_lock to the DataManger,
+          if using in a small context you'll probably have no problem beacause
+          on the destruction of the std::unique_lock the lock is released.
+
+          In the other hand you can release the lock yourself, this is usefull when you have a
+          long context or an intensive process, all you need to do is call std::unique_lock::unlock()
+          after your use of the DataManger.
+
+          \code{.cpp}
+            auto lock = dataManager->getLock();
+
+            // serie of DataManager calls
+
+            lock.unlock();
+
+            //intensive code
+          \endcode
 
           \warning The DataManger is locked by this method use with caution!
         */

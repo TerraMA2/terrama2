@@ -44,10 +44,22 @@ class RaiiBlock
     uint32_t& block_;
 };
 
+class RaiiSocket
+{
+  public:
+    RaiiSocket(QTcpSocket* socket) : socket_(socket) {}
+    ~RaiiSocket() {if(socket_) socket_->readAll();}
+
+    QTcpSocket* socket_;
+};
+
 bool terrama2::core::TcpManager::updateListeningPort(int port)
 {
   if(serverPort() == port)
     return true;
+
+  if(isListening())
+    close();
 
   return listen(serverAddress(), port);
 }
@@ -172,8 +184,10 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
 void terrama2::core::TcpManager::readReadySlot()
 {
   RaiiBlock block(blockSize_);
+  RaiiSocket clearSocketOnExit(tcpSocket_.get());
 
   QDataStream in(tcpSocket_.get());
+  TERRAMA2_LOG_DEBUG() << "bytes available: " << tcpSocket_->bytesAvailable();
 
   Q_UNUSED(block)
   if(blockSize_ == 0)
@@ -184,11 +198,15 @@ void terrama2::core::TcpManager::readReadySlot()
       return;
     }
 
+
     in >> blockSize_;
+    TERRAMA2_LOG_DEBUG() << "message size: " << blockSize_;
   }
 
   if(tcpSocket_->bytesAvailable() != blockSize_)
   {
+    auto bytearray = tcpSocket_->readAll();
+    TERRAMA2_LOG_DEBUG() << bytearray.right(bytearray.size()-4).data();
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nWrong message size.");
     return;
   }

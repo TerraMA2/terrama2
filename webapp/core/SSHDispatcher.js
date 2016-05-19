@@ -103,11 +103,11 @@ SSHDispatcher.prototype.startService = function() {
       if (process.plataform == 'win32') {
         command = "start " + util.format("%s %s", executable.endsWith(".exe") ? executable : executable + ".exe", port);
       } else {
-        command = "nohup " + util.format("%s %s %s", executable, port, (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : ""));
+        command = "nohup " + util.format("%s %s %s", executable, port, (!self.serviceInstance.pathToBinary.endsWith("&") ? " > /dev/null 2>&1 &" : ""));
       }
 
       console.log(command);
-      
+
       self.execute(command).then(function(code) {
         resolve(code);
       }).catch(function(err, code) {
