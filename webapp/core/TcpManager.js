@@ -43,58 +43,24 @@ var clients = {};
 
 
 function _getClient(connection) {
-  return new Promise(function(resolve, reject) {
-    var client;
-    // checking if exists
-    for (var key in clients) {
-      if (clients.hasOwnProperty(key)) {
-        if (clients[key].service.name == connection.name) {
-          client = clients[key];
-          break;
-        }
+  var client;
+  // checking if exists
+  for (var key in clients) {
+    if (clients.hasOwnProperty(key)) {
+      if (clients[key].service.name == connection.name) {
+        client = clients[key];
+        break;
       }
     }
+  }
 
-    var closeCallbackCalled = false;
-    var exception;
+  if (!client) {
+    client = new Service(connection);
 
-    if (!client) {
-      client = {
-        socket: new net.Socket(),
-        service: connection
-      };
+    clients[connection.name] = client;
+  }
 
-      clients[connection.name] = client;
-
-      // connect
-      client.socket.connect(connection.port, connection.host, function() {
-
-        return resolve(client);
-      });
-
-      client.socket.on('error', function(err) {
-        console.log("\n\n[ERROR] ", err);
-
-        exception = new Error(err);
-        reject(exception);
-      });
-
-      client.socket.on('close', function() {
-        console.log('\n\n[CLIENT] Connection closed');
-        if (!exception)
-          resolve();
-      });
-    } else {
-      if (client.socket.readyState == "open")
-        return resolve(client);
-      else {
-        client.socket.connect(connection.port, connection.host, function () {
-
-          return resolve(client);
-        });
-      }
-    }
-  });
+  return client;
 }
 
 /**
@@ -153,11 +119,21 @@ TcpManager.sendData = function(serviceInstance, data) {
     console.log(buffer);
     
     // getting client and writing in the channel
-    _getClient(serviceInstance).then(function(client) {
-      client.socket.write(buffer);
-    }).catch(function(err) {
-      throw err;
-    });
+    var client = _getClient(serviceInstance);
+
+    var _helper = function() {
+      client.send(buffer);
+    };
+
+    if (client.isOpen()) {
+      _helper();
+    } else {
+      client.connect().then(function() {
+        _helper();
+      }).catch(function(err) {
+        reject(err);
+      });
+    }
 
   } catch (e) {
     console.log(e);
@@ -175,16 +151,26 @@ TcpManager.updateService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
     try {
       var buffer = makeBuffer(Signals.UPDATE_SERVICE_SIGNAL, serviceInstance.toObject());
-      _getClient(serviceInstance).then(function(client) {
-        // sending buffer (async)
-        client.socket.write(buffer);
+      var client = _getClient(serviceInstance);
 
-        resolve();
-      }).catch(function(err) {
-        reject(err);
-      });
+      var _helper = function() {
+        client.update(buffer).then(function() {
+          resolve();
+        }).catch(function(err) {
+          reject(err);
+        });
+      };
 
-      resolve();
+      if (client.isOpen()) {
+        _helper();
+      } else {
+        client.connect().then(function() {
+          _helper();
+        }).catch(function(err) {
+          reject(err);
+        });
+      }
+
     } catch (e) {
       reject(e)
     }
@@ -223,35 +209,30 @@ This method sends STATUS_SIGNAL and waits for tcp client response.
 */
 TcpManager.statusService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
-    var closeCallbackCalled = true;
+
     try {
       var buffer = makeBuffer(Signals.STATUS_SIGNAL, {});
       console.log(buffer);
 
-      _getClient(serviceInstance).then(function(client) {
-        // sending buffer
-        client.socket.write(buffer);
+      var client = _getClient(serviceInstance);
 
-        closeCallbackCalled = false;
+      var _helper = function() {
+        client.status(buffer).then(function(result) {
+          resolve(result);
+        }).catch(function(err) {
+          reject(err);
+        })
+      };
 
-        client.socket.on('data', function(data) {
-          console.log('\n\n[CLIENT-status] Received:\n');
-          console.log("BYTES: ", data);
-          console.log("JSON: ", data.toString());
-          try {
-            var parsedMessage = parseByteArray(data);
-
-            if (!closeCallbackCalled)
-              return resolve(parsedMessage);
-          } catch(e) {
-            if (!closeCallbackCalled)
-              return reject(e);
-          }
+      if (client.isOpen()) {
+        _helper();
+      } else {
+        client.connect().then(function() {
+          _helper();
+        }).catch(function(err) {
+          reject(err);
         });
-
-      }).catch(function(err) {
-        reject(err);
-      });
+      }
 
     } catch (e) {
       reject(e)
@@ -267,37 +248,28 @@ TcpManager.stopService = function(serviceInstance) {
       var buffer = makeBuffer(Signals.TERMINATE_SERVICE_SIGNAL, {});
 
       var closeCallbackCalled = true;
-      _getClient(serviceInstance).then(function(client) {
+      var client = _getClient(serviceInstance);
 
-        closeCallbackCalled = false;
-        // sending buffer
-        client.socket.write(buffer);
-
-        client.socket.on('data', function(data) {
-          console.log('\n\n[CLIENT-stop] Received:\n');
-          console.log("BYTES: ", data);
-          console.log("JSON: ", data.toString());
-          try {
-            var parsedMessage = parseByteArray(data);
-
-            if (!closeCallbackCalled)
-              return resolve(parsedMessage);
-          } catch(e) {
-            if (!closeCallbackCalled)
-              return reject(e);
-          }
-        });
-
-        client.socket.on('end', function() {
-          console.log("end connection");
+      var _helper = function() {
+        client.stop(buffer).then(function() {
           resolve();
+        }).catch(function(err) {
+          console.log(err);
+          reject(err)
         })
+      };
 
-        // resolve();
-      }).catch(function(err) {
-        reject(err);
-      });
+      if (client.isOpen()) {
+        _helper();
+      } else {
+        client.connect().then(function() {
+          _helper();
+        }).catch(function(err) {
+          reject(err);
+        });
+      }
 
+      
     } catch(e) {
       reject(e);
     }
