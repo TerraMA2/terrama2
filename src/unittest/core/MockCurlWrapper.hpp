@@ -16,39 +16,35 @@
 */
 
 /*!
-  \file terrama2/unittest/core/TsDataRetrieverFTP.hpp
-  \brief Tests for Class DataRetrieverFTP
+  \file terrama2/unittest/core/MockCurlWrapper.hpp
+  \brief Mock Class CurlWrapper
   \author Evandro Delatin
 */
 
+#ifndef __TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__
+#define __TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__
 
-#ifndef __TERRAMA2_UNITTEST_CORE_DATA_RETRIEVER_FTP_HPP__
-#define __TERRAMA2_UNITTEST_CORE_DATA_RETRIEVER_FTP_HPP__
-
-
+// TerraMA2
+#include <terrama2/core/utility/Raii.hpp>
+#include <terrama2/core/utility/CurlWrapper.hpp>
 #include <terrama2/impl/DataRetrieverFTP.hpp>
-#include "MockDataRetriever.hpp"
-#include <QtTest>
 
+// Libcurl
+#include <curl/curl.h>
 
-class TsDataRetrieverFTP: public QObject
+// GMock
+#include <gmock/gmock.h>
+
+class MockCurlWrapper: public terrama2::core::CurlWrapper
 {
-  Q_OBJECT
+  public:
 
-   private slots:
+   MockCurlWrapper() {};
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
-
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
-
-    //******Test functions********
-
-    void TestFailUriInvalid();
-    void TestFailLoginInvalid();
-    void TestOkUriAndLoginValid();
+   MOCK_METHOD1(verifyURL,CURLcode(std::string url));
 
 };
 
-#endif //__TERRAMA2_UNITTEST_CORE_DATA_RETRIEVER_FTP_HPP__
+#endif //__TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__
+
+
