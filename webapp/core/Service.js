@@ -1,5 +1,30 @@
 var net = require('net');
 var Promise = require('bluebird');
+var Utils = require('./Utils');
+
+
+/**
+ This method parses the bytearray received.
+ @param {Buffer} byteArray - a nodejs buffer with bytearray received
+ @return {Object} object - a javascript object with signal, message and size
+ 
+ */
+function parseByteArray(byteArray) {
+  var messageSizeReceived = byteArray.readUInt32BE(0);
+  var signalReceived = byteArray.readUInt32BE(4);
+  var rawData = byteArray.slice(8, byteArray.length);
+
+  // validate signal
+  var signal = Utils.getTcpSignal(signalReceived);
+  var jsonMessage = JSON.parse(rawData);
+
+  return {
+    size: messageSizeReceived,
+    signal: signal,
+    message: jsonMessage
+  }
+}
+
 
 var Service = module.exports = function(serviceInstance) {
   this.service = serviceInstance;
@@ -13,10 +38,10 @@ var Service = module.exports = function(serviceInstance) {
 
   self.socket.on('data', function(byteArray) {
     console.log("client received: ", byteArray);
-    console.log(byteArray.toString());
+    var parsed = parseByteArray(byteArray);
 
     if (callbackSuccess)
-      callbackSuccess(byteArray);
+      callbackSuccess(parsed);
   });
 
   self.socket.on('close', function(byteArray) {
@@ -68,7 +93,7 @@ var Service = module.exports = function(serviceInstance) {
   };
 
   self.send = function(buffer) {
-    if (!this.isOpen())
+    if (!self.isOpen())
       throw new Error("Could not send add data signal from closed connection");  
 
     self.socket.write(buffer);

@@ -1,4 +1,3 @@
-var net = require('net');
 var Signals = require('./Signals.js');
 var SSH = require("./SSHDispatcher");
 var Promise = require('bluebird');
@@ -7,28 +6,6 @@ var _ = require('lodash');
 var Service = require('./Service');
 
 var TcpManager = module.exports = {};
-
-
-/**
-This method parses the bytearray received.
-@param {Buffer} byteArray - a nodejs buffer with bytearray received
-@param {Object} object - a javascript object with signal, message and size
-*/
-function parseByteArray(byteArray) {
-  var messageSizeReceived = byteArray.readUInt32BE(0);
-  var signalReceived = byteArray.readUInt32BE(4);
-  var rawData = byteArray.slice(8, byteArray.length);
-
-  // validate signal
-  var signal = Utils.getTcpSignal(signalReceived);
-  var jsonMessage = JSON.parse(rawData);
-
-  return {
-    size: messageSizeReceived,
-    signal: signal,
-    message: jsonMessage
-  }
-}
 
 
 /** 
@@ -215,7 +192,7 @@ TcpManager.connect = function(serviceInstance) {
       client.connect().then(function() {
         resolve();
       }).catch(function(err) {
-        reject(err)
+        resolve()
       })
     } catch (e) {
       reject(e);

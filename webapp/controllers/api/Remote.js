@@ -26,6 +26,7 @@ module.exports = function(app) {
                       console.log("Result: ", result);
                       // getting all data providers
                       Utils.prepareAddSignalMessage(DataManager, app.locals.activeProject.id).then(function(data) {
+                        console.log(JSON.stringify(data));
                         TcpManager.sendData(serviceInstance, data);
                         // todo: check it/ping
                         response.json({status: 200, online: Object.keys(result).length > 0});
@@ -80,7 +81,7 @@ module.exports = function(app) {
       DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
         var _sendStatus = function() {
           TcpManager.statusService(serviceInstance).then(function(result) {
-            response.json({status: 200, online: result.instance_id == 0})
+            response.json({status: 200, online: result.message.instance_id != 0})
           }).catch(function(err) {
             _handleError(response, err);
           })
