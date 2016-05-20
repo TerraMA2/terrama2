@@ -75,7 +75,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
         geomResult.reset(geometry->difference(geomTemp.get()));
       break;
     }
-    case INTERN_PLUS_EXTERN:
+    case EXTERN_PLUS_INTERN:
     {
       geomTemp.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
 

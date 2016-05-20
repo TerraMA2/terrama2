@@ -71,7 +71,7 @@ namespace terrama2
         {
           NONE = 0, //!< No buffer
           ONLY_BUFFER = 1, //!< Only buffer, can be external or internal.
-          INTERN_PLUS_EXTERN = 2, //!< Result buffer is the union between external buffer and internal buffer.
+          EXTERN_PLUS_INTERN = 2, //!< Result buffer is the union between external buffer and internal buffer.
           OBJECT_PLUS_BUFFER = 3, //!< Geometry plus buffer, must be a positive value because it's an external buffer.
           OBJECT_MINUS_BUFFER = 4, //!< Geometry minus buffer, must be a negative value because it's an internal buffer.
           DISTANCE_ZONE = 5 //! Result buffer is the difference between buffer 1 and buffer 2.
@@ -79,12 +79,25 @@ namespace terrama2
 
         struct Buffer
         {
+          //! Default constructor
           Buffer() : bufferType(NONE) {}
 
-          //! Constructor for a simple buffer.
+          /*!
+            \brief Constructor for composed buffers such as EXTERN_PLUS_INTERN and DISTANCE_ZONE.
+            \param type The buffer type.
+            \param d Distance of the buffer, use negative values for an internal buffer.
+            \param u Unit of the distance.
+          */
           Buffer(BufferType type, double d, std::string u) : bufferType(type), distance(d), unit(u) {}
 
-          //! Constructor for composed buffers such as INTERN_PLUS_EXTERN and DISTANCE_ZONE.
+          /*!
+            \brief Constructor for composed buffers such as EXTERN_PLUS_INTERN and DISTANCE_ZONE.
+            \param type The buffer type, must be EXTERN_PLUS_INTERN or DISTANCE_ZONE.
+            \param d1 Distance for the first buffer, for EXTERN_PLUS_INTERN type this is external buffer.
+            \param u1 Unit of the distance for the first buffer,  for EXTERN_PLUS_INTERN type this is external buffer.
+            \param d2 Distance for the second buffer, for EXTERN_PLUS_INTERN type this is internal buffer.
+            \param u2 Unit of the distance for the second buffer,  for EXTERN_PLUS_INTERN type this is internal buffer.
+          */
           Buffer(BufferType type, double d1, std::string u1, double d2, std::string u2)
             : bufferType(type), distance(d1), unit(u1), distance2(d2), unit2(u2) {}
 
@@ -96,7 +109,7 @@ namespace terrama2
         };
 
         /*!
-          \brief Where the magic happens
+          \brief Creates a buffer based on the given configuration.
           \param buffer The buffer configuration.
           \param geometry The geometry.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.

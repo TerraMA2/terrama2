@@ -1210,7 +1210,7 @@ BOOST_PYTHON_MODULE(terrama2)
   enum_<terrama2::services::analysis::core::BufferType>("BufferType")
     .value("none", terrama2::services::analysis::core::NONE)
     .value("only_buffer", terrama2::services::analysis::core::ONLY_BUFFER)
-    .value("intern_plus_extern", terrama2::services::analysis::core::INTERN_PLUS_EXTERN)
+    .value("extern_plus_intern", terrama2::services::analysis::core::EXTERN_PLUS_INTERN)
     .value("object_plus_buffer", terrama2::services::analysis::core::OBJECT_PLUS_BUFFER)
     .value("object_minus_buffer", terrama2::services::analysis::core::OBJECT_MINUS_BUFFER)
     .value("distance_zone", terrama2::services::analysis::core::DISTANCE_ZONE);
