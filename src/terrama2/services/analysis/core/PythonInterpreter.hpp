@@ -75,14 +75,13 @@ namespace terrama2
 
           \param statisticOperation The statistic operation chosen by the user.
           \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param radius The buffer radius.
+          \param buffer Buffer to be used for a monitored object.
           \param bufferType The buffer type.
           \param ids A set of identifiers of DataSet.
 
           \return A double value with the result.
         */
-        double dcpOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids = boost::python::list());
+        double dcpOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
 
         /*!
           \brief It returns the number of DCPs that have influence over the current monitored object.
@@ -95,7 +94,7 @@ namespace terrama2
 
           \return The number of DCP that have influence over the current monitored object.
         */
-        int dcpCount(const std::string& dataSeriesName, double radius, BufferType bufferType);
+        int dcpCount(const std::string& dataSeriesName, Buffer buffer);
 
         /*!
           \brief It calculates the minimum value of the latest DCP series data.
@@ -114,7 +113,7 @@ namespace terrama2
 
           \return A double with the minimum value.
         */
-        double dcpMin(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids = boost::python::list());
+        double dcpMin(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
 
         /*!
           \brief It calculates the maximum value of the latest DCP series data.
@@ -126,13 +125,12 @@ namespace terrama2
 
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param ids A set of identifiers of DataSet.
 
           \return A double with the maximum value.
         */
-        double dcpMax(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids = boost::python::list());
+        double dcpMax(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
 
         /*!
           \brief It calculates the mean of the latest DCP series data.
@@ -144,13 +142,12 @@ namespace terrama2
 
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param ids A set of identifiers of DataSet.
 
           \return A double with the mean.
         */
-        double dcpMean(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids = boost::python::list());
+        double dcpMean(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
 
         /*!
           \brief It calculates the median value of the latest DCP series data.
@@ -162,13 +159,12 @@ namespace terrama2
 
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param ids A set of identifiers of DataSet.
 
           \return A double with the median.
         */
-        double dcpMedian(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids = boost::python::list());
+        double dcpMedian(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
 
         /*!
           \brief It calculates the sum of the latest DCP series data.
@@ -180,13 +176,12 @@ namespace terrama2
 
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param ids A set of identifiers of DataSet.
 
           \return A double with the sum.
         */
-        double dcpSum(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids = boost::python::list());
+        double dcpSum(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
 
         /*!
           \brief It calculates the standard deviation of the latest DCP series data.
@@ -198,13 +193,12 @@ namespace terrama2
 
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param ids A set of identifiers of DataSet.
 
           \return A double with the standard deviation.
         */
-        double dcpStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, double radius, BufferType bufferType, boost::python::list ids = boost::python::list());
+        double dcpStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
 
         /*!
           \brief Implementation of history operator for DCP series.
@@ -215,13 +209,12 @@ namespace terrama2
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
           \param dcpId Identifier of DCP dataset.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param dateFilter Time filter for the data.
 
           \return A double value with the result.
         */
-        double dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter);
+        double dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, Buffer buffer, const std::string& dateFilter);
 
         /*!
           \brief It calculates the sum of historic DCP data.
@@ -231,13 +224,12 @@ namespace terrama2
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
           \param dcpId Identifier of DCP dataset.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param dateFilter Time filter for the data.
 
           \return A double value with the result.
         */
-        double dcpHistorySum(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter);
+        double dcpHistorySum(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, Buffer buffer, const std::string& dateFilter);
 
         /*!
           \brief It calculates the mean of historic DCP data.
@@ -247,13 +239,12 @@ namespace terrama2
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
           \param dcpId Identifier of DCP dataset.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param dateFilter Time filter for the data.
 
           \return A double value with the result.
         */
-        double dcpHistoryMean(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter);
+        double dcpHistoryMean(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, Buffer buffer, const std::string& dateFilter);
 
         /*!
           \brief It calculates the min of historic DCP data.
@@ -263,13 +254,12 @@ namespace terrama2
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
           \param dcpId Identifier of DCP dataset.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param dateFilter Time filter for the data.
 
           \return A double value with the result.
         */
-        double dcpHistoryMin(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter);
+        double dcpHistoryMin(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, Buffer buffer, const std::string& dateFilter);
 
         /*!
           \brief It calculates the max of historic DCP data.
@@ -279,13 +269,12 @@ namespace terrama2
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
           \param dcpId Identifier of DCP dataset.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param dateFilter Time filter for the data.
 
           \return A double value with the result.
         */
-        double dcpHistoryMax(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter);
+        double dcpHistoryMax(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, Buffer buffer, const std::string& dateFilter);
 
         /*!
           \brief It calculates the median of historic DCP data.
@@ -295,13 +284,12 @@ namespace terrama2
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
           \param dcpId Identifier of DCP dataset.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param dateFilter Time filter for the data.
 
           \return A double value with the result.
         */
-        double dcpHistoryMedian(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter);
+        double dcpHistoryMedian(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, Buffer buffer, const std::string& dateFilter);
 
         /*!
           \brief It calculates the standard deviation of historic DCP data.
@@ -311,26 +299,24 @@ namespace terrama2
           \param dataSeriesName DataSeries name.
           \param attribute Which DCP attribute will be used.
           \param dcpId Identifier of DCP dataset.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param dateFilter Time filter for the data.
 
           \return A double value with the result.
         */
-        double dcpHistoryStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, double radius, BufferType bufferType, const std::string& dateFilter);
+        double dcpHistoryStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, uint64_t dcpId, Buffer buffer, const std::string& dateFilter);
 
         /*!
           \brief It calculates the count of occurrences in the monitored object.
 
           \param dataSeriesName DataSeries name.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
+          \param buffer Buffer to be used in the monitored object.
           \param dateFilter Time filter for the data.
           \param restriction SQL restriction.
 
           \return The number of occurrences in the monitored object.
         */
-        int occurrenceCount(const std::string& dataSeriesName, double radius, BufferType bufferType, std::string dateFilter, std::string restriction);
+        int occurrenceCount(const std::string& dataSeriesName, Buffer buffer, std::string dateFilter, std::string restriction);
 
         /*!
           \brief Registers all DCP functions in the Python interpreter.

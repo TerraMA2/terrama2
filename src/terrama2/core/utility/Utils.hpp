@@ -111,6 +111,11 @@ namespace terrama2
     */
     int getUTMSrid(te::gm::Geometry* geom);
 
+    /*!
+      \brief Converts the distance from the given unit to the target unit.
+    */
+    double convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit);
+
   } // end namespace core
 }   // end namespace terrama2
 
