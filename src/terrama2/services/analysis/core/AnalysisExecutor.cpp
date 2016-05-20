@@ -119,6 +119,13 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
         }
         size = contextDataset->series.syncDataSet->size();
 
+        if(size == 0)
+        {
+          QString errMsg = QObject::tr("Could not recover monitored object dataset.");
+          TERRAMA2_LOG_WARNING() << errMsg;
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+        }
+
         break;
       }
     }
@@ -133,6 +140,8 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     // get a reference to the PyInterpreterState
     PyInterpreterState * mainInterpreterState = mainThreadState->interp;
 
+    if(threadNumber > size)
+      threadNumber = size;
 
 
     // Calculates the number of geometries that each thread will contain.

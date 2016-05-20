@@ -91,7 +91,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
 
-  // 2rd: look for an environment variable defined by macro TERRAMA2_DIR_VAR_NAME
+  // 2nd: look for an environment variable defined by macro TERRAMA2_DIR_VAR_NAME
   const char* tma_env = getenv(TERRAMA2_DIR_VAR_NAME.c_str());
 
   if(tma_env != nullptr)
@@ -104,7 +104,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
       return eval_path.string();
   }
 
-  // 3th: look into install prefix-path
+  // 3rd: look into install prefix-path
   tma_path = TERRAMA2_INSTALL_PREFIX_PATH;
 
   eval_path = tma_path / fileName;
@@ -112,7 +112,7 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
   if(boost::filesystem::exists(eval_path))
     return eval_path.string();
 
-  // 4nd: look into the codebase path
+  // 4th: look into the codebase path
   tma_path = TERRAMA2_CODEBASE_PATH;
 
   eval_path = tma_path / fileName;
@@ -268,5 +268,20 @@ int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
   // Creates a Proj4 description and returns the SRID.
   std::string p4txt = "+proj=utm +zone=" + std::to_string(zoneNumber) + " +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs";
   return te::srs::SpatialReferenceSystemManager::getInstance().getIdFromP4Txt(p4txt).second;
+
+}
+
+double terrama2::core::convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit)
+{
+  auto it = te::common::UnitsOfMeasureManager::getInstance().begin();
+
+  if(it == te::common::UnitsOfMeasureManager::getInstance().end())
+  {
+    QString msg(QObject::tr("There is no UnitOfMeasure registered."));
+    TERRAMA2_LOG_ERROR() << msg;
+    throw terrama2::InitializationException() << terrama2::ErrorDescription(msg);
+  }
+
+  return te::common::UnitsOfMeasureManager::getInstance().getConversion(fromUnit, targetUnit) * distance;
 
 }

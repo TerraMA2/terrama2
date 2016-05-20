@@ -93,17 +93,19 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  std::string script = "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
+  std::string script = "buffer = Buffer(Buffer.EXTERN)\n"
+                       "buffer.distanceExtern = \"1km\"\n"
+                       "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, buffer, \"3650d\")\n"
                        "add_value(\"history_sum\",x)\n"
-                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
+                       "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.object_plus_extern, \"3650d\")\n"
                        "add_value(\"history_max\",x)\n"
-                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
+                       "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.object_plus_extern, \"3650d\")\n"
                        "add_value(\"history_min\",x)\n"
-                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
+                       "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.object_plus_extern, \"3650d\")\n"
                        "add_value(\"history_mean\",x)\n"
-                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
+                       "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.object_plus_extern, \"3650d\")\n"
                        "add_value(\"history_median\",x)\n"
-                       "x = dcp.history.standard_deviation(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.OBJECT_PLUS_EXTERN, \"3650d\")\n"
+                       "x = dcp.history.standard_deviation(\"DCP-Angra\", \"pluvio\", 2, 500, Buffer.object_plus_extern, \"3650d\")\n"
                        "add_value(\"history_standard_deviation\",x)\n";
 
   Analysis analysis;

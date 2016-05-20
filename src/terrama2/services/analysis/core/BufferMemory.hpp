@@ -33,6 +33,7 @@
 // STL
 #include <memory>
 #include <vector>
+#include <string>
 
 // Forward declaration
 namespace te
@@ -64,18 +65,43 @@ namespace terrama2
       {
         /*!
           \brief Defines the buffer type.
+          \note For internal buffer the value must be negative.
         */
         enum BufferType
         {
           NONE = 0, //!< No buffer
-          EXTERN = 1, //!< External buffer.
-          INTERN = 2, //!< Internal buffer.
-          INTERN_PLUS_EXTERN = 3, //!< Internal buffer plus external external buffer.
-          OBJECT_PLUS_EXTERN = 4, //!< Geometry plus external buffer.
-          OBJECT_WITHOUT_INTERN = 5 //!< Geometry minus internal buffer.
+          ONLY_BUFFER = 1, //!< Only buffer, can be external or internal.
+          INTERN_PLUS_EXTERN = 2, //!< Result buffer is the union between external buffer and internal buffer.
+          OBJECT_PLUS_BUFFER = 3, //!< Geometry plus buffer, must be a positive value because it's an external buffer.
+          OBJECT_MINUS_BUFFER = 4, //!< Geometry minus buffer, must be a negative value because it's an internal buffer.
+          DISTANCE_ZONE = 5 //! Result buffer is the difference between buffer 1 and buffer 2.
         };
 
-        std::unique_ptr<te::gm::Geometry> createBuffer(BufferType bufferType, std::shared_ptr<te::gm::Geometry> geometry, double distance);
+        struct Buffer
+        {
+          Buffer() : bufferType(NONE) {}
+
+          //! Constructor for a simple buffer.
+          Buffer(BufferType type, double d, std::string u) : bufferType(type), distance(d), unit(u) {}
+
+          //! Constructor for composed buffers such as INTERN_PLUS_EXTERN and DISTANCE_ZONE.
+          Buffer(BufferType type, double d1, std::string u1, double d2, std::string u2)
+            : bufferType(type), distance(d1), unit(u1), distance2(d2), unit2(u2) {}
+
+          BufferType bufferType; //!< The type of the buffer.
+          double distance; //!< The distance of the buffer, positive value for external buffer and negative for internal buffer.
+          std::string unit; //!< The distance unit.
+          double distance2; //!< The distance of the second buffer, this attribute is only used for composed buffer such as INTERN_PLUS_EXTERN and DISTANCE_ZONE.
+          std::string unit2; //!< The distance unit of the second buffer, this attribute is only used for composed buffer such as INTERN_PLUS_EXTERN and DISTANCE_ZONE.
+        };
+
+        /*!
+          \brief Where the magic happens
+          \param buffer The buffer configuration.
+          \param geometry The geometry.
+          \return A smart pointer to a memory dataset with the buffers created from the given geometries.
+        */
+        std::shared_ptr<te::gm::Geometry> createBuffer(Buffer buffer, std::shared_ptr<te::gm::Geometry> geometry);
 
         /*!
           \brief Creates a buffer for each given geometry with the given distance.
@@ -86,7 +112,7 @@ namespace terrama2
           \param bufferType The type of the buffer.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.
         */
-        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance, BufferType bufferType);
+        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, Buffer buffer);
 
       } // end namespace core
     }   // end namespace analysis
