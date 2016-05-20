@@ -110,6 +110,7 @@
                       console.log(data);
                     }).catch(function(err) {
                       console.log("Error while starting remote service: ", err);
+                      serviceInstance.online = err.online;
                     }).finally(function() {
                       serviceInstance.loading = false;
                     })
@@ -120,6 +121,7 @@
                       console.log(data);
                     }).error(function(err) {
                       console.log("Error while stoping remote service: ", err);
+                      serviceInstance.online = err.online;
                     }).finally(function() {
                       serviceInstance.requestingForClose = false;
                     });

@@ -1575,7 +1575,7 @@ var DataManager = {
   listCollectors: function(restriction, projectId) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
+      models.db['Collector'].findAll({where: restriction, include: [models.db.Schedule]}).then(function(collectorsResult) {
         var output = [];
         var promises = [];
 
@@ -1612,8 +1612,14 @@ var DataManager = {
                 });
               }
 
-              output.push(new Collector(Object.assign({input_output_map: input_output_map, project_id: projectId}, collector.get())));
+              var schedule = new Schedule(collector.Schedule.get());
+              output.push(new Collector(Object.assign({
+                input_output_map: input_output_map,
+                project_id: projectId,
+                schedule: schedule.toObject()
+              }, collector.get())));
               input_output_map = [];
+
             }
           }); // end foreach collectors
 

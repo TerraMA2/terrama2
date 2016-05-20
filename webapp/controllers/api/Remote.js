@@ -24,7 +24,6 @@ module.exports = function(app) {
                     // ping
                     TcpManager.statusService(serviceInstance).then(function(result) {
                       console.log("Result: ", result);
-                      // getting all data providers
                       Utils.prepareAddSignalMessage(DataManager, app.locals.activeProject.id).then(function(data) {
                         console.log(JSON.stringify(data));
                         TcpManager.sendData(serviceInstance, data);
