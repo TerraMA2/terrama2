@@ -1,9 +1,17 @@
 module.exports = function(app) {
 
-    function staticDataController(request, response)
-    {
-        response.render('configuration/staticData');
-    };
+  return {
+    get: function(request, response) {
+      response.render('configuration/staticData');
+    },
 
-    return staticDataController;
+    new: function(request, response) {
+      response.render('configuration/dataset');
+    },
+
+    edit: function(request, response) {
+      response.render('configuration/dataset');
+    }
+  };
+
 };

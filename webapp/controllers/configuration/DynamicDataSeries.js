@@ -1,9 +1,17 @@
 module.exports = function(app) {
 
-    function dynamicDataSeriesController(request, response)
-    {
-        response.render('configuration/dynamicDataSeries');
-    };
+  return {
+    get: function(request, response) {
+      response.render('configuration/dynamicDataSeries');
+    },
 
-    return dynamicDataSeriesController;
+    new: function(request, response) {
+      response.render('configuration/dataset');
+    },
+
+    edit: function(request, response) {
+      response.render('configuration/dataset');
+    }
+  }
+
 };
