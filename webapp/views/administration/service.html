@@ -50,16 +50,13 @@
       });
 
       $scope.save = function() {
-        if ($scope.serviceForm.$invalid) {
+        if ($scope.serviceForm.$invalid || $scope.logForm.$invalid) {
           angular.forEach($scope.serviceForm.$error, function (field) {
             angular.forEach(field, function(errorField){
               errorField.$setDirty();
             })
           });
-          return;
-        }
 
-        if ($scope.logForm.$invalid) {
           angular.forEach($scope.logForm.$error, function (field) {
             angular.forEach(field, function(errorField){
               errorField.$setDirty();
@@ -76,8 +73,9 @@
           service: $scope.service,
           log: $scope.log
         }).success(function(data) {
-          $scope.alertBox.message = "Service saved";
-          $scope.errorFound = false;
+          // $scope.alertBox.message = "Service saved";
+          // $scope.errorFound = false;
+          $window.location.href = "/administration/services?token=" + data.token;
         }).error(function(err) {
           // todo: display messagebox
           console.log(err);
@@ -142,6 +140,8 @@
                         <label>{[ __("Name") ]}:</label>
                         <input class="form-control" name="name" ng-disabled="update" ng-model="service.name" placeholder="{[ __('Service  Name') ]}" type="text" required>
 
+                        <span class="form-control-feedback glyphicon" ng-show="serviceForm.name.$dirty" ng-class="{'glyphicon-ok': serviceForm.name.$valid, 'glyphicon-remove': serviceForm.name.$invalid }"></span>
+
                         <span class="help-block has-error" ng-show="serviceForm.name.$dirty && serviceForm.name.$invalid">{[ __('Service name is required') ]}</span>
                       </div>
                     </div>
@@ -154,7 +154,7 @@
                           <option ng-value="2">Analysis</option>
                         </select>
 
-                        <span class="form-control-feedback glyphicon" ng-show="serviceForm.type.$dirty" ng-class="{'glyphicon-ok': serviceForm.type.$valid, 'glyphicon-remove': serviceForm.type.$invalid }"></span>
+                        <span class="form-control-feedback glyphicon terrama2-combobox-feedback" ng-show="serviceForm.type.$dirty" ng-class="{'glyphicon-ok': serviceForm.type.$valid, 'glyphicon-remove': serviceForm.type.$invalid }"></span>
 
                         <span class="help-block has-error" ng-show="serviceForm.type.$dirty && serviceForm.type.$invalid">{[ __('Service type is required') ]}</span>
 
@@ -187,10 +187,13 @@
                     <div class="col-md-6">
                       <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.sshPort.$dirty && serviceForm.sshPort.$invalid, 'has-success': serviceForm.sshPort.$dirty && serviceForm.sshPort.$valid}">
                         <label>{[ __("Port") ]}:</label>
-                        <input class="form-control" name="sshPort" ng-disabled="update" ng-model="service.sshPort" placeholder="{[ __('Ssh Port') ]}" type="number" required>
+                        <input class="form-control" name="sshPort" ng-disabled="update" ng-model="service.sshPort" placeholder="{[ __('Ssh Port') ]}" type="number" min="1" max="65535" required>
                         <span class="form-control-feedback glyphicon" ng-show="serviceForm.sshPort.$dirty" ng-class="{'glyphicon-ok': serviceForm.sshPort.$valid, 'glyphicon-remove': serviceForm.sshPort.$invalid }"></span>
 
                         <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.required">{[ __('Ssh port is required') ]}</span>
+
+                        <!-- invalid number: min/max -->
+                        <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && (serviceForm.sshPort.$error.min || serviceForm.sshPort.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
 
                         <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.number">{[ __('Ssh port is invalid') ]}</span>
                       </div>
@@ -223,9 +226,12 @@
                     <div class="col-md-2">
                       <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.port.$dirty && serviceForm.port.$invalid, 'has-success': serviceForm.port.$dirty && serviceForm.port.$valid}">
                         <label>{[ __("Service Port") ]}:</label>
-                        <input class="form-control" name="port" ng-disabled="update" ng-model="service.port" placeholder="{[ __('Service Port') ]}" type="number" required>
+                        <input class="form-control" name="port" ng-disabled="update" ng-model="service.port" placeholder="{[ __('Service Port') ]}" type="number" min="1" max="65535" required>
 
                         <span class="form-control-feedback glyphicon" ng-show="serviceForm.port.$dirty" ng-class="{'glyphicon-ok': serviceForm.port.$valid, 'glyphicon-remove': serviceForm.port.$invalid }"></span>
+
+                        <!-- invalid number: min/max -->
+                        <span class="help-block has-error" ng-show="serviceForm.port.$dirty && (serviceForm.port.$error.min || serviceForm.port.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
 
                         <span class="help-block has-error" ng-show="serviceForm.port.$dirty && serviceForm.port.$error.required">{[ __('Service port is required') ]}</span>
 
@@ -277,9 +283,12 @@
                     <div class="col-md-4">
                       <div class="form-group has-feedback" ng-class="{'has-error': logForm.port.$dirty && logForm.port.$invalid, 'has-success': logForm.port.$dirty && logForm.port.$valid}">
                         <label>{[ __("Port") ]}:</label>
-                        <input class="form-control" name="port" ng-disabled="update" ng-model="log.port" placeholder="{[ __('Log port number') ]}" type="number" required>
+                        <input class="form-control" name="port" ng-disabled="update" ng-model="log.port" placeholder="{[ __('Log port number') ]}" type="number" min="1" max="65535" required>
 
                         <span class="form-control-feedback glyphicon" ng-show="logForm.port.$dirty" ng-class="{'glyphicon-ok': logForm.port.$valid, 'glyphicon-remove': logForm.port.$invalid }"></span>
+
+                        <!-- invalid number: min/max -->
+                        <span class="help-block has-error" ng-show="logForm.port.$dirty && (logForm.port.$error.min || logForm.port.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
 
                         <span class="help-block has-error" ng-show="logForm.port.$dirty && logForm.port.$error.required">{[ __('Port is required') ]}</span>
                       </div>
