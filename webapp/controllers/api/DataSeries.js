@@ -25,9 +25,15 @@ module.exports = function(app) {
               "Collectors": [collector.toObject()]
             };
 
+            console.log("OUTPUT: ", JSON.stringify(output));
+
             DataManager.listServiceInstances().then(function(servicesInstance) {
               servicesInstance.forEach(function (service) {
-                TcpManager.sendData(service, output);
+                try {
+                  TcpManager.sendData(service, output);
+                } catch (e) {
+                  console.log("Error during send data each service: ", e);
+                }
               });
 
               var token = Utils.generateToken(app, TokenCode.SAVE, collectorResult.output.name);

@@ -233,11 +233,9 @@ var DataManager = {
       var _continueInMemory = function(dataSetObject, dataSetFmtsResult, builtDataSeries) {
         // for each format
         var fmt = {};
-        dataSetFmtsResult.forEach(function(format, formatIndex, formatArr) {
+        dataSetFmtsResult.forEach(function(format) {
           if (format.data_set_id == dataSetObject.id) {
             fmt[format.key] = format.value;
-            // remove it to avoid re-iterate
-            formatArr.splice(formatIndex, 1);
           }
         });
 
@@ -270,7 +268,8 @@ var DataManager = {
                   model: models.db.DataSetDcp,
                   attributes: ['position'],
                   required: true
-                }
+                },
+                models.db.DataSetFormat
               ]
             }));
             dbOperations.push(models.db.DataSet.findAll({
@@ -279,61 +278,60 @@ var DataManager = {
                 {
                   model: models.db.DataSetOccurrence,
                   required: true
-                }
+                },
+                models.db.DataSetFormat
               ]
             }));
 
             // find all datasets
             Promise.all(dbOperations).then(function(dataSetsArray) {
-              // find all data set
-              models.db['DataSetFormat'].findAll({}).then(function(dataSetFormatsResult) {
-                // for each dataSeries
-                dataSeries.forEach(function(dSeries) {
-                  var builtDataSeries = new DataSeries(dSeries.get());
+              // for each dataSeries
+              dataSeries.forEach(function(dSeries) {
+                var builtDataSeries = new DataSeries(dSeries.get());
 
-                  dataSetsArray.forEach(function(dataSets) {
-                    // for each data set retrieved
-                    dataSets.forEach(function(dataSet) {
-                      if (dSeries.id == dataSet.data_series_id) {
+                dataSetsArray.forEach(function(dataSets) {
+                  // for each data set retrieved
+                  dataSets.forEach(function(dataSet) {
+                    if (dSeries.id == dataSet.data_series_id) {
 
-                        var dSetObject = {
-                          id: dataSet.id,
-                          data_series_id: dataSet.data_series_id,
-                          active: dataSet.active
-                        };
+                      var dSetObject = {
+                        id: dataSet.id,
+                        data_series_id: dataSet.data_series_id,
+                        active: dataSet.active
+                      };
 
-                        if (dataSet.DataSetDcp) {
-                          var dcpDset = dataSet.DataSetDcp.get();
+                      if (dataSet.DataSetDcp) {
+                        var dcpDset = dataSet.DataSetDcp.get();
 
-                          // checking dcp position is null
-                          if (dcpDset.position) {
-                            self.getWKT(dcpDset.position).then(function(wktPosition) {
-                              dcpDset.position = wktPosition;
-                              Object.assign(dSetObject, dcpDset);
-
-                              _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
-                            }).catch(_rejectClean);
-                          } else {
+                        // checking dcp position is null
+                        if (dcpDset.position) {
+                          self.getWKT(dcpDset.position).then(function(wktPosition) {
+                            dcpDset.position = wktPosition;
                             Object.assign(dSetObject, dcpDset);
-                            _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
-                          }
+
+                            _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
+                          }).catch(_rejectClean);
+                        } else {
+                          Object.assign(dSetObject, dcpDset);
+                          _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
                         }
-                        else if (dataSet.DataSetOccurrence)
-                          _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
-                        else // todo: grid, monitored object
-                          _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
                       }
-                    }); // end foreach dataSets
-                  }); // end foreach dataSetsArray
+                      else if (dataSet.DataSetOccurrence)
+                        _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
+                      else // todo: grid, monitored object
+                        _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
+                    }
+                  }); // end foreach dataSets
+                }); // end foreach dataSetsArray
 
-                  // adding local cache
-                  self.data.dataSeries.push(builtDataSeries);
-                }); // end foreach dataseries
+                // adding local cache
+                self.data.dataSeries.push(builtDataSeries);
+              }); // end foreach dataseries
 
-                self.isLoaded = true;
-                resolve();
+              self.isLoaded = true;
+              resolve();
 
-              }).catch(_rejectClean);
+              // }).catch(_rejectClean);
             }).catch(_rejectClean);
           }).catch(_rejectClean);
         }).catch(_rejectClean);
@@ -1574,7 +1572,7 @@ var DataManager = {
     });
   },
 
-  listCollectors: function(restriction) {
+  listCollectors: function(restriction, projectId) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
@@ -1614,7 +1612,7 @@ var DataManager = {
                 });
               }
 
-              output.push(new Collector(Object.assign({input_output_map: input_output_map}, collector.get())));
+              output.push(new Collector(Object.assign({input_output_map: input_output_map, project_id: projectId}, collector.get())));
               input_output_map = [];
             }
           }); // end foreach collectors

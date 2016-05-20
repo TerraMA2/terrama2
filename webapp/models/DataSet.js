@@ -65,6 +65,13 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataSet.hasMany(models.DataSetFormat, {
+            onDelete: 'CASCADE',
+            foreignKey: {
+              allowNull: false
+            }
+          })
         }
       }
     }

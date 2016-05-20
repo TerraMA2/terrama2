@@ -1,4 +1,3 @@
-var net = require('net');
 var Signals = require('./Signals.js');
 var SSH = require("./SSHDispatcher");
 var Promise = require('bluebird');
@@ -7,28 +6,6 @@ var _ = require('lodash');
 var Service = require('./Service');
 
 var TcpManager = module.exports = {};
-
-
-/**
-This method parses the bytearray received.
-@param {Buffer} byteArray - a nodejs buffer with bytearray received
-@param {Object} object - a javascript object with signal, message and size
-*/
-function parseByteArray(byteArray) {
-  var messageSizeReceived = byteArray.readUInt32BE(0);
-  var signalReceived = byteArray.readUInt32BE(4);
-  var rawData = byteArray.slice(8, byteArray.length);
-
-  // validate signal
-  var signal = Utils.getTcpSignal(signalReceived);
-  var jsonMessage = JSON.parse(rawData);
-
-  return {
-    size: messageSizeReceived,
-    signal: signal,
-    message: jsonMessage
-  }
-}
 
 
 /** 
@@ -54,7 +31,7 @@ function _getClient(connection) {
     }
   }
 
-  if (!client) {
+  if (!client || !client.isOpen()) {
     client = new Service(connection);
 
     clients[connection.name] = client;
@@ -121,19 +98,7 @@ TcpManager.sendData = function(serviceInstance, data) {
     // getting client and writing in the channel
     var client = _getClient(serviceInstance);
 
-    var _helper = function() {
-      client.send(buffer);
-    };
-
-    if (client.isOpen()) {
-      _helper();
-    } else {
-      client.connect().then(function() {
-        _helper();
-      }).catch(function(err) {
-        reject(err);
-      });
-    }
+    client.send(buffer);
 
   } catch (e) {
     console.log(e);
@@ -151,25 +116,15 @@ TcpManager.updateService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
     try {
       var buffer = makeBuffer(Signals.UPDATE_SERVICE_SIGNAL, serviceInstance.toObject());
+
+      console.log(buffer.toString());
       var client = _getClient(serviceInstance);
 
-      var _helper = function() {
-        client.update(buffer).then(function() {
-          resolve();
-        }).catch(function(err) {
-          reject(err);
-        });
-      };
-
-      if (client.isOpen()) {
-        _helper();
-      } else {
-        client.connect().then(function() {
-          _helper();
-        }).catch(function(err) {
-          reject(err);
-        });
-      }
+      client.update(buffer).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(err);
+      });
 
     } catch (e) {
       reject(e)
@@ -216,28 +171,32 @@ TcpManager.statusService = function(serviceInstance) {
 
       var client = _getClient(serviceInstance);
 
-      var _helper = function() {
-        client.status(buffer).then(function(result) {
-          resolve(result);
-        }).catch(function(err) {
-          reject(err);
-        })
-      };
-
-      if (client.isOpen()) {
-        _helper();
-      } else {
-        client.connect().then(function() {
-          _helper();
-        }).catch(function(err) {
-          reject(err);
-        });
-      }
+      client.status(buffer).then(function(result) {
+        resolve(result);
+      }).catch(function(err) {
+        reject(err);
+      })
 
     } catch (e) {
       reject(e)
     }
 
+  });
+}
+
+TcpManager.connect = function(serviceInstance) {
+  return new Promise(function(resolve, reject) {
+    try {
+      var client = _getClient(serviceInstance);
+
+      client.connect().then(function() {
+        resolve();
+      }).catch(function(err) {
+        resolve()
+      })
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
@@ -247,29 +206,15 @@ TcpManager.stopService = function(serviceInstance) {
     try {
       var buffer = makeBuffer(Signals.TERMINATE_SERVICE_SIGNAL, {});
 
-      var closeCallbackCalled = true;
       var client = _getClient(serviceInstance);
 
-      var _helper = function() {
-        client.stop(buffer).then(function() {
-          resolve();
-        }).catch(function(err) {
-          console.log(err);
-          reject(err)
-        })
-      };
+      client.stop(buffer).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(err)
+      })
 
-      if (client.isOpen()) {
-        _helper();
-      } else {
-        client.connect().then(function() {
-          _helper();
-        }).catch(function(err) {
-          reject(err);
-        });
-      }
-
-      
     } catch(e) {
       reject(e);
     }
