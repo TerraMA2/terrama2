@@ -1574,7 +1574,7 @@ var DataManager = {
     });
   },
 
-  listCollectors: function(restriction) {
+  listCollectors: function(restriction, projectId) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
@@ -1614,7 +1614,7 @@ var DataManager = {
                 });
               }
 
-              output.push(new Collector(Object.assign({input_output_map: input_output_map}, collector.get())));
+              output.push(new Collector(Object.assign({input_output_map: input_output_map, project_id: projectId}, collector.get())));
               input_output_map = [];
             }
           }); // end foreach collectors

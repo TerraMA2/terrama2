@@ -13,6 +13,7 @@ var Service = module.exports = function(serviceInstance) {
 
   self.socket.on('data', function(byteArray) {
     console.log("client received: ", byteArray);
+    console.log(byteArray.toString());
 
     if (callbackSuccess)
       callbackSuccess(byteArray);
@@ -38,7 +39,8 @@ var Service = module.exports = function(serviceInstance) {
         self.socket.connect(self.service.port, self.service.host, function() {
           resolve();
         })
-      }
+      } else
+        reject(new Error("Could not connect. There is a opened connection"));
     })
   };
 
@@ -67,7 +69,7 @@ var Service = module.exports = function(serviceInstance) {
 
   self.send = function(buffer) {
     if (!this.isOpen())
-      return reject(new Error("Could not send add data signal from closed connection"));  
+      throw new Error("Could not send add data signal from closed connection");  
 
     self.socket.write(buffer);
   };
@@ -77,9 +79,8 @@ var Service = module.exports = function(serviceInstance) {
       if (!self.isOpen())
         return reject(new Error("Could not close a no existent connection"));
 
-      callbackSuccess = resolve;
-      callbackError = reject;
       self.socket.write(buffer);
+      resolve();
     });
   };
 };
