@@ -38,10 +38,18 @@ var Service = module.exports = function(serviceInstance) {
 
   self.socket.on('data', function(byteArray) {
     console.log("client received: ", byteArray);
-    var parsed = parseByteArray(byteArray);
 
-    if (callbackSuccess)
-      callbackSuccess(parsed);
+    try  {
+      var parsed = parseByteArray(byteArray);
+
+      if (callbackSuccess)
+        callbackSuccess(parsed);
+    } catch (e) {
+      console.log("Error parsing bytearray: ", e);
+      if (callbackError)
+        callbackError(e);
+    }
+  
   });
 
   self.socket.on('close', function(byteArray) {
