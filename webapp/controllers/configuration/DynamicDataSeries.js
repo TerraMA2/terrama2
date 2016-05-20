@@ -1,3 +1,6 @@
+var DataManager = require('./../../core/DataManager');
+
+
 module.exports = function(app) {
 
   return {
@@ -10,7 +13,13 @@ module.exports = function(app) {
     },
 
     edit: function(request, response) {
-      response.render('configuration/dataset');
+      var dataSeriesId = request.params.id;
+
+      DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeriesResult) {
+        response.render('configuration/dataset');
+      }).catch(function(err) {
+        response.render('base/404');
+      })
     }
   }
 
