@@ -190,7 +190,7 @@ module.exports = {
     return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
   },
 
-  prepareAddSignalMessage: function(DataManager) {
+  prepareAddSignalMessage: function(DataManager, projectId) {
     return new Promise(function(resolve, reject) {
       var _handleError = function(err) {
         console.log(err);
@@ -211,7 +211,7 @@ module.exports = {
         }) // end foreach dataSeriesResult
 
         // getting collectors
-        DataManager.listCollectors().then(function(collectorsResult) {
+        DataManager.listCollectors({}, projectId).then(function(collectorsResult) {
           var collectors = [];
           collectorsResult.forEach(function(collector) {
             collectors.push(collector.toObject());
