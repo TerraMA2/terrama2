@@ -33,9 +33,8 @@ module.exports = function(sequelize, DataTypes) {
           });
 
           Collector.belongsTo(models.ServiceInstance, {
-            onDelete: "CASCADE",
             foreignKey: {
-              allowNull: false
+              allowNull: true
             }
           });
 
