@@ -311,7 +311,8 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
       && json.contains("frequency")
       && json.contains("frequency_unit")
       && json.contains("schedule")
-      && json.contains("schedule_timestamp")
+      //FIXME: json format is wrong
+      // && json.contains("schedule_timestamp")
       && json.contains("schedule_unit")
       && json.contains("schedule_retry")
       && json.contains("schedule_retry_unit")
@@ -322,7 +323,6 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
-
 
   terrama2::core::Schedule schedule;
   schedule.id = json["id"].toInt();
