@@ -57,6 +57,7 @@
 using ::testing::Return;
 using ::testing::_;
 
+
 void TsDataRetrieverFTP::TestFailUriInvalid()
 {
   try
@@ -84,7 +85,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
+    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_COULDNT_RESOLVE_HOST));
 
     try
     {
@@ -114,6 +115,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
 }
 
+
 void TsDataRetrieverFTP::TestFailLoginInvalid()
 {
   try
@@ -141,7 +143,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_LOGIN_DENIED));
+    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_LOGIN_DENIED));
 
     try
     {
@@ -198,17 +200,16 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_OK));
 
     try
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
 
-      QFAIL("Exception expected - DataRetrieverException!");
     }
-    catch(terrama2::core::DataRetrieverException& e)
+    catch(...)
     {
-
+      QFAIL("Exception expected - DataRetrieverException!");
     }
 
     curl_global_cleanup();
