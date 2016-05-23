@@ -101,6 +101,8 @@ terrama2::core::TcpManager::~TcpManager()
 
 void terrama2::core::TcpManager::updateService(const QByteArray& bytearray)
 {
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
@@ -120,6 +122,8 @@ void terrama2::core::TcpManager::updateService(const QByteArray& bytearray)
 
 void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
 {
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
@@ -140,6 +144,8 @@ void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
 
 void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
 {
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
