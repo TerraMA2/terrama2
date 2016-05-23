@@ -1,9 +1,11 @@
 var DataManager = require("./../../core/DataManager");
+var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
 module.exports = function(app) {
   return {
     get: function (request, response) {
-      return response.render('administration/services');
+      var parameters = makeTokenParameters(request.query.token, app);
+      return response.render('administration/services', parameters);
     },
 
     new: function (request, response) {
