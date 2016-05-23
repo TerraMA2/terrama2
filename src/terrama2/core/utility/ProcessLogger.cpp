@@ -183,10 +183,29 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  boost::format query("UPDATE "+ tableName_ + " SET status=%1%, data_timestamp='%2%', last_process_timestamp='%3%' WHERE id =" + QString::number(registerId).toStdString());
+  boost::format query("UPDATE "+ tableName_ + " SET status=%1%, data_timestamp=%2%, last_process_timestamp='%3%' WHERE id =" + QString::number(registerId).toStdString());
+  QString timestamp = "NULL";
+  if(dataTimestamp.get())
+  {
+    auto boostTime = dataTimestamp->getTimeInstantTZ();
+    if(!boostTime.is_not_a_date_time())
+    {
+      if(boostTime.zone())
+        timestamp = QString::fromStdString(dataTimestamp->toString());
+      else
+      {
+        QString errMsg = QObject::tr("Wrong data format.\nUsing UTC timezone");
+        TERRAMA2_LOG_WARNING() << errMsg;
+        timestamp = QString::fromStdString(boost::posix_time::to_simple_string(boostTime.utc_time()))+"UTC+00";
+      }
+
+      timestamp.prepend("'");
+      timestamp.append("'");
+    }
+  }
 
   query.bind_arg(1, static_cast<int>(Status::DONE));
-  query.bind_arg(2, dataTimestamp.get() ? dataTimestamp->toString() : "NULL");
+  query.bind_arg(2, timestamp);
   query.bind_arg(3, TimeUtils::nowUTC()->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();

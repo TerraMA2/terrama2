@@ -238,13 +238,17 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
       }
     }//for each dataset
   }
+  catch(const terrama2::Exception& e)
+  {
+    throw;
+  }
   catch(const boost::exception& e)
   {
-    std::cout << boost::diagnostic_information(e) << std::endl;
+    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(const std::exception& e)
   {
-    std::cout << e.what() << std::endl;
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(...)
   {

@@ -52,7 +52,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
 {
   if(json["class"].toString() != "DataProvider")
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid DataProvider JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -66,7 +66,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
        && json.contains("active")
        && json.contains("data_provider_type")))
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid DataProvider JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -90,7 +90,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
 {
   if(json["class"].toString() != "DataSeries")
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid DataSeries JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -101,7 +101,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
        && json.contains("name")
        && json.contains("description")))
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid DataSeries JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -137,7 +137,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
       break;
     default:
     {
-      QString errMsg = QObject::tr("Invalid JSON object.\n Unknown DataSet type.");
+      QString errMsg = QObject::tr("Invalid DataSeries JSON object.\nUnknown DataSet type.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
     }
@@ -148,7 +148,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
     if(json.isObject())
       dataSeries->datasetList.push_back(createDataSet(json.toObject()));
     else
-      throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+      throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid DataSet JSON object."));
   }
 
   return dataSeriesPtr;
@@ -158,7 +158,7 @@ void terrama2::core::addBaseDataSetData(QJsonObject json, terrama2::core::DataSe
 {
   if(json["class"].toString() != "DataSet")
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid DataSet JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -168,7 +168,7 @@ void terrama2::core::addBaseDataSetData(QJsonObject json, terrama2::core::DataSe
        && json.contains("active")
        && json.contains("format")))
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid DataSet JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -194,7 +194,7 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
 
   if(!json.contains("position"))
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid DataSet JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -205,7 +205,7 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
 
   if(!point.get())
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid DataSet JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -248,9 +248,12 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetGridJson(QJsonObject json)
 
 terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
 {
+  if(json.empty())
+    return terrama2::core::Filter();
+
   if(json["class"].toString() != "Filter")
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid Filter JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -294,9 +297,12 @@ QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
 
 terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
 {
+  if(json.empty())
+    return terrama2::core::Schedule();
+
   if(json["class"].toString() != "Schedule")
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid Schedule JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -304,25 +310,25 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   if(!(json.contains("id")
       && json.contains("frequency")
       && json.contains("frequency_unit")
-      && json.contains("schedule_day")
-      && json.contains("schedule_timestamp")
+      && json.contains("schedule")
+      //FIXME: json format is wrong
+      // && json.contains("schedule_timestamp")
       && json.contains("schedule_unit")
       && json.contains("schedule_retry")
       && json.contains("schedule_retry_unit")
       && json.contains("schedule_timeout")
       && json.contains("schedule_timeout_unit")))
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid Schedule JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
-
 
   terrama2::core::Schedule schedule;
   schedule.id = json["id"].toInt();
   schedule.frequency = json["frequency"].toInt();
   schedule.frequencyUnit = json["frequency_unit"].toString().toStdString();
-  schedule.scheduleDay = json["schedule_day"].toInt();
+  schedule.scheduleDay = json["schedule"].toInt();
   schedule.scheduleTimestamp = json["schedule_timestamp"].toString().toStdString();
   schedule.scheduleUnit = json["schedule_unit"].toString().toStdString();
   schedule.scheduleRetry = json["schedule_retry"].toInt();

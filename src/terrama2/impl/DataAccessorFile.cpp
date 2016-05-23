@@ -125,8 +125,8 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
   {
     dataSet->move(i);
     if(!isValidTimestamp(dataSet, filter, dateColumn)
-        || !isValidGeometry(dataSet, filter, geomColumn)
-        || !isValidRaster(dataSet, filter, rasterColumn))
+       || !isValidGeometry(dataSet, filter, geomColumn)
+       || !isValidRaster(dataSet, filter, rasterColumn))
     {
       dataSet->remove();
       --size;
@@ -152,10 +152,10 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
   std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
   auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
-  if(filter.discardBefore.get() && (*timesIntant) < (*filter.discardBefore))
+  if(filter.discardBefore.get() && !((*timesIntant) > (*filter.discardBefore)))
     return false;
 
-  if(filter.discardAfter.get() && (*timesIntant) > (*filter.discardAfter))
+  if(filter.discardAfter.get() && !((*timesIntant) < (*filter.discardAfter)))
     return false;
 
   return true;
@@ -219,8 +219,8 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-    const terrama2::core::Filter& filter,
-    terrama2::core::DataSetPtr dataSet) const
+                                                                          const terrama2::core::Filter& filter,
+                                                                          terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
   QDir dir(url.path());
@@ -233,7 +233,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   }
 
   //return value
- DataSetSeries series;
+  DataSetSeries series;
   series.dataSet = dataSet;
 
   std::shared_ptr<te::da::DataSet> completeDataset(nullptr);
@@ -336,7 +336,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(completeDataset);
   //if both dates are valid
   if((fileTimestamp.get() && !fileTimestamp->getTimeInstantTZ().is_not_a_date_time())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
+     && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
   {
     (*lastDateTime_) = *dataTimeStamp > *fileTimestamp ? *dataTimeStamp : *fileTimestamp;
   }
