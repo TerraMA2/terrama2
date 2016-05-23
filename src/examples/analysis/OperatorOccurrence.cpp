@@ -104,8 +104,33 @@ int main(int argc, char* argv[])
     analysis.name = "Analysis";
     analysis.active = false;
 
-    std::string script = "x = occurrence.count(\"Occurrence\", 2000, Buffer.OBJECT_PLUS_EXTERN, \"500d\", \"\")\n"
-                         "add_value(\"Count\", x)";
+    std::string script = "buffer = Buffer()\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"no_buffer\", x)\n"
+
+                         "buffer = Buffer(BufferType.object_plus_buffer, 10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"object_plus_buffer\", x)\n"
+
+                         "buffer = Buffer(BufferType.only_buffer, -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"intern\", x)\n"
+
+                         "buffer = Buffer(BufferType.only_buffer, 10, \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"extern\", x)\n"
+
+                         "buffer = Buffer(BufferType.intern_plus_extern, 10., \"km\", -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"intern_plus_extern\", x)\n"
+
+                         "buffer = Buffer(BufferType.object_minus_buffer, -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"object_minus_buffer\", x)\n"
+
+                         "buffer = Buffer(BufferType.distance_zone, 20, \"km\", 5, \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"distance_zone\", x)\n";
 
 
     analysis.script = script;

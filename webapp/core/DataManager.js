@@ -42,6 +42,8 @@ var Schedule = require('./data-model/Schedule');
 var Collector = require('./data-model/Collector');
 var Analysis = require('./data-model/Analysis');
 var AnalysisDataSeries = require('./data-model/AnalysisDataSeries');
+var Service = require('./data-model/Service');
+var Log = require('./data-model/Log');
 
 
 // Available DataSeriesType
@@ -231,11 +233,9 @@ var DataManager = {
       var _continueInMemory = function(dataSetObject, dataSetFmtsResult, builtDataSeries) {
         // for each format
         var fmt = {};
-        dataSetFmtsResult.forEach(function(format, formatIndex, formatArr) {
+        dataSetFmtsResult.forEach(function(format) {
           if (format.data_set_id == dataSetObject.id) {
             fmt[format.key] = format.value;
-            // remove it to avoid re-iterate
-            formatArr.splice(formatIndex, 1);
           }
         });
 
@@ -268,7 +268,8 @@ var DataManager = {
                   model: models.db.DataSetDcp,
                   attributes: ['position'],
                   required: true
-                }
+                },
+                models.db.DataSetFormat
               ]
             }));
             dbOperations.push(models.db.DataSet.findAll({
@@ -277,61 +278,60 @@ var DataManager = {
                 {
                   model: models.db.DataSetOccurrence,
                   required: true
-                }
+                },
+                models.db.DataSetFormat
               ]
             }));
 
             // find all datasets
             Promise.all(dbOperations).then(function(dataSetsArray) {
-              // find all data set
-              models.db['DataSetFormat'].findAll({}).then(function(dataSetFormatsResult) {
-                // for each dataSeries
-                dataSeries.forEach(function(dSeries) {
-                  var builtDataSeries = new DataSeries(dSeries.get());
+              // for each dataSeries
+              dataSeries.forEach(function(dSeries) {
+                var builtDataSeries = new DataSeries(dSeries.get());
 
-                  dataSetsArray.forEach(function(dataSets) {
-                    // for each data set retrieved
-                    dataSets.forEach(function(dataSet) {
-                      if (dSeries.id == dataSet.data_series_id) {
+                dataSetsArray.forEach(function(dataSets) {
+                  // for each data set retrieved
+                  dataSets.forEach(function(dataSet) {
+                    if (dSeries.id == dataSet.data_series_id) {
 
-                        var dSetObject = {
-                          id: dataSet.id,
-                          data_series_id: dataSet.data_series_id,
-                          active: dataSet.active
-                        };
+                      var dSetObject = {
+                        id: dataSet.id,
+                        data_series_id: dataSet.data_series_id,
+                        active: dataSet.active
+                      };
 
-                        if (dataSet.DataSetDcp) {
-                          var dcpDset = dataSet.DataSetDcp.get();
+                      if (dataSet.DataSetDcp) {
+                        var dcpDset = dataSet.DataSetDcp.get();
 
-                          // checking dcp position is null
-                          if (dcpDset.position) {
-                            self.getWKT(dcpDset.position).then(function(wktPosition) {
-                              dcpDset.position = wktPosition;
-                              Object.assign(dSetObject, dcpDset);
-
-                              _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
-                            }).catch(_rejectClean);
-                          } else {
+                        // checking dcp position is null
+                        if (dcpDset.position) {
+                          self.getWKT(dcpDset.position).then(function(wktPosition) {
+                            dcpDset.position = wktPosition;
                             Object.assign(dSetObject, dcpDset);
-                            _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
-                          }
+
+                            _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
+                          }).catch(_rejectClean);
+                        } else {
+                          Object.assign(dSetObject, dcpDset);
+                          _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
                         }
-                        else if (dataSet.DataSetOccurrence)
-                          _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
-                        else // todo: grid, monitored object
-                          _continueInMemory(dSetObject, dataSetFormatsResult, builtDataSeries);
                       }
-                    }); // end foreach dataSets
-                  }); // end foreach dataSetsArray
+                      else if (dataSet.DataSetOccurrence)
+                        _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
+                      else // todo: grid, monitored object
+                        _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
+                    }
+                  }); // end foreach dataSets
+                }); // end foreach dataSetsArray
 
-                  // adding local cache
-                  self.data.dataSeries.push(builtDataSeries);
-                }); // end foreach dataseries
+                // adding local cache
+                self.data.dataSeries.push(builtDataSeries);
+              }); // end foreach dataseries
 
-                self.isLoaded = true;
-                resolve();
+              self.isLoaded = true;
+              resolve();
 
-              }).catch(_rejectClean);
+              // }).catch(_rejectClean);
             }).catch(_rejectClean);
           }).catch(_rejectClean);
         }).catch(_rejectClean);
@@ -482,9 +482,23 @@ var DataManager = {
     return new Promise(function(resolve, reject){
       lock.writeLock(function(release) {
         models.db.ServiceInstance.create(serviceObject).then(function(serviceResult){
-          resolve(serviceResult.get())
-          release();
+          var service = new Service(serviceResult);
+          var logObject = serviceObject.log;
+          logObject.service_instance_id = serviceResult.id;
+          models.db['Log'].create(logObject).then(function(logResult) {
+            var log = new Log(logResult);
+            service.log = log.toObject();
+
+            resolve(service);
+            release();
+          }).catch(function(err) {
+            console.log(err);
+            Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
+            release();
+          });
+          
         }).catch(function(e) {
+          console.log(e);
           var message = "Could not save service instance: ";
           if (e.errors)
             message += e.errors[0].message;
@@ -497,13 +511,22 @@ var DataManager = {
 
   listServiceInstances: function(restriction) {
     return new Promise(function(resolve, reject){
-      models.db['ServiceInstance'].findAll({where: restriction}).then(function(services) {
+      models.db['ServiceInstance'].findAll({
+        where: restriction,
+        include: [models.db.Log]
+      }).then(function(services) {
         var output = [];
         services.forEach(function(service){
-          output.push(service.get());
+          var serviceObject = new Service(service.get());
+          var logObject = new Log(service.Log || {});
+          serviceObject.log = logObject.toObject();
+          output.push(serviceObject);
         });
 
         resolve(output);
+      }).catch(function(err) {
+        console.log(err);
+        reject(new Error("Could not retrieve services " + err.message));
       });
     });
   },
@@ -1408,7 +1431,7 @@ var DataManager = {
         }).catch(function(err) {
           reject(err);
         })
-      }
+      };
 
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
@@ -1549,10 +1572,10 @@ var DataManager = {
     });
   },
 
-  listCollectors: function(restriction) {
+  listCollectors: function(restriction, projectId) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db['Collector'].findAll({where: restriction}).then(function(collectorsResult) {
+      models.db['Collector'].findAll({where: restriction, include: [models.db.Schedule]}).then(function(collectorsResult) {
         var output = [];
         var promises = [];
 
@@ -1589,8 +1612,14 @@ var DataManager = {
                 });
               }
 
-              output.push(new Collector(Object.assign({input_output_map: input_output_map}, collector.get())));
+              var schedule = new Schedule(collector.Schedule.get());
+              output.push(new Collector(Object.assign({
+                input_output_map: input_output_map,
+                project_id: projectId,
+                schedule: schedule.toObject()
+              }, collector.get())));
               input_output_map = [];
+
             }
           }); // end foreach collectors
 

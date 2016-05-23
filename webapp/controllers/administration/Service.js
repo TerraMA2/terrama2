@@ -1,9 +1,11 @@
 var DataManager = require("./../../core/DataManager");
+var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
 module.exports = function(app) {
   return {
     get: function (request, response) {
-      return response.render('administration/services');
+      var parameters = makeTokenParameters(request.query.token, app);
+      return response.render('administration/services', parameters);
     },
 
     new: function (request, response) {
@@ -12,7 +14,7 @@ module.exports = function(app) {
     
     edit: function(request, response) {
       DataManager.getServiceInstance({id: request.params.id}).then(function(service) {
-        return response.render('administration/service', {service: service});
+        return response.render('administration/service', {service: service.rawObject()});
       }).catch(function(err) {
         response.json({status: 400, message: err.message});
       })
