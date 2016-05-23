@@ -381,6 +381,7 @@ void terrama2::services::analysis::core::Context::addDataset(const AnalysisId an
       int size = series.syncDataSet->size();
       for(std::size_t i = 0; i < size; ++i)
       {
+
         auto geom = series.syncDataSet->getGeometry(i, geomPropertyPosition);
         dataSeriesContext->rtree.insert(*geom->getMBR(), i);
       }

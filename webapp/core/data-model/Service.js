@@ -11,8 +11,9 @@ function Service(params) {
   this.port = params.port;
   this.pathToBinary = params.pathToBinary;
   this.runEnviroment = params.runEnviroment;
+  this.numberOfThreads = params.numberOfThreads;
   this.description = params.description;
-  this.log = params.log || {},
+  this.log = params.log || {};
   this.service_type_id = params.service_type_id;
 }
 

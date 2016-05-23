@@ -190,7 +190,7 @@ module.exports = {
     return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
   },
 
-  prepareAddSignalMessage: function(DataManager) {
+  prepareAddSignalMessage: function(DataManager, projectId) {
     return new Promise(function(resolve, reject) {
       var _handleError = function(err) {
         console.log(err);
@@ -211,9 +211,21 @@ module.exports = {
         }) // end foreach dataSeriesResult
 
         // getting collectors
-        DataManager.listCollectors().then(function(collectorsResult) {
+        DataManager.listCollectors({}, projectId).then(function(collectorsResult) {
           var collectors = [];
           collectorsResult.forEach(function(collector) {
+            // setting project id. temp. TODO: better way to implement it
+
+            dataProvidersResult.some(function(dprovider) {
+              return dataSeriesResult.some(function(dseries) {
+                if (dprovider.id == dseries.data_provider_id && collector.input_data_series == dseries.id) {
+                  //getting project id
+                  collector.project_id = dprovider.project_id;
+                  return true;
+                }
+              })
+            });
+
             collectors.push(collector.toObject());
           }) // end foreach collectorsResult
 

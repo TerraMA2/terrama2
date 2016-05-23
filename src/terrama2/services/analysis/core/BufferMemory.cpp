@@ -31,6 +31,7 @@
 #include "BufferMemory.hpp"
 #include "../../../core/data-access/SyncronizedDataSet.hpp"
 #include "../../../core/utility/Utils.hpp"
+#include "../../../core/utility/Logger.hpp"
 
 // TerraLib
 #include <terralib/srs/SpatialReferenceSystemManager.h>
@@ -42,60 +43,86 @@
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/GeometryProperty.h>
 
-std::unique_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuffer(BufferType bufferType, std::shared_ptr<te::gm::Geometry> geometry, double distance)
+//QT
+#include <QObject>
+#include <QString>
+
+std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuffer(Buffer buffer, std::shared_ptr<te::gm::Geometry> geometry)
 {
   // Converts the data to UTM
   int utmSrid = terrama2::core::getUTMSrid(geometry.get());
+  geometry->transform(utmSrid);
 
-  std::unique_ptr<te::gm::Geometry> utmGeom(dynamic_cast<te::gm::Geometry*>(geometry.get()->clone()));
-  utmGeom->transform(utmSrid);
-
-  std::unique_ptr<te::gm::Geometry> geomResult;
-  std::unique_ptr<te::gm::Geometry> tempGeom;
-
-  switch (bufferType)
+  if(buffer.bufferType == NONE)
   {
-    case NONE:
-    {
-      geomResult = std::move(utmGeom);
-      break;
-    }
-    case EXTERN:
-    {
-      tempGeom.reset(utmGeom->buffer(distance, 16, te::gm::CapButtType));
-      geomResult.reset(tempGeom->difference(utmGeom.get()));
-      break;
-    }
-    case INTERN:
-    {
-      tempGeom.reset(utmGeom->buffer(-distance, 16, te::gm::CapButtType));
-      geomResult.reset(tempGeom->difference(utmGeom.get()));
-      break;
-    }
-    case INTERN_PLUS_EXTERN:
-    {
-      tempGeom.reset(utmGeom->buffer(distance, 16, te::gm::CapButtType));
-      std::unique_ptr<te::gm::Geometry> auxGeom(utmGeom->buffer(-distance, 16, te::gm::CapButtType));
-      geomResult.reset(tempGeom->difference(auxGeom.get()));
-      break;
-    }
-    case OBJECT_PLUS_EXTERN:
-    {
-      geomResult.reset(utmGeom->buffer(distance, 16, te::gm::CapButtType));
-      break;
-    }
-    case OBJECT_WITHOUT_INTERN:
-    {
-      tempGeom.reset(utmGeom->buffer(-distance, 16, te::gm::CapButtType));
-      geomResult.reset(tempGeom->difference(utmGeom.get()));
-      break;
-    }
+    return geometry;
   }
 
+  std::shared_ptr<te::gm::Geometry> geomResult;
+  std::shared_ptr<te::gm::Geometry> geomTemp;
+
+  double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
+
+
+  switch (buffer.bufferType)
+  {
+    case ONLY_BUFFER:
+    {
+      geomTemp.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+      if(distance > 0)
+        geomResult.reset(geomTemp->difference(geometry.get()));
+      else
+        geomResult.reset(geometry->difference(geomTemp.get()));
+      break;
+    }
+    case EXTERN_PLUS_INTERN:
+    {
+      geomTemp.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+
+      double distance2 = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
+      std::shared_ptr<te::gm::Geometry> auxGeom(geometry->buffer(distance2, 16, te::gm::CapButtType));
+      geomResult.reset(geomTemp->difference(auxGeom.get()));
+      break;
+    }
+    case OBJECT_PLUS_BUFFER:
+    {
+      if(buffer.distance < 0)
+      {
+        QString errMsg(QObject::tr("The distance must be positive for the buffer type OBJECT_PLUS_BUFFER, given value: %1.").arg(buffer.distance));
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+      }
+      geomResult.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+      break;
+    }
+    case OBJECT_MINUS_BUFFER:
+    {
+      if(buffer.distance > 0)
+      {
+        QString errMsg(QObject::tr("The distance must be negative for the buffer type OBJECT_MINUS_BUFFER, given value: %1.").arg(buffer.distance));
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+      }
+      geomResult.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+      break;
+    }
+    case DISTANCE_ZONE:
+    {
+      geomTemp.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+
+      double distance2 = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
+      geomResult.reset(geomTemp->difference(geometry->buffer(distance2, 16, te::gm::CapButtType)));
+      break;
+    }
+    default:
+      break;
+  }
+
+  geomResult->setSRID(utmSrid);
   return geomResult;
 }
 
-std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, double distance, BufferType bufferType)
+std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, Buffer buffer)
 {
 
   // Creates memory dataset for buffer
@@ -118,22 +145,25 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
   for(size_t i = 0; i < geometries.size(); ++i)
   {
     auto geom = geometries[i];
-    auto buffer = geom->buffer(distance, 16, te::gm::CapButtType);
+
+    double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
+
+    auto aggBuffer = geom->buffer(distance, 16, te::gm::CapButtType);
 
     std::vector<te::gm::Geometry*> vec;
 
-    rtree.search(*(buffer->getMBR()), vec);
+    rtree.search(*(aggBuffer->getMBR()), vec);
 
     for(std::size_t t = 0; t < vec.size(); ++t)
     {
-      if(buffer->intersects(vec[t]))
+      if(aggBuffer->intersects(vec[t]))
       {
-        buffer = buffer->Union(vec[t]);
+        aggBuffer = aggBuffer->Union(vec[t]);
         rtree.remove(*(vec[t]->getMBR()), vec[t]);
       }
     }
 
-    rtree.insert(*(buffer->getMBR()), buffer);
+    rtree.insert(*(aggBuffer->getMBR()), aggBuffer);
 
   }
 

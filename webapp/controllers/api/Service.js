@@ -1,6 +1,6 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
-
+var TokenCode = require('./../../core/Enums').TokenCode;
 
 module.exports = function(app) {
   return {
@@ -45,7 +45,9 @@ module.exports = function(app) {
       var serviceObject = request.body.service;
       serviceObject.log = request.body.log;
       DataManager.addServiceInstance(serviceObject).then(function(service) {
-        return response.json({status: 200});
+        var token = Utils.generateToken(app, TokenCode.SAVE, service.name);
+        console.log(token);
+        return response.json({status: 200, token: token});
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       });

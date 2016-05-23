@@ -67,11 +67,11 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
             connections[key].destroy();
         };
 
-        TcpManager.disconnect().then(function() {
+        // TcpManager.disconnect().then(function() {
           _closeServer();
-        }).catch(function(err) {
-          _closeServer();
-        })
+        // }).catch(function(err) {
+          // _closeServer();
+        // })
       });
     });
 
