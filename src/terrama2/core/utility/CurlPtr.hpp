@@ -67,7 +67,7 @@ namespace terrama2
          return curl_;
        }
 
-       CURLcode verifyURL(std::string url)
+       virtual CURLcode verifyURL(std::string url)
        {
          curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
          curl_easy_setopt(curl_, CURLOPT_FTPLISTONLY, 1);
@@ -80,7 +80,7 @@ namespace terrama2
        /*! When CurlPtr destructor is called, the function curl_easy_cleanup is used automatically.
            The function curl_easy_cleanup close all connections this handle curl.
        */
-       ~CurlPtr()
+       virtual ~CurlPtr()
        {
          curl_easy_cleanup(curl_);
        }

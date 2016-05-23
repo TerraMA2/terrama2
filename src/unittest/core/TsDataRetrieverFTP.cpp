@@ -85,7 +85,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
+    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_COULDNT_RESOLVE_HOST));
 
     try
     {
@@ -143,7 +143,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_LOGIN_DENIED));
+    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_LOGIN_DENIED));
 
     try
     {
@@ -200,7 +200,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 
     MockCurlWrapper mock_;
 
-    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_OK));
 
     try
     {
