@@ -57,6 +57,7 @@
 using ::testing::Return;
 using ::testing::_;
 
+
 void TsDataRetrieverFTP::TestFailUriInvalid()
 {
   try
@@ -113,6 +114,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
  return;
 
 }
+
 
 void TsDataRetrieverFTP::TestFailLoginInvalid()
 {
@@ -204,11 +206,10 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
 
-      QFAIL("Exception expected - DataRetrieverException!");
     }
-    catch(terrama2::core::DataRetrieverException& e)
+    catch(...)
     {
-
+      QFAIL("Exception expected - DataRetrieverException!");
     }
 
     curl_global_cleanup();

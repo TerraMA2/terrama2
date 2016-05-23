@@ -40,7 +40,6 @@
 #include "../core/utility/Logger.hpp"
 #include "../core/data-model/Filter.hpp"
 #include "../core/utility/FilterUtils.hpp"
-#include "../core/utility/CurlWrapper.hpp"
 
 // Libcurl
 #include <curl/curl.h>
@@ -53,7 +52,7 @@
 #include <QDir>
 #include <QDebug>
 
-terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlWrapper curlwrapper )
+terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr& curlwrapper)
   : DataRetriever(dataprovider)
 {
   temporaryFolder_ = "/tmp/terrama2-download/";
@@ -65,6 +64,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
     dir.mkpath(temporaryFolder_.c_str());
 
   CURLcode status;
+  curlwrapper.init();
 
   // Verifies that the FTP address is valid
   try
@@ -227,7 +227,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   return scheme_+temporaryFolder_;
 }
 
-terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider, CurlWrapper curlwrapper)
+terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider, CurlPtr curlwrapper)
 {
-  return new DataRetrieverFTP(dataProvider,curlwrapper);
+  return new DataRetrieverFTP(dataProvider, curlwrapper);
 }

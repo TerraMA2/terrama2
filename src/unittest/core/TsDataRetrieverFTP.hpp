@@ -27,7 +27,6 @@
 
 
 #include <terrama2/impl/DataRetrieverFTP.hpp>
-#include "MockDataRetriever.hpp"
 #include <QtTest>
 
 
