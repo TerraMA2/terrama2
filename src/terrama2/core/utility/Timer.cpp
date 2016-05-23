@@ -101,7 +101,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
   else
   {
     QString errMsg = QObject::tr("No frequency or schedule informed.");
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_WARNING() << errMsg;
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 

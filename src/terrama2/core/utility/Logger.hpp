@@ -20,6 +20,19 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Logs information for TerraMA², should not be used directly.
+
+      The Logger class is a singleton used to store log information, logging should be made using the macros:
+       - TERRAMA2_LOG_TRACE()
+       - TERRAMA2_LOG_DEBUG()
+       - TERRAMA2_LOG_INFO()
+       - TERRAMA2_LOG_WARNING()
+       - TERRAMA2_LOG_ERROR()
+       - TERRAMA2_LOG_FATAL()
+  
+
+    */
     class Logger : public te::common::Singleton<Logger>
     {
 

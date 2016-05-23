@@ -109,7 +109,7 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
   auto logDatabaseObj = obj["log_database"].toObject();
 
   std::map<std::string, std::string> connInfo { {"PG_HOST", logDatabaseObj["PG_HOST"].toString().toStdString()},
-                                                {"PG_PORT", logDatabaseObj["PG_PORT"].toString().toStdString()},
+                                                {"PG_PORT", std::to_string(logDatabaseObj["PG_PORT"].toInt())},
                                                 {"PG_USER", logDatabaseObj["PG_USER"].toString().toStdString()},
                                                 {"PG_PASSWORD", logDatabaseObj["PG_PASSWORD"].toString().toStdString()},
                                                 {"PG_DB_NAME", logDatabaseObj["PG_DB_NAME"].toString().toStdString()},

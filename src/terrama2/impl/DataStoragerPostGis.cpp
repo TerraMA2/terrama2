@@ -96,7 +96,8 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
     GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
     GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
   }
-
+  
+  series.syncDataSet->dataset()->moveBeforeFirst();
   transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), options);
 
   scopedTransaction.commit();
