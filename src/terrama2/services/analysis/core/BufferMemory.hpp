@@ -104,8 +104,8 @@ namespace terrama2
           BufferType bufferType; //!< The type of the buffer.
           double distance; //!< The distance of the buffer, positive value for external buffer and negative for internal buffer.
           std::string unit; //!< The distance unit.
-          double distance2; //!< The distance of the second buffer, this attribute is only used for composed buffer such as INTERN_PLUS_EXTERN and DISTANCE_ZONE.
-          std::string unit2; //!< The distance unit of the second buffer, this attribute is only used for composed buffer such as INTERN_PLUS_EXTERN and DISTANCE_ZONE.
+          double distance2; //!< The distance of the second buffer, this attribute is only used for composed buffer such as EXTERN_PLUS_INTERN and DISTANCE_ZONE.
+          std::string unit2; //!< The distance unit of the second buffer, this attribute is only used for composed buffer such as EXTERN_PLUS_INTERN and DISTANCE_ZONE.
         };
 
         /*!

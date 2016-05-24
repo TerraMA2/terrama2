@@ -89,6 +89,17 @@ namespace terrama2
         */
         std::string getString(std::size_t row, std::size_t columnIndex) const;
 
+
+        /*!
+          \brief Method for retrieving a numeric value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The numeric attribute value in the given position.
+        */
+        std::string getNumeric(std::size_t row, std::size_t columnIndex) const;
+
         /*!
           \brief Method for retrieving a double value attribute.
 
@@ -195,6 +206,16 @@ namespace terrama2
           \return The string attribute value in the given position.
         */
         std::string getString(std::size_t row, std::string columnName) const;
+
+        /*!
+          \brief Method for retrieving a numeric value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The numeric attribute value in the given position.
+        */
+        std::string getNumeric(std::size_t row, std::string columnName) const;
 
         /*!
           \brief Method for retrieving a double value attribute.

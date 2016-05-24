@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
     outputDataSet->active = true;
     outputDataSet->id = 2;
-    outputDataSet->format.emplace("table_name", "occurrence_analysis_result");
+    outputDataSet->format.emplace("table_name", "buffer_analysis_result");
 
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
@@ -106,25 +106,31 @@ int main(int argc, char* argv[])
 
     std::string script = "buffer = Buffer()\n"
                          "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
-                         "add_value(\"count\", x)\n"
+                         "add_value(\"no_buffer\", x)\n"
 
-                         "x = occurrence.max(\"Occurrence\", buffer, \"500d\", \"\", \"v\")\n"
-                         "add_value(\"max\", x)\n"
+                         "buffer = Buffer(BufferType.object_plus_buffer, 10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"object_plus_buffer\", x)\n"
 
-                         "x = occurrence.min(\"Occurrence\", buffer, \"500d\", \"\", \"v\")\n"
-                         "add_value(\"min\", x)\n"
+                         "buffer = Buffer(BufferType.only_buffer, -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"intern\", x)\n"
 
-                         "x = occurrence.mean(\"Occurrence\", buffer, \"500d\", \"\", \"v\")\n"
-                         "add_value(\"mean\", x)\n"
+                         "buffer = Buffer(BufferType.only_buffer, 10, \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"extern\", x)\n"
 
-                         "x = occurrence.median(\"Occurrence\", buffer, \"500d\", \"\", \"v\")\n"
-                         "add_value(\"median\", x)\n"
+                         "buffer = Buffer(BufferType.extern_plus_intern, 10., \"km\", -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"extern_plus_intern\", x)\n"
 
-                         "x = occurrence.standard_deviation(\"Occurrence\", buffer, \"500d\", \"\", \"v\")\n"
-                         "add_value(\"standard_deviation\", x)\n"
+                         "buffer = Buffer(BufferType.object_minus_buffer, -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"object_minus_buffer\", x)\n"
 
-                         "x = occurrence.sum(\"Occurrence\", buffer, \"500d\", \"\", \"v\")\n"
-                         "add_value(\"sum\", x)\n";
+                         "buffer = Buffer(BufferType.distance_zone, 20, \"km\", 5, \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+                         "add_value(\"distance_zone\", x)\n";
 
 
     analysis.script = script;
