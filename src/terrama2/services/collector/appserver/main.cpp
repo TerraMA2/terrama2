@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     serviceManager.setListeningPort(listeningPort);
 
     // service context
-    // this is needed for calling the destructor of the service before finalizint terralib 
+    // this is needed for calling the destructor of the service before finalizing terralib 
     {
       QCoreApplication app(argc, argv);
 
