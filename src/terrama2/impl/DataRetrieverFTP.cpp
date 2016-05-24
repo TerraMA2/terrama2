@@ -55,7 +55,7 @@
 terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper)
   : DataRetriever(dataprovider),
     curlwrapper_(std::move(curlwrapper))
-{
+{  
   temporaryFolder_ = "/tmp/terrama2-download/";
   scheme_ = "file://";
 

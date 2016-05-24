@@ -147,7 +147,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     try
     {
-      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr,  std::move(mock_));
 
       QFAIL("Exception expected - DataRetrieverException!");
     }

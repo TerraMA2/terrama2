@@ -51,8 +51,17 @@ namespace terrama2
          curl_ = curl_easy_init();
        }
 
-       CurlPtr(CurlPtr&& curl) = default;
-       CurlPtr& operator=(CurlPtr&& other) = default;
+       CurlPtr(CurlPtr&& other)
+         : curl_(other.curl_)
+       {
+         other.curl_ = nullptr;
+       }
+
+       CurlPtr& operator=(CurlPtr&& other)
+       {
+         curl_ = other.curl_;
+         other.curl_ = nullptr;
+       }
 
        CurlPtr(CurlPtr& curl) = delete;
        CurlPtr& operator=(const CurlPtr& other) = delete;
