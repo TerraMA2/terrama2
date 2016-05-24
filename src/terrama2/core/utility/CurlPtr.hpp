@@ -51,6 +51,13 @@ namespace terrama2
          curl_ = curl_easy_init();
        }
 
+       CurlPtr(CurlPtr&& curl) = default;
+       CurlPtr& operator=(CurlPtr&& other) = default;
+
+       CurlPtr(CurlPtr& curl) = delete;
+       CurlPtr& operator=(const CurlPtr& other) = delete;
+
+
        /*!
            The init function performs the function curl_easy_cleanup closing all handle connections
            curl and then performs the initialization of the curl.

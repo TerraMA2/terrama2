@@ -7,7 +7,6 @@
 #include <terrama2/core/data-model/Filter.hpp>
 #include <terrama2/core/utility/Raii.hpp>
 #include <terrama2/core/utility/FilterUtils.hpp>
-//#include <terrama2/core/utility/CurlWrapper.hpp>
 
 // STL
 #include <iostream>
@@ -41,7 +40,7 @@ int main(int argc, char* argv[])
   curl_global_init(CURL_GLOBAL_ALL);
 
   std::string path;
-  std::string mask = "exporta_20160101_0130.csv";
+  std::string mask = "exporta_20160501_0230.csv";  //"exporta_20160101_0130.csv";
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -55,7 +54,7 @@ int main(int argc, char* argv[])
     //empty filter
     terrama2::core::Filter filter;
     //accessing data
-    terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, curlwrapper);
+    terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(curlwrapper));
 
     path = retrieverFTP.retrieveData(mask, filter);
   }
@@ -71,10 +70,10 @@ int main(int argc, char* argv[])
   else
     qDebug() << "Test failed!";
 
-  // Remove paste of download files.
-  QDir dir(uriLocal.path());
-  if (dir.exists())
-    dir.removeRecursively();
+//  // Remove paste of download files.
+//  QDir dir(uriLocal.path());
+//  if (dir.exists())
+//    dir.removeRecursively();
 
   return 0;
 }

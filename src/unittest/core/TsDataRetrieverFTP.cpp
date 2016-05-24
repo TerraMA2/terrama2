@@ -89,7 +89,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
     try
     {
-      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
 
       QFAIL("Exception expected - DataRetrieverException!");
     }
@@ -126,7 +126,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     url.setScheme("FTP");
     url.setPort(21);
     url.setUserName("queimadas");
-    url.setUserName("2012"); // login errado
+    url.setUserName("2012");
 
     curl_global_init(CURL_GLOBAL_ALL);
 
@@ -147,7 +147,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     try
     {
-      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
 
       QFAIL("Exception expected - DataRetrieverException!");
     }
@@ -204,7 +204,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 
     try
     {
-      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
 
     }
     catch(...)

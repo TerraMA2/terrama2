@@ -52,8 +52,9 @@
 #include <QDir>
 #include <QDebug>
 
-terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr& curlwrapper)
-  : DataRetriever(dataprovider)
+terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper)
+  : DataRetriever(dataprovider),
+    curlwrapper_(std::move(curlwrapper))
 {
   temporaryFolder_ = "/tmp/terrama2-download/";
   scheme_ = "file://";
@@ -64,14 +65,14 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
     dir.mkpath(temporaryFolder_.c_str());
 
   CURLcode status;
-  curlwrapper.init();
+  curlwrapper_.init();
 
   // Verifies that the FTP address is valid
   try
   {
     std::string url = dataprovider->uri.c_str();
 
-    status = curlwrapper.verifyURL(url);
+    status = curlwrapper_.verifyURL(url);
 
     if (status != CURLE_OK)
     {
@@ -227,7 +228,8 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   return scheme_+temporaryFolder_;
 }
 
-terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider, CurlPtr curlwrapper)
+terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
 {
-  return new DataRetrieverFTP(dataProvider, curlwrapper);
+  CurlPtr curlwrapper;
+  return new DataRetrieverFTP(dataProvider, std::move(curlwrapper));
 }
