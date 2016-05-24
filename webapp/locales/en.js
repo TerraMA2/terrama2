@@ -280,5 +280,8 @@
 	"Password is required": "Password is required",
 	"Log host is required": "Log host is required",
 	"Log username": "Log username",
-	"Log password": "Log password"
+	"Log password": "Log password",
+	"Invalid range of ports": {
+		" A valid port is from 1 to 65535": "Invalid range of ports. A valid port is from 1 to 65535"
+	}
 }
