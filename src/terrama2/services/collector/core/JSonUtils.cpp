@@ -49,7 +49,7 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
-//FIXME: wrong format for collector json 
+//FIXME: wrong format collector json
   if(!(json.contains("id") && /*json.contains("project_id") && */json.contains("service_instance_id") && json.contains("input_data_series") &&
        json.contains("output_data_series") && json.contains("input_output_map") && json.contains("schedule") /*&& json.contains("intersection")*/ &&
        json.contains("active")))
