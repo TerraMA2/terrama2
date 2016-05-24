@@ -124,6 +124,11 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, Buffer buffer)
 {
+  if(geometries.empty())
+  {
+    std::shared_ptr<te::mem::DataSet> dsOut;
+    return dsOut;
+  }
 
   // Creates memory dataset for buffer
   te::da::DataSetType* dt = new te::da::DataSetType("buffer");

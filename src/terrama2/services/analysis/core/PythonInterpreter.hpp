@@ -316,9 +316,10 @@ namespace terrama2
           \param dateFilter Time filter for the data.
           \param restriction SQL restriction.
           \param attribute Name of the attribute to be used in statistic operator.
-          \return The result of the selected operatorion.
+          \param aggregationBuffer Buffer configuration to be used to aggregate occurrences in the same area.
+          \return The result of the selected operation.
         */
-        double occurrenceOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute);
+        double occurrenceOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute = "", Buffer aggregationBuffer = Buffer());
 
         /*!
           \brief It calculates the count of occurrences in the monitored object.

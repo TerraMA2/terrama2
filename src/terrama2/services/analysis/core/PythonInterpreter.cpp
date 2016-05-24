@@ -229,9 +229,24 @@ double terrama2::services::analysis::core::dcpHistoryOperator(StatisticOperation
 
               auto syncDs = contextDataset->series.syncDataSet;
 
-              int attributeType = contextDataset->series.teDataSetType->getProperty(attribute)->getType();
+              int attributeType = 0;
+              if(!attribute.empty())
+              {
+                auto property = contextDataset->series.teDataSetType->getProperty(attribute);
+
+                // only operation COUNT can be done without attribute.
+                if(!property && statisticOperation != COUNT)
+                {
+                  QString errMsg(QObject::tr("Analysis: %1 -> Invalid attribute name"));
+                  errMsg = errMsg.arg(cache.analysisId);
+                  TERRAMA2_LOG_ERROR() << errMsg;
+                  return NAN;
+                }
+                attributeType = property->getType();
+              }
 
               uint64_t countValues = 0;
+
               if(syncDs->size() == 0)
                 continue;
 
@@ -491,7 +506,7 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
       Context::getInstance().addDCPDataSeries(cache.analysisId, dataSeries, "", true);
 
       // For DCP operator count returns the number of DCP that influence the monitored object
-      int influenceCount = 0;
+      uint64_t influenceCount = 0;
 
       for(auto dataset : dataSeries->datasetList)
       {
@@ -529,8 +544,25 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
             ++influenceCount;
 
             auto syncDs = contextDataset->series.syncDataSet;
-            int attributeType = contextDataset->series.teDataSetType->getProperty(attribute)->getType();
+
+            int attributeType = 0;
+            if(!attribute.empty())
+            {
+              auto property = contextDataset->series.teDataSetType->getProperty(attribute);
+
+              // only operation COUNT can be done without attribute.
+              if(!property && statisticOperation != COUNT)
+              {
+                QString errMsg(QObject::tr("Analysis: %1 -> Invalid attribute name"));
+                errMsg = errMsg.arg(cache.analysisId);
+                TERRAMA2_LOG_ERROR() << errMsg;
+                return NAN;
+              }
+              attributeType = property->getType();
+            }
+
             uint64_t countValues = 0;
+
             if(syncDs->size() == 0)
               continue;
 
@@ -604,10 +636,13 @@ double terrama2::services::analysis::core::dcpOperator(StatisticOperation statis
   return getOperationResult(cache, statisticOperation);
 }
 
-double terrama2::services::analysis::core::occurrenceOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute)
+double terrama2::services::analysis::core::occurrenceOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute, Buffer aggregationBuffer)
 {
   OperatorCache cache;
   readInfoFromDict(cache);
+
+
+  std::cout << statisticOperation << " "  << cache.index << std::endl;
 
   bool found = false;
   bool hasData = false;
@@ -644,7 +679,7 @@ double terrama2::services::analysis::core::occurrenceOperator(StatisticOperation
 
   // Save thread state before entering multi-thread zone
 
-  //Py_BEGIN_ALLOW_THREADS
+  Py_BEGIN_ALLOW_THREADS
 
   std::shared_ptr<ContextDataSeries> contextDataset;
 
@@ -694,8 +729,21 @@ double terrama2::services::analysis::core::occurrenceOperator(StatisticOperation
 
             std::vector<std::shared_ptr<te::gm::Geometry> > geometries;
 
+            int attributeType = 0;
+            if(!attribute.empty())
+            {
+              auto property = contextDataset->series.teDataSetType->getProperty(attribute);
 
-            int attributeType = contextDataset->series.teDataSetType->getProperty(attribute)->getType();
+              // only operation COUNT can be done without attribute.
+              if(!property && statisticOperation != COUNT)
+              {
+                QString errMsg(QObject::tr("Analysis: %1 -> Invalid attribute name"));
+                errMsg = errMsg.arg(cache.analysisId);
+                TERRAMA2_LOG_ERROR() << errMsg;
+                return NAN;
+              }
+              attributeType = property->getType();
+            }
 
             for(uint64_t i : indexes)
             {
@@ -712,7 +760,6 @@ double terrama2::services::analysis::core::occurrenceOperator(StatisticOperation
                   {
                     hasData = true;
                     cache.count++;
-
                     double value = getValue(syncDs, attribute, i, attributeType);
 
                     values.push_back(value);
@@ -731,27 +778,22 @@ double terrama2::services::analysis::core::occurrenceOperator(StatisticOperation
               }
             }
 
-            if(cache.count == 0)
-              continue;
 
             calculateStatistics(values, cache);
 
+            cache.count = geometries.size();
 
-
-            /*if(!geometries.empty())
+            if(aggregationBuffer.bufferType != NONE && !geometries.empty())
             {
               // Creates aggregation buffer
               std::shared_ptr<te::gm::Envelope> box(syncDs->dataset()->getExtent(contextDataset->geometryPos));
-              if(distance != 0.)
-              {
-                auto bufferDs = createAggregationBuffer(geometries, box, distance, bufferType);
-                count = bufferDs->size();
-              }
-              else
-              {
-                count = geometries.size();
-              }
-            }*/
+
+              auto bufferDs = createAggregationBuffer(geometries, box, aggregationBuffer);
+
+              if(bufferDs)
+                cache.count = bufferDs->size();
+
+            }
           }
 
         }
@@ -768,10 +810,14 @@ double terrama2::services::analysis::core::occurrenceOperator(StatisticOperation
     TERRAMA2_LOG_ERROR() << e.what();
     return NAN;
   }
+  catch(...)
+  {
+    return NAN;
+  }
 
 
   // All operations are done, acquires the GIL and set the return value
-  //Py_END_ALLOW_THREADS
+  Py_END_ALLOW_THREADS
 
   if(!found)
     return NAN;
@@ -786,7 +832,7 @@ double terrama2::services::analysis::core::occurrenceOperator(StatisticOperation
 
 int terrama2::services::analysis::core::occurrenceCount(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction)
 {
-  return (int)occurrenceOperator(COUNT, dataSeriesName, buffer, dateFilter, restriction, attribute);
+  return (int)occurrenceOperator(COUNT, dataSeriesName, buffer, dateFilter, restriction, "");
 }
 
 double terrama2::services::analysis::core::occurrenceMin(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute)
@@ -1008,6 +1054,9 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
 
 double terrama2::services::analysis::core::getValue(terrama2::core::SyncronizedDataSetPtr syncDs, const std::string& attribute, uint64_t i, int attributeType)
 {
+  if(attribute.empty())
+    return NAN;
+
   double value = NAN;
   switch (attributeType)
   {
@@ -1101,6 +1150,9 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createDCPI
 
 void terrama2::services::analysis::core::calculateStatistics(std::vector<double>& values, OperatorCache& cache)
 {
+  if(values.size() == 0)
+    return;
+
   cache.mean = cache.sum / cache.count;
   std::sort (values.begin(), values.end());
   double half = values.size() / 2;
