@@ -47,44 +47,47 @@ namespace terrama2
     */
     class DataAccessorOccurrenceWfp : public DataAccessorOccurrence, public DataAccessorFile
     {
-    public:
-      DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorOccurrenceWfp() {}
+      public:
+        DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        virtual ~DataAccessorOccurrenceWfp() {}
 
-      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
-      {
-        return new DataAccessorOccurrenceWfp(dataProvider, dataSeries, filter);
-      }
+        static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        {
+          return new DataAccessorOccurrenceWfp(dataProvider, dataSeries, filter);
+        }
 
-    protected:
-      virtual std::string dataSourceType() const override;
-      virtual std::string typePrefix() const override;
+      protected:
+        virtual std::string dataSourceType() const override;
+        virtual std::string typePrefix() const override;
 
-      virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
-      virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
-                              const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+        virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
+                                const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
-    private:
-      //! Recover projection information from dataset
-      Srid getSrid(DataSetPtr dataSet) const;
-      //! Name of column with Date/Time information
-      std::string timestampPropertyName() const;
-      //! Name of column with latitude information
-      std::string latitudePropertyName() const;
-      //! Name of column with longitude information
-      std::string longitudePropertyName() const;
-      std::string geometryPropertyName() const;
-      /*!
-        \brief Convert string to TimeInstantTZ.
+        // WFP file may have delayed data that should not be filtered
+        virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const override { return true; }
 
-        \note Format recognized:  YYYY-mm-dd HH:MM:SS"
+      private:
+        //! Recover projection information from dataset
+        Srid getSrid(DataSetPtr dataSet) const;
+        //! Name of column with Date/Time information
+        std::string timestampPropertyName() const;
+        //! Name of column with latitude information
+        std::string latitudePropertyName() const;
+        //! Name of column with longitude information
+        std::string longitudePropertyName() const;
+        std::string geometryPropertyName() const;
+        /*!
+          \brief Convert string to TimeInstantTZ.
 
-      */
-      te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/,
-                                              const std::string& timezone) const;
+          \note Format recognized:  YYYY-mm-dd HH:MM:SS"
 
-      //! Convert string to Geometry
-      te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
+        */
+        te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/,
+                                                const std::string& timezone) const;
+
+        //! Convert string to Geometry
+        te::dt::AbstractData* stringToPoint(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int dstType, const Srid& srid) const;
     };
   }
 }

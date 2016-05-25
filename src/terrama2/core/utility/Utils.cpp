@@ -57,6 +57,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QString>
 
 // Curl
@@ -210,14 +211,28 @@ void terrama2::core::initializeTerraMA()
 
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
-  semanticsManager.addSemantics("OCCURRENCE-postgis", "PostGis stored occurrence", terrama2::core::DataSeriesSemantics::OCCURRENCE, "POSTGIS", {"POSTGIS"});
-  semanticsManager.addSemantics("OCCURRENCE-wfp", "INPE's Wildland Fire Program", terrama2::core::DataSeriesSemantics::OCCURRENCE, "CSV", {"FILE", "FTP"});
-  semanticsManager.addSemantics("STATIC_DATA-ogr", "Generic static data", terrama2::core::DataSeriesSemantics::STATIC, "OGR", {"FILE", "FTP"});
-  semanticsManager.addSemantics("DCP-inpe", "INPE's DCP data format", terrama2::core::DataSeriesSemantics::DCP, "CSV", {"FILE", "FTP"});
-  semanticsManager.addSemantics("DCP-toa5", "TOA5 DCP format", terrama2::core::DataSeriesSemantics::DCP, "CSV", {"FILE", "FTP"});
-  semanticsManager.addSemantics("DCP-postgis", "DCP PostGIS", terrama2::core::DataSeriesSemantics::DCP, "POSTGIS",  {"POSTGIS"});
-  semanticsManager.addSemantics("ANALYSIS_MONITORED_OBJECT-postgis", "Monitored object analysis result", terrama2::core::DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT, "POSTGIS", {"POSTGIS"});
-  semanticsManager.addSemantics("GRID-geotiff", "GeoTIFF grid", terrama2::core::DataSeriesSemantics::GRID, "GEOTIFF",  {"FILE", "FTP"});
+  //read semantics from json file
+  //TODO: where should the semantics file be placed?
+  std::string semanticsPath = FindInTerraMA2Path("src/terrama2/core/semantics.json");
+  QFile semantcisFile(QString::fromStdString(semanticsPath));
+  semantcisFile.open(QFile::ReadOnly);
+  QByteArray bytearray = semantcisFile.readAll();
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray);
+  auto array = jsonDoc.array();
+  for(const auto& json : array)
+  {
+    auto obj = json.toObject();
+    auto jsonProvidersTypes = obj["providers_type_list"].toArray();
+    std::vector<DataProviderType> providersTypes;
+    for(const auto& providerType : jsonProvidersTypes)
+    providersTypes.push_back(providerType.toString().toStdString());
+
+    semanticsManager.addSemantics(obj["code"].toString().toStdString(),
+                                  obj["name"].toString().toStdString(),
+                                  dataSeriesTypeFromString(obj["type"].toString().toStdString()),
+                                  obj["format"].toString().toStdString(),
+                                  providersTypes);
+  }
 }
 
 void terrama2::core::finalizeTerraMA()
@@ -249,20 +264,20 @@ int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
   // Calculates the UTM zone for the given coordinate
   int zoneNumber = floor((coord.getX() + 180)/6) + 1;
 
-  if( coord.getY() >= 56.0 && coord.getY() < 64.0 && coord.getX() >= 3.0 && coord.getX() < 12.0 )
+  if(coord.getY() >= 56.0 && coord.getY() < 64.0 && coord.getX() >= 3.0 && coord.getX() < 12.0)
     zoneNumber = 32;
 
   // Special zones for Svalbard
-  if( coord.getY() >= 72.0 && coord.getY() < 84.0 )
+  if(coord.getY() >= 72.0 && coord.getY() < 84.0)
   {
-  if( coord.getX() >= 0.0  && coord.getX() <  9.0 )
-    zoneNumber = 31;
-  else if( coord.getX() >= 9.0  && coord.getX() < 21.0 )
-    zoneNumber = 33;
-  else if(coord.getX() >= 21.0 && coord.getX() < 33.0 )
-    zoneNumber = 35;
-  else if(coord.getX() >= 33.0 && coord.getX() < 42.0 )
-    zoneNumber = 37;
+    if(coord.getX() >= 0.0  && coord.getX() <  9.0)
+      zoneNumber = 31;
+    else if(coord.getX() >= 9.0  && coord.getX() < 21.0)
+      zoneNumber = 33;
+    else if(coord.getX() >= 21.0 && coord.getX() < 33.0)
+      zoneNumber = 35;
+    else if(coord.getX() >= 33.0 && coord.getX() < 42.0)
+      zoneNumber = 37;
   }
 
   // Creates a Proj4 description and returns the SRID.
@@ -284,4 +299,26 @@ double terrama2::core::convertDistanceUnit(double distance, const std::string& f
 
   return te::common::UnitsOfMeasureManager::getInstance().getConversion(fromUnit, targetUnit) * distance;
 
+}
+
+terrama2::core::DataSeriesSemantics::DataSeriesType terrama2::core::dataSeriesTypeFromString(const std::string& type)
+{
+  if(type == "DCP")
+    return terrama2::core::DataSeriesSemantics::DCP;
+  else if(type == "OCCURRENCE")
+    return terrama2::core::DataSeriesSemantics::OCCURRENCE;
+  else if(type == "GRID")
+    return terrama2::core::DataSeriesSemantics::GRID;
+  else if(type == "MONITORED_OBJECT")
+    return terrama2::core::DataSeriesSemantics::MONITORED_OBJECT;
+  else if(type == "STATIC_DATA")
+    return terrama2::core::DataSeriesSemantics::STATIC;
+  else if(type == "ANALYSIS_MONITORED_OBJECT")
+    return terrama2::core::DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT;
+  else
+  {
+    QString errMsg = QObject::tr("Unknown DataSeriesType: %1.").arg(QString::fromStdString(type));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataModelException() << terrama2::ErrorDescription(errMsg);
+  }
 }
