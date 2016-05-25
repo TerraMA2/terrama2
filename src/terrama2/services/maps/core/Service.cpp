@@ -42,13 +42,13 @@ void terrama2::services::maps::core::Service::updateNumberOfThreads(int numberOf
 }
 
 // TODO:
-bool terrama2::services::maps::core::Service::mainLoopWaitCondition()
+bool terrama2::services::maps::core::Service::hasDataOnQueue()
 {
   return true;
 }
 
 // TODO:
-bool terrama2::services::maps::core::Service::checkNextData()
+bool terrama2::services::maps::core::Service::processNextData()
 {
   return true;
 }

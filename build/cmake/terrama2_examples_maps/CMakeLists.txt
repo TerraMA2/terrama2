@@ -60,6 +60,7 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
    qt5_use_modules(${EXAMPLE} Core )
 
    target_link_libraries(${EXAMPLE} terrama2_maps_core
+                                    terrama2_impl
                                     terralib_mod_common
                                     terralib_mod_qt_widgets
                                     terralib_mod_maptools)

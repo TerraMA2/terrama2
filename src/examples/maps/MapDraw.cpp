@@ -4,10 +4,12 @@
 #include <terralib/dataaccess.h>
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/maptools.h>
+#include <terralib/maptools/RasterLayer.h>
 #include <terralib/qt/widgets/canvas/MapDisplay.h>
 #include <terralib/qt/widgets/canvas/MultiThreadMapDisplay.h>
 #include <terralib/se.h>
 #include <terralib/qt/widgets/canvas/Canvas.h>
+#include <terralib/memory/DataSource.h>
 
 // STL
 #include <cassert>
@@ -20,7 +22,12 @@
 #include <QDialog>
 #include <QLabel>
 
-
+// TerraMA2
+#include <terrama2/core/data-model/DataSeries.hpp>
+#include <terrama2/core/data-model/DataSetGrid.hpp>
+#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
+#include <terrama2/core/data-access/GridSeries.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 
 
@@ -87,7 +94,81 @@ te::se::Style* MarkPointStyle(const std::string& markName)
   return style;
 }
 
-void MapDisplay(QApplication& app)
+void MapDisplay()
+{
+  try
+  {
+    std::map<std::string, std::string> connInfo;
+    connInfo["URI"] = TERRAMA2_DATA_DIR +"/shapefile/munic_2001.shp";
+
+    // Creates and connects data source
+    te::da::DataSourcePtr datasource = te::da::DataSourceManager::getInstance().open(te::common::Convert2String(1), "OGR", connInfo);
+
+    // Get the number of data set types that belongs to the data source
+    std::vector<std::string> datasets = datasource->getDataSetNames();
+
+    // Creates the MapDisplay
+    std::shared_ptr<te::qt::widgets::MapDisplay> mapDisplay(new te::qt::widgets::MultiThreadMapDisplay(QSize(700, 500)));
+
+    // MapDisplay box
+    te::gm::Envelope env;
+
+    // A map of GeomType -> Style
+    std::map<te::gm::GeomType, te::se::Style*> styles;
+    styles[te::gm::PolygonType] = SimplePolygonStyle();
+    styles[te::gm::LineStringType] = SimpleLineStyle();
+    styles[te::gm::PointType] = MarkPointStyle("circle");
+
+    // Creates the Layer list
+    int id = 0;
+    std::list<te::map::AbstractLayerPtr> layerList;
+    for(unsigned int i = 0; i < datasets.size(); ++i)
+    {
+      std::shared_ptr<te::da::DataSetType> dt(datasource->getDataSetType(datasets[i]));
+
+      if(!dt->hasGeom())
+        continue;
+
+      te::gm::GeometryProperty* geomProperty = te::da::GetFirstGeomProperty(dt.get());
+      assert(geomProperty);
+
+      // To MapDisplay extent
+      std::shared_ptr<te::gm::Envelope> e(datasource->getExtent(datasets[i], geomProperty->getName()));
+      env.Union(*e);
+
+      // Creates a Layer
+      te::map::DataSetLayer* layer = new te::map::DataSetLayer(te::common::Convert2String(++id), datasets[i]);
+      layer->setDataSourceId(datasource->getId());
+      layer->setDataSetName(datasets[i]);
+      layer->setVisibility(te::map::VISIBLE);
+      layer->setExtent(*e);
+      layer->setStyle(styles[geomProperty->getGeometryType()]);
+      layer->setRendererType("ABSTRACT_LAYER_RENDERER");
+
+      layerList.push_back(layer);
+    }
+
+    mapDisplay->setMinimumSize(QSize(60, 60));
+    mapDisplay->setResizePolicy(te::qt::widgets::MapDisplay::Center);
+    mapDisplay->setLayerList(layerList);
+    mapDisplay->show();
+    mapDisplay->setExtent(env);
+
+    QApplication::exec();
+
+    layerList.clear();
+  }
+  catch(const std::exception& e)
+  {
+    std::cout << std::endl << "An exception has occurred in DrawLayer example: " << e.what() << std::endl;
+  }
+  catch(...)
+  {
+    std::cout << std::endl << "An unexpected exception has occurred in DrawLayer example!" << std::endl;
+  }
+}
+
+void MapDisplay(std::shared_ptr<te::da::DataSet> ds)
 {
   try
   {
@@ -147,7 +228,7 @@ void MapDisplay(QApplication& app)
     mapDisplay->show();
     mapDisplay->setExtent(env);
 
-    app.exec();
+    QApplication::exec();
 
     layerList.clear();
   }
@@ -162,7 +243,7 @@ void MapDisplay(QApplication& app)
 }
 
 
-void RGB_012_RGB_Contrast_Style(te::qt::widgets::Canvas* c, te::map::DataSetLayer* l, te::gm::Envelope* e, int srid)
+void RGB_012_RGB_Contrast_Style(te::qt::widgets::Canvas* c, te::map::AbstractLayer* l, te::gm::Envelope* e, int srid)
 {
   //create default raster symbolizer
   te::se::RasterSymbolizer* rs = new te::se::RasterSymbolizer();
@@ -216,19 +297,33 @@ void RGB_012_RGB_Contrast_Style(te::qt::widgets::Canvas* c, te::map::DataSetLaye
 
   l->draw(c, *e, srid, 0, &cancel);
 
+  std::list<te::map::AbstractLayerPtr> layerList;
+  layerList.push_back(l);
+/*
+  // Creates the MapDisplay
+  std::shared_ptr<te::qt::widgets::MapDisplay> mapDisplay(new te::qt::widgets::MultiThreadMapDisplay(QSize(700, 500)));
+  mapDisplay->setMinimumSize(QSize(60, 60));
+  mapDisplay->setResizePolicy(te::qt::widgets::MapDisplay::Center);
+  mapDisplay->setLayerList(layerList);
+  mapDisplay->show();
+  mapDisplay->setExtent(*e);
+
+  QApplication::exec();*/
+
+
   c->save("GeneretadeImage", te::map::PNG);
 
   c->clear();
 }
 
 
-void DrawRasterStyledLayers(QApplication& app)
+void DrawRasterStyledLayers()
 {
   try
   {
     // Connection string to a raster file
     std::map<std::string, std::string> connInfo;
-    connInfo["URI"] = "/home/vinicius/data/cbers2b_rgb342_crop.tif";
+    connInfo["URI"] = TERRAMA2_DATA_DIR + "/geotiff/cbers2b_rgb342_crop.tif";
 
     // Creates and connects data source
     te::da::DataSourcePtr datasource = te::da::DataSourceManager::getInstance().open(te::common::Convert2String(2), "GDAL", connInfo);
@@ -247,8 +342,75 @@ void DrawRasterStyledLayers(QApplication& app)
     std::shared_ptr<te::gm::Envelope> extent(raster->getExtent());
 
     // Creates a DataSetLayer of raster
-    std::shared_ptr<te::map::DataSetLayer> rasterLayer(new te::map::DataSetLayer(te::common::Convert2String(1), dataSetName));
+    std::shared_ptr<te::map:: DataSetLayer> rasterLayer(new te::map::DataSetLayer(te::common::Convert2String(1), dataSetName));
     rasterLayer->setDataSourceId(datasource->getId());
+    rasterLayer->setDataSetName(dataSetName);
+    rasterLayer->setExtent(*extent.get());
+    rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
+    rasterLayer->setSRID(raster->getSRID());
+
+    // Get the projection used to be paint the raster
+    int srid = raster->getSRID();
+    //int srid = 4618; // LL SAD69
+
+    //    if(srid != raster->getSRID())
+    //      extent.transform(raster->getSRID(), srid);
+
+    // Creates a canvas
+    double llx = extent->m_llx;
+    double lly = extent->m_lly;
+    double urx = extent->m_urx;
+    double ury = extent->m_ury;
+
+    std::shared_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(800, 600));
+    canvas->calcAspectRatio(llx, lly, urx, ury);
+    canvas->setWindow(llx, lly, urx, ury);
+    canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
+
+    // RGB 012 with contrast in RGB bands Style
+    RGB_012_RGB_Contrast_Style(canvas.get(), rasterLayer.get(), extent.get(), srid);
+
+  }
+  catch(const std::exception& e)
+  {
+    std::cout << std::endl << "An exception has occurred in Styling example: " << e.what() << std::endl;
+  }
+  catch(...)
+  {
+    std::cout << std::endl << "An unexpected exception has occurred in Styling example!" << std::endl;
+  }
+}
+
+
+void DrawRasterStyledLayersFromDataSet(std::shared_ptr<te::da::DataSet> ds, std::shared_ptr<te::da::DataSetType> teDataSetType)
+{
+  try
+  {
+    std::shared_ptr< te::mem::DataSource > dataSource(new te::mem::DataSource());
+    dataSource->setId("1");
+    std::map<std::string, std::string> options;
+    te::da::DataSourcePtr daDS(dataSource.get());
+    te::da::DataSourceManager::getInstance().insert(daDS);
+    daDS->open();
+
+    std::string dataSetName = teDataSetType->getName();
+    daDS->createDataSet(teDataSetType.get(), options);
+    ds->moveBeforeFirst();
+    daDS->add(dataSetName, ds.get(), options, 0);
+
+    std::shared_ptr<te::da::DataSet> dataSet(daDS->getDataSet(dataSetName));
+    dataSet->moveFirst();
+    std::string RasterName = "RasterName";
+
+    std::size_t rpos = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
+    std::shared_ptr<te::rst::Raster> raster(dataSet->getRaster(rpos));
+    raster->setName(RasterName);
+
+    std::shared_ptr<te::gm::Envelope> extent(raster->getExtent());
+
+    // Creates a DataSetLayer of raster
+    std::shared_ptr<te::map::DataSetLayer> rasterLayer(new te::map::DataSetLayer(te::common::Convert2String(1), raster->getName()));
+    rasterLayer->setDataSourceId(daDS->getId());
     rasterLayer->setDataSetName(dataSetName);
     rasterLayer->setExtent(*extent.get());
     rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
@@ -294,9 +456,83 @@ int main(int argc, char** argv)
 
   try
   {
-    MapDisplay(app);
+    {
+      //DataProvider information
+      terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+      terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+      dataProvider->uri = "file://";
+      dataProvider->uri += TERRAMA2_DATA_DIR;
+      dataProvider->uri += "/geotiff";
 
-    DrawRasterStyledLayers(app);
+      dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+      dataProvider->dataProviderType = "FILE";
+      dataProvider->active = true;
+
+      //DataSeries information
+      terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+      terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+      dataSeries->semantics.code = "GRID-geotiff";
+
+      terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
+      dataSet->active = true;
+      dataSet->format.emplace("mask", "cbers2b_rgb342_crop.tif");
+      dataSet->format.emplace("timezone", "-03");
+
+      dataSeries->datasetList.emplace_back(dataSet);
+
+      //empty filter
+      terrama2::core::Filter filter;
+      //accessing data
+      terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+
+      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = accessor.getSeries(filter);
+
+      std::shared_ptr<te::da::DataSet> ds = series.begin()->second.syncDataSet->dataset();
+      std::shared_ptr<te::da::DataSetType> teDataSetType = series.begin()->second.teDataSetType;
+
+//      DrawRasterStyledLayersLayers();
+
+      DrawRasterStyledLayersFromDataSet(ds, teDataSetType);
+    }
+
+
+    {
+      //DataProvider information
+      terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+      terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+      dataProvider->uri = "file://";
+      dataProvider->uri += TERRAMA2_DATA_DIR;
+      dataProvider->uri += "/shapefile";
+
+      dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+      dataProvider->dataProviderType = "FILE";
+      dataProvider->active = true;
+
+      //DataSeries information
+      terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+      terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+      dataSeries->semantics.code = "STATIC_DATA-ogr";
+
+      terrama2::core::DataSet* dataSet = new terrama2::core::DataSet();
+      dataSet->active = true;
+      dataSet->format.emplace("mask", "munic_2001.shp");
+      dataSet->format.emplace("timezone", "-03");
+
+      dataSeries->datasetList.emplace_back(dataSet);
+
+      //empty filter
+      terrama2::core::Filter filter;
+      //accessing data
+      terrama2::core::DataAccessorStaticDataOGR accessor(dataProviderPtr, dataSeriesPtr);
+
+      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = accessor.getSeries(filter);
+
+      std::shared_ptr<te::da::DataSet> ds = series.begin()->second.syncDataSet->dataset();
+
+//      MapDisplay();
+//      MapDisplay( ds);
+    }
+
   }
   catch(const std::exception& e)
   {

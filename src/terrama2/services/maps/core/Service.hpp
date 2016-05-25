@@ -60,14 +60,14 @@ namespace terrama2
              \brief Returns true if the main loop should continue.
              \return True if there is data to be tasked OR is stop is true.
            */
-          virtual bool mainLoopWaitCondition() override;
+          virtual bool hasDataOnQueue() override;
 
 
           /*!
              \brief Check if there is data to be processed.
              \return True if there is more data to be processed.
            */
-          virtual bool checkNextData() override;
+          virtual bool processNextData() override;
 
 
           /*!
