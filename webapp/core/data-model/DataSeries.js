@@ -33,4 +33,22 @@ DataSeries.prototype.toObject = function() {
   })
 };
 
+DataSeries.prototype.rawObject = function() {
+  var dSets = [];
+  this.dataSets.forEach(function(dSet) {
+    if (dSet instanceof BaseClass)
+      dSets.push(dSet.toObject());
+    else
+      dSets.push(dSet);
+  })
+  return {
+    id: this.id,
+    name: this.name,
+    description: this.description,
+    data_provider_id: this.data_provider_id,
+    data_series_semantic_name: this.data_series_semantic_name,
+    dataSets: dSets
+  }
+}
+
 module.exports = DataSeries;

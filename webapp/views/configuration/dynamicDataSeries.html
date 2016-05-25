@@ -24,7 +24,7 @@
     message: "{[ message ]}",
     dataSeriesType: 'dynamic',
     link: function(object) {
-      return "/configuration/dataset?type=dynamic#wizard";
+      return "/configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#wizard";
     },
     iconFn: function(object) {
       switch(object.semantics.data_series_type_name) {

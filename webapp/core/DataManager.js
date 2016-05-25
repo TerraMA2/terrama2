@@ -127,8 +127,8 @@ var DataManager = {
         inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
 
         // data provider intent defaults
-        inserts.push(models.db.DataProviderIntent.create({name: "COLLECT", description: "Desc Collect intent"}));
-        inserts.push(models.db.DataProviderIntent.create({name: "PROCESSING", description: "Desc Processing intent"}));
+        inserts.push(models.db.DataProviderIntent.create({id: 1, name: "COLLECT", description: "Desc Collect intent"}));
+        inserts.push(models.db.DataProviderIntent.create({id: 2, name: "PROCESSING", description: "Desc Processing intent"}));
 
         // data series type defaults
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
@@ -496,7 +496,7 @@ var DataManager = {
             Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
             release();
           });
-          
+
         }).catch(function(e) {
           console.log(e);
           var message = "Could not save service instance: ";
@@ -551,12 +551,22 @@ var DataManager = {
   removeServiceInstance: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db['ServiceInstance'].destroy({where: restriction}).then(function() {
-        resolve();
+      self.getServiceInstance(restriction).then(function(serviceResult) {
+        // update collectors removing ID and setting them to inactive
+        self.updateCollectors({service_instance_id: serviceResult.id}, {active: false}).then(function() {
+          models.db['ServiceInstance'].destroy({where: restriction}).then(function() {
+            resolve();
+          }).catch(function(err) {
+            console.log(err);
+            reject(new Error("Could not remove service instance. " + err.message));
+          });
+        }).catch(function(err) {
+          reject(err);
+        });
       }).catch(function(err) {
-        console.log(err);
-        reject(new Error("Could not remove service instance. " + err.message));
-      });
+        reject(err);
+      })
+
     });
   },
 
@@ -593,6 +603,23 @@ var DataManager = {
         resolve(output);
       }).catch(function(err) {
         reject(err);
+      })
+    });
+  },
+
+  /**
+   * It retrieves a DataProviderIntent object from database.
+   *
+   * @return {Promise<DataProviderIntent>} - a 'bluebird' module with DataProviderIntent instance or error callback
+   */
+  getDataProviderIntent: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db['DataProviderIntent'].findOne({where: restriction}).then(function(intentResult) {
+        resolve(intentResult.get());
+      }).catch(function(err) {
+        console.log(err);
+        reject(new Error("Could not retrieve DataProviderIntent " + err.message));
       })
     });
   },
@@ -710,7 +737,6 @@ var DataManager = {
 
         //  todo: emit signal
         var d = new DataProvider(dProvider);
-        d.data_provider_intent_name = 1;
 
         // todo: improve it. it should be set in web interface.
         // sending to all services
@@ -884,7 +910,10 @@ var DataManager = {
       // todo: should have parent search module? #tempCode for filtering
       if (restriction && restriction.hasOwnProperty("Collector")) {
         // collector restriction
-        self.listCollectors({}).then(function(collectorsResult) {
+        self.listCollectors({active: true}).then(function(collectorsResult) {
+
+          if (collectorsResult.length == 0)
+            return resolve(collectorsResult);
 
           // creating a copy
           var copyDataSeries = [];
@@ -1474,7 +1503,7 @@ var DataManager = {
             }).catch(function(err) {
               // rollback schedule
               console.log("rollback schedule")
-              rollbackPromise([self.removeSchedule(scheduleResult), self.removeDataSerie(dataSeriesResult)], err);
+              rollbackPromise([self.removeSchedule(scheduleResult), self.removeDataSerie(dataSeriesResult), self.removeDataSerie(dataSeriesResultOutput)], err);
             });
           }).catch(function(err) {
             // rollback dataseries
@@ -1572,65 +1601,145 @@ var DataManager = {
     });
   },
 
+  updateCollectors: function(restriction, values, extra) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var options = Object.assign({
+        where: restriction
+      }, extra instanceof Object ? extra : {});
+
+      models.db['Collector'].update(values, options).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.CollectorError("Could not update collector" + err.message));
+      })
+
+    });
+  },
+
+  updateCollector: function(collectorObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var fields = [
+        'service_instance_id',
+        'data_series_input',
+        'data_series_output',
+        'schedule_id',
+        'active',
+        'collector_type'
+      ]
+
+      self.updateCollectors({id: collectorObject.id}, collectorObject, {fields: fields}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  },
+
+  _prepareCollector: function(collectorsResult, projectId) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var output = [];
+      self.listDataSeries().then(function(dataSeriesResult) {
+        collectorsResult.forEach(function(collector) {
+          var input_output_map = [];
+          var inputDataSeries = null;
+          var outputDataSeries = null;
+
+          dataSeriesResult.some(function(dataSeries) {
+            if (collector.data_series_input == dataSeries.id) { // input
+              inputDataSeries = dataSeries;
+              return inputDataSeries && outputDataSeries;
+            } else if (collector.data_series_output == dataSeries.id) {
+              outputDataSeries = dataSeries;
+              return inputDataSeries && outputDataSeries;
+            }
+            return false;
+          }); // end some dataseries
+
+          if (inputDataSeries && outputDataSeries) {
+            // iterating over datasets
+            for(var i = 0; i < inputDataSeries.dataSets.length; ++i) {
+              var inputDataSet = inputDataSeries.dataSets[i];
+              var outputDataSet;
+              if (outputDataSeries.dataSets.length == 1)
+                outputDataSet = outputDataSeries.dataSets[0];
+              else
+                outputDataSet = outputDataSeries.dataSets[i];
+
+              input_output_map.push({
+                input: inputDataSet.id,
+                output: outputDataSet.id
+              });
+            }
+
+            var schedule = new Schedule(collector.Schedule.get());
+            output.push(new Collector(Object.assign({
+              input_output_map: input_output_map,
+              project_id: projectId,
+              schedule: schedule.toObject()
+            }, collector.get())));
+            input_output_map = [];
+
+          }
+        }); // end foreach collectors
+
+        resolve(output);
+      }).catch(function(err) {
+        console.log(err);
+        reject(err);
+      });
+    });
+  },
+
   listCollectors: function(restriction, projectId) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db['Collector'].findAll({where: restriction, include: [models.db.Schedule]}).then(function(collectorsResult) {
-        var output = [];
-        var promises = [];
-
-        self.listDataSeries().then(function(dataSeriesResult) {
-          collectorsResult.forEach(function(collector) {
-            var input_output_map = [];
-            var inputDataSeries = null;
-            var outputDataSeries = null;
-
-            dataSeriesResult.some(function(dataSeries) {
-              if (collector.data_series_input == dataSeries.id) { // input
-                inputDataSeries = dataSeries;
-                return inputDataSeries && outputDataSeries;
-              } else if (collector.data_series_output == dataSeries.id) {
-                outputDataSeries = dataSeries;
-                return inputDataSeries && outputDataSeries;
-              }
-              return false;
-            }); // end some dataseries
-
-            if (inputDataSeries && outputDataSeries) {
-              // iterating over datasets
-              for(var i = 0; i < inputDataSeries.dataSets.length; ++i) {
-                var inputDataSet = inputDataSeries.dataSets[i];
-                var outputDataSet;
-                if (outputDataSeries.dataSets.length == 1)
-                  outputDataSet = outputDataSeries.dataSets[0];
-                else
-                  outputDataSet = outputDataSeries.dataSets[i];
-
-                input_output_map.push({
-                  input: inputDataSet.id,
-                  output: outputDataSet.id
-                });
-              }
-
-              var schedule = new Schedule(collector.Schedule.get());
-              output.push(new Collector(Object.assign({
-                input_output_map: input_output_map,
-                project_id: projectId,
-                schedule: schedule.toObject()
-              }, collector.get())));
-              input_output_map = [];
-
-            }
-          }); // end foreach collectors
-
+        self._prepareCollector(collectorsResult, projectId).then(function(output) {
           resolve(output);
         }).catch(function(err) {
-          console.log(err);
           reject(err);
-        });
+        })
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
+      });
+    });
+  },
+
+  getCollector: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var restrictionOutput = {};
+      if (restriction.output) {
+        Object.assign(restrictionOutput, restriction.output);
+        delete restriction.output;
+      }
+
+      models.db.Collector.findOne({
+        where: restriction,
+        include: [
+          {
+            model: models.db['Schedule']
+          },
+          {
+            model: models.db['DataSeries'],
+            where: restrictionOutput
+          }
+        ]
+      }).then(function(collectorResult) {
+        self._prepareCollector([collectorResult]).then(function(collectors) {
+          console.log(collectors);
+          resolve(collectors[0]);
+        }).catch(function(err) {
+          reject(err);
+        })
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.CollectorError("Could not find collector. " + err.message));
       });
     });
   },
@@ -1642,8 +1751,10 @@ var DataManager = {
       var filterValues = {collector_id: filterObject.collector_id};
       // checking filter by date
       if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
-        filterValues.discard_before = new Date(filterObject.date.beforeDate);
-        filterValues.discard_after = new Date(filterObject.date.afterDate);
+        if (filterObject.date.beforeDate)
+          filterValues.discard_before = new Date(filterObject.date.beforeDate);
+        if (filterObject.date.afterDate)
+          filterValues.discard_after = new Date(filterObject.date.afterDate);
       }
 
       // checking filter by area

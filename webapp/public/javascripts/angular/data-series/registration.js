@@ -176,6 +176,15 @@ angular.module('terrama2.dataseries.registration', [
             required: metadata.schema.required
           };
           $scope.$broadcast('schemaFormRedraw');
+
+          var outputDataseries = configuration.dataSeries.output;
+          if (!outputDataseries)
+            return;
+
+          // fill out default
+          if ($scope.formatSelected.data_series_type_name != "Dcp") {
+            $scope.modelStorager = outputDataseries.dataSets[0].format;
+          }
         }
 
       }).error(function(err) {
@@ -185,12 +194,25 @@ angular.module('terrama2.dataseries.registration', [
 
   }])
 
-  .controller('RegisterDataSeries', ['$scope', '$http', 'i18n', "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsFactory", "DataProviderFactory", "DataSeriesFactory", "ServiceInstanceFactory",
-    function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory, ServiceInstanceFactory) {
+  .controller('RegisterDataSeries', [
+    '$scope',
+    '$http',
+    'i18n',
+    "$window",
+    "$state",
+    "$httpParamSerializer",
+    "DataSeriesSemanticsFactory",
+    "DataProviderFactory",
+    "DataSeriesFactory",
+    "ServiceInstanceFactory",
+    "$timeout",
+    function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory, ServiceInstanceFactory, $timeout) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
+
+      $scope.isDynamic = params.state.toLowerCase() === "dynamic";
 
       $scope.service = {};
 
@@ -246,7 +268,9 @@ angular.module('terrama2.dataseries.registration', [
       $scope.onStoragerFormatChange = function() {
         console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
-        $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format, dcps: $scope.dcps});
+        $timeout(function() {
+          $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format, dcps: $scope.dcps});
+        })
       };
 
       $scope.$on("storagerDcpRemoved", function(event, dcp) {
@@ -356,7 +380,6 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.semantics = "";
-      $scope.isDynamic = params.state.toLowerCase() === "dynamic";
       $scope.dcps = [];
 
       $scope.updatingDcp = false;
@@ -389,20 +412,23 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.parametersData = configuration.parametersData || {};
 
-      $scope.dataSeries = {
-        data_provider_id: configuration.dataSeries.data_provider_id || "",
-        name: configuration.dataSeries.name || "",
-        access: configuration.dataSeries.access
-      };
+      var inputDataSeries = configuration.dataSeries.input || {};
+      var outputDataseries = configuration.dataSeries.output || {};
 
-      $scope.dataSeries.semantics = {};
+      $scope.dataSeries = {
+        data_provider_id: inputDataSeries.data_provider_id || "",
+        name: inputDataSeries.name || "",
+        access: inputDataSeries.access,
+        semantics: inputDataSeries.data_series_semantic_name || "",
+        active: inputDataSeries.active
+      };
 
       DataSeriesSemanticsFactory.list().success(function(semanticsList) {
         $scope.dataSeriesSemantics = semanticsList;
 
-        if (configuration.dataSeries.semantics) {
+        if ($scope.dataSeries.semantics) {
           semanticsList.forEach(function(semantics) {
-            if (semantics.name === configuration.dataSeries.semantics) {
+            if (semantics.name === $scope.dataSeries.semantics) {
               $scope.dataSeries.semantics = semantics;
               $scope.onDataSemanticsChange();
             }
@@ -455,23 +481,33 @@ angular.module('terrama2.dataseries.registration', [
         }
       });
 
+      // function to fill out parameters data and storager data
+      var _processParameters = function() {
+        // if ($scope.semantics.data_series_type_name != "Dcp") {
+        //   // adding in model
+        //   $scope.model = inputDataSeries.dataSets[0].format;
+        // } else {
+        //   // adding in table
+        //   inputDataSeries.dataSets.forEach(function(dSet) {
+        //     $scope.dcps.push(dSet.format);
+        //   });
+        // }
+
+        $scope.dataSeriesSemantics.forEach(function(dSemantic) {
+          if (dSemantic.name == outputDataseries.data_series_semantic_name) {
+            $scope.storager.format = dSemantic;
+            $scope.onStoragerFormatChange();
+          }
+        });
+
+      }
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name.toLowerCase();
         $scope.storager.format = {};
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
-
-        // if is dcp postgis, it shouldn't have a storager and it is processing
-        // if ($scope.dataSeries.semantics.data_series_type_name == 'Dcp' && $scope.dataSeries.semantics.name != 'DCP-POSTGIS') {
-        //   $scope.storagerFormats = [{name: 'DCP-postgis', data_series_type_name: 'Dcp'}];
-        // } else {
-        //   $scope.dataSeriesSemantics.forEach(function(dSemantics) {
-        //     if (dSemantics.data_series_type_name === "Occurrence") {
-        //       $scope.storagerFormats.push(Object.assign({}, dSemantics));
-        //     }
-        //   });
-        // }
 
         $scope.dataSeriesSemantics.forEach(function(dSemantics) {
           if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {
@@ -509,6 +545,8 @@ angular.module('terrama2.dataseries.registration', [
             required: data.metadata.schema.required
           };
           $scope.$broadcast('schemaFormRedraw');
+
+          _processParameters();
         }).error(function(err) {
           console.log("Error in semantics change: ", err);
           $scope.model = {};
@@ -692,7 +730,7 @@ angular.module('terrama2.dataseries.registration', [
 
         // it dispatches post operation to nodejs
         var _sendRequest = function(object) {
-        // var _sendRequest = function(dataToSend, scheduleValues, filterValues, serviceOutput) { 
+        // var _sendRequest = function(dataToSend, scheduleValues, filterValues, serviceOutput) {
           DataSeriesFactory.post({
             dataSeries: object.dataToSend,
             schedule: object.scheduleValues,
@@ -718,7 +756,7 @@ angular.module('terrama2.dataseries.registration', [
             var dSeriesName = dataObject.dataSeries.name;
             // setting _input in data series
             dataObject.dataSeries.name += "_input";
-            
+
             var dSets = values.data;
 
             // it makes data set format
@@ -749,7 +787,7 @@ angular.module('terrama2.dataseries.registration', [
               dSets.active = $scope.dataSeries.active;
               out = [dSets];
             }
-            
+
             var outputDataSeries = {
               name: dSeriesName,
               description: dataObject.dataSeries.description,

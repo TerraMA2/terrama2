@@ -8,7 +8,7 @@ var DataProvider = function(params) {
   this.project_id = params.project_id;
   this.description = params.description;
   this.data_provider_type_name = params.data_provider_type_name;
-  this.data_provider_intent_name = params.data_provider_intent_name;
+  this.data_provider_intent_id = params.data_provider_intent_id;
   this.name = params.name;
   this.active = params.active;
   this.uri = params.uri;
@@ -22,7 +22,7 @@ DataProvider.prototype.toObject = function() {
     id: this.id,
     project_id: this.project_id,
     data_provider_type: this.data_provider_type_name,
-    intent: this.data_provider_intent_name,
+    intent: this.data_provider_intent_id,
     name: this.name,
     description: this.description,
     uri: this.uri,
