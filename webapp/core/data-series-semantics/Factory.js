@@ -4,6 +4,7 @@ var DcpPostgis = require('./DcpPostgis');
 var WildFire = require('./WildFire');
 var OccurrencePostgis = require('./OccurrencePostgis');
 var AnalysisPostgis = require('./AnalysisPostgis');
+var StaticDataOgr = require('./StaticDataOgr');
 var DataSeriesSemanticsError = require('./../Exceptions').DataSeriesSemanticsError;
 var PluginLoader = require('./../PluginLoader');
 
@@ -18,6 +19,7 @@ function availableTypes() {
   output.push(WildFire);
   output.push(OccurrencePostgis);
   output.push(AnalysisPostgis);
+  output.push(StaticDataOgr)
 
   var plugins = availablePlugins();
 
@@ -68,59 +70,24 @@ Factory.getDataSeriesSemantics = function(identifier) {
   return {
     name: dataSeriesSemantics.identifier(),
     form: dataSeriesSemantics.form(),
-    schema: dataSeriesSemantics.schema()
+    schema: dataSeriesSemantics.schema(),
+    demand: dataSeriesSemantics.demand()
   };
 };
 
 Factory.listAll = function() {
   var output = [];
 
-  // adding DcpInpe
-  output.push({
-    name: DcpInpe.identifier(),
-    form: DcpInpe.form(),
-    schema: DcpInpe.schema()
-  });
+  var types = availableTypes();
 
-  // adding DcpPostgis
-  output.push({
-    name: DcpPostgis.identifier(),
-    form: DcpPostgis.form(),
-    schema: DcpPostgis.schema()
-  });
-
-  // adding wild fire occurrence
-  output.push({
-    name: WildFire.identifier(),
-    form: WildFire.form(),
-    schema: WildFire.schema()
-  });
-
-  // adding occurrence postgis
-  output.push({
-    name: OccurrencePostgis.identifier(),
-    form: OccurrencePostgis.form(),
-    schema: OccurrencePostgis.schema()
-  });
-
-  // adding analysis postgis
-  output.push({
-    name: AnalysisPostgis.identifier(),
-    form: AnalysisPostgis.form(),
-    schema: AnalysisPostgis.schema()
-  });
-
-  // checking for available plugins
-  var plugins = availablePlugins();
-
-  // todo: validation for exclude inconsistent plugins
-  plugins.forEach(function(plugin) {
+  types.forEach(function(typ) {
     output.push({
-      name: plugin.identifier(),
-      form: plugin.form(),
-      schema: plugin.schema()
+      name: typ.identifier(),
+      form: typ.form(),
+      schema: typ.schema(),
+      demand: typ.demand()
     })
-  });
+  })
 
   return output;
 };

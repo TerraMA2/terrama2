@@ -7,14 +7,18 @@ var Form = Enums.Form;
  * @constructor
  */
 var DcpInpe = function() {
-  Dcp.call(this, {name: "DCP-INPE"});
+  Dcp.call(this, {name: "DCP-inpe"});
 };
 
 DcpInpe.prototype = Object.create(Dcp.prototype);
 DcpInpe.prototype.constructor = DcpInpe;
 
+DcpInpe.demand = function () {
+  return ["FILE", "FTP"];
+};
+
 DcpInpe.identifier = function() {
-  return "DCP-INPE";
+  return "DCP-inpe";
 };
 
 DcpInpe.schema = function() {
@@ -28,7 +32,7 @@ DcpInpe.schema = function() {
     type: Form.Field.TEXT,
     title: "Timezone"
   };
-  
+
   dcpSchema.required = dcpSchema.required.concat(['mask', 'timezone']);
 
   return dcpSchema;

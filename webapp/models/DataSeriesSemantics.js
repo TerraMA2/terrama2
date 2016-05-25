@@ -1,10 +1,21 @@
 module.exports = function(sequelize, DataTypes) {
   var DataSeriesSemantics = sequelize.define("DataSeriesSemantics",
     {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+      },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
-        primaryKey: true
+        unique: true
+      },
+      code: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
       }
     },
     {

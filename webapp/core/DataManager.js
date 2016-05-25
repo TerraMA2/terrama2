@@ -29,22 +29,14 @@ var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
 var connection = require('../config/Sequelize.js');
+var fs = require('fs');
+var path = require('path');
 
 // Tcp
 var TcpManager = require('./TcpManager');
 
 // data model
-var DataProvider = require("./data-model/DataProvider");
-var DataSeries = require("./data-model/DataSeries");
-var DataSetDcp = require("./data-model/DataSetDcp");
-var DataSetFactory = require("./data-model/DataSetFactory");
-var Schedule = require('./data-model/Schedule');
-var Collector = require('./data-model/Collector');
-var Analysis = require('./data-model/Analysis');
-var AnalysisDataSeries = require('./data-model/AnalysisDataSeries');
-var Service = require('./data-model/Service');
-var Log = require('./data-model/Log');
-
+var DataModel = require('./data-model');
 
 // Available DataSeriesType
 var DataSeriesType = Enums.DataSeriesType;
@@ -135,12 +127,16 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS, description: "Data Series Analysis type"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS_MONITORED_OBJECT, description: "Data Series Analysis Monitored Object"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.STATIC_DATA, description: "Data Series Static Data"}));
 
         // data formats semantics defaults todo: check it
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "DCP description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.OGR, description: "Gdal ogr"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GEOTIFF, description: "GeoTiff"}));
 
         // analysis type
         inserts.push(models.db["AnalysisType"].create({id: 1, name: "Dcp", description: "Description Dcp"}));
@@ -152,12 +148,20 @@ var DataManager = {
         inserts.push(models.db["AnalysisDataSeriesType"].create({id: 2, name: "Grid", description: "Description Grid"}));
         inserts.push(models.db["AnalysisDataSeriesType"].create({id: 3, name: "Monitored Object", description: "Description Monitored"}));
 
-        // semantics
-        inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
-        inserts.push(self.addDataSeriesSemantics({name: "DCP-postgis", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
-        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-wfp", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
-        inserts.push(self.addDataSeriesSemantics({name: "OCCURRENCE-postgis", data_format_name: "Occurrence", data_series_type_name: DataSeriesType.OCCURRENCE}));
-        inserts.push(self.addDataSeriesSemantics({name: "ANALYSIS-postgis", data_format_name: "POSTGIS", data_series_type_name: DataSeriesType.ANALYSIS}));
+        // semantics: temp code: TODO: fix
+        var semanticsJsonPath = path.join(__dirname, "../../src/terrama2/core/semantics.json");
+        var semanticsObject = JSON.parse(fs.readFileSync(semanticsJsonPath, 'utf-8'));
+
+        semanticsObject.forEach(function(semantics) {
+          inserts.push(self.addDataSeriesSemantics({
+            code: semantics.code,
+            name: semantics.name,
+            data_format_name: semantics.format,
+            data_series_type_name: semantics.type
+          }));
+        });
+        // inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
+        inserts.push(self.addDataSeriesSemantics({name: "ANALYSIS-postgis", code: "ANALYSIS-postgis", data_format_name: "POSTGIS", data_series_type_name: DataSeriesType.ANALYSIS}));
 
         Promise.all(inserts).then(function() {
           releaseCallback();
@@ -239,7 +243,7 @@ var DataManager = {
           }
         });
 
-        var builtDataSet = DataSetFactory.build(Object.assign(dataSetObject, {format: fmt}));
+        var builtDataSet = DataModel.DataSetFactory.build(Object.assign(dataSetObject, {format: fmt}));
 
         builtDataSeries.dataSets.push(builtDataSet.toObject());
         // adding local cache. TODO: Is it necessary to store individual or along data series?
@@ -253,7 +257,7 @@ var DataManager = {
 
         models.db.DataProvider.findAll({}).then(function(dataProviders){
           dataProviders.forEach(function(dataProvider) {
-            self.data.dataProviders.push(new DataProvider(dataProvider.get()));
+            self.data.dataProviders.push(new DataModel.DataProvider(dataProvider.get()));
           });
 
           // find all dataseries
@@ -287,7 +291,7 @@ var DataManager = {
             Promise.all(dbOperations).then(function(dataSetsArray) {
               // for each dataSeries
               dataSeries.forEach(function(dSeries) {
-                var builtDataSeries = new DataSeries(dSeries.get());
+                var builtDataSeries = new DataModel.DataSeries(dSeries.get());
 
                 dataSetsArray.forEach(function(dataSets) {
                   // for each data set retrieved
@@ -482,11 +486,11 @@ var DataManager = {
     return new Promise(function(resolve, reject){
       lock.writeLock(function(release) {
         models.db.ServiceInstance.create(serviceObject).then(function(serviceResult){
-          var service = new Service(serviceResult);
+          var service = new DataModel.Service(serviceResult);
           var logObject = serviceObject.log;
           logObject.service_instance_id = serviceResult.id;
           models.db['Log'].create(logObject).then(function(logResult) {
-            var log = new Log(logResult);
+            var log = new DataModel.Log(logResult);
             service.log = log.toObject();
 
             resolve(service);
@@ -517,8 +521,8 @@ var DataManager = {
       }).then(function(services) {
         var output = [];
         services.forEach(function(service){
-          var serviceObject = new Service(service.get());
-          var logObject = new Log(service.Log || {});
+          var serviceObject = new DataModel.Service(service.get());
+          var logObject = new DataModel.Log(service.Log || {});
           serviceObject.log = logObject.toObject();
           output.push(serviceObject);
         });
@@ -730,13 +734,13 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
-        var dProvider = new DataProvider(dataProvider.get());
+        var dProvider = new DataModel.DataProvider(dataProvider.get());
         self.data.dataProviders.push(dProvider);
 
         resolve(dProvider);
 
         //  todo: emit signal
-        var d = new DataProvider(dProvider);
+        var d = new DataModel.DataProvider(dProvider);
 
         // todo: improve it. it should be set in web interface.
         // sending to all services
@@ -769,7 +773,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataProvider = getItemByParam(self.data.dataProviders, restriction);
       if (dataProvider)
-        resolve(new DataProvider(dataProvider));
+        resolve(new DataModel.DataProvider(dataProvider));
       else
         reject(new exceptions.DataProviderError("Could not find a data provider: " + restriction[Object.keys(restriction)[0]]));
     });
@@ -801,7 +805,7 @@ var DataManager = {
       });
 
       if (keyCont == keys.length)
-        dataProviderObjectList.push(new DataProvider(dataProvider));
+        dataProviderObjectList.push(new DataModel.DataProvider(dataProvider));
 
       keyCont = 0;
     });
@@ -837,7 +841,7 @@ var DataManager = {
 
           dataProvider.active = dataProviderObject.active;
 
-          resolve(new DataProvider(dataProvider));
+          resolve(new DataModel.DataProvider(dataProvider));
         }).catch(function(err) {
           reject(new exceptions.DataProviderError("Could not update data provider ", err));
         });
@@ -889,7 +893,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataSerie = getItemByParam(self.data.dataSeries, restriction);
       if (dataSerie)
-        resolve(new DataSeries(dataSerie));
+        resolve(new DataModel.DataSeries(dataSerie));
       else
         reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
     });
@@ -918,7 +922,7 @@ var DataManager = {
           // creating a copy
           var copyDataSeries = [];
           self.data.dataSeries.forEach(function(ds) {
-            copyDataSeries.push(new DataSeries(ds));
+            copyDataSeries.push(new DataModel.DataSeries(ds));
           });
 
           copyDataSeries.forEach(function(element, index, arr) {
@@ -948,14 +952,14 @@ var DataManager = {
         self.data.dataSeries.forEach(function (dataSeries) {
           dataProviders.forEach(function (dataProvider) {
             if (dataSeries.data_provider_id === dataProvider.id)
-              dataSeriesList.push(new DataSeries(dataSeries));
+              dataSeriesList.push(new DataModel.DataSeries(dataSeries));
           });
         });
 
         return resolve(dataSeriesList);
       } else {
         self.data.dataSeries.forEach(function(dataSeries) {
-          dataSeriesList.push(new DataSeries(dataSeries));
+          dataSeriesList.push(new DataModel.DataSeries(dataSeries));
         });
 
         return resolve(dataSeriesList);
@@ -991,7 +995,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
-        output = new DataSeries(dataSerie.get());
+        output = new DataModel.DataSeries(dataSerie.get());
 
         var rollback = function(err) {
           dataSerie.destroy().then(function () {
@@ -1011,7 +1015,9 @@ var DataManager = {
             }
 
             Promise.all(dataSets).then(function(dataSets){
-              self.data.dataSeries.push(new DataSeries(output));
+              var dataSeriesInstance = new DataModel.DataSeries(output);
+              dataSeriesInstance.dataSets = dataSets;
+              self.data.dataSeries.push(dataSeriesInstance);
               // temp code: getting wkt
 
               var promises = [];
@@ -1022,6 +1028,7 @@ var DataManager = {
 
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
+                // self.data.dataSeries.push(new DataModel.DataSeries(output));
                 output.dataSets = wktDataSets;
                 // TcpManager.sendData({"DataSeries": [output.toObject()]});
 
@@ -1078,7 +1085,7 @@ var DataManager = {
           dataSeries.name = dataSeriesObject.name;
           dataSeries.description = dataSeriesObject.description;
 
-          resolve(new DataSeries(dataSeries));
+          resolve(new DataModel.DataSeries(dataSeries));
         }).catch(function(err) {
           reject(new exceptions.DataSeriesError("Could not update data series ", err));
         });
@@ -1150,7 +1157,7 @@ var DataManager = {
 
         var onSuccess = function(dSet) {
           var output;
-          output = DataSetFactory.build(Object.assign(Utils.clone(dSet.get()), dataSet.get()));
+          output = DataModel.DataSetFactory.build(Object.assign(Utils.clone(dSet.get()), dataSet.get()));
           console.log(output)
 
           output.semantics = dataSeriesSemantic;
@@ -1259,12 +1266,6 @@ var DataManager = {
                   break;
               }
 
-
-              // var dataSetMonitored = {
-              //   data_set_id: dataSet.id,
-
-              // };
-              // models.db['DataSetMonitored'].create(dataSetMonitored).then(onSuccess).catch(onError);
               break;
             default:
               rollback(dataSet);
@@ -1306,7 +1307,7 @@ var DataManager = {
       lock.readLock(function (release) {
         var dataSet = getItemByParam(self.data.dataSets, restriction);
         if (dataSet) {
-          var output = DataSetFactory.build(dataSet);
+          var output = DataModel.DataSetFactory.build(dataSet);
 
           if (output.position && format === Enums.Format.WKT)
             // Getting wkt representation of Point from GeoJSON
@@ -1465,7 +1466,7 @@ var DataManager = {
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
-            var schedule = new Schedule(scheduleResult);
+            var schedule = new DataModel.Schedule(scheduleResult);
             var collectorObject = {};
 
             // todo: get service_instance id and collector status (active)
@@ -1478,7 +1479,7 @@ var DataManager = {
             collectorObject.schedule_id = scheduleResult.id;
 
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
-              var collector = new Collector(collectorResult);
+              var collector = new DataModel.Collector(collectorResult);
               var input_output_map = [];
 
               for(var i = 0; i < dataSeriesResult.dataSets.length; ++i) {
@@ -1525,7 +1526,7 @@ var DataManager = {
 
     return new Promise(function(resolve, reject) {
       models.db.Schedule.create(scheduleObject).then(function(schedule) {
-        resolve(new Schedule(schedule.get()));
+        resolve(new DataModel.Schedule(schedule.get()));
       }).catch(function(err) {
         // todo: improve error message
         reject(new exceptions.ScheduleError("Could not save schedule. ", err));
@@ -1675,8 +1676,8 @@ var DataManager = {
               });
             }
 
-            var schedule = new Schedule(collector.Schedule.get());
-            output.push(new Collector(Object.assign({
+            var schedule = new DataModel.Schedule(collector.Schedule.get());
+            output.push(new DataModel.Collector(Object.assign({
               input_output_map: input_output_map,
               project_id: projectId,
               schedule: schedule.toObject()
@@ -1809,11 +1810,11 @@ var DataManager = {
           analysisDataSeriesObject.data_series_id = dataSeriesResult.id;
           analysisDataSeriesObject.analysis_id = analysisResult.id;
 
-          var analysisInstance = new Analysis(analysisResult);
+          var analysisInstance = new DataModel.Analysis(analysisResult);
           console.log("AnalysisObject => ", analysisInstance);
 
           models.db["AnalysisDataSeries"].create(analysisDataSeriesObject).then(function(analysisDataSeriesResult) {
-            var analysisDataSeries = new AnalysisDataSeries(analysisDataSeriesResult);
+            var analysisDataSeries = new DataModel.AnalysisDataSeries(analysisDataSeriesResult);
 
             var metadata = [];
             for(var key in scopeAnalysisObject.analysisDataSeries.metadata) {
@@ -1879,9 +1880,9 @@ var DataManager = {
           include: [models.db['AnalysisDataSeriesMetadata']]
         }).then(function(analysesDataSeriesResult) {
           analysesResult.forEach(function(analysis) {
-            var analysisObject = new Analysis(analysis.get());
+            var analysisObject = new DataModel.Analysis(analysis.get());
             analysesDataSeriesResult.forEach(function(analysisDataSeries) {
-              var analysisDsObject = new AnalysisDataSeries(analysisDataSeries.get());
+              var analysisDsObject = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
               var metadata = {};
               analysisDataSeries['AnalysisDataSeriesMetadata'].forEach(function(analysisDsMetadata) {
                 metadata[analysisDsMetadata.key] = analysisDsMetadata.value;

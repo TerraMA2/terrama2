@@ -29,7 +29,7 @@ module.exports = function(app) {
             semanticsStructure = makeMetadata(semanticsName);
           }
 
-          DataManager.getDataSeriesSemantics({name: semanticsName}).then(function(semantics) {
+          DataManager.getDataSeriesSemantics({code: semanticsName}).then(function(semantics) {
             var output = semantics;
 
             if (metadata)
