@@ -31,8 +31,8 @@
 #define __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
 
 
-
 #include "PythonInterpreter.hpp"
+#include "Context.hpp"
 
 // STL
 #include <memory>
@@ -131,15 +131,15 @@ namespace terrama2
         /*!
           \brief Creates a buffer for each given geometry with the given distance.
 
-          \param geometries Vector with the geometries.
-          \param box A envelope that covers all given geometries.
-          \param distance The distance of the buffer.
-          \param bufferType The type of the buffer.
+          \param indexes Vector with the geometries indexes.
+          \param contextDataSeries Smart pointer to the ContextDataSeries of the occurrences.
+          \param buffer Aggregation buffer configuration.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.
         */
-        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(
-                std::vector<size_t>& geometries, std::shared_ptr<te::gm::Envelope>& box,
-                Buffer buffer);
+        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<uint64_t>& indexes,
+                                                                  std::shared_ptr<ContextDataSeries> contextDataSeries,
+                                                                  Buffer buffer, StatisticOperation aggregationStatisticOperation,
+                                                                  const std::string& attribute);
 
       } // end namespace core
     }   // end namespace analysis

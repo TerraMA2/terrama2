@@ -321,6 +321,19 @@ namespace terrama2
         */
         std::shared_ptr<te::da::DataSet> dataset() const;
 
+        /*!
+        \brief It computes the bounding rectangle for a spatial property of the dataset.
+
+        \param i The position of a spatial property to get its bounding box.
+
+        \pre The position i must be associated to a spatial property of the dataset.
+
+        \exception Exception It throws an exception if something goes wrong during MBR search.
+
+        \return The spatial property bounding rectangle, or an invalid box, if none is found.
+        */
+        std::shared_ptr<te::gm::Envelope> getExtent(std::size_t i) const;
+
       protected:
         std::shared_ptr<te::da::DataSet> dataset_; //!< Smart pointer to the TerraLib dataset.
         mutable std::mutex mutex_; //!< Mutex to syncronize the dataset access.

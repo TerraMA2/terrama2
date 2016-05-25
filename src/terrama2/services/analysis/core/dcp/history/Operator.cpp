@@ -91,7 +91,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
   // Frees the GIL, from now on can not use the interpreter
   Py_BEGIN_ALLOW_THREADS
 
-    std::shared_ptr<ContextDataSeries> contextDataset;
+    std::shared_ptr<ContextDataSeries> contextDataSeries;
 
     try
     {
@@ -116,7 +116,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
           {
             if(dataset->id != dcpId)
               continue;
-            contextDataset = Context::getInstance().getContextDataset(cache.analysisId, dataset->id, dateFilter);
+            contextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id, dateFilter);
 
             terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                     dataset);
@@ -153,12 +153,12 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
               if(intersects)
               {
 
-                auto syncDs = contextDataset->series.syncDataSet;
+                auto syncDs = contextDataSeries->series.syncDataSet;
 
                 int attributeType = 0;
                 if(!attribute.empty())
                 {
-                  auto property = contextDataset->series.teDataSetType->getProperty(attribute);
+                  auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
 
                   // only operation COUNT can be done without attribute.
                   if(!property && statisticOperation != COUNT)

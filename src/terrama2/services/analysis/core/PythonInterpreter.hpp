@@ -32,7 +32,6 @@
 #define __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
 
 #include "Analysis.hpp"
-#include "BufferMemory.hpp"
 #include "OperatorCache.hpp"
 #include "Context.hpp"
 
@@ -56,6 +55,7 @@ namespace terrama2
         */
         enum StatisticOperation
         {
+          INVALID = 0, //!< Invalid operation.
           MIN = 1, //!< Minimum value.
           MAX = 2, //!< Maximum value.
           SUM = 3, //!< Sum.

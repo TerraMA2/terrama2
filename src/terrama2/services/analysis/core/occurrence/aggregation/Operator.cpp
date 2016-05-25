@@ -38,7 +38,7 @@ int terrama2::services::analysis::core::occurrence::aggregation::count(const std
                                                                    Buffer aggregationBuffer,
                                                                    const std::string& restriction)
 {
-  return (int) terrama2::services::analysis::core::occurrence::operatorImpl(COUNT, dataSeriesName, buffer, dateFilter, aggregationBuffer, "", COUNT, restriction);
+  return (int) terrama2::services::analysis::core::occurrence::operatorImpl(COUNT, dataSeriesName, buffer, dateFilter, aggregationBuffer, "", INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::aggregation::min(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter,

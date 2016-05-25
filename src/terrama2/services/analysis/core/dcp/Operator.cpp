@@ -95,7 +95,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   }
 
 
-  std::shared_ptr<ContextDataSeries> contextDataset;
+  std::shared_ptr<ContextDataSeries> contextDataSeries;
 
 
 
@@ -126,7 +126,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
         for(auto dataset : dataSeries->datasetList)
         {
-          contextDataset = Context::getInstance().getContextDataset(cache.analysisId, dataset->id);
+          contextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id);
 
           terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                   dataset);
@@ -161,12 +161,12 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
             {
               ++influenceCount;
 
-              auto syncDs = contextDataset->series.syncDataSet;
+              auto syncDs = contextDataSeries->series.syncDataSet;
 
               int attributeType = 0;
               if(!attribute.empty())
               {
-                auto property = contextDataset->series.teDataSetType->getProperty(attribute);
+                auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
 
                 // only operation COUNT can be done without attribute.
                 if(!property && statisticOperation != COUNT)

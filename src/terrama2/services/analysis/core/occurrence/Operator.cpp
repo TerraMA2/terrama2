@@ -102,7 +102,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
   Py_BEGIN_ALLOW_THREADS
 
-    std::shared_ptr<ContextDataSeries> contextDataset;
+    std::shared_ptr<ContextDataSeries> contextDataSeries;
 
     try
     {
@@ -120,15 +120,16 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
           for(auto dataset : datasets)
           {
 
-            contextDataset = Context::getInstance().getContextDataset(cache.analysisId, dataset->id, dateFilter);
-            if(!contextDataset)
+            contextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id, dateFilter);
+            if(!contextDataSeries)
             {
               continue;
             }
 
 
             std::vector<uint64_t> indexes;
-            terrama2::core::SyncronizedDataSetPtr syncDs = contextDataset->series.syncDataSet;
+            uint32_t countValues = 0;
+            terrama2::core::SyncronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
 
             if(syncDs->size() == 0)
             {
@@ -139,21 +140,19 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
               auto geomResult = createBuffer(buffer, moGeom);
 
               // Converts the monitored object to the same srid of the occurrences
-              auto firstOccurrence = syncDs->getGeometry(0, contextDataset->geometryPos);
+              auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
               geomResult->transform(firstOccurrence->getSRID());
 
               // Searchs in the spatial index for the occurrences that intersects the monitored object box
-              contextDataset->rtree.search(*geomResult->getMBR(), indexes);
+              contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);
 
 
               std::vector<double> values;
 
-              std::vector<size_t> geometries;
-
               int attributeType = 0;
               if(!attribute.empty())
               {
-                auto property = contextDataset->series.teDataSetType->getProperty(attribute);
+                auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
 
                 // only operation COUNT can be done without attribute.
                 if(!property && statisticOperation != COUNT)
@@ -166,55 +165,94 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                 attributeType = property->getType();
               }
 
-              if(aggregationBuffer.bufferType != NONE && !geometries.empty())
+              if(aggregationStatisticOperation != INVALID)
               {
-                // Creates aggregation buffer
-                std::shared_ptr<te::gm::Envelope> box(syncDs->dataset()->getExtent(contextDataset->geometryPos));
+                if(indexes.empty())
+                  continue;
 
-                auto bufferDs = terrama2::services::analysis::core::createAggregationBuffer(geometries, box, aggregationBuffer);
+                auto bufferDs = createAggregationBuffer(indexes, contextDataSeries, aggregationBuffer, aggregationStatisticOperation, attribute);
 
-                if(bufferDs)
-                  cache.count = bufferDs->size();
-
-              }
-
-              for(uint64_t i : indexes)
-              {
-                // Verifies if the occurrence intersects the monitored object
-                auto occurrenceGeom = syncDs->getGeometry(i, contextDataset->geometryPos);
-
-                if(occurrenceGeom->intersects(geomResult.get()))
+                if(!bufferDs)
                 {
-                  geometries.push_back(i);
+                  continue;
+                }
 
-                  try
+                for(unsigned int i = 0; i < bufferDs->size(); ++i)
+                {
+                  bufferDs->move(i);
+                  auto occurrenceGeom = bufferDs->getGeometry(0);
+
+                  if(occurrenceGeom->intersects(geomResult.get()))
                   {
-                    if(!attribute.empty() && !syncDs->isNull(i, attribute))
-                    {
-                      hasData = true;
-                      cache.count++;
-                      double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
+                    ++countValues;
 
-                      values.push_back(value);
-                      cache.sum += value;
-                      if(value > cache.max)
-                        cache.max = value;
-                      if(value < cache.min)
-                        cache.min = value;
+                    try
+                    {
+                      if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                      {
+                        hasData = true;
+                        cache.count++;
+                        double value = bufferDs->getDouble(1);
+
+                        values.push_back(value);
+                        cache.sum += value;
+                        if(value > cache.max)
+                          cache.max = value;
+                        if(value < cache.min)
+                          cache.min = value;
+                      }
+                    }
+                    catch(...)
+                    {
+                      // In case the dataset doesn't have the specified attribute
+                      continue;
                     }
                   }
-                  catch(...)
+                }
+              }
+              else
+              {
+                for(uint64_t i : indexes)
+                {
+                  // Verifies if the occurrence intersects the monitored object
+                  auto occurrenceGeom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
+
+                  if(occurrenceGeom->intersects(geomResult.get()))
                   {
-                    // In case the dataset doesn't have the specified attribute
-                    continue;
+                    ++countValues;
+
+                    try
+                    {
+                      if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                      {
+                        hasData = true;
+                        cache.count++;
+                        double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
+
+                        values.push_back(value);
+                        cache.sum += value;
+                        if(value > cache.max)
+                          cache.max = value;
+                        if(value < cache.min)
+                          cache.min = value;
+                      }
+                    }
+                    catch(...)
+                    {
+                      // In case the dataset doesn't have the specified attribute
+                      continue;
+                    }
                   }
                 }
               }
 
 
+
+
               terrama2::services::analysis::core::calculateStatistics(values, cache);
 
-              cache.count = geometries.size();
+              if(statisticOperation == COUNT)
+                cache.count = countValues;
             }
 
           }
@@ -255,7 +293,7 @@ int terrama2::services::analysis::core::occurrence::count(const std::string& dat
                                                           const std::string& dateFilter, const std::string& restriction)
 {
   return (int) operatorImpl(COUNT, dataSeriesName, buffer, dateFilter, Buffer(), "",
-                            COUNT, restriction);
+                            INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::min(const std::string& dataSeriesName, Buffer buffer,
@@ -264,7 +302,7 @@ double terrama2::services::analysis::core::occurrence::min(const std::string& da
                                                            const std::string& attribute)
 {
   return operatorImpl(MIN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      COUNT, restriction);
+                      INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::max(const std::string& dataSeriesName, Buffer buffer,
@@ -272,7 +310,7 @@ double terrama2::services::analysis::core::occurrence::max(const std::string& da
                                                            const std::string& attribute, const std::string& restriction)
 {
   return operatorImpl(MAX, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      COUNT, restriction);
+                      INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::mean(const std::string& dataSeriesName, Buffer buffer,
@@ -281,7 +319,7 @@ double terrama2::services::analysis::core::occurrence::mean(const std::string& d
                                                             const std::string& restriction)
 {
   return operatorImpl(MEAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      COUNT, restriction);
+                      INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::median(const std::string& dataSeriesName, Buffer buffer,
@@ -290,7 +328,7 @@ double terrama2::services::analysis::core::occurrence::median(const std::string&
                                                               const std::string& restriction)
 {
   return operatorImpl(MEDIAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      COUNT, restriction);
+                      INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::standardDeviation(const std::string& dataSeriesName,
@@ -300,7 +338,7 @@ double terrama2::services::analysis::core::occurrence::standardDeviation(const s
                                                                          const std::string& restriction)
 {
   return operatorImpl(STANDARD_DEVIATION, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      COUNT, restriction);
+                      INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::sum(const std::string& dataSeriesName, Buffer buffer,
@@ -308,5 +346,5 @@ double terrama2::services::analysis::core::occurrence::sum(const std::string& da
                                                            const std::string& attribute, const std::string& restriction)
 {
   return operatorImpl(SUM, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
-                      COUNT, restriction);
+                      INVALID, restriction);
 }

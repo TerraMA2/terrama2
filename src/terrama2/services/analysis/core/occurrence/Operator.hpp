@@ -58,9 +58,9 @@ namespace terrama2
             \param dataSeriesName DataSeries name.
             \param buffer Buffer to be used in the monitored object.
             \param dateFilter Time filter for the data.
-            \param restriction SQL restriction.
             \param attribute Name of the attribute to be used in statistic operator.
             \param aggregationBuffer Buffer configuration to be used to aggregate occurrences in the same area.
+            \param restriction SQL restriction.
             \return The result of the selected operation.
           */
           double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,

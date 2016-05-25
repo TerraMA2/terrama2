@@ -216,6 +216,14 @@ std::string terrama2::core::SyncronizedDataSet::getNumeric(std::size_t row, std:
   return dataset_->getNumeric(columnIndex);
 }
 
+std::shared_ptr<te::gm::Envelope> terrama2::core::SyncronizedDataSet::getExtent(std::size_t i) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  return std::shared_ptr<te::gm::Envelope>(dataset_->getExtent(i));
+}
+
+
+
 
 
 
