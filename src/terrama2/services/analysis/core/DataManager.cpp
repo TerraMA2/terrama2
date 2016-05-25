@@ -51,14 +51,22 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
   try
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
-    
+
     terrama2::core::DataManager::DataManager::addJSon(obj);
 
     auto analysisArray = obj["Analysis"].toArray();
     for(auto json : analysisArray)
     {
       auto dataPtr = terrama2::services::analysis::core::fromAnalysisJson(json.toObject());
-      add(dataPtr);
+      try
+      {
+        findAnalysis(dataPtr.id);
+        update(dataPtr);
+      }
+      catch (const terrama2::InvalidArgumentException& e)
+      {
+        add(dataPtr);
+      }
     }
   }
   catch(terrama2::Exception& /*e*/)

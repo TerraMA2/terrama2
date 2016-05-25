@@ -54,6 +54,24 @@ namespace terrama2
 
       A DataProvider contains the list of dataseries that belongs to this provider
       that should be collected for further analysis.
+
+      ## JSon ##
+
+      Base structure for transferece of a DataProvider.
+
+      \code{.json}
+        {
+          "class" : "DataProvider",
+          "id" : INT,
+          "project_id" : INT,
+          "name" : STRING,
+          "description" : STRING,
+          "intent" : INT,
+          "uri" : STRING,
+          "active" : BOOL
+        }
+      \endcode
+
      */
     struct DataProvider
     {

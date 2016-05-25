@@ -273,21 +273,37 @@ void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
   for(auto json : dataProviders)
   {
     auto dataPtr = terrama2::core::fromDataProviderJson(json.toObject());
-    add(dataPtr);
+    try
+    {
+      findDataProvider(dataPtr->id);
+      update(dataPtr);
+    }
+    catch (const terrama2::InvalidArgumentException& e)
+    {
+      add(dataPtr);
+    }
   }
 
   auto dataSeries = obj["DataSeries"].toArray();
   for(auto json : dataSeries)
   {
     auto dataPtr = terrama2::core::fromDataSeriesJson(json.toObject());
-    add(dataPtr);
+    try
+    {
+      findDataSeries(dataPtr->id);
+      update(dataPtr);
+    }
+    catch (const terrama2::InvalidArgumentException& e)
+    {
+      add(dataPtr);
+    }
   }
 }
 
 void terrama2::core::DataManager::removeJSon(const QJsonObject& obj)
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
-  
+
   auto dataSeries = obj["DataSeries"].toArray();
   for(auto json : dataSeries)
   {

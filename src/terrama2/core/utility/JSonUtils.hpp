@@ -41,12 +41,14 @@ namespace terrama2
   {
     /*!
       \brief Creates a DataProvider from a QJsonObject.
+      \see DataProvider for json structure
       \see [DataProvider at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataProvider) for more information.
       */
     DataProviderPtr fromDataProviderJson(QJsonObject json);
 
     /*!
       \brief Creates a DataSeries from a QJsonObject.
+      \see DataSeries for json structure
       \see [DataSeries at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSeries) for more information.
       */
     DataSeriesPtr fromDataSeriesJson(QJsonObject json);
@@ -58,34 +60,44 @@ namespace terrama2
 
     /*!
       \brief Creates a DataSet from a QJsonObject.
+      \see DataSet for json structure
       \see [DataSetDcp at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSet) for more information.
     */
     DataSetPtr fromDataSetJson(QJsonObject json);
 
     /*!
       \brief Creates a DataSetDcp from a QJsonObject.
+      \see DataSetDcp for json structure
       \see [DataSetDcp at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetDcp) for more information.
       */
     DataSetPtr fromDataSetDcpJson(QJsonObject json);
 
     /*!
     \brief Creates a DataSetOccurrence from a QJsonObject.
+    \see DataSetOccurrence for json structure
     \see [DataSetOccurrence at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetOccurrence) for more information.
       */
     DataSetPtr fromDataSetOccurrenceJson(QJsonObject json);
 
     /*!
       \brief Creates a DataSetGrid from a QJsonObject.
+      \see DataSetGrid for json structure
       \see [DataSetGrid at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/DataSetGrid) for more information.
       */
     DataSetPtr fromDataSetGridJson(QJsonObject json);
 
     /*!
       \brief Creates a Schedule from a QJsonObject.
+      \see Schedule for json structure
       \see [Schedule at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Schedule) for more information.
       */
     Schedule fromScheduleJson(QJsonObject json);
 
+    /*!
+      \brief Creates a Filter from a QJsonObject.
+      \see Filter for json structure
+      \see [Filter at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Filter) for more information.
+      */
     Filter fromFilterJson(QJsonObject json);
     QJsonObject toJson(const Filter& filter);
 

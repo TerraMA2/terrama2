@@ -54,6 +54,23 @@ namespace terrama2
 
       The schedule will calculate the next date to execute based on the month or day of the week.
 
+      ## JSon ##
+
+      \code{.json}
+        {
+          "class" : "Schedule",
+          "id" : INT,
+          "frequency" : INT,
+          "frequency_unit" : STRING::UNIT,
+          "schedule" : INT,
+          "schedule_unit" : STRING::UNIT,
+          "schedule_retry" : INT,
+          "schedule_retry_unit" : STRING::UNIT,
+          "schedule_timeout" : INT,
+          "schedule_timeout_unit" : STRING::UNIT
+        }
+      \endcode
+
     */
     struct Schedule
     {

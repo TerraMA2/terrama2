@@ -42,17 +42,42 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief Manages metadata of terrama2::core::DataProvider, terrama2::core::DataSeries and Collector.
+
+          Extends terrama2::core::DataManager by managing Collector.
+
+          \sa terrama2::core::DataManager
+        */
         class DataManager : public terrama2::core::DataManager
         {
             Q_OBJECT
 
           public:
-            DataManager() {}
+            //! Default constructor
+            DataManager() = default;
 
+            /*!
+              \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and Collector to be added.
+
+              The valid tags are:
+                - "dataproviders"
+                - "dataseries"
+                - "collectors"
+            */
             virtual void addJSon(const QJsonObject& obj) override;
+            /*!
+              \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and Collector to be removed.
+
+              The valid tags are:
+                - "dataproviders"
+                - "dataseries"
+                - "collectors"
+            */
             virtual void removeJSon(const QJsonObject& obj) override;
 
-            virtual ~DataManager() {}
+            //! Default destructor
+            virtual ~DataManager() = default;
             DataManager(const DataManager& other) = delete;
             DataManager(DataManager&& other) = delete;
             DataManager& operator=(const DataManager& other) = delete;
@@ -61,18 +86,72 @@ namespace terrama2
             using terrama2::core::DataManager::add;
             using terrama2::core::DataManager::update;
 
+            /*!
+              \brief Register a Collector in the manager.
+
+              At end it will emit collectorAdded(CollectorPtr) signal.
+
+              \param collector The Collector to be registered into the manager.
+
+              \pre The Collector must not have a terrama2::core::InvalidId.
+              \pre A Collector with the same name must not be already in the manager.
+
+              \exception terrama2::InvalidArgumentException If it is not possible to add the Collector.
+
+              \note Thread-safe.
+            */
             virtual void add(CollectorPtr collector);
+            /*!
+              \brief Update a given Collector.
+
+              Emits collectorUpdated() signal if the Collector is updated successfully.
+
+              \param dataseries     Collector to update.
+              \param shallowSave If true it will update only the dataseries attributes.
+
+              \pre The Collector must not have a terrama2::core::InvalidId.
+              \pre The Collector must exist in the DataManager.
+
+              \exception terrama2::InvalidArgumentException If it is not possible to update the Collector.
+
+              \note Thread-safe.
+            */
             virtual void update(CollectorPtr collector);
+            /*!
+              \brief Removes the Collector with the given id.
+
+              Emits collectorRemoved() signal if the DataSeries is removed successfully.
+
+              \param id ID of the Collector to remove.
+
+              \exception terrama2::InvalidArgumentException If it is not possible to remove the Collector.
+
+              \note Thread-safe.
+            */
             virtual void removeCollector(CollectorId collectorId);
+            /*!
+              \brief Retrieves the Collector with the given CollectorId.
+
+              \param id The Collector CollectorId.
+
+              \return DataProviderPtr A smart pointer to the Collector
+
+              \exception terrama2::InvalidArgumentException If some error occur when trying to find the Collector.
+
+              \note Thread-safe.
+            */
             virtual CollectorPtr findCollector(CollectorId id) const;
 
           signals:
+            //! Signal to notify that a Collector has been added.
             void collectorAdded(CollectorPtr);
+            //! Signal to notify that a Collector has been updated.
             void collectorUpdated(CollectorPtr);
+            //! Signal to notify that a Collector has been removed.
             void collectorRemoved(CollectorId);
 
           protected:
-            std::map<CollectorId, CollectorPtr> collectors_;
+            std::map<CollectorId, CollectorPtr> collectors_;//!< A map from CollectorId to Collector.
         };
       } // end namespace core
     }   // end namespace collector

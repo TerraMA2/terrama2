@@ -109,7 +109,15 @@ void terrama2::services::collector::core::DataManager::addJSon(const QJsonObject
     for(auto json : collectors)
     {
       auto dataPtr = terrama2::services::collector::core::fromCollectorJson(json.toObject());
-      add(dataPtr);
+      try
+      {
+        findCollector(dataPtr->id);
+        update(dataPtr);
+      }
+      catch (const terrama2::InvalidArgumentException& e)
+      {
+        add(dataPtr);
+      }
     }
   }
   catch(terrama2::Exception& /*e*/)

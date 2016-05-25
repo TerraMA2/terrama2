@@ -55,6 +55,22 @@ namespace terrama2
 
     /*!
       \brief Filter information of a given DataSet.
+
+      ## JSon ##
+
+      Base structure for transferece of a Filter.
+
+      \code{.json}
+      {
+        "class" : "Filter",
+        "discard_before" : STRING::TIMESTAMP WITH TIME ZONE,
+        "discard_after" : STRING::TIMESTAMP WITH TIME ZONE,
+        "last_value" : BOOLEAN
+        "region" : STRING::WKT,
+        "by_value" : DOUBLE,
+        "value_comparison_operation" : STRING
+      }
+      \endcode
      */
     struct Filter
     {
