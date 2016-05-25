@@ -138,7 +138,7 @@ namespace terrama2
         */
         virtual void addJSon(const QJsonObject& obj);
         /*!
-          //! \brief Parsers the QJsonObject for DataProvider and DataSeries to be removed.
+          \brief Parsers the QJsonObject for DataProvider and DataSeries to be removed.
 
           For each member of the QJsonObject a DataProvider or a DataSeries will be removed from the DataManager.
 
@@ -269,6 +269,7 @@ namespace terrama2
           \note Thread-safe.
         */
         virtual DataProviderPtr findDataProvider(const DataProviderId id) const;
+        virtual bool hasDataProvider(const DataProviderId id) const;
 
         /*!
           \brief Search for a DataSeries with the given name
@@ -293,6 +294,7 @@ namespace terrama2
           \note Thread-safe.
         */
         virtual DataSeriesPtr findDataSeries(const DataSeriesId id) const;
+        virtual bool hasDataSeries(const DataSeriesId id) const;
 
       signals:
 

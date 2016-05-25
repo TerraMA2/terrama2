@@ -213,6 +213,14 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   return it->second;
 }
 
+bool terrama2::core::DataManager::hasDataProvider(DataProviderId id) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = providers_.find(id);
+  return it != providers_.cend();
+}
+
 terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(const DataProviderId id) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
@@ -226,6 +234,14 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   }
 
   return it->second;
+}
+
+bool terrama2::core::DataManager::hasDataSeries(DataSeriesId id) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = dataseries_.find(id);
+  return it != dataseries_.cend();
 }
 
 terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const std::string& name) const
@@ -273,30 +289,20 @@ void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
   for(auto json : dataProviders)
   {
     auto dataPtr = terrama2::core::fromDataProviderJson(json.toObject());
-    try
-    {
-      findDataProvider(dataPtr->id);
+    if(hasDataProvider(dataPtr->id))
       update(dataPtr);
-    }
-    catch (const terrama2::InvalidArgumentException& e)
-    {
+    else
       add(dataPtr);
-    }
   }
 
   auto dataSeries = obj["DataSeries"].toArray();
   for(auto json : dataSeries)
   {
     auto dataPtr = terrama2::core::fromDataSeriesJson(json.toObject());
-    try
-    {
-      findDataSeries(dataPtr->id);
+    if(hasDataSeries(dataPtr->id))
       update(dataPtr);
-    }
-    catch (const terrama2::InvalidArgumentException& e)
-    {
+    else
       add(dataPtr);
-    }
   }
 }
 

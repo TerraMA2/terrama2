@@ -140,7 +140,8 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            Analysis findAnalysis(const AnalysisId analysisId);
+            Analysis findAnalysis(const AnalysisId analysisId) const;
+            bool hasAnalysis(const AnalysisId analysisId) const;
 
           signals:
 

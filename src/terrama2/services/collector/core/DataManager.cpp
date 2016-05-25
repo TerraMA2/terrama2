@@ -43,7 +43,25 @@
 
 terrama2::services::collector::core::CollectorPtr terrama2::services::collector::core::DataManager::findCollector(CollectorId id) const
 {
-  return collectors_.at(id);
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = collectors_.find(id);
+  if(it == collectors_.cend())
+  {
+    QString errMsg = QObject::tr("Collector not registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
+  return it->second;
+}
+
+bool terrama2::services::collector::core::DataManager::hasCollector(CollectorId id) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = collectors_.find(id);
+  return it != collectors_.cend();
 }
 
 void terrama2::services::collector::core::DataManager::add(terrama2::services::collector::core::CollectorPtr collector)
@@ -109,15 +127,10 @@ void terrama2::services::collector::core::DataManager::addJSon(const QJsonObject
     for(auto json : collectors)
     {
       auto dataPtr = terrama2::services::collector::core::fromCollectorJson(json.toObject());
-      try
-      {
-        findCollector(dataPtr->id);
+      if(hasCollector(dataPtr->id))
         update(dataPtr);
-      }
-      catch (const terrama2::InvalidArgumentException& e)
-      {
+      else
         add(dataPtr);
-      }
     }
   }
   catch(terrama2::Exception& /*e*/)

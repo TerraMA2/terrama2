@@ -47,8 +47,10 @@ namespace terrama2
 
       It can be of 2 forms:
 
-        ||  Frequency || The timeout interval when a process should be executed. ||
-        || Schedule || Every day of the week or month. ||
+        Type | Description
+        ----- | -----
+        Frequency | The timeout interval when a process should be executed.
+        %Schedule | Every day of the week or month.
 
       The frequency type will repeat indefinitely every timeout interval.
 

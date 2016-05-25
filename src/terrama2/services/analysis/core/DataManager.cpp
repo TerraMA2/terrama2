@@ -58,15 +58,10 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
     for(auto json : analysisArray)
     {
       auto dataPtr = terrama2::services::analysis::core::fromAnalysisJson(json.toObject());
-      try
-      {
-        findAnalysis(dataPtr.id);
+      if(hasAnalysis(dataPtr.id))
         update(dataPtr);
-      }
-      catch (const terrama2::InvalidArgumentException& e)
-      {
+      else
         add(dataPtr);
-      }
     }
   }
   catch(terrama2::Exception& /*e*/)
@@ -145,7 +140,7 @@ void terrama2::services::analysis::core::DataManager::removeAnalysis(const Analy
   emit analysisRemoved(analysisId);
 }
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::DataManager::findAnalysis(const AnalysisId analysisId)
+terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::DataManager::findAnalysis(const AnalysisId analysisId) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
@@ -158,4 +153,12 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
   }
 
   return it->second;
+}
+
+bool terrama2::services::analysis::core::DataManager::hasAnalysis(const AnalysisId analysisId) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = analysis_.find(analysisId);
+  return it != analysis_.cend();
 }

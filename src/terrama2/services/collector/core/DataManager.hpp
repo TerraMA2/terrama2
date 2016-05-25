@@ -141,6 +141,7 @@ namespace terrama2
               \note Thread-safe.
             */
             virtual CollectorPtr findCollector(CollectorId id) const;
+            virtual bool hasCollector(CollectorId id) const;
 
           signals:
             //! Signal to notify that a Collector has been added.
