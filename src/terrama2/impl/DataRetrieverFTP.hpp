@@ -71,7 +71,6 @@ namespace terrama2
        * \exception DataRetrieverException when FTP address is invalid.
        * \exception DataRetreiverFTPException when unknown Error, FTP address is invalid.
       */
-      //explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr& curlwrapper);
       explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper);
 
       /*!

@@ -36,14 +36,12 @@
 
 class MockCurlWrapper: public terrama2::core::CurlPtr
 {
-  public:
+public:
 
-   MockCurlWrapper() {};
+  MockCurlWrapper() {};
 
-   MOCK_METHOD1(verifyURL,CURLcode(std::string url));
+  MOCK_METHOD1(verifyURL,CURLcode(std::string url));
 
 };
 
 #endif //__TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__
-
-

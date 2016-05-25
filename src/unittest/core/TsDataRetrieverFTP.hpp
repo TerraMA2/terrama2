@@ -34,19 +34,19 @@ class TsDataRetrieverFTP: public QObject
 {
   Q_OBJECT
 
-   private slots:
+private slots:
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+  void initTestCase(){} // Run before all tests
+  void cleanupTestCase(){} // Run after all tests
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
+  void init(){ } //run before each test
+  void cleanup(){ } //run before each test
 
-    //******Test functions********
+  //******Test functions********
 
-    void TestFailUriInvalid();
-    void TestFailLoginInvalid();
-    void TestOkUriAndLoginValid();
+  void TestFailUriInvalid();
+  void TestFailLoginInvalid();
+  void TestOkUriAndLoginValid();
 
 };
 

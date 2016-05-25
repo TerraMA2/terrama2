@@ -43,67 +43,67 @@ namespace terrama2
     //! Class for Resource Acquisition Is Initialization (RAII) of Curl.
     class CurlPtr
     {
-      public:
+    public:
 
-       //! Constructor.
-       CurlPtr()
-       {
-         curl_ = curl_easy_init();
-       }
+      //! Constructor.
+      CurlPtr()
+      {
+        curl_ = curl_easy_init();
+      }
 
-       CurlPtr(CurlPtr&& other)
-         : curl_(other.curl_)
-       {
-         other.curl_ = nullptr;
-       }
+      CurlPtr(CurlPtr&& other)
+        : curl_(other.curl_)
+      {
+        other.curl_ = nullptr;
+      }
 
-       CurlPtr& operator=(CurlPtr&& other)
-       {
-         curl_ = other.curl_;
-         other.curl_ = nullptr;
-       }
+      CurlPtr& operator=(CurlPtr&& other)
+      {
+        curl_ = other.curl_;
+        other.curl_ = nullptr;
+      }
 
-       CurlPtr(CurlPtr& curl) = delete;
-       CurlPtr& operator=(const CurlPtr& other) = delete;
+      CurlPtr(CurlPtr& curl) = delete;
+      CurlPtr& operator=(const CurlPtr& other) = delete;
 
 
-       /*!
+      /*!
            The init function performs the function curl_easy_cleanup closing all handle connections
            curl and then performs the initialization of the curl.
        */
-       void init()
-       {
-         curl_easy_cleanup(curl_);
-         curl_ = curl_easy_init();
-       }
+      void init()
+      {
+        curl_easy_cleanup(curl_);
+        curl_ = curl_easy_init();
+      }
 
-       //! Assume ownership of curl.
-       CURL* fcurl() const
-       {
-         return curl_;
-       }
+      //! Assume ownership of curl.
+      CURL* fcurl() const
+      {
+        return curl_;
+      }
 
-       virtual CURLcode verifyURL(std::string url)
-       {
-         curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
-         curl_easy_setopt(curl_, CURLOPT_FTPLISTONLY, 1);
-         curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT, 3);
-         curl_easy_setopt(curl_, CURLOPT_NOBODY, 1);
+      virtual CURLcode verifyURL(std::string url)
+      {
+        curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl_, CURLOPT_FTPLISTONLY, 1);
+        curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_easy_setopt(curl_, CURLOPT_NOBODY, 1);
 
-         return curl_easy_perform(curl_);
-       }
+        return curl_easy_perform(curl_);
+      }
 
-       /*! When CurlPtr destructor is called, the function curl_easy_cleanup is used automatically.
+      /*! When CurlPtr destructor is called, the function curl_easy_cleanup is used automatically.
            The function curl_easy_cleanup close all connections this handle curl.
        */
-       virtual ~CurlPtr()
-       {
-         curl_easy_cleanup(curl_);
-       }
+      virtual ~CurlPtr()
+      {
+        curl_easy_cleanup(curl_);
+      }
 
-      private:
-        CURL* curl_; //!< Attribute for Handler Curl.
-     };
+    private:
+      CURL* curl_; //!< Attribute for Handler Curl.
+    };
 
   }
 }

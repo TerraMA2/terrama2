@@ -64,7 +64,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
   {
     QUrl url;
     url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/operacao/"); // uri inválida
+    url.setPath("/operacao/");
     url.setScheme("FTP");
     url.setPort(21);
     url.setUserName("queimadas");
@@ -85,7 +85,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
     MockCurlWrapper mock_;
 
-    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_COULDNT_RESOLVE_HOST));
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
 
     try
     {
@@ -110,8 +110,8 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
   {
     QFAIL("Exception unexpected!");
   }
- 
- return;
+
+  return;
 
 }
 
@@ -143,7 +143,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     MockCurlWrapper mock_;
 
-    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_LOGIN_DENIED));
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_LOGIN_DENIED));
 
     try
     {
@@ -169,7 +169,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     QFAIL("Exception unexpected!");
   }
 
- return;
+  return;
 
 }
 
@@ -200,7 +200,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 
     MockCurlWrapper mock_;
 
-    EXPECT_CALL(mock_, verifyURL(_)).WillOnce(Return(CURLE_OK));
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
 
     try
     {
@@ -225,7 +225,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     QFAIL("Exception unexpected!");
   }
 
- return;
+  return;
 
 }
 

@@ -81,7 +81,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
 
       TERRAMA2_LOG_ERROR() << errMsg;
       throw DataRetrieverException() << ErrorDescription(errMsg);
-     }
+    }
   }
   catch(const std::exception& e)
   {
@@ -138,7 +138,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
   try
   {
-// Get a file listing from server
+    // Get a file listing from server
     if(curl.fcurl())
     {
       uriInput = dataProvider_->uri+"/";
@@ -165,7 +165,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
         throw DataRetrieverException() << ErrorDescription(errMsg);
       }
 
-// filter file names that should be downloaded.
+      // filter file names that should be downloaded.
       for (std::string fileName: vectorFiles)
       {
         // FIXME: use timestamp
@@ -183,7 +183,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
         curlDown.init();
 
-// Performs the download of files in the vectorNames
+        // Performs the download of files in the vectorNames
         if (curlDown.fcurl())
         {
           uri_origin = dataProvider_->uri +"/"+file;
@@ -224,7 +224,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
     throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the download files!"));
   }
 
-// returns the absolute path of the folder that contains the files that have been made the download.
+  // returns the absolute path of the folder that contains the files that have been made the download.
   return scheme_+temporaryFolder_;
 }
 

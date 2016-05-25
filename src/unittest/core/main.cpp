@@ -45,7 +45,6 @@ int main(int argc, char **argv)
 
   terrama2::core::finalizeTerralib();
 
-
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
   timer.start(10000);
