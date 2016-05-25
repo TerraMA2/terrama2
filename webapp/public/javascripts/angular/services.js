@@ -18,9 +18,13 @@ angular.module("terrama2.services", [])
           params: data
         });
       },
-      
+
       list: function(extra) {
-        return $http.get(url, extra instanceof Object ? extra : {});
+        return $http({
+          method: 'GET',
+          url: url,
+          params: extra instanceof Object ? extra : {}
+        });
       }
     }
   }])
@@ -35,13 +39,13 @@ angular.module("terrama2.services", [])
           params: extra instanceof Object ? extra : {}
         });
       },
-      
+
       post: function(dataSeriesObject) {
         return $http.post(url, dataSeriesObject);
       }
     }
   }])
-  
+
   .factory("ServiceInstanceFactory", ["$http", function($http) {
     var url = "/api/Service";
     return {
@@ -52,7 +56,7 @@ angular.module("terrama2.services", [])
           params: extra instanceof Object ? extra : {}
         })
       },
-      
+
       post: function(serviceObject) {
         return $http.post(url, serviceObject);
       }

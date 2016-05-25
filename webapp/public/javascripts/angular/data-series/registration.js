@@ -429,7 +429,7 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       // getting semantics
-      DataSeriesSemanticsFactory.list().success(function(semanticsList) {
+      DataSeriesSemanticsFactory.list({metadata: true}).success(function(semanticsList) {
         $scope.dataSeriesSemantics = semanticsList;
 
         if ($scope.dataSeries.semantics) {
@@ -448,8 +448,10 @@ angular.module('terrama2.dataseries.registration', [
         console.log(err);
       });
 
+      $scope.dataProviders = [];
+
       DataProviderFactory.get().success(function(dataProviders) {
-        $scope.dataProviders = dataProviders;
+        $scope.dataProvidersList = dataProviders;
       }).error(function(err) {
         console.log(err);
       });
@@ -514,6 +516,14 @@ angular.module('terrama2.dataseries.registration', [
         $scope.storager.format = {};
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
+
+        // TODO: filter provider type: FTP, HTTP, etc
+        $scope.dataProvidersList.forEach(function(dataProvider) {
+          $scope.dataSeries.semantics.metadata.demand.forEach(function(demand) {
+            if (dataProvider.data_provider_type == demand)
+              $scope.dataProviders.push(dataProvider);
+          })
+        });
 
         $scope.dataSeriesSemantics.forEach(function(dSemantics) {
           if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {

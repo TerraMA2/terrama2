@@ -8,7 +8,8 @@ function makeMetadata(identifier) {
 
   return {
     form: semanticsStructure.form,
-    schema: semanticsStructure.schema
+    schema: semanticsStructure.schema,
+    demand: semanticsStructure.demand
   };
 }
 
@@ -46,6 +47,12 @@ module.exports = function(app) {
       } else {
         // todo: semantics structure for each semantic in database
         DataManager.listDataSeriesSemantics().then(function(semanticsList) {
+          if (metadata) {
+            semanticsList.forEach(function(semantics) {
+              semantics.metadata = makeMetadata(semantics.code);
+            })
+          }
+
           return response.json(semanticsList);
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);

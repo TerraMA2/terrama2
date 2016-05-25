@@ -5,6 +5,9 @@ var WildFire = require('./WildFire');
 var OccurrencePostgis = require('./OccurrencePostgis');
 var AnalysisPostgis = require('./AnalysisPostgis');
 var StaticDataOgr = require('./StaticDataOgr');
+var AnalysisMonitoredObject = require('./AnalysisMonitoredObject');
+var GridGeoTiff = require('./GridGeoTiff');
+var DcpToa5 = require('./DcpToa5');
 var DataSeriesSemanticsError = require('./../Exceptions').DataSeriesSemanticsError;
 var PluginLoader = require('./../PluginLoader');
 
@@ -19,7 +22,10 @@ function availableTypes() {
   output.push(WildFire);
   output.push(OccurrencePostgis);
   output.push(AnalysisPostgis);
-  output.push(StaticDataOgr)
+  output.push(StaticDataOgr);
+  output.push(AnalysisMonitoredObject);
+  output.push(GridGeoTiff);
+  output.push(DcpToa5);
 
   var plugins = availablePlugins();
 
@@ -47,11 +53,12 @@ function getSemanticHelper(identifier) {
 
   var dataSeriesSemantics;
 
-  types.forEach(function(semantics) {
+  types.some(function(semantics) {
     if (semantics.identifier() === identifier) {
       dataSeriesSemantics = semantics;
-      return;
+      return true;
     }
+    return false;
   });
 
   if (dataSeriesSemantics)

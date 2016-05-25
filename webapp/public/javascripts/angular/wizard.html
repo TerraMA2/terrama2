@@ -49,7 +49,7 @@
 
     </wz-step>
 
-    <wz-step wz-title="Storager" canexit="isThirdStepValid" wz-data="{}">
+    <wz-step wz-title="Storager" canexit="isThirdStepValid" wz-data="{}" ng-if="isDynamic">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
       </div>

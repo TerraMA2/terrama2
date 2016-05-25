@@ -43,11 +43,12 @@ module.exports = {
   },
 
   DataSeriesType: {
-    DCP: 'Dcp',
-    OCCURRENCE: 'Occurrence',
-    GRID: 'Grid',
-    MONITORED: 'Monitored',
+    DCP: 'DCP',
+    OCCURRENCE: 'OCCURRENCE',
+    GRID: 'GRID',
+    ANALYSIS_MONITORED_OBJECT: 'ANALYSIS_MONITORED_OBJECT',
     ANALYSIS: 'ANALYSIS',
+    STATIC_DATA: 'STATIC_DATA',
     POSTGIS: 'POSTGIS'
   },
 
@@ -59,7 +60,9 @@ module.exports = {
 
   DataSeriesFormat: {
     CSV: 'CSV',
-    POSTGIS: 'POSTGIS'
+    POSTGIS: 'POSTGIS',
+    OGR: 'OGR',
+    GEOTIFF: 'GEOTIFF'
   },
 
   DataSeriesSemantics: {
