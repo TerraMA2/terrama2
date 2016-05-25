@@ -89,7 +89,7 @@ namespace terrama2
          - DateTime attribute is null (will be logged)
 
       */
-      bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const;
+      virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const;
       /*!
         \brief Filter dataset by geometry
 
@@ -102,7 +102,7 @@ namespace terrama2
          - Geometry attribute is null (will be logged)
 
       */
-      bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int geomColumn) const;
+      virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int geomColumn) const;
 
       /*!
         \brief Filter dataset by raster envelope
@@ -116,7 +116,7 @@ namespace terrama2
          - Raster attribute is null (will be logged)
 
       */
-      bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const;
+      virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const;
 
       std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const;
     };
