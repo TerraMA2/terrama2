@@ -57,13 +57,14 @@
 using ::testing::Return;
 using ::testing::_;
 
+
 void TsDataRetrieverFTP::TestFailUriInvalid()
 {
   try
   {
     QUrl url;
     url.setHost("ftp.dgi.inpe.br");
-    url.setPath("/operacao/"); // uri inválida
+    url.setPath("/operacao/");
     url.setScheme("FTP");
     url.setPort(21);
     url.setUserName("queimadas");
@@ -88,7 +89,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
     try
     {
-      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
 
       QFAIL("Exception expected - DataRetrieverException!");
     }
@@ -109,10 +110,11 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
   {
     QFAIL("Exception unexpected!");
   }
- 
- return;
+
+  return;
 
 }
+
 
 void TsDataRetrieverFTP::TestFailLoginInvalid()
 {
@@ -124,7 +126,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     url.setScheme("FTP");
     url.setPort(21);
     url.setUserName("queimadas");
-    url.setUserName("2012"); // login errado
+    url.setUserName("2012");
 
     curl_global_init(CURL_GLOBAL_ALL);
 
@@ -145,7 +147,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
     try
     {
-      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr,  std::move(mock_));
 
       QFAIL("Exception expected - DataRetrieverException!");
     }
@@ -167,7 +169,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     QFAIL("Exception unexpected!");
   }
 
- return;
+  return;
 
 }
 
@@ -202,13 +204,12 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 
     try
     {
-      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, mock_);
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
 
-      QFAIL("Exception expected - DataRetrieverException!");
     }
-    catch(terrama2::core::DataRetrieverException& e)
+    catch(...)
     {
-
+      QFAIL("Exception expected - DataRetrieverException!");
     }
 
     curl_global_cleanup();
@@ -224,7 +225,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     QFAIL("Exception unexpected!");
   }
 
- return;
+  return;
 
 }
 
