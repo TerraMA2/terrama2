@@ -31,9 +31,35 @@
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/*.hpp)
 
+file(GLOB TERRAMA2_DCP_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/*.cpp)
+file(GLOB TERRAMA2_DCP_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/*.hpp)
+
+file(GLOB TERRAMA2_DCP_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/*.cpp)
+file(GLOB TERRAMA2_DCP_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/*.hpp)
+
+file(GLOB TERRAMA2_OCCURRENCE_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/*.cpp)
+file(GLOB TERRAMA2_OCCURRENCE_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/*.hpp)
+
+file(GLOB TERRAMA2_OCCURRENCE_AGRREGATION_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/aggregation/*.cpp)
+file(GLOB TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/aggregation/*.hpp)
+
+file(GLOB TERRAMA2_GRID_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/*.cpp)
+file(GLOB TERRAMA2_GRID_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/*.hpp)
+
+
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
+source_group("Source Files\\dcp"  FILES ${TERRAMA2_DCP_SRC_FILES})
+source_group("Header Files\\dcp"  FILES ${TERRAMA2_DCP_HDR_FILES})
+source_group("Source Files\\dcp\\history"  FILES ${TERRAMA2_DCP_HISTORY_SRC_FILES})
+source_group("Header Files\\dcp\\history"  FILES ${TERRAMA2_DCP_HISTORY_HDR_FILES})
+source_group("Source Files\\occurrence"  FILES ${TERRAMA2_OCCURRENCE_SRC_FILES})
+source_group("Header Files\\occurrence"  FILES ${TERRAMA2_OCCURRENCE_HDR_FILES})
+source_group("Source Files\\occurrence\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_AGRREGATION_SRC_FILES})
+source_group("Header Files\\occurrence\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES})
+source_group("Source Files\\grid"  FILES ${TERRAMA2_GRID_SRC_FILES})
+source_group("Header Files\\grid"  FILES ${TERRAMA2_GRID_HDR_FILES})
 
 include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
@@ -46,7 +72,18 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES} )
+add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
+                                          ${TERRAMA2_HDR_FILES}
+                                          ${TERRAMA2_DCP_SRC_FILES}
+                                          ${TERRAMA2_DCP_HDR_FILES}
+                                          ${TERRAMA2_DCP_HISTORY_SRC_FILES}
+                                          ${TERRAMA2_DCP_HISTORY_HDR_FILES}
+                                          ${TERRAMA2_OCCURRENCE_SRC_FILES}
+                                          ${TERRAMA2_OCCURRENCE_HDR_FILES}
+                                          ${TERRAMA2_OCCURRENCE_AGRREGATION_SRC_FILES}
+                                          ${TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES_SRC_FILES}
+                                          ${TERRAMA2_GRID_SRC_FILES}
+                                          ${TERRAMA2_GRID_HDR_FILES})
 
 qt5_use_modules(terrama2_analysis_core Core)
 

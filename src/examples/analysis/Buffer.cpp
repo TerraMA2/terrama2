@@ -120,9 +120,9 @@ int main(int argc, char* argv[])
                          "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
                          "add_value(\"extern\", x)\n"
 
-                         "buffer = Buffer(BufferType.extern_plus_intern, 10., \"km\", -10., \"km\")\n"
+                         "buffer = Buffer(BufferType.outside_plus_inside, 10., \"km\", -10., \"km\")\n"
                          "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
-                         "add_value(\"extern_plus_intern\", x)\n"
+                         "add_value(\"outside_plus_inside\", x)\n"
 
                          "buffer = Buffer(BufferType.object_minus_buffer, -10., \"km\")\n"
                          "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"

@@ -36,6 +36,11 @@
 #include "OperatorCache.hpp"
 #include "Context.hpp"
 
+// STL
+#include <vector>
+#include <string>
+
+// Boost
 #include <boost/python.hpp>
 
 namespace terrama2
@@ -67,355 +72,6 @@ namespace terrama2
         */
         void addValue(const std::string& attribute, double value);
 
-        /*!
-          \brief Implementation of operator for latest DCP series data.
-
-          In case an empty set of identifiers is given, it will use the influence
-          configured for the analysis to determine which DCP dataset will be used.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param statisticOperation The statistic operation chosen by the user.
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used for a monitored object.
-          \param bufferType The buffer type.
-          \param ids A set of identifiers of DataSet.
-
-          \return A double value with the result.
-        */
-        double dcpOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
-
-        /*!
-          \brief It returns the number of DCPs that have influence over the current monitored object.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
-
-          \return The number of DCP that have influence over the current monitored object.
-        */
-        int dcpCount(const std::string& dataSeriesName, Buffer buffer);
-
-        /*!
-          \brief It calculates the minimum value of the latest DCP series data.
-
-          In case an empty set of identifiers is given, it will use the influence
-          configured for the analysis to determine which DCP dataset will be used.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param statisticOperation The statistic operation chosen by the user.
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param radius The buffer radius.
-          \param bufferType The buffer type.
-          \param ids A set of identifiers of DataSet.
-
-          \return A double with the minimum value.
-        */
-        double dcpMin(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
-
-        /*!
-          \brief It calculates the maximum value of the latest DCP series data.
-
-          In case an empty set of identifiers is given, it will use the influence
-          configured for the analysis to determine which DCP dataset will be used.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param buffer Buffer to be used in the monitored object.
-          \param ids A set of identifiers of DataSet.
-
-          \return A double with the maximum value.
-        */
-        double dcpMax(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
-
-        /*!
-          \brief It calculates the mean of the latest DCP series data.
-
-          In case an empty set of identifiers is given, it will use the influence
-          configured for the analysis to determine which DCP dataset will be used.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param buffer Buffer to be used in the monitored object.
-          \param ids A set of identifiers of DataSet.
-
-          \return A double with the mean.
-        */
-        double dcpMean(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
-
-        /*!
-          \brief It calculates the median value of the latest DCP series data.
-
-          In case an empty set of identifiers is given, it will use the influence
-          configured for the analysis to determine which DCP dataset will be used.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param buffer Buffer to be used in the monitored object.
-          \param ids A set of identifiers of DataSet.
-
-          \return A double with the median.
-        */
-        double dcpMedian(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
-
-        /*!
-          \brief It calculates the sum of the latest DCP series data.
-
-          In case an empty set of identifiers is given, it will use the influence
-          configured for the analysis to determine which DCP dataset will be used.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param buffer Buffer to be used in the monitored object.
-          \param ids A set of identifiers of DataSet.
-
-          \return A double with the sum.
-        */
-        double dcpSum(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
-
-        /*!
-          \brief It calculates the standard deviation of the latest DCP series data.
-
-          In case an empty set of identifiers is given, it will use the influence
-          configured for the analysis to determine which DCP dataset will be used.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param buffer Buffer to be used in the monitored object.
-          \param ids A set of identifiers of DataSet.
-
-          \return A double with the standard deviation.
-        */
-        double dcpStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, Buffer buffer, boost::python::list ids = boost::python::list());
-
-        /*!
-          \brief Implementation of history operator for DCP series.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param statisticOperation The statistic operation chosen by the user.
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param dcpId Identifier of DCP dataset.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-
-          \return A double value with the result.
-        */
-        double dcpHistoryOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId, Buffer buffer, const std::string& dateFilter);
-
-        /*!
-          \brief It calculates the sum of historic DCP data.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param dcpId Identifier of DCP dataset.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-
-          \return A double value with the result.
-        */
-        double dcpHistorySum(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId, Buffer buffer, const std::string& dateFilter);
-
-        /*!
-          \brief It calculates the mean of historic DCP data.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param dcpId Identifier of DCP dataset.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-
-          \return A double value with the result.
-        */
-        double dcpHistoryMean(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId, Buffer buffer, const std::string& dateFilter);
-
-        /*!
-          \brief It calculates the min of historic DCP data.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param dcpId Identifier of DCP dataset.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-
-          \return A double value with the result.
-        */
-        double dcpHistoryMin(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId, Buffer buffer, const std::string& dateFilter);
-
-        /*!
-          \brief It calculates the max of historic DCP data.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param dcpId Identifier of DCP dataset.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-
-          \return A double value with the result.
-        */
-        double dcpHistoryMax(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId, Buffer buffer, const std::string& dateFilter);
-
-        /*!
-          \brief It calculates the median of historic DCP data.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param dcpId Identifier of DCP dataset.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-
-          \return A double value with the result.
-        */
-        double dcpHistoryMedian(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId, Buffer buffer, const std::string& dateFilter);
-
-        /*!
-          \brief It calculates the standard deviation of historic DCP data.
-
-          In case of an error or no data available it will return NAN(Not A Number).
-
-          \param dataSeriesName DataSeries name.
-          \param attribute Which DCP attribute will be used.
-          \param dcpId Identifier of DCP dataset.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \return A double value with the result.
-        */
-        double dcpHistoryStandardDeviation(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId, Buffer buffer, const std::string& dateFilter);
-
-        /*!
-          \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.
-
-          \param statisticOperation The statistic operation called by the script.
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \param restriction SQL restriction.
-          \param attribute Name of the attribute to be used in statistic operator.
-          \param aggregationBuffer Buffer configuration to be used to aggregate occurrences in the same area.
-          \return The result of the selected operation.
-        */
-        double occurrenceOperator(StatisticOperation statisticOperation, const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute = "", Buffer aggregationBuffer = Buffer());
-
-        /*!
-          \brief It calculates the count of occurrences in the monitored object.
-
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \param restriction SQL restriction.
-
-          \return The number of occurrences in the monitored object.
-        */
-        int occurrenceCount(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction);
-
-        /*!
-          \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.
-
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \param restriction SQL restriction.
-          \param attribute Name of the attribute to be used in statistic operator.
-          \return The minimun value of the attribute of occurrences in the monitored object area.
-        */
-        double occurrenceMin(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute);
-
-        /*!
-          \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.
-
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \param restriction SQL restriction.
-          \param attribute Name of the attribute to be used in statistic operator.
-          \return The maximum value of the attribute of occurrences in the monitored object area.
-        */
-        double occurrenceMax(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute);
-
-        /*!
-          \brief It calculates the mean value of the attribute of occurrences in the monitored object area.
-
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \param restriction SQL restriction.
-          \param attribute Name of the attribute to be used in statistic operator.
-          \return The mean value of the attribute of occurrences in the monitored object area.
-        */
-        double occurrenceMean(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute);
-
-        /*!
-          \brief It calculates the median value of the attribute of occurrences in the monitored object area.
-
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \param restriction SQL restriction.
-          \param attribute Name of the attribute to be used in statistic operator.
-          \return The median value of the attribute of occurrences in the monitored object area.
-        */
-        double occurrenceMedian(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute);
-
-        /*!
-          \brief It calculates the sum of values of the attribute of occurrences in the monitored object area.
-
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \param restriction SQL restriction.
-          \param attribute Name of the attribute to be used in statistic operator.
-          \return The sum of values of the attribute of occurrences in the monitored object area.
-        */
-        double occurrenceSum(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute);
-
-        /*!
-          \brief It calculates the median value of the attribute of occurrences in the monitored object area.
-
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilter Time filter for the data.
-          \param restriction SQL restriction.
-          \param attribute Name of the attribute to be used in statistic operator.
-          \return The median value of the attribute of occurrences in the monitored object area.
-        */
-        double occurrenceStandardDeviation(const std::string& dataSeriesName, Buffer buffer, const std::string& dateFilter, const std::string& restriction, const std::string& attribute);
-
-
-
-        /*!
-          \brief Registers all DCP functions in the Python interpreter.
-        */
-        void registerDCPFunctions();
-
-        /*!
-          \brief Registers all occurrences functions in the Python interpreter.
-        */
-        void registerOccurrenceFunctions();
 
         /*!
           \brief Initialize Python interpreter.
@@ -474,23 +130,6 @@ namespace terrama2
         double getValue(terrama2::core::SyncronizedDataSetPtr syncDs, const std::string& attribute, uint64_t i, int attributeType);
 
         /*!
-         \brief Returns the influence type of an analysis.
-         \param analysis Analysis configuration.
-         \return The influence type.
-       */
-        InfluenceType getInfluenceType(const Analysis& analysis);
-
-        /*!
-         \brief Creates the influence buffer.
-         \param analysis Analysis configuration.
-         \param geometry DCP position.
-         \param monitoredObjectSrid SRID of the monitored object.
-         \param influenceType Influence type of the analysis.
-         \return The buffer geometry.
-        */
-        std::shared_ptr<te::gm::Geometry> createDCPInfluenceBuffer(const Analysis& analysis, std::shared_ptr<te::gm::Geometry> position, int monitoredObjectSrid, InfluenceType influenceType);
-
-        /*!
          \brief Calculates the statistics based on the given values.
          \param values The list of values.
          \param cache The OperatorCache to store the results.
@@ -498,13 +137,15 @@ namespace terrama2
         void calculateStatistics(std::vector<double>& values, OperatorCache& cache);
 
         /*!
-         \brief Verify if the DCP influences the monitored object.
-         \param influenceType Influence type of the analysis.
-         \param geom Monitored object geometry.
-         \param dcpInfluenceBuffer  DCP influence buffer.
-         \return True if the DCP influences the monitored object
+          \brief Registers all DCP functions in the Python interpreter.
         */
-        bool verifyDCPInfluence(InfluenceType influenceType, std::shared_ptr<te::gm::Geometry> moGeom, std::shared_ptr<te::gm::Geometry> dcpInfluenceBuffer);
+        void registerDCPFunctions();
+
+        /*!
+          \brief Registers all occurrences functions in the Python interpreter.
+        */
+        void registerOccurrenceFunctions();
+
 
       } // end namespace core
     }   // end namespace analysis

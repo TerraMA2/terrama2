@@ -30,6 +30,10 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
 
+
+
+#include "PythonInterpreter.hpp"
+
 // STL
 #include <memory>
 #include <vector>
@@ -45,6 +49,7 @@ namespace te
   namespace gm
   {
     class Geometry;
+
     class Envelope;
   }
 }
@@ -52,11 +57,6 @@ namespace te
 // Forward declaration
 namespace terrama2
 {
-  namespace core
-  {
-    class SyncronizedDataSet;
-  }
-
   namespace services
   {
     namespace analysis
@@ -65,47 +65,59 @@ namespace terrama2
       {
         /*!
           \brief Defines the buffer type.
-          \note For internal buffer the value must be negative.
+          \note For inside buffer the value must be negative.
         */
         enum BufferType
         {
           NONE = 0, //!< No buffer
-          ONLY_BUFFER = 1, //!< Only buffer, can be external or internal.
-          EXTERN_PLUS_INTERN = 2, //!< Result buffer is the union between external buffer and internal buffer.
-          OBJECT_PLUS_BUFFER = 3, //!< Geometry plus buffer, must be a positive value because it's an external buffer.
-          OBJECT_MINUS_BUFFER = 4, //!< Geometry minus buffer, must be a negative value because it's an internal buffer.
+          ONLY_BUFFER = 1, //!< Only buffer, can be outside or inside.
+          OUTSIDE_PLUS_INSIDE = 2, //!< Result buffer is the union between outside buffer and inside buffer.
+          OBJECT_PLUS_BUFFER = 3, //!< Geometry plus buffer, must be a positive value because it's an outside buffer.
+          OBJECT_MINUS_BUFFER = 4, //!< Geometry minus buffer, must be a negative value because it's an inside buffer.
           DISTANCE_ZONE = 5 //! Result buffer is the difference between buffer 1 and buffer 2.
+        };
+
+        /*!
+          \brief Contains information about the occurrences that were aggregated because they were in the same area.
+        */
+        struct OccurrenceAggregation
+        {
+          std::shared_ptr<te::gm::Geometry> buffer; //!< The geometry of created by the aggregation of the occurrences buffers.
+          std::vector<unsigned int> indexes; //!< The indexes that were aggregated.
         };
 
         struct Buffer
         {
           //! Default constructor
-          Buffer() : bufferType(NONE) {}
+          Buffer() : bufferType(NONE)
+          { }
 
           /*!
-            \brief Constructor for composed buffers such as EXTERN_PLUS_INTERN and DISTANCE_ZONE.
+            \brief Constructor for composed buffers such as OUTSIDE_PLUS_INSIDE and DISTANCE_ZONE.
             \param type The buffer type.
-            \param d Distance of the buffer, use negative values for an internal buffer.
+            \param d Distance of the buffer, use negative values for an inside buffer.
             \param u Unit of the distance.
           */
-          Buffer(BufferType type, double d, std::string u) : bufferType(type), distance(d), unit(u) {}
+          Buffer(BufferType type, double d, std::string u) : bufferType(type), distance(d), unit(u)
+          { }
 
           /*!
-            \brief Constructor for composed buffers such as EXTERN_PLUS_INTERN and DISTANCE_ZONE.
-            \param type The buffer type, must be EXTERN_PLUS_INTERN or DISTANCE_ZONE.
-            \param d1 Distance for the first buffer, for EXTERN_PLUS_INTERN type this is external buffer.
-            \param u1 Unit of the distance for the first buffer,  for EXTERN_PLUS_INTERN type this is external buffer.
-            \param d2 Distance for the second buffer, for EXTERN_PLUS_INTERN type this is internal buffer.
-            \param u2 Unit of the distance for the second buffer,  for EXTERN_PLUS_INTERN type this is internal buffer.
+            \brief Constructor for composed buffers such as OUTSIDE_PLUS_INSIDE and DISTANCE_ZONE.
+            \param type The buffer type, must be OUTSIDE_PLUS_INSIDE or DISTANCE_ZONE.
+            \param d1 Distance for the first buffer, for OUTSIDE_PLUS_INSIDE type this is outside buffer.
+            \param u1 Unit of the distance for the first buffer,  for OUTSIDE_PLUS_INSIDE type this is outside buffer.
+            \param d2 Distance for the second buffer, for OUTSIDE_PLUS_INSIDE type this is inside buffer.
+            \param u2 Unit of the distance for the second buffer,  for OUTSIDE_PLUS_INSIDE type this is inside buffer.
           */
           Buffer(BufferType type, double d1, std::string u1, double d2, std::string u2)
-            : bufferType(type), distance(d1), unit(u1), distance2(d2), unit2(u2) {}
+                  : bufferType(type), distance(d1), unit(u1), distance2(d2), unit2(u2)
+          { }
 
           BufferType bufferType; //!< The type of the buffer.
-          double distance; //!< The distance of the buffer, positive value for external buffer and negative for internal buffer.
+          double distance; //!< The distance of the buffer, positive value for outside buffer and negative for inside buffer.
           std::string unit; //!< The distance unit.
-          double distance2; //!< The distance of the second buffer, this attribute is only used for composed buffer such as EXTERN_PLUS_INTERN and DISTANCE_ZONE.
-          std::string unit2; //!< The distance unit of the second buffer, this attribute is only used for composed buffer such as EXTERN_PLUS_INTERN and DISTANCE_ZONE.
+          double distance2; //!< The distance of the second buffer, this attribute is only used for composed buffer such as OUTSIDE_PLUS_INSIDE and DISTANCE_ZONE.
+          std::string unit2; //!< The distance unit of the second buffer, this attribute is only used for composed buffer such as OUTSIDE_PLUS_INSIDE and DISTANCE_ZONE.
         };
 
         /*!
@@ -125,7 +137,9 @@ namespace terrama2
           \param bufferType The type of the buffer.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.
         */
-        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, Buffer buffer);
+        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(
+                std::vector<size_t>& geometries, std::shared_ptr<te::gm::Envelope>& box,
+                Buffer buffer);
 
       } // end namespace core
     }   // end namespace analysis
