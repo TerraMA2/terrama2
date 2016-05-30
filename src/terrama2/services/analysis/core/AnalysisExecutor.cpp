@@ -227,7 +227,7 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
         auto dataSeriesPtr = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
         size =  dataSeriesPtr->datasetList.size();
 
-        Context::getInstance().addDCP(analysis.id, dataSeriesPtr);
+        Context::getInstance().addDCPDataSeries(analysis.id, dataSeriesPtr);
         break;
       }
     }

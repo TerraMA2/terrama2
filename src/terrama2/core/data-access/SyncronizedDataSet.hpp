@@ -89,6 +89,17 @@ namespace terrama2
         */
         std::string getString(std::size_t row, std::size_t columnIndex) const;
 
+
+        /*!
+          \brief Method for retrieving a numeric value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnIndex The column index of interest.
+
+          \return The numeric attribute value in the given position.
+        */
+        std::string getNumeric(std::size_t row, std::size_t columnIndex) const;
+
         /*!
           \brief Method for retrieving a double value attribute.
 
@@ -197,6 +208,16 @@ namespace terrama2
         std::string getString(std::size_t row, std::string columnName) const;
 
         /*!
+          \brief Method for retrieving a numeric value attribute.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param columnName The name of the column of interest.
+
+          \return The numeric attribute value in the given position.
+        */
+        std::string getNumeric(std::size_t row, std::string columnName) const;
+
+        /*!
           \brief Method for retrieving a double value attribute.
 
           \param row The position the dataset internal pointer must be set up.
@@ -299,6 +320,19 @@ namespace terrama2
           \return The smart pointer to the TerraLib dataset.
         */
         std::shared_ptr<te::da::DataSet> dataset() const;
+
+        /*!
+        \brief It computes the bounding rectangle for a spatial property of the dataset.
+
+        \param i The position of a spatial property to get its bounding box.
+
+        \pre The position i must be associated to a spatial property of the dataset.
+
+        \exception Exception It throws an exception if something goes wrong during MBR search.
+
+        \return The spatial property bounding rectangle, or an invalid box, if none is found.
+        */
+        std::shared_ptr<te::gm::Envelope> getExtent(std::size_t i) const;
 
       protected:
         std::shared_ptr<te::da::DataSet> dataset_; //!< Smart pointer to the TerraLib dataset.
