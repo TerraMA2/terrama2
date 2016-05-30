@@ -25,8 +25,7 @@
 #define __TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__
 
 // TerraMA2
-#include <terrama2/core/utility/Raii.hpp>
-#include <terrama2/core/utility/CurlWrapper.hpp>
+#include <terrama2/core/utility/CurlPtr.hpp>
 #include <terrama2/impl/DataRetrieverFTP.hpp>
 
 // Libcurl
@@ -35,16 +34,14 @@
 // GMock
 #include <gmock/gmock.h>
 
-class MockCurlWrapper: public terrama2::core::CurlWrapper
+class MockCurlWrapper: public terrama2::core::CurlPtr
 {
-  public:
+public:
 
-   MockCurlWrapper() {};
+  MockCurlWrapper() {};
 
-   MOCK_METHOD1(verifyURL,CURLcode(std::string url));
+  MOCK_METHOD1(verifyURL,CURLcode(std::string url));
 
 };
 
 #endif //__TERRAMA2_UNITTEST_CORE_MOCKCURLWRAPPER__
-
-

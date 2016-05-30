@@ -33,10 +33,6 @@
 //STd
 #include <exception>
 
-// Libcurl
-#include <curl/curl.h>
-
-
 namespace terrama2
 {
   namespace core
@@ -146,46 +142,6 @@ namespace terrama2
     private:
       std::FILE* file_;
     };
-
-    //! Class for Resource Acquisition Is Initialization (RAII) of Curl.
-    class CurlPtr
-    {
-      public:
-
-       //! Constructor.
-       CurlPtr()
-       {
-         curl_ = curl_easy_init();
-       } 
-
-       /*!
-           The init function performs the function curl_easy_cleanup closing all handle connections 
-           curl and then performs the initialization of the curl.
-       */
-       void init()
-       {
-         curl_easy_cleanup(curl_);
-         curl_ = curl_easy_init();
-       }
-
-       //! Assume ownership of curl.
-       CURL* fcurl() const
-       {
-         return curl_;
-       }
-
-       /*! When CurlPtr destructor is called, the function curl_easy_cleanup is used automatically. 
-           The function curl_easy_cleanup close all connections this handle curl.
-       */
-       ~CurlPtr()
-       {
-         curl_easy_cleanup(curl_);
-       }
-
-      private:
-        CURL* curl_; //!< Attribute for Handler Curl.
-     };
-
   }
 }
 

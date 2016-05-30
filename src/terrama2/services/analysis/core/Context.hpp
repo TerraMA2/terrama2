@@ -197,24 +197,26 @@ namespace terrama2
             bool exists(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
 
             /*!
-              \brief Creates a TerraLib dataset to read the data with the date filter and adds it to the context.
+              \brief Reads the DataSeries that fits the date filter and adds it to the context.
 
               \param analysisId The analysis identifier.
               \param dataSeries A smart pointer to the DataSeries to be loaded.
               \param dateFilter The date restriction to be used in the DataSet.
               \param createSpatialIndex Defines if a spatial index should be created to optimize data access.
             */
-            void addDataset(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter = "", bool createSpatialIndex = true);
+            void addDataSeries(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries,
+                               const std::string& dateFilter = "", bool createSpatialIndex = true);
 
             /*!
-              \brief Creates a TerraLib dataset to read the DCP data with the date filter and adds it to the context.
+              \brief Reads the DataSeries that fits the date filter and adds it to the context.
 
               \param analysisId The analysis identifier.
               \param dataSeries A smart pointer to the DataSeries to be loaded.
               \param dateFilter The date restriction to be used in the DataSet.
               \param lastValue Defines if is an historic operator or if it should access only the latest data.
             */
-            void addDCP(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter = "", const bool lastValue = false);
+            void addDCPDataSeries(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries,
+                                  const std::string& dateFilter = "", const bool lastValue = false);
 
             /*!
               \brief Returns the set of attributes that compose the analysis result.
