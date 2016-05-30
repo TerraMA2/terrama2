@@ -61,13 +61,13 @@ namespace terrama2
         //! Default destructor.
         virtual ~DataStorager() = default;
         //! Default copy constructor
-        DataStorager(const DataStorager& other) = default;
+        DataStorager(const DataStorager& other) = delete;
         //! Default move constructor
-        DataStorager(DataStorager&& other) = default;
+        DataStorager(DataStorager&& other) = delete;
         //! Default const assignment operator
-        DataStorager& operator=(const DataStorager& other) = default;
+        DataStorager& operator=(const DataStorager& other) = delete;
         //! Default assignment operator
-        DataStorager& operator=(DataStorager&& other) = default;
+        DataStorager& operator=(DataStorager&& other) = delete;
 
         /*!
           \brief Store the data series in outputDataSet.
