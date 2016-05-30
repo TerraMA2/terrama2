@@ -3,13 +3,14 @@
 #include <terralib/geometry.h>
 #include <terralib/dataaccess.h>
 #include <terralib/raster/RasterProperty.h>
-#include <terralib/maptools.h>
-#include <terralib/maptools/RasterLayer.h>
+//#include <terralib/maptools.h>
+//#include <terralib/maptools/RasterLayer.h>
 #include <terralib/qt/widgets/canvas/MapDisplay.h>
 #include <terralib/qt/widgets/canvas/MultiThreadMapDisplay.h>
 #include <terralib/se.h>
 #include <terralib/qt/widgets/canvas/Canvas.h>
 #include <terralib/memory/DataSource.h>
+
 
 // STL
 #include <cassert>
@@ -29,7 +30,7 @@
 #include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-
+#include <terrama2/services/maps/core/MemoryDataSetLayer.hpp>
 
 te::se::Style* SimpleRasterStyle(int nBands)
 {
@@ -243,6 +244,67 @@ void MapDisplay(std::shared_ptr<te::da::DataSet> ds)
 }
 
 
+void RGB_012_RGB_Contrast_Style(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> teDataSetType, te::qt::widgets::Canvas* c, te::map::MemoryDataSetLayer* l, te::gm::Envelope* e, int srid)
+{
+  //create default raster symbolizer
+  te::se::RasterSymbolizer* rs = new te::se::RasterSymbolizer();
+
+  //set transparency
+  rs->setOpacity(new te::se::ParameterValue("1.0"));
+
+  //set channel selection
+  te::se::ChannelSelection* cs = new te::se::ChannelSelection();
+  cs->setColorCompositionType(te::se::RGB_COMPOSITION);
+
+  //channel R
+  te::se::SelectedChannel* scR = new te::se::SelectedChannel();
+  scR->setSourceChannelName("0");
+
+  te::se::ContrastEnhancement* cR = new te::se::ContrastEnhancement();
+  cR->setGammaValue(0.5);
+  scR->setContrastEnhancement(cR);
+  cs->setRedChannel(scR);
+
+  //channel G
+  te::se::SelectedChannel* scG = new te::se::SelectedChannel();
+  scG->setSourceChannelName("1");
+
+  te::se::ContrastEnhancement* cG = new te::se::ContrastEnhancement();
+  cG->setGammaValue(0.5);
+  scG->setContrastEnhancement(cG);
+  cs->setGreenChannel(scG);
+
+  //channel B
+  te::se::SelectedChannel* scB = new te::se::SelectedChannel();
+  scB->setSourceChannelName("2");
+
+  te::se::ContrastEnhancement* cB = new te::se::ContrastEnhancement();
+  cB->setGammaValue(0.5);
+  scB->setContrastEnhancement(cB);
+  cs->setBlueChannel(scB);
+
+  rs->setChannelSelection(cs);
+
+  //add symbolizer to a layer style
+  te::se::Rule* r = new te::se::Rule();
+  r->push_back(rs);
+
+  te::se::Style* s = new te::se::CoverageStyle();
+  s->push_back(r);
+
+  l->setStyle(s);
+
+  bool cancel = false;
+
+  l->draw(c, *e, srid, 0, &cancel);
+
+//  te::map::MemoryDataSetRenderer::draw(dataSet, l, c, *e, srid, 0, &cancel);
+
+  c->save("GeneretadeImage", te::map::PNG);
+
+  c->clear();
+}
+
 void RGB_012_RGB_Contrast_Style(te::qt::widgets::Canvas* c, te::map::AbstractLayer* l, te::gm::Envelope* e, int srid)
 {
   //create default raster symbolizer
@@ -297,25 +359,10 @@ void RGB_012_RGB_Contrast_Style(te::qt::widgets::Canvas* c, te::map::AbstractLay
 
   l->draw(c, *e, srid, 0, &cancel);
 
-  std::list<te::map::AbstractLayerPtr> layerList;
-  layerList.push_back(l);
-/*
-  // Creates the MapDisplay
-  std::shared_ptr<te::qt::widgets::MapDisplay> mapDisplay(new te::qt::widgets::MultiThreadMapDisplay(QSize(700, 500)));
-  mapDisplay->setMinimumSize(QSize(60, 60));
-  mapDisplay->setResizePolicy(te::qt::widgets::MapDisplay::Center);
-  mapDisplay->setLayerList(layerList);
-  mapDisplay->show();
-  mapDisplay->setExtent(*e);
-
-  QApplication::exec();*/
-
-
   c->save("GeneretadeImage", te::map::PNG);
 
   c->clear();
 }
-
 
 void DrawRasterStyledLayers()
 {
@@ -382,23 +429,10 @@ void DrawRasterStyledLayers()
 }
 
 
-void DrawRasterStyledLayersFromDataSet(std::shared_ptr<te::da::DataSet> ds, std::shared_ptr<te::da::DataSetType> teDataSetType)
+void DrawRasterStyledLayersFromDataSet(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> teDataSetType)
 {
   try
   {
-    std::shared_ptr< te::mem::DataSource > dataSource(new te::mem::DataSource());
-    dataSource->setId("1");
-    std::map<std::string, std::string> options;
-    te::da::DataSourcePtr daDS(dataSource.get());
-    te::da::DataSourceManager::getInstance().insert(daDS);
-    daDS->open();
-
-    std::string dataSetName = teDataSetType->getName();
-    daDS->createDataSet(teDataSetType.get(), options);
-    ds->moveBeforeFirst();
-    daDS->add(dataSetName, ds.get(), options, 0);
-
-    std::shared_ptr<te::da::DataSet> dataSet(daDS->getDataSet(dataSetName));
     dataSet->moveFirst();
     std::string RasterName = "RasterName";
 
@@ -409,9 +443,8 @@ void DrawRasterStyledLayersFromDataSet(std::shared_ptr<te::da::DataSet> ds, std:
     std::shared_ptr<te::gm::Envelope> extent(raster->getExtent());
 
     // Creates a DataSetLayer of raster
-    std::shared_ptr<te::map::DataSetLayer> rasterLayer(new te::map::DataSetLayer(te::common::Convert2String(1), raster->getName()));
-    rasterLayer->setDataSourceId(daDS->getId());
-    rasterLayer->setDataSetName(dataSetName);
+    std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(1), raster->getName(), dataSet, teDataSetType));
+    rasterLayer->setDataSetName(teDataSetType->getDatasetName());
     rasterLayer->setExtent(*extent.get());
     rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
     rasterLayer->setSRID(raster->getSRID());
@@ -435,7 +468,7 @@ void DrawRasterStyledLayersFromDataSet(std::shared_ptr<te::da::DataSet> ds, std:
     canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
 
     // RGB 012 with contrast in RGB bands Style
-    RGB_012_RGB_Contrast_Style(canvas.get(), rasterLayer.get(), extent.get(), srid);
+    RGB_012_RGB_Contrast_Style(dataSet, teDataSetType, canvas.get(), rasterLayer.get(), extent.get(), srid);
 
   }
   catch(const std::exception& e)
@@ -490,49 +523,10 @@ int main(int argc, char** argv)
       std::shared_ptr<te::da::DataSet> ds = series.begin()->second.syncDataSet->dataset();
       std::shared_ptr<te::da::DataSetType> teDataSetType = series.begin()->second.teDataSetType;
 
-//      DrawRasterStyledLayersLayers();
+      //      DrawRasterStyledLayersLayers();
 
       DrawRasterStyledLayersFromDataSet(ds, teDataSetType);
     }
-
-
-    {
-      //DataProvider information
-      terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-      terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-      dataProvider->uri = "file://";
-      dataProvider->uri += TERRAMA2_DATA_DIR;
-      dataProvider->uri += "/shapefile";
-
-      dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-      dataProvider->dataProviderType = "FILE";
-      dataProvider->active = true;
-
-      //DataSeries information
-      terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-      terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-      dataSeries->semantics.code = "STATIC_DATA-ogr";
-
-      terrama2::core::DataSet* dataSet = new terrama2::core::DataSet();
-      dataSet->active = true;
-      dataSet->format.emplace("mask", "munic_2001.shp");
-      dataSet->format.emplace("timezone", "-03");
-
-      dataSeries->datasetList.emplace_back(dataSet);
-
-      //empty filter
-      terrama2::core::Filter filter;
-      //accessing data
-      terrama2::core::DataAccessorStaticDataOGR accessor(dataProviderPtr, dataSeriesPtr);
-
-      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = accessor.getSeries(filter);
-
-      std::shared_ptr<te::da::DataSet> ds = series.begin()->second.syncDataSet->dataset();
-
-//      MapDisplay();
-//      MapDisplay( ds);
-    }
-
   }
   catch(const std::exception& e)
   {
