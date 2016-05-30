@@ -54,7 +54,7 @@ namespace terrama2
   {
 
     /*!
-      \brief Filter information of a given DataSet.
+      \brief Information on how the data should be filtered.
 
       ## JSon ##
 

@@ -66,7 +66,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::getDataSetName(DataSetPtr da
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getDateTimePropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorDcpPostGIS::getTimestampPropertyName(DataSetPtr dataSet) const
 {
   try
   {

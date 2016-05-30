@@ -66,7 +66,7 @@ std::string terrama2::core::DataAccessorOccurrencePostGis::getDataSetName(DataSe
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::getDateTimePropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorOccurrencePostGis::getTimestampPropertyName(DataSetPtr dataSet) const
 {
   try
   {

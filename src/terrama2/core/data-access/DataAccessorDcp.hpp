@@ -45,7 +45,7 @@ namespace terrama2
 
       DCP are Data Collecting Plataforms, here we consider that:
        - It's fixed, one static geographical position associated
-       - The data has a Date/Time attribute
+       - The data has a timestamp attribute
 
       A weather station is an example of DCP.
 

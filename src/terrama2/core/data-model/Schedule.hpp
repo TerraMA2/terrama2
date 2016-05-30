@@ -41,7 +41,7 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief Schedule information for processess.
+      \brief Schedule information for processes.
 
       The schedule struct holds information for when a process should be executed.
 

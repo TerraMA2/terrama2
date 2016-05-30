@@ -86,7 +86,7 @@ namespace terrama2
 
     };
 
-    //! Class for Resource Acquisition Is Initialization (RAII) of FILE*.
+    //! Class for Resource Acquisition Is Initialization (RAII) of std::FILE*.
     class FilePtr
     {
     public:
@@ -133,7 +133,7 @@ namespace terrama2
         return file_;
       }
 
-     //! Assume ownership of file.
+     //! Returns the file pointer.
       std::FILE* file() const
       {
         return file_;

@@ -50,7 +50,7 @@ namespace terrama2
       namespace core
       {
         /*!
-          \brief The %Collector Service provides thread and time management for Collector processess.
+          \brief The %Collector Service provides thread and time management for Collector processes.
 
           This class is used to manage thread sync and timer listening to access
           process and store data based on Collector.
@@ -66,18 +66,38 @@ namespace terrama2
             Service(std::weak_ptr<DataManager> dataManager);
 
             ~Service() = default;
-            Service(const Service& other) = default;
+            Service(const Service& other) = delete;
             Service(Service&& other) = default;
-            Service& operator=(const Service& other) = default;
+            Service& operator=(const Service& other) = delete;
             Service& operator=(Service&& other) = default;
 
           public slots:
             //! Slot to be called when a DataSetTimer times out.
             void addToQueue(CollectorId collectorId);
+            /*!
+              \brief Add a Collector to the service
+
+              Check if this is the instance where the colelctor should run.
+            */
             void addCollector(CollectorPtr);
+
+            /*!
+              \brief Updates the Collector.
+
+              calls addCollector()
+            */
             void updateCollector(CollectorPtr collector);
+            /*!
+              \brief Removes the Collector.
+
+              Rennuning processes will continue until finished.
+            */
             void removeCollector(CollectorId collectorId);
+
+            //doc in base class
             virtual void updateNumberOfThreads(int) override;
+
+            //doc in base class
             virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;
 
           protected:
@@ -86,17 +106,21 @@ namespace terrama2
             // comments on base class
             virtual bool processNextData() override;
 
+            //*! Create a process task and add to taskQueue_
             virtual void prepareTask(CollectorId collectorId);
-
+            /*!
+              \brief Callback method to collect and store data.
+            */
             static void collect(CollectorId collectorId, std::shared_ptr< CollectorLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
+            //! Connects signals from DataManager
             void connectDataManager();
 
-            std::weak_ptr<DataManager> dataManager_;
+            std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 
-            std::map<CollectorId, terrama2::core::TimerPtr> timers_;
-            std::deque<CollectorId> collectorQueue_;
-            std::shared_ptr< CollectorLogger > logger_;
+            std::map<CollectorId, terrama2::core::TimerPtr> timers_;//!< List of running Collector timers
+            std::deque<CollectorId> collectorQueue_;//!< Collector queue
+            std::shared_ptr< CollectorLogger > logger_;//!< process logger
         };
 
       } // end namespace core

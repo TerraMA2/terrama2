@@ -65,7 +65,7 @@ std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getDataS
   }
 }
 
-std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getDateTimePropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getTimestampPropertyName(DataSetPtr dataSet) const
 {
   return "execution_date";
 }

@@ -146,7 +146,7 @@ std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieve
 void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
     std::vector<te::da::Expression*>& where) const
 {
-  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
+  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
   if(filter.discardBefore.get())
   {
     te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardBefore->clone()));
@@ -183,7 +183,7 @@ void terrama2::core::DataAccessorPostGis::updateLastTimestamp(DataSetPtr dataSet
   te::da::FromItem* t1 = new te::da::DataSetName(tableName);
   te::da::From* from = new te::da::From;
   from->push_back(t1);
-  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
+  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
 
   te::da::Fields* fields = new te::da::Fields;
   te::da::Expression* max = new te::da::Max(dateTimeProperty);
