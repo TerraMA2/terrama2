@@ -201,3 +201,29 @@ std::size_t terrama2::core::SyncronizedDataSet::size() const
   std::lock_guard<std::mutex> lock(mutex_);
   return dataset_->size();
 }
+
+std::string terrama2::core::SyncronizedDataSet::getNumeric(std::size_t row, std::string columnName) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return dataset_->getNumeric(columnName);
+}
+
+std::string terrama2::core::SyncronizedDataSet::getNumeric(std::size_t row, std::size_t columnIndex) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return dataset_->getNumeric(columnIndex);
+}
+
+std::shared_ptr<te::gm::Envelope> terrama2::core::SyncronizedDataSet::getExtent(std::size_t i) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  return std::shared_ptr<te::gm::Envelope>(dataset_->getExtent(i));
+}
+
+
+
+
+
+

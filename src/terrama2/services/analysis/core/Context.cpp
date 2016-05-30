@@ -177,7 +177,9 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
   }
 }
 
-void terrama2::services::analysis::core::Context::addDCP(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter, const bool lastValue)
+void terrama2::services::analysis::core::Context::addDCPDataSeries(const AnalysisId analysisId,
+                                                                   terrama2::core::DataSeriesPtr dataSeries,
+                                                                   const std::string& dateFilter, const bool lastValue)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -308,7 +310,9 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
   return dataManagerPtr->findAnalysis(analysisId);
 }
 
-void terrama2::services::analysis::core::Context::addDataset(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries, const std::string& dateFilter, bool createSpatialIndex)
+void terrama2::services::analysis::core::Context::addDataSeries(const AnalysisId analysisId,
+                                                                terrama2::core::DataSeriesPtr dataSeries,
+                                                                const std::string& dateFilter, bool createSpatialIndex)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 

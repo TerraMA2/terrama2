@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
     outputDataSet->active = true;
     outputDataSet->id = 2;
-    outputDataSet->format.emplace("table_name", "occurrence_analysis_result");
+    outputDataSet->format.emplace("table_name", "occurrence_aggregation_analysis_result");
 
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
@@ -105,26 +105,27 @@ int main(int argc, char* argv[])
     analysis.active = false;
 
     std::string script = "buffer = Buffer()\n"
-                         "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
-                         "add_value(\"count\", x)\n"
+                         "aggregationBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
+                         "x = occurrence.aggregation.count(\"Occurrence\", buffer, \"500d\", aggregationBuffer, \"\")\n"
+                         "add_value(\"aggregation_count\", x)\n"
 
-                         "x = occurrence.max(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
-                         "add_value(\"max\", x)\n"
+                         "x = occurrence.aggregation.max(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.max, aggregationBuffer, \"\")\n"
+                         "add_value(\"aggregation_max\", x)\n"
 
-                         "x = occurrence.min(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
-                         "add_value(\"min\", x)\n"
+                         "x = occurrence.aggregation.min(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.min, aggregationBuffer, \"\")\n"
+                         "add_value(\"aggregation_min\", x)\n"
 
-                         "x = occurrence.mean(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
-                         "add_value(\"mean\", x)\n"
+                         "x = occurrence.aggregation.mean(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.mean, aggregationBuffer, \"\")\n"
+                         "add_value(\"aggregation_mean\", x)\n"
 
-                         "x = occurrence.median(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
-                         "add_value(\"median\", x)\n"
+                         "x = occurrence.aggregation.median(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.median, aggregationBuffer, \"\")\n"
+                         "add_value(\"aggregation_median\", x)\n"
 
-                         "x = occurrence.standard_deviation(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
-                         "add_value(\"standard_deviation\", x)\n"
+                         "x = occurrence.aggregation.standard_deviation(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.standard_deviation, aggregationBuffer, \"\")\n"
+                         "add_value(\"aggregation_standard_deviation\", x)\n"
 
-                         "x = occurrence.sum(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
-                         "add_value(\"sum\", x)\n";
+                         "x = occurrence.aggregation.sum(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+                         "add_value(\"aggregation_sum\", x)\n";
 
 
     analysis.script = script;
@@ -158,7 +159,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
     terrama2::core::DataSetPtr dataSetPtr(dataSet);
     dataSet->active = true;
-    dataSet->format.emplace("mask", "estados_2010.shp");
+    dataSet->format.emplace("mask", "acre.shp");
     dataSet->format.emplace("srid", "4326");
     dataSet->format.emplace("identifier", "nome");
     dataSet->id = 1;

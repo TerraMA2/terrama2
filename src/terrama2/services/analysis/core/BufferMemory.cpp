@@ -29,25 +29,20 @@
 
 // TerraMA2
 #include "BufferMemory.hpp"
-#include "../../../core/data-access/SyncronizedDataSet.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 // TerraLib
-#include <terralib/srs/SpatialReferenceSystemManager.h>
-#include <terralib/srs/SpatialReferenceSystem.h>
-#include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/utils/Utils.h>
-#include <terralib/memory/DataSet.h>
 #include <terralib/memory/DataSetItem.h>
-#include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/GeometryProperty.h>
 
 //QT
 #include <QObject>
 #include <QString>
 
-std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuffer(Buffer buffer, std::shared_ptr<te::gm::Geometry> geometry)
+std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuffer(Buffer buffer,
+                                                                                   std::shared_ptr<te::gm::Geometry> geometry)
 {
   // Converts the data to UTM
   int utmSrid = terrama2::core::getUTMSrid(geometry.get());
@@ -64,7 +59,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
   double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 
 
-  switch (buffer.bufferType)
+  switch(buffer.bufferType)
   {
     case ONLY_BUFFER:
     {
@@ -75,7 +70,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
         geomResult.reset(geometry->difference(geomTemp.get()));
       break;
     }
-    case EXTERN_PLUS_INTERN:
+    case OUTSIDE_PLUS_INSIDE:
     {
       geomTemp.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
 
@@ -88,7 +83,9 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
     {
       if(buffer.distance < 0)
       {
-        QString errMsg(QObject::tr("The distance must be positive for the buffer type OBJECT_PLUS_BUFFER, given value: %1.").arg(buffer.distance));
+        QString errMsg(QObject::tr(
+                "The distance must be positive for the buffer type OBJECT_PLUS_BUFFER, given value: %1.").arg(
+                buffer.distance));
         TERRAMA2_LOG_ERROR() << errMsg;
         throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
       }
@@ -99,7 +96,9 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
     {
       if(buffer.distance > 0)
       {
-        QString errMsg(QObject::tr("The distance must be negative for the buffer type OBJECT_MINUS_BUFFER, given value: %1.").arg(buffer.distance));
+        QString errMsg(QObject::tr(
+                "The distance must be negative for the buffer type OBJECT_MINUS_BUFFER, given value: %1.").arg(
+                buffer.distance));
         TERRAMA2_LOG_ERROR() << errMsg;
         throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
       }
@@ -122,62 +121,153 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
   return geomResult;
 }
 
-std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(std::vector<std::shared_ptr<te::gm::Geometry> >& geometries, std::shared_ptr<te::gm::Envelope>& box, Buffer buffer)
+
+std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(
+        std::vector<uint64_t>& indexes, std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
+        StatisticOperation aggregationStatisticOperation,
+        const std::string& attribute)
 {
+  std::shared_ptr<te::mem::DataSet> dsOut;
+  if(indexes.empty())
+    return dsOut;
+
+
 
   // Creates memory dataset for buffer
   te::da::DataSetType* dt = new te::da::DataSetType("buffer");
 
-  assert(geometries.size() > 0);
-  auto geomSample = geometries[0];
+  auto syncDs = contextDataSeries->series.syncDataSet;
+  auto sampleGeom = syncDs->getGeometry(0, contextDataSeries->geometryPos);
+  int geomSampleSrid = sampleGeom->getSRID();
 
   te::gm::GeometryProperty* prop = new te::gm::GeometryProperty("geom", 0, te::gm::MultiPolygonType, true);
-  prop->setSRID(geomSample->getSRID());
+  prop->setSRID(geomSampleSrid);
   dt->add(prop);
 
-  std::shared_ptr<te::mem::DataSet> dsOut(new te::mem::DataSet(dt));
+
+  te::dt::SimpleProperty* prop02 = new te::dt::SimpleProperty("attribute", te::dt::DOUBLE_TYPE, true);
+  dt->add(prop02);
+
+  dsOut.reset(new te::mem::DataSet(dt));
 
 
+  std::shared_ptr<te::gm::Envelope> box(syncDs->getExtent(contextDataSeries->geometryPos));
 
-  // Inserts each geometry in the rtree, if there is a conflict, it makes the union of the two geoemtries
-  te::sam::rtree::Index<te::gm::Geometry*, 4> rtree;
 
-  for(size_t i = 0; i < geometries.size(); ++i)
+  // Inserts each geometry in the rtree, if there is a conflict, it makes the union of the two geometries
+  te::sam::rtree::Index<OccurrenceAggregation*, 4> rtree;
+
+  for(size_t i = 0; i < indexes.size(); ++i)
   {
-    auto geom = geometries[i];
+    auto geom = syncDs->getGeometry(indexes[i], contextDataSeries->geometryPos);
 
     double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 
-    auto aggBuffer = geom->buffer(distance, 16, te::gm::CapButtType);
+    std::unique_ptr<te::gm::Geometry> tempGeom(dynamic_cast<te::gm::Geometry*>(geom.get()->clone()));
+    int utmSrid = terrama2::core::getUTMSrid(tempGeom.get());
 
-    std::vector<te::gm::Geometry*> vec;
+    // Converts to UTM in order to create buffer in meters
+    if(tempGeom->getSRID() != utmSrid)
+    {
+      tempGeom->transform(utmSrid);
+    }
+    std::unique_ptr<te::gm::Geometry> aggBuffer(tempGeom->buffer(distance, 16, te::gm::CapButtType));
+    aggBuffer->setSRID(utmSrid);
 
+    // Converts buffer to DataSet SRID in order to compare with the occurrences in the rtree
+    aggBuffer->transform(geomSampleSrid);
+
+
+    std::vector<OccurrenceAggregation*> vec;
+    bool aggregated = false;
+
+    // Search for occurrences in the same area
     rtree.search(*(aggBuffer->getMBR()), vec);
-
     for(std::size_t t = 0; t < vec.size(); ++t)
     {
-      if(aggBuffer->intersects(vec[t]))
+      OccurrenceAggregation* occurrenceAggregation = vec[t];
+
+      // If the an intersection is found, makes the union of the two geometries and mark the index.
+      if(aggBuffer->intersects(occurrenceAggregation->buffer.get()))
       {
-        aggBuffer = aggBuffer->Union(vec[t]);
-        rtree.remove(*(vec[t]->getMBR()), vec[t]);
+        rtree.remove(*(occurrenceAggregation->buffer->getMBR()), occurrenceAggregation);
+        occurrenceAggregation->buffer.reset(aggBuffer->Union(occurrenceAggregation->buffer.get()));
+        occurrenceAggregation->indexes.push_back(i);
+        rtree.insert(*(occurrenceAggregation->buffer->getMBR()), occurrenceAggregation);
+        aggregated = true;
       }
     }
 
-    rtree.insert(*(aggBuffer->getMBR()), aggBuffer);
-
+    if(!aggregated)
+    {
+      OccurrenceAggregation* occurrenceAggregation = new OccurrenceAggregation();
+      occurrenceAggregation->buffer.reset(aggBuffer.release());
+      occurrenceAggregation->indexes.push_back(i);
+      rtree.insert(*(occurrenceAggregation->buffer->getMBR()), occurrenceAggregation);
+    }
   }
 
   // Fills the memory dataset with the geometries
-  std::vector<te::gm::Geometry*> geomVec;
+  std::vector<OccurrenceAggregation*> occurrenceAggVec;
 
-  rtree.search(*(box.get()), geomVec);
+  rtree.search(*(box.get()), occurrenceAggVec);
 
-  for (size_t i = 0; i < geomVec.size(); i++)
+
+  if(aggregationStatisticOperation == COUNT)
   {
-    auto item = new te::mem::DataSetItem(dsOut.get());
-    item->setGeometry(0, geomVec[i]);
-    dsOut->add(item);
+    QString errMsg(QObject::tr("Invalid aggregation statistic"));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
+
+  if(attribute.empty())
+  {
+    QString errMsg(QObject::tr("Invalid attribute"));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
+  auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
+
+  if(!property)
+  {
+    QString errMsg(QObject::tr("Invalid attribute: %1").arg(QString::fromStdString(attribute)));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+  int attributeType = property->getType();
+
+
+
+  for(size_t i = 0; i < occurrenceAggVec.size(); i++)
+  {
+    OccurrenceAggregation* occurrenceAggregation = occurrenceAggVec[i];
+
+    OperatorCache cache;
+    std::vector<double> values;
+    TERRAMA2_LOG_ERROR() << "Aggregated: " << occurrenceAggregation->indexes.size();
+    for(auto index : occurrenceAggregation->indexes)
+    {
+      double value = getValue(syncDs, attribute, index, attributeType);
+      values.push_back(value);
+      cache.count++;
+      cache.sum += value;
+      if(value > cache.max)
+        cache.max = value;
+      if(value < cache.min)
+        cache.min = value;
+    }
+
+    calculateStatistics(values, cache);
+
+    auto item = new te::mem::DataSetItem(dsOut.get());
+    item->setGeometry(0, dynamic_cast<te::gm::Geometry*>(occurrenceAggregation->buffer->clone()));
+    item->setDouble(1, getOperationResult(cache, aggregationStatisticOperation));
+    dsOut->add(item);
+
+
+  }
+
 
   return dsOut;
 
