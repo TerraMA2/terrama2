@@ -52,8 +52,6 @@ namespace terrama2
       }
 
     protected:
-
-      virtual std::string getDataSetName(DataSetPtr dataSet) const override;
       virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const override;
       virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const override;
 
