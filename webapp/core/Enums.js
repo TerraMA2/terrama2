@@ -76,6 +76,11 @@ module.exports = {
     PROCESSING: 'PROCESSING'
   },
 
+  DataProviderIntentId: {
+    COLLECT: 1,
+    PROCESSING: 2
+  },
+
   /**
    * It is used for representing output formats
    * @readonly

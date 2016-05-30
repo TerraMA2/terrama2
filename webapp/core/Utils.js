@@ -76,7 +76,7 @@ module.exports = {
       display: displayOrder
     }
   },
-  
+
   rollback: function(model, instance) {
     return model.destroy({
       where: {
@@ -84,13 +84,13 @@ module.exports = {
       }
     })
   },
-  
+
   rollbackModels: function(models, instances, exception, promise) {
     var promises = [];
     for(var i = 0; i < models.length; ++i) {
       promises.push(this.rollback(models[i], instances[i]));
     }
-  
+
     Promise.all(promises).then(function() {
       console.log("Rollback all");
       return promise.reject(exception);
@@ -254,11 +254,24 @@ module.exports = {
       var fullPath = path.join(directory, pattern);
 
       glob(fullPath, function(err, files) {
-        if (err) 
+        if (err)
           return reject(err);
 
         resolve(files);
       })
     })
+  },
+
+  listDynamicDataSeriesType: function() {
+    var output = [];
+    for(var key in Enums.DataSeriesType) {
+      if (Enums.DataSeriesType.hasOwnProperty(key) && key != "STATIC_DATA") {
+        var obj = {};
+        obj["data_series_type_name"] = Enums.DataSeriesType[key];
+        output.push(obj);
+      }
+    }
+
+    return output;
   }
 };

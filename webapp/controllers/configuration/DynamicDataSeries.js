@@ -9,7 +9,7 @@ module.exports = function(app) {
     },
 
     new: function(request, response) {
-      response.render('configuration/dataset');
+      response.render('configuration/dataset', {type: "dynamic"});
     },
 
     edit: function(request, response) {

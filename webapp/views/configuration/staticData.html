@@ -9,11 +9,12 @@
 {% block javascripts %}
 
 <script type="text/javascript">
+  var baseUrl = "/configuration/static/dataseries/";
   var configuration = {
     message: "{[ message ]}",
     dataSeriesType: 'static',
     link: function(object) {
-      return "/configuration/static/dataseries/" + object.id + "?type=static#wizard";
+      return baseUrl + object.id + "?type=static#wizard";
     },
     iconFn: function(object) {
       if (object.type === 'Grid') {
@@ -30,7 +31,7 @@
     }
   };
 
-  configuration.linkToAdd = configuration.link({});
+  configuration.linkToAdd = baseUrl + "new";
 
 </script>
 
