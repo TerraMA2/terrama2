@@ -62,7 +62,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="Filter">
+    <wz-step wz-title="Filter" ng-if="isDynamic">
       <div class="col-md-12">
 
         <div ng-include="'/javascripts/angular/filter.html'"></div>
