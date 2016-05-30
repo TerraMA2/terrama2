@@ -37,7 +37,7 @@
 
 // TerraMA2
 #include "../core/utility/Raii.hpp"
-#include "../core/utility/CurlWrapper.hpp"
+#include "../core/utility/CurlPtr.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/Shared.hpp"
 
@@ -71,7 +71,7 @@ namespace terrama2
        * \exception DataRetrieverException when FTP address is invalid.
        * \exception DataRetreiverFTPException when unknown Error, FTP address is invalid.
       */
-      explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlWrapper curlwrapper);
+      explicit DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper);
 
       /*!
        * \brief DataRetrieverFTP Default Destructor.
@@ -114,12 +114,13 @@ namespace terrama2
        */
       static size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data);
 
-      static DataRetriever* make(DataProviderPtr dataProvider, CurlWrapper curlwrapper);
+      static DataRetriever* make(DataProviderPtr dataProvider);
 
     private:
       std::vector<std::string> vectorNames_; //! vector filtered names.
       std::string scheme_; //! scheme information. Ex. "file://".
       std::string temporaryFolder_; //! Folder information where the files will be saved. Ex. "/tmp/".
+      CurlPtr curlwrapper_;
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.
