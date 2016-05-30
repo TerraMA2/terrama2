@@ -55,9 +55,6 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/memory/DataSetItem.h>
 
-//STL
-#include <memory>
-
 
 void terrama2::services::analysis::core::joinThread(std::thread& t)
 {
@@ -92,6 +89,9 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       throw Exception()  << ErrorDescription(errMsg);
     }
   }
+
+  // Clears context
+  Context::getInstance().clearAnalysisContext(analysis.id);
 }
 
 void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis)
@@ -131,7 +131,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     }
 
     //check for the number o threads to create
-    int threadNumber = std::thread::hardware_concurrency();
+    unsigned int threadNumber = std::thread::hardware_concurrency();
 
     PyThreadState * mainThreadState = NULL;
     // save a pointer to the main PyThreadState object
@@ -154,7 +154,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     // if it's different than 0, the last package will be bigger.
     int mod = size % threadNumber;
 
-    int begin = 0;
+    unsigned int begin = 0;
 
     std::vector<std::thread> threads(threadNumber);
     std::vector<PyThreadState*> states;
@@ -204,8 +204,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
     storeAnalysisResult(dataManager, analysis);
 
-
-    terrama2::services::analysis::core::finalizeInterpreter();
   }
   catch(std::exception& e)
   {
@@ -260,7 +258,6 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
     // release the lock
     PyEval_ReleaseLock();
 
-    terrama2::services::analysis::core::finalizeInterpreter();
   }
   catch(std::exception& e)
   {

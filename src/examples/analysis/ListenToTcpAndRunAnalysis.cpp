@@ -1,5 +1,3 @@
-
-
 // TerraMA2
 
 #include <terrama2/Exception.hpp>
@@ -58,14 +56,14 @@ int main(int argc, char* argv[])
     terrama2::core::registerFactories();
 
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
-                                                  {"PG_PORT", TERRAMA2_DATABASE_PORT},
-                                                  {"PG_USER", TERRAMA2_DATABASE_USERNAME},
-                                                  {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
-                                                  {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
-                                                  {"PG_CONNECT_TIMEOUT", "4"},
-                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
-                                                };
+    std::map<std::string, std::string> connInfo{{"PG_HOST",            TERRAMA2_DATABASE_HOST},
+                                                {"PG_PORT",            TERRAMA2_DATABASE_PORT},
+                                                {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
+                                                {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
+                                                {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
+                                                {"PG_CONNECT_TIMEOUT", "4"},
+                                                {"PG_CLIENT_ENCODING", "UTF-8"}
+    };
     serviceManager.setLogConnectionInfo(connInfo);
 
     terrama2::services::analysis::core::initInterpreter();
@@ -78,7 +76,7 @@ int main(int argc, char* argv[])
     uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
     uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
     uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
-    uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
+    uri.setPath(QString::fromStdString("/" + TERRAMA2_DATABASE_DBNAME));
 
     // DataProvider information
     terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
@@ -110,7 +108,7 @@ int main(int argc, char* argv[])
 
 
     std::string script = "x = dcp.min(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
-                         "add_value(\"min\", x)\n";
+            "add_value(\"min\", x)\n";
 
     Analysis analysis;
     analysis.id = 1;
@@ -124,8 +122,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->name = "Provider";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/shapefile";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/shapefile";
     dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
@@ -155,8 +153,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
     dataProvider2->name = "Provider";
-    dataProvider2->uri+=TERRAMA2_DATA_DIR;
-    dataProvider2->uri+="/PCD_serrmar_INPE";
+    dataProvider2->uri += TERRAMA2_DATA_DIR;
+    dataProvider2->uri += "/PCD_serrmar_INPE";
     dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
     dataProvider2->dataProviderType = "FILE";
     dataProvider2->active = true;

@@ -75,6 +75,7 @@ namespace terrama2
 
         /*!
           \brief Initialize Python interpreter.
+          \note This must be called before creating any thread.
         */
         void initInterpreter();
 

@@ -150,6 +150,12 @@ namespace terrama2
             void setAnalysisResult(AnalysisId analysisId, const std::string& geomId, const std::string& attribute, double result);
 
             /*!
+              \brief Clear all values stored for an analysis.
+              \param analysisId Identifier of the analysis.
+            */
+            void clearAnalysisContext(AnalysisId analysisId);
+
+            /*!
               \brief Returns a weak pointer to the data manager.
 
               \param result The weak pointer to the data manager.

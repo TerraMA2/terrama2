@@ -192,9 +192,10 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
       return cache.median;
     case COUNT:
       return cache.count;
+    default:
+      return NAN;
   }
 
-  return NAN;
 }
 
 
