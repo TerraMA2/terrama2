@@ -109,19 +109,19 @@ int main(int argc, char* argv[])
                          "x = occurrence.aggregation.count(\"Occurrence\", buffer, \"500d\", aggregationBuffer, \"\")\n"
                          "add_value(\"aggregation_count\", x)\n"
 
-                         "x = occurrence.aggregation.max(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.max, aggregationBuffer, \"\")\n"
+                         "x = occurrence.aggregation.max(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
                          "add_value(\"aggregation_max\", x)\n"
 
-                         "x = occurrence.aggregation.min(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.min, aggregationBuffer, \"\")\n"
+                         "x = occurrence.aggregation.min(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
                          "add_value(\"aggregation_min\", x)\n"
 
-                         "x = occurrence.aggregation.mean(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.mean, aggregationBuffer, \"\")\n"
+                         "x = occurrence.aggregation.mean(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
                          "add_value(\"aggregation_mean\", x)\n"
 
-                         "x = occurrence.aggregation.median(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.median, aggregationBuffer, \"\")\n"
+                         "x = occurrence.aggregation.median(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
                          "add_value(\"aggregation_median\", x)\n"
 
-                         "x = occurrence.aggregation.standard_deviation(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.standard_deviation, aggregationBuffer, \"\")\n"
+                         "x = occurrence.aggregation.standard_deviation(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
                          "add_value(\"aggregation_standard_deviation\", x)\n"
 
                          "x = occurrence.aggregation.sum(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
