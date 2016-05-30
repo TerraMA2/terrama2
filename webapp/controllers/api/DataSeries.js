@@ -49,7 +49,26 @@ module.exports = function(app) {
         });
       } else {
         DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-          response.json({status: 200});
+          var output = {
+            "DataSeries": [dataSeriesResult.toObject()]
+          };
+
+          console.log("OUTPUT: ", JSON.stringify(output));
+
+          DataManager.listServiceInstances().then(function(servicesInstance) {
+            servicesInstance.forEach(function (service) {
+              try {
+                TcpManager.sendData(service, output);
+              } catch (e) {
+                console.log("Error during send data each service: ", e);
+              }
+            });
+
+            var token = Utils.generateToken(app, TokenCode.SAVE, dataSeriesResult.name);
+            return response.json({status: 200, output: output, token: token});
+          }).catch(function(err) {
+            return Utils.handleRequestError(response, err, 400);
+          })
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });

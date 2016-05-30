@@ -1100,7 +1100,7 @@ var DataManager = {
           output = new DataModel.DataSeries(obj);
 
           // if there DataSets to save too
-          if (dataSeriesObject.dataSets) {
+          if (dataSeriesObject.dataSets || dataSeriesObject.dataSets.length > 0) {
             var dataSets = [];
             for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
               var dSet = dataSeriesObject.dataSets[i];
@@ -1324,6 +1324,9 @@ var DataManager = {
               break;
             case DataSeriesType.OCCURRENCE:
               models.db.DataSetOccurrence.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
+              break;
+            case DataSeriesType.STATIC_DATA:
+              onSuccess(dataSet);
               break;
             case DataSeriesType.GRID:
               //  todo: implement it

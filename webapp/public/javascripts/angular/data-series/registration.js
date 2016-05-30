@@ -713,6 +713,17 @@ angular.module('terrama2.dataseries.registration', [
             case "GRID":
               break;
 
+            case "STATIC_DATA":
+              var format = $scope.model;
+
+              var dataSet = {
+                semantics: semantics,
+                active: $scope.dataSeries.active,
+                format: format
+              };
+              dataToSend.dataSets.push(dataSet);
+              break;
+
             default:
               break;
           }
@@ -829,24 +840,32 @@ angular.module('terrama2.dataseries.registration', [
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
-          // processing
           var dataObject = _save();
 
-          //  display alert box
-          $scope.alertLevel = "alert-warning";
-          $scope.alertBox.title = "Data Series";
-          $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
-          $scope.display = true;
-          $scope.extraProperties.object = {
-            dataToSend: dataObject.dataSeries,
-            scheduleValues: dataObject.schedule,
-            filterValues: dataObject.filter
-          };
-          $scope.extraProperties.confirmButtonFn = _sendRequest;
+          if ($scope.isDynamic) {
+            // processing
 
-          // _sendRequest(dataObject.dataSeries, dataObject.schedule, dataObject.filter);
+            //  display alert box
+            $scope.alertLevel = "alert-warning";
+            $scope.alertBox.title = "Data Series";
+            $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+            $scope.display = true;
+            $scope.extraProperties.object = {
+              dataToSend: dataObject.dataSeries,
+              scheduleValues: dataObject.schedule,
+              filterValues: dataObject.filter
+            };
+            $scope.extraProperties.confirmButtonFn = _sendRequest;
+          } else {
+            _sendRequest({
+              dataToSend: dataObject.dataSeries,
+              scheduleValues: {},
+              filterValues: dataObject.filter,
+              serviceOutput: {}
+            });
+          }
         }
 
       };
     }
-  ]);
+  ])
