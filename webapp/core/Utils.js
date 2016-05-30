@@ -273,5 +273,17 @@ module.exports = {
     }
 
     return output;
+  },
+  
+  matchObject: function(obj, target) {
+    return Object.keys(obj).every(function(key) {
+      return target[key] == obj[key];
+    })
+  },
+
+  find: function(restriction, where) {
+    return where.filter(function(entry) {
+      return this.matchObject(restriction, entry)
+    })
   }
 };

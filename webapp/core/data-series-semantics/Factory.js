@@ -4,7 +4,8 @@ var DcpPostgis = require('./DcpPostgis');
 var WildFire = require('./WildFire');
 var OccurrencePostgis = require('./OccurrencePostgis');
 var AnalysisPostgis = require('./AnalysisPostgis');
-var StaticDataOgr = require('./StaticDataOgr');
+var FileStaticDataOgr = require('./FileStaticDataOgr');
+var PostgisStaticDataOgr = require('./PostgisStaticDataOgr');
 var AnalysisMonitoredObject = require('./AnalysisMonitoredObject');
 var GridGeoTiff = require('./GridGeoTiff');
 var DcpToa5 = require('./DcpToa5');
@@ -22,10 +23,11 @@ function availableTypes() {
   output.push(WildFire);
   output.push(OccurrencePostgis);
   output.push(AnalysisPostgis);
-  output.push(StaticDataOgr);
+  output.push(FileStaticDataOgr);
   output.push(AnalysisMonitoredObject);
   output.push(GridGeoTiff);
   output.push(DcpToa5);
+  output.push(PostgisStaticDataOgr);
 
   var plugins = availablePlugins();
 

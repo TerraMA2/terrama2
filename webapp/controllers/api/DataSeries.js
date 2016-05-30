@@ -2,7 +2,7 @@ var DataManager = require("../../core/DataManager");
 var TcpManager = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
-var Intent = require('./../../core/Enums').DataProviderIntent;
+var DataSeriesType = require('./../../core/Enums').DataSeriesType;
 var TokenCode = require('./../../core/Enums').TokenCode;
 var isEmpty = require('lodash').isEmpty;
 
@@ -59,12 +59,12 @@ module.exports = function(app) {
     get: function(request, response) {
       var dataSeriesId = request.params.id;
       var dataSeriesType = request.query.type;
-      
+
       // collector scope
       var collector = request.query['collector'];
-      
-      var dataProviderIntent;
-      
+
+      var dataSeriesTypeName;
+
       // list dataseries restriction
       var restriction = {};
 
@@ -72,21 +72,21 @@ module.exports = function(app) {
         // checking data series: static or dynamic to filter data series output
         switch(dataSeriesType) {
           case "static":
-            dataProviderIntent = Intent.PROCESSING;
+            dataSeriesTypeName = DataSeriesType.STATIC_DATA;
             break;
           case "dynamic":
-            dataProviderIntent = Intent.COLLECT;
             break;
           default:
             return Utils.handleRequestError(response, new DataSeriesError("Invalid data series type. Available: \'static\' and \'dynamic\'"), 400);
         }
-        
-        restriction.DataProvider = {
-          data_provider_intent_name: dataProviderIntent
+
+        restriction.DataSeriesSemantics = {
+          data_series_type_name: dataSeriesTypeName
         };
       }
-      
+
       if (collector) {
+        console.log("has collector ", collector);
         restriction.Collector = {};
       }
 
@@ -114,10 +114,10 @@ module.exports = function(app) {
     put: function(request, response) {
 
     },
-    
+
     delete: function(request, response) {
       var id = request.params.id;
-      
+
       if (id) {
         DataManager.getDataSeries({id: id}).then(function(dataSeriesResult) {
           DataManager.removeDataSerie({id: id}).then(function() {

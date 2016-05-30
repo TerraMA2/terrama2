@@ -45,6 +45,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataSeriesSemantics.hasMany(models['SemanticsProvidersType'], {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'data_series_semantics_id',
+              allowNull: false
+            }
+          });
         }
       }
     }

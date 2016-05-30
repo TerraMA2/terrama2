@@ -217,7 +217,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.form = [];
       $scope.model = {};
 
-      $scope.isDynamic = params.state.toLowerCase() === "dynamic";
+      $scope.isDynamic = configuration.dataSeriesType === "dynamic";
 
       $scope.service = {};
 
@@ -429,7 +429,17 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       // getting semantics
-      DataSeriesSemanticsFactory.list({metadata: true}).success(function(semanticsList) {
+      var queryParams = {
+        metadata: true
+      };
+
+      if ($scope.isDynamic) {
+        queryParams["type"] = "dynamic";
+      } else {
+        queryParams["type"] = "static";
+      }
+
+      DataSeriesSemanticsFactory.list(queryParams).success(function(semanticsList) {
         $scope.dataSeriesSemantics = semanticsList;
 
         if ($scope.dataSeries.semantics) {
@@ -491,15 +501,6 @@ angular.module('terrama2.dataseries.registration', [
 
       // function to fill out parameters data and storager data
       var _processParameters = function() {
-        // if ($scope.semantics.data_series_type_name != "Dcp") {
-        //   // adding in model
-        //   $scope.model = inputDataSeries.dataSets[0].format;
-        // } else {
-        //   // adding in table
-        //   inputDataSeries.dataSets.forEach(function(dSet) {
-        //     $scope.dcps.push(dSet.format);
-        //   });
-        // }
 
         $scope.dataSeriesSemantics.forEach(function(dSemantic) {
           if (dSemantic.name == outputDataseries.data_series_semantic_name) {
@@ -517,21 +518,27 @@ angular.module('terrama2.dataseries.registration', [
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
 
-        // TODO: filter provider type: FTP, HTTP, etc
-        $scope.dataProvidersList.forEach(function(dataProvider) {
-          $scope.dataSeries.semantics.metadata.demand.forEach(function(demand) {
-            if (dataProvider.data_provider_type == demand)
-              $scope.dataProviders.push(dataProvider);
-          })
-        });
-
         $scope.dataSeriesSemantics.forEach(function(dSemantics) {
           if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {
             $scope.storagerFormats.push(Object.assign({}, dSemantics));
           }
         });
 
-        DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.code, {metadata:true}).success(function(data) {
+        var qParams = {
+          metadata: queryParams.metadata,
+          type: queryParams.type
+        }
+
+        DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.code, qParams).success(function(data) {
+          // TODO: filter provider type: FTP, HTTP, etc
+          $scope.dataProviders = [];
+          $scope.dataProvidersList.forEach(function(dataProvider) {
+            data.data_providers_semantics.forEach(function(demand) {
+              if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
+                $scope.dataProviders.push(dataProvider);
+            })
+          });
+
           $scope.tableFields = [];
           // building table fields. Check if form is for all ('*')
           if (data.metadata.form.indexOf('*') != -1) {
@@ -638,10 +645,12 @@ angular.module('terrama2.dataseries.registration', [
           return;
         }
 
-        var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
-        if (scheduleForm.$invalid) {
-          errorHelper(scheduleForm);
-          return;
+        if ($scope.isDynamic) {
+          var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
+          if (scheduleForm.$invalid) {
+            errorHelper(scheduleForm);
+            return;
+          }
         }
 
         $scope.alertBox.title = "Data Series Registration";
@@ -753,7 +762,7 @@ angular.module('terrama2.dataseries.registration', [
             service: object.serviceOutput
           }).success(function(data) {
             console.log(data);
-            $window.location.href = "/configuration/dynamic/dataseries";
+            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries";
           }).error(function(err) {
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.message = err.message;

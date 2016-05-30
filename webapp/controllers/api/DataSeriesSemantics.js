@@ -33,9 +33,6 @@ module.exports = function(app) {
         }
       }
 
-      console.log("query ", queryParams);
-      console.log("query ", queryParams['data_series_type_name']);
-
       // todo: validate it from database
       // get just one semantics
       if (semanticsName) {
@@ -49,12 +46,17 @@ module.exports = function(app) {
           }
 
           DataManager.getDataSeriesSemantics(queryParams).then(function(semantics) {
-            var output = semantics;
+            DataManager.listSemanticsProvidersType({data_series_semantics_id: semantics.id}).then(function(semanticsProvider) {
+              var output = semantics;
+              output.data_providers_semantics = semanticsProvider;
 
-            if (metadata)
-              output.metadata = semanticsStructure;
+              if (metadata)
+                output.metadata = semanticsStructure;
 
-            return response.json(output);
+              return response.json(output);
+            }).catch(function(err) {
+              return Utils.handleRequestError(response, err, 400);
+            })
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           })

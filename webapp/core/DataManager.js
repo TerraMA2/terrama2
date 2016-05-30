@@ -113,10 +113,10 @@ var DataManager = {
         inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
 
         // data provider type defaults
-        inserts.push(self.addDataProviderType({name: "FILE", description: "Desc File"}));
-        inserts.push(self.addDataProviderType({name: "FTP", description: "Desc Type1"}));
-        inserts.push(self.addDataProviderType({name: "HTTP", description: "Desc Http"}));
-        inserts.push(self.addDataProviderType({name: "POSTGIS", description: "Desc Postgis"}));
+        inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
+        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
+        inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
+        inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({id: 1, name: "COLLECT", description: "Desc Collect intent"}));
@@ -152,6 +152,9 @@ var DataManager = {
         var semanticsJsonPath = path.join(__dirname, "../../src/terrama2/core/semantics.json");
         var semanticsObject = JSON.parse(fs.readFileSync(semanticsJsonPath, 'utf-8'));
 
+        // storing semantics providers dependency
+        var semanticsWithProviders = {};
+
         semanticsObject.forEach(function(semantics) {
           inserts.push(self.addDataSeriesSemantics({
             code: semantics.code,
@@ -159,21 +162,66 @@ var DataManager = {
             data_format_name: semantics.format,
             data_series_type_name: semantics.type
           }));
+
+          semanticsWithProviders[semantics.code] = semantics.providers_type_list;
         });
+
+        // it will match each of semantics with providers
+        var insertSemanticsProvider = function() {
+          self.listSemanticsProvidersType().then(function(result) {
+            if (result.length != 0) {
+              releaseCallback();
+              return;
+            }
+
+            self.listDataProviderType().then(function(dataProvidersType) {
+              self.listDataSeriesSemantics().then(function(semanticsList) {
+                var promises = [];
+                semanticsList.forEach(function(semantics) {
+                  var dependencies = semanticsWithProviders[semantics.code] || [];
+
+                  dependencies.forEach(function(dependency) {
+                    dataProvidersType.some(function(providerType) {
+                      if (dependency == providerType.name) {
+                        promises.push(models.db['SemanticsProvidersType'].create({
+                          data_provider_type_id: providerType.id,
+                          data_series_semantics_id: semantics.id
+                        }));
+                        return true;
+                      }
+                    });
+                  })
+                });
+
+                Promise.all(promises).then(function(result) {
+                  releaseCallback();
+                }).catch(function(err) {
+                  releaseCallback();
+                })
+              });
+            });
+          }).catch(function(err) {
+            releaseCallback();
+          });
+        };
+
         // inserts.push(self.addDataSeriesSemantics({name: "DCP-INPE", data_format_name: Enums.DataSeriesFormat.CSV, data_series_type_name: DataSeriesType.DCP}));
         inserts.push(self.addDataSeriesSemantics({name: "ANALYSIS-postgis", code: "ANALYSIS-postgis", data_format_name: "POSTGIS", data_series_type_name: DataSeriesType.ANALYSIS}));
 
         Promise.all(inserts).then(function() {
-          releaseCallback();
+          insertSemanticsProvider();
         }).catch(function(err) {
           console.log(err);
-          releaseCallback()
+          insertSemanticsProvider()
         });
       };
 
       connection.sync().then(function () {
         fn();
       }, function() {
+        fn();
+      }).catch(function(err) {
+        console.log(err);
         fn();
       });
     });
@@ -255,13 +303,18 @@ var DataManager = {
           self.data.projects.push(project.get());
         });
 
-        models.db.DataProvider.findAll({}).then(function(dataProviders){
+        models.db.DataProvider.findAll({include: [models.db['DataProviderType']]}).then(function(dataProviders){
           dataProviders.forEach(function(dataProvider) {
-            self.data.dataProviders.push(new DataModel.DataProvider(dataProvider.get()));
+            var provider = new DataModel.DataProvider(dataProvider.get());
+            self.data.dataProviders.push(provider);
           });
 
           // find all dataseries
-          models.db.DataSeries.findAll({}).then(function(dataSeries) {
+          models.db.DataSeries.findAll({
+            include: [
+              models.db['DataSeriesSemantics']
+            ]
+          }).then(function(dataSeries) {
 
             //todo: include grid too
             var dbOperations = [];
@@ -612,6 +665,23 @@ var DataManager = {
   },
 
   /**
+   * It retrieves a DataProviderType object from database.
+   *
+   * @return {Promise<DataProviderType>} - a 'bluebird' module with DataProviderType instance or error callback
+   */
+  getDataProviderType: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db['DataProviderType'].findOne({where: restriction}).then(function(typeResult) {
+        resolve(typeResult.get());
+      }).catch(function(err) {
+        console.log(err);
+        reject(new Error("Could not retrieve DataProviderType " + err.message));
+      })
+    });
+  },
+
+  /**
    * It retrieves a DataProviderIntent object from database.
    *
    * @return {Promise<DataProviderIntent>} - a 'bluebird' module with DataProviderIntent instance or error callback
@@ -725,6 +795,22 @@ var DataManager = {
     });
   },
 
+  listSemanticsProvidersType: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db['SemanticsProvidersType'].findAll({where: restriction}).then(function(semanticsProvidersResult) {
+        var output = [];
+        semanticsProvidersResult.forEach(function(element) {
+          output.push(element.get());
+        })
+        resolve(output);
+      }).catch(function(err) {
+        console.log(err);
+        reject(err);
+      });
+    })
+  },
+
   /**
    * It saves DataProvider in database and load it in memory
    * @param {Object} dataProviderObject - An object containing needed values to create DataProvider object.
@@ -734,26 +820,33 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
-        var dProvider = new DataModel.DataProvider(dataProvider.get());
-        self.data.dataProviders.push(dProvider);
 
-        resolve(dProvider);
+        dataProvider.getDataProviderType().then(function(dataProviderType) {
+          var dProvider = new DataModel.DataProvider(dataProvider.get());
+          dProvider.data_provider_type = dataProviderType.get();
+          self.data.dataProviders.push(dProvider);
 
-        //  todo: emit signal
-        var d = new DataModel.DataProvider(dProvider);
+          resolve(dProvider);
 
-        // todo: improve it. it should be set in web interface.
-        // sending to all services
-        self.listServiceInstances().then(function(servicesInstance) {
-          var dataToSend = {"DataProviders": [d.toObject()]};
+          //  todo: emit signal
+          var d = new DataModel.DataProvider(dProvider);
 
-          servicesInstance.forEach(function(service) {
-            TcpManager.sendData(service, dataToSend);
+          // todo: improve it. it should be set in web interface.
+          // sending to all services
+          self.listServiceInstances().then(function(servicesInstance) {
+            var dataToSend = {"DataProviders": [d.toObject()]};
+
+            servicesInstance.forEach(function(service) {
+              TcpManager.sendData(service, dataToSend);
+            });
+
+          }).catch(function(err) {
+            reject(err);
           });
-
         }).catch(function(err) {
+          console.log(err);
           reject(err);
-        });
+        })
 
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
@@ -922,7 +1015,8 @@ var DataManager = {
           // creating a copy
           var copyDataSeries = [];
           self.data.dataSeries.forEach(function(ds) {
-            copyDataSeries.push(new DataModel.DataSeries(ds));
+            if (ds.data_series_semantics.data_series_type_name != Enums.DataSeriesType.STATIC_DATA)
+              copyDataSeries.push(new DataModel.DataSeries(ds));
           });
 
           copyDataSeries.forEach(function(element, index, arr) {
@@ -944,16 +1038,13 @@ var DataManager = {
           return reject(err);
         });
 
-      } else if (restriction && restriction.hasOwnProperty('DataProvider')) {
-        var dataProviderRestriction = restriction.DataProvider;
-
-        var dataProviders = self.listDataProviders(dataProviderRestriction);
+      } else if (restriction && restriction.hasOwnProperty('DataSeriesSemantics')) {
+        var semanticsRestriction = restriction.DataSeriesSemantics;
 
         self.data.dataSeries.forEach(function (dataSeries) {
-          dataProviders.forEach(function (dataProvider) {
-            if (dataSeries.data_provider_id === dataProvider.id)
-              dataSeriesList.push(new DataModel.DataSeries(dataSeries));
-          });
+          if (Utils.matchObject(semanticsRestriction, dataSeries.data_series_semantics)) {
+            dataSeriesList.push(new DataModel.DataSeries(dataSeries));
+          }
         });
 
         return resolve(dataSeriesList);
@@ -995,7 +1086,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var output;
       models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
-        output = new DataModel.DataSeries(dataSerie.get());
+        var obj = dataSerie.get();
 
         var rollback = function(err) {
           dataSerie.destroy().then(function () {
@@ -1005,6 +1096,9 @@ var DataManager = {
 
         // getting semantics
         dataSerie.getDataSeriesSemantic().then(function(dataSemantics) {
+          obj['DataSeriesSemantic'] = dataSemantics;
+          output = new DataModel.DataSeries(obj);
+
           // if there DataSets to save too
           if (dataSeriesObject.dataSets) {
             var dataSets = [];
