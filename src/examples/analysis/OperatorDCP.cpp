@@ -1,4 +1,3 @@
-
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
@@ -33,14 +32,14 @@ int main(int argc, char* argv[])
 
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
-                                                {"PG_PORT", TERRAMA2_DATABASE_PORT},
-                                                {"PG_USER", TERRAMA2_DATABASE_USERNAME},
-                                                {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
-                                                {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
-                                                {"PG_CONNECT_TIMEOUT", "4"},
-                                                {"PG_CLIENT_ENCODING", "UTF-8"}
-                                              };
+  std::map<std::string, std::string> connInfo{{"PG_HOST",            TERRAMA2_DATABASE_HOST},
+                                              {"PG_PORT",            TERRAMA2_DATABASE_PORT},
+                                              {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
+                                              {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
+                                              {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
+                                              {"PG_CONNECT_TIMEOUT", "4"},
+                                              {"PG_CLIENT_ENCODING", "UTF-8"}
+  };
   serviceManager.setLogConnectionInfo(connInfo);
 
   terrama2::services::analysis::core::initInterpreter();
@@ -56,7 +55,7 @@ int main(int argc, char* argv[])
   uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
   uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
   uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
-  uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
+  uri.setPath(QString::fromStdString("/" + TERRAMA2_DATABASE_DBNAME));
 
   // DataProvider information
   terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
@@ -83,7 +82,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
   outputDataSet->active = true;
   outputDataSet->id = 2;
-  outputDataSet->format.emplace("table_name", "analysis_result");
+  outputDataSet->format.emplace("table_name", "dcp_result");
 
   outputDataSeries->datasetList.emplace_back(outputDataSet);
 
@@ -91,16 +90,8 @@ int main(int argc, char* argv[])
   dataManager->add(outputDataSeriesPtr);
 
   std::string script = "buffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-                       "x = dcp.min(\"Serra do Mar\", \"pluvio\", buffer)\n"
-                       "add_value(\"min\", x)\n"
-                       "x = dcp.max(\"Serra do Mar\", \"pluvio\", buffer)\n"
-                       "add_value(\"max\", x)\n"
-                       "x = dcp.mean(\"Serra do Mar\", \"pluvio\", buffer)\n"
-                       "add_value(\"mean\", x)\n"
-                       "x = dcp.median(\"Serra do Mar\", \"pluvio\", buffer)\n"
-                       "add_value(\"median\", x)\n"
-                       "x = dcp.standard_deviation(\"Serra do Mar\", \"pluvio\", buffer)\n"
-                       "add_value(\"standardDeviation\", x)\n";
+          "x = dcp.min(\"Serra do Mar\", \"Pluvio\", buffer)\n"
+          "add_value(\"min\", x)\n";
 
   Analysis analysis;
   analysis.id = 1;
@@ -113,13 +104,13 @@ int main(int argc, char* argv[])
 
   analysis.metadata["INFLUENCE_TYPE"] = "1";
   analysis.metadata["INFLUENCE_RADIUS"] = "50";
-  analysis.metadata["INFLUENCE_UNIT"] = "km";
+  analysis.metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->name = "Provider";
-  dataProvider->uri+=TERRAMA2_DATA_DIR;
-  dataProvider->uri+="/shapefile";
+  dataProvider->uri += TERRAMA2_DATA_DIR;
+  dataProvider->uri += "/shapefile";
   dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
@@ -152,8 +143,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
   dataProvider2->name = "Provider";
-  dataProvider2->uri+=TERRAMA2_DATA_DIR;
-  dataProvider2->uri+="/PCD_serrmar_INPE";
+  dataProvider2->uri += TERRAMA2_DATA_DIR;
+  dataProvider2->uri += "/PCD_serrmar_INPE";
   dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
   dataProvider2->dataProviderType = "FILE";
   dataProvider2->active = true;
@@ -204,8 +195,6 @@ int main(int argc, char* argv[])
   dcpADS.id = 2;
   dcpADS.dataSeriesId = dcpSeriesPtr->id;
   dcpADS.type = ADDITIONAL_DATA_TYPE;
-  dcpADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
-  dcpADS.metadata["RADIUS"] = "50";
 
   dataManager->add(dcpSeriesPtr);
 
@@ -214,6 +203,10 @@ int main(int argc, char* argv[])
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysis.analysisDataSeriesList = analysisDataSeriesList;
 
+
+  analysis.schedule.frequency = 1;
+  analysis.schedule.frequencyUnit = "min";
+
   dataManager->add(analysis);
 
   // Starts the service and adds the analysis
@@ -221,11 +214,13 @@ int main(int argc, char* argv[])
   service.updateLoggerConnectionInfo(connInfo);
   service.start();
   service.addAnalysis(1);
+  service.addAnalysis(1);
 
-  /*QTimer timer;
+  /*
+  QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(30000);*/
-
+  timer.start(30000);
+*/
   app.exec();
 
 
