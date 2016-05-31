@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file terrama2/services/analysis/main.cpp
 
   \brief Main file for analysis service.
 

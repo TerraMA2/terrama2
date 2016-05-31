@@ -54,13 +54,31 @@ namespace terrama2
 
       A DataProvider contains the list of dataseries that belongs to this provider
       that should be collected for further analysis.
+
+      ## JSon ##
+
+      Base structure for transferece of a DataProvider.
+
+      \code{.json}
+        {
+          "class" : "DataProvider",
+          "id" : INT,
+          "project_id" : INT,
+          "name" : STRING,
+          "description" : STRING,
+          "intent" : INT,
+          "uri" : STRING,
+          "active" : BOOL
+        }
+      \endcode
+
      */
     struct DataProvider
     {
       enum DataProviderIntent
       {
-        COLLECTOR_INTENT,
-        PROCESS_INTENT
+        COLLECTOR_INTENT,//!< DataProvider exclusively used as source for collecting data.
+        PROCESS_INTENT//!< DataProvider used as source for processing data, mey be used for collecting.
       };
 
       DataProviderId id = 0; //!< The identifier of the DataProvider.
@@ -72,6 +90,7 @@ namespace terrama2
       std::string uri; //!< URI to access the DataProvider data.
       bool active = true; //!< DataProvider status.
 
+      //! Comparison operator for DataProvider
       inline bool operator==(const DataProvider& rhs){ return id == rhs.id; }
     };
 

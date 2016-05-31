@@ -52,7 +52,7 @@ namespace terrama2
       DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
         : DataAccessor(dataProvider, dataSeries, filter)
       {}
-      virtual ~DataAccessorFile() {}
+      virtual ~DataAccessorFile() = default;
 
       using terrama2::core::DataAccessor::getSeries;
       // Doc in base class

@@ -35,11 +35,14 @@
 
 namespace terrama2
 {
-  namespace alert
+  namespace services
   {
-    //! Base exception class for TerraMA2.
-    struct Exception: virtual Exception {};
-  }
+    namespace alert
+    {
+      //! Base exception class for Alert Module exceptions.
+      struct Exception: virtual Exception {};
+    }
+  } /* services */
 }  // end namespace terrama2
 
 #endif  // __TERRAMA2_SERVICES_ALERT_CORE_EXCEPTION_HPP__

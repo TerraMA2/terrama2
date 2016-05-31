@@ -3,7 +3,6 @@
 
 // TerraMA2
 #include "../Exception.hpp"
-#include "../network/TcpManager.hpp"
 
 // Terralib
 #include <terralib/common/Singleton.h>
@@ -30,7 +29,7 @@ namespace terrama2
        - TERRAMA2_LOG_WARNING()
        - TERRAMA2_LOG_ERROR()
        - TERRAMA2_LOG_FATAL()
-  
+
 
     */
     class Logger : public te::common::Singleton<Logger>
@@ -69,7 +68,7 @@ namespace terrama2
         const std::string& path() const;
 
         //! It sets path of terrama2 log and add ostream to sink backend
-        void addStream(const std::string& stream_name, TcpManager* tcpManager = nullptr);
+        void addStream(const std::string& stream_name);
 
       protected:
         /*!

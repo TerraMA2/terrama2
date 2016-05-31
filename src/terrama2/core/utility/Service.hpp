@@ -103,9 +103,17 @@ namespace terrama2
        */
       void stop() noexcept;
 
-      //! Updates the number of processing threads in the threadpool.
+      /*!
+        \brief Updates the number of process threads in the threadpool
+
+        May wait for threads to finish current processing befor changes.
+      */
       virtual void updateNumberOfThreads(int) = 0;
-      //! Updates the connection parameters of the process log database
+      /*!
+        \brief Updates the connection parameters of the process log database.
+
+        Running processes may keep old connection info until finish.
+      */
       virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) = 0;
 
     protected:

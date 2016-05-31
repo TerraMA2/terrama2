@@ -41,18 +41,37 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief Schedule information for processess.
+      \brief Schedule information for processes.
 
       The schedule struct holds information for when a process should be executed.
 
       It can be of 2 forms:
 
-        ||  Frequency || The timeout interval when a process should be executed. ||
-        || Schedule || Every day of the week or month. ||
+        Type | Description
+        ----- | -----
+        Frequency | The timeout interval when a process should be executed.
+        %Schedule | Every day of the week or month.
 
       The frequency type will repeat indefinitely every timeout interval.
 
       The schedule will calculate the next date to execute based on the month or day of the week.
+
+      ## JSon ##
+
+      \code{.json}
+        {
+          "class" : "Schedule",
+          "id" : INT,
+          "frequency" : INT,
+          "frequency_unit" : STRING::UNIT,
+          "schedule" : INT,
+          "schedule_unit" : STRING::UNIT,
+          "schedule_retry" : INT,
+          "schedule_retry_unit" : STRING::UNIT,
+          "schedule_timeout" : INT,
+          "schedule_timeout_unit" : STRING::UNIT
+        }
+      \endcode
 
     */
     struct Schedule

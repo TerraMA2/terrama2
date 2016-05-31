@@ -47,9 +47,9 @@ namespace terrama2
 
     ## Retrieving files ##
 
-    After you have a DataRetriever object calling retrieveData() should be enough
-    to get the files. The //query// parameter can be a FTP uri or a WCS query, details
-    of teh parameters can be found in the appropriate driver class.
+    After you have a DataRetriever object, calling retrieveData() should be enough
+    to get the files. The \e query parameter is defined by the driver, it can be a FTP uri or a WCS query for example, details
+    of the parameters can be found in the appropriate driver class.
 
     The return value is the uri where the downloaded files are stored.
 
@@ -83,7 +83,7 @@ namespace terrama2
         //! Default assignment operator
         DataRetriever& operator=(DataRetriever&& other) = default;
 
-        //!< Utility method to construct a DataRetriever, used as a callback in the DataRetreiverFactory.
+        //! Utility method to construct a DataRetriever, used as a callback in the DataRetreiverFactory.
         static DataRetriever* make(DataProviderPtr dataProvider);
 
         /*!
@@ -104,7 +104,7 @@ namespace terrama2
         virtual te::dt::TimeInstantTZ lastDateTime() const;
 
         /*!
-          \brief Returns true if the data should be downloaded to a file or false if should be access directly.
+          \brief Returns true if the data should be downloaded to a file or false if should be accessed directly.
 
           \exception NotRetrivableException Raised when this DataRetriever doesn't allow the download of the data.
           This will happen based on the DataProviderType
