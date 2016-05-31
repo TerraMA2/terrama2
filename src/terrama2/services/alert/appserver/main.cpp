@@ -20,13 +20,12 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file terrama2/services/alert/main.cpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Alert service main file.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author 
  */
 
 // TerraMA2
 #include "../core/"
-

@@ -63,7 +63,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
 {
   QUrl url(uri.c_str());
 
-  std::string tableName = getDataSetName(dataSet);
+  std::string tableName = getDataSetTableName(dataSet);
 
   // creates a DataSource to the data and filters the dataset,
   // also joins if the DCP comes from separated files
@@ -136,6 +136,34 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
   return series;
 }
 
+std::string terrama2::core::DataAccessorPostGis::getDataSetTableName(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("table_name");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessorPostGis::getGeometryPropertyName(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("geometry_property");
+  }
+  catch (...)
+  {
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
 std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const
 {
   QString errMsg = QObject::tr("Non retrievable DataProvider.");
@@ -146,7 +174,7 @@ std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieve
 void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
     std::vector<te::da::Expression*>& where) const
 {
-  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
+  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
   if(filter.discardBefore.get())
   {
     te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardBefore->clone()));
@@ -179,11 +207,11 @@ void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::Data
 
 void terrama2::core::DataAccessorPostGis::updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const
 {
-  std::string tableName = getDataSetName(dataSet);
+  std::string tableName = getDataSetTableName(dataSet);
   te::da::FromItem* t1 = new te::da::DataSetName(tableName);
   te::da::From* from = new te::da::From;
   from->push_back(t1);
-  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getDateTimePropertyName(dataSet));
+  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
 
   te::da::Fields* fields = new te::da::Fields;
   te::da::Expression* max = new te::da::Max(dateTimeProperty);

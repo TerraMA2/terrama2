@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file terrama2/services/collector/main.cpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Collector service main.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Jano Simas
  */
 
 // TerraMA2
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     serviceManager.setListeningPort(listeningPort);
 
     // service context
-    // this is needed for calling the destructor of the service before finalizing terralib 
+    // this is needed for calling the destructor of the service before finalizing terralib
     {
       QCoreApplication app(argc, argv);
 

@@ -57,12 +57,10 @@ namespace terrama2
       }
 
     protected:
-      virtual std::string getDataSetName(DataSetPtr dataSet) const override;
-      virtual std::string getDateTimePropertyName(DataSetPtr dataSet) const override;
-      virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const override;
+      virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const override;
 
       virtual std::string dataSourceType() const override;
-      
+
       //no geometry column to filter
       virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*>& where) const override{}
     };

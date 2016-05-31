@@ -60,14 +60,11 @@ namespace terrama2
         DataStorager(DataProviderPtr outputDataProvider);
         //! Default destructor.
         virtual ~DataStorager() = default;
-        //! Default copy constructor
-        DataStorager(const DataStorager& other) = default;
-        //! Default move constructor
-        DataStorager(DataStorager&& other) = default;
-        //! Default const assignment operator
-        DataStorager& operator=(const DataStorager& other) = default;
-        //! Default assignment operator
-        DataStorager& operator=(DataStorager&& other) = default;
+        
+        DataStorager(const DataStorager& other) = delete;
+        DataStorager(DataStorager&& other) = delete;
+        DataStorager& operator=(const DataStorager& other) = delete;
+        DataStorager& operator=(DataStorager&& other) = delete;
 
         /*!
           \brief Store the data series in outputDataSet.

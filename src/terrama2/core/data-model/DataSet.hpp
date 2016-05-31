@@ -48,6 +48,23 @@ namespace terrama2
       Derive classes may have extra attributes base on the DataSeriesType.
 
       The format attribute is a map of implementation-specific information, see specific driver for tag documentation.
+
+      ## JSon ##
+
+      Base structure for transferece of a DataSet.
+
+      Derived classes may have aditional fields, the format attribute is used by the
+      specific access drivers.
+
+      \code{.json}
+        {
+          "class" : "DataSet",
+          "id" : INT,
+          "data_series_id" : INT,
+          "active" : BOOL,
+          "format" : {...}
+        }
+      \endcode
     */
     struct DataSet
     {

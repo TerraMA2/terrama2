@@ -40,10 +40,29 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief Creates a Collector from a QJsonObject.
+          \see Collector for json structure
+          \see [Collector at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/collector/Collector) for more information.
+          */
         CollectorPtr fromCollectorJson(QJsonObject json);
+
+        /*!
+          \brief Creates a Intersection from a QJsonObject.
+          \see Intersection for json structure
+          \see [Intersection at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/collector/Intersection) for more information.
+          */
         IntersectionPtr fromIntersectionJson(QJsonObject json);
 
+        /*!
+          \brief Creates a Json object from a Collector
+          \attention This is a function created for debug and tests
+        */
         QJsonObject toJson(CollectorPtr collector);
+        /*!
+          \brief Creates a Json object from an Intersection
+          \attention This is a function created for debug and tests
+        */
         QJsonObject toJson(IntersectionPtr intersection);
       } /* core */
     }   /* collector */
