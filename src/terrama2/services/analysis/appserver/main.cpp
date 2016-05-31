@@ -63,6 +63,7 @@ int main(int argc, char* argv[])
 
     terrama2::core::registerFactories();
 
+    // Must initialize the python interpreter before creating any thread.
     terrama2::services::analysis::core::initInterpreter();
 
     QCoreApplication app(argc, argv);
@@ -85,6 +86,8 @@ int main(int argc, char* argv[])
     service.start();
 
     app.exec();
+
+    terrama2::services::analysis::core::finalizeInterpreter();
 
     terrama2::core::finalizeTerraMA();
   }
