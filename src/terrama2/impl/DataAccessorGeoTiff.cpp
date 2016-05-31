@@ -83,9 +83,6 @@ void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<t
   while(dataSet->moveNext())
   {
     std::unique_ptr<te::rst::Raster> raster(dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
-    auto info = raster->getInfo();
-    QFileInfo fileInfo(QString::fromStdString(info["URI"]));
-    raster->setName(fileInfo.baseName().toStdString());
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
 

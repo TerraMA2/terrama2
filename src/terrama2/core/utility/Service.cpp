@@ -68,7 +68,7 @@ void terrama2::core::Service::start(uint threadNumber)
   }
   catch(const std::exception& e)
   {
-    QString errMsg(tr("Unable to start collector service: %1."));
+    QString errMsg(tr("Unable to start service: %1."));
     errMsg = errMsg.arg(e.what());
 
     TERRAMA2_LOG_ERROR() << errMsg;

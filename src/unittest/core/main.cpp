@@ -25,8 +25,8 @@ int main(int argc, char **argv)
 
   terrama2::core::disableLogger();
 
-  //  TsUtility testUtility;
-  //  int ret = QTest::qExec(&testUtility, argc, argv);
+    TsUtility testUtility;
+    int ret = QTest::qExec(&testUtility, argc, argv);
 
   //  TsApplicationController testApplicationController;
   //  int ret = QTest::qExec(&testApplicationController, argc, argv);
@@ -40,8 +40,8 @@ int main(int argc, char **argv)
   //  TsLogger testLogger;
   //  ret = QTest::qExec(&testLogger, argc, argv);
 
-  TsDataRetrieverFTP testDataRetrieverFTP;
-  int ret = QTest::qExec(&testDataRetrieverFTP, argc, argv);
+//  TsDataRetrieverFTP testDataRetrieverFTP;
+//  int ret = QTest::qExec(&testDataRetrieverFTP, argc, argv);
 
   terrama2::core::finalizeTerralib();
 
