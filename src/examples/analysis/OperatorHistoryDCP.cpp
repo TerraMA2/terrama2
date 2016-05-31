@@ -93,17 +93,17 @@ int main(int argc, char* argv[])
   dataManager->add(outputDataSeriesPtr);
 
   std::string script = "buffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-          "x = dcp.history.sum(\"DCP-Angra\", \"pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.sum(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
           "add_value(\"history_sum\",x)\n"
-          "x = dcp.history.max(\"DCP-Angra\", \"pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.max(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
           "add_value(\"history_max\",x)\n"
-          "x = dcp.history.min(\"DCP-Angra\", \"pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.min(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
           "add_value(\"history_min\",x)\n"
-          "x = dcp.history.mean(\"DCP-Angra\", \"pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.mean(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
           "add_value(\"history_mean\",x)\n"
-          "x = dcp.history.median(\"DCP-Angra\", \"pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.median(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
           "add_value(\"history_median\",x)\n"
-          "x = dcp.history.standard_deviation(\"DCP-Angra\", \"pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
           "add_value(\"history_standard_deviation\",x)\n";
 
   Analysis analysis;
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 
   analysis.metadata["INFLUENCE_TYPE"] = "1";
   analysis.metadata["INFLUENCE_RADIUS"] = "50";
-  analysis.metadata["INFLUENCE_UNIT"] = "km";
+  analysis.metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -209,8 +209,6 @@ int main(int argc, char* argv[])
   dcpADS.id = 2;
   dcpADS.dataSeriesId = dcpSeriesPtr->id;
   dcpADS.type = ADDITIONAL_DATA_TYPE;
-  dcpADS.metadata["INFLUENCE_TYPE"] = "RADIUS_CENTER";
-  dcpADS.metadata["RADIUS"] = "50";
 
   dataManager->add(dcpSeriesPtr);
 
@@ -219,6 +217,10 @@ int main(int argc, char* argv[])
   analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysis.analysisDataSeriesList = analysisDataSeriesList;
+
+
+  analysis.schedule.frequency = 1;
+  analysis.schedule.frequencyUnit = "min";
 
   dataManager->add(analysis);
 

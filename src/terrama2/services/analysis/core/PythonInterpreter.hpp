@@ -118,7 +118,8 @@ namespace terrama2
           \param dataManagerPtr Smart pointer to the data manager.
           \return The ContextDataSeries of the monitored object.
         */
-        std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataset(const Analysis& analysis, std::shared_ptr<DataManager>& dataManagerPtr);
+        std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries(const Analysis& analysis,
+                                                                               std::shared_ptr<DataManager>& dataManagerPtr);
 
         /*!
           \brief Returns the attribute value for the given position, it tries a lexical cast to double in case the attribute has a different type.

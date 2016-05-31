@@ -75,7 +75,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
   Analysis analysis = Context::getInstance().getAnalysis(cache.analysisId);
 
-  auto moDsContext = getMonitoredObjectContextDataset(analysis, dataManagerPtr);
+  auto moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
   if(!moDsContext)
   {
     QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
@@ -95,61 +95,60 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   }
 
 
-  std::shared_ptr<ContextDataSeries> contextDataSeries;
+  std::shared_ptr<ContextDataSeries> dcpContextDataSeries;
 
 
 
   // Frees the GIL, from now on can not use the interpreter
   Py_BEGIN_ALLOW_THREADS
 
-    for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+    try
     {
-      terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
-
-      if(dataSeries->name == dataSeriesName)
+      for(auto analysisDataSeries : analysis.analysisDataSeriesList)
       {
-        found = true;
+        terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
 
-        if(dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
+        if(dataSeries->name == dataSeriesName)
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> Given dataset is not from type DCP."));
-          errMsg = errMsg.arg(cache.analysisId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return NAN;
-        }
+          found = true;
 
-
-        Context::getInstance().addDCPDataSeries(cache.analysisId, dataSeries, "", true);
-
-        // For DCP operator count returns the number of DCP that influence the monitored object
-        uint64_t influenceCount = 0;
-
-        for(auto dataset : dataSeries->datasetList)
-        {
-          contextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id);
-
-          terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
-                  dataset);
-          if(!dcpDataset)
+          if(dataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesSemantics::DCP)
           {
-            QString errMsg(QObject::tr("Analysis: %1 -> Could not recover DCP dataset."));
+            QString errMsg(QObject::tr("Analysis: %1 -> Given data series is not from type DCP."));
             errMsg = errMsg.arg(cache.analysisId);
             TERRAMA2_LOG_ERROR() << errMsg;
             return NAN;
           }
 
 
-          if(dcpDataset->position == nullptr)
+          Context::getInstance().addDCPDataSeries(cache.analysisId, dataSeries, "", true);
+
+          // For DCP operator count returns the number of DCP that influence the monitored object
+          uint64_t influenceCount = 0;
+
+          for(auto dataset : dataSeries->datasetList)
           {
-            QString errMsg(QObject::tr("Analysis: %1 -> DCP dataset does not have a valid position."));
-            errMsg = errMsg.arg(cache.analysisId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-            return NAN;
-          }
+            dcpContextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id);
+
+            terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
+                    dataset);
+            if(!dcpDataset)
+            {
+              QString errMsg(QObject::tr("Analysis: %1 -> Could not recover DCP dataset."));
+              errMsg = errMsg.arg(cache.analysisId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              return NAN;
+            }
 
 
-          try
-          {
+            if(dcpDataset->position == nullptr)
+            {
+              QString errMsg(QObject::tr("Analysis: %1 -> DCP dataset does not have a valid position."));
+              errMsg = errMsg.arg(cache.analysisId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              return NAN;
+            }
+
             auto influenceType = getInfluenceType(analysis);
 
             auto dcpInfluenceBuffer = createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(),
@@ -161,12 +160,12 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
             {
               ++influenceCount;
 
-              auto syncDs = contextDataSeries->series.syncDataSet;
+              auto dcpSyncDs = dcpContextDataSeries->series.syncDataSet;
 
               int attributeType = 0;
               if(!attribute.empty())
               {
-                auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
+                auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
 
                 // only operation COUNT can be done without attribute.
                 if(!property && statisticOperation != COUNT)
@@ -181,19 +180,19 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
               uint64_t countValues = 0;
 
-              if(syncDs->size() == 0)
+              if(dcpSyncDs->size() == 0)
                 continue;
 
               std::vector<double> values;
-              for(unsigned int i = 0; i < syncDs->size(); ++i)
+              for(unsigned int i = 0; i < dcpSyncDs->size(); ++i)
               {
                 try
                 {
-                  if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                  if(!attribute.empty() && !dcpSyncDs->isNull(i, attribute))
                   {
                     hasData = true;
                     countValues++;
-                    double value = getValue(syncDs, attribute, i, attributeType);
+                    double value = getValue(dcpSyncDs, attribute, i, attributeType);
                     values.push_back(value);
                     cache.sum += value;
                     if(value > cache.max)
@@ -220,27 +219,40 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
               calculateStatistics(values, cache);
             }
           }
-          catch(std::exception& e)
-          {
-            QString errMsg(QObject::tr("Analysis: %1 -> %2").arg(e.what()));
-            errMsg = errMsg.arg(cache.analysisId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-            return NAN;
-          }
 
 
+
+          // Set the number of DCPs that influence the monitored object
+          cache.count = influenceCount;
+          break;
         }
-
-
-        // Set the number of DCPs that influence the monitored object
-        cache.count = influenceCount;
-        break;
       }
+    }
+    catch(terrama2::Exception e)
+    {
+      QString errMsg(QObject::tr("Analysis: %1 -> %2"));
+      errMsg = errMsg.arg(analysis.id);
+      errMsg = errMsg.arg(e.what());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      return NAN;
+    }
+    catch(std::exception e)
+    {
+      QString errMsg(QObject::tr("Analysis: %1 -> %2"));
+      errMsg = errMsg.arg(analysis.id);
+      errMsg = errMsg.arg(e.what());
+      TERRAMA2_LOG_ERROR() << errMsg;
+      return NAN;
+    }
+    catch(...)
+    {
+      QString errMsg(QObject::tr("Analysis: %1 -> Unkown error"));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      return NAN;
     }
 
 
-
-    // All operations are done, acquires the GIL and set the return value
+  // All operations are done, acquires the GIL and set the return value
   Py_END_ALLOW_THREADS
 
   if(!found)

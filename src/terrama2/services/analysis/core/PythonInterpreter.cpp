@@ -199,7 +199,7 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
 }
 
 
-std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::getMonitoredObjectContextDataset(
+std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::getMonitoredObjectContextDataSeries(
         const Analysis& analysis, std::shared_ptr<DataManager>& dataManagerPtr)
 {
   std::shared_ptr<ContextDataSeries> contextDataSeries;
