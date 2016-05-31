@@ -41,6 +41,8 @@
 // LibCurl
 #include <curl/curl.h>
 
+// QT
+#include <QObject>
 
 namespace terrama2
 {
