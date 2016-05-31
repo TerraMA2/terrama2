@@ -141,6 +141,8 @@ namespace terrama2
               \note Thread-safe.
             */
             virtual CollectorPtr findCollector(CollectorId id) const;
+            
+            //! Verify if the Collector already exists in the DataManager
             virtual bool hasCollector(CollectorId id) const;
 
           signals:
