@@ -31,27 +31,16 @@
 
 #include "Operator.hpp"
 
-#include <boost/python.hpp>
-
-#include <QObject>
 #include <QTextStream>
-#include <QFile>
 
 #include "../../../../core/utility/Logger.hpp"
-#include "../../../../core/data-model/DataSetDcp.hpp"
 #include "../../../../core/data-model/Filter.hpp"
-#include "../../../../core/data-access/SyncronizedDataSet.hpp"
-#include "../../../../core/Shared.hpp"
-
 
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/vp/BufferMemory.h>
 #include <terralib/geometry/MultiPolygon.h>
-#include <terralib/common/UnitOfMeasure.h>
-#include <terralib/common/UnitsOfMeasureManager.h>
-
-#include <math.h>
+#include <terralib/geometry/Utils.h>
 
 double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation statisticOperation,
                                                                     const std::string& dataSeriesName,
@@ -78,7 +67,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
   Analysis analysis = Context::getInstance().getAnalysis(cache.analysisId);
 
-  std::shared_ptr<ContextDataSeries> moDsContext = getMonitoredObjectContextDataset(analysis, dataManagerPtr);
+  std::shared_ptr<ContextDataSeries> moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
   if(!moDsContext)
   {
     QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
@@ -87,6 +76,19 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     return NAN;
   }
 
+  if(moDsContext->series.syncDataSet->size() == 0)
+  {
+    QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+    errMsg = errMsg.arg(cache.analysisId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return NAN;
+  }
+
+  auto moEnvelope = moDsContext->series.syncDataSet->getExtent(moDsContext->geometryPos);
+  auto firstOccurrence = moDsContext->series.syncDataSet->getGeometry(0, moDsContext->geometryPos);
+  int srid = firstOccurrence->getSRID();
+
+  std::shared_ptr<te::gm::Geometry> geomEnvelope(te::gm::GetGeomFromEnvelope(moEnvelope.get(), srid));
 
   auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
   if(!moGeom.get())
@@ -113,7 +115,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
         {
           found = true;
 
-          Context::getInstance().addDataSeries(cache.analysisId, dataSeries, dateFilter, true);
+          Context::getInstance().addDataSeries(cache.analysisId, dataSeries, geomEnvelope, dateFilter, true);
 
           auto datasets = dataSeries->datasetList;
 

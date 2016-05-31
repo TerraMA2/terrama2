@@ -37,21 +37,20 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/geometry/GeometryProperty.h>
 
-//QT
-#include <QObject>
-#include <QString>
-
 std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuffer(Buffer buffer,
                                                                                    std::shared_ptr<te::gm::Geometry> geometry)
 {
-  // Converts the data to UTM
-  int utmSrid = terrama2::core::getUTMSrid(geometry.get());
-  geometry->transform(utmSrid);
-
   if(buffer.bufferType == NONE)
   {
     return geometry;
   }
+
+  // Converts the data to UTM
+  int utmSrid = terrama2::core::getUTMSrid(geometry.get());
+  std::shared_ptr<te::gm::Geometry> geomCopy;
+  geomCopy.reset(dynamic_cast<te::gm::Geometry*>(geometry->clone()));
+  geomCopy->transform(utmSrid);
+
 
   std::shared_ptr<te::gm::Geometry> geomResult;
   std::shared_ptr<te::gm::Geometry> geomTemp;
@@ -63,19 +62,19 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
   {
     case ONLY_BUFFER:
     {
-      geomTemp.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+      geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
       if(distance > 0)
-        geomResult.reset(geomTemp->difference(geometry.get()));
+        geomResult.reset(geomTemp->difference(geomCopy.get()));
       else
-        geomResult.reset(geometry->difference(geomTemp.get()));
+        geomResult.reset(geomCopy->difference(geomTemp.get()));
       break;
     }
     case OUTSIDE_PLUS_INSIDE:
     {
-      geomTemp.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+      geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
 
       double distance2 = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
-      std::shared_ptr<te::gm::Geometry> auxGeom(geometry->buffer(distance2, 16, te::gm::CapButtType));
+      std::shared_ptr<te::gm::Geometry> auxGeom(geomCopy->buffer(distance2, 16, te::gm::CapButtType));
       geomResult.reset(geomTemp->difference(auxGeom.get()));
       break;
     }
@@ -89,7 +88,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
         TERRAMA2_LOG_ERROR() << errMsg;
         throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
       }
-      geomResult.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+      geomResult.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
       break;
     }
     case OBJECT_MINUS_BUFFER:
@@ -102,15 +101,15 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
         TERRAMA2_LOG_ERROR() << errMsg;
         throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
       }
-      geomResult.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+      geomResult.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
       break;
     }
     case DISTANCE_ZONE:
     {
-      geomTemp.reset(geometry->buffer(distance, 16, te::gm::CapButtType));
+      geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
 
       double distance2 = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
-      geomResult.reset(geomTemp->difference(geometry->buffer(distance2, 16, te::gm::CapButtType)));
+      geomResult.reset(geomTemp->difference(geomCopy->buffer(distance2, 16, te::gm::CapButtType)));
       break;
     }
     default:
@@ -118,6 +117,8 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
   }
 
   geomResult->setSRID(utmSrid);
+  int srid = geometry->getSRID();
+  geomResult->transform(srid);
   return geomResult;
 }
 

@@ -312,6 +312,7 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
 
 void terrama2::services::analysis::core::Context::addDataSeries(const AnalysisId analysisId,
                                                                 terrama2::core::DataSeriesPtr dataSeries,
+                                                                std::shared_ptr<te::gm::Geometry> envelope,
                                                                 const std::string& dateFilter, bool createSpatialIndex)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -422,4 +423,25 @@ void terrama2::services::analysis::core::Context::addAttribute(AnalysisId analys
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   attributes_[analysisId].insert(attribute);
+}
+
+void terrama2::services::analysis::core::Context::clearAnalysisContext(AnalysisId analysisId)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  attributes_.erase(analysisId);
+  analysisResult_.erase(analysisId);
+
+  // Remove all datasets from context
+  auto it = datasetMap_.begin();
+  while(it != datasetMap_.end())
+  {
+    if(it->first.analysisId_ ==  analysisId)
+    {
+      datasetMap_.erase(it++);
+    }
+    else
+    {
+      ++it;
+    }
+  }
 }

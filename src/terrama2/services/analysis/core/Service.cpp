@@ -117,7 +117,7 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
 
 void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId)
 {
-  // the analysis object will only be fetched when the execution proccess begin.
+  // the analysis object will only be fetched when the execution process begin.
   // we only have the id so there is no need to update.
 }
 
