@@ -102,7 +102,7 @@ namespace terrama2
           AnalysisDataSeriesId id = 0; //!< AnalysisDataSeries identifier.
           DataSeriesId dataSeriesId; //!< Identifier of the DataSeries.
           AnalysisDataSeriesType type; //!< Type of use of the DataSeries in the analysis.
-          std::map<uint64_t, std::string> alias; //!< Map containing the alias for the columns of a DataSeries.
+          std::string alias; //!< Map containing the alias for the columns of a DataSeries.
           std::map<std::string, std::string> metadata; //!< Metadata of the AnalysisDataSeries.
         };
 
@@ -114,16 +114,29 @@ namespace terrama2
         {
           AnalysisId id = 0; //!< Analysis identifier.
           ProjectId projectId = 0; //!< Project identifier.
-					ScriptLanguage scriptLanguage; //!< Language of the script.
-					std::string script; //!< Content of the script.
+          ScriptLanguage scriptLanguage; //!< Language of the script.
+          std::string script; //!< Content of the script.
           AnalysisType type; //!< Type of the analysis.
-					std::string name; //!< Name of the analysis.
-					std::string description; //!< Short description of the purpose of the analysis.
+          std::string name; //!< Name of the analysis.
+          std::string description; //!< Short description of the purpose of the analysis.
           bool active = true; //!< Defines if the analysis is active, if true it will be executed according to the schedule.
           DataSeriesId outputDataSeriesId; //!< The dataset that stores the result of the analysis.
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this anlysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
+
+          DataSeriesId findAnalysisDataSeriesByAlias(const std::string& dataSeriesName)
+          {
+            for(auto analysisDataSeries : analysisDataSeriesList)
+            {
+              if(analysisDataSeries.alias == dataSeriesName)
+              {
+                return analysisDataSeries.dataSeriesId;
+              }
+            }
+            return terrama2::core::InvalidId();
+          }
+
         };
 
       } // end namespace core

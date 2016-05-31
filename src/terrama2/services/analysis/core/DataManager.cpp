@@ -42,7 +42,7 @@ terrama2::services::analysis::core::DataManager::DataManager()
 {
 }
 
-terrama2::services::analysis::core::DataManager::~DataManager ()
+terrama2::services::analysis::core::DataManager::~DataManager()
 {
 }
 
@@ -51,7 +51,7 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
   try
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
-    
+
     terrama2::core::DataManager::DataManager::addJSon(obj);
 
     auto analysisArray = obj["Analysis"].toArray();
@@ -137,11 +137,15 @@ void terrama2::services::analysis::core::DataManager::removeAnalysis(const Analy
   emit analysisRemoved(analysisId);
 }
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::DataManager::findAnalysis(const AnalysisId analysisId)
+terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::DataManager::findAnalysis(const
+                                                                                                           AnalysisId
+                                                                                                           analysisId) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = std::find_if(analysis_.cbegin(), analysis_.cend(), [analysisId](std::pair<AnalysisId, Analysis> analysis){ return analysis.second.id == analysisId;});
+  const auto& it = std::find_if(analysis_.cbegin(), analysis_.cend(),
+                                [analysisId](std::pair<AnalysisId, Analysis> analysis)
+                                { return analysis.second.id == analysisId; });
   if(it == analysis_.cend())
   {
     QString errMsg = QObject::tr("Analysis not registered.");
@@ -150,4 +154,19 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
   }
 
   return it->second;
+}
+
+terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::findDataSeries(const AnalysisId
+                                                                                              analysisId,
+                                                                                              const std::string& name)
+const
+{
+  auto analysis = findAnalysis(analysisId);
+  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  {
+    if(analysisDataSeries.alias == name)
+      return terrama2::core::DataManager::findDataSeries(analysisDataSeries.dataSeriesId);
+  }
+
+  return terrama2::core::DataManager::findDataSeries(name);
 }

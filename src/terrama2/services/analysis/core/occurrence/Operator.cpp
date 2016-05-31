@@ -54,7 +54,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   OperatorCache cache;
   readInfoFromDict(cache);
 
-  bool found = false;
   bool hasData = false;
 
   auto dataManagerPtr = Context::getInstance().getDataManager().lock();
@@ -108,157 +107,161 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
     try
     {
-      for(auto& analysisDataSeries : analysis.analysisDataSeriesList)
+
+      auto dataSeries = dataManagerPtr->findDataSeries(analysis.id, dataSeriesName);
+
+      if(!dataSeries)
       {
-        auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
-        if(dataSeries->name == dataSeriesName)
+        QString errMsg(QObject::tr("Analysis: %1 -> Could not find a data series with the given name: %2"));
+        errMsg = errMsg.arg(analysis.id);
+        errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
+        TERRAMA2_LOG_ERROR() << errMsg;
+        return NAN;
+      }
+
+
+      Context::getInstance().addDataSeries(cache.analysisId, dataSeries, geomEnvelope, dateFilter, true);
+
+      auto datasets = dataSeries->datasetList;
+
+      for(auto dataset : datasets)
+      {
+
+        contextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id, dateFilter);
+        if(!contextDataSeries)
         {
-          found = true;
-
-          Context::getInstance().addDataSeries(cache.analysisId, dataSeries, geomEnvelope, dateFilter, true);
-
-          auto datasets = dataSeries->datasetList;
-
-          for(auto dataset : datasets)
-          {
-
-            contextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id, dateFilter);
-            if(!contextDataSeries)
-            {
-              continue;
-            }
-
-
-            std::vector<uint64_t> indexes;
-            uint32_t countValues = 0;
-            terrama2::core::SyncronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
-
-            if(syncDs->size() == 0)
-            {
-              continue;
-            }
-            else
-            {
-              auto geomResult = createBuffer(buffer, moGeom);
-
-              // Converts the monitored object to the same srid of the occurrences
-              auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-              geomResult->transform(firstOccurrence->getSRID());
-
-              // Searchs in the spatial index for the occurrences that intersects the monitored object box
-              contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);
-
-
-              std::vector<double> values;
-
-              int attributeType = 0;
-              if(!attribute.empty())
-              {
-                auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
-
-                // only operation COUNT can be done without attribute.
-                if(!property && statisticOperation != COUNT)
-                {
-                  QString errMsg(QObject::tr("Analysis: %1 -> Invalid attribute name"));
-                  errMsg = errMsg.arg(cache.analysisId);
-                  TERRAMA2_LOG_ERROR() << errMsg;
-                  return NAN;
-                }
-                attributeType = property->getType();
-              }
-
-              if(aggregationStatisticOperation != INVALID)
-              {
-                if(indexes.empty())
-                  continue;
-
-                auto bufferDs = createAggregationBuffer(indexes, contextDataSeries, aggregationBuffer, aggregationStatisticOperation, attribute);
-
-                if(!bufferDs)
-                {
-                  continue;
-                }
-
-                for(unsigned int i = 0; i < bufferDs->size(); ++i)
-                {
-                  bufferDs->move(i);
-                  auto occurrenceGeom = bufferDs->getGeometry(0);
-
-                  if(occurrenceGeom->intersects(geomResult.get()))
-                  {
-                    ++countValues;
-
-                    try
-                    {
-                      if(!attribute.empty())
-                      {
-                        hasData = true;
-                        cache.count++;
-                        double value = bufferDs->getDouble(1);
-
-                        values.push_back(value);
-                        cache.sum += value;
-                        if(value > cache.max)
-                          cache.max = value;
-                        if(value < cache.min)
-                          cache.min = value;
-                      }
-                    }
-                    catch(...)
-                    {
-                      // In case the dataset doesn't have the specified attribute
-                      continue;
-                    }
-                  }
-                }
-              }
-              else
-              {
-                for(uint64_t i : indexes)
-                {
-                  // Verifies if the occurrence intersects the monitored object
-                  auto occurrenceGeom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
-
-                  if(occurrenceGeom->intersects(geomResult.get()))
-                  {
-                    ++countValues;
-
-                    try
-                    {
-                      if(!attribute.empty() && !syncDs->isNull(i, attribute))
-                      {
-                        hasData = true;
-                        cache.count++;
-                        double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
-
-                        values.push_back(value);
-                        cache.sum += value;
-                        if(value > cache.max)
-                          cache.max = value;
-                        if(value < cache.min)
-                          cache.min = value;
-                      }
-                    }
-                    catch(...)
-                    {
-                      // In case the dataset doesn't have the specified attribute
-                      continue;
-                    }
-                  }
-                }
-              }
-
-
-
-
-              terrama2::services::analysis::core::calculateStatistics(values, cache);
-
-              if(statisticOperation == COUNT)
-                cache.count = countValues;
-            }
-
-          }
+          continue;
         }
+
+
+        std::vector<uint64_t> indexes;
+        uint32_t countValues = 0;
+        terrama2::core::SyncronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
+
+        if(syncDs->size() == 0)
+        {
+          continue;
+        }
+        else
+        {
+          auto geomResult = createBuffer(buffer, moGeom);
+
+          // Converts the monitored object to the same srid of the occurrences
+          auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
+          geomResult->transform(firstOccurrence->getSRID());
+
+          // Searchs in the spatial index for the occurrences that intersects the monitored object box
+          contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);
+
+
+          std::vector<double> values;
+
+          int attributeType = 0;
+          if(!attribute.empty())
+          {
+            auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
+
+            // only operation COUNT can be done without attribute.
+            if(!property && statisticOperation != COUNT)
+            {
+              QString errMsg(QObject::tr("Analysis: %1 -> Invalid attribute name"));
+              errMsg = errMsg.arg(cache.analysisId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              return NAN;
+            }
+            attributeType = property->getType();
+          }
+
+          if(aggregationStatisticOperation != INVALID)
+          {
+            if(indexes.empty())
+              continue;
+
+            auto bufferDs = createAggregationBuffer(indexes, contextDataSeries, aggregationBuffer, aggregationStatisticOperation, attribute);
+
+            if(!bufferDs)
+            {
+              continue;
+            }
+
+            for(unsigned int i = 0; i < bufferDs->size(); ++i)
+            {
+              bufferDs->move(i);
+              auto occurrenceGeom = bufferDs->getGeometry(0);
+
+              if(occurrenceGeom->intersects(geomResult.get()))
+              {
+                ++countValues;
+
+                try
+                {
+                  if(!attribute.empty())
+                  {
+                    hasData = true;
+                    cache.count++;
+                    double value = bufferDs->getDouble(1);
+
+                    values.push_back(value);
+                    cache.sum += value;
+                    if(value > cache.max)
+                      cache.max = value;
+                    if(value < cache.min)
+                      cache.min = value;
+                  }
+                }
+                catch(...)
+                {
+                  // In case the dataset doesn't have the specified attribute
+                  continue;
+                }
+              }
+            }
+          }
+          else
+          {
+            for(uint64_t i : indexes)
+            {
+              // Verifies if the occurrence intersects the monitored object
+              auto occurrenceGeom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
+
+              if(occurrenceGeom->intersects(geomResult.get()))
+              {
+                ++countValues;
+
+                try
+                {
+                  if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                  {
+                    hasData = true;
+                    cache.count++;
+                    double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
+
+                    values.push_back(value);
+                    cache.sum += value;
+                    if(value > cache.max)
+                      cache.max = value;
+                    if(value < cache.min)
+                      cache.min = value;
+                  }
+                }
+                catch(...)
+                {
+                  // In case the dataset doesn't have the specified attribute
+                  continue;
+                }
+              }
+            }
+          }
+
+
+
+
+          terrama2::services::analysis::core::calculateStatistics(values, cache);
+
+          if(statisticOperation == COUNT)
+            cache.count = countValues;
+        }
+
       }
     }
     catch(terrama2::Exception e)
@@ -280,8 +283,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     // All operations are done, acquires the GIL and set the return value
   Py_END_ALLOW_THREADS
 
-  if(!found)
-    return NAN;
 
   if(!hasData && statisticOperation != COUNT)
   {
@@ -298,10 +299,8 @@ int terrama2::services::analysis::core::occurrence::count(const std::string& dat
                             INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::min(const std::string& dataSeriesName, Buffer buffer,
-                                                           const std::string& dateFilter,
-                                                           const std::string& restriction,
-                                                           const std::string& attribute)
+double terrama2::services::analysis::core::occurrence::min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+                                                           const std::string& dateFilter, const std::string& attribute, const std::string& restriction)
 {
   return operatorImpl(MIN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       INVALID, restriction);
