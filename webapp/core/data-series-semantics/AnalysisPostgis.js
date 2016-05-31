@@ -27,3 +27,7 @@ AnalysisPostgis.schema = function() {
 AnalysisPostgis.form = function() {
   return ['*'];
 };
+
+AnalysisPostgis.demand = function () {
+  return ["POSTGIS"];
+};

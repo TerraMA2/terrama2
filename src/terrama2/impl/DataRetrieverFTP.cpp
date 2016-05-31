@@ -52,9 +52,10 @@
 #include <QDir>
 #include <QDebug>
 
-terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider)
-  : DataRetriever(dataprovider)
-{
+terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper)
+  : DataRetriever(dataprovider),
+    curlwrapper_(std::move(curlwrapper))
+{  
   temporaryFolder_ = "/tmp/terrama2-download/";
   scheme_ = "file://";
 
@@ -64,31 +65,22 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider)
     dir.mkpath(temporaryFolder_.c_str());
 
   CURLcode status;
-
-  CurlPtr curl;
-
-  curl.init();
+  curlwrapper_.init();
 
   // Verifies that the FTP address is valid
   try
   {
-    if(curl.fcurl())
+    std::string url = dataprovider->uri.c_str();
+
+    status = curlwrapper_.verifyURL(url);
+
+    if (status != CURLE_OK)
     {
-      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, dataprovider->uri.c_str());
-      curl_easy_setopt(curl.fcurl(), CURLOPT_FTPLISTONLY, 1);
-      curl_easy_setopt(curl.fcurl(), CURLOPT_CONNECTTIMEOUT, 3);
-      curl_easy_setopt(curl.fcurl(), CURLOPT_NOBODY, 1);
+      QString errMsg = QObject::tr("FTP address is invalid. \n\n");
+      errMsg.append(curl_easy_strerror(status));
 
-      status = curl_easy_perform(curl.fcurl());
-
-      if (status != CURLE_OK)
-      {
-        QString errMsg = QObject::tr("FTP address is invalid. \n\n");
-        errMsg.append(curl_easy_strerror(status));
-
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw DataRetrieverException() << ErrorDescription(errMsg);
-      }
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataRetrieverException() << ErrorDescription(errMsg);
     }
   }
   catch(const std::exception& e)
@@ -146,7 +138,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
   try
   {
-// Get a file listing from server
+    // Get a file listing from server
     if(curl.fcurl())
     {
       uriInput = dataProvider_->uri+"/";
@@ -173,7 +165,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
         throw DataRetrieverException() << ErrorDescription(errMsg);
       }
 
-// filter file names that should be downloaded.
+      // filter file names that should be downloaded.
       for (std::string fileName: vectorFiles)
       {
         // FIXME: use timestamp
@@ -191,7 +183,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
         curlDown.init();
 
-// Performs the download of files in the vectorNames
+        // Performs the download of files in the vectorNames
         if (curlDown.fcurl())
         {
           uri_origin = dataProvider_->uri +"/"+file;
@@ -232,11 +224,12 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
     throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the download files!"));
   }
 
-// returns the absolute path of the folder that contains the files that have been made the download.
+  // returns the absolute path of the folder that contains the files that have been made the download.
   return scheme_+temporaryFolder_;
 }
 
 terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
 {
-  return new DataRetrieverFTP(dataProvider);
+  CurlPtr curlwrapper;
+  return new DataRetrieverFTP(dataProvider, std::move(curlwrapper));
 }

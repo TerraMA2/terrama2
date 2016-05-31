@@ -65,7 +65,7 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
     throw DataProviderException() << ErrorDescription(errMsg);
   }
 
-  std::string destinationDataSetName = getDataSetName(outputDataSet);
+  std::string destinationDataSetName = getDataSetTableName(outputDataSet);
 
   std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);
@@ -96,7 +96,8 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
     GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
     GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
   }
-
+  
+  series.syncDataSet->dataset()->moveBeforeFirst();
   transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), options);
 
   scopedTransaction.commit();
@@ -107,7 +108,7 @@ terrama2::core::DataStorager* terrama2::core::DataStoragerPostGis::make(DataProv
   return new DataStoragerPostGis(dataProvider);
 }
 
-std::string terrama2::core::DataStoragerPostGis::getDataSetName(DataSetPtr dataSet) const
+std::string terrama2::core::DataStoragerPostGis::getDataSetTableName(DataSetPtr dataSet) const
 {
   try
   {

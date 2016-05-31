@@ -76,7 +76,7 @@ module.exports = {
       display: displayOrder
     }
   },
-  
+
   rollback: function(model, instance) {
     return model.destroy({
       where: {
@@ -84,13 +84,13 @@ module.exports = {
       }
     })
   },
-  
+
   rollbackModels: function(models, instances, exception, promise) {
     var promises = [];
     for(var i = 0; i < models.length; ++i) {
       promises.push(this.rollback(models[i], instances[i]));
     }
-  
+
     Promise.all(promises).then(function() {
       console.log("Rollback all");
       return promise.reject(exception);
@@ -190,7 +190,7 @@ module.exports = {
     return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
   },
 
-  prepareAddSignalMessage: function(DataManager) {
+  prepareAddSignalMessage: function(DataManager, projectId) {
     return new Promise(function(resolve, reject) {
       var _handleError = function(err) {
         console.log(err);
@@ -211,9 +211,21 @@ module.exports = {
         }) // end foreach dataSeriesResult
 
         // getting collectors
-        DataManager.listCollectors().then(function(collectorsResult) {
+        DataManager.listCollectors({}, projectId).then(function(collectorsResult) {
           var collectors = [];
           collectorsResult.forEach(function(collector) {
+            // setting project id. temp. TODO: better way to implement it
+
+            dataProvidersResult.some(function(dprovider) {
+              return dataSeriesResult.some(function(dseries) {
+                if (dprovider.id == dseries.data_provider_id && collector.input_data_series == dseries.id) {
+                  //getting project id
+                  collector.project_id = dprovider.project_id;
+                  return true;
+                }
+              })
+            });
+
             collectors.push(collector.toObject());
           }) // end foreach collectorsResult
 
@@ -242,11 +254,36 @@ module.exports = {
       var fullPath = path.join(directory, pattern);
 
       glob(fullPath, function(err, files) {
-        if (err) 
+        if (err)
           return reject(err);
 
         resolve(files);
       })
+    })
+  },
+
+  listDynamicDataSeriesType: function() {
+    var output = [];
+    for(var key in Enums.DataSeriesType) {
+      if (Enums.DataSeriesType.hasOwnProperty(key) && key != "STATIC_DATA") {
+        var obj = {};
+        obj["data_series_type_name"] = Enums.DataSeriesType[key];
+        output.push(obj);
+      }
+    }
+
+    return output;
+  },
+  
+  matchObject: function(obj, target) {
+    return Object.keys(obj).every(function(key) {
+      return target[key] == obj[key];
+    })
+  },
+
+  find: function(restriction, where) {
+    return where.filter(function(entry) {
+      return this.matchObject(restriction, entry)
     })
   }
 };

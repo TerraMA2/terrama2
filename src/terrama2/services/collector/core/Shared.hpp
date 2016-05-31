@@ -40,12 +40,15 @@ namespace terrama2
       {
 
         struct Collector;
+        //! Shared smart pointer for Collector
         typedef std::shared_ptr<const terrama2::services::collector::core::Collector> CollectorPtr;
 
         struct Intersection;
+        //! Shared smart pointer for Intersection
         typedef std::shared_ptr<const terrama2::services::collector::core::Intersection> IntersectionPtr;
 
         class DataManager;
+        //! Shared smart pointer for DataManager
         typedef std::shared_ptr<terrama2::services::collector::core::DataManager> DataManagerPtr;
 
       } /* core */

@@ -137,9 +137,7 @@ void terrama2::services::analysis::core::DataManager::removeAnalysis(const Analy
   emit analysisRemoved(analysisId);
 }
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::DataManager::findAnalysis(const
-                                                                                                           AnalysisId
-                                                                                                           analysisId) const
+terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::DataManager::findAnalysis(const AnalysisId analysisId) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
@@ -156,10 +154,7 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
   return it->second;
 }
 
-terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::findDataSeries(const AnalysisId
-                                                                                              analysisId,
-                                                                                              const std::string& name)
-const
+terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::findDataSeries(const AnalysisId analysisId, const std::string& name) const
 {
   auto analysis = findAnalysis(analysisId);
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
@@ -169,4 +164,12 @@ const
   }
 
   return terrama2::core::DataManager::findDataSeries(name);
+}
+
+bool terrama2::services::analysis::core::DataManager::hasAnalysis(const AnalysisId analysisId) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = analysis_.find(analysisId);
+  return it != analysis_.cend();
 }

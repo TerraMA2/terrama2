@@ -63,7 +63,7 @@ namespace terrama2
 
     private:
       std::string getTimeZone(DataSetPtr dataset) const;
-      std::string timestampColumn() const;
+      std::string getTimestampPropertyName() const;
 
       /*!
         \brief Convert string to TimeInstantTZ.

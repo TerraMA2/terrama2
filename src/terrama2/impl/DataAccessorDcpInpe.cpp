@@ -61,7 +61,7 @@ terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(DataProviderPtr dataPro
   }
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::timestampColumn() const
+std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimestampPropertyName() const
 {
   return "N/A";
 }
@@ -144,7 +144,7 @@ void terrama2::core::DataAccessorDcpInpe::adapt(DataSetPtr dataSet, std::shared_
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
-    if(property->getName() == timestampColumn())
+    if(property->getName() == getTimestampPropertyName())
     {
       // datetime column found
       converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));

@@ -41,18 +41,37 @@ namespace terrama2
   namespace core
   {
     /*!
-      \brief Schedule information for processess.
+      \brief Schedule information for processes.
 
       The schedule struct holds information for when a process should be executed.
 
       It can be of 2 forms:
 
-        ||  Frequency || The timeout interval when a process should be executed. ||
-        || Schedule || Every day of the week or month. ||
+        Type | Description
+        ----- | -----
+        Frequency | The timeout interval when a process should be executed.
+        %Schedule | Every day of the week or month.
 
       The frequency type will repeat indefinitely every timeout interval.
 
       The schedule will calculate the next date to execute based on the month or day of the week.
+
+      ## JSon ##
+
+      \code{.json}
+        {
+          "class" : "Schedule",
+          "id" : INT,
+          "frequency" : INT,
+          "frequency_unit" : STRING::UNIT,
+          "schedule" : INT,
+          "schedule_unit" : STRING::UNIT,
+          "schedule_retry" : INT,
+          "schedule_retry_unit" : STRING::UNIT,
+          "schedule_timeout" : INT,
+          "schedule_timeout_unit" : STRING::UNIT
+        }
+      \endcode
 
     */
     struct Schedule
@@ -65,8 +84,8 @@ namespace terrama2
       uint32_t frequency = 0; //!< The value for time frequency. Ex: From 5 to 5 minutes.
       std::string frequencyUnit; //!< Unit of the time frequency (years, months, days, minutes, hours or seconds)
 
-      uint32_t scheduleDay = 0; //!< Value for Schedule day of week, day of year or day of month. Ex: The Third day of a week or the day 137 of a year.
-      std::string scheduleTimestamp; //!< The time to execute a process in the scheduled Day.
+      uint32_t schedule = 0; //!< Value for Schedule day of week, day of year or day of month. Ex: The Third day of a week or the day 137 of a year.
+      std::string scheduleTime; //!< The time to execute a process in the scheduled Day.
       std::string scheduleUnit; //!< Unit of the schedule frequency. (Ex: week, month or year)
 
       uint32_t scheduleRetry = 0; //!< The value of time between retrys. Ex: If fails retry at every 5 minutes.

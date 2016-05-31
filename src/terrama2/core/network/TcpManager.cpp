@@ -44,10 +44,22 @@ class RaiiBlock
     uint32_t& block_;
 };
 
+class RaiiSocket
+{
+  public:
+    RaiiSocket(QTcpSocket* socket) : socket_(socket) {}
+    ~RaiiSocket() {if(socket_) socket_->readAll();}
+
+    QTcpSocket* socket_;
+};
+
 bool terrama2::core::TcpManager::updateListeningPort(int port)
 {
   if(serverPort() == port)
     return true;
+
+  if(isListening())
+    close();
 
   return listen(serverAddress(), port);
 }
@@ -61,34 +73,10 @@ terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager
   serviceManager_ = &terrama2::core::ServiceManager::getInstance();
 }
 
-terrama2::core::TcpManager::~TcpManager()
-{
-  //send Terminate message
-  if(tcpSocket_.get())
-  {
-    QByteArray bytearray;
-    QDataStream out(&bytearray, QIODevice::WriteOnly);
-
-    QJsonObject jsonObj;
-    jsonObj.insert("service_instance", static_cast<int>(serviceManager_->getInstance().instanceId()));
-    QJsonDocument doc(jsonObj);
-
-    out << static_cast<uint32_t>(0);
-    out << TcpSignals::TERMINATE_SERVICE_SIGNAL;
-    out << doc.toJson(QJsonDocument::Compact);
-    bytearray.remove(8, 4);//Remove QByteArray header
-    out.device()->seek(0);
-    out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
-
-    // wait while sending message
-    qint64 written = tcpSocket_->write(bytearray);
-    if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
-      TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
-  }
-}
-
 void terrama2::core::TcpManager::updateService(const QByteArray& bytearray)
 {
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
@@ -108,6 +96,8 @@ void terrama2::core::TcpManager::updateService(const QByteArray& bytearray)
 
 void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
 {
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
@@ -128,6 +118,8 @@ void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
 
 void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
 {
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
@@ -172,8 +164,10 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
 void terrama2::core::TcpManager::readReadySlot()
 {
   RaiiBlock block(blockSize_);
+  RaiiSocket clearSocketOnExit(tcpSocket_.get());
 
   QDataStream in(tcpSocket_.get());
+  TERRAMA2_LOG_DEBUG() << "bytes available: " << tcpSocket_->bytesAvailable();
 
   Q_UNUSED(block)
   if(blockSize_ == 0)
@@ -184,11 +178,15 @@ void terrama2::core::TcpManager::readReadySlot()
       return;
     }
 
+
     in >> blockSize_;
+    TERRAMA2_LOG_DEBUG() << "message size: " << blockSize_;
   }
 
   if(tcpSocket_->bytesAvailable() != blockSize_)
   {
+    auto bytearray = tcpSocket_->readAll();
+    TERRAMA2_LOG_DEBUG() << bytearray.right(bytearray.size()-4).data();
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nWrong message size.");
     return;
   }

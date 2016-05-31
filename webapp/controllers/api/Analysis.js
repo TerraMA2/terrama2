@@ -73,7 +73,7 @@ module.exports = function(app) {
     delete: function(request, response) {
       var id = request.params.id;
       if(id) {
-        DataManager.listAnalysis({id: id}).then(function(analysis) {
+        DataManager.listAnalyses({id: id}).then(function(analysis) {
           DataManager.removeAnalysis({id: id}).then(function() {
             response.json({status: 200, name: analysis.name});
           }).catch(function(err) {

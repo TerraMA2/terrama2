@@ -47,7 +47,7 @@ namespace terrama2
 
           \brief Manages all the metadata about anlysis, data providers and its related dataseries.
 
-          The DataManager is a singleton responsible for loading metadata about
+          The DataManager is responsible for loading metadata about
           analysis, data providers and dataseries. It works like a database cache with TerraMA2
           concepts.
 
@@ -158,6 +158,14 @@ namespace terrama2
             \note Thread-safe.
             */
             terrama2::core::DataSeriesPtr findDataSeries(const AnalysisId analysisId, const std::string& name) const;
+
+            /*!
+            \brief Returns true if exists an analysis with the given identifier in the data manager, false otherwise.
+
+            \note Thread-safe.
+            */
+            bool hasAnalysis(const AnalysisId analysisId) const;
+
 
           signals:
 

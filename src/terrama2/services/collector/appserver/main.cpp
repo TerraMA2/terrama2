@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file terrama2/services/collector/main.cpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Collector service main.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Jano Simas
  */
 
 // TerraMA2
@@ -35,6 +35,8 @@
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/ErrorCodes.hpp>
+
+#include <boost/exception/diagnostic_information.hpp>
 
 // STL
 #include <memory>
@@ -66,28 +68,37 @@ int main(int argc, char* argv[])
       return TERRAMA2_INITIALIZATION_ERROR;
     }
 
-    QCoreApplication app(argc, argv);
-
-    auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
-
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     serviceManager.setServiceType("Collector");
     serviceManager.setListeningPort(listeningPort);
 
-    terrama2::core::TcpManager tcpManager(dataManager);
-    tcpManager.listen(QHostAddress::Any, serviceManager.listeningPort());
-    QObject::connect(&serviceManager, &terrama2::core::ServiceManager::listeningPortUpdated, &tcpManager, &terrama2::core::TcpManager::updateListeningPort);
+    // service context
+    // this is needed for calling the destructor of the service before finalizing terralib
+    {
+      QCoreApplication app(argc, argv);
 
-    terrama2::services::collector::core::Service service(dataManager);
+      auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
 
-    QObject::connect(&serviceManager, &terrama2::core::ServiceManager::numberOfThreadsUpdated, &service, &terrama2::services::collector::core::Service::updateNumberOfThreads);
-    QObject::connect(&serviceManager, &terrama2::core::ServiceManager::logConnectionInfoUpdated, &service, &terrama2::services::collector::core::Service::updateLoggerConnectionInfo);
+      terrama2::core::TcpManager tcpManager(dataManager);
+      if(!tcpManager.listen(QHostAddress::Any, serviceManager.listeningPort()))
+      {
+        std::cerr << QObject::tr("\nUnable to listen to port: ").toStdString() << serviceManager.listeningPort() << "\n" << std::endl;
+        return TCP_SERVER_ERROR;
+      }
 
-    QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::collector::core::Service::addToQueue);
-    QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::collector::core::Service::stop);
-    QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);
+      QObject::connect(&serviceManager, &terrama2::core::ServiceManager::listeningPortUpdated, &tcpManager, &terrama2::core::TcpManager::updateListeningPort);
 
-    app.exec();
+      terrama2::services::collector::core::Service service(dataManager);
+
+      QObject::connect(&serviceManager, &terrama2::core::ServiceManager::numberOfThreadsUpdated, &service, &terrama2::services::collector::core::Service::updateNumberOfThreads);
+      QObject::connect(&serviceManager, &terrama2::core::ServiceManager::logConnectionInfoUpdated, &service, &terrama2::services::collector::core::Service::updateLoggerConnectionInfo);
+
+      QObject::connect(&tcpManager, &terrama2::core::TcpManager::startProcess, &service, &terrama2::services::collector::core::Service::addToQueue);
+      QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &service, &terrama2::services::collector::core::Service::stop);
+      QObject::connect(&tcpManager, &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);
+
+      app.exec();
+    }
 
     try
     {
@@ -101,6 +112,14 @@ int main(int argc, char* argv[])
     {
       return TERRAMA2_FINALIZATION_ERROR;
     }
+  }
+  catch(boost::exception& e)
+  {
+    std::cout << boost::diagnostic_information(e) << std::endl;
+  }
+  catch(std::exception& e)
+  {
+    std::cout << e.what() << std::endl;
   }
   catch(...)
   {

@@ -1,6 +1,6 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
-
+var TokenCode = require('./../../core/Enums').TokenCode;
 
 module.exports = function(app) {
   return {
@@ -24,13 +24,17 @@ module.exports = function(app) {
 
         DataManager.listServiceInstances(restriction).then(function(services) {
           // todo: checking status - on/off
-          return response.json(services);
+          var output = [];
+          services.forEach(function(service) {
+            output.push(service.rawObject());
+          })
+          return response.json(output);
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
         })
       } else {
         DataManager.getServiceInstance({id: serviceId}).then(function(service) {
-          response.json({status: 200, result: service});
+          response.json({status: 200, result: service.rawObject()});
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
         }) 
@@ -38,9 +42,12 @@ module.exports = function(app) {
     },
 
     post: function(request, response) {
-      var serviceObject = request.body;
+      var serviceObject = request.body.service;
+      serviceObject.log = request.body.log;
       DataManager.addServiceInstance(serviceObject).then(function(service) {
-        return response.json({status: 200});
+        var token = Utils.generateToken(app, TokenCode.SAVE, service.name);
+        console.log(token);
+        return response.json({status: 200, token: token});
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       });

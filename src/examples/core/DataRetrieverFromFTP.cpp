@@ -39,22 +39,25 @@ int main(int argc, char* argv[])
 
   curl_global_init(CURL_GLOBAL_ALL);
 
-  //DataProvider information
-  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->uri = url.url().toStdString();
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = "FTP";
-  dataProvider->active = true;
-
-  //empty filter
-  terrama2::core::Filter filter;
-  //accessing data
-  terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr);
-
   std::string path;
-  std::string mask = "exporta_20160101_0130.csv";
-  path = retrieverFTP.retrieveData(mask, filter);
+  std::string mask = "exporta_20160501_0230.csv";
+  {
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::CurlPtr curlwrapper;
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = url.url().toStdString();
+    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FTP";
+    dataProvider->active = true;
+
+    //empty filter
+    terrama2::core::Filter filter;
+    //accessing data
+    terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(curlwrapper));
+
+    path = retrieverFTP.retrieveData(mask, filter);
+  }
 
   curl_global_cleanup();
 

@@ -125,8 +125,8 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
   {
     dataSet->move(i);
     if(!isValidTimestamp(dataSet, filter, dateColumn)
-        || !isValidGeometry(dataSet, filter, geomColumn)
-        || !isValidRaster(dataSet, filter, rasterColumn))
+       || !isValidGeometry(dataSet, filter, geomColumn)
+       || !isValidRaster(dataSet, filter, rasterColumn))
     {
       dataSet->remove();
       --size;
@@ -152,10 +152,10 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
   std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
   auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
-  if(filter.discardBefore.get() && (*timesIntant) < (*filter.discardBefore))
+  if(filter.discardBefore.get() && !((*timesIntant) > (*filter.discardBefore)))
     return false;
 
-  if(filter.discardAfter.get() && (*timesIntant) > (*filter.discardAfter))
+  if(filter.discardAfter.get() && !((*timesIntant) < (*filter.discardAfter)))
     return false;
 
   return true;
@@ -219,8 +219,8 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-    const terrama2::core::Filter& filter,
-    terrama2::core::DataSetPtr dataSet) const
+                                                                          const terrama2::core::Filter& filter,
+                                                                          terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
   QDir dir(url.path());
@@ -233,14 +233,14 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   }
 
   //return value
- DataSetSeries series;
+  DataSetSeries series;
   series.dataSet = dataSet;
 
   std::shared_ptr<te::da::DataSet> completeDataset(nullptr);
   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
-  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
+  std::shared_ptr< te::dt::TimeInstantTZ > lastFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
 
   bool first = true;
   for(const auto& fileInfo : fileInfoList)
@@ -260,8 +260,9 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
       timezone = "UTC+00";
     }
 
+    std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
     // Verify if the file name matches the mask
-    if(!isValidDataSetName(getMask(dataSet), filter, timezone, name, fileTimestamp))
+    if(!isValidDataSetName(getMask(dataSet), filter, timezone, name, thisFileTimestamp))
       continue;
 
     // creates a DataSource to the data and filters the dataset,
@@ -314,13 +315,17 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     assert(converter);
     std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
 
-    addToCompleteDataSet(completeDataset, teDataSet, fileTimestamp);
+    addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
 
     if(completeDataset->isEmpty())
     {
       QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
       TERRAMA2_LOG_WARNING() << errMsg;
     }
+
+    //update lastest file timestamp
+    if(lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
+      lastFileTimestamp = thisFileTimestamp;
   }// for each file
 
   if(!completeDataset.get())
@@ -335,15 +340,15 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   //Get last data timestamp and compare with file name timestamp
   std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(completeDataset);
   //if both dates are valid
-  if((fileTimestamp.get() && !fileTimestamp->getTimeInstantTZ().is_not_a_date_time())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
+  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+     && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
   {
-    (*lastDateTime_) = *dataTimeStamp > *fileTimestamp ? *dataTimeStamp : *fileTimestamp;
+    (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
-  else if(fileTimestamp.get() && !fileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
   {
     //if only fileTimestamp is valid
-    (*lastDateTime_) = *fileTimestamp;
+    (*lastDateTime_) = *lastFileTimestamp;
   }
   else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time())
   {

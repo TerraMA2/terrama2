@@ -60,6 +60,13 @@ terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSer
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
+  if(dataProvider_->id != dataSeries_->dataProviderId)
+  {
+    QString errMsg = QObject::tr("Input DataProvider different from DataSeries' DataProvider.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
   boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
   lastDateTime_ = std::make_shared<te::dt::TimeInstantTZ>(boostTime);
 }
@@ -231,13 +238,17 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
       }
     }//for each dataset
   }
+  catch(const terrama2::Exception& e)
+  {
+    throw;
+  }
   catch(const boost::exception& e)
   {
-    std::cout << boost::diagnostic_information(e) << std::endl;
+    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(const std::exception& e)
   {
-    std::cout << e.what() << std::endl;
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(...)
   {

@@ -45,16 +45,16 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
 {
   if(json["class"].toString() != "Collector")
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid Collector JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
-
-  if(!(json.contains("id") && json.contains("project_id") && json.contains("service_instance_id") && json.contains("input_data_series") &&
+//FIXME: wrong format collector json
+  if(!(json.contains("id") && /*json.contains("project_id") && */json.contains("service_instance_id") && json.contains("input_data_series") &&
        json.contains("output_data_series") && json.contains("input_output_map") && json.contains("schedule") /*&& json.contains("intersection")*/ &&
        json.contains("active")))
   {
-    QString errMsg = QObject::tr("Invalid JSON object.");
+    QString errMsg = QObject::tr("Invalid Collector JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -77,7 +77,7 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
   }
 
   collector->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-  collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject()); 
+  collector->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
   collector->intersection = terrama2::services::collector::core::fromIntersectionJson(json["intersection"].toObject());
   collector->active = json["active"].toBool();
 

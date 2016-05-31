@@ -3,7 +3,6 @@
 
 // TerraMA2
 #include "../Exception.hpp"
-#include "../network/TcpManager.hpp"
 
 // Terralib
 #include <terralib/common/Singleton.h>
@@ -20,6 +19,19 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Logs information for TerraMA², should not be used directly.
+
+      The Logger class is a singleton used to store log information, logging should be made using the macros:
+       - TERRAMA2_LOG_TRACE()
+       - TERRAMA2_LOG_DEBUG()
+       - TERRAMA2_LOG_INFO()
+       - TERRAMA2_LOG_WARNING()
+       - TERRAMA2_LOG_ERROR()
+       - TERRAMA2_LOG_FATAL()
+
+
+    */
     class Logger : public te::common::Singleton<Logger>
     {
 
@@ -56,7 +68,7 @@ namespace terrama2
         const std::string& path() const;
 
         //! It sets path of terrama2 log and add ostream to sink backend
-        void addStream(const std::string& stream_name, TcpManager* tcpManager = nullptr);
+        void addStream(const std::string& stream_name);
 
       protected:
         /*!

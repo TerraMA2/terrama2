@@ -211,8 +211,8 @@ void TsUtility::testScheduleTimer()
 
     // Schedule a timer in seconds
     schedule.id = 0;
-    schedule.scheduleDay = 6;
-    schedule.scheduleTimestamp = "09:00:00.000";
+    schedule.schedule = 6;
+    schedule.scheduleTime = "09:00:00.000";
     schedule.scheduleUnit = "week";
 
     auto logger = getLogger();

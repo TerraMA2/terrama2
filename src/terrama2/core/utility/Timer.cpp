@@ -94,14 +94,14 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
     secondsToStart = timerSeconds - secondsSinceLastProcess;
   }
-  else if(dataSchedule.scheduleDay > 0)
+  else if(dataSchedule.schedule > 0)
   {
     secondsToStart = scheduleSeconds(dataSchedule);
   }
   else
   {
     QString errMsg = QObject::tr("No frequency or schedule informed.");
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_WARNING() << errMsg;
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
@@ -148,9 +148,9 @@ double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
   {
     std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::nowUTC();
 
-    boost::gregorian::greg_weekday gw(dataSchedule.scheduleDay);
+    boost::gregorian::greg_weekday gw(dataSchedule.schedule);
     boost::gregorian::date d(boost::date_time::next_weekday(nowTZ->getTimeInstantTZ().date(), gw));
-    boost::posix_time::time_duration td(boost::posix_time::duration_from_string(dataSchedule.scheduleTimestamp));
+    boost::posix_time::time_duration td(boost::posix_time::duration_from_string(dataSchedule.scheduleTime));
     boost::posix_time::ptime pt(d, td);
     boost::local_time::local_date_time dt(pt, nowTZ->getTimeInstantTZ().zone());
     te::dt::TimeInstantTZ day(dt);

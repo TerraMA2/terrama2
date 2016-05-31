@@ -11,6 +11,10 @@ AbstractData.prototype.toObject = function() {
   };
 };
 
+AbstractData.prototype.rawObject = function() {
+  return {};
+}
+
 AbstractData.prototype.toJSON = function() {
   return JSON.stringify(this.toObject());
 };

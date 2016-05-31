@@ -1,9 +1,20 @@
 angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
   .controller("ListController", ['$scope', 'DataSeriesFactory', function($scope, DataSeriesFactory) {
-    $scope.dataSeriesType = configuration.dataSeriesType || 'dynamic';
+    var isDynamic = false;
+    var queryParams = {};
+
+    if (configuration.dataSeriesType == "static") {
+      $scope.dataSeriesType = configuration.dataSeriesType;
+    } else {
+      $scope.dataSeriesType = 'dynamic';
+      queryParams['collector'] = true;
+    }
+
+    queryParams['type'] = $scope.dataSeriesType;
+
     $scope.model = [];
     $scope.fields = [];
-    
+
     $scope.remove = function(object) {
       return "/api/DataSeries/" + object.id + "/delete";
     };
@@ -29,8 +40,8 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     };
     $scope.resetState = function() { $scope.display = false; };
     $scope.display = configuration.message !== "";
-    
-    DataSeriesFactory.get({type: $scope.dataSeriesType, collector: true}).success(function(data) {
+
+    DataSeriesFactory.get(queryParams).success(function(data) {
       $scope.model = data instanceof Array ? data : [];
       $scope.fields = [{key: 'name', as: "Name"}, {key: "semantics", as: "Format"}];
     }).error(function(err) {
@@ -42,6 +53,6 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     $scope.linkToAdd = configuration.linkToAdd || null;
 
     $scope.iconFn = configuration.iconFn || null;
-      
+
     $scope.iconProperties = configuration.iconProperties || {};
   }]);

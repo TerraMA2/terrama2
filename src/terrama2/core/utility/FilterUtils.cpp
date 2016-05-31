@@ -40,6 +40,7 @@
 // Qt
 #include <string>
 #include <QString>
+#include <QObject>
 
 bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& filter, std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
 {
@@ -91,7 +92,7 @@ bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& f
     {
       int year = std::stoi(match["YEAR2DIGITS"].str());
 
-      //TODO: review year with 2 digits 
+      //TODO: review year with 2 digits
       if(year < 50)
         ts = "20" + match["YEAR2DIGITS"].str();
       else
@@ -128,13 +129,13 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
 {
   if(filter.discardBefore)
   {
-    if(fileTimestamp < filter.discardBefore)
+    if(!(*fileTimestamp > *filter.discardBefore))
       return false;
   }
 
   if(filter.discardAfter)
   {
-    if(fileTimestamp > filter.discardAfter)
+    if(!(*fileTimestamp < *filter.discardAfter))
       return false;
   }
 

@@ -52,7 +52,21 @@
                 // if (!service.hasOwnProperty('online'))
                 //   service.online = false;
               });
+
               $scope.model = services;
+
+              services.forEach(function(service) {
+                service.loading = true;
+                $http.post("/api/Remote/status/" + service.id, {}).success(function(data) {
+                  service.online = data.online;
+                }).error(function(err) {
+                  console.log("Could not retrieve status of " + service.name);
+                  console.log(err);
+                  service.online = err.online;
+                }).finally(function() {
+                  service.loading = false;
+                })
+              });
 
               // todo: ping each one to check current state
             }).error(function(err) {
@@ -86,7 +100,7 @@
                 $scope.alertLevel = "alert-success";
                 $scope.alertBox.message = data.name + " removed";
               },
-                
+
               service: {
                 handler: function(serviceInstance) {
                   if (!serviceInstance.online) {
@@ -96,6 +110,7 @@
                       console.log(data);
                     }).catch(function(err) {
                       console.log("Error while starting remote service: ", err);
+                      serviceInstance.online = err.online;
                     }).finally(function() {
                       serviceInstance.loading = false;
                     })
@@ -106,6 +121,7 @@
                       console.log(data);
                     }).error(function(err) {
                       console.log("Error while stoping remote service: ", err);
+                      serviceInstance.online = err.online;
                     }).finally(function() {
                       serviceInstance.requestingForClose = false;
                     });

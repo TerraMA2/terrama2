@@ -6,7 +6,6 @@ var _handleError = function(response, err) {
   console.log(err);
   response.status(400);
   response.json({status: 400, message: err.message, online: false});
-  Utils.handleRequestError(response, err, 400);
 };
 
 module.exports = function(app) {
@@ -18,30 +17,33 @@ module.exports = function(app) {
         TcpManager.startService(serviceInstance).then(function(code) {
           try {
             setTimeout(function() {
-              // sending update service with data
-              TcpManager.updateService(serviceInstance).then(function() {
-
-                setTimeout(function() {
-                  // ping
-                  TcpManager.statusService(serviceInstance).then(function(result) {
-                    console.log("Result: ", result);
-                    // getting all data providers
-                    Utils.prepareAddSignalMessage(DataManager).then(function(data) {
-                      TcpManager.sendData(serviceInstance, data);
-                      // todo: check it/ping
-                      response.json({status: 200, online: Object.keys(result).length > 0});
+              TcpManager.connect(serviceInstance).then(function() {
+                // sending update service with data
+                TcpManager.updateService(serviceInstance).then(function() {
+                  setTimeout(function() {
+                    // ping
+                    TcpManager.statusService(serviceInstance).then(function(result) {
+                      console.log("Result: ", result);
+                      Utils.prepareAddSignalMessage(DataManager, app.locals.activeProject.id).then(function(data) {
+                        console.log(JSON.stringify(data));
+                        TcpManager.sendData(serviceInstance, data);
+                        // todo: check it/ping
+                        response.json({status: 200, online: Object.keys(result).length > 0});
+                      }).catch(function(err) {
+                        _handleError(response, err)
+                      }); // end prepare
                     }).catch(function(err) {
-                      _handleError(response, err)
-                    }); // end prepare
-                  }).catch(function(err) {
-                    _handleError(response, err);
-                  }); // end statusService
-                }, 1000);
+                      _handleError(response, err);
+                    }); // end statusService
+                  }, 1000);
+                }).catch(function(err) {
+                  // error during connection
+                  _handleError(response, err);
+                });
               }).catch(function(err) {
-                // error during connection
                 _handleError(response, err);
-              });
-            }, 1000);
+              }) // end connect
+            }, 2000);
           } catch (e) {
             _handleError(response, e);
           }
@@ -59,16 +61,37 @@ module.exports = function(app) {
 
       DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
         TcpManager.stopService(serviceInstance).then(function(result) {
-          setTimeout(function() {
-            // TcpManager.statusService(serviceInstance).then(function(result) {
-              response.json({status: 200, online: false, result: result})
-            // }).catch(function(err) {
-            //   _handleError(response, err)
-            // });
-          }, 4000);
+          console.log("Stoped");
+          TcpManager.statusService(serviceInstance).then(function(statusResult) {
+            response.json({status: 200, online: statusResult.instance_id == serviceInstance.id, result: result})
+          }).catch(function(err) {
+            _handleError(response, err);
+          })
         }).catch(function(err) {
           _handleError(response, err);
         })
+      }).catch(function(err) {
+        _handleError(response, err);
+      });
+    },
+
+    statusService: function(request, response) {
+      var serviceId = request.params.id;
+      DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
+        var _sendStatus = function() {
+          TcpManager.statusService(serviceInstance).then(function(result) {
+            response.json({status: 200, online: result.message.instance_id != 0})
+          }).catch(function(err) {
+            _handleError(response, err);
+          })
+        }
+
+        TcpManager.connect(serviceInstance).then(function() {
+          _sendStatus()
+        }).catch(function(err) {
+          _sendStatus();
+        });
+        
       }).catch(function(err) {
         _handleError(response, err);
       });

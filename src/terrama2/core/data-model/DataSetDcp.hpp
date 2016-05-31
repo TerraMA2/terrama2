@@ -47,6 +47,21 @@ namespace terrama2
 
       DCP data is supposed to have a timestamp associated.
 
+      ## JSon ##
+
+      Structure for transferece of a DataSetDcp.
+
+      \code{.json}
+      {
+        "class" : "DataSet",
+        "id" : INT,
+        "data_series_id" : INT,
+        "active" : BOOL,
+        "format" : {...},
+        "position" : STRING::WKT
+      }
+      \endcode
+
     */
     struct DataSetDcp : public DataSet
     {

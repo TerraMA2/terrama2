@@ -1,10 +1,21 @@
 module.exports = function(sequelize, DataTypes) {
   var DataSeriesSemantics = sequelize.define("DataSeriesSemantics",
     {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+      },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
-        primaryKey: true
+        unique: true
+      },
+      code: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
       }
     },
     {
@@ -31,6 +42,14 @@ module.exports = function(sequelize, DataTypes) {
           DataSeriesSemantics.hasMany(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
+              allowNull: false
+            }
+          });
+
+          DataSeriesSemantics.hasMany(models['SemanticsProvidersType'], {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'data_series_semantics_id',
               allowNull: false
             }
           });

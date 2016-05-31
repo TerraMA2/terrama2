@@ -13,7 +13,10 @@ module.exports = function(sequelize, DataTypes) {
       host: DataTypes.STRING,
       port: DataTypes.INTEGER,
       sshUser: DataTypes.STRING,
-      sshPort: DataTypes.INTEGER,
+      sshPort: {
+        type: DataTypes.INTEGER,
+        default: 22
+      },
       description: DataTypes.TEXT,
       pathToBinary: DataTypes.STRING,
       numberOfThreads: DataTypes.INTEGER,
@@ -37,6 +40,19 @@ module.exports = function(sequelize, DataTypes) {
             foreignKey: {
               name: 'instance_id',
               allowNull: false
+            }
+          });
+
+          ServiceInstance.hasOne(models.Log, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
+
+          ServiceInstance.hasMany(models.Collector, {
+            foreignKey: {
+              allowNull: true
             }
           });
         }

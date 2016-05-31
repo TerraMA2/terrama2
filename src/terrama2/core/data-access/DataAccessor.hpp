@@ -74,19 +74,19 @@ namespace terrama2
     and can be retrieved by lastDateTime().
 
     \warning lastDateTime() will return the latest data timestamp of the last time getSeries()
-    was called, **not the latest from all calls**.
+    was called, **not the latest from sequential calls**.
 
     \note The best way to get a DataAccessor is from a DataAccessorFactory,
     the DataAccessorFactory::make will return a DataAccessor from the right type.
 
     ## Derived classes ##
 
-    Derived classes as responsible for the whole data access process,
+    Derived classes are responsible for the whole data access process,
     from downloading, when necessary, to accessing and filtering the raw data.
 
     Derived classes should also be able read the format data from the dataset format map.
 
-    \warning Derived classes should have virtual inheritance.
+    \warning Derived classes must have virtual inheritance.
 
     */
     class DataAccessor

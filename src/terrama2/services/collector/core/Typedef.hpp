@@ -32,6 +32,7 @@
 
 #include "../../../core/Typedef.hpp"
 
+//! Unique identifier of a Collector
 typedef ProcessId CollectorId;
 
 #endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_TYPEDEF_HPP__

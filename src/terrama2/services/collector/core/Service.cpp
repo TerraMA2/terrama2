@@ -117,7 +117,9 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
   try
   {
-    auto logId = logger->start(collectorId);
+    RegisterId logId = 0;
+    if(logger.get())
+      logId = logger->start(collectorId);
 
     TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
@@ -144,7 +146,10 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     terrama2::core::Filter filter = collectorPtr->filter;
     //update filter based on last collected data timestamp
-    auto lastCollectedDataTimestamp = logger->getDataLastTimestamp(logId);
+    std::shared_ptr<te::dt::TimeInstantTZ> lastCollectedDataTimestamp;
+    if(logger.get())
+      lastCollectedDataTimestamp = logger->getDataLastTimestamp(logId);
+
     if(lastCollectedDataTimestamp.get() && filter.discardBefore.get())
     {
       if(filter.discardBefore < lastCollectedDataTimestamp)
@@ -157,7 +162,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     auto dataMap = dataAccessor->getSeries(filter);
     if(dataMap.empty())
     {
-      logger->done(nullptr, logId);
+      if(logger.get())
+        logger->done(nullptr, logId);
       TERRAMA2_LOG_WARNING() << tr("No data to collect.");
       return;
     }
@@ -179,8 +185,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
 
-    logger->done(lastDateTime, logId);
-
+    if(logger.get())
+      logger->done(lastDateTime, logId);
   }
   catch(const terrama2::Exception& e)
   {
@@ -214,16 +220,42 @@ void terrama2::services::collector::core::Service::connectDataManager()
 
 void terrama2::services::collector::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
 {
-  logger_ = std::make_shared<CollectorLogger>(connInfo);
+  try
+  {
+    logger_ = std::make_shared<CollectorLogger>(connInfo);
+  }
+  catch(boost::exception& e)
+  {
+    std::cout << boost::diagnostic_information(e) << std::endl;
+  }
+  catch(std::exception& e)
+  {
+    std::cout << e.what() << std::endl;
+  }
+  catch(...)
+  {
+    // TODO: o que fazer com uncaught exception
+    std::cout << "\n\nException...\n" << std::endl;
+  }
 }
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
 {
+  const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  auto serviceInstanceId = serviceManager.instanceId();
+
+  // Check if this collector should be executed in this instance
+  if(collector->serviceInstanceId != serviceInstanceId)
+    return;
+
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    auto lastProcess = logger_->getLastProcessTimestamp(collector->id);
+    std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
+    if(logger_.get())
+      lastProcess = logger_->getLastProcessTimestamp(collector->id);
+
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, lastProcess);
     connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(collector->id, timer);

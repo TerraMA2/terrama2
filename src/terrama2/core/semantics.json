@@ -1,0 +1,65 @@
+[
+  {
+    "name": "PostGis stored occurrence",
+    "code": "OCCURRENCE-postgis",
+    "type": "OCCURRENCE",
+    "format": "POSTGIS",
+    "providers_type_list": ["POSTGIS"]
+  },
+  {
+    "name": "INPE's Wildland Fire Program",
+    "code": "OCCURRENCE-wfp",
+    "type": "OCCURRENCE",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"]
+  },
+  {
+    "name": "File static data",
+    "code": "STATIC_DATA-ogr",
+    "type": "STATIC_DATA",
+    "format": "OGR",
+    "providers_type_list": ["FILE"]
+  },
+  {
+    "name": "PostGIS static data",
+    "code": "STATIC_DATA-postgis",
+    "type": "STATIC_DATA",
+    "format": "POSTGIS",
+    "providers_type_list": ["POSTGIS"]
+  },
+  {
+    "name": "INPE's DCP data format",
+    "code": "DCP-inpe",
+    "type": "DCP",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"]
+  },
+  {
+    "name": "TOA5 DCP format",
+    "code": "DCP-toa5",
+    "type": "DCP",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"]
+  },
+  {
+    "name": "DCP PostGIS",
+    "code": "DCP-postgis",
+    "type": "DCP",
+    "format": "POSTGIS",
+    "providers_type_list": ["POSTGIS"]
+  },
+  {
+    "name": "Monitored object analysis result",
+    "code": "ANALYSIS_MONITORED_OBJECT-postgis",
+    "type": "ANALYSIS_MONITORED_OBJECT",
+    "format": "POSTGIS",
+    "providers_type_list": ["POSTGIS"]
+  },
+  {
+    "name": "GeoTIFF grid",
+    "code": "GRID-geotiff",
+    "type": "GRID",
+    "format": "GEOTIFF",
+    "providers_type_list": ["FILE", "FTP"]
+  }
+]

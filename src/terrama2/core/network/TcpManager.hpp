@@ -40,14 +40,28 @@ namespace terrama2
 
     class DataManager;
     /*!
-      \class TcpManager
        \brief Manages all TCP data communication between the service and TerraMA² application.
 
-       The TcpManager class waits for a connection from the central TerraMA² application.
+       The TcpManager will listen to signals in the host specified in listen(),
+       the received will be forwarded to the DataManager or emit signals as needed.
 
-       For valid signals: TcpSignals
+       ## Message format ##
 
-       Detailed information of data message: https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/tcp
+       The TcpManager receives messages with the format:
+       \code
+       < size of the message > < TcpSignals > < json >
+       \endcode
+
+       The size of the message is a 32 bit integer with the signal size plus the json size.
+
+       The signal is one of the TcpSignals.
+
+       The json format is specified for each signal. Detailed information can be found in
+       https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/tcp
+
+       \sa TcpSignals
+
+       \sa Detailed information of data message: https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/tcp
 
      */
     class TcpManager : public QTcpServer
@@ -60,7 +74,7 @@ namespace terrama2
         /*!
           \brief Send a finishing service message and destroys the object.
         */
-        virtual ~TcpManager();
+        virtual ~TcpManager() = default;
 
         TcpManager(const TcpManager& other) = delete;
         TcpManager(TcpManager&& other) = delete;
