@@ -9,6 +9,10 @@ var WildFire = function() {
 WildFire.prototype = Object.create(Occurrence.prototype);
 WildFire.prototype.constructor = WildFire;
 
+WildFire.demand = function () {
+  return ["FILE", "FTP"];
+};
+
 WildFire.identifier = function() {
   return "OCCURRENCE-wfp";
 };
@@ -30,16 +34,16 @@ WildFire.schema = function() {
       title: "Timezone"
     }
   };
-  
+
   if (occurrenceSchema.hasOwnProperty('properties')) {
     occurrenceSchema.properties.srid = properties.srid;
     occurrenceSchema.properties.timezone = properties.timezone;
   } else {
     Object.assign(occurrenceSchema, {properties: properties});
   }
-  
+
   var requiredFields = ['mask', 'srid', 'timezone'];
-  
+
   occurrenceSchema.required = occurrenceSchema.hasOwnProperty('required') ? occurrenceSchema.required.concat(requiredFields) : requiredFields;
 
   return occurrenceSchema;

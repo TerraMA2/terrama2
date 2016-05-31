@@ -49,6 +49,16 @@ AbstractSemantics.prototype.get = function() {
   return this.semantics;
 };
 
+/**
+ * It retrieves a list of DataProviders type that semantics works with.
+ *
+ * @abstract
+ * @return {Array}.
+ */
+AbstractSemantics.demand = function() {
+  return [];
+};
+
 
 /**
  * It defines the form structure of DataSeriesSemantics object. See more in @see Enums.FormField
@@ -56,13 +66,7 @@ AbstractSemantics.prototype.get = function() {
  * @return {Object}
  */
 AbstractSemantics.schema = function() {
-  return {
-    // active: {
-    //   title: "Active",
-    //   type: FormField.CHECKBOX,
-    //   default: true
-    // }
-  };
+  return {};
 };
 
 /**

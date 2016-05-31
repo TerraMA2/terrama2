@@ -212,31 +212,20 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
 
   rtree.search(*(box.get()), occurrenceAggVec);
 
+  int attributeType = -1;
 
-  if(aggregationStatisticOperation == COUNT)
+  if(aggregationStatisticOperation != COUNT)
   {
-    QString errMsg(QObject::tr("Invalid aggregation statistic"));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
+
+    if(!property)
+    {
+      QString errMsg(QObject::tr("Invalid attribute: %1").arg(QString::fromStdString(attribute)));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+    attributeType = property->getType();
   }
-
-  if(attribute.empty())
-  {
-    QString errMsg(QObject::tr("Invalid attribute"));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
-
-  auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
-
-  if(!property)
-  {
-    QString errMsg(QObject::tr("Invalid attribute: %1").arg(QString::fromStdString(attribute)));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
-  int attributeType = property->getType();
-
 
 
   for(size_t i = 0; i < occurrenceAggVec.size(); i++)
@@ -245,17 +234,27 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
 
     OperatorCache cache;
     std::vector<double> values;
-    TERRAMA2_LOG_ERROR() << "Aggregated: " << occurrenceAggregation->indexes.size();
     for(auto index : occurrenceAggregation->indexes)
     {
-      double value = getValue(syncDs, attribute, index, attributeType);
-      values.push_back(value);
       cache.count++;
-      cache.sum += value;
-      if(value > cache.max)
-        cache.max = value;
-      if(value < cache.min)
-        cache.min = value;
+
+      if(aggregationStatisticOperation != COUNT)
+      {
+        if(attribute.empty())
+        {
+          QString errMsg(QObject::tr("Invalid attribute"));
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+        }
+
+        double value = getValue(syncDs, attribute, index, attributeType);
+        values.push_back(value);
+        cache.sum += value;
+        if(value > cache.max)
+          cache.max = value;
+        if(value < cache.min)
+          cache.min = value;
+      }
     }
 
     calculateStatistics(values, cache);

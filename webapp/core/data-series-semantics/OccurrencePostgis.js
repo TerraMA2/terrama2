@@ -27,3 +27,7 @@ OccurrencePostgis.schema = function() {
 OccurrencePostgis.form = function() {
   return ['*'];
 };
+
+OccurrencePostgis.demand = function () {
+  return ["POSTGIS"];
+};

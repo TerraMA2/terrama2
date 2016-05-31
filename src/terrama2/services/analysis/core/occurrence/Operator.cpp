@@ -188,7 +188,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
                     try
                     {
-                      if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                      if(!attribute.empty())
                       {
                         hasData = true;
                         cache.count++;
