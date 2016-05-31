@@ -24,24 +24,36 @@ module.exports = function(app) {
 
         // check project
         DataManager.getProject({name: projectName}).then(function(project) {
-          var dataProviderObject = {
-            name: dataProviderReceived.name,
-            uri: requester.uri,
-            description: dataProviderReceived.description,
-            data_provider_intent_name: dataProviderReceived.data_provider_intent_name || requester.intent(),
-            data_provider_type_name: uriObject[requester.syntax().SCHEME],
-            project_id: project.id,
-            active: dataProviderReceived.active || false
-          };
+          // getting intent id
+          DataManager.getDataProviderIntent({name: dataProviderReceived.data_provider_intent_name || requester.intent()}).then(function(intentResult) {
+            // getting provider type id
+            DataManager.getDataProviderType({name: uriObject[requester.syntax().SCHEME]}).then(function(typeResult) {
+              var dataProviderObject = {
+                name: dataProviderReceived.name,
+                uri: requester.uri,
+                description: dataProviderReceived.description,
+                data_provider_intent_id: intentResult.id,
+                data_provider_type_id: typeResult.id,
+                project_id: project.id,
+                active: dataProviderReceived.active || false
+              };
 
-          // try to save
-          DataManager.addDataProvider(dataProviderObject).then(function(result) {
-            // generating token
-            var token = Utils.generateToken(app, TokenCode.SAVE, result.name);
-            response.json({status: 200, result: result.toObject(), token: token});
+              // try to save
+              DataManager.addDataProvider(dataProviderObject).then(function(result) {
+                // generating token
+                var token = Utils.generateToken(app, TokenCode.SAVE, result.name);
+                response.json({status: 200, result: result.toObject(), token: token});
+              }).catch(function(err) {
+                handleError(response, err, 400);
+              });
+            }).catch(function(err) {
+              handleError(response, err, 400);
+            });
+
           }).catch(function(err) {
             handleError(response, err, 400);
           });
+
         }).catch(function(err) {
           handleError(response, err, 400);
         })
@@ -64,7 +76,7 @@ module.exports = function(app) {
       } else {
         var output = [];
         DataManager.listDataProviders().forEach(function(element) {
-          output.push(element.toObject());
+          output.push(element.rawObject());
         });
         response.json(output);
       }
@@ -83,7 +95,7 @@ module.exports = function(app) {
           }).catch(function(err) {
             response.status(400);
             response.json({status: 400, message: err.message})
-          }); 
+          });
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});

@@ -1,16 +1,15 @@
 module.exports = function(sequelize, DataTypes) {
   var DataProviderType = sequelize.define("DataProviderType",
     {
-      //id: {
-      //  type: DataTypes.INTEGER,
-      //  allowNull: false,
-      //  primaryKey: true,
-      //  autoIncrement: true
-      //},
+      id: {
+       type: DataTypes.INTEGER,
+       allowNull: false,
+       primaryKey: true,
+       autoIncrement: true
+      },
       name: {
         type: DataTypes.STRING,
-        unique: true,
-        primaryKey: true
+        unique: true
       },
       description: DataTypes.TEXT
     },
@@ -24,6 +23,14 @@ module.exports = function(sequelize, DataTypes) {
           DataProviderType.hasMany(models.DataProvider, {
             onDelete: "CASCADE",
             foreignKey: {
+              allowNull: false
+            }
+          });
+
+          DataProviderType.hasMany(models['SemanticsProvidersType'], {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'data_provider_type_id',
               allowNull: false
             }
           });

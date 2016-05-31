@@ -49,6 +49,12 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          ServiceInstance.hasMany(models.Collector, {
+            foreignKey: {
+              allowNull: true
+            }
+          });
         }
       }
     }

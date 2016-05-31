@@ -1,12 +1,12 @@
 module.exports = function(sequelize, DataTypes) {
   var DataProviderIntent = sequelize.define("DataProviderIntent",
     {
-      //id: {
-      //  type: DataTypes.INTEGER,
-      //  allowNull: false,
-      //  primaryKey: true,
-      //  autoIncrement: true
-      //},
+      id: {
+       type: DataTypes.INTEGER,
+       allowNull: false,
+       primaryKey: true,
+       autoIncrement: true
+      },
       name: {
         type: DataTypes.STRING,
         unique: true,
