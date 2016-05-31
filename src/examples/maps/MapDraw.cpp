@@ -298,8 +298,6 @@ void RGB_012_RGB_Contrast_Style(std::shared_ptr<te::da::DataSet> dataSet, std::s
 
   l->draw(c, *e, srid, 0, &cancel);
 
-//  te::map::MemoryDataSetRenderer::draw(dataSet, l, c, *e, srid, 0, &cancel);
-
   c->save("GeneretadeImage", te::map::PNG);
 
   c->clear();
