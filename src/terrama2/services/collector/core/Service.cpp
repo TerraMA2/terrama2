@@ -241,6 +241,13 @@ void terrama2::services::collector::core::Service::updateLoggerConnectionInfo(co
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
 {
+  const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  auto serviceInstanceId = serviceManager.instanceId();
+
+  // Check if this collector should be executed in this instance
+  if(collector->serviceInstanceId != serviceInstanceId)
+    return;
+
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);

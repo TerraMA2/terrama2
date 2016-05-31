@@ -51,21 +51,7 @@ terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::DataAccessorMonitore
   }
 }
 
-std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getDataSetName(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("table_name");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
-std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getDateTimePropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getTimestampPropertyName(DataSetPtr dataSet) const
 {
   return "execution_date";
 }

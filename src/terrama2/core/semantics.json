@@ -14,11 +14,18 @@
     "providers_type_list": ["FILE", "FTP"]
   },
   {
-    "name": "Generic static data",
+    "name": "File static data",
     "code": "STATIC_DATA-ogr",
     "type": "STATIC_DATA",
     "format": "OGR",
-    "providers_type_list": ["FILE", "FTP"]
+    "providers_type_list": ["FILE"]
+  },
+  {
+    "name": "PostGIS static data",
+    "code": "STATIC_DATA-postgis",
+    "type": "STATIC_DATA",
+    "format": "POSTGIS",
+    "providers_type_list": ["POSTGIS"]
   },
   {
     "name": "INPE's DCP data format",

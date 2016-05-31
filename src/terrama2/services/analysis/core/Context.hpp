@@ -91,7 +91,7 @@ namespace terrama2
           /*!
             \brief Operator less then.
           */
-          bool operator()( const ContextKey& lhs , const ContextKey& rhs) const
+          bool operator()(const ContextKey& lhs, const ContextKey& rhs) const
           {
             if(lhs.analysisId_ < rhs.analysisId_)
             {
@@ -147,7 +147,14 @@ namespace terrama2
               \param attribute Name of the attribute.
               \param result The result value.
             */
-            void setAnalysisResult(AnalysisId analysisId, const std::string& geomId, const std::string& attribute, double result);
+            void setAnalysisResult(AnalysisId analysisId, const std::string& geomId, const std::string& attribute,
+                                   double result);
+
+            /*!
+              \brief Clear all values stored for an analysis.
+              \param analysisId Identifier of the analysis.
+            */
+            void clearAnalysisContext(AnalysisId analysisId);
 
             /*!
               \brief Returns a weak pointer to the data manager.
@@ -177,7 +184,8 @@ namespace terrama2
               \param datasetId The DataSet identifier.
               \param dateFilter The date restriction to be used in the DataSet.
             */
-            std::shared_ptr<ContextDataSeries> getContextDataset(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
+            std::shared_ptr<ContextDataSeries> getContextDataset(const AnalysisId analysisId, const DataSetId datasetId,
+                                                                 const std::string& dateFilter = "") const;
 
             /*!
               \brief Reads the analysis configuration and adds to the context the monitored object dataset.
@@ -194,7 +202,8 @@ namespace terrama2
               \param dateFilter The date restriction to be used in the DataSet.
               \return True if the given dataset has already been loaded into the context.
             */
-            bool exists(const AnalysisId analysisId, const DataSetId datasetId, const std::string& dateFilter = "") const;
+            bool exists(const AnalysisId analysisId, const DataSetId datasetId,
+                        const std::string& dateFilter = "") const;
 
             /*!
               \brief Reads the DataSeries that fits the date filter and adds it to the context.
@@ -202,9 +211,11 @@ namespace terrama2
               \param analysisId The analysis identifier.
               \param dataSeries A smart pointer to the DataSeries to be loaded.
               \param dateFilter The date restriction to be used in the DataSet.
+              \param envelope Monitored object envelope to be used as filter.
               \param createSpatialIndex Defines if a spatial index should be created to optimize data access.
             */
             void addDataSeries(const AnalysisId analysisId, terrama2::core::DataSeriesPtr dataSeries,
+                               std::shared_ptr<te::gm::Geometry> envelope,
                                const std::string& dateFilter = "", bool createSpatialIndex = true);
 
             /*!
@@ -239,7 +250,7 @@ namespace terrama2
             std::map<AnalysisId, std::map<std::string, std::map<std::string, double> > > analysisResult_; //!< Map with analysis result AnalysisId -> GeomId -> Attribute -> Value.
             std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_; //!< Map containing all loaded datasets.
             mutable std::recursive_mutex mutex_; //!< A mutex to syncronize all operations.
-  			};
+        };
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

@@ -52,9 +52,9 @@ namespace terrama2
     */
     struct DataSetSeries
     {
-      DataSetPtr dataSet;
-      SyncronizedDataSetPtr syncDataSet;
-      std::shared_ptr<te::da::DataSetType> teDataSetType;
+      DataSetPtr dataSet; //!< TerraMA² DataSet metadata.
+      SyncronizedDataSetPtr syncDataSet; //!< Thread-safe class to acces a te::da::DataSet.
+      std::shared_ptr<te::da::DataSetType> teDataSetType;//!< Metadata of the \e syncDataSet.
     };
   }
 }

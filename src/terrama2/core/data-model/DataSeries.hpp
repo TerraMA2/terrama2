@@ -51,6 +51,23 @@ namespace terrama2
 
       A DataSeries is description of a dataset. This is the set to be
       referenced one collection or analysis. Ex. set of PCD.
+
+      ## JSon ##
+
+      Base structure for transferece of a DataSeries.
+
+      \code{.json}
+        {
+          "class" : "DataSeries",
+          "id" : INT,
+          "data_provider_id" : INT,
+          "name" : STRING,
+          "description" : STRING,
+          "semantics" : STRING,
+          "datasets" : [DataSet, ...]
+        }
+      \endcode
+
      */
 
     struct DataSeries
@@ -63,7 +80,7 @@ namespace terrama2
 
       std::vector< DataSetPtr > datasetList;
 
-      inline bool operator==(const DataSeries& rhs){ return id == rhs.id; }
+      inline bool operator==(const DataSeries& rhs) { return id == rhs.id; }
     };
   } // end namespace core
 } // end namespace terrama2

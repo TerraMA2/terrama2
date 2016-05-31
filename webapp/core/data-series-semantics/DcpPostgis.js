@@ -14,7 +14,6 @@ DcpPostgis.identifier = function() {
 };
 
 DcpPostgis.schema = function() {
-  // var dcpSchema = Dcp.schema.call(this);
   var dcpSchema = {
     type: "object",
     properties: {},
@@ -24,13 +23,8 @@ DcpPostgis.schema = function() {
     type: Form.Field.TEXT,
     title: "Table Name"
   };
-  //
-  // dcpSchema.properties.geometryColumn = {
-  //   type: Form.Field.TEXT,
-  //   title: "Geometry Column"
-  // };
 
-  dcpSchema.required = ['table_name'];//, 'geometryColumn'];
+  dcpSchema.required = ['table_name'];
 
   return dcpSchema;
 };
@@ -40,12 +34,13 @@ DcpPostgis.form = function() {
     {
       key: 'table_name',
       htmlClass: "col-md-3"
-    }//,
-    // {
-    //   key: 'geometryColumn',
-    //   htmlClass: "col-md-2"
-    // }
+    }
   ];
 };
+
+DcpPostgis.demand = function () {
+  return ["POSTGIS"];
+};
+
 
 module.exports = DcpPostgis;

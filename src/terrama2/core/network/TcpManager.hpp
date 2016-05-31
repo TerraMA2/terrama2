@@ -74,7 +74,7 @@ namespace terrama2
         /*!
           \brief Send a finishing service message and destroys the object.
         */
-        virtual ~TcpManager();
+        virtual ~TcpManager() = default;
 
         TcpManager(const TcpManager& other) = delete;
         TcpManager(TcpManager&& other) = delete;
