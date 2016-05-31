@@ -60,6 +60,7 @@ angular.module('terrama2.dataseries.registration', [
     $scope.dcpsStorager = [];
     $scope.inputDataSets = [];
     $scope.storage = {};
+    $scope.dataProvidersStorager = [];
 
     var removeInput = function(dcpMask) {
       $scope.inputDataSets.forEach(function(dcp, pcdIndex, array) {
@@ -159,7 +160,24 @@ angular.module('terrama2.dataseries.registration', [
       // todo: fix it. It is hard code
       $scope.tableFieldsStorager = [];
 
-      DataSeriesSemanticsFactory.get(args.format.code, {metadata:true}).success(function(data) {
+      var queryParams = {
+        metadata: true
+      }
+
+      if ($scope.isDynamic)
+        queryParams['type'] = "dynamic"
+      else
+        queryParams['type'] = "static"
+
+      DataSeriesSemanticsFactory.get(args.format.code, queryParams).success(function(data) {
+        $scope.dataProvidersStorager = [];
+        $scope.dataProvidersList.forEach(function(dataProvider) {
+          data.data_providers_semantics.forEach(function(demand) {
+            if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
+              $scope.dataProvidersStorager.push(dataProvider);
+          })
+        });
+
         var metadata = data.metadata;
         var properties = metadata.schema.properties;
         if ($scope.formatSelected.data_series_type_name === "DCP") {
