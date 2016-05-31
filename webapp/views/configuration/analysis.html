@@ -7,10 +7,21 @@
 {% block title %} TerraMA2 {[ __('Analysis Registration') ]} {% endblock %}
 
 {% block styles %}
+  <!-- Angular tree control -->
+  <!-- link for CSS when using the tree as a Dom element -->
+  <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control.css">
+  <!-- link for CSS when using the tree as an attribute -->
+  <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control-attribute.css">
+
   <style>
     table > tbody {
       overflow-y: auto !important;
       height: 150px !important;
+    }
+
+    .auto-y {
+      max-height: 400px !important;
+      overflow-y: auto !important;
     }
   </style>
 {% endblock %}
@@ -29,6 +40,9 @@
 
 <!-- terrama2 Angular app -->
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
+
+<!-- Angular tree control -->
+<script type="text/javascript" src="/externals/angular-tree-control/angular-tree-control.js"></script>
 
 <!-- Angular i18n -->
 <script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
@@ -77,6 +91,36 @@
 {% block content %}
 
 <div class="col-md-12" ng-controller="AnalysisRegistration">
+
+  <!-- DataSeries Modal -->
+  <div class="modal fade" id="dataSeriesModal" tabindex="-1" role="dialog" aria-labelledby="dataSeriesModalLabel">
+    <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="dataSeriesModalLabel">{[ __('Select DataSeries') ]}</h4>
+        </div>
+        <div class="modal-body">
+
+          <treecontrol class="tree-light"
+             tree-model="dataSeriesGroups"
+             options="treeOptions"
+             selected-nodes="selectedsDataSeries"
+             on-selection="showSelected(node)"
+             selected-node="selectedDataSeries">
+             {{node.name}}
+          </treecontrol>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="addDataSeries()">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="box box-default">
     <div class="box-header with-border">
       <h3 class="box-title">{[ __('Analysis Registration') ]}</h3>
@@ -239,13 +283,16 @@
           <div style="display: block;" class="box-body">
             <div class="row">
               <div class="col-md-12">
+                <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
+                  <i class="fa fa-plus"></i>
+                </button>
                 <table class="table table-bordered table-hover">
                   <tbody>
                   <tr>
                     <th>{[ __('Name') ]}</th>
                     <th>{[ __('Type') ]}</th>
                   </tr>
-                  <tr style="cursor:pointer;" ng-repeat="dataSeries in dataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
+                  <tr style="cursor:pointer;" ng-repeat="dataSeries in selectedDataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
                     <td>{{ dataSeries.name }}</td>
                     <td>{{ dataSeries.semantics }}</td>
                   </tr>
@@ -259,7 +306,7 @@
                 <!--./table-->
                 <!--todo: open box-->
 
-                <div class="col-md-12 terrama2-nopadding-box" ng-if="selectedDataSeries">
+                <div class="col-md-12 terrama2-nopadding-box" ng-if="isAnyDataSeriesSelected()">
                   <div class="box box-default box-solid">
                     <div class="box-header with-border">
                       <h3 class="box-title">{{ selectedDataSeries.name }}</h3>

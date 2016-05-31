@@ -1,4 +1,10 @@
-angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox', 'schemaForm'])
+angular.module('terrama2.analysis.registration', [
+    'terrama2',
+    'terrama2.services',
+    'terrama2.components.messagebox',
+    'schemaForm',
+    'treeControl'
+  ])
 
   .controller('AnalysisRegistration',
     [
@@ -13,10 +19,41 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     $scope.analysis = {};
     $scope.instances = [];
     $scope.dataSeriesList = [];
-    $scope.selectedDataSeries = null;
+
+    // define dataseries selected in modal
+    $scope.selectedsDataSeries = [];
+
+    // define dataseries selected to analysis
+    $scope.selectedDataSeriesList = [];
     $scope.metadata = {};
     $scope.semantics = {};
     $scope.storagerFormats = [];
+    $scope.buffers = {
+      "static": [],
+      "dynamic": []
+    }
+
+    // dataseries tree modal
+    $scope.treeOptions = {
+      nodeChildren: "children",
+      multiSelection: true,
+      dirSelectable: false,
+      injectClasses: {
+        ul: "list-group",
+        li: "list-group-item",
+        liSelected: "active",
+        iExpanded: "a3",
+        iCollapsed: "a4",
+        iLeaf: "a5",
+        label: "a6",
+        labelSelected: "2"
+      }
+    }
+
+    $scope.dataSeriesGroups = [
+      {name: "Static", children: []},
+      {name: "Dynamic", children: []}
+    ]
 
     // terrama2 alert box
     $scope.alertBox = {};
@@ -87,8 +124,24 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     }).error(errorHelper);
 
     // getting DataSeries
-    DataSeriesFactory.get({collector: true}).success(function(dataSeriesObjects) {
+    DataSeriesFactory.get({schema: "all"}).success(function(dataSeriesObjects) {
       $scope.dataSeriesList = dataSeriesObjects;
+
+      dataSeriesObjects.forEach(function(dSeries) {
+        var semantics = dSeries.data_series_semantics;
+
+        if (semantics.data_series_type_name == "STATIC_DATA") {
+          dSeries.isDynamic = false;
+          $scope.buffers["static"].push(dSeries);
+        }
+        else {
+          dSeries.isDynamic = true;
+          $scope.buffers["dynamic"].push(dSeries);
+        }
+      });
+
+      $scope.dataSeriesGroups[0].children = $scope.buffers["static"];
+      $scope.dataSeriesGroups[1].children = $scope.buffers["dynamic"];
     }).error(errorHelper);
 
     // helpers
@@ -101,8 +154,44 @@ angular.module('terrama2.analysis.registration', ['terrama2', 'terrama2.services
     };
 
     // handling functions
+    // it adds dataseries from modal to table
+    $scope.addDataSeries = function() {
+      console.log($scope.selectedDataSeries);
+
+      var _helper = function(type, target) {
+        $scope.buffers[type].some(function(element, index, arr) {
+          if (element.id == target.id) {
+            arr.splice(index, 1);
+            return true;
+          }
+          return false;
+        });
+      }
+
+      $scope.selectedsDataSeries.forEach(function(target) {
+        $scope.selectedDataSeriesList.push(target);
+
+        if (target.isDynamic) {
+          _helper("dynamic", target);
+        } else {
+          _helper("static", target);
+        }
+      })
+
+      $scope.selectedsDataSeries = [];
+    };
+
+    // it check if there is a dataseries selected
+    $scope.isAnyDataSeriesSelected = function() {
+      return $scope.selectedDataSeries && $scope.selectedDataSeries.id > 0;
+    }
+
     // it handles hidden box with data-series analysis metadata
     $scope.onDataSeriesClick = function(dataSeries) {
+      if (dataSeries.id == $scope.selectedDataSeries.id) {
+        $scope.selectedDataSeries = {};
+        return;
+      }
       $scope.selectedDataSeries = dataSeries;
 
       // getting data series semantics

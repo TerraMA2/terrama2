@@ -1004,8 +1004,59 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataSeriesList = [];
 
-      // todo: should have parent search module? #tempCode for filtering
-      if (restriction && restriction.hasOwnProperty("Collector")) {
+      if (restriction && restriction.hasOwnProperty("schema")) {
+        if (restriction.schema == "all") {
+          self.listDataSeries({"Collector": {}}).then(function(data) {
+            self.listDataSeries({"DataSeries": "Static"}).then(function(staticData) {
+              var output = [];
+              data.forEach(function(d) {
+                output.push(d);
+              })
+
+              staticData.forEach(function(d) {
+                output.push(d);
+              })
+
+              return resolve(output);
+            }).catch(function(err) {
+              reject(err);
+            });
+          }).catch(function(err) {
+            reject(err);
+          });
+        }
+      } else if (restriction && restriction.hasOwnProperty('DataSeries')) {
+
+        var _exec = function(func) {
+          // get all dynamic
+          var eDataSeries = [];
+          self.data.dataSeries.forEach(function(dSeries) {
+            var dSeriesSemantics = dSeries.data_series_semantics;
+            if (func(dSeriesSemantics.data_series_type_name))
+              eDataSeries.push(new DataModel.DataSeries(dSeries));
+          });
+          return resolve(eDataSeries);
+        };
+
+        switch (restriction.DataSeries) {
+          case "Static":
+            // get all static
+            _exec(function(dataSeriestype) {
+              return dataSeriestype == "STATIC_DATA";
+            });
+            break;
+          case "Dynamic":
+            // get all dynamic
+            _exec(function(dataSeriestype) {
+              return dataSeriestype != "STATIC_DATA";
+            });
+            break;
+          default:
+            return reject(new exceptions.DataSeriesError("Invalid data series restriction. Expected Static or Dynamic. \"" + restriction.DataSeries + "\""));
+        }
+
+      } else if (restriction && restriction.hasOwnProperty("Collector")) {
+        // todo: should have parent search module? #tempCode for filtering
         // collector restriction
         self.listCollectors({active: true}).then(function(collectorsResult) {
 
