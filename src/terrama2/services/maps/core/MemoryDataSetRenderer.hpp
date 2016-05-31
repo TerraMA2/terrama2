@@ -81,7 +81,7 @@ namespace te
           if(symbolizers.empty())
           {
             // The current rule do not have a symbolizer. Try creates a default based on first geometry of dataset.
-            std::auto_ptr<te::gm::Geometry> g(dataSet_->getGeometry(gpos));
+            std::shared_ptr<te::gm::Geometry> g(dataSet_->getGeometry(gpos));
             assert(g.get());
 
             te::se::Symbolizer* symbolizer = te::se::CreateSymbolizer(g->getGeomTypeId());
@@ -166,12 +166,12 @@ namespace te
 
         if(memoryLayerSchema_->hasGeom())
         {
-          te::gm::GeometryProperty* geometryProperty = 0;
+          std::unique_ptr< te::gm::GeometryProperty > geometryProperty;
 
           if(spatialPropertyName.empty())
-            geometryProperty = te::da::GetFirstGeomProperty(memoryLayerSchema_.get());
+            geometryProperty.reset(dynamic_cast<te::gm::GeometryProperty*>(te::da::GetFirstGeomProperty(memoryLayerSchema_.get())->clone()));
           else
-            geometryProperty = dynamic_cast<te::gm::GeometryProperty*>(memoryLayerSchema_->getProperty(spatialPropertyName));
+            geometryProperty.reset(dynamic_cast<te::gm::GeometryProperty*>(memoryLayerSchema_->getProperty(spatialPropertyName)->clone()));
 
           assert(geometryProperty);
 
@@ -237,7 +237,7 @@ namespace te
             throw Exception((boost::format(TE_TR("Could not retrieve the data set from the layer %1%.")) % layer->getTitle()).str());
 
           // Retrieves the raster
-          std::auto_ptr<te::rst::Raster> raster(dataSet_->getRaster(rasterProperty->getName()));
+          std::shared_ptr<te::rst::Raster> raster(dataSet_->getRaster(rasterProperty->getName()));
           if(dataSet_.get() == 0)
             throw Exception((boost::format(TE_TR("Could not retrieve the raster from the layer %1%.")) % layer->getTitle()).str());
 
