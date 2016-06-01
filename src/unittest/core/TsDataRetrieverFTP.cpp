@@ -91,7 +91,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
 
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception expected!");
     }
     catch(terrama2::core::DataRetrieverException& e)
     {
@@ -148,7 +148,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr,  std::move(mock_));
 
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception expected!");
     }
     catch(terrama2::core::DataRetrieverException& e)
     {
@@ -208,7 +208,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     }
     catch(...)
     {
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception unexpected!");
     }
 
     curl_global_cleanup();
@@ -270,7 +270,7 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
     }
     catch(...)
     {
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception expected!");
     }
 
     curl_global_cleanup();
@@ -333,7 +333,7 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
     }
     catch(...)
     {
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception unexpected!");
     }
 
     curl_global_cleanup();
@@ -392,7 +392,7 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
     }
     catch(...)
     {
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception expected!");
     }
 
     curl_global_cleanup();
@@ -451,7 +451,7 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
     }
     catch(...)
     {
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception unexpected!");
     }
 
     curl_global_cleanup();
