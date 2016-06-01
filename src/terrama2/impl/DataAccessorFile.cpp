@@ -137,6 +137,56 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
   }
 }
 
+void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<te::da::DataSet> completeDataSet,
+                                                                const Filter& filter,
+                                                                std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const
+{
+  if(!filter.lastValue)
+    return;
+
+  auto dataSet = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
+  auto propertiesNumber = dataSet->getNumProperties();
+
+  int dateColumn = -1;
+  for(size_t i = 0; i < propertiesNumber; ++i)
+  {
+    if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    {
+      dateColumn = i;
+      continue;
+    }
+  }
+
+  if(dateColumn < 0)
+    return;
+
+  size_t size = dataSet->size();
+  size_t i = 0;
+
+  while(i < size)
+  {
+    dataSet->move(i);
+
+    if(dataSet->isNull(dateColumn))
+    {
+      QString errMsg = QObject::tr("Null date/time attribute.");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      continue;
+    }
+
+    std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
+    auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
+    if(*timesIntant != *lastTimestamp)
+    {
+      dataSet->remove();
+      --size;
+      continue;
+    }
+
+    ++i;
+  }
+}
+
 bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const
 {
   if(dateColumn < 0 || (!filter.discardBefore.get() && !filter.discardAfter.get()))
@@ -339,6 +389,9 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
   //Get last data timestamp and compare with file name timestamp
   std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(completeDataset);
+
+  filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
+
   //if both dates are valid
   if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))

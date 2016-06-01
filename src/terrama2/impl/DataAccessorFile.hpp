@@ -75,6 +75,9 @@ namespace terrama2
         \brief Filter dataset based on Filter
       */
       virtual void filterDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, const Filter& filter) const;
+      void filterDataSetByLastValue(std::shared_ptr<te::da::DataSet> completeDataSet,
+                                    const Filter& filter,
+                                    std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const;
 
       /*!
         \brief Filter dataset by timestamp range
