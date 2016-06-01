@@ -62,22 +62,15 @@ bool terrama2::services::analysis::core::Service::processNextData()
   if(analysisQueue_.empty())
     return false;
 
-  AnalysisId analysisId = analysisQueue_.front();
+  auto analysis = analysisQueue_.front();
   //prepare task for collecting
-  prepareTask(analysisId);
+  prepareTask(analysis);
 
   //remove from queue
   analysisQueue_.erase(analysisQueue_.begin());
 
   //is there more data to process?
   return !analysisQueue_.empty();
-}
-
-void terrama2::services::analysis::core::Service::updateNumberOfThreads(int numberOfThreads)
-{
-  numberOfThreads = verifyNumberOfThreads(numberOfThreads);
-  stop();
-  start(numberOfThreads);
 }
 
 void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
@@ -110,7 +103,9 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
 {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  auto it = std::find(analysisQueue_.begin(), analysisQueue_.end(), analysisId);
+  auto analysis = dataManager_->findAnalysis(analysisId);
+
+  auto it = std::find(analysisQueue_.begin(), analysisQueue_.end(), analysis);
   if(it != analysisQueue_.end())
     analysisQueue_.erase(it);
 }
@@ -121,12 +116,11 @@ void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId anal
   // we only have the id so there is no need to update.
 }
 
-void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::prepareTask(Analysis& analysis)
 {
   try
   {
-    Analysis analysis = dataManager_->findAnalysis(analysisId);
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, analysis));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, analysis, processingThreadPool_.size()));
   }
   catch(std::exception& e)
   {
@@ -142,7 +136,9 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     //Lock Thread and add to the queue
     std::lock_guard<std::mutex> lock(mutex_);
 
-    analysisQueue_.push_back(analysisId);
+    auto analysis = dataManager_->findAnalysis(analysisId);
+
+    analysisQueue_.push_back(analysis);
 
     //wake loop thread
     mainLoopCondition_.notify_one();

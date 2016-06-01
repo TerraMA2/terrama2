@@ -95,9 +95,6 @@ namespace terrama2
             void removeCollector(CollectorId collectorId);
 
             //doc in base class
-            virtual void updateNumberOfThreads(int) override;
-
-            //doc in base class
             virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;
 
           protected:

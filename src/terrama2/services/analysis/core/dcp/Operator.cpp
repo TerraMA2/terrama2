@@ -34,7 +34,7 @@
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/data-model/DataSetDcp.hpp"
 #include "../../../../core/data-model/Filter.hpp"
-#include "../../../../core/data-access/SyncronizedDataSet.hpp"
+#include "../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../core/Shared.hpp"
 
 // QT
@@ -114,14 +114,14 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
         return NAN;
       }
 
-      Context::getInstance().addDCPDataSeries(cache.analysisId, dataSeries, "", true);
+      Context::getInstance().addDCPDataSeries(analysis.hashCode(), dataSeries, "", true);
 
       // For DCP operator count returns the number of DCP that influence the monitored object
       uint64_t influenceCount = 0;
 
       for(auto dataset : dataSeries->datasetList)
       {
-        dcpContextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id);
+        dcpContextDataSeries = Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id);
 
         terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                 dataset);

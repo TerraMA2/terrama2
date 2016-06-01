@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/core/data-access/SyncronizedDataSet.hpp
+  \file terrama2/core/data-access/SynchronizedDataSet.hpp
 
   \brief Thread-safe dataset access.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_CORE_SYNCRONIZED_DATASET_HPP__
-#define __TERRAMA2_CORE_SYNCRONIZED_DATASET_HPP__
+#ifndef __TERRAMA2_CORE_SynchronizeD_DATASET_HPP__
+#define __TERRAMA2_CORE_SynchronizeD_DATASET_HPP__
 
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -53,21 +53,21 @@ namespace terrama2
   {
 
     /*!
-      \class SyncronizedDataSet
-      \brief Provide syncronized access to a terralib dataset.
+      \class SynchronizedDataSet
+      \brief Provide synchronized access to a terralib dataset.
 
      */
-    class SyncronizedDataSet
+    class SynchronizedDataSet
     {
       public:
         /*!
           \brief Constructor.
-          \param dataset A smart point to the TerraLib dataset that will have the access syncronized.
+          \param dataset A smart point to the TerraLib dataset that will have the access synchronized.
         */
-        SyncronizedDataSet(std::shared_ptr<te::da::DataSet> dataset);
+        SynchronizedDataSet(std::shared_ptr<te::da::DataSet> dataset);
 
         /*! \brief Virtual destructor. */
-        virtual ~SyncronizedDataSet();
+        virtual ~SynchronizedDataSet();
 
         /*!
           \brief Method for retrieving a geometric attribute value.
@@ -336,10 +336,10 @@ namespace terrama2
 
       protected:
         std::shared_ptr<te::da::DataSet> dataset_; //!< Smart pointer to the TerraLib dataset.
-        mutable std::mutex mutex_; //!< Mutex to syncronize the dataset access.
+        mutable std::mutex mutex_; //!< Mutex to synchronize the dataset access.
 
     };
   } // end namespace core
 }   // end namespace terrama2
 
-#endif //__TERRAMA2_CORE_SYNCRONIZED_DATASET_HPP__
+#endif //__TERRAMA2_CORE_SynchronizeD_DATASET_HPP__

@@ -120,14 +120,14 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
       }
 
 
-      Context::getInstance().addDataSeries(cache.analysisId, dataSeries, geomEnvelope, dateFilter, true);
+      Context::getInstance().addDataSeries(analysis.hashCode(), dataSeries, geomEnvelope, dateFilter, true);
 
       auto datasets = dataSeries->datasetList;
 
       for(auto dataset : datasets)
       {
 
-        contextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id, dateFilter);
+        contextDataSeries = Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id, dateFilter);
         if(!contextDataSeries)
         {
           continue;
@@ -136,7 +136,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
         std::vector<uint64_t> indexes;
         uint32_t countValues = 0;
-        terrama2::core::SyncronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
+        terrama2::core::SynchronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
 
         if(syncDs->size() == 0)
         {

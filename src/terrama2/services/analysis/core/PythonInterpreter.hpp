@@ -129,7 +129,7 @@ namespace terrama2
           \param attributeType The attribute type.
           \return The attribute value for the given position
         */
-        double getValue(terrama2::core::SyncronizedDataSetPtr syncDs, const std::string& attribute, uint64_t i, int attributeType);
+        double getValue(terrama2::core::SynchronizedDataSetPtr syncDs, const std::string& attribute, uint64_t i, int attributeType);
 
         /*!
          \brief Calculates the statistics based on the given values.

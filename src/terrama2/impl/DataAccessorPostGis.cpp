@@ -30,7 +30,7 @@
 #include "DataAccessorPostGis.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/TimeUtils.hpp"
-#include "../core/data-access/SyncronizedDataSet.hpp"
+#include "../core/data-access/SynchronizedDataSet.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -130,7 +130,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
 
  DataSetSeries series;
   series.dataSet = dataSet;
-  series.syncDataSet.reset(new terrama2::core::SyncronizedDataSet(tempDataSet));
+  series.syncDataSet.reset(new terrama2::core::SynchronizedDataSet(tempDataSet));
   series.teDataSetType = transactor->getDataSetType(tableName);
 
   return series;

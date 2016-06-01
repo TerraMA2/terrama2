@@ -66,22 +66,27 @@ namespace terrama2
           \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed.
         */
-        void runAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
+        void runAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber);
 
         /*!
           \brief Prepare the context for a monitored object analysis.
           \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed
         */
-        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
+        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber);
 
         /*!
           \brief Prepare the context for a DCP analysis.
           \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed
         */
-        void runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
+        void runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber);
 
+        /*!
+          \brief Reads the analysis result from context and stores it to the configured output dataset.
+          \param dataManager A smart pointer to the data manager.
+          \param analysis The analysis to be executed
+        */
         void storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis);
 
       } // end namespace core

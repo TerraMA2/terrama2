@@ -37,7 +37,7 @@
 #include "../../../../../core/utility/Logger.hpp"
 #include "../../../../../core/data-model/DataSetDcp.hpp"
 #include "../../../../../core/data-model/Filter.hpp"
-#include "../../../../../core/data-access/SyncronizedDataSet.hpp"
+#include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/Shared.hpp"
 
 
@@ -104,13 +104,13 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
         return NAN;
       }
 
-      Context::getInstance().addDCPDataSeries(cache.analysisId, dataSeries, dateFilter, false);
+      Context::getInstance().addDCPDataSeries(analysis.hashCode(), dataSeries, dateFilter, false);
 
       for(auto dataset : dataSeries->datasetList)
       {
         if(dataset->id != dcpId)
           continue;
-        contextDataSeries = Context::getInstance().getContextDataset(cache.analysisId, dataset->id, dateFilter);
+        contextDataSeries = Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id, dateFilter);
 
         terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                 dataset);
