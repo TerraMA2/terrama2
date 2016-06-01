@@ -139,13 +139,13 @@ module.exports = {
     if (analysisCode) {
       switch(parseInt(analysisCode)) {
         case Enums.AnalysisType.DCP:
-          return "Dcp";
+          return Enums.DataSeriesType.DCP;
           break;
         case Enums.AnalysisType.GRID:
-          return "Grid";
+          return Enums.DataSeriesType.GRID;
           break;
         case Enums.AnalysisType.MONITORED:
-          return "Monitored Object";
+          return Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
           break;
         default:
           throw new Error("Invalid analysis id");

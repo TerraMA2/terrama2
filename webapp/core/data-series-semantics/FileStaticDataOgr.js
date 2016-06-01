@@ -15,12 +15,12 @@ FileStaticDataOgr.prototype.constructor = FileStaticDataOgr;
 FileStaticDataOgr.schema = function() {
   return {
     properties: {
-      file_name: {
+      mask: {
         type: Form.Field.TEXT,
         title: "File Name"
       }
     },
-    required: ['file_name']
+    required: ['mask']
   }
 };
 
