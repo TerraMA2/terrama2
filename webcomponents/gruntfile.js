@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     banner: '/*! <%= pkg.name %> <%= pkg.version %> | (C) 2007, <%= grunt.template.today("yyyy") %> National Institute For Space Research (INPE) - Brazil | https://github.com/TerraMA2/terrama2/blob/master/LICENSE */',
     requirejs: {
-      compile: {
+      TerraMA2WebComponents: {
         options: {
           baseUrl: "javascripts",
           out: "dist/TerraMA2WebComponents.min.js",
@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       }
     },
     cssmin: {
-      target: {
+      TerraMA2WebComponents: {
         files: [{
           expand: true,
           cwd: 'stylesheets',
@@ -48,6 +48,13 @@ module.exports = function(grunt) {
           src: [ 'dist/*' ]
         }
       }
+    },
+    jsdoc : {
+      TerraMA2WebComponents: {
+        options: {
+          configure: 'jsdoc/config.json'
+        }
+      }
     }
   });
 
@@ -55,8 +62,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-banner');
+  grunt.loadNpmTasks('grunt-jsdoc');
 
   // Default tasks.
-  grunt.registerTask('default', ['requirejs', 'cssmin', 'usebanner:TerraMA2WebComponents']);
+  grunt.registerTask('default', ['requirejs', 'cssmin', 'usebanner:TerraMA2WebComponents', 'jsdoc']);
 
 };
