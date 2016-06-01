@@ -156,6 +156,7 @@ int main(int argc, char* argv[])
       return TERRAMA2_FINALIZATION_ERROR;
     }
   }
+  //TODO: should be using logger?
   catch(boost::exception& e)
   {
     std::cout << boost::diagnostic_information(e) << std::endl;
