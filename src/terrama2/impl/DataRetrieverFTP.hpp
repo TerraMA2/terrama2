@@ -120,9 +120,7 @@ namespace terrama2
       std::vector<std::string> vectorNames_; //! vector filtered names.
       std::string scheme_; //! scheme information. Ex. "file://".
       std::string temporaryFolder_; //! Folder information where the files will be saved. Ex. "/tmp/".
-      CurlPtr curlwrapper_;
-      //std::string block_;
-
+      CurlPtr curlwrapper_; //!< Attribute for Handler CurlPtr.
     };
 
     typedef std::shared_ptr<DataRetriever> DataRetrieverPtr;//!< Shared pointer to a DataRetriever.

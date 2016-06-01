@@ -26,8 +26,8 @@ int main(int argc, char **argv)
 
   terrama2::core::disableLogger();
 
-  TsUtility testUtility;
-  ret += QTest::qExec(&testUtility, argc, argv);
+ // TsUtility testUtility;
+ // ret += QTest::qExec(&testUtility, argc, argv);
 
   TsDataRetrieverFTP testDataRetrieverFTP;
   ret += QTest::qExec(&testDataRetrieverFTP, argc, argv);
