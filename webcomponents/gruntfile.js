@@ -51,8 +51,10 @@ module.exports = function(grunt) {
     },
     jsdoc : {
       TerraMA2WebComponents: {
+        src: ['README.md'],
         options: {
-          configure: 'jsdoc/config.json'
+          configure: 'jsdoc/config.json',
+          destination: 'docs'
         }
       }
     }
