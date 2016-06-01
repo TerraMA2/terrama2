@@ -118,5 +118,20 @@
 	"Influence Data Series": "Influence Data Series",
 	"Influence Attribute": "Influence Attribute",
 	"": "",
-	"Ssh Connection": "Ssh Connection"
+	"Ssh Connection": "Ssh Connection",
+	"Service Data": "Service Data",
+	"Invalid range of ports": {
+		" A valid port is from 1 to 65535": "Invalid range of ports. A valid port is from 1 to 65535"
+	},
+	"Log Configuration": "Log Configuration",
+	"Database Name": "Database Name",
+	"Log database name": "Log database name",
+	"Database name is required": "Database name is required",
+	"Log hostname": "Log hostname",
+	"Log host is required": "Log host is required",
+	"Log port number": "Log port number",
+	"Port is required": "Port is required",
+	"Log username": "Log username",
+	"User is required": "User is required",
+	"Log password": "Log password"
 }

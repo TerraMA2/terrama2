@@ -107,6 +107,9 @@ int main(int argc, char* argv[])
           "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
           "add_value(\"count\", x)\n"
 
+          "x = occurrence.count(\"occ\", buffer, \"500d\", \"\")\n"
+          "add_value(\"count_alias\", x)\n"
+
           "x = occurrence.max(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"max\", x)\n"
 
@@ -210,6 +213,7 @@ int main(int argc, char* argv[])
   occurrenceADS.id = 2;
   occurrenceADS.dataSeriesId = occurrenceDataSeriesPtr->id;
   occurrenceADS.type = ADDITIONAL_DATA_TYPE;
+  occurrenceADS.alias = "occ";
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(monitoredObjectADS);
