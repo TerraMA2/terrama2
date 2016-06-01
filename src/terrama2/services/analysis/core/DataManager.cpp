@@ -58,7 +58,10 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
     for(auto json : analysisArray)
     {
       auto dataPtr = terrama2::services::analysis::core::fromAnalysisJson(json.toObject());
-      add(dataPtr);
+      if(hasAnalysis(dataPtr.id))
+        update(dataPtr);
+      else
+        add(dataPtr);
     }
   }
   catch(terrama2::Exception& /*e*/)
