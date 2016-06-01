@@ -5,6 +5,3 @@
 webapp/node_modules
 webapp/npm-debug*
 webapp/public/externals
-
-webcomponents/node_modules
-webcomponents/npm-debug*

@@ -1,0 +1,29 @@
+{
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "source": {
+    "include": ["javascripts/src"],
+    "includePattern": ".+\\.js(doc)?$",
+    "excludePattern": "docs"
+  },
+  "plugins": [],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": true,
+    "systemName": "TerraMA2WebComponents",
+    "footer": "TerraMA2WebComponents",
+    "copyright": "2015",
+    "navType": "vertical",
+    "linenums": true,
+    "collapseSymbols": true,
+    "inverseNav": false
+  },
+  "opts": {
+    "template": "templates/TerraMA2WebComponents",
+    "encoding": "utf8",
+    "destination": "docs",
+    "recurse": true,
+    "private": true
+  }
+}
