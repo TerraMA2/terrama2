@@ -69,7 +69,7 @@ namespace terrama2
         // Doc in base class
         virtual std::string dataSourceType() const override;
 
-        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = false) const override;
+        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors /*= false*/) const override;
     };
   }
 }

@@ -127,8 +127,8 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
   {
     dataSet->move(i);
     if(!isValidTimestamp(dataSet, filter, dateColumn)
-       || !isValidGeometry(dataSet, filter, geomColumn)
-       || !isValidRaster(dataSet, filter, rasterColumn))
+        || !isValidGeometry(dataSet, filter, geomColumn)
+        || !isValidRaster(dataSet, filter, rasterColumn))
     {
       dataSet->remove();
       --size;
@@ -140,8 +140,8 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
 }
 
 void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<te::da::DataSet> completeDataSet,
-                                                                const Filter& filter,
-                                                                std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const
+    const Filter& filter,
+    std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const
 {
   if(!filter.lastValue)
     return;
@@ -255,24 +255,24 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
 }
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
-                                                            std::shared_ptr<te::da::DataSet> dataSet,
-                                                            std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const
+    std::shared_ptr<te::da::DataSet> dataSet,
+    std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->copy(*dataSet);
 }
 
 std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor,
-                                                                                      const std::string& dataSetName,
-                                                                                      std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+    const std::string& dataSetName,
+    std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
   std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
   return std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-                                                                          const terrama2::core::Filter& filter,
-                                                                          terrama2::core::DataSetPtr dataSet) const
+    const terrama2::core::Filter& filter,
+    terrama2::core::DataSetPtr dataSet) const
 {
   QUrl url(uri.c_str());
   QDir dir(url.path());
@@ -396,7 +396,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
   //if both dates are valid
   if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
-     && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
+      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
   {
     (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
