@@ -20,11 +20,11 @@ Analysis.prototype.constructor = Analysis;
 
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
   this.analysis_dataseries_list.push(analysisDataSeries);
-}
+};
 
 Analysis.prototype.setMetadata = function(metadata) {
   this.metadata = metadata;
-}
+};
 
 Analysis.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {

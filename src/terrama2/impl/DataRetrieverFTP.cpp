@@ -188,7 +188,6 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       }
     }
   }
-
   catch(const std::exception& e)
   {
     QString errMsg = QObject::tr("Could not perform the download files! \n\n Details: \n");

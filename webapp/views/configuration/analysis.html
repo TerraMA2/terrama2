@@ -7,10 +7,25 @@
 {% block title %} TerraMA2 {[ __('Analysis Registration') ]} {% endblock %}
 
 {% block styles %}
+  <!-- Angular tree control -->
+  <!-- link for CSS when using the tree as a Dom element -->
+  <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control.css">
+  <!-- link for CSS when using the tree as an attribute -->
+  <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control-attribute.css">
+
   <style>
     table > tbody {
       overflow-y: auto !important;
       height: 150px !important;
+    }
+
+    .auto-y {
+      max-height: 400px !important;
+      overflow-y: auto !important;
+    }
+
+    .without-border {
+      border: none !important;
     }
   </style>
 {% endblock %}
@@ -29,6 +44,9 @@
 
 <!-- terrama2 Angular app -->
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
+
+<!-- Angular tree control -->
+<script type="text/javascript" src="/externals/angular-tree-control/angular-tree-control.js"></script>
 
 <!-- Angular i18n -->
 <script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
@@ -77,6 +95,36 @@
 {% block content %}
 
 <div class="col-md-12" ng-controller="AnalysisRegistration">
+
+  <!-- DataSeries Modal -->
+  <div class="modal fade" id="dataSeriesModal" tabindex="-1" role="dialog" aria-labelledby="dataSeriesModalLabel">
+    <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="dataSeriesModalLabel">{[ __('Select DataSeries') ]}</h4>
+        </div>
+        <div class="modal-body">
+
+          <treecontrol class="tree-light"
+             tree-model="dataSeriesGroups"
+             options="treeOptions"
+             selected-nodes="nodesDataSeries"
+             on-selection="showSelected(node)"
+             selected-node="selectedDataSeries">
+             {{node.name}}
+          </treecontrol>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="addDataSeries()">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="box box-default">
     <div class="box-header with-border">
       <h3 class="box-title">{[ __('Analysis Registration') ]}</h3>
@@ -144,7 +192,7 @@
                     <label>{[ __("Instance") ]}:</label>
                     <select class="form-control" name="instance" ng-model="analysis.instance_id" required>
                       <option ng-repeat="instance in instances" value="{{ instance.id }}">{{ instance.name }}</option>
-                      <option ng-if="instances.length == 0">{[ __('No analysis instance found') ]}</option>
+                      <option ng-if="instances.length == 0" value="">{[ __('No analysis instance found') ]}</option>
                     </select>
 
                     <span class="help-block" ng-show="generalDataForm.instance.$dirty && generalDataForm.instance.$error.required"
@@ -193,9 +241,10 @@
               <form name="storagerDataForm">
 
                 <div class="col-md-4">
-                  <div class="form-group">
+                  <div class="form-group" ng-class="{'has-error': storagerDataForm.format.$dirty && storagerDataForm.format.$error.required,
+                                  'has-success': storagerDataForm.format.$dirty && storagerDataForm.format.$valid}">
                     <label>{[ __('Output Format') ]}:</label>
-                      <select id="storageFormat" class="form-control" name="format" ng-change="onStoragerFormatChange()" ng-model="storager.format" ng-options="format.name for format in storagerFormats">
+                      <select id="storageFormat" class="form-control" name="format" ng-change="onStoragerFormatChange()" ng-model="storager.format" ng-options="format.name for format in storagerFormats" required>
                     </select>
                   </div>
                 </div>
@@ -204,7 +253,7 @@
                   <div class="form-group" ng-class="{'has-error': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required,
                                   'has-success': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$valid}">
                     <label>{[ __('Provider Output') ]}:</label>
-                    <select class="form-control" name="storager_data_provider_id" ng-model="analysis.data_provider_id" ng-options="provider.id as provider.name for provider in dataProviders" ng-required="storager.format.name">
+                    <select class="form-control" name="storager_data_provider_id" ng-model="analysis.data_provider_id" ng-options="provider.id as provider.name for provider in dataProviders" ng-required="storager.format.name" required>
                       <option></option>
                     </select>
                     <label class="help-block text-danger" ng-show="storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required">
@@ -239,19 +288,26 @@
           <div style="display: block;" class="box-body">
             <div class="row">
               <div class="col-md-12">
+                <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
+                  <i class="fa fa-plus"></i>
+                </button>
                 <table class="table table-bordered table-hover">
                   <tbody>
                   <tr>
                     <th>{[ __('Name') ]}</th>
                     <th>{[ __('Type') ]}</th>
+                    <th></th>
                   </tr>
-                  <tr style="cursor:pointer;" ng-repeat="dataSeries in dataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
+                  <tr style="cursor:pointer;" ng-repeat="dataSeries in selectedDataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
                     <td>{{ dataSeries.name }}</td>
-                    <td>{{ dataSeries.semantics }}</td>
+                    <td>{{ dataSeries.data_series_semantics.name }}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-small" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
+                    </td>
                   </tr>
-                  <tr ng-if="dataSeriesList.length == 0">
+                  <tr ng-if="selectedDataSeriesList.length == 0">
                     <td colspan="2">
-                      {[ __('No data series found') ]}
+                      {[ __('No data series selected') ]}
                     </td>
                   </tr>
                   </tbody>
@@ -259,7 +315,7 @@
                 <!--./table-->
                 <!--todo: open box-->
 
-                <div class="col-md-12 terrama2-nopadding-box" ng-if="selectedDataSeries">
+                <div class="col-md-12 terrama2-nopadding-box" ng-if="isAnyDataSeriesSelected()">
                   <div class="box box-default box-solid">
                     <div class="box-header with-border">
                       <h3 class="box-title">{{ selectedDataSeries.name }}</h3>
@@ -270,76 +326,14 @@
                         <div class="col-md-12">
                           <!-- metadata form handler -->
                           <form name="metadataForm">
-                            <!-- dcp -->
-                            <!-- ng-if="semantics.data_series_type_name === 'Dcp'" -->
                             <div>
                               <div class="col-md-12">
                                 <div class="form-group">
                                   <label>{[ __("Alias") ]}:</label>
-                                  <input class="form-control" name="radius" type="text" ng-model="metadata.alias">
+                                  <input class="form-control" name="radius" type="text" ng-model="metadata[selectedDataSeries.name].alias" ng-required="selectedDataSeriesList.length > 0">
                                 </div>
                               </div>
                             </div>
-                            <div ng-if="analysis.type_id == 1">
-                              <div class="col-md-12 terrama2-nopadding-box">
-                                <div class="col-md-12">
-                                  <div class="form-group has-feedback">
-                                    <label>{[ __("Influence") ]}:</label>
-                                    <select class="form-control" name="influence" ng-model="metadata.INFLUENCE_TYPE" required>
-                                      <option value="{[ Enums.InfluenceTypes.TOUCHES.Value ]}">{[ Enums.InfluenceTypes.TOUCHES.Name ]}</option>
-                                      <option value="{[ Enums.InfluenceTypes.CENTER.Value ]}">{[ Enums.InfluenceTypes.CENTER.Name ]}</option>
-                                      <option value="{[ Enums.InfluenceTypes.REGION.Value ]}">{[ Enums.InfluenceTypes.REGION.Name ]}</option>
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                              <div ng-if="metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
-                                <div class="col-md-12 terrama2-nopadding-box">
-
-                                  <div class="col-md-6">
-                                    <div class="form-group">
-                                      <label>{[ __("Radius") ]}:</label>
-                                      <input class="form-control" name="radius" type="text" ng-model="metadata.INFLUENCE_RADIUS">
-                                    </div>
-                                  </div>
-
-                                  <div class="col-md-6">
-                                    <div class="input-group" style="margin-top: 25px;">
-                                      <input type="text" class="form-control" aria-label="..." ng-model="metadata.INFLUENCE_RADIUS_UNIT">
-                                      <div class="input-group-btn">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                          <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
-                                          <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
-                                        </ul>
-                                      </div><!-- /btn-group -->
-                                    </div><!-- /input-group -->
-                                  </div><!-- /.col-md-4 -->
-                                </div><!--/.col-md-12-->
-                              </div>
-
-                              <div ng-if="metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
-                                <div class="col-md-12 terrama2-nopadding-box">
-
-                                  <div class="col-md-6">
-                                    <div class="form-group has-feedback">
-                                      <label>{[ __("Influence Data Series") ]}:</label>
-                                      <select class="form-control" name="dataSeriesId" ng-model="metadata.INFLUENCE_DATASERIES_ID" required>
-                                        <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                  <div class="col-md-6">
-                                    <div class="form-group">
-                                      <label>{[ __("Influence Attribute") ]}:</label>
-                                      <input class="form-control" name="attribute" type="text" ng-model="metadata.INFLUENCE_ATTRIBUTE">
-                                    </div>
-                                  </div>
-                                </div><!--/.col-md-12-->
-                              </div>
-                            </div>
-
                             <!-- Occurrence -->
                             <div ng-if="semantics.data_series_type_name === 'Occurrence'">
                               <div class="col-md-12 terrama2-nopadding-box">
@@ -355,6 +349,105 @@
             </div><!--./row-->
           </div><!--./box-body-->
         </div><!--./box-->
+      </div>
+
+      <div class="col-md-12" ng-if="analysis.type_id == 1">
+        <div class="box box-default box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title">{[ __('Influence Area') ]}</h3>
+          </div>
+
+          <div style="display: block;" class="box-body">
+            <div class="row">
+              <div class="col-md-12">
+                <form name="influenceForm">
+                  <div class="col-md-12 terrama2-nopadding-box">
+                    <div class="col-md-12">
+                      <div class="form-group has-feedback" ng-class="{'has-error': influenceForm.influence.$dirty && influenceForm.influence.$error.required, 'has-success': influenceForm.influence.$dirty && influenceForm.influence.$valid}">
+                        <label>{[ __("Influence") ]}:</label>
+                        <select class="form-control" name="influence" ng-model="analysis.metadata.INFLUENCE_TYPE" ng-required="analysis.type_id == 1">
+                          <option value="{[ Enums.InfluenceTypes.TOUCHES.Value ]}">{[ Enums.InfluenceTypes.TOUCHES.Name ]}</option>
+                          <option value="{[ Enums.InfluenceTypes.CENTER.Value ]}">{[ Enums.InfluenceTypes.CENTER.Name ]}</option>
+                          <option value="{[ Enums.InfluenceTypes.REGION.Value ]}">{[ Enums.InfluenceTypes.REGION.Name ]}</option>
+                        </select>
+
+                        <!-- required -->
+                        <span class="help-block" ng-show="influenceForm.influence.$dirty && influenceForm.influence.$error.required">
+                          {[ __('Influence is required') ]}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div ng-if="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
+                    <div class="col-md-12 terrama2-nopadding-box">
+
+                      <div class="col-md-6">
+                        <div class="form-group" ng-class="{'has-error': influenceForm.radius.$dirty && influenceForm.radius.$error.required, 'has-success': influenceForm.radius.$dirty && influenceForm.radius.$valid}">
+                          <label>{[ __("Radius") ]}:</label>
+                          <input class="form-control" name="radius" type="text" ng-model="analysis.metadata.INFLUENCE_RADIUS" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
+
+                          <!-- required -->
+                          <span class="help-block" ng-show="influenceForm.radius.$dirty && influenceForm.radius.$error.required">
+                            {[ __('Influence radius is required') ]}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+
+                        <div class="form-group" ng-class="{'has-error': influenceForm.radiusUnit.$dirty && influenceForm.radiusUnit.$error.required, 'has-success': influenceForm.radiusUnit.$dirty && influenceForm.radiusUnit.$valid}">
+                          <div class="input-group" style="margin-top: 25px;">
+                            <input type="text" name="radiusUnit" class="form-control" aria-label="..." ng-model="analysis.metadata.INFLUENCE_RADIUS_UNIT" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
+                            <div class="input-group-btn">
+                              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
+                                <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
+                              </ul>
+                            </div><!-- /btn-group -->
+                          </div><!-- /input-group -->
+                        </div>
+
+                      </div><!-- /.col-md-4 -->
+                    </div><!--/.col-md-12-->
+                  </div>
+
+                  <div ng-if="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+                    <div class="col-md-12 terrama2-nopadding-box">
+
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$error.required, 'has-success': influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$valid}">
+                          <label>{[ __("Influence Data Series") ]}:</label>
+                          <select class="form-control" name="dataSeriesId" ng-model="analysis.metadata.INFLUENCE_DATASERIES_ID" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+                            <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
+                          </select>
+
+                          <!-- required -->
+                          <span class="help-block" ng-show="influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$error.required">
+                            {[ __('Influence data series is required') ]}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group" ng-class="{'has-error': influenceForm.attribute.$dirty && influenceForm.attribute.$error.required, 'has-success': influenceForm.attribute.$dirty && influenceForm.attribute.$valid}">
+                          <!-- TODO: combobox with data series properties -->
+                          <label>{[ __("Influence Attribute") ]}:</label>
+                          <input class="form-control" name="attribute" type="text" ng-model="analysis.metadata.INFLUENCE_ATTRIBUTE" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+
+                          <!-- required -->
+                          <span class="help-block" ng-show="influenceForm.attribute.$dirty && influenceForm.attribute.$error.required">
+                            {[ __('Influence attribute name is required') ]}
+                          </span>
+                        </div>
+                      </div>
+                    </div><!--/.col-md-12-->
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="col-md-12">
