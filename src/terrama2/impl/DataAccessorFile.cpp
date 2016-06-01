@@ -64,7 +64,7 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet, bool logErrors) const
 {
   try
   {
@@ -73,7 +73,9 @@ std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet) co
   catch(...)
   {
     QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
+
+    if(logErrors)//REVIEW: used by dataset that timezone is not mandatory
+      TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
@@ -304,7 +306,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     {
       timezone = getTimeZone(dataSet);
     }
-    catch(const terrama2::core::UndefinedTagException& e)
+    catch(const terrama2::core::UndefinedTagException& /*e*/)
     {
       //if timezone is not defined
       timezone = "UTC+00";

@@ -62,7 +62,7 @@ namespace terrama2
       //! Recover file mask
       virtual std::string getMask(DataSetPtr dataset) const;
       //! Recover timezone information from dataset
-      std::string getTimeZone(DataSetPtr dataSet) const;
+      virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
 
     protected:
       virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
