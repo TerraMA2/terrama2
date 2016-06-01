@@ -16,12 +16,14 @@ angular.module('terrama2.analysis.registration', [
       'DataProviderFactory',
   function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory) {
     // initializing objects
-    $scope.analysis = {};
+    $scope.analysis = {
+      metadata: {}
+    };
     $scope.instances = [];
     $scope.dataSeriesList = [];
 
     // define dataseries selected in modal
-    $scope.selectedsDataSeries = [];
+    $scope.nodesDataSeries = [];
 
     // define dataseries selected to analysis
     $scope.selectedDataSeriesList = [];
@@ -42,9 +44,9 @@ angular.module('terrama2.analysis.registration', [
         ul: "list-group",
         li: "list-group-item",
         liSelected: "active",
-        iExpanded: "a3",
-        iCollapsed: "a4",
-        iLeaf: "a5",
+        iExpanded: "without-border",
+        iCollapsed: "without-border",
+        iLeaf: "as",
         label: "a6",
         labelSelected: "2"
       }
@@ -54,6 +56,12 @@ angular.module('terrama2.analysis.registration', [
       {name: "Static", children: []},
       {name: "Dynamic", children: []}
     ]
+
+    // watchers
+    // cleaning analysis metadata when analysis type has been changed.
+    $scope.$watch("analysis.type_id", function(value) {
+      $scope.analysis.metadata = {};
+    });
 
     // terrama2 alert box
     $scope.alertBox = {};
@@ -153,11 +161,21 @@ angular.module('terrama2.analysis.registration', [
       });
     };
 
+    var makeDialog = function(level, bodyMessage, show, title) {
+      $scope.alertBox.title = title || "Analysis Registration";
+      $scope.alertBox.message = bodyMessage;
+      $scope.alertLevel = level;
+      $scope.display = show;
+    }
+
     // handling functions
+    // checking for empty data series table
+    $scope.isEmptyDataSeries = function() {
+      return $scope.selectedDataSeriesList.length === 0;
+    }
+
     // it adds dataseries from modal to table
     $scope.addDataSeries = function() {
-      console.log($scope.selectedDataSeries);
-
       var _helper = function(type, target) {
         $scope.buffers[type].some(function(element, index, arr) {
           if (element.id == target.id) {
@@ -168,7 +186,10 @@ angular.module('terrama2.analysis.registration', [
         });
       }
 
-      $scope.selectedsDataSeries.forEach(function(target) {
+      $scope.nodesDataSeries.forEach(function(target) {
+        if (!target || !target.id)
+          return;
+
         $scope.selectedDataSeriesList.push(target);
 
         if (target.isDynamic) {
@@ -178,8 +199,24 @@ angular.module('terrama2.analysis.registration', [
         }
       })
 
-      $scope.selectedsDataSeries = [];
+      $scope.nodesDataSeries = [];
     };
+
+    $scope.removeDataSeries = function(dataSeries) {
+
+      var _pushToBuffer = function(type, obj) {
+        $scope.buffers[type].push(obj);
+      };
+
+      $scope.selectedDataSeriesList.some(function(dSeries, index, arr) {
+        if (dSeries.id == dataSeries.id) {
+          arr.splice(index, 1);
+          var type = dSeries.isDynamic ? "dynamic" : "static";
+          _pushToBuffer(type, dSeries);
+          return true;
+        }
+      })
+    }
 
     // it check if there is a dataseries selected
     $scope.isAnyDataSeriesSelected = function() {
@@ -188,21 +225,25 @@ angular.module('terrama2.analysis.registration', [
 
     // it handles hidden box with data-series analysis metadata
     $scope.onDataSeriesClick = function(dataSeries) {
-      if (dataSeries.id == $scope.selectedDataSeries.id) {
-        $scope.selectedDataSeries = {};
-        return;
+      if ($scope.selectedDataSeries) {
+        if (dataSeries.id == $scope.selectedDataSeries.id) {
+          $scope.selectedDataSeries = {};
+          return;
+        }
       }
+
+      $scope.metadata[dataSeries.name] = $scope.metadata[dataSeries.name] || {};
       $scope.selectedDataSeries = dataSeries;
 
       // getting data series semantics
-      DataSeriesSemanticsFactory.get(dataSeries.semantics).success(function(data) {
+      DataSeriesSemanticsFactory.get(dataSeries.data_series_semantics.code).success(function(data) {
         $scope.semantics = data;
       }).error(errorHelper);
     };
 
     // pcd metadata (radius format - km, m...)
     $scope.onMetadataFormatClick = function(format) {
-      $scope.metadata.INFLUENCE_RADIUS_UNIT = format;
+      $scope.analysis.metadata.INFLUENCE_RADIUS_UNIT = format;
     };
 
     // save function
@@ -212,32 +253,64 @@ angular.module('terrama2.analysis.registration', [
         return;
       }
 
+      if ($scope.storagerDataForm.$invalid || $scope.storagerForm.$invalid) {
+        formErrorDisplay($scope.storagerDataForm);
+        return;
+      }
+
       if ($scope.scriptForm.$invalid) {
         formErrorDisplay($scope.scriptForm);
         return;
       }
 
-      // todo: improve it
-      // temp code for sending analysis dataseries
-      var metadata = {};
-      for(var key in $scope.metadata) {
-        if($scope.metadata.hasOwnProperty(key)) {
-          metadata[key] = $scope.metadata[key];
+      // checking for empty data series
+      if ($scope.isEmptyDataSeries()) {
+        makeDialog("alert-danger", "Select at least a Data Series", true);
+        return;
+      }
+
+      // checking dataseries analysis
+      var dataSeriesError = {};
+      var hasError = $scope.selectedDataSeriesList.some(function(dSeries) {
+        if (!$scope.metadata[dSeries.name]) {
+          dataSeriesError = dSeries;
+          return true;
+        }
+      })
+
+      if (hasError) {
+        makeDialog("alert-danger", "Invalid data series. Please fill out alias in " + dataSeriesError.name, true);
+        return;
+      }
+
+      // cheking influence form: DCP and influence form valid
+      if ($scope.analysis.type_id == 1) {
+        var form = angular.element('form[name="influenceForm"]').scope()['influenceForm'];
+        if (form.$invalid) {
+          formErrorDisplay(form);
+          return;
         }
       }
 
-      var analysisDataSeries = {
-        data_series_id: $scope.selectedDataSeries.id,
-        metadata: {},
-        alias: $scope.metadata.alias,
-        // todo: check it
-        type_id: $scope.analysis.type_id
-      };
+      var analysisDataSeriesArray = [];
+      // todo: improve it
+      // temp code for sending analysis dataseries
+      $scope.selectedDataSeriesList.forEach(function(selectedDS) {
+        var metadata = $scope.metadata[selectedDS.name] || {};
+        var analysisDataSeries = {
+          data_series_id: selectedDS.id,
+          metadata: metadata,
+          alias: metadata.alias,
+          // todo: check it
+          type_id: $scope.analysis.type_id
+        };
+
+        analysisDataSeriesArray.push(analysisDataSeries);
+      });
 
       var analysisToSend = Object.assign({}, $scope.analysis);
-      analysisToSend.dataSeries = $scope.selectedDataSeries;
-      analysisToSend.analysisDataSeries = analysisDataSeries;
-      analysisToSend.metadata = metadata;
+      analysisToSend.dataSeries = $scope.selectedDataSeriesList;
+      analysisToSend.analysisDataSeries = analysisDataSeriesArray;
 
       var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
 
@@ -247,6 +320,9 @@ angular.module('terrama2.analysis.registration', [
         storager: storager
       }).success(function(data) {
         window.location = "/configuration/analyses";
-      }).error(errorHelper);
+      }).error(function(err) {
+        console.log(err);
+        makeDialog("alert-danger", err.message, true);
+      });
     };
   }]);

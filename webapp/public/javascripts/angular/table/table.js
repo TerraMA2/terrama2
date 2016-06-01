@@ -77,6 +77,20 @@ angular.module('terrama2.table', ['terrama2'])
         if (!$scope.iconProperties)
           $scope.iconProperties = {type: 'img'};
 
+        $scope.processField = function(key, obj) {
+          if (key.indexOf('.') > 0) {
+            var arr = key.split(".");
+            var output = obj;
+
+            arr.forEach(function(elm) {
+              output = output[elm];
+            })
+            return output;
+          } else {
+            return obj[key];
+          }
+        }
+
         $scope.$watch('fields', function(fields) {
           // processing fields
           fields.forEach(function(field) {
