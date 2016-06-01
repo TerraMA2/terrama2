@@ -109,15 +109,7 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
     analysisDataSeries.id = analysisDataSeriesJson["id"].toInt();
     analysisDataSeries.dataSeriesId = analysisDataSeriesJson["data_series_id"].toInt();
     analysisDataSeries.type = ToAnalysisDataSeriesType(analysisDataSeriesJson["type"].toInt());
-
-
-    QJsonObject aliasJson = analysisDataSeriesJson["alias"].toObject();
-    std::map<uint64_t, std::string> alias;
-    for(auto it = aliasJson.begin(); it != aliasJson.end(); ++it)
-    {
-      alias[it.key().toInt()] = it.value().toString().toStdString();
-    }
-    analysisDataSeries.alias = alias;
+    analysisDataSeries.alias = analysisDataSeriesJson["alias"].toString().toStdString();
 
     QJsonObject metadataJson = analysisDataSeriesJson["metadata"].toObject();
     std::map<std::string, std::string> metadata;
@@ -175,14 +167,7 @@ QJsonObject terrama2::services::analysis::core::toJson(const Analysis& analysis)
       metadataAnalysisDataSeriesJson[QString(it->first.c_str())] = QString(it->second.c_str());
     }
     analysisDataSeriesObj.insert("metadata", metadataAnalysisDataSeriesJson);
-
-    // Analysis alias
-    QJsonObject aliasAnalysisDataSeriesJson;
-    for(auto it = analysisDataSeries.alias.begin(); it != analysisDataSeries.alias.end(); ++it)
-    {
-      aliasAnalysisDataSeriesJson[std::to_string(it->first).c_str()] = QString(it->second.c_str());
-    }
-    analysisDataSeriesObj.insert("alias", aliasAnalysisDataSeriesJson);
+    analysisDataSeriesObj.insert("alias", QString::fromStdString(analysisDataSeries.alias));
 
     analysisDataSeriesList.append(analysisDataSeriesObj);
   }

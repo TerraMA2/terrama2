@@ -95,7 +95,7 @@ namespace terrama2
             \return The minimum value of the attribute of occurrences in the monitored object area.
           */
           double min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
-                     const std::string& dateFilter, const std::string& restriction, const std::string& attribute);
+                     const std::string& dateFilter, const std::string& attribute, const std::string& restriction);
 
           /*!
             \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.

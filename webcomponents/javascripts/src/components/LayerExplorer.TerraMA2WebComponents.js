@@ -11,7 +11,7 @@
  * @property {object} memberMap - Map object.
  */
 define(
-  ['TerraMA2WC/components/MapDisplay.TerraMA2WebComponents'],
+  ['TerraMA2WebComponentsPath/components/MapDisplay.TerraMA2WebComponents'],
   function(MapDisplay) {
 
     // Selected layer
