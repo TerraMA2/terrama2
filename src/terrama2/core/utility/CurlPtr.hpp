@@ -28,10 +28,11 @@
 // STL
 #include <memory>
 #include <cassert>
+#include <iostream>
+#include <functional>
 
-// TerraMA2
-#include "Raii.hpp"
-#include "../../impl/DataRetrieverFTP.hpp"
+// Boost
+#include <boost/algorithm/string.hpp>
 
 // LibCurl
 #include <curl/curl.h>
@@ -43,66 +44,47 @@ namespace terrama2
     //! Class for Resource Acquisition Is Initialization (RAII) of Curl.
     class CurlPtr
     {
-    public:
+      public:
 
-      //! Constructor.
-      CurlPtr()
-      {
-        curl_ = curl_easy_init();
-      }
+        //! Constructor.
+        CurlPtr();
 
-      CurlPtr(CurlPtr&& other)
-        : curl_(other.curl_)
-      {
-        other.curl_ = nullptr;
-      }
+        CurlPtr(CurlPtr&& other);
 
-      CurlPtr& operator=(CurlPtr&& other)
-      {
-        curl_ = other.curl_;
-        other.curl_ = nullptr;
-      }
+        CurlPtr& operator=(CurlPtr&& other);
 
-      CurlPtr(CurlPtr& curl) = delete;
-      CurlPtr& operator=(const CurlPtr& other) = delete;
+        CurlPtr(CurlPtr& curl) = delete;
+        CurlPtr& operator=(const CurlPtr& other) = delete;
 
-
-      /*!
+        /*!
            The init function performs the function curl_easy_cleanup closing all handle connections
            curl and then performs the initialization of the curl.
        */
-      void init()
-      {
-        curl_easy_cleanup(curl_);
-        curl_ = curl_easy_init();
-      }
+        void init();
 
-      //! Assume ownership of curl.
-      CURL* fcurl() const
-      {
-        return curl_;
-      }
+        //! Assume ownership of curl.
+        CURL* fcurl() const;
 
-      virtual CURLcode verifyURL(std::string url)
-      {
-        curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl_, CURLOPT_FTPLISTONLY, 1);
-        curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT, 3);
-        curl_easy_setopt(curl_, CURLOPT_NOBODY, 1);
+        //! The function verifyURL checks if the "url" parameter is passed by valid.
+        virtual CURLcode verifyURL(std::string url);
 
-        return curl_easy_perform(curl_);
-      }
+        //! The function getListFiles returns vector with the files found on the server.
+        virtual std::vector<std::string> getListFiles(std::string url,
+                                                      size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
+                                                      std::string block);
 
-      /*! When CurlPtr destructor is called, the function curl_easy_cleanup is used automatically.
+        //! The function getDownloadFiles performs download the filtered files and returns it succeded or not.
+        virtual CURLcode getDownloadFiles(std::string url,
+                                          size_t(*write_response)(void *ptr, size_t size, size_t nmemb, void *data),
+                                          std::string filePath);
+
+        /*! When CurlPtr destructor is called, the function curl_easy_cleanup is used automatically.
            The function curl_easy_cleanup close all connections this handle curl.
        */
-      virtual ~CurlPtr()
-      {
-        curl_easy_cleanup(curl_);
-      }
+        virtual ~CurlPtr();
 
-    private:
-      CURL* curl_; //!< Attribute for Handler Curl.
+      private:
+        CURL* curl_; //!< Attribute for Handler Curl.
     };
 
   }

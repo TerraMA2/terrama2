@@ -55,13 +55,13 @@
 terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper)
   : DataRetriever(dataprovider),
     curlwrapper_(std::move(curlwrapper))
-{
+{  
   temporaryFolder_ = "/tmp/terrama2-download/";
   scheme_ = "file://";
 
   // Create the directory where you will download the files.
   QDir dir(temporaryFolder_.c_str());
-  if(!dir.exists())
+  if (!dir.exists())
     dir.mkpath(temporaryFolder_.c_str());
 
   CURLcode status;
@@ -74,7 +74,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
 
     status = curlwrapper_.verifyURL(url);
 
-    if(status != CURLE_OK)
+    if (status != CURLE_OK)
     {
       QString errMsg = QObject::tr("FTP address is invalid. \n\n");
       errMsg.append(curl_easy_strerror(status));
@@ -108,107 +108,85 @@ terrama2::core::DataRetrieverFTP::~DataRetrieverFTP()
 
 }
 
-size_t terrama2::core::DataRetrieverFTP::write_response(void* ptr, size_t size, size_t nmemb, void* data)
+size_t terrama2::core::DataRetrieverFTP::write_response(void *ptr, size_t size, size_t nmemb, void *data)
 {
-  FILE* writehere = (FILE*)data;
+  FILE *writehere = (FILE *)data;
   return fwrite(ptr, size, nmemb, writehere);
 }
 
-size_t terrama2::core::DataRetrieverFTP::write_vector(void* ptr, size_t size, size_t nmemb, void* data)
+size_t terrama2::core::DataRetrieverFTP::write_vector(void *ptr, size_t size, size_t nmemb, void *data)
 {
   size_t sizeRead = size * nmemb;
 
   std::string* block = (std::string*) data;
-  block->append((char*)ptr, sizeRead);
+  block->append((char *)ptr, sizeRead);
 
   return sizeRead;
 }
 
 std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& mask, const terrama2::core::Filter& filter)
 {
-  std::string uri_origin;
+  std::string uriOrigin;
   std::string uriInput;
-  CURLcode status;
+
   std::vector<std::string> vectorFiles;
   std::string block;
 
-  terrama2::core::CurlPtr curl;
-
-  curl.init();
+  curlwrapper_.init();
 
   try
   {
     // Get a file listing from server
-    if(curl.fcurl())
+    if(curlwrapper_.fcurl())
     {
       uriInput = dataProvider_->uri+"/";
-      curl_easy_setopt(curl.fcurl(), CURLOPT_URL, uriInput.c_str());
-      curl_easy_setopt(curl.fcurl(), CURLOPT_DIRLISTONLY, 1);
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::core::DataRetrieverFTP::write_vector);
-      curl_easy_setopt(curl.fcurl(), CURLOPT_WRITEDATA, (void*)&block);
 
-      status = curl_easy_perform(curl.fcurl());
-
-      if(status == CURLE_OK)
-      {
-        boost::split(vectorFiles, block, boost::is_any_of("\n"));
-
-        if(!vectorFiles.empty() && vectorFiles.back().empty())
-          vectorFiles.pop_back();
-      }
-      else
-      {
-        QString errMsg = QObject::tr("Could not list files in the FTP server. \n\n");
-        errMsg.append(curl_easy_strerror(status));
-
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw DataRetrieverException() << ErrorDescription(errMsg);
-      }
+      vectorFiles = curlwrapper_.getListFiles(uriInput, &terrama2::core::DataRetrieverFTP::write_vector, block);
 
       // filter file names that should be downloaded.
-      for(std::string fileName: vectorFiles)
+      for (std::string fileName: vectorFiles)
       {
         // FIXME: use timestamp
         std::string timezone = "UTC+00";//FIXME: get timezone from dataset
         std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
-        if(terrama2::core::isValidDataSetName(mask,filter, timezone, fileName,timestamp))
+        if (terrama2::core::isValidDataSetName(mask,filter, timezone, fileName,timestamp))
           vectorNames_.push_back(fileName);
       }
 
-      for(std::string file: vectorNames_)
+      if (!vectorNames_.empty())
       {
-        CURLcode res;
-
-        terrama2::core::CurlPtr curlDown;
-
-        curlDown.init();
-
-        // Performs the download of files in the vectorNames
-        if(curlDown.fcurl())
+        for (std::string file: vectorNames_)
         {
-          uri_origin = dataProvider_->uri +"/"+file;
-          std::string filePath = temporaryFolder_+"/"+file;
+          CURLcode res;
 
-          terrama2::core::FilePtr opener(filePath.c_str(), "wb");
+          curlwrapper_.init();
 
-          curl_easy_setopt(curlDown.fcurl(), CURLOPT_URL, uri_origin.c_str());
-          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEFUNCTION, &terrama2::core::DataRetrieverFTP::write_response);
-          curl_easy_setopt(curlDown.fcurl(), CURLOPT_WRITEDATA, opener.file());
-
-          res = curl_easy_perform(curlDown.fcurl());
-
-          if(res != CURLE_OK)
+          // Performs the download of files in the vectorNames
+          if(curlwrapper_.fcurl())
           {
-            QString errMsg = QObject::tr("Could not perform the download. \n\n");
-            errMsg.append(curl_easy_strerror(res));
+            uriOrigin = dataProvider_->uri +"/"+file;
+            std::string filePath = temporaryFolder_+"/"+file;
 
-            TERRAMA2_LOG_ERROR() << errMsg;
-            throw DataRetrieverException() << ErrorDescription(errMsg);
+            res = curlwrapper_.getDownloadFiles(uriOrigin, &terrama2::core::DataRetrieverFTP::write_response, filePath);
+
+            if (res != CURLE_OK)
+            {
+              QString errMsg = QObject::tr("Could not perform the download! \n\n");
+              errMsg.append(curl_easy_strerror(res));
+
+              TERRAMA2_LOG_ERROR() << errMsg;
+              throw DataRetrieverException() << ErrorDescription(errMsg);
+            }
           }
         }
       }
+      else
+      {
+        QString errMsg = QObject::tr("Could not found files! \n\n");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataRetrieverException() << ErrorDescription(errMsg);
+      }
     }
-
   }
   catch(const std::exception& e)
   {
