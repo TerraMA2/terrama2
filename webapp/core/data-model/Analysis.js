@@ -27,6 +27,14 @@ Analysis.prototype.setMetadata = function(metadata) {
 };
 
 Analysis.prototype.toObject = function() {
+  var outputDataSeriesList = [];
+  this.analysis_dataseries_list.forEach(function(analysisDataSeries) {
+    if (analysisDataSeries instanceof BaseClass)
+      outputDataSeriesList.push(analysisDataSeries.toObject());
+    else
+      outputDataSeriesList.push(analysisDataSeries);
+  })
+
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
@@ -37,7 +45,7 @@ Analysis.prototype.toObject = function() {
     active: this.active,
     output_dataseries_id: this['dataset_output'],
     metadata: this.metadata,
-    'analysis_dataseries_list': this.analysis_dataseries_list,
+    'analysis_dataseries_list': outputDataSeriesList,
     schedule: this['schedule_id']
   });
 };
