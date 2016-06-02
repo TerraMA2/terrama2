@@ -34,7 +34,7 @@ module.exports = function(app) {
           analysisObject.project_id = app.locals.activeProject.id;
 
         // temp code. TODO:fix
-        analysisObject.script_language = "PYTHON";
+        analysisObject.script_language_id = 1;
         analysisObject.schedule_id = 1;
         analysisObject.data_series_id = analysisObject.dataSeries.id;
 

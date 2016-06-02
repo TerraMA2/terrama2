@@ -4,7 +4,13 @@ var Analysis = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Analysis'});
   this.id = params.id;
   this.project_id = params.project_id;
-  this.script_language = params.script_language;
+  this.script = params.script;
+
+  if (params.ScriptLanguage)
+    this.script_language = params.ScriptLanguage.get();
+  else
+    this.script_language = params.script_language || {};
+
   this.type_id = params.type_id;
   this.name = params.name;
   this.description = params.description;
@@ -57,7 +63,8 @@ Analysis.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
-    script_language: this.script_language,
+    script: this.script,
+    script_language: this.script_language.id,
     type: this['type_id'],
     name: this.name,
     description: this.description,
