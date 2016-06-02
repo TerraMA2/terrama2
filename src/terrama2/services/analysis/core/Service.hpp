@@ -83,8 +83,7 @@ namespace terrama2
             */
             void updateAnalysis(AnalysisId analysisId);
 
-
-            void addToQueue(AnalysisId analysisId);
+            virtual void addToQueue(AnalysisId analysisId) override;
 
             virtual void updateNumberOfThreads(int) override;
             virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;
