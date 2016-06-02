@@ -30,12 +30,12 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 
-//STL
 #include "Analysis.hpp"
 #include "AnalysisLogger.hpp"
 #include "../Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 
+//STL
 #include <memory>
 #include <map>
 
@@ -83,9 +83,16 @@ namespace terrama2
             */
             void updateAnalysis(AnalysisId analysisId);
 
+            /*!
+              \brief Adds the analysis to the queue of execution.
+             */
             virtual void addToQueue(AnalysisId analysisId) override;
 
-            virtual void updateNumberOfThreads(int) override;
+            /*!
+              \brief Updates the connection parameters of the process log database.
+
+              Running processes may keep old connection info until finish.
+            */
             virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;
 
           protected:
@@ -104,9 +111,9 @@ namespace terrama2
 
             /*!
               \brief Binds the method of execution to the task queue.
-              \param analysisId Analysis identifier.
+              \param analysis Analysis configuration.
             */
-            void prepareTask(AnalysisId analysisId);
+            void prepareTask(Analysis& analysis);
 
             /*!
               \brief Connects data manager signals to analysis management methods.
@@ -115,8 +122,8 @@ namespace terrama2
 
 
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
-            std::vector<AnalysisId> analysisQueue_; //!< Analysis queue.
-            std::shared_ptr<AnalysisLogger> logger_;
+            std::vector<Analysis> analysisQueue_; //!< Analysis queue.
+            std::shared_ptr<AnalysisLogger> logger_; //!< Analysis proccess logger.
             DataManagerPtr dataManager_; //!< Data manager.
 
         };

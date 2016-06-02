@@ -20,63 +20,63 @@
 */
 
 /*!
-  \file terrama2/core/data-access/SyncronizedDataSet.cpp
+  \file terrama2/core/data-access/SynchronizedDataSet.cpp
 
   \brief Thread-safe memory dataset.
 
   \author Paulo R. M. Oliveira
 */
 
-#include "SyncronizedDataSet.hpp"
+#include "SynchronizedDataSet.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/raster/Raster.h>
 
-terrama2::core::SyncronizedDataSet::SyncronizedDataSet(std::shared_ptr<te::da::DataSet> dataset)
+terrama2::core::SynchronizedDataSet::SynchronizedDataSet(std::shared_ptr<te::da::DataSet> dataset)
   : dataset_(dataset)
 {
 }
 
-terrama2::core::SyncronizedDataSet::~SyncronizedDataSet()
+terrama2::core::SynchronizedDataSet::~SynchronizedDataSet()
 {
 }
 
-std::shared_ptr<te::da::DataSet> terrama2::core::SyncronizedDataSet::dataset() const
+std::shared_ptr<te::da::DataSet> terrama2::core::SynchronizedDataSet::dataset() const
 {
   return dataset_;
 }
 
 
-std::shared_ptr<te::gm::Geometry> terrama2::core::SyncronizedDataSet::getGeometry(std::size_t row, std::size_t columnIndex) const
+std::shared_ptr<te::gm::Geometry> terrama2::core::SynchronizedDataSet::getGeometry(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return std::shared_ptr<te::gm::Geometry>(dataset_->getGeometry(columnIndex));
 }
 
-std::string terrama2::core::SyncronizedDataSet::getString(std::size_t row, std::size_t columnIndex) const
+std::string terrama2::core::SynchronizedDataSet::getString(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getString(columnIndex);
 }
 
-double terrama2::core::SyncronizedDataSet::getDouble(std::size_t row, std::size_t columnIndex) const
+double terrama2::core::SynchronizedDataSet::getDouble(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getDouble(columnIndex);
 }
 
-bool terrama2::core::SyncronizedDataSet::getBool(std::size_t row, std::size_t columnIndex) const
+bool terrama2::core::SynchronizedDataSet::getBool(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getBool(columnIndex);
 }
 
-int16_t terrama2::core::SyncronizedDataSet::getInt16(std::size_t row, std::size_t columnIndex) const
+int16_t terrama2::core::SynchronizedDataSet::getInt16(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -84,7 +84,7 @@ int16_t terrama2::core::SyncronizedDataSet::getInt16(std::size_t row, std::size_
 }
 
 
-int32_t terrama2::core::SyncronizedDataSet::getInt32(std::size_t row, std::size_t columnIndex) const
+int32_t terrama2::core::SynchronizedDataSet::getInt32(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -92,7 +92,7 @@ int32_t terrama2::core::SyncronizedDataSet::getInt32(std::size_t row, std::size_
 }
 
 
-int64_t terrama2::core::SyncronizedDataSet::getInt64(std::size_t row, std::size_t columnIndex) const
+int64_t terrama2::core::SynchronizedDataSet::getInt64(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -100,7 +100,7 @@ int64_t terrama2::core::SyncronizedDataSet::getInt64(std::size_t row, std::size_
 }
 
 
-bool terrama2::core::SyncronizedDataSet::isNull(std::size_t row, std::size_t columnIndex) const
+bool terrama2::core::SynchronizedDataSet::isNull(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -108,49 +108,49 @@ bool terrama2::core::SyncronizedDataSet::isNull(std::size_t row, std::size_t col
 }
 
 
-std::shared_ptr<te::rst::Raster> terrama2::core::SyncronizedDataSet::getRaster(std::size_t row, std::size_t columnIndex) const
+std::shared_ptr<te::rst::Raster> terrama2::core::SynchronizedDataSet::getRaster(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return std::shared_ptr<te::rst::Raster>(dataset_->getRaster(columnIndex));
 }
 
-std::shared_ptr<te::dt::DateTime> terrama2::core::SyncronizedDataSet::getDateTime(std::size_t row, std::size_t columnIndex) const
+std::shared_ptr<te::dt::DateTime> terrama2::core::SynchronizedDataSet::getDateTime(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return std::shared_ptr<te::dt::DateTime>(dataset_->getDateTime(columnIndex));
 }
 
-std::shared_ptr<te::gm::Geometry> terrama2::core::SyncronizedDataSet::getGeometry(std::size_t row, std::string columnName) const
+std::shared_ptr<te::gm::Geometry> terrama2::core::SynchronizedDataSet::getGeometry(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return std::shared_ptr<te::gm::Geometry>(dataset_->getGeometry(columnName));
 }
 
-std::string terrama2::core::SyncronizedDataSet::getString(std::size_t row, std::string columnName) const
+std::string terrama2::core::SynchronizedDataSet::getString(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getString(columnName);
 }
 
-double terrama2::core::SyncronizedDataSet::getDouble(std::size_t row, std::string columnName) const
+double terrama2::core::SynchronizedDataSet::getDouble(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getDouble(columnName);
 }
 
-bool terrama2::core::SyncronizedDataSet::getBool(std::size_t row, std::string columnName) const
+bool terrama2::core::SynchronizedDataSet::getBool(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getBool(columnName);
 }
 
-int16_t terrama2::core::SyncronizedDataSet::getInt16(std::size_t row, std::string columnName) const
+int16_t terrama2::core::SynchronizedDataSet::getInt16(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -158,7 +158,7 @@ int16_t terrama2::core::SyncronizedDataSet::getInt16(std::size_t row, std::strin
 }
 
 
-int32_t terrama2::core::SyncronizedDataSet::getInt32(std::size_t row, std::string columnName) const
+int32_t terrama2::core::SynchronizedDataSet::getInt32(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -166,7 +166,7 @@ int32_t terrama2::core::SyncronizedDataSet::getInt32(std::size_t row, std::strin
 }
 
 
-int64_t terrama2::core::SyncronizedDataSet::getInt64(std::size_t row, std::string columnName) const
+int64_t terrama2::core::SynchronizedDataSet::getInt64(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -174,14 +174,14 @@ int64_t terrama2::core::SyncronizedDataSet::getInt64(std::size_t row, std::strin
 }
 
 
-bool terrama2::core::SyncronizedDataSet::isNull(std::size_t row, std::string columnName) const
+bool terrama2::core::SynchronizedDataSet::isNull(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->isNull(columnName);
 }
 
-std::shared_ptr<te::rst::Raster> terrama2::core::SyncronizedDataSet::getRaster(std::size_t row, std::string columnName) const
+std::shared_ptr<te::rst::Raster> terrama2::core::SynchronizedDataSet::getRaster(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
@@ -189,34 +189,34 @@ std::shared_ptr<te::rst::Raster> terrama2::core::SyncronizedDataSet::getRaster(s
 }
 
 
-std::shared_ptr<te::dt::DateTime> terrama2::core::SyncronizedDataSet::getDateTime(std::size_t row, std::string columnName) const
+std::shared_ptr<te::dt::DateTime> terrama2::core::SynchronizedDataSet::getDateTime(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return std::shared_ptr<te::dt::DateTime>(dataset_->getDateTime(columnName));
 }
 
-std::size_t terrama2::core::SyncronizedDataSet::size() const
+std::size_t terrama2::core::SynchronizedDataSet::size() const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   return dataset_->size();
 }
 
-std::string terrama2::core::SyncronizedDataSet::getNumeric(std::size_t row, std::string columnName) const
+std::string terrama2::core::SynchronizedDataSet::getNumeric(std::size_t row, std::string columnName) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getNumeric(columnName);
 }
 
-std::string terrama2::core::SyncronizedDataSet::getNumeric(std::size_t row, std::size_t columnIndex) const
+std::string terrama2::core::SynchronizedDataSet::getNumeric(std::size_t row, std::size_t columnIndex) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   dataset_->move(row);
   return dataset_->getNumeric(columnIndex);
 }
 
-std::shared_ptr<te::gm::Envelope> terrama2::core::SyncronizedDataSet::getExtent(std::size_t i) const
+std::shared_ptr<te::gm::Envelope> terrama2::core::SynchronizedDataSet::getExtent(std::size_t i) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   return std::shared_ptr<te::gm::Envelope>(dataset_->getExtent(i));

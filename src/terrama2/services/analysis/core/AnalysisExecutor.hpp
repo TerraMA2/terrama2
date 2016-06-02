@@ -65,23 +65,39 @@ namespace terrama2
           \brief Starts the process of an analysis execution.
           \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed.
+          \param threadNumber The number of threads that can be used.
         */
-        void runAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
+        void runAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber);
 
         /*!
-          \brief Prepare the context for a monitored object analysis.
+          \brief Prepare the context for a monitored object analysis and run the analysis.
+          \param dataManager A smart pointer to the data manager.
+          \param analysis The analysis to be executed.
+          \param threadNumber The number of threads that can be used.
+        */
+        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber);
+
+        /*!
+          \brief Prepare the context for a DCP analysis and run the analysis.
+          \param dataManager A smart pointer to the data manager.
+          \param analysis The analysis to be executed.
+          \param threadNumber The number of threads that can be used.
+        */
+        void runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber);
+
+        /*!
+          \brief Prepare the context for a grid analysis and run the analysis.
+          \param dataManager A smart pointer to the data manager.
+          \param analysis The analysis to be executed.
+          \param threadNumber The number of threads that can be used.
+        */
+        void runGridAnalysis(DataManagerPtr shared_ptr, const Analysis& analysis, unsigned int number);
+
+        /*!
+          \brief Reads the analysis result from context and stores it to the configured output dataset.
           \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed
         */
-        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
-
-        /*!
-          \brief Prepare the context for a DCP analysis.
-          \param dataManager A smart pointer to the data manager.
-          \param analysis The analysis to be executed
-        */
-        void runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis);
-
         void storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis);
 
       } // end namespace core
