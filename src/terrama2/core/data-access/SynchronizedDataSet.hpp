@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_CORE_SynchronizeD_DATASET_HPP__
-#define __TERRAMA2_CORE_SynchronizeD_DATASET_HPP__
+#ifndef __TERRAMA2_CORE_SYNCHRONIZED_DATASET_HPP__
+#define __TERRAMA2_CORE_SYNCHRONIZED_DATASET_HPP__
 
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -342,4 +342,4 @@ namespace terrama2
   } // end namespace core
 }   // end namespace terrama2
 
-#endif //__TERRAMA2_CORE_SynchronizeD_DATASET_HPP__
+#endif //__TERRAMA2_CORE_SYNCHRONIZED_DATASET_HPP__

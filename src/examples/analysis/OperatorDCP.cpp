@@ -224,11 +224,10 @@ int main(int argc, char* argv[])
   service.addAnalysis(1);
   service.addAnalysis(1);
 
-  /*
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
   timer.start(30000);
-*/
+
   app.exec();
 
 

@@ -233,9 +233,9 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
-  /*QTimer timer;
+  QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);*/
+  timer.start(10000);
   app.exec();
 
 
