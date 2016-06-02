@@ -103,29 +103,29 @@ int main(int argc, char* argv[])
   analysis.name = "Analysis";
   analysis.active = false;
 
-  std::string script = "buffer = Buffer()\n"
-          "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+  std::string script = "moBuffer = Buffer()\n"
+          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
           "add_value(\"count\", x)\n"
 
-          "x = occurrence.count(\"occ\", buffer, \"500d\", \"\")\n"
+          "x = occurrence.count(\"occ\", moBuffer, \"500d\", \"\")\n"
           "add_value(\"count_alias\", x)\n"
 
-          "x = occurrence.max(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.max(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"max\", x)\n"
 
-          "x = occurrence.min(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.min(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"min\", x)\n"
 
-          "x = occurrence.mean(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.mean(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"mean\", x)\n"
 
-          "x = occurrence.median(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.median(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"median\", x)\n"
 
-          "x = occurrence.standard_deviation(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.standard_deviation(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"standard_deviation\", x)\n"
 
-          "x = occurrence.sum(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.sum(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"sum\", x)\n";
 
 
@@ -221,8 +221,8 @@ int main(int argc, char* argv[])
 
   analysis.analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
+  analysis.schedule.frequency = 30;
+  analysis.schedule.frequencyUnit = "sec";
 
   dataManager->add(analysis);
 
@@ -233,10 +233,9 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
-
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);
+  timer.start(10000);
   app.exec();
 
 

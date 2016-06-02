@@ -103,27 +103,27 @@ int main(int argc, char* argv[])
   analysis.name = "Analysis";
   analysis.active = false;
 
-  std::string script = "buffer = Buffer()\n"
+  std::string script = "moBuffer = Buffer()\n"
           "aggregationBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-          "x = occurrence.aggregation.count(\"Occurrence\", buffer, \"500d\", aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.count(\"Occurrence\", moBuffer, \"500d\", aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_count\", x)\n"
 
-          "x = occurrence.aggregation.max(\"Occurrence\", buffer, \"502d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.max(\"Occurrence\", moBuffer, \"502d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_max\", x)\n"
 
-          "x = occurrence.aggregation.min(\"Occurrence\", buffer, \"501d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.min(\"Occurrence\", moBuffer, \"501d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_min\", x)\n"
 
-          "x = occurrence.aggregation.mean(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.mean(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_mean\", x)\n"
 
-          "x = occurrence.aggregation.median(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.median(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_median\", x)\n"
 
-          "x = occurrence.aggregation.standard_deviation(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.standard_deviation(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_standard_deviation\", x)\n"
 
-          "x = occurrence.aggregation.sum(\"Occurrence\", buffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.sum(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_sum\", x)\n";
 
 

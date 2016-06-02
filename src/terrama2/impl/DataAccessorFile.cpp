@@ -417,7 +417,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   }
 
 
-  std::shared_ptr<SyncronizedDataSet> syncDataset(new SyncronizedDataSet(completeDataset));
+  std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));
   series.syncDataSet = syncDataset;
   return series;
 }
