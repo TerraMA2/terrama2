@@ -354,7 +354,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.minSchedule = 1;
             $scope.maxSchedule = 24;
             break;
-          case "weekly":
+          case "weeks":
             resetHelper(2);
             $scope.minSchedule = 1;
             $scope.maxSchedule = 7;
@@ -761,11 +761,13 @@ angular.module('terrama2.dataseries.registration', [
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
               break;
 
-            case "weekly":
+            case "weeks":
             case "monthly":
             case "yearly":
               // todo: verify
+              var dt = scheduleValues.schedule_time;
               scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+              scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
               break;
 
             default:

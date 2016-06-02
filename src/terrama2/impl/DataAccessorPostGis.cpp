@@ -46,11 +46,13 @@
 #include <terralib/dataaccess/query/LessThan.h>
 #include <terralib/dataaccess/query/Fields.h>
 #include <terralib/dataaccess/query/Select.h>
+#include <terralib/dataaccess/query/SelectExpression.h>
 #include <terralib/dataaccess/query/Field.h>
 #include <terralib/dataaccess/query/Where.h>
 #include <terralib/dataaccess/query/From.h>
 #include <terralib/dataaccess/query/And.h>
 #include <terralib/dataaccess/query/Max.h>
+#include <terralib/dataaccess/query/EqualTo.h>
 
 #include <terralib/geometry/MultiPolygon.h>
 
@@ -88,35 +90,37 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
     QString errMsg = QObject::tr("DataProvider could not be opened.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw NoDataException() << ErrorDescription(errMsg);
-    throw;
   }
 
   // get a transactor to interact to the data source
   std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-  std::vector<te::da::Expression*> where;
-  addDateTimeFilter(dataSet, filter, where);
-  addGeometryFilter(dataSet, filter, where);
-
   te::da::FromItem* t1 = new te::da::DataSetName(tableName);
   te::da::From* from = new te::da::From;
   from->push_back(t1);
+
+  te::da::Fields* fields = new te::da::Fields;
+  te::da::PropertyName* pName = new te::da::PropertyName("*");
+  te::da::Field* propertyName = new te::da::Field(pName);
+  fields->push_back(propertyName);
+
+  std::vector<te::da::Expression*> where;
+
+  addDateTimeFilter(dataSet, filter, where);
+  addGeometryFilter(dataSet, filter, where);
 
   te::da::Where* whereCondition = nullptr;
   if(!where.empty())
   {
 
     te::da::Expression* expr = where.front();
-    for(int i = 1; i < where.size(); ++i)
+    for(size_t i = 1; i < where.size(); ++i)
       expr = new te::da::And(expr, where.at(i));
 
-    whereCondition = new te::da::Where(expr);
-  }
 
-  te::da::Fields* fields = new te::da::Fields;
-  te::da::PropertyName* pName = new te::da::PropertyName("*");
-  te::da::Field* propertyName = new te::da::Field(pName);
-  fields->push_back(propertyName);
+    whereCondition = new te::da::Where(expr);
+    whereCondition = addLastValueFilter(dataSet, filter, whereCondition);
+  }
 
   te::da::Select select(fields, from, whereCondition);
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(select);
@@ -128,7 +132,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
 
   updateLastTimestamp(dataSet, transactor);
 
- DataSetSeries series;
+  DataSetSeries series;
   series.dataSet = dataSet;
   series.syncDataSet.reset(new terrama2::core::SynchronizedDataSet(tempDataSet));
   series.teDataSetType = transactor->getDataSetType(tableName);
@@ -142,7 +146,7 @@ std::string terrama2::core::DataAccessorPostGis::getDataSetTableName(DataSetPtr 
   {
     return dataSet->format.at("table_name");
   }
-  catch (...)
+  catch(...)
   {
     QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -156,7 +160,7 @@ std::string terrama2::core::DataAccessorPostGis::getGeometryPropertyName(DataSet
   {
     return dataSet->format.at("geometry_property");
   }
-  catch (...)
+  catch(...)
   {
     QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -203,6 +207,36 @@ void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::Data
 
     where.push_back(intersectExpression);
   }
+}
+
+te::da::Where* terrama2::core::DataAccessorPostGis::addLastValueFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, te::da::Where* whereCondition) const
+{
+  if(filter.lastValue)
+  {
+    std::string tableName = getDataSetTableName(dataSet);
+    te::da::FromItem* t1 = new te::da::DataSetName(tableName);
+    te::da::From* from = new te::da::From;
+    from->push_back(t1);
+
+    te::da::Fields* maxTimestamp = new te::da::Fields;
+    te::da::PropertyName* timestampProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
+    auto max = new te::da::Max(*timestampProperty);
+    te::da::Field* propertyName = new te::da::Field(max);
+    maxTimestamp->push_back(propertyName);
+
+    auto oldwhere = new te::da::Where(*whereCondition);
+    te::da::Select* selectMaxTimestamp = new te::da::Select(maxTimestamp, from, oldwhere);
+    te::da::SelectExpression* selectMaxTimestampExpression = new te::da::SelectExpression(selectMaxTimestamp);
+
+    te::da::EqualTo* equals = new te::da::EqualTo(timestampProperty, selectMaxTimestampExpression);
+
+    auto whereExpression = whereCondition->getExp();
+    auto expr = new te::da::And(equals, whereExpression);
+
+    whereCondition = new te::da::Where(expr);
+  }
+
+  return whereCondition;
 }
 
 void terrama2::core::DataAccessorPostGis::updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const

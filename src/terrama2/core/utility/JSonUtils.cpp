@@ -311,7 +311,7 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
       && json.contains("frequency")
       && json.contains("frequency_unit")
       && json.contains("schedule")
-      && json.contains("schedule_time")
+//      && json.contains("schedule_time")//FIXME: not receiving schedule_time in the json
       && json.contains("schedule_unit")
       && json.contains("schedule_retry")
       && json.contains("schedule_retry_unit")

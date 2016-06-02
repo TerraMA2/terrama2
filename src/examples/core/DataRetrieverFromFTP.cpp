@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 {
   QUrl url;
 
-  // Fire
+  // Fire  
   url.setHost("ftp.dgi.inpe.br");
   url.setPath("/focos_operacao/");
   url.setScheme("FTP");
@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
 
   std::string path;
   std::string mask = "exporta_20160501_0230.csv";
+
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();

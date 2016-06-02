@@ -22,7 +22,7 @@
 /*!
   \file terrama2/services/analysis/core/AnalysisLogger.hpp
 
-  \brief
+  \brief Class to log the steps of Terrama2 Analysis Service
 
   \author Vinicius Campanha
 */
@@ -41,9 +41,19 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+         * \brief The AnalysisLogger class is responsible for uses the Process Logger to
+         * log the processes in the Analysis Service.
+         */
         class AnalysisLogger : public terrama2::core::ProcessLogger
         {
         public:
+
+          /*!
+           * \brief Class constructor, it will pass the connection information about the Log DB and
+           * set the analysis log table.
+           * \param connInfo Has the access information to the log Database
+           */
           AnalysisLogger(std::map< std::string, std::string > connInfo);
 
         };

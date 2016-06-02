@@ -86,7 +86,7 @@ namespace terrama2
             /*!
               \brief Adds the analysis to the queue of execution.
              */
-            void addToQueue(AnalysisId analysisId);
+            virtual void addToQueue(AnalysisId analysisId) override;
 
             /*!
               \brief Updates the connection parameters of the process log database.

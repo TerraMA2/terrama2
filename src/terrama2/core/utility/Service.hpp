@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_SERVICE_HPP__
 #define __TERRAMA2_CORE_SERVICE_HPP__
 
+#include "../Typedef.hpp"
+
 //STL
 #include <vector>
 #include <mutex>
@@ -95,6 +97,9 @@ namespace terrama2
       virtual void start(uint threadNumber = 0);
 
     public slots:
+
+      virtual void addToQueue(ProcessId processId) = 0;
+
       /*!
          \brief  Stops the service.
 

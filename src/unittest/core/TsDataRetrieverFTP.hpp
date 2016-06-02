@@ -47,6 +47,10 @@ private slots:
   void TestFailUriInvalid();
   void TestFailLoginInvalid();
   void TestOkUriAndLoginValid();
+  void TestFailVectorFileEmpty();
+  void TestOKVectorWithFiles();
+  void TestFailDownloadFile();
+  void TestOKDownloadFile();
 
 };
 

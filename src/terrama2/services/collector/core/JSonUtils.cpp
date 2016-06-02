@@ -50,8 +50,8 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 //FIXME: wrong format collector json
-  if(!(json.contains("id") && /*json.contains("project_id") && */json.contains("service_instance_id") && json.contains("input_data_series") &&
-       json.contains("output_data_series") && json.contains("input_output_map") && json.contains("schedule") /*&& json.contains("intersection")*/ &&
+  if(!(json.contains("id") && json.contains("project_id") && json.contains("service_instance_id") && json.contains("input_data_series") &&
+       json.contains("output_data_series") && json.contains("input_output_map") && json.contains("schedule") &&
        json.contains("active")))
   {
     QString errMsg = QObject::tr("Invalid Collector JSON object.");
@@ -62,11 +62,12 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
   terrama2::services::collector::core::Collector* collector = new terrama2::services::collector::core::Collector();
   terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
 
-  collector->id = json["id"].toInt();
-  collector->projectId = json["project_id"].toInt();
+  collector->id = static_cast<uint32_t>(json["id"].toInt());
+  collector->projectId = static_cast<uint32_t>(json["project_id"].toInt());
+  collector->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
 
-  collector->inputDataSeries = json["input_data_series"].toInt();
-  collector->outputDataSeries = json["output_data_series"].toInt();
+  collector->inputDataSeries = static_cast<uint32_t>(json["input_data_series"].toInt());
+  collector->outputDataSeries = static_cast<uint32_t>(json["output_data_series"].toInt());
 
   auto inOutArray = json["input_output_map"].toArray();
   auto it = inOutArray.begin();
