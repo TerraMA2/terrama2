@@ -92,18 +92,18 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  std::string script = "buffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-          "x = dcp.history.sum(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+  std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
+          "x = dcp.history.sum(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_sum\",x)\n"
-          "x = dcp.history.max(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.max(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_max\",x)\n"
-          "x = dcp.history.min(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.min(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_min\",x)\n"
-          "x = dcp.history.mean(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.mean(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_mean\",x)\n"
-          "x = dcp.history.median(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.median(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_median\",x)\n"
-          "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_standard_deviation\",x)\n";
 
   Analysis analysis;
