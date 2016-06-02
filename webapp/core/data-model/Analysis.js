@@ -10,7 +10,12 @@ var Analysis = module.exports = function(params) {
   this.description = params.description;
   this.active = params.active;
   this.dataset_output = params.dataset_output;
-  this.metadata = params.metadata || {};
+
+  if (params.AnalysisMetadata)
+    this.setMetadata(params.AnalysisMetadata);
+  else
+    this.metadata = params.metadata || {};
+
   this.analysis_dataseries_list = [];
   this.schedule_id = params.schedule_id;
 };
@@ -23,7 +28,21 @@ Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
 };
 
 Analysis.prototype.setMetadata = function(metadata) {
-  this.metadata = metadata;
+  var meta = {};
+  if (metadata instanceof Array) {
+    // array of sequelize model
+    metadata.forEach(function(element) {
+      meta[element.key] = element.value;
+    })
+  } else {
+    for(var key in metadata) {
+      if (metadata.hasOwnProperty(key)) {
+        meta[key] = metadata[key];
+      }
+    }
+  }
+
+  this.metadata = meta;
 };
 
 Analysis.prototype.toObject = function() {

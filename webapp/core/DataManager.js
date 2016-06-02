@@ -2055,30 +2055,24 @@ var DataManager = {
       };
 
       // TODO: building analysis from a factory. (AnalysisGrid, AnalysisDataseries...)
-      models.db['Analysis'].findAll({}).then(function(analysesResult) {
+      models.db['Analysis'].findAll({
+        include: [
+          models.db['AnalysisDataSeries'],
+          models.db['AnalysisMetadata']
+        ]
+      }).then(function(analysesResult) {
         var output = [];
 
-        models.db["AnalysisDataSeries"].findAll({
-          include: [models.db['AnalysisDataSeriesMetadata']]
-        }).then(function(analysesDataSeriesResult) {
-          analysesResult.forEach(function(analysis) {
-            var analysisObject = new DataModel.Analysis(analysis.get());
-            analysesDataSeriesResult.forEach(function(analysisDataSeries) {
-              var analysisDsObject = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
-              var metadata = {};
-              analysisDataSeries['AnalysisDataSeriesMetadata'].forEach(function(analysisDsMetadata) {
-                metadata[analysisDsMetadata.key] = analysisDsMetadata.value;
-              });
+        analysesResult.forEach(function(analysis) {
+          var analysisObject = new DataModel.Analysis(analysis.get());
 
-              analysisDsObject.metadata = metadata;
+          analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
+            analysisObject.addAnalysisDataSeries(analysisDataSeries.get());
+          });
 
-              analysisObject.addAnalysisDataSeries(analysisDsObject.toObject());
-            });
-
-            output.push(analysisObject);
-          }); // end foreach analysesResult
-          resolve(output);
-        }).catch(_reject); // end catch AnalysisDataSeries
+          output.push(analysisObject);
+        });
+        resolve(output);
       }).catch(_reject);
     });
   },
