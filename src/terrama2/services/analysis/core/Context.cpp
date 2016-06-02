@@ -193,6 +193,8 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
     }
   }
 
+  auto analysis = Context::getInstance().getAnalysis(analysisHashCode);
+
   if(!needToAdd)
     return;
 
@@ -217,6 +219,7 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
   auto dataProvider = dataManagerPtr->findDataProvider(dataSeries->dataProviderId);
   terrama2::core::Filter filter;
   filter.lastValue = lastValue;
+  filter.discardAfter = analysis.startDate;
 
   if(!dateFilter.empty())
   {
@@ -326,6 +329,8 @@ void terrama2::services::analysis::core::Context::addDataSeries(const size_t ana
     }
   }
 
+  auto analysis = Context::getInstance().getAnalysis(analysisHashCode);
+
   if(!needToAdd)
     return;
 
@@ -351,6 +356,9 @@ void terrama2::services::analysis::core::Context::addDataSeries(const size_t ana
 
 
   terrama2::core::Filter filter;
+
+  filter.discardAfter = analysis.startDate;
+
   if(!dateFilter.empty())
   {
     double minutes = terrama2::core::TimeUtils::convertTimeStringToSeconds(dateFilter, "MINUTE");
