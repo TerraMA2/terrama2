@@ -8,6 +8,7 @@ var Schedule = function(params) {
   this.frequency = params.frequency;
   this.frequency_unit = params.frequency_unit;
   this.schedule = params.schedule;
+  this.schedule_time = params.schedule_time;
   this.schedule_unit = params.schedule_unit;
   this.schedule_retry = params.schedule_retry;
   this.schedule_retry_unit = params.schedule_retry_unit;
@@ -24,6 +25,7 @@ Schedule.prototype.toObject = function() {
     frequency: this.frequency,
     frequency_unit: this.frequency_unit,
     schedule: this.schedule,
+    schedule_time: this.schedule_time,
     schedule_unit: this.schedule_unit,
     schedule_retry: this.schedule_retry,
     schedule_retry_unit: this.schedule_retry_unit,

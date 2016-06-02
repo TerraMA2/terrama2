@@ -1254,10 +1254,7 @@ var DataManager = {
         var dataSeries = self.data.dataSeries[index];
         if (dataSeries.id == dataSeriesParam.id || dataSeries.name == dataSeriesParam.name) {
           models.db.DataSeries.destroy({where: {
-            $or: [
-              {id: dataSeriesParam.id},
-              {name: dataSeriesParam.name}
-            ]
+            id: dataSeriesParam.id
           }}).then(function (status) {
             self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
               if (dSet.data_series_id === dataSeries.id)
@@ -1880,12 +1877,17 @@ var DataManager = {
           }
         ]
       }).then(function(collectorResult) {
-        self._prepareCollector([collectorResult]).then(function(collectors) {
-          console.log(collectors);
-          resolve(collectors[0]);
-        }).catch(function(err) {
-          reject(err);
-        })
+        if (collectorResult) {
+          self._prepareCollector([collectorResult]).then(function(collectors) {
+            console.log(collectors);
+            resolve(collectors[0]);
+          }).catch(function(err) {
+            reject(err);
+          })
+        } else {
+          console.log("Retrieved null while getting collector");
+          reject(new exceptions.CollectorError("Could not find collector. "));
+        }
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not find collector. " + err.message));
