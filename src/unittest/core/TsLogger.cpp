@@ -20,43 +20,37 @@
 */
 
 /*!
-  \file unittest/core/TsUtility.hpp
+  \file unittest/core/TsLogger.cpp
 
-  \brief Tests for Core Utility class
+  \brief Tests for Core Logger class
 
   \author Vinicius Campanha
 */
 
 //TerraMA2
+#include <terrama2/core/Typedef.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
+
+#include "TsLogger.hpp"
+#include "TestLogger.hpp"
 
 
-//QT
-#include <QtTest/QTest>
-
-
-class TsUtility : public QObject
+void TsLogger::testProcessLogger()
 {
-  Q_OBJECT
+  TestLogger log;
 
-public:
+  RegisterId registerID = log.start(1);
 
+  log.addValue("tag1", "value1", registerID);
+  log.addValue("tag2", "value2", registerID);
+  log.addValue("tag1", "value3", registerID);
+  log.addValue("tag2", "value4", registerID);
+  log.error("Unit Test Error", registerID);
+  log.error("Unit Test second Error", registerID);
 
-private slots:
+  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
 
-  void testTimerNoFrequencyException();
-  void testTimerInvalidUnitException();
-  void testFrequencyTimer();
-  void testScheduleTimer();
+  log.done(dataTime, registerID);
 
-  void testTimeUtilsAddMonth();
-  void testTimeUtilsAddDay();
-  void testTimeUtilsAddYear();
-
-  void ValidMask();
-  void invalidValidMask();
-
-  void testValidDataSetName();
-  void testValidDataSetName2DigitsYear();
-  void testValidDataSetName2DigitsYear1900();
-  void testIgnoreArchiveExtension();
-};
+  QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp(registerID)->getTimeInstantTZ());
+}

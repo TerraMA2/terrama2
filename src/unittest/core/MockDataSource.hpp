@@ -20,43 +20,44 @@
 */
 
 /*!
-  \file unittest/core/TsUtility.hpp
+  \file unittest/core/MockDataSource.hpp
 
-  \brief Tests for Core Utility class
+  \brief Mock for TerraLib Data Source
 
   \author Vinicius Campanha
 */
 
-//TerraMA2
+// TerraLib
+#include <terralib/dataaccess/datasource/DataSource.h>
+
+// GMock
+#include <gmock/gmock.h>
+
+// TerraMA2
+#include "MockDataSourceTransactor.hpp"
 
 
-//QT
-#include <QtTest/QTest>
-
-
-class TsUtility : public QObject
+namespace te
 {
-  Q_OBJECT
+  namespace da
+  {
+    class MockDataSource: public te::da::DataSource
+    {
+    public:
 
-public:
+      MockDataSource(){ };
+
+      virtual ~MockDataSource() = default;
 
 
-private slots:
+      MOCK_METHOD0(close, void());
 
-  void testTimerNoFrequencyException();
-  void testTimerInvalidUnitException();
-  void testFrequencyTimer();
-  void testScheduleTimer();
+      MOCK_METHOD1(getTransactor, std::auto_ptr<DataSourceTransactor>());
 
-  void testTimeUtilsAddMonth();
-  void testTimeUtilsAddDay();
-  void testTimeUtilsAddYear();
+      MOCK_METHOD1(dataSetExists, bool(const std::string& name));
 
-  void ValidMask();
-  void invalidValidMask();
 
-  void testValidDataSetName();
-  void testValidDataSetName2DigitsYear();
-  void testValidDataSetName2DigitsYear1900();
-  void testIgnoreArchiveExtension();
-};
+      //MOCK_METHOD1(verifyURL,CURLcode(std::string url));
+    };
+  }
+}

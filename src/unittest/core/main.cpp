@@ -11,6 +11,7 @@
 #include <gtest/gtest.h>
 
 #include "TsUtility.hpp"
+#include "TsLogger.hpp"
 #include "TsDataRetrieverFTP.hpp"
 
 
@@ -28,6 +29,9 @@ int main(int argc, char **argv)
 
   TsUtility testUtility;
   ret += QTest::qExec(&testUtility, argc, argv);
+
+  TsLogger testLogger;
+  ret += QTest::qExec(&testLogger, argc, argv);
 
   TsDataRetrieverFTP testDataRetrieverFTP;
   ret += QTest::qExec(&testDataRetrieverFTP, argc, argv);

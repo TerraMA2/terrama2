@@ -77,20 +77,13 @@ namespace terrama2
       /*!
        * \brief Class destructor
        */
-      ~ProcessLogger();
+      virtual ~ProcessLogger();
 
       /*!
        * \brief Log the start of the process.
        * \return The ID of table register
        */
       RegisterId start(ProcessId processId) const;
-
-      /*!
-       * \brief Store data in a Json to be logged after
-       * \param tag A tag to identify data
-       * \param value The data
-       */
-      void addValue(const std::string tag, const std::string value, const RegisterId registerId) const;
 
       /*!
        * \brief Log an error in the process
@@ -123,6 +116,26 @@ namespace terrama2
       ProcessId processID(const RegisterId registerId) const;
 
     protected:
+
+      /*!
+       * \brief Default constructor
+       */
+      ProcessLogger() = default;
+
+      /*!
+       * \brief Set the process logger data source
+       */
+      void setDataSource(std::shared_ptr< te::da::DataSource > dataSource);
+
+
+      /*!
+       * \brief Store data in a Json to be logged after
+       * \param tag A tag to identify data
+       * \param value The data
+       */
+      void addValue(const std::string tag, const std::string value, const RegisterId registerId) const;
+
+
       /*!
        * \brief Store the table name of the process log
        * \param tableName The log table name
@@ -130,15 +143,12 @@ namespace terrama2
       void setTableName(const std::string tableName);
       std::string getMessagesTableName(const RegisterId registerId) const;
 
-
     private:
       /*!
        * \brief Log in the log table the data stored in Json
        */
       void updateData(const RegisterId registerId, const QJsonObject obj) const;
 
-
-    private:
       std::string tableName_ = "";
       std::string messagesTableName_ = "";
       std::shared_ptr< te::da::DataSource > dataSource_;

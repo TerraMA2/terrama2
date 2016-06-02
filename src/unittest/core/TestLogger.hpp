@@ -20,43 +20,39 @@
 */
 
 /*!
-  \file unittest/core/TsUtility.hpp
+  \file unittest/core/TestLogger.hpp
 
-  \brief Tests for Core Utility class
+  \brief Logger class for tests
 
   \author Vinicius Campanha
 */
 
+#ifndef __TERRAMA2_UNITTEST_CORE_TESTLOGGER_HPP__
+#define __TERRAMA2_UNITTEST_CORE_TESTLOGGER_HPP__
+
 //TerraMA2
+#include <terrama2/core/utility/ProcessLogger.hpp>
+
+#include "MockDataSource.hpp"
 
 
-//QT
-#include <QtTest/QTest>
-
-
-class TsUtility : public QObject
+class TestLogger : public terrama2::core::ProcessLogger
 {
-  Q_OBJECT
-
 public:
+  TestLogger()
+    : ProcessLogger()
+  {
+    std::shared_ptr< te::da::MockDataSource > mockDataSource;
+    setDataSource(mockDataSource);
+  }
 
+  virtual ~TestLogger() = default;
 
-private slots:
-
-  void testTimerNoFrequencyException();
-  void testTimerInvalidUnitException();
-  void testFrequencyTimer();
-  void testScheduleTimer();
-
-  void testTimeUtilsAddMonth();
-  void testTimeUtilsAddDay();
-  void testTimeUtilsAddYear();
-
-  void ValidMask();
-  void invalidValidMask();
-
-  void testValidDataSetName();
-  void testValidDataSetName2DigitsYear();
-  void testValidDataSetName2DigitsYear1900();
-  void testIgnoreArchiveExtension();
+  void addValue(const std::string tag, const std::string value, const RegisterId registerId) const
+  {
+    addValue(tag, value, registerId);
+  }
 };
+
+
+#endif // __TERRAMA2_UNITTEST_CORE_TESTLOGGER_HPP__

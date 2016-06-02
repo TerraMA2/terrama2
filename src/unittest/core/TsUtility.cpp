@@ -33,64 +33,17 @@
 #include <terrama2/core/utility/Timer.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/FilterUtils.hpp>
-#include <terrama2/core/utility/ProcessLogger.hpp>
 
 
+#include "TsLogger.hpp"
 #include "TsUtility.hpp"
-
-class TestLogger : public terrama2::core::ProcessLogger
-{
-public:
-  TestLogger(std::map < std::string, std::string > connInfo)
-    : ProcessLogger(connInfo)
-  {
-    setTableName("unittest_process_log_");
-  }
-};
-
+#include "TestLogger.hpp"
 
 std::shared_ptr< TestLogger > getLogger()
 {
-  std::map < std::string, std::string > connInfo{{"PG_HOST", "localhost"},
-                                                 {"PG_PORT", "5432"},
-                                                 {"PG_USER", "postgres"},
-                                                 {"PG_PASSWORD", "postgres"},
-                                                 {"PG_DB_NAME", "example"},
-                                                 {"PG_CONNECT_TIMEOUT", "4"},
-                                                 {"PG_CLIENT_ENCODING", "UTF-8"}};
-
-
-  return std::make_shared<TestLogger>(TestLogger(connInfo));
+  return std::make_shared<TestLogger>(TestLogger());
 }
 
-void TsUtility::testProcessLogger()
-{
-  std::map < std::string, std::string > connInfo{{"PG_HOST", "localhost"},
-                                                 {"PG_PORT", "5432"},
-                                                 {"PG_USER", "postgres"},
-                                                 {"PG_PASSWORD", "postgres"},
-                                                 {"PG_DB_NAME", "example"},
-                                                 {"PG_CONNECT_TIMEOUT", "4"},
-                                                 {"PG_CLIENT_ENCODING", "UTF-8"}};
-
-
-  TestLogger log(connInfo);
-
-  RegisterId registerID = log.start(1);
-
-  log.addValue("tag1", "value1", registerID);
-  log.addValue("tag2", "value2", registerID);
-  log.addValue("tag1", "value3", registerID);
-  log.addValue("tag2", "value4", registerID);
-  log.error("Unit Test Error", registerID);
-  log.error("Unit Test second Error", registerID);
-
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
-
-  log.done(dataTime, registerID);
-
-  QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp(registerID)->getTimeInstantTZ());
-}
 
 void TsUtility::testTimerNoFrequencyException()
 {
