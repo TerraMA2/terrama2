@@ -43,7 +43,7 @@ module.exports = function(app) {
             name: dataProvider.name,
             description: dataProvider.description,
             active: dataProvider.active,
-            data_provider_type_name: dataProvider.data_provider_type_name,
+            data_provider_type_name: dataProvider.data_provider_type.name,
             uriObject: requester.params
           },
           saveConfig: {
