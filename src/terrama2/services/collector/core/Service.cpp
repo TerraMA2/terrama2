@@ -300,7 +300,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   }
 }
 
-void terrama2::services::collector::core::Service::updateCollector(CollectorPtr collector)
+void terrama2::services::collector::core::Service::updateCollector(CollectorPtr /*collector*/)
 {
   // Only the Id of the collector is stored, no need to update
 }

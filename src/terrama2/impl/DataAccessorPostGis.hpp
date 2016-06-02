@@ -50,31 +50,33 @@ namespace terrama2
     */
     class DataAccessorPostGis : public virtual DataAccessor
     {
-    public:
-      DataAccessorPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
-        : DataAccessor(dataProvider, dataSeries, filter)
-      {
-      }
-      virtual ~DataAccessorPostGis() {}
+      public:
+        DataAccessorPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
+          : DataAccessor(dataProvider, dataSeries, filter)
+        {
+        }
+        virtual ~DataAccessorPostGis() {}
 
-      using terrama2::core::DataAccessor::getSeries;
-      // Doc in base class
-      virtual DataSetSeries getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet) const override;
+        using terrama2::core::DataAccessor::getSeries;
+        // Doc in base class
+        virtual DataSetSeries getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet) const override;
 
-    protected:
-      // Doc in base class
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const override;
-      //! Recover table name where data is stored
-      virtual std::string getDataSetTableName(DataSetPtr dataSet) const;
-      virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const = 0;
-      virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
+      protected:
+        // Doc in base class
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const override;
+        //! Recover table name where data is stored
+        virtual std::string getDataSetTableName(DataSetPtr dataSet) const;
+        virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const = 0;
+        virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
 
-      virtual void addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-                                     std::vector<te::da::Expression*>& where) const;
-      virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-                                     std::vector<te::da::Expression*>& where) const;
+        virtual void addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
+                                       std::vector<te::da::Expression*>& where) const;
+        virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
+                                       std::vector<te::da::Expression*>& where) const;
+        virtual te::da::Where* addLastValueFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, te::da::Where* whereCondition) const;
 
-      void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const;
+
+        void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const;
     };
   }
 }
