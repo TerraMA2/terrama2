@@ -36,6 +36,7 @@
 #include "../../../core/utility/ServiceManager.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Timer.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 
 terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
@@ -137,6 +138,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto analysis = dataManager_->findAnalysis(analysisId);
+    analysis.startDate = terrama2::core::TimeUtils::nowUTC();
 
     analysisQueue_.push_back(analysis);
 

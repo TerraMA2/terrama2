@@ -59,50 +59,47 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                                                              const std::string& attribute,
                                                              Buffer buffer, boost::python::list ids)
 {
-  OperatorCache cache;
-  readInfoFromDict(cache);
-
-  bool hasData = false;
-
-  auto dataManagerPtr = Context::getInstance().getDataManager().lock();
-  if(!dataManagerPtr)
+  try
   {
-    QString msg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << msg;
-    return NAN;
-  }
+    OperatorCache cache;
+    readInfoFromDict(cache);
 
-  Analysis analysis = Context::getInstance().getAnalysis(cache.analysisId);
+    bool hasData = false;
 
-  auto moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
-  if(!moDsContext)
-  {
-    QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-    errMsg = errMsg.arg(cache.analysisId);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    return NAN;
-  }
-
-
-  auto geom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
-  if(!geom.get())
-  {
-    QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
-    errMsg = errMsg.arg(cache.analysisId);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    return NAN;
-  }
-
-
-  std::shared_ptr<ContextDataSeries> dcpContextDataSeries;
-
-
-
-  // Frees the GIL, from now on can not use the interpreter
-  Py_BEGIN_ALLOW_THREADS
-
-    try
+    auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+    if(!dataManagerPtr)
     {
+      QString msg(QObject::tr("Invalid data manager."));
+      TERRAMA2_LOG_ERROR() << msg;
+      return NAN;
+    }
+
+    Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
+
+    auto moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
+    if(!moDsContext)
+    {
+      QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
+      errMsg = errMsg.arg(analysis.id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      return NAN;
+    }
+
+
+    auto geom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
+    if(!geom.get())
+    {
+      QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
+      errMsg = errMsg.arg(analysis.id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      return NAN;
+    }
+
+    std::shared_ptr<ContextDataSeries> dcpContextDataSeries;
+
+    // Frees the GIL, from now on can not use the interpreter
+    Py_BEGIN_ALLOW_THREADS
+
       auto dataSeries = dataManagerPtr->findDataSeries(analysis.id, dataSeriesName);
 
       if(!dataSeries)
@@ -128,7 +125,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
         if(!dcpDataset)
         {
           QString errMsg(QObject::tr("Analysis: %1 -> Could not recover DCP dataset."));
-          errMsg = errMsg.arg(cache.analysisId);
+          errMsg = errMsg.arg(analysis.id);
           TERRAMA2_LOG_ERROR() << errMsg;
           return NAN;
         }
@@ -137,7 +134,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
         if(dcpDataset->position == nullptr)
         {
           QString errMsg(QObject::tr("Analysis: %1 -> DCP dataset does not have a valid position."));
-          errMsg = errMsg.arg(cache.analysisId);
+          errMsg = errMsg.arg(analysis.id);
           TERRAMA2_LOG_ERROR() << errMsg;
           return NAN;
         }
@@ -164,7 +161,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
             if(!property && statisticOperation != COUNT)
             {
               QString errMsg(QObject::tr("Analysis: %1 -> Invalid attribute name"));
-              errMsg = errMsg.arg(cache.analysisId);
+              errMsg = errMsg.arg(analysis.id);
               TERRAMA2_LOG_ERROR() << errMsg;
               return NAN;
             }
@@ -213,44 +210,34 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
         }
       }
 
-
-
       // Set the number of DCPs that influence the monitored object
       cache.count = influenceCount;
-    }
-    catch(terrama2::Exception e)
+
+    // All operations are done, acquires the GIL and set the return value
+    Py_END_ALLOW_THREADS
+
+    if(!hasData && statisticOperation != COUNT)
     {
-      QString errMsg(QObject::tr("Analysis: %1 -> %2"));
-      errMsg = errMsg.arg(analysis.id);
-      errMsg = errMsg.arg(e.what());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NAN;
-    }
-    catch(std::exception e)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> %2"));
-      errMsg = errMsg.arg(analysis.id);
-      errMsg = errMsg.arg(e.what());
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NAN;
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Analysis: %1 -> Unkown error"));
-      TERRAMA2_LOG_ERROR() << errMsg;
       return NAN;
     }
 
-
-  // All operations are done, acquires the GIL and set the return value
-  Py_END_ALLOW_THREADS
-
-  if(!hasData && statisticOperation != COUNT)
+    return getOperationResult(cache, statisticOperation);
+  }
+  catch(terrama2::Exception e)
   {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
     return NAN;
   }
-
-  return getOperationResult(cache, statisticOperation);
+  catch(std::exception e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+    return NAN;
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("An unknown exception occured.");
+    return NAN;
+  }
 }
 
 int terrama2::services::analysis::core::dcp::count(const std::string& dataSeriesName, Buffer buffer)

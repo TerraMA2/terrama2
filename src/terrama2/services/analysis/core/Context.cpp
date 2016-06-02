@@ -57,7 +57,7 @@
 #include <ctime>
 #include <iomanip>
 #include <mutex>
-
+#include <pystate.h>
 
 
 std::map<std::string, std::map<std::string, double> > terrama2::services::analysis::core::Context::analysisResult(size_t analysisHashCode)
@@ -295,19 +295,18 @@ bool terrama2::services::analysis::core::Context::exists(const size_t analysisHa
   return it != datasetMap_.end();
 }
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::Context::getAnalysis(AnalysisId analysisId) const
+terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::Context::getAnalysis(size_t analysisHashCode) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  auto dataManagerPtr = dataManager_.lock();
-  if(!dataManagerPtr)
-  {
-    QString msg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << msg;
-    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
-  }
+  auto it = analysisMap_.find(analysisHashCode);
+  if(it != analysisMap_.end())
+    return it->second;
 
-  return dataManagerPtr->findAnalysis(analysisId);
+  QString msg(QObject::tr("Could not find the analysis in the Context."));
+  TERRAMA2_LOG_ERROR() << msg;
+  throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
+
 }
 
 void terrama2::services::analysis::core::Context::addDataSeries(const size_t analysisHashCode,
@@ -445,3 +444,25 @@ void terrama2::services::analysis::core::Context::clearAnalysisContext(size_t an
     }
   }
 }
+
+void terrama2::services::analysis::core::Context::addAnalysis(Analysis analysis)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  analysisMap_[analysis.hashCode()] = analysis;
+}
+
+void terrama2::services::analysis::core::Context::setMainThreadState(PyThreadState* state)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  mainThreadState_ = state;
+}
+
+PyThreadState* terrama2::services::analysis::core::Context::getMainThreadState() const
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  return mainThreadState_;
+}
+
+
+
+

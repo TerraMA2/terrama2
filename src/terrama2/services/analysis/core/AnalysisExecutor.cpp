@@ -69,6 +69,15 @@ void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>
 
 void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, const Analysis& analysis,unsigned int threadNumber)
 {
+  TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution").arg(analysis.id);
+
+  // If it's the first analysis to be run, it needs to set the main thread state in the context.
+  if(Context::getInstance().getMainThreadState() == nullptr)
+  {
+    Context::getInstance().setMainThreadState(PyThreadState_Get());
+  }
+
+  Context::getInstance().addAnalysis(analysis);
 
   switch(analysis.type)
   {
@@ -82,9 +91,14 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       runDCPAnalysis(dataManager, analysis, threadNumber);
       break;
     }
+    case GRID_TYPE:
+    {
+      runGridAnalysis(dataManager, analysis, threadNumber);
+      break;
+    }
     default:
     {
-      QString errMsg = QObject::tr("Not implemented yet.");
+      QString errMsg = QObject::tr("Invalid analysis type.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw Exception()  << ErrorDescription(errMsg);
     }
@@ -130,11 +144,13 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       }
     }
 
-    // save a pointer to the main PyThreadState object
-    PyThreadState * mainThreadState = PyThreadState_Get();
+    // Recovers the main thread state
+    PyThreadState * mainThreadState = Context::getInstance().getMainThreadState();
+    assert(mainThreadState != nullptr);
 
     // get a reference to the PyInterpreterState
     PyInterpreterState * mainInterpreterState = mainThreadState->interp;
+    assert(mainInterpreterState != nullptr);
 
     if(threadNumber > size)
       threadNumber = size;
@@ -173,7 +189,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       // create a thread state object for this thread
       PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
-      threads[i] = std::thread(&terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis, myThreadState, analysis.id, indexes);
+      threads[i] = std::thread(&terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis, myThreadState, analysis.hashCode(), indexes);
 
       begin += packageSize;
     }
@@ -226,11 +242,13 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
       }
     }
 
-    // save a pointer to the main PyThreadState object
-    PyThreadState* mainThreadState = PyThreadState_Get();
+    // Recovers the main thread state
+    PyThreadState * mainThreadState = Context::getInstance().getMainThreadState();
+    assert(mainThreadState != nullptr);
 
     // get a reference to the PyInterpreterState
-    PyInterpreterState* mainInterpreterState = mainThreadState->interp;
+    PyInterpreterState * mainInterpreterState = mainThreadState->interp;
+    assert(mainInterpreterState != nullptr);
 
     // create a thread state object for this thread
     PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
@@ -389,3 +407,12 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
 
   }
 }
+
+void ::terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr shared_ptr, const Analysis& analysis, unsigned int number)
+{
+  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception()  << ErrorDescription(errMsg);
+}
+
+
