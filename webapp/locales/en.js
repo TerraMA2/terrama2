@@ -283,5 +283,15 @@
 	"Log password": "Log password",
 	"Invalid range of ports": {
 		" A valid port is from 1 to 65535": "Invalid range of ports. A valid port is from 1 to 65535"
-	}
+	},
+	"Number of Threads": "Number of Threads",
+	"Enviroment": "Enviroment",
+	"Select DataSeries": "Select DataSeries",
+	"No data series selected": "No data series selected",
+	"Influence Radius": "Influence Radius",
+	"Influence Area": "Influence Area",
+	"Influence is required": "Influence is required",
+	"Influence radius is required": "Influence radius is required",
+	"Influence data series is required": "Influence data series is required",
+	"Influence attribute name is required": "Influence attribute name is required"
 }

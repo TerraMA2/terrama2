@@ -55,7 +55,7 @@
         </td>
         <td ng-repeat="field in identityFields ">
 
-          <a ng-href="{{ link()(element) }}" ng-if="link">{{ element[field] }}</a>
+          <a ng-href="{{ link()(element) }}" ng-if="link">{{ processField(field, element) }}</a>
           <!--{{ element[field] }}-->
         </td>
 

@@ -57,3 +57,8 @@ std::string terrama2::core::DataAccessorStaticDataOGR::dataSourceType() const
 {
   return "OGR";
 }
+
+std::string terrama2::core::DataAccessorStaticDataOGR::getTimeZone(DataSetPtr dataSet, bool /*logErrors*/) const
+{
+  return terrama2::core::DataAccessorFile::getTimeZone(dataSet, false);
+}

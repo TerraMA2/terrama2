@@ -78,6 +78,7 @@ module.exports = function(app) {
     get: function(request, response) {
       var dataSeriesId = request.params.id;
       var dataSeriesType = request.query.type;
+      var schema = request.query.schema;
 
       // collector scope
       var collector = request.query['collector'];
@@ -104,9 +105,13 @@ module.exports = function(app) {
         };
       }
 
-      if (collector) {
-        console.log("has collector ", collector);
-        restriction.Collector = {};
+      if (!schema) {
+        if (collector) {
+          console.log("has collector ", collector);
+          restriction.Collector = {};
+        }
+      } else {
+        restriction.schema = schema;
       }
 
       if (dataSeriesId) {
@@ -120,7 +125,7 @@ module.exports = function(app) {
         DataManager.listDataSeries(restriction).then(function(dataSeriesList) {
           var output = [];
           dataSeriesList.forEach(function(dataSeries) {
-            output.push(dataSeries.toObject());
+            output.push(dataSeries.rawObject());
           });
           response.json(output);
         }).catch(function(err) {
@@ -153,7 +158,12 @@ module.exports = function(app) {
               Utils.handleRequestError(response, err, 400);
             });
           }).catch(function(err) {
-            Utils.handleRequestError(response, err, 400);
+            // if not find collector, it is processing data series or analysis data series
+            DataManager.removeDataSerie({id: dataSeriesResult.id}).then(function() {
+              response.json({status: 200, name: dataSeriesResult.name});
+            }).catch(function(error) {
+              Utils.handleRequestError(response, error, 400);
+            })
           });
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
