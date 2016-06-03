@@ -40,6 +40,9 @@ angular.module('terrama2.analysis.registration', [
     // filter for dataseries basead analysis type. If obj monitored, then this list will be list of obj monitored and occurrences
     $scope.filteredDataSeries = [];
 
+    // helper of semantics selected to display in gui: Object Monitored, Dcp, Grid, etc.
+    $scope.semanticsSelected = "";
+
     // dataseries tree modal
     $scope.treeOptions = {
       nodeChildren: "children",
@@ -71,12 +74,15 @@ angular.module('terrama2.analysis.registration', [
       switch(parseInt(value)) {
         case globals.enums.AnalysisType.DCP:
           semanticsType = globals.enums.DataSeriesType.DCP;
+          $scope.semanticsSelected = "Dcp";
           break;
         case globals.enums.AnalysisType.GRID:
           semanticsType = globals.enums.DataSeriesType.GRID;
+          $scope.semanticsSelected = "Grid";
           break;
         case globals.enums.AnalysisType.MONITORED:
           semanticsType = globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
+          $scope.semanticsSelected = "Object Monitored";
           break;
         default:
           console.log("invalid analysis type");
