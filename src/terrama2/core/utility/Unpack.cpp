@@ -60,6 +60,8 @@
 #include <QLocale>
 #include <QFile>
 #include <QByteArray>
+
+// Quazip
 #include <JlCompress.h>
 #include <quazip.h>
 
@@ -375,7 +377,7 @@ void terrama2::core::Unpack::untar(const std::string& path)
       case '4':
       {
         QString errMsg = QObject::tr("Ignoring block device %1").arg(buff);
-        TERRAMA2_LOG_DEBUG() << errMsg;        
+        TERRAMA2_LOG_DEBUG() << errMsg;
         break;
       }
       case '5':
