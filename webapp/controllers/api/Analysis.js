@@ -12,7 +12,7 @@ module.exports = function(app) {
       DataManager.listAnalyses(restriction).then(function(analyses) {
         var output = [];
         analyses.forEach(function(analysis) {
-          output.push(analysis.toObject());
+          output.push(analysis.rawObject());
         })
         return response.json(output);
       }).catch(function(err) {

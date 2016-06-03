@@ -11,7 +11,11 @@ var Analysis = module.exports = function(params) {
   else
     this.script_language = params.script_language || {};
 
-  this.type_id = params.type_id;
+  if (params.AnalysisType)
+    this.type = params.AnalysisType.get();
+  else
+    this.type = params.type || {};
+
   this.name = params.name;
   this.description = params.description;
   this.active = params.active;
@@ -51,7 +55,7 @@ Analysis.prototype.setMetadata = function(metadata) {
   this.metadata = meta;
 };
 
-Analysis.prototype.toObject = function() {
+Analysis.prototype.getOutputDataSeries = function() {
   var outputDataSeriesList = [];
   this.analysis_dataseries_list.forEach(function(analysisDataSeries) {
     if (analysisDataSeries instanceof BaseClass)
@@ -59,13 +63,18 @@ Analysis.prototype.toObject = function() {
     else
       outputDataSeriesList.push(analysisDataSeries);
   })
+  return outputDataSeriesList;
+}
+
+Analysis.prototype.toObject = function() {
+  var outputDataSeriesList = this.getOutputDataSeries();
 
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
     script: this.script,
     script_language: this.script_language.id,
-    type: this['type_id'],
+    type: this.type.id,
     name: this.name,
     description: this.description,
     active: this.active,
@@ -75,3 +84,10 @@ Analysis.prototype.toObject = function() {
     schedule: this['schedule_id']
   });
 };
+
+Analysis.prototype.rawObject = function() {
+  var obj = this.toObject();
+
+  obj.type = this.type;
+  return obj;
+}

@@ -1388,26 +1388,7 @@ var DataManager = {
             case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
               // models.db.DataSetOccurrence.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
               models.db.DataSetMonitored.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
-              // console.log(analysisType)
-              // switch(analysisType.type) {
-              //   case DataSeriesType.DCP:
-              //     var analysisDataSetDcp = {
-              //       data_set_id: dataSet.id,
-              //       position: dataSetObject.position
-              //     };
-              //     models.db.DataSetDcp.create(analysisDataSetDcp).then(onSuccess).catch(onError);
-              //     break;
-              //   case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-              //     models.db.DataSetOccurrence.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
-              //     break;
-              //   case DataSeriesType.GRID:
-              //     // TODO:implement it
-              //     rollback(dataSet);
-              //     break;
-              //   default:
-              //     rollback(dataSet);
-              //     break;
-              // }
+
 
               break;
             default:
@@ -2057,7 +2038,8 @@ var DataManager = {
         include: [
           models.db['AnalysisDataSeries'],
           models.db['AnalysisMetadata'],
-          models.db['ScriptLanguage']
+          models.db['ScriptLanguage'],
+          models.db['AnalysisType']
         ]
       }).then(function(analysesResult) {
         var output = [];
