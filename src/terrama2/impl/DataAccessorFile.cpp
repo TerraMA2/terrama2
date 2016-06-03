@@ -369,21 +369,15 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
     addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
 
-    if(completeDataset->isEmpty())
-    {
-      QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
-      TERRAMA2_LOG_WARNING() << errMsg;
-    }
-
     //update lastest file timestamp
     if(lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
       lastFileTimestamp = thisFileTimestamp;
   }// for each file
 
-  if(!completeDataset.get())
+  if(!completeDataset.get() || completeDataset->isEmpty())
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_WARNING() << errMsg;
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
 

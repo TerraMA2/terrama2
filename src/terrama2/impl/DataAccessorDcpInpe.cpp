@@ -66,20 +66,6 @@ std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimesta
   return "N/A";
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZone(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("timezone");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
 std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSourceType() const
 {
   return "OGR";

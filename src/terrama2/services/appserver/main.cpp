@@ -32,6 +32,7 @@
 #include <terrama2/services/collector/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
@@ -89,8 +90,7 @@ createService(const std::string& serviceType)
   if(serviceType == analysisType)
     return createAnalysis();
 
-  //FIXME: invalid service type return code
-  exit(-1);
+  exit(SERVICE_LOAD_ERROR);
 }
 
 int main(int argc, char* argv[])
@@ -128,6 +128,9 @@ int main(int argc, char* argv[])
     // service context
     // this is needed for calling the destructor of the service before finalizing terralib
     {
+      // Must initialize the python interpreter before creating any thread.
+      terrama2::services::analysis::core::initInterpreter();
+
       QCoreApplication app(argc, argv);
 
       std::shared_ptr<terrama2::core::DataManager> dataManager;
@@ -135,10 +138,9 @@ int main(int argc, char* argv[])
       std::tie(dataManager, service) = createService(serviceType);
       if(!service.get()
           || !dataManager.get())
-        return -1;//FIXME: error creating service return code
+        return SERVICE_LOAD_ERROR;
 
       auto tcpManager = std::make_shared<terrama2::core::TcpManager>(dataManager);
-      tcpManager->listen(QHostAddress::Any, serviceManager.listeningPort());
       if(!tcpManager->listen(QHostAddress::Any, serviceManager.listeningPort()))
       {
         std::cerr << QObject::tr("\nUnable to listen to port: ").toStdString() << serviceManager.listeningPort() << "\n" << std::endl;
