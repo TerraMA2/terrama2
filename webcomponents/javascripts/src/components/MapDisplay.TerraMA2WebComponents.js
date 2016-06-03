@@ -70,14 +70,16 @@ define(
      * Updates the parameters of the source of a given layer.
      * @param {string} layerId - Layer id
      * @param {object} params - New layer source parameters
+     * @param {boolean} refresh - Flag that indicates if the source should be refreshed
      *
      * @function updateLayerSourceParams
      * @memberof MapDisplay
      * @inner
      */
-    var updateLayerSourceParams = function(layerId, params) {
+    var updateLayerSourceParams = function(layerId, params, refresh) {
       var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
       layer.getSource().updateParams(params);
+      if(refresh) layer.getSource().refresh();
     };
 
     /**
