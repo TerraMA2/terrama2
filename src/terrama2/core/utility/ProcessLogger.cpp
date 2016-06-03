@@ -80,8 +80,10 @@ void terrama2::core::ProcessLogger::setDataSource(std::shared_ptr< te::da::DataS
 
 terrama2::core::ProcessLogger::~ProcessLogger()
 {
-  dataSource_->close();
+  if(dataSource_)
+    dataSource_->close();
 }
+
 
 RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 {

@@ -34,6 +34,8 @@
 #include <terrama2/core/utility/ProcessLogger.hpp>
 
 #include "MockDataSource.hpp"
+#include "MockDataSourceTransactor.hpp"
+#include "MockDataSet.hpp"
 
 
 class TestLogger : public terrama2::core::ProcessLogger
@@ -44,6 +46,15 @@ public:
   {
     std::shared_ptr< te::da::MockDataSource > mockDataSource;
     setDataSource(mockDataSource);
+
+    std::auto_ptr<te::da::DataSourceTransactor> mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
+//    std::auto_ptr< te::da::MockDataSourceTransactor > mockDataSourceTransactor;
+
+//    te::da::MockDataSourceTransactor mTransactor;
+//    std::auto_ptr< te::da::DataSourceTransactor > mock(dynamic_cast<te::da::DataSourceTransactor*>(&mTransactor));
+
+    ON_CALL(*mockDataSource.get(), getTransactor()).WillByDefault(::testing::Return(mockDataSourceTransactor));
+
   }
 
   virtual ~TestLogger() = default;

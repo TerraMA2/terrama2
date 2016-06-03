@@ -35,6 +35,7 @@
 #include "TestLogger.hpp"
 
 
+
 void TsLogger::testProcessLogger()
 {
   TestLogger log;

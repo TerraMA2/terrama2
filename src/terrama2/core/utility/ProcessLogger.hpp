@@ -83,37 +83,37 @@ namespace terrama2
        * \brief Log the start of the process.
        * \return The ID of table register
        */
-      RegisterId start(ProcessId processId) const;
+      virtual RegisterId start(ProcessId processId) const;
 
       /*!
        * \brief Log an error in the process
        * \param description Error description
        */
-      void error(const std::string description, const RegisterId registerId) const;
+      virtual void error(const std::string description, const RegisterId registerId) const;
 
       /*!
        * \brief Log the end of process
        * \param dataTimestamp The las timestamp of data.
        */
-      void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
+      virtual void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
 
       /*!
        * \brief Returns the process last log timestamp
        * \return A TimeInstantTZ with the last time that process logged something
        */
-      std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
+      virtual std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
 
       /*!
        * \brief Returns the last timestamp of a data
        * \return A TimeInstantTZ with the data last timestamp
        */
-      std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const RegisterId registerId) const;
+      virtual std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const RegisterId registerId) const;
 
       /*!
        * \brief Returns the process ID
        * \return Returns the process ID
        */
-      ProcessId processID(const RegisterId registerId) const;
+      virtual ProcessId processID(const RegisterId registerId) const;
 
     protected:
 
@@ -126,7 +126,6 @@ namespace terrama2
        * \brief Set the process logger data source
        */
       void setDataSource(std::shared_ptr< te::da::DataSource > dataSource);
-
 
       /*!
        * \brief Store data in a Json to be logged after
