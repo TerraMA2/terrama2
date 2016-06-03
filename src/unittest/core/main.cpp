@@ -14,7 +14,7 @@
 #include "TsDataRetrieverFTP.hpp"
 
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   int ret = 0;
   QCoreApplication app(argc, argv);
@@ -26,11 +26,26 @@ int main(int argc, char **argv)
 
   terrama2::core::disableLogger();
 
- // TsUtility testUtility;
- // ret += QTest::qExec(&testUtility, argc, argv);
+  try
+  {
+    TsUtility testUtility;
+    ret += QTest::qExec(&testUtility, argc, argv);
+  }
+  catch(...)
+  {
 
-  TsDataRetrieverFTP testDataRetrieverFTP;
-  ret += QTest::qExec(&testDataRetrieverFTP, argc, argv);
+  }
+
+  try
+  {
+    TsDataRetrieverFTP testDataRetrieverFTP;
+    ret += QTest::qExec(&testDataRetrieverFTP, argc, argv);
+  }
+  catch(...)
+  {
+
+  }
+
 
   terrama2::core::finalizeTerralib();
 

@@ -31,13 +31,21 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_ANALYSIS_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_ANALYSIS_HPP__
 
+#include "Exception.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../Typedef.hpp"
 
+// QT
+#include <QObject>
+
 // STL
 #include <string>
 #include <vector>
+
+// TerraLib
+#include <terralib/datatype/TimeInstantTZ.h>
+
 
 namespace terrama2
 {
@@ -122,22 +130,26 @@ namespace terrama2
           bool active = true; //!< Defines if the analysis is active, if true it will be executed according to the schedule.
           DataSeriesId outputDataSeriesId; //!< The dataset that stores the result of the analysis.
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
-          std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this anlysis.
+          std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
+          std::shared_ptr<te::dt::TimeInstantTZ> startDate; //!< Execution start date.
 
-          DataSeriesId findAnalysisDataSeriesByAlias(const std::string& dataSeriesName)
+          /*!
+           \brief Hash code is formed from the hash of the string AnalysisId + startDate.
+          */
+          size_t hashCode() const
           {
-            for(auto analysisDataSeries : analysisDataSeriesList)
-            {
-              if(analysisDataSeries.alias == dataSeriesName)
-              {
-                return analysisDataSeries.dataSeriesId;
-              }
-            }
-            return terrama2::core::InvalidId();
+            if(!startDate)
+              throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));
+
+            std::string str = std::to_string(id) + startDate->toString();
+            std::hash<std::string> hash_fn;
+            return hash_fn(str);
           }
 
+          friend bool operator==(const Analysis& lhs, const Analysis& rhs){ return lhs.id == rhs.id; }
         };
+
 
       } // end namespace core
     }   // end namespace analysis

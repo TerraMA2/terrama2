@@ -87,17 +87,17 @@ namespace terrama2
         /*!
           \brief Run Python script for a monitored object analysis.
           \param state Python thread state.
-          \param analysisId Analysis identifier.
+          \param analysisHashCode Analysis hash code.
           \param indexes Vector of geometries indexes.
         */
-        void runScriptMonitoredObjectAnalysis(PyThreadState* state, uint64_t analysisId, std::vector<uint64_t> indexes);
+        void runScriptMonitoredObjectAnalysis(PyThreadState* state, size_t analysisHashCode, std::vector<uint64_t> indexes);
 
         /*!
           \brief Run Python script for a monitored object analysis.
           \param state Python thread state.
-          \param analysisId Analysis identifier.
+          \param analysisHashCode Analysis hash code.
         */
-        void runScriptDCPAnalysis(PyThreadState* state, uint64_t analysisId);
+        void runScriptDCPAnalysis(PyThreadState* state, size_t analysisHashCode);
 
         /*!
           \brief Read analysis information from Python thread dict.
@@ -129,7 +129,7 @@ namespace terrama2
           \param attributeType The attribute type.
           \return The attribute value for the given position
         */
-        double getValue(terrama2::core::SyncronizedDataSetPtr syncDs, const std::string& attribute, uint64_t i, int attributeType);
+        double getValue(terrama2::core::SynchronizedDataSetPtr syncDs, const std::string& attribute, uint64_t i, int attributeType);
 
         /*!
          \brief Calculates the statistics based on the given values.
