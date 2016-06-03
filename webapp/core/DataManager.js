@@ -2048,7 +2048,7 @@ var DataManager = {
           var analysisObject = new DataModel.Analysis(analysis.get());
 
           analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
-            analysisObject.addAnalysisDataSeries(analysisDataSeries.get());
+            analysisObject.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
           });
 
           output.push(analysisObject);
