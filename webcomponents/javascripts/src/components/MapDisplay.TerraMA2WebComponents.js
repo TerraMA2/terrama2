@@ -83,6 +83,21 @@ define(
     };
 
     /**
+     * Updates a given attribute of a given layer with a given value.
+     * @param {string} layerId - Layer id
+     * @param {string} key - Attribute name
+     * @param {string} value - Attribute new value
+     *
+     * @function updateLayerAttribute
+     * @memberof MapDisplay
+     * @inner
+     */
+    var updateLayerAttribute = function(layerId, key, value) {
+      var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+      layer.set(key, value, false);
+    };
+
+    /**
      * Corrects the longitude of the map, if it's wrong. That's necessary because Openlayers 3 (in the current version) has a bug, when the map is moved to the right or to the left the X coordinate keeps growing.
      * @param {float} longitude - Original longitude
      * @returns {float} correctedLongitude - Corrected longitude
@@ -975,6 +990,7 @@ define(
       getMap: getMap,
       updateMapSize: updateMapSize,
       updateLayerSourceParams: updateLayerSourceParams,
+      updateLayerAttribute: updateLayerAttribute,
       addMousePosition: addMousePosition,
       removeMousePosition: removeMousePosition,
       addScale: addScale,
