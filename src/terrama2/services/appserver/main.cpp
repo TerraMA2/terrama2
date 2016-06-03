@@ -32,6 +32,7 @@
 #include <terrama2/services/collector/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
@@ -127,6 +128,9 @@ int main(int argc, char* argv[])
     // service context
     // this is needed for calling the destructor of the service before finalizing terralib
     {
+      // Must initialize the python interpreter before creating any thread.
+      terrama2::services::analysis::core::initInterpreter();
+
       QCoreApplication app(argc, argv);
 
       std::shared_ptr<terrama2::core::DataManager> dataManager;
