@@ -53,8 +53,15 @@ module.exports = {
 
   AnalysisType: {
     DCP: 1,
-    GRID: 2,
-    MONITORED: 3
+    MONITORED: 2,
+    GRID: 3
+  },
+
+  AnalysisDataSeriesType: {
+    DATASERIES_MONITORED_OBJECT_TYPE: 1,
+    DATASERIES_GRID_TYPE: 2,
+    DATASERIES_DCP_TYPE: 3,
+    ADDITIONAL_DATA_TYPE: 4
   },
 
   DataSeriesFormat: {

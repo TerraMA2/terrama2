@@ -37,6 +37,9 @@ angular.module('terrama2.analysis.registration', [
       "dynamic": []
     }
 
+    // filter for dataseries basead analysis type. If obj monitored, then this list will be list of obj monitored and occurrences
+    $scope.filteredDataSeries = [];
+
     // dataseries tree modal
     $scope.treeOptions = {
       nodeChildren: "children",
@@ -66,14 +69,14 @@ angular.module('terrama2.analysis.registration', [
       $scope.analysis.metadata = {};
       var semanticsType;
       switch(parseInt(value)) {
-        case 1:
-          semanticsType = "DCP";
+        case globals.enums.AnalysisType.DCP:
+          semanticsType = globals.enums.DataSeriesType.DCP;
           break;
-        case 2:
-          semanticsType = "GRID";
+        case globals.enums.AnalysisType.GRID:
+          semanticsType = globals.enums.DataSeriesType.GRID;
           break;
-        case 3:
-          semanticsType = "ANALYSIS_MONITORED_OBJECT";
+        case globals.enums.AnalysisType.MONITORED:
+          semanticsType = globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
           break;
         default:
           console.log("invalid analysis type");
@@ -81,10 +84,29 @@ angular.module('terrama2.analysis.registration', [
           break;
       }
 
+      $scope.$watch('targetDataSeries', function(value) {
+        if (value && value.name)
+          $scope.metadata[value.name] = {alias: value.name};
+      })
+
+      // filtering formats
       $scope.storagerFormats = [];
       $scope.dataSeriesSemantics.forEach(function(dSemantics) {
         if(dSemantics.data_series_type_name === semanticsType) {
           $scope.storagerFormats.push(Object.assign({}, dSemantics));
+        }
+      });
+
+      // filtering dataseries
+      $scope.filteredDataSeries = [];
+      $scope.dataSeriesList.forEach(function(dataSeries) {
+        var semantics = dataSeries.data_series_semantics;
+        if (semanticsType === globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT) {
+          if (semantics.data_series_type_name === globals.enums.DataSeriesType.OCCURRENCE || semantics.data_series_type_name === semanticsType)
+            $scope.filteredDataSeries.push(dataSeries);
+        }
+        else if (semantics.data_series_type_name === semanticsType) {
+          $scope.filteredDataSeries.push(dataSeries);
         }
       });
     });
@@ -290,16 +312,21 @@ angular.module('terrama2.analysis.registration', [
         return;
       }
 
+      if ($scope.targetDataSeriesForm.$invalid) {
+        formErrorDisplay($scope.targetDataSeriesForm);
+        return;
+      }
+
       if ($scope.scriptForm.$invalid) {
         formErrorDisplay($scope.scriptForm);
         return;
       }
 
-      // checking for empty data series
-      if ($scope.isEmptyDataSeries()) {
-        makeDialog("alert-danger", "Select at least a Data Series", true);
-        return;
-      }
+      // // checking for empty data series
+      // if ($scope.isEmptyDataSeries()) {
+      //   makeDialog("alert-danger", "Select at least a Data Series", true);
+      //   return;
+      // }
 
       // checking dataseries analysis
       var dataSeriesError = {};
@@ -325,18 +352,51 @@ angular.module('terrama2.analysis.registration', [
       }
 
       var analysisDataSeriesArray = [];
-      // todo: improve it
-      // temp code for sending analysis dataseries
-      $scope.selectedDataSeriesList.forEach(function(selectedDS) {
+
+      var _makeAnalysisDataSeries = function(selectedDS, type_id) {
         var metadata = $scope.metadata[selectedDS.name] || {};
-        var analysisDataSeries = {
+
+        // var semantics = selectedDS.data_series_semantics;
+
+        // switch(semantics.data_series_type_name) {
+        //   case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+        //   case globals.enums.DataSeriesType.OCCURRENCE:
+        //     type_id = globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
+        //     break;
+        //   case globals.enums.DataSeriesType.DCP:
+        //     type_id = globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
+        //     break;
+        //   case globals.enums.DataSeriesType.STATIC_DATA:
+        //     type_id = globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE;
+        //     break;
+        //   case globals.enums.DataSeriesType.GRID:
+        //     type_id = globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
+        //     break;
+        //   default:
+        //     // TODO: throw exception, remove it from list
+        //     $scope.alertBox.title = "Data Series";
+        //     $scope.alertBox.message = "Invalid data series semantics: ";
+        //     $scope.alertLevel = "alert-danger";
+        //     $scope.display = true;
+        //     return;
+        // }
+        return {
           data_series_id: selectedDS.id,
           metadata: metadata,
           alias: metadata.alias,
           // todo: check it
-          type_id: $scope.analysis.type_id
+          type_id: type_id
         };
+      };
 
+      // target data series
+      analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, $scope.analysis.type_id));
+
+      // todo: improve it
+      // temp code for sending analysis dataseries
+      $scope.selectedDataSeriesList.forEach(function(selectedDS) {
+        // additional data
+        var analysisDataSeries = _makeAnalysisDataSeries(selectedDS, globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE);
         analysisDataSeriesArray.push(analysisDataSeries);
       });
 

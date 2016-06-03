@@ -32,6 +32,17 @@
 
 {% block javascripts %}
 
+<script type="text/javascript">
+  // defining global values
+  var globals = {
+    enums: {
+      AnalysisType: {[ Enums.AnalysisType|json|safe ]} || {},
+      AnalysisDataSeriesType: {[ Enums.AnalysisDataSeriesType|json|safe ]} || {},
+      DataSeriesType: {[ Enums.DataSeriesType|json|safe ]} || {},
+    }
+  }
+</script>
+
 <!-- Angular -->
 <script type="text/javascript" src="/externals/angular/angular.min.js"></script>
 
@@ -165,9 +176,9 @@
                                                      'has-success': generalDataForm.type.$dirty && generalDataForm.type.$valid}">
                     <label>{[ __("Type") ]}:</label>
                     <select class="form-control" name="type" ng-model="analysis.type_id" required>
-                      <option value="1">DCP</option>
-                      <option value="2">Grid</option>
-                      <option value="3">Monitored Object</option>
+                      <option value="{[ Enums.AnalysisType.DCP ]}">DCP</option>
+                      <option value="{[ Enums.AnalysisType.GRID ]}">Grid</option>
+                      <option value="{[ Enums.AnalysisType.MONITORED ]}">Monitored Object</option>
                     </select>
 
                     <span class="help-block" ng-show="generalDataForm.type.$dirty && generalDataForm.type.$error.required"
@@ -277,10 +288,48 @@
         </div>
       </div>
 
+      <!-- Target DataSeries (monitored/dcp, grid) -->
       <div class="col-md-12">
         <div class="box box-default box-solid" id="dataSeriesBox">
           <div class="box-header with-border">
             <h3 class="box-title">{[ __('Data Series') ]}</h3>
+
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+            </div>
+          </div>
+          <!-- /.box-header -->
+
+          <div style="display: block;" class="box-body">
+            <div class="row">
+              <div class="col-md-12">
+                <form name="targetDataSeriesForm">
+                  <div class="col-md-6">
+                    <div class="form-group has-feedback"
+                      ng-class="{'has-error': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required, 'has-success': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$valid}">
+                      <label>{[ __("DataSeries") ]}:</label>
+                      <select class="form-control" name="targetDataSeries" ng-model="targetDataSeries" ng-options="targetDS as targetDS.name for targetDS in filteredDataSeries" required>
+                      </select>
+
+                      <!-- required -->
+                      <span class="help-block" ng-show="targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required">
+                        {[ __('Data Series is required') ]}
+                      </span>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Data -->
+      <div class="col-md-12">
+        <div class="box box-default box-solid" id="dataSeriesBox">
+          <div class="box-header with-border">
+            <h3 class="box-title">{[ __('Additional Data') ]}</h3>
 
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
