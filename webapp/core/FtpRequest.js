@@ -1,5 +1,5 @@
 var AbstractRequest = require('./AbstractRequest');
-var Client = require('ftp');
+var Client = require('jsftp');
 var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var Form = require("./Enums").Form;
@@ -17,10 +17,11 @@ FtpRequest.prototype.constructor = FtpRequest;
 FtpRequest.prototype.request = function() {
   var self = this;
   return  new Promise(function(resolve, reject) {
-    var client = new Client();
-    client.on('ready', function() {
-      client.end();
-      resolve();
+    var client = new Client({
+      user: self.params[self.syntax().USER],
+      pass: self.params[self.syntax().PASSWORD],
+      host: self.params[self.syntax().HOST],
+      port: self.params[self.syntax().PORT]
     });
 
     client.on('error', function(err) {
@@ -37,14 +38,15 @@ FtpRequest.prototype.request = function() {
         default:
           error = new Exceptions.ConnectionError("Error in connection");
       }
+
       reject(error);
     });
 
-    client.connect({
-      user: self.params[self.syntax().USER],
-      pass: self.params[self.syntax().PASSWORD],
-      host: self.params[self.syntax().HOST],
-      port: self.params[self.syntax().PORT]
+    client.raw.quit(function(err, data) {
+      if (err)
+        return reject(err)
+
+      resolve();
     });
   });
 };

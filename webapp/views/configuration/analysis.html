@@ -244,7 +244,11 @@
                   <div class="form-group" ng-class="{'has-error': storagerDataForm.format.$dirty && storagerDataForm.format.$error.required,
                                   'has-success': storagerDataForm.format.$dirty && storagerDataForm.format.$valid}">
                     <label>{[ __('Output Format') ]}:</label>
-                      <select id="storageFormat" class="form-control" name="format" ng-change="onStoragerFormatChange()" ng-model="storager.format" ng-options="format.name for format in storagerFormats" required>
+                      <select id="storageFormat" class="form-control"
+                              name="format"
+                              ng-change="onStoragerFormatChange()"
+                              ng-model="storager.format"
+                              ng-options="format.name for format in storagerFormats" required>
                     </select>
                   </div>
                 </div>

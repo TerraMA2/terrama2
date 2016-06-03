@@ -47,7 +47,6 @@ module.exports = {
     OCCURRENCE: 'OCCURRENCE',
     GRID: 'GRID',
     ANALYSIS_MONITORED_OBJECT: 'ANALYSIS_MONITORED_OBJECT',
-    ANALYSIS: 'ANALYSIS',
     STATIC_DATA: 'STATIC_DATA',
     POSTGIS: 'POSTGIS'
   },
@@ -110,5 +109,10 @@ module.exports = {
       Name: "Region",
       Value: 3
     }
+  },
+
+  ScriptLanguage: {
+    PYTHON: 1,
+    LUA: 2
   }
 };

@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          DataProviderType.hasMany(models['SemanticsProvidersType'], {
+          DataProviderType.hasMany(models.SemanticsProvidersType, {
             onDelete: "CASCADE",
             foreignKey: {
               name: 'data_provider_type_id',

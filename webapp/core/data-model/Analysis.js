@@ -4,13 +4,28 @@ var Analysis = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Analysis'});
   this.id = params.id;
   this.project_id = params.project_id;
-  this.script_language = params.script_language;
-  this.type_id = params.type_id;
+  this.script = params.script;
+
+  if (params.ScriptLanguage)
+    this.script_language = params.ScriptLanguage.get();
+  else
+    this.script_language = params.script_language || {};
+
+  if (params.AnalysisType)
+    this.type = params.AnalysisType.get();
+  else
+    this.type = params.type || {};
+
   this.name = params.name;
   this.description = params.description;
   this.active = params.active;
   this.dataset_output = params.dataset_output;
-  this.metadata = params.metadata || {};
+
+  if (params.AnalysisMetadata)
+    this.setMetadata(params.AnalysisMetadata);
+  else
+    this.metadata = params.metadata || {};
+
   this.analysis_dataseries_list = [];
   this.schedule_id = params.schedule_id;
 };
@@ -23,10 +38,24 @@ Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
 };
 
 Analysis.prototype.setMetadata = function(metadata) {
-  this.metadata = metadata;
+  var meta = {};
+  if (metadata instanceof Array) {
+    // array of sequelize model
+    metadata.forEach(function(element) {
+      meta[element.key] = element.value;
+    })
+  } else {
+    for(var key in metadata) {
+      if (metadata.hasOwnProperty(key)) {
+        meta[key] = metadata[key];
+      }
+    }
+  }
+
+  this.metadata = meta;
 };
 
-Analysis.prototype.toObject = function() {
+Analysis.prototype.getOutputDataSeries = function() {
   var outputDataSeriesList = [];
   this.analysis_dataseries_list.forEach(function(analysisDataSeries) {
     if (analysisDataSeries instanceof BaseClass)
@@ -34,12 +63,18 @@ Analysis.prototype.toObject = function() {
     else
       outputDataSeriesList.push(analysisDataSeries);
   })
+  return outputDataSeriesList;
+}
+
+Analysis.prototype.toObject = function() {
+  var outputDataSeriesList = this.getOutputDataSeries();
 
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
-    script_language: this.script_language,
-    type: this['type_id'],
+    script: this.script,
+    script_language: this.script_language.id,
+    type: this.type.id,
     name: this.name,
     description: this.description,
     active: this.active,
@@ -49,3 +84,10 @@ Analysis.prototype.toObject = function() {
     schedule: this['schedule_id']
   });
 };
+
+Analysis.prototype.rawObject = function() {
+  var obj = this.toObject();
+
+  obj.type = this.type;
+  return obj;
+}
