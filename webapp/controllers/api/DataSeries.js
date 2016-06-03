@@ -158,7 +158,12 @@ module.exports = function(app) {
               Utils.handleRequestError(response, err, 400);
             });
           }).catch(function(err) {
-            Utils.handleRequestError(response, err, 400);
+            // if not find collector, it is processing data series or analysis data series
+            DataManager.removeDataSerie({id: dataSeriesResult.id}).then(function() {
+              response.json({status: 200, name: dataSeriesResult.name});
+            }).catch(function(error) {
+              Utils.handleRequestError(response, error, 400);
+            })
           });
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);

@@ -52,15 +52,6 @@ terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::se
   connectDataManager();
 }
 
-void terrama2::services::collector::core::Service::updateNumberOfThreads(int numberOfThreads)
-{
-  numberOfThreads = verifyNumberOfThreads(numberOfThreads);
-  //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
-  stop();
-  start(numberOfThreads);
-}
-
-
 bool terrama2::services::collector::core::Service::hasDataOnQueue() noexcept
 {
   return !collectorQueue_.empty();

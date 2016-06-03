@@ -20,6 +20,7 @@
     "glob": "^7.0.3",
     "i18n": "0.8.1",
     "i18n-node-angular": "^1.4.0",
+    "jsftp": "^1.5.3",
     "lodash": "4.6.1",
     "method-override": "^2.3.5",
     "mocha": "^2.4.5",

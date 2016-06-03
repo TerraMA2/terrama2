@@ -36,7 +36,7 @@
 #include "PythonInterpreter.hpp"
 #include "Context.hpp"
 #include "DataManager.hpp"
-#include "../../../core/data-access/SyncronizedDataSet.hpp"
+#include "../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
@@ -67,34 +67,48 @@ void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>
   std::for_each(threads.begin(), threads.end(), joinThread);
 }
 
-void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, const Analysis& analysis)
+void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, const Analysis& analysis,unsigned int threadNumber)
 {
+  TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution").arg(analysis.id);
+
+  // If it's the first analysis to be run, it needs to set the main thread state in the context.
+  if(Context::getInstance().getMainThreadState() == nullptr)
+  {
+    Context::getInstance().setMainThreadState(PyThreadState_Get());
+  }
+
+  Context::getInstance().addAnalysis(analysis);
 
   switch(analysis.type)
   {
     case MONITORED_OBJECT_TYPE:
     {
-      runMonitoredObjectAnalysis(dataManager, analysis);
+      runMonitoredObjectAnalysis(dataManager, analysis, threadNumber);
       break;
     }
     case PCD_TYPE:
     {
-      runDCPAnalysis(dataManager, analysis);
+      runDCPAnalysis(dataManager, analysis, threadNumber);
+      break;
+    }
+    case GRID_TYPE:
+    {
+      runGridAnalysis(dataManager, analysis, threadNumber);
       break;
     }
     default:
     {
-      QString errMsg = QObject::tr("Not implemented yet.");
+      QString errMsg = QObject::tr("Invalid analysis type.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw Exception()  << ErrorDescription(errMsg);
     }
   }
 
   // Clears context
-  Context::getInstance().clearAnalysisContext(analysis.id);
+  Context::getInstance().clearAnalysisContext(analysis.hashCode());
 }
 
-void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis)
+void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber)
 {
   try
   {
@@ -110,7 +124,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
         assert(datasets.size() == 1);
         auto dataset = datasets[0];
 
-        auto contextDataset = terrama2::services::analysis::core::Context::getInstance().getContextDataset(analysis.id, dataset->id);
+        auto contextDataset = terrama2::services::analysis::core::Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id);
         if(!contextDataset->series.syncDataSet->dataset())
         {
           QString errMsg = QObject::tr("Could not recover monitored object dataset.");
@@ -130,15 +144,13 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       }
     }
 
-    //check for the number o threads to create
-    unsigned int threadNumber = std::thread::hardware_concurrency();
-
-    PyThreadState * mainThreadState = NULL;
-    // save a pointer to the main PyThreadState object
-    mainThreadState = PyThreadState_Get();
+    // Recovers the main thread state
+    PyThreadState * mainThreadState = Context::getInstance().getMainThreadState();
+    assert(mainThreadState != nullptr);
 
     // get a reference to the PyInterpreterState
     PyInterpreterState * mainInterpreterState = mainThreadState->interp;
+    assert(mainInterpreterState != nullptr);
 
     if(threadNumber > size)
       threadNumber = size;
@@ -177,7 +189,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       // create a thread state object for this thread
       PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
-      threads[i] = std::thread(&terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis, myThreadState, analysis.id, indexes);
+      threads[i] = std::thread(&terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis, myThreadState, analysis.hashCode(), indexes);
 
       begin += packageSize;
     }
@@ -212,7 +224,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 }
 
 
-void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis)
+void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber)
 {
   try
   {
@@ -225,16 +237,18 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
         auto dataSeriesPtr = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
         size =  dataSeriesPtr->datasetList.size();
 
-        Context::getInstance().addDCPDataSeries(analysis.id, dataSeriesPtr);
+        Context::getInstance().addDCPDataSeries(analysis.hashCode(), dataSeriesPtr);
         break;
       }
     }
 
-    // save a pointer to the main PyThreadState object
-    PyThreadState* mainThreadState = PyThreadState_Get();
+    // Recovers the main thread state
+    PyThreadState * mainThreadState = Context::getInstance().getMainThreadState();
+    assert(mainThreadState != nullptr);
 
     // get a reference to the PyInterpreterState
-    PyInterpreterState* mainInterpreterState = mainThreadState->interp;
+    PyInterpreterState * mainInterpreterState = mainThreadState->interp;
+    assert(mainInterpreterState != nullptr);
 
     // create a thread state object for this thread
     PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
@@ -267,7 +281,7 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
 
 void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis)
 {
-  auto resultMap = Context::getInstance().analysisResult(analysis.id);
+  auto resultMap = Context::getInstance().analysisResult(analysis.hashCode());
 
   if(resultMap.empty())
   {
@@ -276,7 +290,7 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
     return;
   }
 
-  auto attributes = Context::getInstance().getAttributes(analysis.id);
+  auto attributes = Context::getInstance().getAttributes(analysis.hashCode());
 
   auto dataSeries = dataManager->findDataSeries(analysis.outputDataSeriesId);
 
@@ -371,7 +385,7 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    std::shared_ptr<terrama2::core::SyncronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SyncronizedDataSet>(ds);
+    std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);
 
     terrama2::core::DataSetSeries series;
     series.teDataSetType.reset(dt);
@@ -393,3 +407,12 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
 
   }
 }
+
+void ::terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr shared_ptr, const Analysis& analysis, unsigned int number)
+{
+  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception()  << ErrorDescription(errMsg);
+}
+
+

@@ -30,6 +30,7 @@
 #include <cassert>
 #include <iostream>
 #include <functional>
+#include <vector>
 
 // Boost
 #include <boost/algorithm/string.hpp>

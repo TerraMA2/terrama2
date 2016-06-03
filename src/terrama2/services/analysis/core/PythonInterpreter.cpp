@@ -55,10 +55,10 @@
 using namespace boost::python;
 
 
-void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, uint64_t analysisId,
+void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, size_t analysisHashCode,
                                                                           std::vector<uint64_t> indexes)
 {
-  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
+  Analysis analysis = Context::getInstance().getAnalysis(analysisHashCode);
 
   for(uint64_t index : indexes)
   {
@@ -69,7 +69,7 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
 
 
     PyObject* indexValue = PyInt_FromLong(index);
-    PyObject* analysisValue = PyInt_FromLong(analysisId);
+    PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
 
     PyObject* poDict = PyDict_New();
     PyDict_SetItemString(poDict, "index", indexValue);
@@ -84,7 +84,7 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
     catch(...)
     {
       QString errMsg(QObject::tr("Analysis: %1 -> Error running the python script."));
-      errMsg = errMsg.arg(analysisId);
+      errMsg = errMsg.arg(analysis.id);
       TERRAMA2_LOG_ERROR() << errMsg;
     }
 
@@ -94,10 +94,10 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
   }
 }
 
-void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, uint64_t analysisId)
+void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, size_t analysisHasCode)
 {
 
-  Analysis analysis = Context::getInstance().getAnalysis(analysisId);
+  Analysis analysis = Context::getInstance().getAnalysis(analysisHasCode);
 
   // grab the global interpreter lock
   PyEval_AcquireLock();
@@ -106,7 +106,7 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
 
   PyThreadState_Clear(state);
 
-  PyObject* analysisValue = PyInt_FromLong(analysisId);
+  PyObject* analysisValue = PyInt_FromLong(analysisHasCode);
 
   PyObject* poDict = PyDict_New();
   PyDict_SetItemString(poDict, "analysis", analysisValue);
@@ -134,7 +134,7 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
     return;
   }
 
-  Analysis analysis = Context::getInstance().getAnalysis(cache.analysisId);
+  Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
   if(analysis.type == MONITORED_OBJECT_TYPE)
   {
     std::shared_ptr<ContextDataSeries> moDsContext;
@@ -150,14 +150,14 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         assert(dataSeries->datasetList.size() == 1);
         datasetMO = dataSeries->datasetList[0];
 
-        if(!Context::getInstance().exists(analysis.id, datasetMO->id))
+        if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
         {
           QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-          errMsg = errMsg.arg(cache.analysisId);
+          errMsg = errMsg.arg(analysis.id);
           TERRAMA2_LOG_ERROR() << errMsg;
         }
 
-        moDsContext = Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+        moDsContext = Context::getInstance().getContextDataset(analysis.hashCode(), datasetMO->id);
 
         if(moDsContext->identifier.empty())
           assert(false);
@@ -165,8 +165,8 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         // Stores the result in the context
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
 
-        Context::getInstance().addAttribute(cache.analysisId, attribute);
-        Context::getInstance().setAnalysisResult(cache.analysisId, geomId, attribute, value);
+        Context::getInstance().addAttribute(analysis.hashCode(), attribute);
+        Context::getInstance().setAnalysisResult(analysis.hashCode(), geomId, attribute, value);
       }
     }
   }
@@ -213,7 +213,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
 
-      if(!Context::getInstance().exists(analysis.id, datasetMO->id))
+      if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
       {
         QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
         errMsg = errMsg.arg(analysis.id);
@@ -221,14 +221,14 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
         return contextDataSeries;
       }
 
-      return Context::getInstance().getContextDataset(analysis.id, datasetMO->id);
+      return Context::getInstance().getContextDataset(analysis.hashCode(), datasetMO->id);
     }
   }
 
   return contextDataSeries;
 }
 
-double terrama2::services::analysis::core::getValue(terrama2::core::SyncronizedDataSetPtr syncDs,
+double terrama2::services::analysis::core::getValue(terrama2::core::SynchronizedDataSetPtr syncDs,
                                                     const std::string& attribute, uint64_t i, int attributeType)
 {
   if(attribute.empty())
@@ -473,7 +473,7 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
   // Analysis ID
   PyObject* analysisKey = PyString_FromString("analysis");
   PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
-  cache.analysisId = PyInt_AsLong(analysisPy);
+  cache.analysisHashCode = PyInt_AsLong(analysisPy);
 }
 
 
