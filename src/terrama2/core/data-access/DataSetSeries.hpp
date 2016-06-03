@@ -34,7 +34,7 @@
 #include "../../Config.hpp"
 #include "../Shared.hpp"
 #include "../data-model/DataSetOccurrence.hpp"
-#include "SyncronizedDataSet.hpp"
+#include "SynchronizedDataSet.hpp"
 
 //STL
 #include <vector>
@@ -48,12 +48,12 @@ namespace terrama2
   {
     /*!
       \class DataSetSeries
-      \brief Struct that holds information of the DataSet, a SyncronizedDataSet of the data and te::da::DataSetType
+      \brief Struct that holds information of the DataSet, a SynchronizedDataSet of the data and te::da::DataSetType
     */
     struct DataSetSeries
     {
       DataSetPtr dataSet; //!< TerraMA² DataSet metadata.
-      SyncronizedDataSetPtr syncDataSet; //!< Thread-safe class to acces a te::da::DataSet.
+      SynchronizedDataSetPtr syncDataSet; //!< Thread-safe class to access a te::da::DataSet.
       std::shared_ptr<te::da::DataSetType> teDataSetType;//!< Metadata of the \e syncDataSet.
     };
   }

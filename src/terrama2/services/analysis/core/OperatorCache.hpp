@@ -48,7 +48,7 @@ namespace terrama2
         struct OperatorCache
         {
           int64_t index = -1;
-          AnalysisId analysisId = terrama2::core::InvalidId();
+          size_t analysisHashCode = 0;
           double sum = 0;
           double max = std::numeric_limits<double>::min();
           double min = std::numeric_limits<double>::max();

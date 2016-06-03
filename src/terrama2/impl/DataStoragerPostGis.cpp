@@ -43,6 +43,9 @@
 //Qt
 #include <QUrl>
 
+//STL
+#include <algorithm>
+
 void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   QUrl url(dataProvider_->uri.c_str());
@@ -82,21 +85,35 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
 
     newDataSetType->setName(destinationDataSetName);
     transactorDestination->createDataSet(newDataSetType.get(),options);
+
+    //Get original geometry to get srid
+    te::gm::GeometryProperty* geom = GetFirstGeomProperty(datasetType.get());
+    //configure if there is a geometry property
+    if(geom)
+    {
+      GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
+      GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
+    }
+
   }
   else
   {
     newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
   }
 
-  //Get original geometry to get srid
-  te::gm::GeometryProperty* geom = GetFirstGeomProperty(datasetType.get());
-  //configure if there is a geometry property
-  if(geom)
+  const auto& oldPropertiesList = newDataSetType->getProperties();
+  for(const auto & property : datasetType->getProperties())
   {
-    GetFirstGeomProperty(newDataSetType.get())->setSRID(geom->getSRID());
-    GetFirstGeomProperty(newDataSetType.get())->setGeometryType(te::gm::GeometryType);
+    auto it = std::find_if(oldPropertiesList.cbegin(), oldPropertiesList.cend(), [property]
+                                                                                 (te::dt::Property* oldMember)
+                                                                                 {
+                                                                                   return property->getName() == oldMember->getName()
+                                                                                          && property->getType() == oldMember->getType();
+                                                                                 });
+    if(it == oldPropertiesList.cend())
+      transactorDestination->addProperty(newDataSetType->getName(), property);
   }
-  
+
   series.syncDataSet->dataset()->moveBeforeFirst();
   transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), options);
 

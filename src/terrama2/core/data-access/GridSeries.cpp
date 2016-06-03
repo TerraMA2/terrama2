@@ -34,7 +34,7 @@
 #include "../Shared.hpp"
 #include "../data-model/DataSetGrid.hpp"
 #include "../utility/Logger.hpp"
-#include "SyncronizedDataSet.hpp"
+#include "SynchronizedDataSet.hpp"
 
 //STL
 #include <vector>

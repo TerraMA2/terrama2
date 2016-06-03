@@ -73,7 +73,7 @@ namespace terrama2
 
           public slots:
             //! Slot to be called when a DataSetTimer times out.
-            void addToQueue(CollectorId collectorId);
+            virtual void addToQueue(CollectorId collectorId) override;
             /*!
               \brief Add a Collector to the service
 
@@ -93,9 +93,6 @@ namespace terrama2
               Rennuning processes will continue until finished.
             */
             void removeCollector(CollectorId collectorId);
-
-            //doc in base class
-            virtual void updateNumberOfThreads(int) override;
 
             //doc in base class
             virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;

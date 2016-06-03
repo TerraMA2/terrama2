@@ -82,20 +82,6 @@ std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::stationPro
   return "Estacao_ID";
 }
 
-std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getTimeZone(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("timezone");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
 std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getFolder(DataSetPtr dataSet) const
 {
   try

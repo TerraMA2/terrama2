@@ -12,7 +12,7 @@ module.exports = function(app) {
       DataManager.listAnalyses(restriction).then(function(analyses) {
         var output = [];
         analyses.forEach(function(analysis) {
-          output.push(analysis.toObject());
+          output.push(analysis.rawObject());
         })
         return response.json(output);
       }).catch(function(err) {
@@ -34,7 +34,7 @@ module.exports = function(app) {
           analysisObject.project_id = app.locals.activeProject.id;
 
         // temp code. TODO:fix
-        analysisObject.script_language = "PYTHON";
+        analysisObject.script_language_id = 1;
         analysisObject.schedule_id = 1;
         analysisObject.data_series_id = analysisObject.dataSeries.id;
 
@@ -54,15 +54,18 @@ module.exports = function(app) {
         };
 
         DataManager.addAnalysis(analysisObject, dataSeries).then(function(analysisResult) {
-          DataManager.getServiceInstance({id: analysisObject.instance_id}).then(function(serviceInstance) {
-            try {
-              TcpManager.sendData(serviceInstance, {"Analysis": [analysisResult.toObject()]});
-            } catch (e) {
-              console.log(e);
-            }
+          DataManager.listServiceInstances().then(function(services) {
+            services.forEach(function(service) {
+              try {
+                TcpManager.sendData(service, {"Analysis": [analysisResult.toObject()]});
+              } catch (e) {
+                console.log(e);
+              }
+            });
 
-            console.log(analysisResult.toObject());
+            console.log(JSON.stringify(analysisResult.toObject()));
             response.json({status: 200});
+          // DataManager.getServiceInstance({id: analysisObject.instance_id}).then(function(serviceInstance) {
           }).catch(function(err) {
             console.log(err);
             Utils.handleRequestError(response, err, 400);

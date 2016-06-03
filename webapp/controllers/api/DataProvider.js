@@ -18,8 +18,7 @@ module.exports = function(app) {
         response.json({status: code || 400, message: err.message});
       };
 
-      // check connection
-      requester.request().then(function() {
+      var _makeProvider = function() {
         var projectName = dataProviderReceived.project;
 
         // check project
@@ -57,8 +56,13 @@ module.exports = function(app) {
         }).catch(function(err) {
           handleError(response, err, 400);
         })
+      };
+
+      // check connection
+      requester.request().then(function() {
+        _makeProvider();
       }).catch(function(err) {
-        handleError(response, err, 400);
+        _makeProvider();
       });
 
     },

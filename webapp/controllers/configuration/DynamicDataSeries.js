@@ -29,6 +29,7 @@ module.exports = function(app) {
           console.log(dataSeriesResults[0].dataSets[0].format);
           response.render('configuration/dataset', {
             state: "dynamic",
+            type: "dynamic",
             dataSeries: {
               input: dataSeriesResults[0].rawObject(),
               output: dataSeriesResults[1].rawObject(),

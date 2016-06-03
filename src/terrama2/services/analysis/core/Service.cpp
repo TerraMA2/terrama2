@@ -36,6 +36,7 @@
 #include "../../../core/utility/ServiceManager.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Timer.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 
 terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
@@ -62,9 +63,9 @@ bool terrama2::services::analysis::core::Service::processNextData()
   if(analysisQueue_.empty())
     return false;
 
-  AnalysisId analysisId = analysisQueue_.front();
+  auto analysis = analysisQueue_.front();
   //prepare task for collecting
-  prepareTask(analysisId);
+  prepareTask(analysis);
 
   //remove from queue
   analysisQueue_.erase(analysisQueue_.begin());
@@ -73,32 +74,31 @@ bool terrama2::services::analysis::core::Service::processNextData()
   return !analysisQueue_.empty();
 }
 
-void terrama2::services::analysis::core::Service::updateNumberOfThreads(int numberOfThreads)
-{
-  numberOfThreads = verifyNumberOfThreads(numberOfThreads);
-  stop();
-  start(numberOfThreads);
-}
-
 void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
 {
   try
   {
+    std::lock_guard<std::mutex> lock(mutex_);
+
     Analysis analysis = dataManager_->findAnalysis(analysisId);
 
     auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
     terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
     connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
     timers_.emplace(analysisId, timer);
-
-    // add to queue to run now
-    addToQueue(analysisId);
   }
-  catch(terrama2::Exception& e)
+  catch(terrama2::core::InvalidFrequencyException& e)
   {
-    QString errMsg = QObject::tr("Could not add analysis %1 to the queue").arg(analysisId);
-    TERRAMA2_LOG_ERROR() << errMsg;
+    // invalid schedule, already logged
   }
+  catch(const te::common::Exception& e)
+  {
+    //TODO: should be caught elsewhere?
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+
+  // add to queue to run now
+  addToQueue(analysisId);
 }
 
 void terrama2::services::analysis::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
@@ -110,7 +110,9 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
 {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  auto it = std::find(analysisQueue_.begin(), analysisQueue_.end(), analysisId);
+  auto analysis = dataManager_->findAnalysis(analysisId);
+
+  auto it = std::find(analysisQueue_.begin(), analysisQueue_.end(), analysis);
   if(it != analysisQueue_.end())
     analysisQueue_.erase(it);
 }
@@ -121,12 +123,11 @@ void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId anal
   // we only have the id so there is no need to update.
 }
 
-void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::prepareTask(Analysis& analysis)
 {
   try
   {
-    Analysis analysis = dataManager_->findAnalysis(analysisId);
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, analysis));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, analysis, processingThreadPool_.size()));
   }
   catch(std::exception& e)
   {
@@ -142,7 +143,10 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     //Lock Thread and add to the queue
     std::lock_guard<std::mutex> lock(mutex_);
 
-    analysisQueue_.push_back(analysisId);
+    auto analysis = dataManager_->findAnalysis(analysisId);
+    analysis.startDate = terrama2::core::TimeUtils::nowUTC();
+
+    analysisQueue_.push_back(analysis);
 
     //wake loop thread
     mainLoopCondition_.notify_one();

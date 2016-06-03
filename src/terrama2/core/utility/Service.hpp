@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_SERVICE_HPP__
 #define __TERRAMA2_CORE_SERVICE_HPP__
 
+#include "../Typedef.hpp"
+
 //STL
 #include <vector>
 #include <mutex>
@@ -95,6 +97,9 @@ namespace terrama2
       virtual void start(uint threadNumber = 0);
 
     public slots:
+
+      virtual void addToQueue(ProcessId processId) = 0;
+
       /*!
          \brief  Stops the service.
 
@@ -104,11 +109,14 @@ namespace terrama2
       void stop() noexcept;
 
       /*!
-        \brief Updates the number of process threads in the threadpool
+        \brief Updates the number of process threads in the threa dpool
 
         May wait for threads to finish current processing befor changes.
+
+        \param numberOfThreads Number of threads desired, if 0 the maximum number of threads allowed by the system the will be used.
       */
-      virtual void updateNumberOfThreads(int) = 0;
+      virtual void updateNumberOfThreads(int numberOfThreads = 0);
+
       /*!
         \brief Updates the connection parameters of the process log database.
 

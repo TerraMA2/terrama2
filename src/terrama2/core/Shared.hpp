@@ -79,9 +79,9 @@ namespace terrama2
     //! Shared smart pointer for DataStorager
     typedef std::shared_ptr<terrama2::core::DataStorager> DataStoragerPtr;
 
-    class SyncronizedDataSet;
-    //! Shared smart pointer for SyncronizedDataSet
-    typedef std::shared_ptr<terrama2::core::SyncronizedDataSet> SyncronizedDataSetPtr;
+    class SynchronizedDataSet;
+    //! Shared smart pointer for SynchronizedDataSet
+    typedef std::shared_ptr<terrama2::core::SynchronizedDataSet> SynchronizedDataSetPtr;
 
     class Timer;
     //! Shared smart pointer for Timer
