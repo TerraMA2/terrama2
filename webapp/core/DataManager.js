@@ -119,8 +119,17 @@ var DataManager = {
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
 
         // data provider intent defaults
-        inserts.push(models.db.DataProviderIntent.create({id: 1, name: "COLLECT", description: "Desc Collect intent"}));
-        inserts.push(models.db.DataProviderIntent.create({id: 2, name: "PROCESSING", description: "Desc Processing intent"}));
+        inserts.push(models.db.DataProviderIntent.create({
+          id: Enums.DataProviderIntentId.COLLECT,
+          name: "COLLECT",
+          description: "Desc Collect intent"
+        }));
+
+        inserts.push(models.db.DataProviderIntent.create({
+          id: Enums.DataProviderIntentId.PROCESSING,
+          name: "PROCESSING",
+          description: "Desc Processing intent"
+        }));
 
         // data series type defaults
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
@@ -138,18 +147,37 @@ var DataManager = {
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GEOTIFF, description: "GeoTiff"}));
 
         // analysis type
-        inserts.push(models.db["AnalysisType"].create({id: 1, name: "Dcp", description: "Description Dcp"}));
-        inserts.push(models.db["AnalysisType"].create({id: 2, name: "Grid", description: "Description Grid"}));
-        inserts.push(models.db["AnalysisType"].create({id: 3, name: "Monitored Object", description: "Description Monitored"}));
+        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
+        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.GRID, name: "Grid", description: "Description Grid"}));
+        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.MONITORED, name: "Monitored Object", description: "Description Monitored"}));
 
         // analysis data series type
-        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 1, name: "Dcp", description: "Description Dcp"}));
-        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 2, name: "Grid", description: "Description Grid"}));
-        inserts.push(models.db["AnalysisDataSeriesType"].create({id: 3, name: "Monitored Object", description: "Description Monitored"}));
+        inserts.push(models.db["AnalysisDataSeriesType"].create({
+          id: Enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE,
+          name: "Dcp",
+          description: "Description Dcp"
+        }));
+        inserts.push(models.db["AnalysisDataSeriesType"].create({
+          id: Enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE,
+          name: "Grid",
+          description: "Description Grid"
+        }));
+
+        inserts.push(models.db["AnalysisDataSeriesType"].create({
+          id: Enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE,
+          name: "Monitored Object",
+          description: "Description Monitored"
+        }));
+
+        inserts.push(models.db["AnalysisDataSeriesType"].create({
+          id: Enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE,
+          name: "Additional Data",
+          description: "Description Additional Data"
+        }));
 
         // script language supported
-        inserts.push(models.db["ScriptLanguage"].create({id: 1, name: "PYTHON"}));
-        inserts.push(models.db["ScriptLanguage"].create({id: 2, name: "LUA"}));
+        inserts.push(models.db["ScriptLanguage"].create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
+        inserts.push(models.db["ScriptLanguage"].create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
 
         // semantics: temp code: TODO: fix
         var semanticsJsonPath = path.join(__dirname, "../../src/terrama2/core/semantics.json");
@@ -345,6 +373,16 @@ var DataManager = {
               ]
             }));
 
+            dbOperations.push(models.db.DataSet.findAll({
+              attributes: ['id', 'active', 'data_series_id'],
+              include: [
+                {
+                  model: models.db.DataSetMonitored
+                },
+                models.db.DataSetFormat
+              ]
+            }));
+
             // find all datasets
             Promise.all(dbOperations).then(function(dataSetsArray) {
               // for each dataSeries
@@ -380,7 +418,14 @@ var DataManager = {
                       }
                       else if (dataSet.DataSetOccurrence)
                         _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
-                      else // todo: grid, monitored object
+                      else if (dataSet.DataSetMonitored) {
+                        dSetObject.geometry_column = dataSet.geometry_column;
+                        dSetObject.id_column = dataSet.id_column;
+                        dSetObject.time_column = dataSet.time_column;
+                        dSetObject.srid = dataSet.srid;
+
+                        _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
+                      } else // todo: grid
                         _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
                     }
                   }); // end foreach dataSets
@@ -1966,7 +2011,6 @@ var DataManager = {
             var promises = [];
 
             analysisDataSeriesArray.forEach(function(analysisDS) {
-              analysisDS.data_series_id = dataSeriesResult.id;
               analysisDS.analysis_id = analysisResult.id;
 
               var metadata = [];
