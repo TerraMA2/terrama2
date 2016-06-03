@@ -43,12 +43,15 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
 {
   if(json["class"].toString() != "Analysis")
   {
-    throw terrama2::core::JSonParserException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+    QString errMsg(QObject::tr("Invalid Analysis JSON object."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
   if(!(json.contains("id")
        && json.contains("project_id")
        && json.contains("script_language")
+       && json.contains("script")
        && json.contains("type")
        && json.contains("name")
        && json.contains("description")
@@ -58,7 +61,7 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
        && json.contains("analysis_dataseries_list")
        && json.contains("schedule")))
   {
-    QString errMsg(QObject::tr("Invalid JSON object."));
+    QString errMsg(QObject::tr("Invalid Analysis JSON object."));
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }

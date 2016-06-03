@@ -106,12 +106,6 @@ namespace terrama2
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
 
       private:
-        /*!
-         * \brief getTimeZone Get the timezone of the dataset.
-         * \param dataset It contains description of a dataset. Ex. information of DCP-TOA5;
-         * \return Return timezone of the dataset.
-         */
-        std::string getTimeZone(DataSetPtr dataset) const;
 
         //! Get folder of DCP-TOA5.
         std::string getFolder(DataSetPtr dataSet) const;
