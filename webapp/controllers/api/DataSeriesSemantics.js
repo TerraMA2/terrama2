@@ -33,7 +33,6 @@ module.exports = function(app) {
         }
       }
 
-      // todo: validate it from database
       // get just one semantics
       if (semanticsName) {
         queryParams['code'] = semanticsName;

@@ -12,7 +12,7 @@ module.exports = function(app) {
       DataManager.listAnalyses(restriction).then(function(analyses) {
         var output = [];
         analyses.forEach(function(analysis) {
-          output.push(analysis.toObject());
+          output.push(analysis.rawObject());
         })
         return response.json(output);
       }).catch(function(err) {
@@ -34,7 +34,7 @@ module.exports = function(app) {
           analysisObject.project_id = app.locals.activeProject.id;
 
         // temp code. TODO:fix
-        analysisObject.script_language = "PYTHON";
+        analysisObject.script_language_id = 1;
         analysisObject.schedule_id = 1;
         analysisObject.data_series_id = analysisObject.dataSeries.id;
 

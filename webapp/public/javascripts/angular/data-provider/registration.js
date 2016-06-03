@@ -2,9 +2,9 @@
 
 var app = angular.module("terrama2.dataprovider.registration", ['schemaForm', 'terrama2.components.messagebox']);
 
-app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", 
+app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location",
   function($scope, $http, $q, $window, $httpParamSerializer, $location) {
-  
+
   $scope.model = configuration.dataProvider.uriObject || {};
 
   if (configuration.fields) {
@@ -17,18 +17,16 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     $scope.options = {formDefaults: {readonly: true}};
   } else
     $scope.schema = {};
-  
+
   $scope.form = configuration.fields.display || [];
 
 //  redraw form
   if ($scope.form)
     $scope.$broadcast('schemaFormRedraw');
 
+  $scope.schemeList = [];
   $http.get("/api/DataProviderType/", {}).success(function(typeList) {
-    typeList.forEach(function(dataProviderType) {
-      $scope.typeList = typeList;
-    });
-
+    $scope.typeList = typeList;
   }).error(function(err) {
     console.log("err type: ", err);
   });

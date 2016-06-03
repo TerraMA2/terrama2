@@ -21,6 +21,8 @@ angular.module('terrama2.analysis.registration', [
     };
     $scope.instances = [];
     $scope.dataSeriesList = [];
+    $scope.dataProvidersList = [];
+    $scope.dataProviders = [];
 
     // define dataseries selected in modal
     $scope.nodesDataSeries = [];
@@ -59,8 +61,32 @@ angular.module('terrama2.analysis.registration', [
 
     // watchers
     // cleaning analysis metadata when analysis type has been changed.
+    // fill storager formats
     $scope.$watch("analysis.type_id", function(value) {
       $scope.analysis.metadata = {};
+      var semanticsType;
+      switch(parseInt(value)) {
+        case 1:
+          semanticsType = "DCP";
+          break;
+        case 2:
+          semanticsType = "GRID";
+          break;
+        case 3:
+          semanticsType = "ANALYSIS_MONITORED_OBJECT";
+          break;
+        default:
+          console.log("invalid analysis type");
+          return;
+          break;
+      }
+
+      $scope.storagerFormats = [];
+      $scope.dataSeriesSemantics.forEach(function(dSemantics) {
+        if(dSemantics.data_series_type_name === semanticsType) {
+          $scope.storagerFormats.push(Object.assign({}, dSemantics));
+        }
+      });
     });
 
     // terrama2 alert box
@@ -78,9 +104,8 @@ angular.module('terrama2.analysis.registration', [
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format;
       // todo: fix it. It is hard code
-      // $scope.tableFieldsStorager = ["table_name", "inputDataSet"];
 
-      DataSeriesSemanticsFactory.get(args.format.name, {metadata:true}).success(function(data) {
+      DataSeriesSemanticsFactory.get(args.format.code, {metadata:true}).success(function(data) {
         var metadata = data.metadata;
         var properties = metadata.schema.properties;
 
@@ -92,26 +117,29 @@ angular.module('terrama2.analysis.registration', [
           required: metadata.schema.required
         };
 
+        $scope.dataProviders = [];
+
+        $scope.dataProvidersList.forEach(function(dataProvider) {
+          data.data_providers_semantics.forEach(function(demand) {
+            if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
+              $scope.dataProviders.push(dataProvider);
+          })
+        });
+
         $scope.$broadcast('schemaFormRedraw');
       }).error(function(err) {
-
+        console.log(err);
       });
     });
 
     DataSeriesSemanticsFactory.list().success(function(semanticsList) {
       $scope.dataSeriesSemantics = semanticsList;
-
-      $scope.dataSeriesSemantics.forEach(function(dSemantics) {
-        if(dSemantics.data_series_type_name === "ANALYSIS") {
-          $scope.storagerFormats.push(Object.assign({}, dSemantics));
-        }
-      });
     }).error(function(err) {
       console.log(err);
     });
 
     DataProviderFactory.get().success(function(dataProviders) {
-      $scope.dataProviders = dataProviders;
+      $scope.dataProvidersList = dataProviders;
     }).error(function(err) {
       console.log(err);
     });
@@ -119,6 +147,9 @@ angular.module('terrama2.analysis.registration', [
     $scope.onStoragerFormatChange = function() {
       $scope.showStoragerForm = true;
       $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format});
+
+      // filtering data providers
+
     };
 
     // temp code for debugging
@@ -190,6 +221,7 @@ angular.module('terrama2.analysis.registration', [
         if (!target || !target.id)
           return;
 
+        $scope.metadata[target.name] = {alias: target.name};
         $scope.selectedDataSeriesList.push(target);
 
         if (target.isDynamic) {
