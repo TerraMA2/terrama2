@@ -89,8 +89,7 @@ createService(const std::string& serviceType)
   if(serviceType == analysisType)
     return createAnalysis();
 
-  //FIXME: invalid service type return code
-  exit(-1);
+  exit(SERVICE_LOAD_ERROR);
 }
 
 int main(int argc, char* argv[])
@@ -135,10 +134,9 @@ int main(int argc, char* argv[])
       std::tie(dataManager, service) = createService(serviceType);
       if(!service.get()
           || !dataManager.get())
-        return -1;//FIXME: error creating service return code
+        return SERVICE_LOAD_ERROR;
 
       auto tcpManager = std::make_shared<terrama2::core::TcpManager>(dataManager);
-      tcpManager->listen(QHostAddress::Any, serviceManager.listeningPort());
       if(!tcpManager->listen(QHostAddress::Any, serviceManager.listeningPort()))
       {
         std::cerr << QObject::tr("\nUnable to listen to port: ").toStdString() << serviceManager.listeningPort() << "\n" << std::endl;
