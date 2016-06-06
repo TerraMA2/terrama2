@@ -163,15 +163,15 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
         }
         size = contextDataset->series.syncDataSet->size();
 
-        if(size == 0)
-        {
-          QString errMsg = QObject::tr("Could not recover monitored object dataset.");
-          TERRAMA2_LOG_WARNING() << errMsg;
-          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-        }
-
         break;
       }
+    }
+
+    if(size == 0)
+    {
+      QString errMsg = QObject::tr("Could not recover monitored object dataset.");
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
     // Recovers the main thread state
