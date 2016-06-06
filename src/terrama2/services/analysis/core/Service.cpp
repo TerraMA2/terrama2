@@ -86,6 +86,7 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     {
       return;
     }
+
     if(analysis.active)
     {
       auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
@@ -154,6 +155,12 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto analysis = dataManager_->findAnalysis(analysisId);
+
+    if(analysis.serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+    {
+      return;
+    }
+
     analysis.startDate = terrama2::core::TimeUtils::nowUTC();
 
     analysisQueue_.push_back(analysis);
