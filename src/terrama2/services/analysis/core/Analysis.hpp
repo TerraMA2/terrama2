@@ -58,7 +58,7 @@ namespace terrama2
         /*!
           \brief Defines the type of the analysis.
         */
-        enum AnalysisType
+        enum class AnalysisType
         {
           PCD_TYPE = 1, //!< Analysis for DCP.
           MONITORED_OBJECT_TYPE = 2, //!< Analysis for monitored objects.
@@ -68,7 +68,7 @@ namespace terrama2
         /*!
           \brief Defines the type of influence of a DCP over the monitored object.
         */
-        enum InfluenceType
+        enum class InfluenceType
         {
           RADIUS_TOUCHES = 1, //!< The DCP will be considered if monitored object intercepts the influence radius.
           RADIUS_CENTER = 2, //!< The DCP will be considered if monitored object centroid intercepts the influence radius.
@@ -78,7 +78,7 @@ namespace terrama2
         /*!
           \brief Defines the language of the script.
         */
-        enum ScriptLanguage
+        enum class ScriptLanguage
         {
           PYTHON = 1, //!< Scripts in Python.
           LUA = 2 //!< Scripts in LUA.
@@ -93,7 +93,7 @@ namespace terrama2
           Any additional DataSeries that will be used in the analysis must exist in the DataSeries list with the type ADDITIONAL_DATA_TYPE.
 
         */
-        enum AnalysisDataSeriesType
+        enum class AnalysisDataSeriesType
         {
           DATASERIES_MONITORED_OBJECT_TYPE = 1, //!< Identifies a DataSeries used as monitored object.
           DATASERIES_GRID_TYPE = 2, //!< Identifies a DataSeries used as grid.
@@ -133,6 +133,7 @@ namespace terrama2
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
           std::shared_ptr<te::dt::TimeInstantTZ> startDate; //!< Execution start date.
+          ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the analysis.
 
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.
