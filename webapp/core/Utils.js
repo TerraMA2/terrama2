@@ -274,7 +274,7 @@ module.exports = {
 
     return output;
   },
-  
+
   matchObject: function(obj, target) {
     return Object.keys(obj).every(function(key) {
       return target[key] == obj[key];
@@ -285,5 +285,18 @@ module.exports = {
     return where.filter(function(entry) {
       return this.matchObject(restriction, entry)
     })
+  },
+
+  getServiceTypeName(intServiceType) {
+    switch(intServiceType) {
+      case Enums.ServiceType.COLLECTOR:
+        return "COLLECTOR";
+        break;
+      case Enums.ServiceType.ANALYSIS:
+        return "ANALYSIS";
+        break;
+      default:
+        throw new exceptions.ServiceTypeError("Invalid service type value");
+    }
   }
 };

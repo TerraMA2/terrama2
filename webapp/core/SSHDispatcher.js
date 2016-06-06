@@ -3,6 +3,7 @@ var Promise = require("bluebird");
 var fs = require('fs');
 var util = require('util');
 var Utils = require("./Utils");
+var ServiceType = require("./Enums");
 
 
 /**
@@ -109,16 +110,26 @@ SSHDispatcher.prototype.startService = function() {
     try {
       var executable = self.serviceInstance.pathToBinary;
       var port = self.serviceInstance.port.toString();
+      var serviceTypeString = Utils.getServiceTypeName(self.serviceInstance.service_type_id);
+
       var command;
       if (process.plataform == 'win32') {
-        command = "start " + util.format("%s %s", executable.endsWith(".exe") ? executable : executable + ".exe", port);
+        command = "start " + util.format(
+          "%s %s %s", executable.endsWith(".exe") ? executable : executable + ".exe",
+          serviceTypeString,
+          port);
       } else {
         // avoiding nohup lock ssh session
-        command = "nohup " + util.format("%s %s  > terrama2.out 2> terrama2.err < /dev/null %s", executable, port, (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : ""));
+        command = "nohup " + util.format(
+          "%s %s %s  > terrama2.out 2> terrama2.err < /dev/null %s",
+          executable,
+          serviceTypeString,
+          port,
+          (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : ""));
       }
 
       console.log(command);
-      
+
       self.execute(command).then(function(code) {
         resolve(code);
       }).catch(function(err, code) {
