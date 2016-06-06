@@ -159,7 +159,7 @@ void terrama2::core::DataManager::removeDataProvider(const DataProviderId id, co
     auto itPr = providers_.find(id);
     if(itPr == providers_.end())
     {
-      QString errMsg = QObject::tr("DataProvider not registered.");
+      QString errMsg = QObject::tr("Could not find a data provider with the given id: %1.").arg(id);
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
@@ -187,7 +187,7 @@ void terrama2::core::DataManager::removeDataSeries(const DataSeriesId id)
     const auto& it = dataseries_.find(id);
     if(it == dataseries_.end())
     {
-      QString errMsg = QObject::tr("DataSeries not registered");
+      QString errMsg = QObject::tr("Could not find a data series with the given id: %1.").arg(id);
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
@@ -205,7 +205,7 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   const auto& it = std::find_if(providers_.cbegin(), providers_.cend(), [name](std::pair<DataProviderId, DataProviderPtr> provider) { return provider.second->name == name; });
   if(it == providers_.cend())
   {
-    QString errMsg = QObject::tr("DataProvider not registered.");
+    QString errMsg = QObject::tr("Could not find a data provider with the given name: %1.").arg(QString::fromStdString(name));
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
@@ -228,7 +228,7 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   const auto& it = providers_.find(id);
   if(it == providers_.cend())
   {
-    QString errMsg = QObject::tr("DataProvider not registered.");
+    QString errMsg = QObject::tr("Could not find a data provider with the given id: %1.").arg(id);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
@@ -252,7 +252,7 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
                                                                           { return series.second->name == name; });
   if(it == dataseries_.cend())
   {
-    QString errMsg = QObject::tr("DataSeries not registered.");
+    QString errMsg = QObject::tr("Could not find a data series with the given name: %1.").arg(QString::fromStdString(name));
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
@@ -267,7 +267,7 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
   const auto& it = dataseries_.find(id);
   if(it == dataseries_.cend())
   {
-    QString errMsg = QObject::tr("DataSeries not registered: %1.").arg(id);
+    QString errMsg = QObject::tr("Could not find a data series with the given id: %1.").arg(id);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }

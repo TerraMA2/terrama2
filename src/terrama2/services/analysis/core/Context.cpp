@@ -100,9 +100,9 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
   {
-    QString msg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << msg;
-    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+    QString errMsg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
   }
 
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
@@ -129,9 +129,9 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
 
       if(!series.syncDataSet->dataset())
       {
-        QString msg(QObject::tr("Analysis: %1 -> Adding an invalid dataset to the analysis context: DataSeries %2").arg(analysis.id).arg(dataSeriesPtr->id));
-        TERRAMA2_LOG_ERROR() << msg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
+        QString errMsg(QObject::tr("Adding an invalid dataset to the analysis context: DataSeries %1").arg(dataSeriesPtr->id));
+        TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
       std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
@@ -211,9 +211,9 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
   {
-    QString msg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << msg;
-    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+    QString errMsg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
   }
 
   auto dataProvider = dataManagerPtr->findDataProvider(dataSeries->dataProviderId);
@@ -249,9 +249,9 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
     terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(series.dataSet);
     if(!dcpDataset->position)
     {
-      QString msg(QObject::tr("Invalid location for DCP."));
-      TERRAMA2_LOG_ERROR() << msg;
-      throw InvalidDataSetException() << terrama2::ErrorDescription(msg);
+      QString errMsg(QObject::tr("Invalid location for DCP."));
+      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+      throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
 
     int srid  = dcpDataset->position->getSRID();
@@ -347,9 +347,9 @@ void terrama2::services::analysis::core::Context::addDataSeries(const size_t ana
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
   {
-    QString msg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << msg;
-    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(msg);
+    QString errMsg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
   }
 
   auto dataProvider = dataManagerPtr->findDataProvider(dataSeries->dataProviderId);
@@ -437,6 +437,8 @@ void terrama2::services::analysis::core::Context::clearAnalysisContext(size_t an
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   attributes_.erase(analysisHashCode);
   analysisResult_.erase(analysisHashCode);
+  analysisMap_.erase(analysisHashCode);
+  analysisErrorsMap_.erase(analysisHashCode);
 
   // Remove all datasets from context
   auto it = datasetMap_.begin();
@@ -470,6 +472,22 @@ PyThreadState* terrama2::services::analysis::core::Context::getMainThreadState()
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return mainThreadState_;
 }
+
+void terrama2::services::analysis::core::Context::addError(size_t analysisHashCode, const std::string& errorMessage)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  analysisErrorsMap_[analysisHashCode].insert(errorMessage);
+}
+
+std::set<std::string> terrama2::services::analysis::core::Context::getErrors(size_t analysisHashCode)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  return analysisErrorsMap_[analysisHashCode];
+}
+
+
+
+
 
 
 

@@ -83,9 +83,9 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
     }
     catch(...)
     {
-      QString errMsg(QObject::tr("Analysis: %1 -> Error running the python script."));
-      errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
+      QString errMsg(QObject::tr("Error running the python script."));
+      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+      Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
     }
 
 
@@ -94,10 +94,10 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
   }
 }
 
-void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, size_t analysisHasCode)
+void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, size_t analysisHashCode)
 {
 
-  Analysis analysis = Context::getInstance().getAnalysis(analysisHasCode);
+  Analysis analysis = Context::getInstance().getAnalysis(analysisHashCode);
 
   // grab the global interpreter lock
   PyEval_AcquireLock();
@@ -106,14 +106,23 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
 
   PyThreadState_Clear(state);
 
-  PyObject* analysisValue = PyInt_FromLong(analysisHasCode);
+  PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
 
   PyObject* poDict = PyDict_New();
   PyDict_SetItemString(poDict, "analysis", analysisValue);
   state->dict = poDict;
 
-  PyRun_SimpleString("from terrama2 import *");
-  PyRun_SimpleString(analysis.script.c_str());
+  try
+  {
+    PyRun_SimpleString("from terrama2 import *");
+    PyRun_SimpleString(analysis.script.c_str());
+  }
+  catch(...)
+  {
+    QString errMsg(QObject::tr("Error running the python script."));
+    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+    Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
+  }
 
 
   // release our hold on the global interpreter
@@ -129,8 +138,9 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
   auto dataManagerPtr = Context::getInstance().getDataManager().lock();
   if(!dataManagerPtr)
   {
-    QString msg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << msg;
+    QString errMsg(QObject::tr("Invalid data manager."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return;
   }
 
@@ -152,18 +162,19 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 
         if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-          errMsg = errMsg.arg(analysis.id);
-          TERRAMA2_LOG_ERROR() << errMsg;
+          QString errMsg(QObject::tr("Could not recover monitored object dataset."));
+          TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+          Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+          return;
         }
 
         moDsContext = Context::getInstance().getContextDataset(analysis.hashCode(), datasetMO->id);
 
-        if(moDsContext->identifier.empty())
-          assert(false);
+        assert(!moDsContext->identifier.empty());
 
         // Stores the result in the context
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
+        assert(!geomId.empty());
 
         Context::getInstance().addAttribute(analysis.hashCode(), attribute);
         Context::getInstance().setAnalysisResult(analysis.hashCode(), geomId, attribute, value);
@@ -215,9 +226,9 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
 
       if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
       {
-        QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-        errMsg = errMsg.arg(analysis.id);
-        TERRAMA2_LOG_ERROR() << errMsg;
+        QString errMsg(QObject::tr("Could not recover monitored object dataset."));
+        TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+        Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
         return contextDataSeries;
       }
 
