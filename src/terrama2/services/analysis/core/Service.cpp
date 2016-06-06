@@ -117,7 +117,7 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
     analysisQueue_.erase(it);
 }
 
-void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId /*analysisId*/)
 {
   // the analysis object will only be fetched when the execution process begin.
   // we only have the id so there is no need to update.
@@ -127,7 +127,7 @@ void terrama2::services::analysis::core::Service::prepareTask(Analysis& analysis
 {
   try
   {
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, analysis, processingThreadPool_.size()));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, logger_, analysis, processingThreadPool_.size()));
   }
   catch(std::exception& e)
   {
