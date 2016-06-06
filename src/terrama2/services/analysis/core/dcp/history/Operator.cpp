@@ -52,157 +52,179 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
                                                                       const std::string& attribute, DataSetId dcpId,
                                                                       Buffer buffer, const std::string& dateFilter)
 {
+  OperatorCache cache;
+
+  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+  bool exceptionOccurred = false;
+
+
   try
   {
-    OperatorCache cache;
     readInfoFromDict(cache);
 
     bool hasData = false;
 
+    Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
+
     auto dataManagerPtr = Context::getInstance().getDataManager().lock();
     if(!dataManagerPtr)
     {
-      QString msg(QObject::tr("Invalid data manager."));
-      TERRAMA2_LOG_ERROR() << msg;
-      return NAN;
+      QString errMsg(QObject::tr("Invalid data manager."));
+      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
-
-    Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
 
     auto moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
     if(!moDsContext)
     {
-      QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-      errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NAN;
+      QString errMsg(QObject::tr("Could not recover monitored object dataset."));
+      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
     auto geom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!geom.get())
     {
-      QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
-      errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NAN;
+      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
+      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
 
     // Frees the GIL, from now on can not use the interpreter
     Py_BEGIN_ALLOW_THREADS
-
-      std::shared_ptr <ContextDataSeries> contextDataSeries;
-
-      auto dataSeries = dataManagerPtr->findDataSeries(analysis.id, dataSeriesName);
-
-      if(!dataSeries)
+      try
       {
-        QString errMsg(QObject::tr("Analysis: %1 -> Could not find a data series with the given name: %2"));
-        errMsg = errMsg.arg(analysis.id);
-        errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-        TERRAMA2_LOG_ERROR() << errMsg;
-        return NAN;
-      }
 
-      Context::getInstance().addDCPDataSeries(analysis.hashCode(), dataSeries, dateFilter, false);
+        std::shared_ptr <ContextDataSeries> contextDataSeries;
+        auto dataSeries = dataManagerPtr->findDataSeries(analysis.id, dataSeriesName);
 
-      for(auto dataset : dataSeries->datasetList)
-      {
-        if(dataset->id != dcpId)
-          continue;
-        contextDataSeries = Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id, dateFilter);
-
-        terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
-                dataset);
-        if(!dcpDataset)
+        if(!dataSeries)
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> Could not recover DCP dataset."));
-          errMsg = errMsg.arg(analysis.id);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return NAN;
+          QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
+          errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
+          TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
+        Context::getInstance().addDCPDataSeries(analysis.hashCode(), dataSeries, dateFilter, false);
 
-        if(dcpDataset->position == nullptr)
+        for(auto dataset : dataSeries->datasetList)
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> DCP dataset does not have a valid position."));
-          errMsg = errMsg.arg(analysis.id);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return NAN;
-        }
+          if(dataset->id != dcpId)
+            continue;
+          contextDataSeries = Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id, dateFilter);
 
-
-        auto influenceType = getInfluenceType(analysis);
-        auto dcpInfluenceBuffer = createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(), influenceType);
-
-        auto resultGeom = createBuffer(buffer, geom);
-
-
-        bool intersects = verifyDCPInfluence(influenceType, resultGeom, dcpInfluenceBuffer);
-
-        if(intersects)
-        {
-
-          auto syncDs = contextDataSeries->series.syncDataSet;
-
-          int attributeType = 0;
-          if(!attribute.empty())
+          terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
+                  dataset);
+          if(!dcpDataset)
           {
-            auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
-
-            // only operation COUNT can be done without attribute.
-            if(!property && statisticOperation != COUNT)
-            {
-              QString errMsg(QObject::tr("Analysis: %1 -> Invalid attribute name"));
-              errMsg = errMsg.arg(analysis.id);
-              TERRAMA2_LOG_ERROR() << errMsg;
-              return NAN;
-            }
-            attributeType = property->getType();
+            QString errMsg(QObject::tr("Could not recover DCP dataset: %1.").arg(dataset->id));
+            TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+            throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
           }
 
-          uint64_t countValues = 0;
 
-          if(syncDs->size() == 0)
-            continue;
-
-
-          std::vector<double> values;
-          for(unsigned int i = 0; i < syncDs->size(); ++i)
+          if(dcpDataset->position == nullptr)
           {
-            try
+            QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
+            TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+            throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
+          }
+
+
+          auto influenceType = getInfluenceType(analysis);
+          auto dcpInfluenceBuffer = createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(), influenceType);
+
+          auto resultGeom = createBuffer(buffer, geom);
+
+
+          bool intersects = verifyDCPInfluence(influenceType, resultGeom, dcpInfluenceBuffer);
+
+          if(intersects)
+          {
+
+            auto syncDs = contextDataSeries->series.syncDataSet;
+
+            int attributeType = 0;
+            if(!attribute.empty())
             {
-              if(!attribute.empty() && !syncDs->isNull(i, attribute))
+              auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
+
+              // only operation COUNT can be done without attribute.
+              if(!property && statisticOperation != COUNT)
               {
-                hasData = true;
-                countValues++;
-                double value = getValue(syncDs, attribute, i, attributeType);
-                values.push_back(value);
-                cache.sum += value;
-                if(value > cache.max)
-                  cache.max = value;
-                if(value < cache.min)
-                  cache.min = value;
+                QString errMsg(QObject::tr("Invalid attribute name"));
+                TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
+              }
+              attributeType = property->getType();
+            }
+
+            uint64_t countValues = 0;
+
+            if(syncDs->size() == 0)
+              continue;
+
+
+            std::vector<double> values;
+            for(unsigned int i = 0; i < syncDs->size(); ++i)
+            {
+              try
+              {
+                if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                {
+                  hasData = true;
+                  countValues++;
+                  double value = getValue(syncDs, attribute, i, attributeType);
+                  values.push_back(value);
+                  cache.sum += value;
+                  if(value > cache.max)
+                    cache.max = value;
+                  if(value < cache.min)
+                    cache.min = value;
+                }
+              }
+              catch(...)
+              {
+                // In case the DCP doesn't have the specified column
+                continue;
               }
             }
-            catch(...)
-            {
-              // In case the DCP doesn't have the specified column
+
+            if(countValues == 0)
               continue;
-            }
+
+            calculateStatistics(values, cache);
+
           }
-
-          if(countValues == 0)
-            continue;
-
-          calculateStatistics(values, cache);
-
         }
+      }
+      catch(terrama2::Exception e)
+      {
+        Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+        exceptionOccurred = true;
+      }
+      catch(std::exception e)
+      {
+        Context::getInstance().addError(cache.analysisHashCode, e.what());
+        exceptionOccurred = true;
+      }
+      catch(...)
+      {
+        QString errMsg = QObject::tr("An unknown exception occurred.");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+        exceptionOccurred = true;
       }
 
 
     // All operations are done, acquires the GIL and set the return value
     Py_END_ALLOW_THREADS
+
+    if(exceptionOccurred)
+      return NAN;
 
     if(!hasData && statisticOperation != COUNT)
     {
@@ -213,17 +235,19 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
   }
   catch(terrama2::Exception e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return NAN;
   }
   catch(std::exception e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    Context::getInstance().addError(cache.analysisHashCode, e.what());
     return NAN;
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("An unknown exception occured.");
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return NAN;
   }
 }

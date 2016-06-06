@@ -108,10 +108,10 @@ int main(int argc, char* argv[])
           "x = occurrence.aggregation.count(\"Occurrence\", moBuffer, \"500d\", aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_count\", x)\n"
 
-          "x = occurrence.aggregation.max(\"Occurrence\", moBuffer, \"502d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.max(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_max\", x)\n"
 
-          "x = occurrence.aggregation.min(\"Occurrence\", moBuffer, \"501d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.min(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_min\", x)\n"
 
           "x = occurrence.aggregation.mean(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "acre.shp");
+  dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("identifier", "nome");
   dataSet->id = 1;
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);
+  timer.start(100000);
   app.exec();
 
 

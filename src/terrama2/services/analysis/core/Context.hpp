@@ -268,6 +268,20 @@ namespace terrama2
             */
             void setMainThreadState(PyThreadState* state);
 
+            /*!
+              \brief Adds an error message to list of errors that occurred in the analysis execution.
+              \param analysisHashCode Hash code of the analysis.
+              \param errorMessage The error message.
+            */
+            void addError(size_t analysisHashCode, const std::string& errorMessage);
+
+            /*!
+              \brief Returns the set of errors that occurred in the analysis execution.
+              \param analysisHashCode Hash code of the analysis.
+              \return The set of error messages.
+            */
+            std::set<std::string> getErrors(size_t analysisHashCode);
+
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_; //!< Weak pointer to the data manager.
             std::map<size_t, std::set<std::string> > attributes_; //!< Set of attributes that compose the result of an analysis.
@@ -275,6 +289,7 @@ namespace terrama2
             std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_; //!< Map containing all loaded datasets.
             std::map<size_t, Analysis> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
             PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
+            std::map<size_t, std::set<std::string> > analysisErrorsMap_; //!< Map containing analysis execution errors.
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
         };
       } // end namespace core
