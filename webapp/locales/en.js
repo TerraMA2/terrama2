@@ -293,5 +293,9 @@
 	"Influence is required": "Influence is required",
 	"Influence radius is required": "Influence radius is required",
 	"Influence data series is required": "Influence data series is required",
-	"Influence attribute name is required": "Influence attribute name is required"
+	"Influence attribute name is required": "Influence attribute name is required",
+	"Additional Data": "Additional Data",
+	"DataSeries": "DataSeries",
+	"Data Series is required": "Data Series is required",
+	"Select the DataSeries": "Select the DataSeries"
 }
