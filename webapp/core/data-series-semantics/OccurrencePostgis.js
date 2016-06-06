@@ -1,7 +1,7 @@
 var Occurrence = require('./Occurrence');
 var Form = require('./../Enums').Form;
 
-var OccurrencePostgis = module.exports = function() {
+var OccurrencePostgis = module.exports = function(args) {
   Occurrence.apply(this, arguments);
 };
 
@@ -12,7 +12,7 @@ OccurrencePostgis.identifier = function() {
 OccurrencePostgis.prototype = Object.create(Occurrence.prototype);
 OccurrencePostgis.prototype.constructor = OccurrencePostgis;
 
-OccurrencePostgis.schema = function() {
+OccurrencePostgis.prototype.schema = function() {
   return {
     properties: {
       table_name: {
@@ -24,10 +24,6 @@ OccurrencePostgis.schema = function() {
   }
 };
 
-OccurrencePostgis.form = function() {
+OccurrencePostgis.prototype.form = function() {
   return ['*'];
-};
-
-OccurrencePostgis.demand = function () {
-  return ["POSTGIS"];
 };
