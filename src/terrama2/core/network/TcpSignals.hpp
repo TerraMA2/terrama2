@@ -31,27 +31,27 @@
 #define __TERRAMA2_CORE_TCP_SIGNALS_HPP__
 
 
-namespace terrama2 {
-  namespace core {
-    //! Namespace for signals for TCP communication.
-    namespace TcpSignals{
-      /*!
-        \enum TcpSignal
-        \brief  Signals for TCP communication.
-        \see https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/tcp
-      */
-      enum TcpSignal
-      {
-        TERMINATE_SERVICE_SIGNAL = 0,//!< Stop service signal.
-        STATUS_SIGNAL = 1,//!< Check if the connection is alive and get service information
-        ADD_DATA_SIGNAL = 2,//!< Add data signal, followed by data. Can be used for updates.
-        START_PROCESS_SIGNAL = 3,//!< Start signal, queue the collection, analysis, ...
-        LOG_SIGNAL = 4,//!< Log signal, send error message to node.js server
-        REMOVE_DATA_SIGNAL = 5, //!< Remove data signal
-        PROCESS_FINISHED_SIGNAL = 6, //!< Signal emited when a process has finished
-        UPDATE_SERVICE_SIGNAL = 7 //!< Signal to receive service information.
-      };
-    }
+namespace terrama2
+{
+  namespace core
+  {
+    /*!
+      \enum TcpSignal
+      \brief  Signals for TCP communication.
+      \see https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/tcp
+    */
+    enum class TcpSignal
+    {
+      TERMINATE_SERVICE_SIGNAL = 0,//!< Stop service signal.
+      STATUS_SIGNAL = 1,//!< Check if the connection is alive and get service information
+      ADD_DATA_SIGNAL = 2,//!< Add data signal, followed by data. Can be used for updates.
+      START_PROCESS_SIGNAL = 3,//!< Start signal, queue the collection, analysis, ...
+      LOG_SIGNAL = 4,//!< Log signal, send error message to node.js server
+      REMOVE_DATA_SIGNAL = 5, //!< Remove data signal
+      PROCESS_FINISHED_SIGNAL = 6, //!< Signal emited when a process has finished
+      UPDATE_SERVICE_SIGNAL = 7 //!< Signal to receive service information.
+    };
+
   }
 }
 

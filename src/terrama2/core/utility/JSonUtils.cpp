@@ -78,7 +78,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
   provider->projectId = json["project_id"].toInt();
   provider->name = json["name"].toString().toStdString();
   provider->description = json["description"].toString().toStdString();
-  provider->intent = static_cast<terrama2::core::DataProvider::DataProviderIntent>(json["intent"].toInt());
+  provider->intent = static_cast<terrama2::core::DataProviderIntent>(json["intent"].toInt());
   provider->uri = json["uri"].toString().toStdString();
   provider->active = json["active"].toBool();
   provider->dataProviderType = json["data_provider_type"].toString().toStdString();
