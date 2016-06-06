@@ -166,7 +166,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
               auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
 
               // only operation COUNT can be done without attribute.
-              if(!property && statisticOperation != COUNT)
+              if(!property && statisticOperation != StatisticOperation::COUNT)
               {
                 QString errMsg(QObject::tr("Invalid attribute name"));
                 errMsg = errMsg.arg(analysis.id);
@@ -247,7 +247,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     if(exceptionOccurred)
       return NAN;
 
-    if(!hasData && statisticOperation != COUNT)
+    if(!hasData && statisticOperation != StatisticOperation::COUNT)
     {
       return NAN;
     }
@@ -275,44 +275,44 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
 int terrama2::services::analysis::core::dcp::count(const std::string& dataSeriesName, Buffer buffer)
 {
-  return (int) operatorImpl(COUNT, dataSeriesName, "", buffer);
+  return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", buffer);
 }
 
 double terrama2::services::analysis::core::dcp::min(const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(MIN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, buffer, ids);
 }
 
 double terrama2::services::analysis::core::dcp::max(const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(MAX, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, buffer, ids);
 }
 
 double terrama2::services::analysis::core::dcp::mean(const std::string& dataSeriesName, const std::string& attribute,
                                                      Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(MEAN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, buffer, ids);
 }
 
 double terrama2::services::analysis::core::dcp::median(const std::string& dataSeriesName, const std::string& attribute,
                                                        Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(MEDIAN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, buffer, ids);
 }
 
 double terrama2::services::analysis::core::dcp::sum(const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(SUM, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, buffer, ids);
 }
 
 double terrama2::services::analysis::core::dcp::standardDeviation(const std::string& dataSeriesName,
                                                                   const std::string& attribute, Buffer buffer,
                                                                   boost::python::list ids)
 {
-  return operatorImpl(STANDARD_DEVIATION, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, buffer, ids);
 }
 
 
@@ -343,7 +343,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::creat
   std::shared_ptr<te::gm::Geometry> buffer;
 
   // For influence based on radius, creates a buffer for the DCP location
-  if(influenceType == RADIUS_CENTER || influenceType == RADIUS_TOUCHES)
+  if(influenceType == InfluenceType::RADIUS_CENTER || influenceType == InfluenceType::RADIUS_TOUCHES)
   {
 
     if(analysis.metadata.at("INFLUENCE_RADIUS").empty())
@@ -385,11 +385,11 @@ bool terrama2::services::analysis::core::dcp::verifyDCPInfluence(InfluenceType i
                                                                  std::shared_ptr<te::gm::Geometry> dcpInfluenceBuffer)
 {
   bool intersects = false;
-  if(influenceType == RADIUS_TOUCHES)
+  if(influenceType == InfluenceType::RADIUS_TOUCHES)
   {
     intersects = geom->intersects(dcpInfluenceBuffer.get());
   }
-  else if(influenceType == RADIUS_CENTER)
+  else if(influenceType == InfluenceType::RADIUS_CENTER)
   {
     //TODO: use method from terralib_mod_sa_core
     std::string geomType = geom->getGeometryType();
@@ -411,13 +411,3 @@ bool terrama2::services::analysis::core::dcp::verifyDCPInfluence(InfluenceType i
   return intersects;
 
 }
-
-
-
-
-
-
-
-
-
-

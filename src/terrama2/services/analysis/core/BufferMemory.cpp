@@ -215,7 +215,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
 
   int attributeType = -1;
 
-  if(aggregationStatisticOperation != COUNT)
+  if(aggregationStatisticOperation != StatisticOperation::COUNT)
   {
     auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
 
@@ -239,7 +239,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
     {
       cache.count++;
 
-      if(aggregationStatisticOperation != COUNT)
+      if(aggregationStatisticOperation != StatisticOperation::COUNT)
       {
         if(attribute.empty())
         {

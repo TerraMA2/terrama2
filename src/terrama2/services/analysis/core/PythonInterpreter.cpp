@@ -145,7 +145,7 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
   }
 
   Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
-  if(analysis.type == MONITORED_OBJECT_TYPE)
+  if(analysis.type == AnalysisType::MONITORED_OBJECT_TYPE)
   {
     std::shared_ptr<ContextDataSeries> moDsContext;
     terrama2::core::DataSetPtr datasetMO;
@@ -154,7 +154,7 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
     auto analysisDataSeriesList = analysis.analysisDataSeriesList;
     for(auto analysisDataSeries : analysisDataSeriesList)
     {
-      if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
         auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
         assert(dataSeries->datasetList.size() == 1);
@@ -189,19 +189,19 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
 {
   switch(statisticOperation)
   {
-    case SUM:
+    case StatisticOperation::SUM:
       return cache.sum;
-    case MEAN:
+    case StatisticOperation::MEAN:
       return cache.mean;
-    case MIN:
+    case StatisticOperation::MIN:
       return cache.min;
-    case MAX:
+    case StatisticOperation::MAX:
       return cache.max;
-    case STANDARD_DEVIATION:
+    case StatisticOperation::STANDARD_DEVIATION:
       return cache.standardDeviation;
-    case MEDIAN:
+    case StatisticOperation::MEDIAN:
       return cache.median;
-    case COUNT:
+    case StatisticOperation::COUNT:
       return cache.count;
     default:
       return NAN;
@@ -219,7 +219,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
   {
     terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
 
-    if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
@@ -483,13 +483,13 @@ BOOST_PYTHON_MODULE (terrama2)
 
   // Export class StatisticOperation enum to python
   enum_<terrama2::services::analysis::core::StatisticOperation>("Statistic")
-          .value("min", terrama2::services::analysis::core::MIN)
-          .value("max", terrama2::services::analysis::core::MAX)
-          .value("sum", terrama2::services::analysis::core::SUM)
-          .value("mean", terrama2::services::analysis::core::MEAN)
-          .value("median", terrama2::services::analysis::core::MEDIAN)
-          .value("standard_deviation", terrama2::services::analysis::core::STANDARD_DEVIATION)
-          .value("count", terrama2::services::analysis::core::COUNT);
+          .value("min", terrama2::services::analysis::core::StatisticOperation::MIN)
+          .value("max", terrama2::services::analysis::core::StatisticOperation::MAX)
+          .value("sum", terrama2::services::analysis::core::StatisticOperation::SUM)
+          .value("mean", terrama2::services::analysis::core::StatisticOperation::MEAN)
+          .value("median", terrama2::services::analysis::core::StatisticOperation::MEDIAN)
+          .value("standard_deviation", terrama2::services::analysis::core::StatisticOperation::STANDARD_DEVIATION)
+          .value("count", terrama2::services::analysis::core::StatisticOperation::COUNT);
 
   terrama2::services::analysis::core::registerDCPFunctions();
   terrama2::services::analysis::core::registerOccurrenceFunctions();
