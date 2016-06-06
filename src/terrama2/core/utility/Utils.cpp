@@ -49,6 +49,7 @@
 #include <terralib/srs/SpatialReferenceSystem.h>
 
 #include <ctime>
+#include <unordered_map>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -225,13 +226,19 @@ void terrama2::core::initializeTerraMA()
     auto jsonProvidersTypes = obj["providers_type_list"].toArray();
     std::vector<DataProviderType> providersTypes;
     for(const auto& providerType : jsonProvidersTypes)
-    providersTypes.push_back(providerType.toString().toStdString());
+      providersTypes.push_back(providerType.toString().toStdString());
+
+    auto jsonMetadata = obj["metadata"].toObject();
+    std::unordered_map<std::string, std::string> metadata;
+    for(auto it = jsonMetadata.constBegin(); it != jsonMetadata.constEnd(); ++it)
+      metadata.emplace(it.key().toStdString(), it.value().toString().toStdString()) ;
 
     semanticsManager.addSemantics(obj["code"].toString().toStdString(),
                                   obj["name"].toString().toStdString(),
                                   dataSeriesTypeFromString(obj["type"].toString().toStdString()),
                                   obj["format"].toString().toStdString(),
-                                  providersTypes);
+                                  providersTypes,
+                                  metadata);
   }
 }
 

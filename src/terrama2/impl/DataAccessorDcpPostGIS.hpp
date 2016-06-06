@@ -57,8 +57,6 @@ namespace terrama2
       }
 
     protected:
-      virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const override;
-
       virtual std::string dataSourceType() const override;
 
       //no geometry column to filter

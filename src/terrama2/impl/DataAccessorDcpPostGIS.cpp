@@ -52,20 +52,6 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr d
   }
 }
 
-std::string terrama2::core::DataAccessorDcpPostGIS::getTimestampPropertyName(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("timestamp_property");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
 std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceType() const
 {
   return "POSTGIS";

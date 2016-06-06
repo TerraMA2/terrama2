@@ -61,15 +61,12 @@ namespace terrama2
         virtual std::string typePrefix() const override;
 
         virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
-        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
-                                const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
+        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter>, const std::shared_ptr<te::da::DataSetType>&) const override;
 
         // WFP file may have delayed data that should not be filtered
         virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const override { return true; }
 
       private:
-        //! Recover projection information from dataset
-        Srid getSrid(DataSetPtr dataSet) const;
         //! Name of column with Date/Time information
         std::string timestampPropertyName() const;
         //! Name of column with latitude information

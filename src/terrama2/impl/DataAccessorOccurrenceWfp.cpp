@@ -118,26 +118,11 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
   }
 }
 
-void terrama2::core::DataAccessorOccurrenceWfp::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter,
-    const std::shared_ptr<te::da::DataSetType>& datasetType) const
+void terrama2::core::DataAccessorOccurrenceWfp::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/,
+    const std::shared_ptr<te::da::DataSetType>& /*datasetType*/) const
 {
   // Don't add any columns here,
   // the converter will add columns
-}
-
-Srid terrama2::core::DataAccessorOccurrenceWfp::getSrid(DataSetPtr dataSet) const
-{
-  try
-  {
-    Srid srid = std::stoi(dataSet->format.at("srid"));
-    return srid;
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined srid in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
 }
 
 std::string terrama2::core::DataAccessorOccurrenceWfp::timestampPropertyName() const

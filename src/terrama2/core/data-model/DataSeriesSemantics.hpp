@@ -32,6 +32,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "../Typedef.hpp"
 
@@ -70,6 +71,7 @@ namespace terrama2
       DataSeriesType dataSeriesType = STATIC;//!< Semantics type of DataSeries
       DataFormat dataFormat;//TODO: how to doc this?!
       std::vector<DataProviderType> providersTypeList;
+      std::unordered_map<std::string, std::string> metadata;
 
       bool operator<(const DataSeriesSemantics& rhs) const { return code < rhs.code; }
       bool operator==(const DataSeriesSemantics& rhs) const { return code == rhs.code; }
