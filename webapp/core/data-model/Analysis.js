@@ -28,6 +28,7 @@ var Analysis = module.exports = function(params) {
 
   this.analysis_dataseries_list = [];
   this.schedule_id = params.schedule_id;
+  this.instance_id = params.instance_id;
 };
 
 Analysis.prototype = Object.create(BaseClass.prototype);
@@ -81,7 +82,8 @@ Analysis.prototype.toObject = function() {
     output_dataseries_id: this['dataset_output'],
     metadata: this.metadata,
     'analysis_dataseries_list': outputDataSeriesList,
-    schedule: this['schedule_id']
+    schedule: this['schedule_id'],
+    service_instance_id: this.instance_id
   });
 };
 
