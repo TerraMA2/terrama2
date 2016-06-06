@@ -54,9 +54,11 @@ namespace terrama2
         //! To be used when an invalid dataset is dectected.
         struct InvalidDataSetException: virtual Exception {};
 
-        //! To be used when an error occur in the python script execution.
-        struct PythonInterpreterException: virtual Exception {};
+        //! To be used when an invalid data series is dectected.
+        struct InvalidDataSeriesException: virtual Exception {};
 
+        //! To be used when the monitored object data
+        struct PythonInterpreterException: virtual Exception {};
 
       } // end namespace core
     }   // end namespace analysis

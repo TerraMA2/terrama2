@@ -158,7 +158,7 @@ double terrama2::core::TimeUtils::convertTimeStringToSeconds(const std::string& 
 
   if(!found)
   {
-    QString msg(QObject::tr("Could not find any known unit of measure in the given string."));
+    QString msg(QObject::tr("Could not find any known unit of measure in the given string: %1.").arg(QString::fromStdString(time)));
     TERRAMA2_LOG_ERROR() << msg;
     throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
   }

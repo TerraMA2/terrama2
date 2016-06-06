@@ -67,9 +67,13 @@ void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>
   std::for_each(threads.begin(), threads.end(), joinThread);
 }
 
-void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, const Analysis& analysis,unsigned int threadNumber)
+void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, const Analysis& analysis, unsigned int threadNumber)
 {
   TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution").arg(analysis.id);
+
+  RegisterId logId = 0;
+  if(logger.get())
+    logId = logger->start(analysis.id);
 
   // If it's the first analysis to be run, it needs to set the main thread state in the context.
   if(Context::getInstance().getMainThreadState() == nullptr)
@@ -100,9 +104,35 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
     {
       QString errMsg = QObject::tr("Invalid analysis type.");
       TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception()  << ErrorDescription(errMsg);
+      Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
     }
   }
+
+  auto errors = Context::getInstance().getErrors(analysis.hashCode());
+  if(!errors.empty())
+  {
+
+    std::string errorStr;
+    for(auto error : errors)
+    {
+      errorStr += error + "\n";
+    }
+
+    if(logger.get())
+      logger->error(errorStr, logId);
+
+    QString errMsg = QObject::tr("Analysis %1 finished with the following error(s):\n%2").arg(analysis.id).arg(QString::fromStdString(errorStr));
+    TERRAMA2_LOG_INFO() << errMsg;
+  }
+  else
+  {
+    if(logger.get())
+      logger->done(analysis.startDate, logId);
+
+    QString errMsg = QObject::tr("Analysis %1 finished successfully.").arg(analysis.id);
+    TERRAMA2_LOG_INFO() << errMsg;
+  }
+
 
   // Clears context
   Context::getInstance().clearAnalysisContext(analysis.hashCode());
@@ -276,6 +306,7 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
   catch(std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+    Context::getInstance().addError(analysis.hashCode(), e.what());
   }
 }
 
@@ -287,6 +318,12 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
   {
     QString errMsg = QObject::tr("Analysis %1 returned an empty result.").arg(analysis.id);
     TERRAMA2_LOG_WARNING() << errMsg;
+    return;
+  }
+
+  // In case an error occurred in the analysis execution there is nothing to do.
+  if(!Context::getInstance().getErrors(analysis.hashCode()).empty())
+  {
     return;
   }
 
@@ -400,11 +437,6 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
       QString errMsg = QObject::tr("Could not store the result of the analysis: %1.").arg(analysis.id);
       TERRAMA2_LOG_ERROR() << errMsg;
     }
-
-
-    QString errMsg = QObject::tr("Analysis %1 finished successfully.").arg(analysis.id);
-    TERRAMA2_LOG_INFO() << errMsg;
-
   }
 }
 

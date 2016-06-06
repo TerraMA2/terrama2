@@ -52,9 +52,15 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                                                                     const std::string& restriction)
 {
 
+  OperatorCache cache;
+
+  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+  bool exceptionOccurred = false;
+
+
   try
   {
-    OperatorCache cache;
     readInfoFromDict(cache);
 
     bool hasData = false;
@@ -62,9 +68,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     auto dataManagerPtr = Context::getInstance().getDataManager().lock();
     if(!dataManagerPtr)
     {
-      QString msg(QObject::tr("Invalid data manager."));
-      TERRAMA2_LOG_ERROR() << msg;
-      return NAN;
+      QString errMsg(QObject::tr("Invalid data manager."));
+      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
     Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
@@ -72,18 +77,16 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     std::shared_ptr<ContextDataSeries> moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
     if(!moDsContext)
     {
-      QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-      errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NAN;
+      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
     if(moDsContext->series.syncDataSet->size() == 0)
     {
-      QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object dataset."));
-      errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NAN;
+      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
     auto moEnvelope = moDsContext->series.syncDataSet->getExtent(moDsContext->geometryPos);
@@ -95,10 +98,9 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!moGeom.get())
     {
-      QString errMsg(QObject::tr("Analysis: %1 -> Could not recover monitored object geometry."));
-      errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      return NAN;
+      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
+      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+      throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
 
 
@@ -108,16 +110,16 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
       std::shared_ptr<ContextDataSeries> contextDataSeries;
 
-
+      try
+      {
         auto dataSeries = dataManagerPtr->findDataSeries(analysis.id, dataSeriesName);
 
         if(!dataSeries)
         {
-          QString errMsg(QObject::tr("Analysis: %1 -> Could not find a data series with the given name: %2"));
-          errMsg = errMsg.arg(analysis.id);
+          QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
           errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-          TERRAMA2_LOG_ERROR() << errMsg;
-          return NAN;
+          TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
 
@@ -165,10 +167,9 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
               // only operation COUNT can be done without attribute.
               if(!property && statisticOperation != COUNT)
               {
-                QString errMsg(QObject::tr("Analysis: %1 -> Invalid attribute name"));
-                errMsg = errMsg.arg(analysis.id);
-                TERRAMA2_LOG_ERROR() << errMsg;
-                return NAN;
+                QString errMsg(QObject::tr("Invalid attribute name"));
+                TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
               }
               attributeType = property->getType();
             }
@@ -264,9 +265,30 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
           }
 
         }
+      }
+      catch(terrama2::Exception e)
+      {
+        Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+        exceptionOccurred = true;
+      }
+      catch(std::exception e)
+      {
+        Context::getInstance().addError(cache.analysisHashCode, e.what());
+        exceptionOccurred = true;
+      }
+      catch(...)
+      {
+        QString errMsg = QObject::tr("An unknown exception occurred.");
+        TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+        Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+        exceptionOccurred = true;
+      }
 
       // All operations are done, acquires the GIL and set the return value
     Py_END_ALLOW_THREADS
+
+    if(exceptionOccurred)
+      return NAN;
 
 
     if(!hasData && statisticOperation != COUNT)
@@ -278,17 +300,19 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   }
   catch(terrama2::Exception e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return NAN;
   }
   catch(std::exception e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    Context::getInstance().addError(cache.analysisHashCode, e.what());
     return NAN;
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("An unknown exception occured.");
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return NAN;
   }
 }
