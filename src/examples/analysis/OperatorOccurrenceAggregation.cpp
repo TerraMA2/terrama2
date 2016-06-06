@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
           "x = occurrence.aggregation.count(\"Occurrence\", moBuffer, \"500d\", aggregationBuffer, \"\")\n"
           "add_value(\"aggregation_count\", x)\n"
 
-          "x = occurrence.aggregation.max(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
+          "x = occurrence.aggregation.max(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer)\n"
           "add_value(\"aggregation_max\", x)\n"
 
           "x = occurrence.aggregation.min(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
