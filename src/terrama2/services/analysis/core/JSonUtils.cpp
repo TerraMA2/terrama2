@@ -59,7 +59,8 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
        && json.contains("output_dataseries_id")
        && json.contains("metadata")
        && json.contains("analysis_dataseries_list")
-       && json.contains("schedule")))
+       && json.contains("schedule")
+       && json.contains("service_instance_id")))
   {
     QString errMsg(QObject::tr("Invalid Analysis JSON object."));
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -77,6 +78,7 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
   analysis.description = json["description"].toString().toStdString();
   analysis.active = json["active"].toBool();
   analysis.outputDataSeriesId = json["output_dataseries_id"].toInt();
+  analysis.serviceInstanceId = json["service_instance_id"].toInt();
 
 
   QJsonObject metadataJson = json["metadata"].toObject();
@@ -136,14 +138,15 @@ QJsonObject terrama2::services::analysis::core::toJson(const Analysis& analysis)
 {
   QJsonObject obj;
   obj.insert("class", QString("Analysis"));
-  obj.insert("id", static_cast<qint64>(analysis.id));
-  obj.insert("project_id", static_cast<qint64>(analysis.projectId));
+  obj.insert("id", static_cast<qint32>(analysis.id));
+  obj.insert("project_id", static_cast<qint32>(analysis.projectId));
   obj.insert("script", QString(analysis.script.c_str()));
-  obj.insert("script_language", static_cast<qint64>(analysis.scriptLanguage));
-  obj.insert("type", static_cast<qint64>(analysis.type));
+  obj.insert("script_language", static_cast<qint32>(analysis.scriptLanguage));
+  obj.insert("type", static_cast<qint32>(analysis.type));
   obj.insert("name", QString(analysis.name.c_str()));
   obj.insert("description", QString(analysis.description.c_str()));
-  obj.insert("output_dataseries_id", static_cast<qint64>(analysis.outputDataSeriesId));
+  obj.insert("output_dataseries_id", static_cast<qint32>(analysis.outputDataSeriesId));
+  obj.insert("service_instance_id", static_cast<qint32>(analysis.serviceInstanceId));
 
   // Analysis metadata
   QJsonObject metadataJson;
@@ -159,9 +162,9 @@ QJsonObject terrama2::services::analysis::core::toJson(const Analysis& analysis)
   {
     QJsonObject analysisDataSeriesObj;
     analysisDataSeriesObj.insert("class", QString("AnalysisDataSeries"));
-    analysisDataSeriesObj.insert("id", static_cast<qint64>(analysisDataSeries.id));
-    analysisDataSeriesObj.insert("data_series_id", static_cast<qint64>(analysisDataSeries.dataSeriesId));
-    analysisDataSeriesObj.insert("type", static_cast<qint64>(analysisDataSeries.type));
+    analysisDataSeriesObj.insert("id", static_cast<qint32>(analysisDataSeries.id));
+    analysisDataSeriesObj.insert("data_series_id", static_cast<qint32>(analysisDataSeries.dataSeriesId));
+    analysisDataSeriesObj.insert("type", static_cast<qint32>(analysisDataSeries.type));
 
     // Analysis metadata
     QJsonObject metadataAnalysisDataSeriesJson;

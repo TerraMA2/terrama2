@@ -82,10 +82,23 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 
     Analysis analysis = dataManager_->findAnalysis(analysisId);
 
-    auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
-    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
-    connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
-    timers_.emplace(analysisId, timer);
+    if(analysis.serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+    {
+      return;
+    }
+
+    if(analysis.active)
+    {
+      auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
+      terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
+      connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+      timers_.emplace(analysisId, timer);
+    }
+
+
+
+    // add to queue to run now
+    addToQueue(analysisId);
   }
   catch(terrama2::core::InvalidFrequencyException& e)
   {
@@ -97,8 +110,6 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     TERRAMA2_LOG_ERROR() << e.what();
   }
 
-  // add to queue to run now
-  addToQueue(analysisId);
 }
 
 void terrama2::services::analysis::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
@@ -144,6 +155,12 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto analysis = dataManager_->findAnalysis(analysisId);
+
+    if(analysis.serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+    {
+      return;
+    }
+
     analysis.startDate = terrama2::core::TimeUtils::nowUTC();
 
     analysisQueue_.push_back(analysis);
