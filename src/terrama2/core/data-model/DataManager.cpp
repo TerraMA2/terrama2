@@ -248,7 +248,8 @@ terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const 
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = std::find_if(dataseries_.cbegin(), dataseries_.cend(), [name](std::pair<DataSeriesId, DataSeriesPtr> series) { return series.second->name == name; });
+  const auto& it = std::find_if(dataseries_.cbegin(), dataseries_.cend(), [name] (std::pair<DataSeriesId, DataSeriesPtr> series)
+                                                                          { return series.second->name == name; });
   if(it == dataseries_.cend())
   {
     QString errMsg = QObject::tr("Could not find a data series with the given name: %1.").arg(QString::fromStdString(name));

@@ -11,7 +11,13 @@
     "code": "OCCURRENCE-wfp",
     "type": "OCCURRENCE",
     "format": "CSV",
-    "providers_type_list": ["FILE", "FTP"]
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "data_pas",
+      "geometry_property": "position",
+      "latitude_property": "lat",
+      "longitude_property": "lon"
+    }
   },
   {
     "name": "File static data",
