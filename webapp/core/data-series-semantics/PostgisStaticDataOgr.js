@@ -1,7 +1,7 @@
 var AbstractClass = require('./../AbstractSemantics');
 var Form = require('./../Enums').Form;
 
-var PostgisStaticDataOgr = module.exports = function() {
+var PostgisStaticDataOgr = module.exports = function(args) {
   AbstractClass.apply(this, arguments);
 };
 
@@ -12,7 +12,7 @@ PostgisStaticDataOgr.identifier = function() {
 PostgisStaticDataOgr.prototype = Object.create(AbstractClass.prototype);
 PostgisStaticDataOgr.prototype.constructor = PostgisStaticDataOgr;
 
-PostgisStaticDataOgr.schema = function() {
+PostgisStaticDataOgr.prototype.schema = function() {
   return {
     properties: {
       table_name: {
@@ -24,10 +24,6 @@ PostgisStaticDataOgr.schema = function() {
   }
 };
 
-PostgisStaticDataOgr.form = function() {
+PostgisStaticDataOgr.prototype.form = function() {
   return ['*'];
-};
-
-PostgisStaticDataOgr.demand = function() {
-  return ["POSTGIS"];
 };

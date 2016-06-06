@@ -2,8 +2,8 @@ var Dcp = require('./Dcp');
 var Enums = require('./../Enums');
 var Form = Enums.Form;
 
-var DcpPostgis = function() {
-  Dcp.call(this, {name: "DCP-postgis"});
+var DcpPostgis = function(args) {
+  Dcp.call(this, args);
 };
 
 DcpPostgis.prototype = Object.create(Dcp.prototype);
@@ -13,7 +13,7 @@ DcpPostgis.identifier = function() {
   return "DCP-postgis";
 };
 
-DcpPostgis.schema = function() {
+DcpPostgis.prototype.schema = function() {
   var dcpSchema = {
     type: "object",
     properties: {},
@@ -29,7 +29,7 @@ DcpPostgis.schema = function() {
   return dcpSchema;
 };
 
-DcpPostgis.form = function() {
+DcpPostgis.prototype.form = function() {
   return [
     {
       key: 'table_name',
@@ -37,10 +37,5 @@ DcpPostgis.form = function() {
     }
   ];
 };
-
-DcpPostgis.demand = function () {
-  return ["POSTGIS"];
-};
-
 
 module.exports = DcpPostgis;

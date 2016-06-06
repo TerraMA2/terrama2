@@ -1,7 +1,7 @@
 var AbstractClass = require('./../AbstractSemantics');
 var Form = require('./../Enums').Form;
 
-var FileStaticDataOgr = module.exports = function() {
+var FileStaticDataOgr = module.exports = function(args) {
   AbstractClass.apply(this, arguments);
 };
 
@@ -12,7 +12,7 @@ FileStaticDataOgr.identifier = function() {
 FileStaticDataOgr.prototype = Object.create(AbstractClass.prototype);
 FileStaticDataOgr.prototype.constructor = FileStaticDataOgr;
 
-FileStaticDataOgr.schema = function() {
+FileStaticDataOgr.prototype.schema = function() {
   return {
     properties: {
       mask: {
@@ -24,10 +24,6 @@ FileStaticDataOgr.schema = function() {
   }
 };
 
-FileStaticDataOgr.form = function() {
+FileStaticDataOgr.prototype.form = function() {
   return ['*'];
-};
-
-FileStaticDataOgr.demand = function() {
-  return ["FILE"];
 };

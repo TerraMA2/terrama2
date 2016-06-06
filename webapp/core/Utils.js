@@ -298,5 +298,20 @@ module.exports = {
       default:
         throw new exceptions.ServiceTypeError("Invalid service type value");
     }
+  },
+
+  isValidDataSeriesType: function(code) {
+    switch(code) {
+      case Enums.DataSeriesType.DCP:
+      case Enums.DataSeriesType.STATIC_DATA:
+      case Enums.DataSeriesType.OCCURRENCE:
+      case Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+      case Enums.DataSeriesType.GRID:
+      case Enums.DataSeriesType.POSGIS:
+        return true;
+        break;
+      default:
+        throw new Error("Invalid data series type");
+    }
   }
 };
