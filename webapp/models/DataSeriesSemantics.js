@@ -53,6 +53,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataSeriesSemantics.hasMany(models.SemanticsMetadata, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'data_series_semantics_id',
+              allowNull: false
+            }
+          });
         }
       }
     }
