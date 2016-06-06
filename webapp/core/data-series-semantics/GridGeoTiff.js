@@ -1,7 +1,7 @@
 var AbstractClass = require('./../AbstractSemantics');
 var Form = require('./../Enums').Form;
 
-var GridGeoTiff = module.exports = function() {
+var GridGeoTiff = module.exports = function(args) {
   AbstractClass.apply(this, arguments);
 };
 
@@ -12,7 +12,7 @@ GridGeoTiff.identifier = function() {
 GridGeoTiff.prototype = Object.create(AbstractClass.prototype);
 GridGeoTiff.prototype.constructor = GridGeoTiff;
 
-GridGeoTiff.schema = function() {
+GridGeoTiff.prototype.schema = function() {
   return {
     properties: {
       mask: {
@@ -24,10 +24,6 @@ GridGeoTiff.schema = function() {
   }
 };
 
-GridGeoTiff.form = function() {
+GridGeoTiff.prototype.form = function() {
   return ['*'];
-};
-
-GridGeoTiff.demand = function () {
-  return ["FILE", "FTP"];
 };
