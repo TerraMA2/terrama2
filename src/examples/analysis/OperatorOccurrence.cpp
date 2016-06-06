@@ -110,7 +110,8 @@ int main(int argc, char* argv[])
           "x = occurrence.count(\"occ\", moBuffer, \"500d\", \"\")\n"
           "add_value(\"count_alias\", x)\n"
 
-          "x = occurrence.max(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.max(\"Occurrence"
+          "\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"max\", x)\n"
 
           "x = occurrence.min(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
@@ -235,7 +236,7 @@ int main(int argc, char* argv[])
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  timer.start(100000);
   app.exec();
 
 

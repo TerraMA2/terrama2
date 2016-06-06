@@ -96,7 +96,7 @@ namespace terrama2
        * \brief Log an error in the process
        * \param description Error description
        */
-      void error(const std::string description, const RegisterId registerId) const;
+      virtual void error(const std::string description, const RegisterId registerId) const;
 
       /*!
        * \brief Log the end of process
