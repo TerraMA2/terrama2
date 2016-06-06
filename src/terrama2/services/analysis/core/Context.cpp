@@ -109,7 +109,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
   {
     auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
     auto datasets = dataSeriesPtr->datasetList;
-    if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
       assert(datasets.size() == 1);
       auto dataset = datasets[0];
@@ -145,7 +145,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
       key.analysisHashCode_ = analysis.hashCode();
       datasetMap_[key] = dataSeriesContext;
     }
-    else if(analysisDataSeries.type == DATASERIES_PCD_TYPE)
+    else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
     {
       for(auto dataset : dataSeriesPtr->datasetList)
       {

@@ -134,8 +134,8 @@ int main(int argc, char* argv[])
 
   analysis.script = script;
   analysis.outputDataSeriesId = 3;
-  analysis.scriptLanguage = PYTHON;
-  analysis.type = MONITORED_OBJECT_TYPE;
+  analysis.scriptLanguage = ScriptLanguage::PYTHON;
+  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
-  monitoredObjectADS.type = DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
 
 
   //DataProvider information
@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
   AnalysisDataSeries occurrenceADS;
   occurrenceADS.id = 2;
   occurrenceADS.dataSeriesId = occurrenceDataSeriesPtr->id;
-  occurrenceADS.type = ADDITIONAL_DATA_TYPE;
+  occurrenceADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(monitoredObjectADS);

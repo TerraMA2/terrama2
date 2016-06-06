@@ -110,8 +110,8 @@ int main(int argc, char* argv[])
   analysis.id = 1;
   analysis.name = "History DCP";
   analysis.script = script;
-  analysis.scriptLanguage = PYTHON;
-  analysis.type = MONITORED_OBJECT_TYPE;
+  analysis.scriptLanguage = ScriptLanguage::PYTHON;
+  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
   analysis.outputDataSeriesId = 3;
   analysis.active = false;
 
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
-  monitoredObjectADS.type = DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
 
 
   //DataSeries information
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
   AnalysisDataSeries dcpADS;
   dcpADS.id = 2;
   dcpADS.dataSeriesId = dcpSeriesPtr->id;
-  dcpADS.type = ADDITIONAL_DATA_TYPE;
+  dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
   dataManager->add(dcpSeriesPtr);
 

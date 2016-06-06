@@ -53,7 +53,7 @@ namespace terrama2
         /*!
           \brief Defines the statistic operation to be used in the analysis.
         */
-        enum StatisticOperation
+        enum class StatisticOperation
         {
           INVALID = 0, //!< Invalid operation.
           MIN = 1, //!< Minimum value.
