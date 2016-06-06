@@ -140,7 +140,7 @@ namespace terrama2
 
         virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const;
         virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
-        virtual std::string getPropertyName(DataSetPtr dataSet, std::string tag) const;
+        virtual std::string getProperty(DataSetPtr dataSet, std::string tag, bool logErrors = true) const;
 
       protected:
 
