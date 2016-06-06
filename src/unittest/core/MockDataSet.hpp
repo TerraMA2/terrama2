@@ -45,6 +45,88 @@ namespace te
     class MockDataSet : public DataSet
     {
     public:
+
+      MOCK_METHOD0(EnvelopePtrReturn, te::gm::Envelope*());
+
+      virtual std::auto_ptr<te::gm::Envelope> getExtent(std::size_t i) override
+      {
+        return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
+      }
+
+      MOCK_CONST_METHOD0(ByteArrayPtrReturn, te::dt::ByteArray*());
+
+
+      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(std::size_t i) const override
+      {
+        return std::auto_ptr<te::dt::ByteArray>(ByteArrayPtrReturn());
+      }
+
+      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(const std::string& name) const override
+      {
+        return std::auto_ptr<te::dt::ByteArray>(ByteArrayPtrReturn());
+      }
+
+      MOCK_CONST_METHOD0(GeometryPtrReturn, te::gm::Geometry*());
+
+      virtual std::auto_ptr<te::gm::Geometry> getGeometry(std::size_t i) const override
+      {
+        return std::auto_ptr<te::gm::Geometry>(GeometryPtrReturn());
+      }
+
+      virtual std::auto_ptr<te::gm::Geometry> getGeometry(const std::string& name) const override
+      {
+        return std::auto_ptr<te::gm::Geometry>(GeometryPtrReturn());
+      }
+
+      MOCK_CONST_METHOD0(RasterPtrReturn, te::rst::Raster*());
+
+      virtual std::auto_ptr<te::rst::Raster> getRaster(std::size_t i) const override
+      {
+        return std::auto_ptr<te::rst::Raster>(RasterPtrReturn());
+      }
+
+      virtual std::auto_ptr<te::rst::Raster> getRaster(const std::string& name) const override
+      {
+        return std::auto_ptr<te::rst::Raster>(RasterPtrReturn());
+      }
+
+      MOCK_CONST_METHOD0(DateTimePtrReturn, te::dt::DateTime*());
+
+      virtual std::auto_ptr<te::dt::DateTime> getDateTime(std::size_t i) const override
+      {
+        return std::auto_ptr<te::dt::DateTime>(DateTimePtrReturn());
+      }
+
+      virtual std::auto_ptr<te::dt::DateTime> getDateTime(const std::string& name) const override
+      {
+        return std::auto_ptr<te::dt::DateTime>(DateTimePtrReturn());
+      }
+
+      MOCK_CONST_METHOD0(ArrayPtrReturn, te::dt::Array*());
+
+      virtual std::auto_ptr<te::dt::Array> getArray(std::size_t i)  const override
+      {
+        return std::auto_ptr<te::dt::Array>(ArrayPtrReturn());
+      }
+
+      virtual std::auto_ptr<te::dt::Array> getArray(const std::string& name) const override
+      {
+        return std::auto_ptr<te::dt::Array>(ArrayPtrReturn());
+      }
+
+      MOCK_CONST_METHOD0(AbstractDataPtrReturn, te::dt::AbstractData*());
+
+      virtual std::auto_ptr<te::dt::AbstractData> getValue(std::size_t i) const override
+      {
+        return std::auto_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
+      }
+
+      virtual std::auto_ptr<te::dt::AbstractData> getValue(const std::string& name) const override
+      {
+        return std::auto_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
+      }
+
+
       MOCK_CONST_METHOD0(getTraverseType,
                          te::common::TraverseType());
       MOCK_CONST_METHOD0(getAccessPolicy,
@@ -65,8 +147,7 @@ namespace te
                          bool());
       MOCK_CONST_METHOD0(size,
                          std::size_t());
-      MOCK_METHOD1(getExtent,
-                   std::auto_ptr<te::gm::Envelope>(std::size_t i));
+
       MOCK_METHOD0(moveNext,
                    bool());
       MOCK_METHOD0(movePrevious,
@@ -127,30 +208,7 @@ namespace te
                          std::string(std::size_t i));
       MOCK_CONST_METHOD1(getString,
                          std::string(const std::string& name));
-      MOCK_CONST_METHOD1(getByteArray,
-                         std::auto_ptr<te::dt::ByteArray>(std::size_t i));
-      MOCK_CONST_METHOD1(getByteArray,
-                         std::auto_ptr<te::dt::ByteArray>(const std::string& name));
-      MOCK_CONST_METHOD1(getGeometry,
-                         std::auto_ptr<te::gm::Geometry>(std::size_t i));
-      MOCK_CONST_METHOD1(getGeometry,
-                         std::auto_ptr<te::gm::Geometry>(const std::string& name));
-      MOCK_CONST_METHOD1(getRaster,
-                         std::auto_ptr<te::rst::Raster>(std::size_t i));
-      MOCK_CONST_METHOD1(getRaster,
-                         std::auto_ptr<te::rst::Raster>(const std::string& name));
-      MOCK_CONST_METHOD1(getDateTime,
-                         std::auto_ptr<te::dt::DateTime>(std::size_t i));
-      MOCK_CONST_METHOD1(getDateTime,
-                         std::auto_ptr<te::dt::DateTime>(const std::string& name));
-      MOCK_CONST_METHOD1(getArray,
-                         std::auto_ptr<te::dt::Array>(std::size_t i));
-      MOCK_CONST_METHOD1(getArray,
-                         std::auto_ptr<te::dt::Array>(const std::string& name));
-      MOCK_CONST_METHOD1(getValue,
-                         std::auto_ptr<te::dt::AbstractData>(std::size_t i));
-      MOCK_CONST_METHOD1(getValue,
-                         std::auto_ptr<te::dt::AbstractData>(const std::string& name));
+
       MOCK_CONST_METHOD2(getAsString,
                          std::string(std::size_t, int));
       MOCK_CONST_METHOD2(getAsString,
