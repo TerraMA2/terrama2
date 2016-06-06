@@ -308,20 +308,20 @@ double terrama2::core::convertDistanceUnit(double distance, const std::string& f
 
 }
 
-terrama2::core::DataSeriesSemantics::DataSeriesType terrama2::core::dataSeriesTypeFromString(const std::string& type)
+terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const std::string& type)
 {
   if(type == "DCP")
-    return terrama2::core::DataSeriesSemantics::DCP;
+    return terrama2::core::DataSeriesType::DCP;
   else if(type == "OCCURRENCE")
-    return terrama2::core::DataSeriesSemantics::OCCURRENCE;
+    return terrama2::core::DataSeriesType::OCCURRENCE;
   else if(type == "GRID")
-    return terrama2::core::DataSeriesSemantics::GRID;
+    return terrama2::core::DataSeriesType::GRID;
   else if(type == "MONITORED_OBJECT")
-    return terrama2::core::DataSeriesSemantics::MONITORED_OBJECT;
+    return terrama2::core::DataSeriesType::MONITORED_OBJECT;
   else if(type == "STATIC_DATA")
-    return terrama2::core::DataSeriesSemantics::STATIC;
+    return terrama2::core::DataSeriesType::STATIC;
   else if(type == "ANALYSIS_MONITORED_OBJECT")
-    return terrama2::core::DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT;
+    return terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT;
   else
   {
     QString errMsg = QObject::tr("Unknown DataSeriesType: %1.").arg(QString::fromStdString(type));
