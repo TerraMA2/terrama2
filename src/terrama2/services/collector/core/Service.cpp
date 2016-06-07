@@ -251,10 +251,10 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
 
   try
   {
-    std::lock_guard<std::mutex> lock(mutex_);
-
     if(collector->active)
     {
+      std::lock_guard<std::mutex> lock(mutex_);
+
       std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
       if(logger_.get())
         lastProcess = logger_->getLastProcessTimestamp(collector->id);
@@ -263,9 +263,8 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
       connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
       timers_.emplace(collector->id, timer);
     }
-    addToQueue(collector->id);
   }
-  catch(terrama2::core::InvalidFrequencyException& e)
+  catch(terrama2::core::InvalidFrequencyException&)
   {
     // invalid schedule, already logged
   }
@@ -274,6 +273,8 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
     //TODO: should be caught elsewhere?
     TERRAMA2_LOG_ERROR() << e.what();
   }
+
+  addToQueue(collector->id);
 }
 
 void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId)

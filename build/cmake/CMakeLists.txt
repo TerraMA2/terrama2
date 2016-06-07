@@ -310,10 +310,6 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_ANALYSIS_CORE_ENABLED "Build Analysis core modul
 #            SERVICES
 CMAKE_DEPENDENT_OPTION(TERRAMA2_SERVICE_ENABLED "Build Services?" ON "TERRAMA2_CORE_ENABLED;TERRAMA2_COLLECTOR_ENABLED;TERRAMA2_ANALYSIS_CORE_ENABLED" OFF)
 
-#FIXME: remove on alpha3
-CMAKE_DEPENDENT_OPTION(TERRAMA2_COLLECTOR_SERVICE_ENABLED "Build Collector Service?" ON "TERRAMA2_COLLECTOR_ENABLED" OFF)
-CMAKE_DEPENDENT_OPTION(TERRAMA2_ANALYSIS_SERVICE_ENABLED "Build Analysis Service?" ON "TERRAMA2_ANALYSIS_CORE_ENABLED" OFF)
-
 #####################################
 
 #####################################
@@ -376,19 +372,9 @@ if(TERRAMA2_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_collector_core)
 endif()
 
-#FIXME: remove on alpha3
-# if(TERRAMA2_COLLECTOR_SERVICE_ENABLED)
-#   add_subdirectory(terrama2_collector_service)
-# endif()
-
 if(TERRAMA2_ANALYSIS_CORE_ENABLED)
   add_subdirectory(terrama2_analysis_core)
 endif()
-
-#FIXME: remove on alpha3
-# if(TERRAMA2_ANALYSIS_SERVICE_ENABLED)
-#   add_subdirectory(terrama2_analysis_service)
-# endif()
 
 if(TERRAMA2_SERVICE_ENABLED)
   add_subdirectory(terrama2_service)
