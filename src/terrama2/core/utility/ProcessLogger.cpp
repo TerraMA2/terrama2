@@ -169,7 +169,8 @@ void terrama2::core::ProcessLogger::error(const std::string description, Registe
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
   transactor->execute(query.str());
-  transactor->execute(queryMessages.str());
+
+  transactor->execute(transactor->escape(queryMessages.str()));
   transactor->commit();
 }
 
@@ -178,7 +179,7 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
 {
   if(tableName_.empty())
   {
-    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    QString errMsg = QObject::tr("Can not find log table name");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }

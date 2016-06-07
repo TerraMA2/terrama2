@@ -106,7 +106,6 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       default:
       {
         QString errMsg = QObject::tr("Invalid analysis type.");
-        TERRAMA2_LOG_ERROR() << errMsg;
         Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
       }
     }
@@ -122,7 +121,6 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
     Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
   }
 
@@ -170,10 +168,6 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
     QString errMsg = QObject::tr("An unknown exception occurred.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
-
-
-
-
 }
 
 void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber)
@@ -196,7 +190,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
         if(!contextDataset->series.syncDataSet->dataset())
         {
           QString errMsg = QObject::tr("Could not recover monitored object dataset.");
-          TERRAMA2_LOG_WARNING() << errMsg;
           throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
         }
         size = contextDataset->series.syncDataSet->size();
@@ -208,7 +201,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     if(size == 0)
     {
       QString errMsg = QObject::tr("Could not recover monitored object dataset.");
-      TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
@@ -341,10 +333,18 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
     PyEval_ReleaseLock();
 
   }
-  catch(std::exception& e)
+  catch(terrama2::Exception e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    Context::getInstance().addError(analysis.hashCode(),  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+  }
+  catch(std::exception e)
+  {
     Context::getInstance().addError(analysis.hashCode(), e.what());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
   }
 }
 
@@ -372,7 +372,6 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
   if(!dataSeries)
   {
     QString errMsg = QObject::tr("Could not find the output data series.");
-    TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
@@ -380,7 +379,6 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
   if(!dataProvider)
   {
     QString errMsg = QObject::tr("Could not find the output data provider.");
-    TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
@@ -456,7 +454,6 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
     if(!storager)
     {
       QString errMsg = QObject::tr("Could not find storager support for the output data provider.");
-      TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
@@ -473,7 +470,6 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
     catch(terrama2::Exception /*e*/)
     {
       QString errMsg = QObject::tr("Could not store the result of the analysis: %1.").arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
     }
   }
 }
@@ -481,7 +477,6 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
 void ::terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr shared_ptr, const Analysis& analysis, unsigned int number)
 {
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
-  TERRAMA2_LOG_ERROR() << errMsg;
   throw Exception()  << ErrorDescription(errMsg);
 }
 

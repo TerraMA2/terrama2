@@ -80,7 +80,7 @@ namespace terrama2
         \param time String with the time.
         \param unitName The name of the output unit, it must be registered in UnitsOfMeasureManager.
        */
-      double convertTimeStringToSeconds(const std::string& time, std::string unitName);
+      double convertTimeString(const std::string& time, std::string unitName);
 
       std::shared_ptr<te::dt::TimeInstantTZ> stringToTimestamp(const std::string& dateTime, const std::string& mask);
       boost::local_time::local_date_time stringToBoostLocalTime(const std::string& dateTime, const std::string& mask);

@@ -30,7 +30,6 @@
 #include "Context.hpp"
 #include "Analysis.hpp"
 #include "Exception.hpp"
-#include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
@@ -101,7 +100,6 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
   if(!dataManagerPtr)
   {
     QString errMsg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
     throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
   }
 
@@ -130,7 +128,6 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
       if(!series.syncDataSet->dataset())
       {
         QString errMsg(QObject::tr("Adding an invalid dataset to the analysis context: DataSeries %1").arg(dataSeriesPtr->id));
-        TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
@@ -212,7 +209,6 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
   if(!dataManagerPtr)
   {
     QString errMsg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
     throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
   }
 
@@ -223,7 +219,7 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
 
   if(!dateFilter.empty())
   {
-    double minutes = terrama2::core::TimeUtils::convertTimeStringToSeconds(dateFilter, "MINUTE");
+    double minutes = terrama2::core::TimeUtils::convertTimeString(dateFilter, "MINUTE");
 
     ldt -= boost::posix_time::minutes(minutes);
 
@@ -250,7 +246,6 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
     if(!dcpDataset->position)
     {
       QString errMsg(QObject::tr("Invalid location for DCP."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -307,7 +302,6 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
     return it->second;
 
   QString msg(QObject::tr("Could not find the analysis in the Context."));
-  TERRAMA2_LOG_ERROR() << msg;
   throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
 
 }
@@ -348,7 +342,6 @@ void terrama2::services::analysis::core::Context::addDataSeries(const size_t ana
   if(!dataManagerPtr)
   {
     QString errMsg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
     throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
   }
 
@@ -361,7 +354,7 @@ void terrama2::services::analysis::core::Context::addDataSeries(const size_t ana
 
   if(!dateFilter.empty())
   {
-    double minutes = terrama2::core::TimeUtils::convertTimeStringToSeconds(dateFilter, "MINUTE");
+    double minutes = terrama2::core::TimeUtils::convertTimeString(dateFilter, "MINUTE");
 
     ldt -= boost::posix_time::minutes(minutes);
 
