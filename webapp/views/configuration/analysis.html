@@ -318,6 +318,25 @@
                       </span>
                     </div>
                   </div>
+                  <!-- ./col-md-6 -->
+
+                  <div class="col-md-6" ng-if="analysis.type_id == globals.enums.AnalysisType.MONITORED">
+                    <div class="form-group has-feedback"
+                      ng-class="{'has-error': targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$error.required, 'has-success': targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$valid}">
+                      <label>{[ __("Attribute Identifier") ]}:</label>
+                      <input class="form-control"
+                             name="attributeIdentifier"
+                             ng-model="attributeIdentifier"
+                             placeholder="{[ __('Type attribute identifier of Monitored Object') ]}"
+                             type="text" required>
+
+                      <!-- required -->
+                      <span class="help-block" ng-show="targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$error.required">
+                        {[ __('Attribute Identifier') ]}
+                      </span>
+                    </div>
+                  </div>
+                  <!-- ./col-md-6 -->
                 </form>
               </div>
             </div>
