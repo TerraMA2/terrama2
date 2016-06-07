@@ -24,6 +24,8 @@ angular.module('terrama2.analysis.registration', [
     $scope.dataProvidersList = [];
     $scope.dataProviders = [];
 
+    $scope.identifier = "abacate";
+
     // define dataseries selected in modal
     $scope.nodesDataSeries = [];
 
@@ -90,10 +92,12 @@ angular.module('terrama2.analysis.registration', [
           break;
       }
 
-      $scope.$watch('targetDataSeries', function(value) {
-        if (value && value.name)
-          $scope.metadata[value.name] = {alias: value.name};
-      })
+      $scope.onTargetDataSeriesChange = function() {
+        if ($scope.targetDataSeries && $scope.targetDataSeries.name)
+          $scope.metadata[$scope.targetDataSeries.name] = {
+            alias: $scope.targetDataSeries.name
+          };
+      }
 
       // filtering formats
       $scope.storagerFormats = [];
@@ -349,11 +353,10 @@ angular.module('terrama2.analysis.registration', [
       var analysisDataSeriesArray = [];
 
       var _makeAnalysisDataSeries = function(selectedDS, type_id) {
-        var metadata = $scope.metadata[selectedDS.name] || {};
-        var alias = metadata.alias;
+        var metadata = Object.assign({}, $scope.metadata[selectedDS.name] || {});
+        var alias = ($scope.metadata[selectedDS.name] || {}).alias;
 
         delete metadata.alias;
-
 
         return {
           data_series_id: selectedDS.id,
@@ -375,7 +378,7 @@ angular.module('terrama2.analysis.registration', [
           break;
         case globals.enums.AnalysisType.MONITORED:
           analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
-          $scope.metadata[$scope.targetDataSeries.name] = $scope.attributeIdentifier;
+          $scope.metadata[$scope.targetDataSeries.name]['identifier'] = $scope.identifier;
           break;
       }
 

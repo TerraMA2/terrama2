@@ -309,7 +309,7 @@
                     <div class="form-group has-feedback"
                       ng-class="{'has-error': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required, 'has-success': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$valid}">
                       <label>{[ __("DataSeries") ]}:</label>
-                      <select class="form-control" name="targetDataSeries" ng-model="targetDataSeries" ng-options="targetDS as targetDS.name for targetDS in filteredDataSeries" required>
+                      <select class="form-control" name="targetDataSeries" ng-model="targetDataSeries" ng-options="targetDS as targetDS.name for targetDS in filteredDataSeries" ng-change="onTargetDataSeriesChange()" required>
                       </select>
 
                       <!-- required -->
@@ -320,15 +320,11 @@
                   </div>
                   <!-- ./col-md-6 -->
 
-                  <div class="col-md-6" ng-if="analysis.type_id == globals.enums.AnalysisType.MONITORED">
+                  <div class="col-md-6" ng-show="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
                     <div class="form-group has-feedback"
-                      ng-class="{'has-error': targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$error.required, 'has-success': targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$valid}">
+                      ng-class="{'has-error': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$error.required, 'has-success': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$valid}">
                       <label>{[ __("Attribute Identifier") ]}:</label>
-                      <input class="form-control"
-                             name="attributeIdentifier"
-                             ng-model="attributeIdentifier"
-                             placeholder="{[ __('Type attribute identifier of Monitored Object') ]}"
-                             type="text" required>
+                      <input type="text" class="form-control" name="identifier" ng-model="identifier" required>
 
                       <!-- required -->
                       <span class="help-block" ng-show="targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$error.required">
