@@ -24,7 +24,7 @@ angular.module('terrama2.analysis.registration', [
     $scope.dataProvidersList = [];
     $scope.dataProviders = [];
 
-    $scope.identifier = "abacate";
+    $scope.identifier = "";
 
     // define dataseries selected in modal
     $scope.nodesDataSeries = [];
