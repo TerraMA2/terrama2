@@ -34,11 +34,26 @@
 
 #include <gmock/gmock.h>
 
-namespace terrama2 {
-  namespace core {
+namespace terrama2
+{
+  namespace core
+  {
 
-    class MockProcessLogger : public ProcessLogger {
+    /*!
+     * \brief The MockProcessLogger class for ProcessLog unittests
+     */
+    class MockProcessLogger : public ProcessLogger
+    {
     public:
+
+      /*!
+       * \brief Class constructor
+       */
+      MockProcessLogger() = default;
+
+      /*!
+       * \brief Class destructor
+       */
       virtual ~MockProcessLogger() = default;
 
       MOCK_CONST_METHOD1(start,

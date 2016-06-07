@@ -42,16 +42,36 @@ namespace te
   namespace da
   {
 
+    /*!
+     * \brief The MockDataSet class has the mocked methods for unittests,
+     * using GMock.
+     *
+     * Some methods in in this class returns a std::auto_ptr, what isn't acceptable
+     * by GMock to use in mockeds methods. To solve this, was created some mocked proxies
+     * that returns a pointer, used to create the auto_ptr required in method.
+     *
+     */
     class MockDataSet : public DataSet
     {
     public:
 
+      /*!
+       * \brief Class constructor
+      */
       MockDataSet() = default;
 
+      /*!
+       * \brief Class destructor
+      */
       virtual ~MockDataSet() = default;
 
+
+      // Methods that use std::auto_ptr and need proxies:
+
+      // Mocked proxy
       MOCK_METHOD0(EnvelopePtrReturn, te::gm::Envelope*());
 
+      // Overridden method that use the mocked proxy
       virtual std::auto_ptr<te::gm::Envelope> getExtent(std::size_t i) override
       {
         return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
@@ -130,6 +150,8 @@ namespace te
         return std::auto_ptr<te::dt::AbstractData>(AbstractDataPtrReturn());
       }
 
+
+      // Normal mocked methods:
 
       MOCK_CONST_METHOD0(getTraverseType,
                          te::common::TraverseType());

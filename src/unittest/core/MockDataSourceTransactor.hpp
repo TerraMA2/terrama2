@@ -22,7 +22,7 @@
 /*!
   \file unittest/core/MockDataSourceTransactor.hpp
 
-  \brief Mock for TerraLib Data Source Transactor
+  \brief Mock for TerraLib Data Source Transactor class
 
   \author Vinicius Campanha
 */
@@ -52,17 +52,36 @@ namespace te
   namespace da
   {
 
+    /*!
+     * \brief The MockDataSourceTransactor class has the mocked methods for unittests,
+     * using GMock.
+     *
+     * Some methods in in this class returns a std::auto_ptr, what isn't acceptable
+     * by GMock to use in mockeds methods. To solve this, was created some mocked proxies
+     * that returns a pointer, used to create the auto_ptr required in method.
+     *
+     */
     class MockDataSourceTransactor : public DataSourceTransactor
     {
     public:
 
+      /*!
+       * \brief Class constructor
+      */
       MockDataSourceTransactor() = default;
 
+      /*!
+       * \brief Class destructor
+      */
       virtual ~MockDataSourceTransactor() = default;
 
 
+      // Methods that use std::auto_ptr and need proxies:
+
+      // Mocked proxy
       MOCK_METHOD0(DataSetPtrReturn, DataSet*());
 
+      // Overridden method that use the mocked proxy
       virtual std::auto_ptr<DataSet> getDataSet(const std::string&,
                                                 te::common::TraverseType,
                                                 bool,
@@ -204,6 +223,8 @@ namespace te
       {
         return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
       }
+
+      // Normal mocked methods:
 
       MOCK_CONST_METHOD0(getDataSource,
                          DataSource*());

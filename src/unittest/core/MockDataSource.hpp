@@ -22,7 +22,7 @@
 /*!
   \file unittest/core/MockDataSource.hpp
 
-  \brief Mock for TerraLib Data Source
+  \brief Mock for TerraLib Data Source class
 
   \author Vinicius Campanha
 */
@@ -50,19 +50,37 @@ namespace te
   namespace da
   {
 
+    /*!
+     * \brief The MockDataSource class has the mocked methods for unittests,
+     * using GMock.
+     *
+     * Some methods in in this class returns a std::auto_ptr, what isn't acceptable
+     * by GMock to use in mockeds methods. To solve this, was created some mocked proxies
+     * that returns a pointer, used to create the auto_ptr required in method.
+     *
+     */
     class MockDataSource : public DataSource
     {
     public:
 
-
+      /*!
+       * \brief Class constructor
+      */
       MockDataSource() = default;
 
+      /*!
+       * \brief Class destructor
+      */
       virtual ~MockDataSource() = default;
 
-      // std::auto_ptr proxies
-      MOCK_METHOD1(DataSourceTransactoPtrParam, void(DataSourceTransactor*));
+
+      // Methods that use std::auto_ptr and need proxies:
+
+
+      // Mocked proxy
       MOCK_METHOD0(DataSourceTransactoPtrReturn, DataSourceTransactor* ());
 
+      // Overridden method that use the mocked proxy
       virtual std::auto_ptr<DataSourceTransactor> getTransactor() override
       {
         return std::auto_ptr<DataSourceTransactor>(DataSourceTransactoPtrReturn());
@@ -185,11 +203,13 @@ namespace te
       }
 
 
+      // Normal mocked methods:
+
       MOCK_CONST_METHOD0(getType,
                          std::string());
-      // The following line won't really compile, as the return
-      // type has multiple template arguments.  To fix it, use a
-      // typedef for the return type.
+      // The following line wasn't really compiliong, as the return
+      // type has multiple template arguments.  To fix it, was used a
+      // typedef (stringMapReturn) for the return type.
       MOCK_CONST_METHOD0(getConnectionInfo,
                          const stringMapReturn&());
       MOCK_METHOD1(setConnectionInfo,

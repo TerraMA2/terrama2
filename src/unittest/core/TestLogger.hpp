@@ -38,6 +38,10 @@
 #include "MockDataSourceTransactor.hpp"
 #include "MockDataSet.hpp"
 
+/*!
+ * \brief This method creates a MockDataSet
+ * \return Returns a mocked DataSet that has the required behavior for unittests
+ */
 te::da::MockDataSet* createMockDataSet()
 {
   te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
@@ -49,6 +53,10 @@ te::da::MockDataSet* createMockDataSet()
   return mockDataSet;
 }
 
+/*!
+ * \brief This method creates a MockDataSourceTransactor
+ * \return Returns a mocked DataSourceTransactor that has the required behavior for unittests
+ */
 te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
 {
   te::da::MockDataSourceTransactor* mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
@@ -58,8 +66,13 @@ te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
   ON_CALL(*mockDataSourceTransactor, execute(std::string())).WillByDefault(::testing::Return());
   ON_CALL(*mockDataSourceTransactor, commit()).WillByDefault(::testing::Return());
   ON_CALL(*mockDataSourceTransactor, getLastGeneratedId()).WillByDefault(::testing::Return(1));
-  ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&createMockDataSet));
 
+  /* Every time the mockDataSourceTransactor object calls a method that returns a DataSet
+   * the actualy method called will be the createMockDataSet() that returns a
+   * new mocked DataSet.
+   * A new mocked object is needed in every call because TerraLib takes ownership from the pointer.
+   */
+  ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&createMockDataSet));
 
   return mockDataSourceTransactor;
 }
@@ -67,23 +80,39 @@ te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
 class TestLogger : public terrama2::core::ProcessLogger
 {
 public:
+
+  /*!
+   * \brief Class constructor
+   *
+   * It will initialize a mock for DataSource class and set it in ProcessLogger class.
+   */
   TestLogger()
     : ProcessLogger()
   {
-    // Mock
     std::unique_ptr< te::da::MockDataSource > mockDataSource(new te::da::MockDataSource());
 
     ON_CALL(*mockDataSource.get(), dataSetExists(::testing::_)).WillByDefault(::testing::Return(false));
+
+    /* Every time the mockDataSource object calls a method that returns a DataSourceTransactor
+     * the actualy method called will be the createMockDataSourceTransactor() that returns a
+     * new mocked DataSourceTransactor.
+     * A new mocked object is needed in every call because TerraLib takes ownership from the pointer.
+     */
     ON_CALL(*mockDataSource.get(), DataSourceTransactoPtrReturn()).WillByDefault(::testing::Invoke(&createMockDataSourceTransactor));
 
     setDataSource(mockDataSource.release());
-
     setTableName("unittest"+std::to_string(1));
-
   }
 
+  /*!
+   * \brief Class destructor
+   */
   virtual ~TestLogger() = default;
 
+  /*!
+   * \brief The method addValue is protected in ProcessLog, so was needed to implement a method
+   * that calls it for unittests.
+   */
   void logValue(const std::string tag, const std::string value, const RegisterId registerId) const
   {
     addValue(tag, value, registerId);
