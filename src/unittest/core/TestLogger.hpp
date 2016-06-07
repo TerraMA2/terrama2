@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_UNITTEST_CORE_TESTLOGGER_HPP__
 #define __TERRAMA2_UNITTEST_CORE_TESTLOGGER_HPP__
 
+
 //TerraMA2
 #include <terrama2/core/utility/ProcessLogger.hpp>
 
@@ -37,6 +38,31 @@
 #include "MockDataSourceTransactor.hpp"
 #include "MockDataSet.hpp"
 
+te::da::MockDataSet* createMockDataSet()
+{
+  te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
+
+  ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(true));
+  ON_CALL(*mockDataSet, getAsString(std::string(),::testing::_)).WillByDefault(::testing::Return(""));
+  ON_CALL(*mockDataSet, isNull(std::string())).WillByDefault(::testing::Return(false));
+
+  return mockDataSet;
+}
+
+te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
+{
+  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
+
+  ON_CALL(*mockDataSourceTransactor, createDataSet(::testing::_, ::testing::_)).WillByDefault(::testing::Return());
+  ON_CALL(*mockDataSourceTransactor, PrimaryKeyPtrReturn()).WillByDefault(::testing::Return(new te::da::PrimaryKey()));
+  ON_CALL(*mockDataSourceTransactor, execute(std::string())).WillByDefault(::testing::Return());
+  ON_CALL(*mockDataSourceTransactor, commit()).WillByDefault(::testing::Return());
+  ON_CALL(*mockDataSourceTransactor, getLastGeneratedId()).WillByDefault(::testing::Return(1));
+  ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&createMockDataSet));
+
+
+  return mockDataSourceTransactor;
+}
 
 class TestLogger : public terrama2::core::ProcessLogger
 {
@@ -44,13 +70,21 @@ public:
   TestLogger()
     : ProcessLogger()
   {
-    std::shared_ptr< te::da::MockDataSource > mockDataSource;
-    setDataSource(mockDataSource);
+    // Mock
+    std::unique_ptr< te::da::MockDataSource > mockDataSource(new te::da::MockDataSource());
+
+    ON_CALL(*mockDataSource.get(), dataSetExists(::testing::_)).WillByDefault(::testing::Return(false));
+    ON_CALL(*mockDataSource.get(), DataSourceTransactoPtrReturn()).WillByDefault(::testing::Invoke(&createMockDataSourceTransactor));
+
+    setDataSource(mockDataSource.release());
+
+    setTableName("unittest"+std::to_string(1));
+
   }
 
   virtual ~TestLogger() = default;
 
-  void addValue(const std::string tag, const std::string value, const RegisterId registerId) const
+  void logValue(const std::string tag, const std::string value, const RegisterId registerId) const
   {
     addValue(tag, value, registerId);
   }

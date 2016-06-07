@@ -73,9 +73,9 @@ terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::
   }
 }
 
-void terrama2::core::ProcessLogger::setDataSource(std::shared_ptr< te::da::DataSource > dataSource)
+void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)
 {
-  dataSource_ = dataSource;
+  dataSource_.reset(dataSource);
 }
 
 terrama2::core::ProcessLogger::~ProcessLogger()

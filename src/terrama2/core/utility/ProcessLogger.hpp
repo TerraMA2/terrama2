@@ -125,7 +125,7 @@ namespace terrama2
       /*!
        * \brief Set the process logger data source
        */
-      void setDataSource(std::shared_ptr< te::da::DataSource > dataSource);
+      void setDataSource(te::da::DataSource* dataSource);
 
       /*!
        * \brief Store data in a Json to be logged after
@@ -150,7 +150,7 @@ namespace terrama2
 
       std::string tableName_ = "";
       std::string messagesTableName_ = "";
-      std::shared_ptr< te::da::DataSource > dataSource_;
+      std::unique_ptr< te::da::DataSource > dataSource_;
 
     };
   }

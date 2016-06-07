@@ -42,16 +42,14 @@ void TsLogger::testProcessLogger()
 
   RegisterId registerID = log.start(1);
 
-  log.addValue("tag1", "value1", registerID);
-  log.addValue("tag2", "value2", registerID);
-  log.addValue("tag1", "value3", registerID);
-  log.addValue("tag2", "value4", registerID);
+  log.logValue("tag1", "value1", registerID);
+  log.logValue("tag2", "value2", registerID);
+  log.logValue("tag1", "value3", registerID);
+  log.logValue("tag2", "value4", registerID);
   log.error("Unit Test Error", registerID);
   log.error("Unit Test second Error", registerID);
 
   std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
 
   log.done(dataTime, registerID);
-
-  QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp(registerID)->getTimeInstantTZ());
 }
