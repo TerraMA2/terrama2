@@ -1,4 +1,5 @@
 var BaseClass = require('./AbstractData');
+var DataSetFactory = require('./DataSetFactory');
 
 
 var DataSeries = function(params) {
@@ -16,11 +17,35 @@ var DataSeries = function(params) {
     this.data_series_semantics = params['DataSeriesSemantic'].get();
 
   this.semantics = params.semantics;
-  this.dataSets = params.dataSets || [];
+
+  if (params['DataSets'])
+    this.setDataSets(params['DataSets']);
+  else
+    this.dataSets = params.dataSets || [];
 };
 
 DataSeries.prototype = Object.create(BaseClass.prototype);
 DataSeries.prototype.constructor = DataSeries;
+
+DataSeries.prototype.setDataSets = function(dataSets) {
+  var output = [];
+  dataSets.forEach(function(dataSet) {
+    if (dataSet instanceof BaseClass)
+      output.push(dataSet);
+    else { // sequelize instance
+      var ob = dataSet.get();
+      if (ob.DataSetDcp)
+        Object.assign(ob, ob.DataSetDcp.get());
+      else if (ob.DataSetOccurrence)
+        ob = Object.assign({}, ob.DataSetOccurrence.get(), ob);
+      else if (ob.DataSetMonitored)
+        ob = Object.assign({}, ob.DataSetMonitored.get(), ob);
+      output.push(DataSetFactory.build(ob));
+    }
+  });
+  
+  this.dataSets = output;
+};
 
 DataSeries.prototype.toObject = function() {
   var dataSets = [];

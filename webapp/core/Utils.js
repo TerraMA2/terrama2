@@ -287,7 +287,7 @@ module.exports = {
     })
   },
 
-  getServiceTypeName(intServiceType) {
+  getServiceTypeName: function(intServiceType) {
     switch(intServiceType) {
       case Enums.ServiceType.COLLECTOR:
         return "COLLECTOR";
