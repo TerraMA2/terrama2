@@ -328,12 +328,6 @@ angular.module('terrama2.analysis.registration', [
         return;
       }
 
-      // // checking for empty data series
-      // if ($scope.isEmptyDataSeries()) {
-      //   makeDialog("alert-danger", "Select at least a Data Series", true);
-      //   return;
-      // }
-
       // checking dataseries analysis
       var dataSeriesError = {};
       var hasError = $scope.selectedDataSeriesList.some(function(dSeries) {
@@ -361,42 +355,35 @@ angular.module('terrama2.analysis.registration', [
 
       var _makeAnalysisDataSeries = function(selectedDS, type_id) {
         var metadata = $scope.metadata[selectedDS.name] || {};
+        var alias = metadata.alias;
 
-        // var semantics = selectedDS.data_series_semantics;
+        delete metadata.alias;
 
-        // switch(semantics.data_series_type_name) {
-        //   case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-        //   case globals.enums.DataSeriesType.OCCURRENCE:
-        //     type_id = globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
-        //     break;
-        //   case globals.enums.DataSeriesType.DCP:
-        //     type_id = globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
-        //     break;
-        //   case globals.enums.DataSeriesType.STATIC_DATA:
-        //     type_id = globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE;
-        //     break;
-        //   case globals.enums.DataSeriesType.GRID:
-        //     type_id = globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
-        //     break;
-        //   default:
-        //     // TODO: throw exception, remove it from list
-        //     $scope.alertBox.title = "Data Series";
-        //     $scope.alertBox.message = "Invalid data series semantics: ";
-        //     $scope.alertLevel = "alert-danger";
-        //     $scope.display = true;
-        //     return;
-        // }
+
         return {
           data_series_id: selectedDS.id,
           metadata: metadata,
-          alias: metadata.alias,
+          alias: alias,
           // todo: check it
           type_id: type_id
         };
       };
 
       // target data series
-      analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, $scope.analysis.type_id));
+      var analysisTypeId;
+      switch(parseInt($scope.analysis.type_id)) {
+        case globals.enums.AnalysisType.DCP:
+          analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
+          break;
+        case globals.enums.AnalysisType.GRID:
+          analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
+          break;
+        case globals.enums.AnalysisType.MONITORED:
+          analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
+          break;
+      }
+
+      analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, analysisTypeId));
 
       // todo: improve it
       // temp code for sending analysis dataseries
