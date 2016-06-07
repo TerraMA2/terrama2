@@ -54,7 +54,7 @@ namespace terrama2
         */
         DataSeriesSemantics addSemantics(const std::string& code,
                                          const std::string& name,
-                                         const DataSeriesSemantics::DataSeriesType& dataSeriesType,
+                                         const DataSeriesType& dataSeriesType,
                                          const DataFormat& format,
                                          const std::vector<DataProviderType>& providersTypeList,
                                          const std::unordered_map<std::string, std::string>& metadata);

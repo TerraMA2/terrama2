@@ -68,7 +68,7 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   dataProvider->uri += TERRAMA2_DATA_DIR;
   dataProvider->uri += "/fire_system";
 
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->active = true;
   dataProvider->id = 1;
   dataProvider->name = "DataProvider queimadas local";
@@ -115,7 +115,7 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   outputDataProvider->id = 2;
   outputDataProvider->name = "DataProvider queimadas postgis";
   outputDataProvider->uri = uri.url().toStdString();
-  outputDataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  outputDataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   outputDataProvider->dataProviderType = "POSTGIS";
   outputDataProvider->active = true;
 

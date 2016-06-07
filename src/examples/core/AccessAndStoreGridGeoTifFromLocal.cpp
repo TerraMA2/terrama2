@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     dataProvider->uri += TERRAMA2_DATA_DIR;
     dataProvider->uri += "/geotiff";
 
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
 

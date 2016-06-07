@@ -73,27 +73,27 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
   int lonPos = -1;
   int latPos = -1;
 
-  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(timestampPropertyName(), te::dt::TIME_INSTANT_TZ);
+  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
 
   // Find the rigth column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
-    if(property->getName() == timestampPropertyName())
+    if(property->getName() == getTimestampPropertyName(dataSet))
     {
       // datetime column found
       converter->add(i, dtProperty,
                      boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
     }
-    else if(property->getName() == latitudePropertyName() || property->getName() == longitudePropertyName())
+    else if(property->getName() == getLatitudePropertyName(dataSet) || property->getName() == getLongitudePropertyName(dataSet))
     {
       // update latitude column index
-      if(property->getName() == latitudePropertyName())
+      if(property->getName() == getLatitudePropertyName(dataSet))
         latPos = i;
 
       // update longitude column index
-      if(property->getName() == longitudePropertyName())
+      if(property->getName() == getLongitudePropertyName(dataSet))
         lonPos = i;
 
       if(latPos == -1 || lonPos == -1)
@@ -106,7 +106,7 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
       latLonAttributes.push_back(lonPos);
       latLonAttributes.push_back(latPos);
 
-      te::gm::GeometryProperty* newProperty = new te::gm::GeometryProperty(geometryPropertyName(), srid, te::gm::PointType);
+      te::gm::GeometryProperty* newProperty = new te::gm::GeometryProperty(getGeometryPropertyName(dataSet), srid, te::gm::PointType);
       converter->add(latLonAttributes, newProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToPoint, this, _1, _2, _3, srid));
     }
     else
@@ -125,24 +125,14 @@ void terrama2::core::DataAccessorOccurrenceWfp::addColumns(std::shared_ptr<te::d
   // the converter will add columns
 }
 
-std::string terrama2::core::DataAccessorOccurrenceWfp::timestampPropertyName() const
+std::string terrama2::core::DataAccessorOccurrenceWfp::getLatitudePropertyName(DataSetPtr dataSet) const
 {
-  return "data_pas";
+  return getProperty(dataSet, "latitude_property");
 }
 
-std::string terrama2::core::DataAccessorOccurrenceWfp::latitudePropertyName() const
+std::string terrama2::core::DataAccessorOccurrenceWfp::getLongitudePropertyName(DataSetPtr dataSet) const
 {
-  return "lat";
-}
-
-std::string terrama2::core::DataAccessorOccurrenceWfp::longitudePropertyName() const
-{
-  return "lon";
-}
-
-std::string terrama2::core::DataAccessorOccurrenceWfp::geometryPropertyName() const
-{
-  return "position";
+  return getProperty(dataSet, "longitude_property");
 }
 
 te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,

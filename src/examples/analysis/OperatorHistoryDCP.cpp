@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
   outputDataProvider->id = 3;
   outputDataProvider->name = "DataProvider postgis";
   outputDataProvider->uri = uri.url().toStdString();
-  outputDataProvider->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   outputDataProvider->dataProviderType = "POSTGIS";
   outputDataProvider->active = true;
 
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
   dataProvider->name = "Provider";
   dataProvider->uri += TERRAMA2_DATA_DIR;
   dataProvider->uri += "/shapefile";
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.code = "STATIC_DATA-ogr";
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
   dataProvider2->name = "Provider";
   dataProvider2->uri += TERRAMA2_DATA_DIR;
   dataProvider2->uri += "/PCD_serrmar_INPE";
-  dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider2->dataProviderType = "FILE";
   dataProvider2->active = true;
   dataProvider2->id = 2;
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
   dcpSeries->semantics.code = "DCP-inpe";
-  dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
+  dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
   dcpSeries->name = "DCP-Angra";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;

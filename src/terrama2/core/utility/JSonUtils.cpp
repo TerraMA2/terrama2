@@ -78,7 +78,7 @@ terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject
   provider->projectId = json["project_id"].toInt();
   provider->name = json["name"].toString().toStdString();
   provider->description = json["description"].toString().toStdString();
-  provider->intent = static_cast<terrama2::core::DataProvider::DataProviderIntent>(json["intent"].toInt());
+  provider->intent = static_cast<terrama2::core::DataProviderIntent>(json["intent"].toInt());
   provider->uri = json["uri"].toString().toStdString();
   provider->active = json["active"].toBool();
   provider->dataProviderType = json["data_provider_type"].toString().toStdString();
@@ -120,19 +120,19 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
   std::function<terrama2::core::DataSetPtr(QJsonObject)> createDataSet = nullptr;
   switch(dataSeries->semantics.dataSeriesType)
   {
-    case DataSeriesSemantics::DCP:
+    case DataSeriesType::DCP:
       createDataSet = fromDataSetDcpJson;
       break;
-    case DataSeriesSemantics::OCCURRENCE:
+    case DataSeriesType::OCCURRENCE:
       createDataSet = fromDataSetOccurrenceJson;
       break;
-    case DataSeriesSemantics::GRID:
+    case DataSeriesType::GRID:
       createDataSet = fromDataSetGridJson;
       break;
-    case DataSeriesSemantics::STATIC:
+    case DataSeriesType::STATIC:
       createDataSet = fromDataSetJson;
       break;
-    case DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT:
+    case DataSeriesType::ANALYSIS_MONITORED_OBJECT:
       createDataSet = fromDataSetJson;
       break;
     default:
@@ -389,19 +389,19 @@ QJsonObject terrama2::core::toJson(DataSetPtr dataSetPtr, DataSeriesSemantics se
 
   switch(semantics.dataSeriesType)
   {
-    case terrama2::core::DataSeriesSemantics::DCP :
+    case terrama2::core::DataSeriesType::DCP :
     {
       auto dataSet = std::dynamic_pointer_cast<const DataSetDcp>(dataSetPtr);
       terrama2::core::addToJson(obj, dataSet);
       break;
     }
-    case terrama2::core::DataSeriesSemantics::OCCURRENCE :
+    case terrama2::core::DataSeriesType::OCCURRENCE :
     {
       auto dataSet = std::dynamic_pointer_cast<const DataSetOccurrence>(dataSetPtr);
       terrama2::core::addToJson(obj, dataSet);
       break;
     }
-    case terrama2::core::DataSeriesSemantics::GRID :
+    case terrama2::core::DataSeriesType::GRID :
     {
       auto dataSet = std::dynamic_pointer_cast<const DataSetGrid>(dataSetPtr);
       terrama2::core::addToJson(obj, dataSet);

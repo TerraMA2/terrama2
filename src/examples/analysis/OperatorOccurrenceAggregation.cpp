@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
   outputDataProvider->id = 3;
   outputDataProvider->name = "DataProvider postgis";
   outputDataProvider->uri = uri.url().toStdString();
-  outputDataProvider->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   outputDataProvider->dataProviderType = "POSTGIS";
   outputDataProvider->active = true;
 
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
   dataProvider->name = "Provider";
   dataProvider->uri += TERRAMA2_DATA_DIR;
   dataProvider->uri += "/shapefile";
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.code = "STATIC_DATA-ogr";
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
   dataProvider2->id = 2;
   dataProvider2->name = "DataProvider queimadas postgis";
   dataProvider2->uri = uri.url().toStdString();
-  dataProvider2->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  dataProvider2->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   dataProvider2->dataProviderType = "POSTGIS";
   dataProvider2->active = true;
 

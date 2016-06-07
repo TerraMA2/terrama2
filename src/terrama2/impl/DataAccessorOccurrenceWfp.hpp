@@ -67,13 +67,10 @@ namespace terrama2
         virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const override { return true; }
 
       private:
-        //! Name of column with Date/Time information
-        std::string timestampPropertyName() const;
         //! Name of column with latitude information
-        std::string latitudePropertyName() const;
+        std::string getLatitudePropertyName(DataSetPtr dataSet) const;
         //! Name of column with longitude information
-        std::string longitudePropertyName() const;
-        std::string geometryPropertyName() const;
+        std::string getLongitudePropertyName(DataSetPtr dataSet) const;
         /*!
           \brief Convert string to TimeInstantTZ.
 

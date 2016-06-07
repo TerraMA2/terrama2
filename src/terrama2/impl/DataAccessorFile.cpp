@@ -66,18 +66,7 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
 
 std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet, bool logErrors) const
 {
-  try
-  {
-    return dataSet->format.at("timezone");
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
-
-    if(logErrors)//REVIEW: used by dataset that timezone is not mandatory
-      TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
+  return getProperty(dataSet, "timezone", logErrors); 
 }
 
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const

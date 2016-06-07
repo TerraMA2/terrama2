@@ -67,19 +67,14 @@ terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataPro
 
 }
 
-std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::timestampProperty() const
+std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getRecordPropertyName(DataSetPtr dataSet) const
 {
-  return "TIMESTAMP";
+  return getProperty(dataSet, "record_property");
 }
 
-std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::recordProperty() const
+std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getStationPropertyName(DataSetPtr dataSet) const
 {
-  return "RECORD";
-}
-
-std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::stationProperty() const
-{
-  return "Estacao_ID";
+  return getProperty(dataSet, "station_property");
 }
 
 std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getFolder(DataSetPtr dataSet) const
@@ -153,7 +148,7 @@ void terrama2::core::DataAccessorDcpToa5::adapt(DataSetPtr dataset, std::shared_
   {
     te::dt::Property* property = properties.at(i);
 
-    if (property->getName() == recordProperty())
+    if (property->getName() == getRecordPropertyName(dataset))
     {
       te::dt::Property* property = properties.at(i);
 
@@ -162,13 +157,13 @@ void terrama2::core::DataAccessorDcpToa5::adapt(DataSetPtr dataset, std::shared_
       te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(name, te::dt::INT32_TYPE);
       converter->add(i, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
     }
-    else if (property->getName() == stationProperty())
+    else if (property->getName() == getStationPropertyName(dataset))
     {
       te::dt::Property* property = properties.at(i);
 
       converter->add(i, property->clone());
     }
-    else if(property->getName() == timestampProperty())
+    else if(property->getName() == getTimestampPropertyName(dataset))
     {
       // datetime column found
       converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpToa5::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataset)));

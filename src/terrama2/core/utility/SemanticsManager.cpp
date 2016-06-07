@@ -37,7 +37,7 @@
 
 terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemantics(const std::string& code,
                                                                                    const std::string& name,
-                                                                                   const DataSeriesSemantics::DataSeriesType& dataSeriesType,
+                                                                                   const DataSeriesType& dataSeriesType,
                                                                                    const DataFormat& format,
                                                                                    const std::vector<DataProviderType>& providersTypeList,
                                                                                    const std::unordered_map<std::string, std::string>& metadata)
@@ -56,7 +56,7 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemanti
   semantics.dataSeriesType = dataSeriesType;
   semantics.dataFormat = format;
   semantics.providersTypeList = providersTypeList;
-  semantics.metadata = metadata; 
+  semantics.metadata = metadata;
 
   semanticsMap_[code] = semantics;
 
