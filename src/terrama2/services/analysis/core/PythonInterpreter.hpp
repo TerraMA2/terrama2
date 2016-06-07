@@ -148,6 +148,8 @@ namespace terrama2
         */
         void registerOccurrenceFunctions();
 
+        std::string extractException();
+
 
       } // end namespace core
     }   // end namespace analysis

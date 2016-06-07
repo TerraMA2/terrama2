@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 {
   QUrl url;
 
-  // Fire  
+  // Fire
   url.setHost("ftp.dgi.inpe.br");
   url.setPath("/focos_operacao/");
   url.setScheme("FTP");
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     terrama2::core::CurlPtr curlwrapper;
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 

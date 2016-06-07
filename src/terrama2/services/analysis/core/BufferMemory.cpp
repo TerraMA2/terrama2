@@ -55,6 +55,9 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
   std::shared_ptr<te::gm::Geometry> geomResult;
   std::shared_ptr<te::gm::Geometry> geomTemp;
 
+  if(buffer.unit.empty())
+    buffer.unit = "m";
+
   double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 
 
@@ -155,12 +158,16 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
   std::shared_ptr<te::gm::Envelope> box(syncDs->getExtent(contextDataSeries->geometryPos));
 
 
+  if(buffer.unit.empty())
+    buffer.unit = "m";
+
   // Inserts each geometry in the rtree, if there is a conflict, it makes the union of the two geometries
   te::sam::rtree::Index<OccurrenceAggregation*, 4> rtree;
 
   for(size_t i = 0; i < indexes.size(); ++i)
   {
     auto geom = syncDs->getGeometry(indexes[i], contextDataSeries->geometryPos);
+
 
     double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 

@@ -284,7 +284,7 @@ Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataAccessor::getPropertyName(DataSetPtr dataSet, std::string tag) const
+std::string terrama2::core::DataAccessor::getProperty(DataSetPtr dataSet, std::string tag, bool logErrors) const
 {
   std::string propertyName;
   try
@@ -310,7 +310,8 @@ std::string terrama2::core::DataAccessor::getPropertyName(DataSetPtr dataSet, st
   if(propertyName.empty())
   {
     QString errMsg = QObject::tr("Undefined timestamp property name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
+    if(logErrors)
+      TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 
@@ -319,10 +320,10 @@ std::string terrama2::core::DataAccessor::getPropertyName(DataSetPtr dataSet, st
 
 std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet) const
 {
-  return getPropertyName(dataSet, "timestamp_property");
+  return getProperty(dataSet, "timestamp_property");
 }
 
 std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
 {
-  return getPropertyName(dataSet, "geometry_property");
+  return getProperty(dataSet, "geometry_property");
 }

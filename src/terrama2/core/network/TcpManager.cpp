@@ -145,7 +145,7 @@ bool terrama2::core::TcpManager::sendLog(std::string log)
   out.setVersion(QDataStream::Qt_5_2);
 
   out << static_cast<uint32_t>(0);
-  out << TcpSignals::LOG_SIGNAL;
+  out << static_cast<uint32_t>(TcpSignal::LOG_SIGNAL);
   out << log.c_str();
   out.device()->seek(0);
   out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
@@ -194,8 +194,8 @@ void terrama2::core::TcpManager::readReadySlot()
   int sigInt = -1;
   in >> sigInt;
 
-  TcpSignals::TcpSignal signal = static_cast<TcpSignals::TcpSignal>(sigInt);
-  if(signal != TcpSignals::UPDATE_SERVICE_SIGNAL && !serviceManager_->serviceLoaded())
+  TcpSignal signal = static_cast<TcpSignal>(sigInt);
+  if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && !serviceManager_->serviceLoaded())
   {
     TERRAMA2_LOG_ERROR() << tr("Signal received before service load information.");
 
@@ -206,14 +206,14 @@ void terrama2::core::TcpManager::readReadySlot()
 
   switch(signal)
   {
-    case TcpSignals::UPDATE_SERVICE_SIGNAL:
+    case TcpSignal::UPDATE_SERVICE_SIGNAL:
     {
       QByteArray bytearray = tcpSocket_->readAll();
 
       updateService(bytearray);
       break;
     }
-    case TcpSignals::TERMINATE_SERVICE_SIGNAL:
+    case TcpSignal::TERMINATE_SERVICE_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "TERMINATE_SERVICE_SIGNAL";
 
@@ -222,7 +222,7 @@ void terrama2::core::TcpManager::readReadySlot()
       emit stopSignal();
       break;
     }
-    case TcpSignals::ADD_DATA_SIGNAL:
+    case TcpSignal::ADD_DATA_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
       QByteArray bytearray = tcpSocket_->readAll();
@@ -230,7 +230,7 @@ void terrama2::core::TcpManager::readReadySlot()
       addData(bytearray);
       break;
     }
-    case TcpSignals::REMOVE_DATA_SIGNAL:
+    case TcpSignal::REMOVE_DATA_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "REMOVE_DATA_SIGNAL";
       QByteArray bytearray = tcpSocket_->readAll();
@@ -238,7 +238,7 @@ void terrama2::core::TcpManager::readReadySlot()
       removeData(bytearray);
       break;
     }
-    case TcpSignals::START_PROCESS_SIGNAL:
+    case TcpSignal::START_PROCESS_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
       int dataId;
@@ -248,7 +248,7 @@ void terrama2::core::TcpManager::readReadySlot()
 
       break;
     }
-    case TcpSignals::STATUS_SIGNAL:
+    case TcpSignal::STATUS_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "STATUS_SIGNAL";
       QByteArray bytearray;
@@ -258,7 +258,7 @@ void terrama2::core::TcpManager::readReadySlot()
       QJsonDocument doc(jsonObj);
 
       out << static_cast<uint32_t>(0);
-      out << TcpSignals::STATUS_SIGNAL;
+      out << static_cast<uint32_t>(TcpSignal::STATUS_SIGNAL);
       out << doc.toJson(QJsonDocument::Compact);
       bytearray.remove(8, 4);//Remove QByteArray header
       out.device()->seek(0);

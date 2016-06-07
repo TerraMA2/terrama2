@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
   dataProvider->uri+=TERRAMA2_DATA_DIR;
   dataProvider->uri+="/PCD_serrmar_INPE";
 
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
 
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataProviderPtr dataProviderPostGisPtr(dataProviderPostGis);
   dataProviderPostGis->uri = uri.url().toStdString();
 
-  dataProviderPostGis->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  dataProviderPostGis->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   dataProviderPostGis->dataProviderType = "POSTGIS";
   dataProviderPostGis->active = true;
 

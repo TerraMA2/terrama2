@@ -31,7 +31,6 @@
 
 #include "Operator.hpp"
 #include "../Exception.hpp"
-#include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/data-model/DataSetDcp.hpp"
 #include "../../../../core/data-model/Filter.hpp"
 #include "../../../../core/data-access/SynchronizedDataSet.hpp"
@@ -75,7 +74,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     if(!dataManagerPtr)
     {
       QString errMsg(QObject::tr("Invalid data manager."));
-      TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -86,7 +84,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
       errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -96,7 +93,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     {
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
       errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -115,7 +111,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
           QString errMsg(QObject::tr("Could not find a data series with the given name: %2"));
           errMsg = errMsg.arg(analysis.id);
           errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-          TERRAMA2_LOG_ERROR() << errMsg;
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
@@ -134,7 +129,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
           {
             QString errMsg(QObject::tr("Could not recover DCP dataset."));
             errMsg = errMsg.arg(analysis.id);
-            TERRAMA2_LOG_ERROR() << errMsg;
             throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
           }
 
@@ -143,7 +137,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
           {
             QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
             errMsg = errMsg.arg(analysis.id);
-            TERRAMA2_LOG_ERROR() << errMsg;
             throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
           }
 
@@ -170,7 +163,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
               {
                 QString errMsg(QObject::tr("Invalid attribute name"));
                 errMsg = errMsg.arg(analysis.id);
-                TERRAMA2_LOG_ERROR() << errMsg;
                 throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
               }
               attributeType = property->getType();
@@ -235,7 +227,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
       catch(...)
       {
         QString errMsg = QObject::tr("An unknown exception occurred.");
-        TERRAMA2_LOG_ERROR() << errMsg;
         Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
         exceptionOccurred = true;
       }
@@ -267,7 +258,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    TERRAMA2_LOG_ERROR() << errMsg;
     Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return NAN;
   }
@@ -326,7 +316,6 @@ terrama2::services::analysis::core::InfluenceType terrama2::services::analysis::
   {
     QString errMsg(QObject::tr("Invalid influence type for DCP analysis."));
     errMsg = errMsg.arg(analysis.id);
-    TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
   InfluenceType influenceType = (InfluenceType) type;
@@ -350,7 +339,6 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::creat
     {
       QString errMsg(QObject::tr("Invalid influence radius."));
       errMsg = errMsg.arg(analysis.id);
-      TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
     }
 

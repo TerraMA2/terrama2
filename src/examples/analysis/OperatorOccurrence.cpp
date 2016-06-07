@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
   outputDataProvider->id = 3;
   outputDataProvider->name = "DataProvider postgis";
   outputDataProvider->uri = uri.url().toStdString();
-  outputDataProvider->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   outputDataProvider->dataProviderType = "POSTGIS";
   outputDataProvider->active = true;
 
@@ -134,13 +134,14 @@ int main(int argc, char* argv[])
   analysis.outputDataSeriesId = 3;
   analysis.scriptLanguage = ScriptLanguage::PYTHON;
   analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis.serviceInstanceId = 1;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
   dataProvider->name = "Provider";
   dataProvider->uri += TERRAMA2_DATA_DIR;
   dataProvider->uri += "/shapefile";
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
@@ -152,7 +153,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.code = "STATIC_DATA-ogr";
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -182,7 +183,7 @@ int main(int argc, char* argv[])
   dataProvider2->id = 2;
   dataProvider2->name = "DataProvider queimadas postgis";
   dataProvider2->uri = uri.url().toStdString();
-  dataProvider2->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  dataProvider2->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   dataProvider2->dataProviderType = "POSTGIS";
   dataProvider2->active = true;
 
@@ -229,6 +230,7 @@ int main(int argc, char* argv[])
 
   // Starts the service and adds the analysis
   Context::getInstance().setDataManager(dataManager);
+  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
   service.updateLoggerConnectionInfo(connInfo);
   service.start();
