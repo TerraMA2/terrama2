@@ -55,6 +55,31 @@
 using namespace boost::python;
 
 
+std::string terrama2::services::analysis::core::extractException()
+{
+  using namespace boost::python;
+
+  PyObject *exc,*val,*tb;
+  PyErr_Fetch(&exc,&val,&tb);
+  PyErr_NormalizeException(&exc,&val,&tb);
+  handle<> hexc(exc),hval(allow_null(val)),htb(allow_null(tb));
+  if(!hval)
+  {
+    return extract<std::string>(str(hexc));
+  }
+  else
+  {
+    object traceback(import("traceback"));
+    object format_exception(traceback.attr("format_exception"));
+    object formatted_list(format_exception(hexc,hval,htb));
+    object formatted(str("").join(formatted_list));
+    std::string errMsg = extract<std::string>(formatted);
+    boost::replace_all(errMsg, "\"", "");
+    boost::replace_all(errMsg, "\'", "");
+    return errMsg;
+  }
+}
+
 void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, size_t analysisHashCode,
                                                                           std::vector<uint64_t> indexes)
 {
@@ -66,8 +91,9 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
     PyEval_AcquireLock();
     // swap in my thread state
     PyThreadState_Swap(state);
+    PyThreadState_Clear(state);
 
-
+    // Adds the monitored object index and analysis hashcode to the python state
     PyObject* indexValue = PyInt_FromLong(index);
     PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
 
@@ -78,16 +104,18 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
 
     try
     {
-      PyRun_SimpleString("from terrama2 import *");
-      PyRun_SimpleString(analysis.script.c_str());
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Error running the python script."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
-      Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
-    }
+      object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
+      object main_namespace = main_module.attr("__dict__");
 
+      handle<> ignored((PyRun_String("from terrama2 import *", Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+      ignored = handle<>((PyRun_String(analysis.script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+
+    }
+    catch(error_already_set)
+    {
+      std::string errMsg = extractException();
+      Context::getInstance().addError(analysisHashCode, errMsg);
+    }
 
     // release our hold on the global interpreter
     PyEval_ReleaseLock();
@@ -103,27 +131,28 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
   PyEval_AcquireLock();
   // swap in my thread state
   PyThreadState_Swap(state);
-
   PyThreadState_Clear(state);
 
+  // Adds the analysis hashcode to the python state
   PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
-
   PyObject* poDict = PyDict_New();
   PyDict_SetItemString(poDict, "analysis", analysisValue);
   state->dict = poDict;
 
   try
   {
-    PyRun_SimpleString("from terrama2 import *");
-    PyRun_SimpleString(analysis.script.c_str());
-  }
-  catch(...)
-  {
-    QString errMsg(QObject::tr("Error running the python script."));
-    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
-    Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
-  }
+    object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
+    object main_namespace = main_module.attr("__dict__");
 
+    handle<> ignored((PyRun_String("from terrama2 import *", Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+    ignored = handle<>((PyRun_String(analysis.script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+
+  }
+  catch(error_already_set)
+  {
+    std::string errMsg = extractException();
+    Context::getInstance().addError(analysisHashCode, errMsg);
+  }
 
   // release our hold on the global interpreter
   PyEval_ReleaseLock();
@@ -139,13 +168,12 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
   if(!dataManagerPtr)
   {
     QString errMsg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << errMsg;
     Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return;
   }
 
   Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
-  if(analysis.type == MONITORED_OBJECT_TYPE)
+  if(analysis.type == AnalysisType::MONITORED_OBJECT_TYPE)
   {
     std::shared_ptr<ContextDataSeries> moDsContext;
     terrama2::core::DataSetPtr datasetMO;
@@ -154,7 +182,7 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
     auto analysisDataSeriesList = analysis.analysisDataSeriesList;
     for(auto analysisDataSeries : analysisDataSeriesList)
     {
-      if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
         auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
         assert(dataSeries->datasetList.size() == 1);
@@ -163,7 +191,6 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
         {
           QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-          TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
           Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
           return;
         }
@@ -189,19 +216,19 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
 {
   switch(statisticOperation)
   {
-    case SUM:
+    case StatisticOperation::SUM:
       return cache.sum;
-    case MEAN:
+    case StatisticOperation::MEAN:
       return cache.mean;
-    case MIN:
+    case StatisticOperation::MIN:
       return cache.min;
-    case MAX:
+    case StatisticOperation::MAX:
       return cache.max;
-    case STANDARD_DEVIATION:
+    case StatisticOperation::STANDARD_DEVIATION:
       return cache.standardDeviation;
-    case MEDIAN:
+    case StatisticOperation::MEDIAN:
       return cache.median;
-    case COUNT:
+    case StatisticOperation::COUNT:
       return cache.count;
     default:
       return NAN;
@@ -219,7 +246,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
   {
     terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
 
-    if(analysisDataSeries.type == DATASERIES_MONITORED_OBJECT_TYPE)
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
@@ -227,7 +254,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
       if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-        TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+
         Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
         return contextDataSeries;
       }
@@ -309,7 +336,7 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
 }
 
 
-// Declaration needed for default parameters
+// Declaration needed for default parameter ids
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMin_overloads, terrama2::services::analysis::core::dcp::min, 3, 4);
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMax_overloads, terrama2::services::analysis::core::dcp::max, 3, 4);
@@ -366,6 +393,38 @@ void terrama2::services::analysis::core::registerDCPFunctions()
 
 }
 
+
+
+// Declaration needed for default parameter restriction
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceCount_overloads, terrama2::services::analysis::core::occurrence::count, 3, 4);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMin_overloads, terrama2::services::analysis::core::occurrence::min, 4, 5);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMax_overloads, terrama2::services::analysis::core::occurrence::max, 4, 5);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMean_overloads, terrama2::services::analysis::core::occurrence::mean, 4, 5);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMedian_overloads, terrama2::services::analysis::core::occurrence::median, 4, 5);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceSum_overloads, terrama2::services::analysis::core::occurrence::sum, 4, 5);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::standardDeviation, 4, 5);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationCount_overloads, terrama2::services::analysis::core::occurrence::aggregation::count, 4, 5);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMin_overloads, terrama2::services::analysis::core::occurrence::aggregation::min, 6, 7);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMax_overloads, terrama2::services::analysis::core::occurrence::aggregation::max, 6, 7);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMean_overloads, terrama2::services::analysis::core::occurrence::aggregation::mean, 6, 7);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMedian_overloads, terrama2::services::analysis::core::occurrence::aggregation::median, 6, 7);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationSum_overloads, terrama2::services::analysis::core::occurrence::aggregation::sum, 6, 7);
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::aggregation::standardDeviation, 6, 7);
+
+
 void terrama2::services::analysis::core::registerOccurrenceFunctions()
 {
   // map the occurrence namespace to a sub-module
@@ -376,14 +435,22 @@ void terrama2::services::analysis::core::registerOccurrenceFunctions()
   // set the current scope to the new sub-module
   scope occurrenceScope = occurrenceModule;
   // export functions inside occurrence namespace
-  def("count", terrama2::services::analysis::core::occurrence::count);
-  def("min", terrama2::services::analysis::core::occurrence::min);
-  def("max", terrama2::services::analysis::core::occurrence::max);
-  def("mean", terrama2::services::analysis::core::occurrence::mean);
-  def("median", terrama2::services::analysis::core::occurrence::median);
-  def("sum", terrama2::services::analysis::core::occurrence::sum);
-  def("standard_deviation", terrama2::services::analysis::core::occurrence::standardDeviation);
-
+  def("count", terrama2::services::analysis::core::occurrence::count,
+      occurrenceCount_overloads(args("dataSeriesName", "buffer", "dateFilter", "restriction"),
+                                "Count operator for occurrence"));
+  def("min", terrama2::services::analysis::core::occurrence::min,
+      occurrenceMin_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"), "Minimum operator for occurrence"));
+  def("max", terrama2::services::analysis::core::occurrence::max,
+      occurrenceMax_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"), "Maximum operator for occurrence"));
+  def("mean", terrama2::services::analysis::core::occurrence::mean,
+      occurrenceMean_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"), "Mean operator for occurrence"));
+  def("median", terrama2::services::analysis::core::occurrence::median,
+      occurrenceMedian_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"), "Median operator for occurrence"));
+  def("sum", terrama2::services::analysis::core::occurrence::sum,
+      occurrenceSum_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"), "Sum operator for occurrence"));
+  def("standard_deviation", terrama2::services::analysis::core::occurrence::standardDeviation,
+      occurrenceStandardDeviation_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"),
+                                            "Standard deviation operator for occurrence"));
 
   // Register operations for occurrence.aggregation
   object occurrenceAggregationModule(handle<>(borrowed(PyImport_AddModule("terrama2.occurrence.aggregation"))));
@@ -393,13 +460,22 @@ void terrama2::services::analysis::core::registerOccurrenceFunctions()
   scope occurrenceAggregationScope = occurrenceAggregationModule;
 
   // export functions inside aggregation namespace
-  def("count", terrama2::services::analysis::core::occurrence::aggregation::count);
-  def("min", terrama2::services::analysis::core::occurrence::aggregation::min);
-  def("max", terrama2::services::analysis::core::occurrence::aggregation::max);
-  def("mean", terrama2::services::analysis::core::occurrence::aggregation::mean);
-  def("median", terrama2::services::analysis::core::occurrence::aggregation::median);
-  def("sum", terrama2::services::analysis::core::occurrence::aggregation::sum);
-  def("standard_deviation", terrama2::services::analysis::core::occurrence::aggregation::standardDeviation);
+  def("count", terrama2::services::analysis::core::occurrence::aggregation::count,
+      occurrenceAggregationCount_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
+                                           "Count operator for occurrence aggregation"));
+  def("min", terrama2::services::analysis::core::occurrence::aggregation::min,
+      occurrenceAggregationMin_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Minimum operator for occurrence aggregation"));
+  def("max", terrama2::services::analysis::core::occurrence::aggregation::max,
+      occurrenceAggregationMax_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Maximum operator for occurrence aggregation"));
+  def("mean", terrama2::services::analysis::core::occurrence::aggregation::mean,
+      occurrenceAggregationMean_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Mean operator for occurrence aggregation"));
+  def("median", terrama2::services::analysis::core::occurrence::aggregation::median,
+      occurrenceAggregationMedian_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Median operator for occurrence aggregation"));
+  def("sum", terrama2::services::analysis::core::occurrence::aggregation::sum,
+      occurrenceAggregationSum_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Sum operator for occurrence aggregation"));
+  def("standard_deviation", terrama2::services::analysis::core::occurrence::aggregation::standardDeviation,
+      occurrenceAggregationStandardDeviation_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
+                                                       "Standard deviation operator for occurrence aggregation"));
 
 }
 
@@ -434,13 +510,13 @@ BOOST_PYTHON_MODULE (terrama2)
 
   // Export class StatisticOperation enum to python
   enum_<terrama2::services::analysis::core::StatisticOperation>("Statistic")
-          .value("min", terrama2::services::analysis::core::MIN)
-          .value("max", terrama2::services::analysis::core::MAX)
-          .value("sum", terrama2::services::analysis::core::SUM)
-          .value("mean", terrama2::services::analysis::core::MEAN)
-          .value("median", terrama2::services::analysis::core::MEDIAN)
-          .value("standard_deviation", terrama2::services::analysis::core::STANDARD_DEVIATION)
-          .value("count", terrama2::services::analysis::core::COUNT);
+          .value("min", terrama2::services::analysis::core::StatisticOperation::MIN)
+          .value("max", terrama2::services::analysis::core::StatisticOperation::MAX)
+          .value("sum", terrama2::services::analysis::core::StatisticOperation::SUM)
+          .value("mean", terrama2::services::analysis::core::StatisticOperation::MEAN)
+          .value("median", terrama2::services::analysis::core::StatisticOperation::MEDIAN)
+          .value("standard_deviation", terrama2::services::analysis::core::StatisticOperation::STANDARD_DEVIATION)
+          .value("count", terrama2::services::analysis::core::StatisticOperation::COUNT);
 
   terrama2::services::analysis::core::registerDCPFunctions();
   terrama2::services::analysis::core::registerOccurrenceFunctions();

@@ -42,6 +42,16 @@ module.exports = {
     PASSWORD: 'password'
   },
 
+  /**
+   * It represents available services type id from Database
+   * @readonly
+   * @enum {ServiceType}
+  */
+  ServiceType: {
+    COLLECTOR: 1,
+    ANALYSIS: 2
+  },
+
   DataSeriesType: {
     DCP: 'DCP',
     OCCURRENCE: 'OCCURRENCE',

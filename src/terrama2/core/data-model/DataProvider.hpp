@@ -42,6 +42,12 @@ namespace terrama2
 {
   namespace core
   {
+    enum class DataProviderIntent
+    {
+      COLLECTOR_INTENT,//!< DataProvider exclusively used as source for collecting data.
+      PROCESS_INTENT//!< DataProvider used as source for processing data, mey be used for collecting.
+    };
+
     /*!
       \struct DataProvider
 
@@ -75,18 +81,12 @@ namespace terrama2
      */
     struct DataProvider
     {
-      enum DataProviderIntent
-      {
-        COLLECTOR_INTENT,//!< DataProvider exclusively used as source for collecting data.
-        PROCESS_INTENT//!< DataProvider used as source for processing data, mey be used for collecting.
-      };
-
       DataProviderId id = 0; //!< The identifier of the DataProvider.
       ProjectId projectId = 0; //!< The identifier of the Project
       std::string name; //!< Name of the DataProvider, must be unique.
       std::string description; //!< Description from the source of the DataProvider.
       DataProviderType dataProviderType; //!< Type of the DataProvider (FTP, WCS, ...).
-      DataProviderIntent intent = PROCESS_INTENT; //!< Intent os the DataProvider (Collect or Process)
+      DataProviderIntent intent = DataProviderIntent::PROCESS_INTENT; //!< Intent os the DataProvider (Collect or Process)
       std::string uri; //!< URI to access the DataProvider data.
       bool active = true; //!< DataProvider status.
 

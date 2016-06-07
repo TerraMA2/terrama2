@@ -93,6 +93,16 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
   std::lock_guard<std::mutex> lock(mutex_);
   TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
 
+  auto datamanager = dataManager_.lock();
+  auto collector = datamanager->findCollector(collectorId);
+
+  const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  auto serviceInstanceId = serviceManager.instanceId();
+
+  // Check if this collector should be executed in this instance
+  if(collector->serviceInstanceId != serviceInstanceId)
+    return;
+
   collectorQueue_.push_back(collectorId);
   mainLoopCondition_.notify_one();
 }
@@ -241,17 +251,20 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
 
   try
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    if(collector->active)
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
 
-    std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
-    if(logger_.get())
-      lastProcess = logger_->getLastProcessTimestamp(collector->id);
+      std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
+      if(logger_.get())
+        lastProcess = logger_->getLastProcessTimestamp(collector->id);
 
-    terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, lastProcess);
-    connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
-    timers_.emplace(collector->id, timer);
+      terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, lastProcess);
+      connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
+      timers_.emplace(collector->id, timer);
+    }
   }
-  catch(terrama2::core::InvalidFrequencyException& e)
+  catch(terrama2::core::InvalidFrequencyException&)
   {
     // invalid schedule, already logged
   }

@@ -123,6 +123,9 @@ namespace terrama2
         //! Utility function for converting string to int32 in the te::da::DataSet contruction.
         te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
+        //! Recover projection information from dataset
+        Srid getSrid(DataSetPtr dataSet) const;
+
         //! Default destructor.
         virtual ~DataAccessor() = default;
         //! Default copy constructor
@@ -133,6 +136,11 @@ namespace terrama2
         DataAccessor& operator=(const DataAccessor& other) = default;
         //! Default assignment operator
         DataAccessor& operator=(DataAccessor&& other) = default;
+
+
+        virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const;
+        virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
+        virtual std::string getProperty(DataSetPtr dataSet, std::string tag, bool logErrors = true) const;
 
       protected:
 

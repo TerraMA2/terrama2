@@ -27,10 +27,11 @@
         $scope.update = true;
 
       $scope.alertBox = {};
-      $scope.errorFound = false;
+      $scope.display = false;
+      $scope.alertLevel = null;
       $scope.isChecking = false;
       $scope.resetState = function() {
-        $scope.errorFound = false;
+        $scope.display = false;
         $scope.alertBox.message = "";
       };
 
@@ -38,16 +39,18 @@
       $scope.$watch('service.service_type_id', function(value) {
         switch(value) {
           case "1": // collect
-            $scope.service.pathToBinary = "terrama2_collector_service";
-            break;
           case "2": // analysis
-            $scope.service.pathToBinary = "terrama2_analysis_service";
+            $scope.service.pathToBinary = "terrama2_service";
             break;
           default: // none
             $scope.service.pathToBinary = $scope.service.pathToBinary;
             break;
         }
       });
+
+      $scope.checkConnection = function() {
+        // TODO: log db connection
+      };
 
       $scope.save = function() {
         if ($scope.serviceForm.$invalid || $scope.logForm.$invalid) {
@@ -65,21 +68,23 @@
           return;
         }
 
+        // validating enviroment
+        // if ($scope.service.runEnviroment)
+        //   $scope.service.runEnviroment = $scope.service.runEnviroment.split("\n").join(" ");
+
         $scope.isChecking = true;
-        $scope.errorFound = false;
+        $scope.display = false;
         $scope.alertBox.title = "Service Registration";
 
         ServiceInstanceFactory.post({
           service: $scope.service,
           log: $scope.log
         }).success(function(data) {
-          // $scope.alertBox.message = "Service saved";
-          // $scope.errorFound = false;
           $window.location.href = "/administration/services?token=" + data.token;
         }).error(function(err) {
-          // todo: display messagebox
           console.log(err);
-          $scope.errorFound = true;
+          $scope.display = true;
+          $scope.alertLevel = "alert-danger";
           $scope.alertBox.message = err.message;
         }).finally(function() {
           $scope.isChecking = false;
@@ -119,7 +124,7 @@
       <div style="display: block;" class="box-body">
         <div class="row">
           <div class="col-md-12">
-            <terrama2-message-box error-found="errorFound" title="alertBox.title" message="alertBox.message" close="resetState()"></terrama2-message-box>
+            <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
           </div>
 
           <div class="col-md-12">
@@ -240,6 +245,26 @@
                     </div>
                   </div>
                   <!-- ./col-md-12 -->
+<!--
+                  <div class="col-md-12">
+                    <div class="col-md-6">
+                      <div class="form-group has-feedback"
+                        ng-class="{'has-error': serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
+                        <label>{[ __("Number of Threads") ]}:</label>
+                        <input class="form-control" name="numberOfThreads" ng-disabled="update" ng-model="service.numberOfThreads" placeholder="Number of thread to run" required="" type="number">
+
+                        <span class="form-control-feedback glyphicon ng-hide glyphicon-remove" ng-show="serviceForm.numberOfThreads.$dirty" ng-class="{'glyphicon-ok': serviceForm.numberOfThreads.$valid, 'glyphicon-remove': serviceForm.numberOfThreads.$invalid }"></span>
+                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">Number of threads is requiredd</span>
+                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.number">Number of threads is invalid</span>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>{[ __("Enviroment") ]}:</label>
+                        <textarea class="form-control" ng-disabled="update" ng-model="service.runEnviroment" rows="3" placeholder="Enviroment Variables"></textarea>
+                      </div>
+                    </div>
+                  </div> -->
                 </form>
                 <!-- ./form serviceForm -->
               </div>
@@ -330,7 +355,7 @@
       <!-- /.box body -->
 
       <div class="box-footer">
-        <button type="submit" class="btn btn-primary pull-right" id="serviceCheckConnection" style="margin-left: 10px; width: 135px;">
+        <button type="submit" class="btn btn-primary pull-right" id="serviceCheckConnection" style="margin-left: 10px; width: 135px;" ng-click="checkConnection()">
           <span class="loading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
           <span class="text">Check Connection</span>
         </button>

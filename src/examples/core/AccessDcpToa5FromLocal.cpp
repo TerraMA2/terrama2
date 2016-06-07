@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
   dataProvider->uri = "file://";
   dataProvider->uri+=TERRAMA2_DATA_DIR;
   dataProvider->uri+="/pcd_toa5";
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
 

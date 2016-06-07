@@ -11,7 +11,14 @@
     "code": "OCCURRENCE-wfp",
     "type": "OCCURRENCE",
     "format": "CSV",
-    "providers_type_list": ["FILE", "FTP"]
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "data_pas",
+      "geometry_property": "position",
+      "latitude_property": "lat",
+      "longitude_property": "lon",
+      "timezone": "UTM+00"
+    }
   },
   {
     "name": "File static data",
@@ -32,14 +39,22 @@
     "code": "DCP-inpe",
     "type": "DCP",
     "format": "CSV",
-    "providers_type_list": ["FILE", "FTP"]
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "N/A"
+    }
   },
   {
     "name": "TOA5 DCP format",
     "code": "DCP-toa5",
     "type": "DCP",
     "format": "CSV",
-    "providers_type_list": ["FILE", "FTP"]
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "TIMESTAMP",
+      "record_property": "RECORD",
+      "station_property": "Estacao_ID"
+    }
   },
   {
     "name": "DCP PostGIS",

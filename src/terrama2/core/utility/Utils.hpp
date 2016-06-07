@@ -116,7 +116,7 @@ namespace terrama2
     */
     double convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit);
 
-    DataSeriesSemantics::DataSeriesType dataSeriesTypeFromString(const std::string& type);
+    DataSeriesType dataSeriesTypeFromString(const std::string& type);
   } // end namespace core
 }   // end namespace terrama2
 

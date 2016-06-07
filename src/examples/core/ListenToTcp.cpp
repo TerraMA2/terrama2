@@ -56,7 +56,7 @@ terrama2::core::DataProviderPtr buildInputProvider()
   dataProvider->projectId = 1;
   dataProvider->name = "Provider";
   dataProvider->description = "Testing provider";
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->uri = uri.toStdString();
   dataProvider->active = true;
   dataProvider->dataProviderType = "FILE";
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 
   auto json = doc.toJson(QJsonDocument::Compact);
   out << static_cast<uint32_t>(0);
-  out << static_cast<uint32_t>(terrama2::core::TcpSignals::ADD_DATA_SIGNAL);
+  out << static_cast<uint32_t>(terrama2::core::TcpSignal::ADD_DATA_SIGNAL);
   out << json;
   bytearray.remove(8, 4);//Remove QByteArray header
   out.device()->seek(0);

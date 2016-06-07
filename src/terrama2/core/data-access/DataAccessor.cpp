@@ -268,3 +268,62 @@ void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTyp
     converter->add(i,p->clone());
   }
 }
+
+Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
+{
+  try
+  {
+    Srid srid = std::stoi(dataSet->format.at("srid"));
+    return srid;
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined srid in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessor::getProperty(DataSetPtr dataSet, std::string tag, bool logErrors) const
+{
+  std::string propertyName;
+  try
+  {
+    auto semantics = dataSeries_->semantics;
+    propertyName = semantics.metadata.at(tag);
+  }
+  catch(...)  //exceptions will be treated after
+  {
+  }
+
+  if(propertyName.empty())
+  {
+    try
+    {
+      propertyName = dataSet->format.at(tag);
+    }
+    catch(...)  //exceptions will be treated after
+    {
+    }
+  }
+
+  if(propertyName.empty())
+  {
+    QString errMsg = QObject::tr("Undefined timestamp property name in dataset: %1.").arg(dataSet->id);
+    if(logErrors)
+      TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+
+  return propertyName;
+}
+
+std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, "timestamp_property");
+}
+
+std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, "geometry_property");
+}

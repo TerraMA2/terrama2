@@ -154,21 +154,7 @@ std::string terrama2::core::DataAccessorPostGis::getDataSetTableName(DataSetPtr 
   }
 }
 
-std::string terrama2::core::DataAccessorPostGis::getGeometryPropertyName(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("geometry_property");
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
-std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const
+std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr /*dataRetriever*/, DataSetPtr /*dataSet*/, const Filter& /*filter*/) const
 {
   QString errMsg = QObject::tr("Non retrievable DataProvider.");
   TERRAMA2_LOG_ERROR() << errMsg;

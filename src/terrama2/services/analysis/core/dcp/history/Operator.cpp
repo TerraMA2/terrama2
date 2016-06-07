@@ -34,7 +34,6 @@
 
 
 #include "../../Exception.hpp"
-#include "../../../../../core/utility/Logger.hpp"
 #include "../../../../../core/data-model/DataSetDcp.hpp"
 #include "../../../../../core/data-model/Filter.hpp"
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
@@ -71,7 +70,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
     if(!dataManagerPtr)
     {
       QString errMsg(QObject::tr("Invalid data manager."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -79,7 +77,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -87,7 +84,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
     if(!geom.get())
     {
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -104,7 +100,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
         {
           QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
           errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-          TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
@@ -121,7 +116,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
           if(!dcpDataset)
           {
             QString errMsg(QObject::tr("Could not recover DCP dataset: %1.").arg(dataset->id));
-            TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
             throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
           }
 
@@ -129,7 +123,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
           if(dcpDataset->position == nullptr)
           {
             QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
-            TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
             throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
           }
 
@@ -153,10 +146,9 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
               auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
 
               // only operation COUNT can be done without attribute.
-              if(!property && statisticOperation != COUNT)
+              if(!property && statisticOperation != StatisticOperation::COUNT)
               {
                 QString errMsg(QObject::tr("Invalid attribute name"));
-                TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
                 throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
               }
               attributeType = property->getType();
@@ -214,7 +206,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
       catch(...)
       {
         QString errMsg = QObject::tr("An unknown exception occurred.");
-        TERRAMA2_LOG_ERROR() << errMsg;
         Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
         exceptionOccurred = true;
       }
@@ -226,7 +217,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
     if(exceptionOccurred)
       return NAN;
 
-    if(!hasData && statisticOperation != COUNT)
+    if(!hasData && statisticOperation != StatisticOperation::COUNT)
     {
       return NAN;
     }
@@ -246,7 +237,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    TERRAMA2_LOG_ERROR() << errMsg;
     Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return NAN;
   }
@@ -258,7 +248,7 @@ double terrama2::services::analysis::core::dcp::history::sum(const std::string& 
                                                              Buffer buffer,
                                                              const std::string& dateFilter)
 {
-  return operatorImpl(SUM, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
 double terrama2::services::analysis::core::dcp::history::mean(const std::string& dataSeriesName,
@@ -266,7 +256,7 @@ double terrama2::services::analysis::core::dcp::history::mean(const std::string&
                                                               Buffer buffer,
                                                               const std::string& dateFilter)
 {
-  return operatorImpl(MEAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
 double terrama2::services::analysis::core::dcp::history::min(const std::string& dataSeriesName,
@@ -274,7 +264,7 @@ double terrama2::services::analysis::core::dcp::history::min(const std::string& 
                                                              Buffer buffer,
                                                              const std::string& dateFilter)
 {
-  return operatorImpl(MIN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
 double terrama2::services::analysis::core::dcp::history::max(const std::string& dataSeriesName,
@@ -282,14 +272,14 @@ double terrama2::services::analysis::core::dcp::history::max(const std::string& 
                                                              Buffer buffer,
                                                              const std::string& dateFilter)
 {
-  return operatorImpl(MAX, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
 double terrama2::services::analysis::core::dcp::history::median(const std::string& dataSeriesName,
                                                                 const std::string& attribute, DataSetId dcpId,
                                                                 Buffer buffer, const std::string& dateFilter)
 {
-  return operatorImpl(MEDIAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
 double terrama2::services::analysis::core::dcp::history::standardDeviation(const std::string& dataSeriesName,
@@ -297,5 +287,5 @@ double terrama2::services::analysis::core::dcp::history::standardDeviation(const
                                                                            DataSetId dcpId,
                                                                            Buffer buffer, const std::string& dateFilter)
 {
-  return operatorImpl(STANDARD_DEVIATION, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }

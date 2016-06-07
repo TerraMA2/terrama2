@@ -223,10 +223,39 @@ var DataManager = {
                   })
                 });
 
+                // adding metadata to semantics
+                var semanticsMetadataArray = [];
+                semanticsList.forEach(function(semantics) {
+                  semanticsObject.some(function(element) {
+                    if (semantics.code == element.code) {
+                      if (element.metadata) {
+                        for(var key in element.metadata) {
+                          if (element.metadata.hasOwnProperty(key)) {
+                            semanticsMetadataArray.push({
+                              key: key,
+                              value: element.metadata[key],
+                              data_series_semantics_id: semantics.id
+                            });
+                          }
+                        }
+                      }
+                      return true;
+                    }
+                  })
+                });
+
+                var _makeSemanticsMetadata = function() {
+                  models.db["SemanticsMetadata"].bulkCreate(semanticsMetadataArray).then(function(res) {
+                    releaseCallback();
+                  }).catch(function(err) {
+                    releaseCallback();
+                  })
+                }
+
                 models.db["SemanticsProvidersType"].bulkCreate(semanticsProvidersArray).then(function(result) {
-                  releaseCallback();
+                  _makeSemanticsMetadata();
                 }).catch(function(err) {
-                  releaseCallback();
+                  _makeSemanticsMetadata();
                 })
               }).catch(function(err) {
                 console.log(err);
@@ -1390,6 +1419,7 @@ var DataManager = {
                 resolve(output);
               });
             }).catch(function (err) {
+              console.log(err);
               reject(new exceptions.DataFormatError("Could not save data format: ", err));
             });
           } else {// todo: validate it
