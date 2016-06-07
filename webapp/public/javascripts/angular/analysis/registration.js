@@ -107,13 +107,8 @@ angular.module('terrama2.analysis.registration', [
       $scope.filteredDataSeries = [];
       $scope.dataSeriesList.forEach(function(dataSeries) {
         var semantics = dataSeries.data_series_semantics;
-        if (semanticsType === globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT) {
-          if (semantics.data_series_type_name === globals.enums.DataSeriesType.OCCURRENCE || semantics.data_series_type_name === semanticsType)
-            $scope.filteredDataSeries.push(dataSeries);
-        }
-        else if (semantics.data_series_type_name === semanticsType) {
+        if (semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA)
           $scope.filteredDataSeries.push(dataSeries);
-        }
       });
     });
 
