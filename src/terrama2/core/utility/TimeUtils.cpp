@@ -102,7 +102,7 @@ void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ >
   (*timeInstant) = temp;
 }
 
-double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std::string unitName)
+double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std::string unitName, const std::string& defaultUnit)
 {
   std::string timeStr = boost::to_upper_copy(time);
   double result = 0;
@@ -156,11 +156,25 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
     it++;
   }
 
-  if(!found)
+  if(!found && defaultUnit.empty())
   {
     QString msg(QObject::tr("Could not find any known unit of measure in the given string: %1.").arg(QString::fromStdString(time)));
     TERRAMA2_LOG_ERROR() << msg;
     throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
+  }
+  else if(!found)
+  {
+    try
+    {
+      int value = std::stoi(time);
+      result = te::common::UnitsOfMeasureManager::getInstance().getConversion(defaultUnit, "SECOND") * value;
+    }
+    catch(...)
+    {
+      QString msg(QObject::tr("Could not find any known unit of measure in the given string: %1.").arg(QString::fromStdString(time)));
+      TERRAMA2_LOG_ERROR() << msg;
+      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
+    }
   }
 
   if(unitName != "SECOND")

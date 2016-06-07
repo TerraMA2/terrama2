@@ -219,9 +219,9 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
 
   if(!dateFilter.empty())
   {
-    double minutes = terrama2::core::TimeUtils::convertTimeString(dateFilter, "MINUTE");
+    double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilter, "SECOND", "h");
 
-    ldt -= boost::posix_time::minutes(minutes);
+    ldt -= boost::posix_time::seconds(seconds);
 
     std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
     filter.discardBefore = std::move(titz);
@@ -354,9 +354,9 @@ void terrama2::services::analysis::core::Context::addDataSeries(const size_t ana
 
   if(!dateFilter.empty())
   {
-    double minutes = terrama2::core::TimeUtils::convertTimeString(dateFilter, "MINUTE");
+    double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilter, "SECOND", "h");
 
-    ldt -= boost::posix_time::minutes(minutes);
+    ldt -= boost::posix_time::seconds(seconds);
 
     std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
     filter.discardBefore = std::move(titz);
