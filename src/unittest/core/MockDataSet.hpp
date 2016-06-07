@@ -46,6 +46,10 @@ namespace te
     {
     public:
 
+      MockDataSet() = default;
+
+      virtual ~MockDataSet() = default;
+
       MOCK_METHOD0(EnvelopePtrReturn, te::gm::Envelope*());
 
       virtual std::auto_ptr<te::gm::Envelope> getExtent(std::size_t i) override

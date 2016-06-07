@@ -56,16 +56,19 @@ namespace te
     {
     public:
 
+      MockDataSourceTransactor() = default;
 
-//      MOCK_METHOD0(DataSetPtrReturn, DataSet*());
-      MOCK_METHOD0(DataSetPtrReturn, MockDataSet*());
+      virtual ~MockDataSourceTransactor() = default;
+
+
+      MOCK_METHOD0(DataSetPtrReturn, DataSet*());
 
       virtual std::auto_ptr<DataSet> getDataSet(const std::string&,
                                                 te::common::TraverseType,
                                                 bool,
                                                 te::common::AccessPolicy) override
       {
-        std::auto_ptr<DataSet>(DataSetPtrReturn());
+        return std::auto_ptr<DataSet>(DataSetPtrReturn());
       }
 
 
@@ -77,7 +80,7 @@ namespace te
                                                 bool,
                                                 const te::common::AccessPolicy) override
       {
-        std::auto_ptr<DataSet>(DataSetPtrReturn());
+        return std::auto_ptr<DataSet>(DataSetPtrReturn());
       }
 
       virtual std::auto_ptr<DataSet> getDataSet(const std::string&,
@@ -88,7 +91,7 @@ namespace te
                                                 bool,
                                                 const te::common::AccessPolicy) override
       {
-        std::auto_ptr<DataSet>(DataSetPtrReturn());
+        return std::auto_ptr<DataSet>(DataSetPtrReturn());
       }
 
 
@@ -97,7 +100,7 @@ namespace te
                                            bool,
                                            const te::common::AccessPolicy) override
       {
-        std::auto_ptr<DataSet>(DataSetPtrReturn());
+        return std::auto_ptr<DataSet>(DataSetPtrReturn());
       }
 
       virtual std::auto_ptr<DataSet> query(const std::string&,
@@ -105,7 +108,7 @@ namespace te
                                            bool,
                                            const te::common::AccessPolicy) override
       {
-        std::auto_ptr<DataSet>(DataSetPtrReturn());
+        return std::auto_ptr<DataSet>(DataSetPtrReturn());
       }
 
       MOCK_METHOD0(PreparedQueryPtrReturn, PreparedQuery*());

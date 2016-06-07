@@ -54,19 +54,21 @@ namespace te
     {
     public:
 
+
+      MockDataSource() = default;
+
+      virtual ~MockDataSource() = default;
+
       // std::auto_ptr proxies
       MOCK_METHOD1(DataSourceTransactoPtrParam, void(DataSourceTransactor*));
-//      MOCK_METHOD0(DataSourceTransactoPtrReturn, DataSourceTransactor* ());
-      MOCK_METHOD0(DataSourceTransactoPtrReturn, MockDataSourceTransactor* ());
+      MOCK_METHOD0(DataSourceTransactoPtrReturn, DataSourceTransactor* ());
 
       virtual std::auto_ptr<DataSourceTransactor> getTransactor() override
       {
         return std::auto_ptr<DataSourceTransactor>(DataSourceTransactoPtrReturn());
-//        return std::auto_ptr<DataSourceTransactor>(new MockDataSourceTransactor());
       }
 
-//      MOCK_METHOD0(DataSetPtrReturn, DataSet*());
-      MOCK_METHOD0(DataSetPtrReturn, MockDataSet*());
+      MOCK_METHOD0(DataSetPtrReturn, DataSet*());
 
       virtual std::auto_ptr<DataSet> getDataSet(const std::string& name,
                                                 te::common::TraverseType travType = te::common::FORWARDONLY,
@@ -181,43 +183,6 @@ namespace te
       {
         return std::auto_ptr<te::gm::Envelope>(EnvelopePtrReturn());
       }
-
-
-
-      //      MOCK_METHOD0(getTransactor,
-      //                   std::auto_ptr<DataSourceTransactor>());
-      //      MOCK_METHOD3(getDataSet,
-      //                   std::auto_ptr<DataSet>(std::string, te::common::TraverseType, te::common::AccessPolicy));
-      //      MOCK_METHOD6(getDataSet,
-      //                   std::auto_ptr<DataSet>(std::string, std::string, te::gm::Envelope, te::gm::SpatialRelation, te::common::TraverseType, te::common::AccessPolicy));
-      //      MOCK_METHOD6(getDataSet,
-      //                   std::auto_ptr<DataSet>(std::string, std::string, te::gm::Geometry*, te::gm::SpatialRelation, te::common::TraverseType, te::common::AccessPolicy));
-      //      MOCK_METHOD3(query,
-      //                   std::auto_ptr<DataSet>(Select, te::common::TraverseType, te::common::AccessPolicy));
-      //      MOCK_METHOD3(query,
-      //                   std::auto_ptr<DataSet>(std::string, te::common::TraverseType, te::common::AccessPolicy));
-      //      MOCK_METHOD1(getDataSetType,
-      //                   std::auto_ptr<te::da::DataSetType>(const std::string& name));
-      //      MOCK_METHOD2(getProperty,
-      //                   std::auto_ptr<te::dt::Property>(const std::string& datasetName, const std::string& name));
-      //      MOCK_METHOD2(getProperty,
-      //                   std::auto_ptr<te::dt::Property>(const std::string& datasetName, std::size_t propertyPos));
-      //      MOCK_METHOD1(getPrimaryKey,
-      //                   std::auto_ptr<te::da::PrimaryKey>(const std::string& datasetName));
-      //      MOCK_METHOD2(getForeignKey,
-      //                   std::auto_ptr<ForeignKey>(const std::string& datasetName, const std::string& name));
-      //      MOCK_METHOD2(getUniqueKey,
-      //                   std::auto_ptr<te::da::UniqueKey>(const std::string& datasetName, const std::string& name));
-      //      MOCK_METHOD2(getCheckConstraint,
-      //                   std::auto_ptr<te::da::CheckConstraint>(const std::string& datasetName, const std::string& name));
-      //      MOCK_METHOD2(getIndex,
-      //                   std::auto_ptr<te::da::Index>(const std::string& datasetName, const std::string& name));
-      //      MOCK_METHOD1(getSequence,
-      //                   std::auto_ptr<Sequence>(const std::string& name));
-      //      MOCK_METHOD2(getExtent,
-      //                   std::auto_ptr<te::gm::Envelope>(const std::string& datasetName, const std::string& propertyName));
-      //      MOCK_METHOD2(getExtent,
-      //                   std::auto_ptr<te::gm::Envelope>(const std::string& datasetName, std::size_t propertyPos));
 
 
       MOCK_CONST_METHOD0(getType,
