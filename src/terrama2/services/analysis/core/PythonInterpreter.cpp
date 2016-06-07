@@ -55,6 +55,31 @@
 using namespace boost::python;
 
 
+std::string terrama2::services::analysis::core::extractException()
+{
+  using namespace boost::python;
+
+  PyObject *exc,*val,*tb;
+  PyErr_Fetch(&exc,&val,&tb);
+  PyErr_NormalizeException(&exc,&val,&tb);
+  handle<> hexc(exc),hval(allow_null(val)),htb(allow_null(tb));
+  if(!hval)
+  {
+    return extract<std::string>(str(hexc));
+  }
+  else
+  {
+    object traceback(import("traceback"));
+    object format_exception(traceback.attr("format_exception"));
+    object formatted_list(format_exception(hexc,hval,htb));
+    object formatted(str("").join(formatted_list));
+    std::string errMsg = extract<std::string>(formatted);
+    boost::replace_all(errMsg, "\"", "");
+    boost::replace_all(errMsg, "\'", "");
+    return errMsg;
+  }
+}
+
 void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, size_t analysisHashCode,
                                                                           std::vector<uint64_t> indexes)
 {
@@ -66,8 +91,9 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
     PyEval_AcquireLock();
     // swap in my thread state
     PyThreadState_Swap(state);
+    PyThreadState_Clear(state);
 
-
+    // Adds the monitored object index and analysis hashcode to the python state
     PyObject* indexValue = PyInt_FromLong(index);
     PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
 
@@ -78,16 +104,18 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
 
     try
     {
-      PyRun_SimpleString("from terrama2 import *");
-      PyRun_SimpleString(analysis.script.c_str());
-    }
-    catch(...)
-    {
-      QString errMsg(QObject::tr("Error running the python script."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
-      Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
-    }
+      object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
+      object main_namespace = main_module.attr("__dict__");
 
+      handle<> ignored((PyRun_String("from terrama2 import *", Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+      ignored = handle<>((PyRun_String(analysis.script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+
+    }
+    catch(error_already_set)
+    {
+      std::string errMsg = extractException();
+      Context::getInstance().addError(analysisHashCode, errMsg);
+    }
 
     // release our hold on the global interpreter
     PyEval_ReleaseLock();
@@ -103,27 +131,28 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
   PyEval_AcquireLock();
   // swap in my thread state
   PyThreadState_Swap(state);
-
   PyThreadState_Clear(state);
 
+  // Adds the analysis hashcode to the python state
   PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
-
   PyObject* poDict = PyDict_New();
   PyDict_SetItemString(poDict, "analysis", analysisValue);
   state->dict = poDict;
 
   try
   {
-    PyRun_SimpleString("from terrama2 import *");
-    PyRun_SimpleString(analysis.script.c_str());
-  }
-  catch(...)
-  {
-    QString errMsg(QObject::tr("Error running the python script."));
-    TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
-    Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
-  }
+    object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
+    object main_namespace = main_module.attr("__dict__");
 
+    handle<> ignored((PyRun_String("from terrama2 import *", Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+    ignored = handle<>((PyRun_String(analysis.script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+
+  }
+  catch(error_already_set)
+  {
+    std::string errMsg = extractException();
+    Context::getInstance().addError(analysisHashCode, errMsg);
+  }
 
   // release our hold on the global interpreter
   PyEval_ReleaseLock();
@@ -139,7 +168,6 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
   if(!dataManagerPtr)
   {
     QString errMsg(QObject::tr("Invalid data manager."));
-    TERRAMA2_LOG_ERROR() << errMsg;
     Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return;
   }
@@ -163,7 +191,6 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
         {
           QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-          TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
           Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
           return;
         }
@@ -227,7 +254,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
       if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-        TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
+
         Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
         return contextDataSeries;
       }
@@ -435,7 +462,7 @@ void terrama2::services::analysis::core::registerOccurrenceFunctions()
   // export functions inside aggregation namespace
   def("count", terrama2::services::analysis::core::occurrence::aggregation::count,
       occurrenceAggregationCount_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
-                                                       "Count operator for occurrence aggregation"));
+                                           "Count operator for occurrence aggregation"));
   def("min", terrama2::services::analysis::core::occurrence::aggregation::min,
       occurrenceAggregationMin_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Minimum operator for occurrence aggregation"));
   def("max", terrama2::services::analysis::core::occurrence::aggregation::max,

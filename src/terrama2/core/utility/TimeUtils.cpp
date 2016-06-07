@@ -102,7 +102,7 @@ void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ >
   (*timeInstant) = temp;
 }
 
-double terrama2::core::TimeUtils::convertTimeStringToSeconds(const std::string& time, std::string unitName)
+double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std::string unitName)
 {
   std::string timeStr = boost::to_upper_copy(time);
   double result = 0;
