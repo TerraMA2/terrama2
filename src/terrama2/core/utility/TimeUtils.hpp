@@ -79,10 +79,26 @@ namespace terrama2
 
         \param time String with the time.
         \param unitName The name of the output unit, it must be registered in UnitsOfMeasureManager.
+        \param defaultUnit The default unit to be used in case there is no unit in the given string.
        */
-      double convertTimeString(const std::string& time, std::string unitName);
+      double convertTimeString(const std::string& time, std::string unitName, const std::string& defaultUnit = "");
 
+      /*!
+        \brief Converts a date string to TimeInstantTZ object.
+
+        \param dateTime String with the time.
+        \param mask Date mask.
+        \return The TimeInstantTZ object created.
+       */
       std::shared_ptr<te::dt::TimeInstantTZ> stringToTimestamp(const std::string& dateTime, const std::string& mask);
+
+      /*!
+        \brief Converts a date string to a boost local date object.
+
+        \param dateTime String with the time.
+        \param mask Date mask.
+        \return The boost local date object created.
+       */
       boost::local_time::local_date_time stringToBoostLocalTime(const std::string& dateTime, const std::string& mask);
 
     }
