@@ -25,6 +25,10 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
       return resolve()
     });
 
+    self.client.on('keyboard-interactive', function(name, instructions, instructionsLang, prompts, finish) {
+      finish([]);
+    });
+
     self.client.on('error', function(err) {
       console.log(err);
       self.connected = false;
@@ -48,7 +52,8 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
         host: self.serviceInstance.host,
         port: self.serviceInstance.sshPort,
         username: self.serviceInstance.sshUser,
-        privateKey: require('fs').readFileSync(privateKey)
+        privateKey: require('fs').readFileSync(privateKey),
+        tryKeyboard: true
       })
     }).catch(function(err) {
       reject(err);
