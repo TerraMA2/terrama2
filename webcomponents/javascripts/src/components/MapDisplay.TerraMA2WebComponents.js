@@ -528,14 +528,16 @@ define(
       if(memberLoading[layerId] === undefined) memberLoading[layerId] = 0;
       if(memberLoaded[layerId] === undefined) memberLoaded[layerId] = 0;
 
-      ++memberLoaded[layerId];
+      setTimeout(function() {
+        ++memberLoaded[layerId];
 
-      if(memberLoading[layerId] === memberLoaded[layerId]) {
-        memberLoading[layerId] = 0;
-        memberLoaded[layerId] = 0;
+        if(memberLoading[layerId] === memberLoaded[layerId]) {
+          memberLoading[layerId] = 0;
+          memberLoaded[layerId] = 0;
 
-        memberLayersEndLoadingFunction();
-      }
+          memberLayersEndLoadingFunction();
+        }
+      }, 500);
     };
 
     /**
