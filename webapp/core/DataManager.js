@@ -278,14 +278,19 @@ var DataManager = {
         });
       };
 
-      connection.sync().then(function () {
-        fn();
-      }, function() {
-        fn();
+      connection.authenticate().then(function() {
+        connection.sync().then(function () {
+          fn();
+        }, function() {
+          fn();
+        }).catch(function(err) {
+          console.log(err);
+          fn();
+        });
       }).catch(function(err) {
-        console.log(err);
-        fn();
-      });
+        release();
+        callback(new Error("Could not initialize terrama2 due: " + err.message));
+      })
     });
   },
 

@@ -33,7 +33,12 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
   var connections = {};
 
   // getting db configuration and initializes data manager
-  DataManager.init(function() {
+  DataManager.init(function(error) {
+    if (error) {
+      console.log(error);
+      process.exit(1);
+      return;
+    }
     console.log("Initializing TerraMA2");
     /**
      * Listen on provided port, on all network interfaces.
@@ -67,11 +72,7 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
             connections[key].destroy();
         };
 
-        // TcpManager.disconnect().then(function() {
-          _closeServer();
-        // }).catch(function(err) {
-          // _closeServer();
-        // })
+        _closeServer();
       });
     });
 
