@@ -73,10 +73,17 @@ terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::
   }
 }
 
+void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)
+{
+  dataSource_.reset(dataSource);
+}
+
 terrama2::core::ProcessLogger::~ProcessLogger()
 {
-  dataSource_->close();
+  if(dataSource_)
+    dataSource_->close();
 }
+
 
 RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 {
