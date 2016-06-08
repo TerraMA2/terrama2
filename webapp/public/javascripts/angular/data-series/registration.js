@@ -509,7 +509,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.dataSeries.access = 'PROCESSING';
             // $scope.alertLevel = "alert-warning";
             // $scope.alertBox.title = "Data Series";
-            // $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+            // $scope.alertBox.message = "Note: No storager configuration, this data will be read when needed.";
             // $scope.display = true;
           } else {
             $scope.dataSeries.access = 'COLLECT';
@@ -884,7 +884,7 @@ angular.module('terrama2.dataseries.registration', [
             //  display alert box
             $scope.alertLevel = "alert-warning";
             $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+            $scope.alertBox.message = "Note: No storager configuration, this data will be read when needed.";
             $scope.display = true;
             $scope.extraProperties.object = {
               dataToSend: dataObject.dataSeries,
