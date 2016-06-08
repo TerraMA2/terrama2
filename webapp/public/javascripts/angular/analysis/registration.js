@@ -174,9 +174,6 @@ angular.module('terrama2.analysis.registration', [
     $scope.onStoragerFormatChange = function() {
       $scope.showStoragerForm = true;
       $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format});
-
-      // filtering data providers
-
     };
 
     // temp code for debugging
@@ -382,6 +379,7 @@ angular.module('terrama2.analysis.registration', [
           break;
       }
 
+      // setting target data series metadata (monitored object, dcp..)
       analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, analysisTypeId));
 
       // todo: improve it
