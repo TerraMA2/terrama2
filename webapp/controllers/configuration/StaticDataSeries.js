@@ -1,4 +1,5 @@
 var DataManager = require('./../../core/DataManager');
+var Enums = require('./../../core/Enums');
 
 
 module.exports = function(app) {

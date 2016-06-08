@@ -54,7 +54,6 @@ angular.module('terrama2.dataseries.registration', [
     $scope.formStorager = [];
     $scope.modelStorager = {};
     $scope.schemaStorager = {};
-    $scope.options = {};
     $scope.tableFieldsStorager = [];
     $scope.formatSelected = {};
     $scope.dcpsStorager = [];
@@ -147,7 +146,6 @@ angular.module('terrama2.dataseries.registration', [
         removeInput(args.dcp.mask);
       } else if (args.action === "add") {
         $scope.dcpsStorager.push({table_name: args.dcp.mask, id: args.dcp.id});
-        // $scope.inputDataSets.push({table_name: args.dcp.mask, inputDataSet: args.dcp.mask});
       }
     });
 
@@ -180,6 +178,17 @@ angular.module('terrama2.dataseries.registration', [
 
         var metadata = data.metadata;
         var properties = metadata.schema.properties;
+
+        if ($scope.isUpdating) {
+          if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
+            // todo:
+          } else {
+            $scope.modelStorager = $scope.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
+          }
+        } else {
+
+        }
+
         if ($scope.formatSelected.data_series_type_name === "DCP") {
           Object.keys(properties).forEach(function(key) {
             $scope.tableFieldsStorager.push(key);
@@ -191,7 +200,7 @@ angular.module('terrama2.dataseries.registration', [
           $scope.$broadcast('schemaFormRedraw');
         } else {
         //   occurrence
-          $scope.modelStorager = Object.assign({}, $scope.dataSeries.semantics.metadata.metadata);
+          // $scope.modelStorager = Object.assign({}, $scope.dataSeries.semantics.metadata.metadata);
           $scope.formStorager = metadata.form;
           $scope.schemaStorager = {
             type: 'object',
@@ -265,6 +274,21 @@ angular.module('terrama2.dataseries.registration', [
       $scope.isBoolean = function(value) {
         return typeof value === 'boolean';
       };
+
+      $scope.prepareFormatToForm = function(fmt) {
+        var output = {};
+        for(var k in fmt) {
+          if (fmt.hasOwnProperty(k)) {
+            // checking if a number
+            if (isNaN(fmt[k]))
+              output[k] = fmt[k]
+            else
+              output[k] = parseInt(fmt[k])
+          }
+        }
+        return output;
+      }
+
 
       // wizard helper
       var isWizardStepValid = function(formName, isSchemaForm) {
@@ -429,6 +453,7 @@ angular.module('terrama2.dataseries.registration', [
         }
       };
 
+      // fill out interface with values
       $scope.parametersData = configuration.parametersData || {};
 
       var inputDataSeries = configuration.dataSeries.input || {};
@@ -438,16 +463,29 @@ angular.module('terrama2.dataseries.registration', [
 
       // update mode
       $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
+      $scope.hasCollector = Object.keys(outputDataseries).length > 0;
 
-      if ($scope.isUpdating)
+      // fill out collector values
+
+
+
+      var inputName = "";
+
+      if ($scope.isUpdating) {
         $scope.options = {formDefaults: {readonly: true}};
+        // checking input dataseries is static
+        if (inputDataSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA)
+          inputName = inputDataSeries.name;
+        else
+          inputName = inputDataSeries.name.slice(0, inputDataSeries.name.lastIndexOf('_input'));
+      }
       else
-      $scope.options = {};
+        $scope.options = {};
 
       $scope.dataSeries = {
         data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
-        name: inputDataSeries.name ? inputDataSeries.name.slice(0, inputDataSeries.name.lastIndexOf('_input')) : "",
-        access: inputDataSeries.access,
+        name: inputName,
+        access: $scope.hasCollector ? "COLLECT" : "PROCESSING",
         semantics: inputSemantics.code || "",
         active: inputDataSeries.active
       };
@@ -585,39 +623,24 @@ angular.module('terrama2.dataseries.registration', [
             if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
               // TODO: prepare format as dcp item
             } else {
-              var formatModel = {};
-              var inputFormat = inputDataSeries.dataSets[0].format;
-              for(var k in inputFormat) {
-                if (inputFormat.hasOwnProperty(k)) {
-                  // checking if a number
-                  if (isNaN(inputFormat[k]))
-                    formatModel[k] = inputFormat[k]
-                  else
-                    formatModel[k] = parseInt(inputFormat[k])
-                }
-              }
-              $scope.model = formatModel;
+              $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
             }
+
+            if ($scope.hasCollector) {
+              $scope.storagerFormats.some(function(storagerFmt) {
+                if (storagerFmt.id == outputDataseries.data_series_semantics.id) {
+                  $scope.storager.format = storagerFmt;
+                  $scope.onStoragerFormatChange();
+                  return true;
+                }
+              })
+            }
+
           } else {
             $scope.dcps = [];
             $scope.model = {};
             $scope.$broadcast("resetStoragerDataSets");
           }
-          // if (inputDataSeries) {
-          //   if (dcp) {
-          //     // fill out dcp table
-          //   } else {
-          //     // resetting
-          //     // $scope.dcps = [];
-          //     // $scope.$broadcast("resetStoragerDataSets");
-          //   }
-          // } else {
-          //   // $scope.model = {};
-          // }
-
-          // resetting
-          // $scope.dcps = [];
-          // $scope.$broadcast("resetStoragerDataSets");
 
           // $scope.model = {};
           $scope.form = data.metadata.form;

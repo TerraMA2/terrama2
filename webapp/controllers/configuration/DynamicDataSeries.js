@@ -35,7 +35,8 @@ module.exports = function(app) {
             dataSeries: {
               input: dataSeriesResults[0].rawObject(),
               output: dataSeriesResults[1].rawObject(),
-            }
+            },
+            collector: collectorResult.rawObject()
           });
         }).catch(function(err) {
           console.log(err);

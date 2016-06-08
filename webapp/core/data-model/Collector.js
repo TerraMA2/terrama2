@@ -38,6 +38,12 @@ Collector.prototype.setInputOutputMap = function (inputOutputModel) {
   this.input_output_map = output;
 };
 
+Collector.prototype.rawObject = function () {
+  var obj = this.toObject();
+  obj.schedule = this.schedule;
+  return obj;
+};
+
 Collector.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
