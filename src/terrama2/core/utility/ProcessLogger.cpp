@@ -60,9 +60,7 @@ terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::
 
     if(!dataSource_->isOpened())
     {
-      QString errMsg = QObject::tr("Could not connect to database");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw LogException() << ErrorDescription(errMsg);
+      throw LogException();
     }
   }
   catch(std::exception& e)
@@ -76,6 +74,22 @@ terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::
 void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)
 {
   dataSource_.reset(dataSource);
+
+  try
+  {
+    dataSource_->open();
+
+    if(!dataSource_->isOpened())
+    {
+      throw LogException();
+    }
+  }
+  catch(std::exception& e)
+  {
+    QString errMsg = QObject::tr("Could not connect to database");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw LogException() << ErrorDescription(errMsg);
+  }
 }
 
 terrama2::core::ProcessLogger::~ProcessLogger()
@@ -175,9 +189,10 @@ void terrama2::core::ProcessLogger::error(const std::string description, Registe
   queryMessages.bind_arg(3, now->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
-  transactor->execute(query.str());
 
+  transactor->execute(query.str());
   transactor->execute(transactor->escape(queryMessages.str()));
+
   transactor->commit();
 }
 
