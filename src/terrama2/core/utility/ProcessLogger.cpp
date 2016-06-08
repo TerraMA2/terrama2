@@ -66,7 +66,7 @@ terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::
   catch(std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     throw LogException() << ErrorDescription(errMsg);
   }
 }
@@ -87,7 +87,7 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
   catch(std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     throw LogException() << ErrorDescription(errMsg);
   }
 }
