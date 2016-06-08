@@ -436,9 +436,17 @@ angular.module('terrama2.dataseries.registration', [
 
       var inputSemantics = inputDataSeries.data_series_semantics || {};
 
+      // update mode
+      $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
+
+      if ($scope.isUpdating)
+        $scope.options = {formDefaults: {readonly: true}};
+      else
+      $scope.options = {};
+
       $scope.dataSeries = {
         data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
-        name: inputDataSeries.name || "",
+        name: inputDataSeries.name ? inputDataSeries.name.slice(0, inputDataSeries.name.lastIndexOf('_input')) : "",
         access: inputDataSeries.access,
         semantics: inputSemantics.code || "",
         active: inputDataSeries.active
@@ -572,7 +580,29 @@ angular.module('terrama2.dataseries.registration', [
             })
           }
 
-          // // fill out
+          // fill out
+          if ($scope.isUpdating) {
+            if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
+              // TODO: prepare format as dcp item
+            } else {
+              var formatModel = {};
+              var inputFormat = inputDataSeries.dataSets[0].format;
+              for(var k in inputFormat) {
+                if (inputFormat.hasOwnProperty(k)) {
+                  // checking if a number
+                  if (isNaN(inputFormat[k]))
+                    formatModel[k] = inputFormat[k]
+                  else
+                    formatModel[k] = parseInt(inputFormat[k])
+                }
+              }
+              $scope.model = formatModel;
+            }
+          } else {
+            $scope.dcps = [];
+            $scope.model = {};
+            $scope.$broadcast("resetStoragerDataSets");
+          }
           // if (inputDataSeries) {
           //   if (dcp) {
           //     // fill out dcp table
@@ -586,11 +616,10 @@ angular.module('terrama2.dataseries.registration', [
           // }
 
           // resetting
-          $scope.dcps = [];
-          $scope.$broadcast("resetStoragerDataSets");
+          // $scope.dcps = [];
+          // $scope.$broadcast("resetStoragerDataSets");
 
-
-          $scope.model = {};
+          // $scope.model = {};
           $scope.form = data.metadata.form;
           $scope.schema = {
             type: 'object',

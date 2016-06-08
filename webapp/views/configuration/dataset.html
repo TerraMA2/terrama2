@@ -80,6 +80,12 @@
       state: "{[ state ]}"
     };
 
+    var globals = {
+      enums: {
+        DataSeriesType: {[ Enums.DataSeriesType|json|safe ]}  || {}
+      }
+    }
+
     var configuration = {
       dataSeries: {[ dataSeries|json|safe ]},
       parametersData: {[ parametersData|json|safe ]},
