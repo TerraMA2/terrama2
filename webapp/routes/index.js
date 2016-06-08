@@ -7,4 +7,9 @@ module.exports = function (app) {
     app.locals.collapsed = request.body.collapsed;
     return response.json({status: 200});
   });
+
+  app.delete("/", function(request, response) {
+    response.status(400);
+    response.json({status: 400, message: "You don\'t have permission"});
+  });
 };

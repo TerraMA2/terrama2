@@ -11,19 +11,27 @@ var isAuthenticated = function(req, res, next) {
   res.redirect('/');
 };
 
-var isAdministrator = function(req, res, next) {
-  if(req.isAuthenticated()) {
-    if(req.user.dataValues.administrator) {
+var _handlePermission = function(condition, request, response, next) {
+  if (request.isAuthenticated()) {
+    if (condition)
       return next();
-    } else {
-      req.flash('error', 'You don\'t have permission to access this page.');
-      res.redirect('/');
+    else {
+      request.flash('error', 'You don\'t have permission to access this page.');
+      response.redirect('/');
     }
   } else {
-    req.flash('error', 'You have to be logged in to access the page.');
-    res.redirect('/');
+    request.flash('error', 'You have to be logged in to access the page.');
+    response.redirect('/');
   }
+}
+
+var isAdministrator = function(req, res, next) {
+  _handlePermission(req.user && req.user.administrator, req, res, next);
 };
+
+var isCommonUser = function(request, response, next) {
+  _handlePermission(request.user && !request.user.administrator, request, response, next);
+}
 
 var setupPassport = function(app) {
   app.use(passport.initialize());
@@ -77,5 +85,6 @@ var setupPassport = function(app) {
 module.exports = {
   isAuthenticated: isAuthenticated,
   isAdministrator: isAdministrator,
+  isCommonUser: isCommonUser,
   setupPassport: setupPassport
 };
