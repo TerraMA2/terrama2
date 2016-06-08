@@ -605,7 +605,7 @@ var DataManager = {
         services.forEach(function(service){
           var serviceObject = new DataModel.Service(service.get());
           var logObject = new DataModel.Log(service.Log || {});
-          serviceObject.log = logObject.toObject();
+          serviceObject.log = logObject;
           output.push(serviceObject);
         });
 

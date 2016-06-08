@@ -20,7 +20,10 @@
   angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
     .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', function($scope, $window, ServiceInstanceFactory) {
       $scope.service = {[ service|json|safe ]} || {sshPort: 22};
-      $scope.log = {[ log|json|safe ]} || {};
+      if ($scope.service.service_type_id) {
+        $scope.service.service_type_id = $scope.service.service_type_id.toString();
+      }
+      $scope.log = $scope.service.log || {};
 
       $scope.update = false;
       if ($scope.service.name)
@@ -40,7 +43,7 @@
         switch(value) {
           case "1": // collect
           case "2": // analysis
-            $scope.service.pathToBinary = "terrama2_service";
+            $scope.service.pathToBinary = $scope.service.pathToBinary || "terrama2_service";
             break;
           default: // none
             $scope.service.pathToBinary = $scope.service.pathToBinary;
@@ -155,8 +158,8 @@
                       <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.type.$dirty && serviceForm.type.$invalid, 'has-success': serviceForm.type.$dirty && serviceForm.type.$valid}">
                         <label>{[ __("Type") ]}:</label>
                         <select class="form-control" name="type" ng-disabled="update" ng-model="service.service_type_id" required>
-                          <option ng-value="1">Collector</option>
-                          <option ng-value="2">Analysis</option>
+                          <option value="1">Collector</option>
+                          <option value="2">Analysis</option>
                         </select>
 
                         <span class="form-control-feedback glyphicon terrama2-combobox-feedback" ng-show="serviceForm.type.$dirty" ng-class="{'glyphicon-ok': serviceForm.type.$valid, 'glyphicon-remove': serviceForm.type.$invalid }"></span>
