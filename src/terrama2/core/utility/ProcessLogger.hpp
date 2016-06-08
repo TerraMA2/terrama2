@@ -86,10 +86,16 @@ namespace terrama2
       virtual RegisterId start(ProcessId processId) const;
 
       /*!
-       * \brief Log an error in the process
+       * \brief Log an error of process
        * \param description Error description
        */
       virtual void error(const std::string description, const RegisterId registerId) const;
+
+      /*!
+       * \brief Log an information of process
+       * \param description Error description
+       */
+      virtual void info(const std::string description, const RegisterId registerId) const;
 
       /*!
        * \brief Log the end of process
@@ -140,7 +146,6 @@ namespace terrama2
        * \param tableName The log table name
        */
       void setTableName(const std::string tableName);
-      std::string getMessagesTableName(const RegisterId registerId) const;
 
     private:
       /*!
