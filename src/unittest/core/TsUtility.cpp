@@ -33,64 +33,14 @@
 #include <terrama2/core/utility/Timer.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/FilterUtils.hpp>
-#include <terrama2/core/utility/ProcessLogger.hpp>
 
 
+#include "MockProcessLogger.hpp"
 #include "TsUtility.hpp"
 
-class TestLogger : public terrama2::core::ProcessLogger
-{
-public:
-  TestLogger(std::map < std::string, std::string > connInfo)
-    : ProcessLogger(connInfo)
-  {
-    setTableName("unittest_process_log_");
-  }
-};
+// GMock
+#include <gtest/gtest.h>
 
-
-std::shared_ptr< TestLogger > getLogger()
-{
-  std::map < std::string, std::string > connInfo{{"PG_HOST", "localhost"},
-                                                 {"PG_PORT", "5432"},
-                                                 {"PG_USER", "postgres"},
-                                                 {"PG_PASSWORD", "postgres"},
-                                                 {"PG_DB_NAME", "example"},
-                                                 {"PG_CONNECT_TIMEOUT", "4"},
-                                                 {"PG_CLIENT_ENCODING", "UTF-8"}};
-
-
-  return std::make_shared<TestLogger>(TestLogger(connInfo));
-}
-
-void TsUtility::testProcessLogger()
-{
-  std::map < std::string, std::string > connInfo{{"PG_HOST", "localhost"},
-                                                 {"PG_PORT", "5432"},
-                                                 {"PG_USER", "postgres"},
-                                                 {"PG_PASSWORD", "postgres"},
-                                                 {"PG_DB_NAME", "example"},
-                                                 {"PG_CONNECT_TIMEOUT", "4"},
-                                                 {"PG_CLIENT_ENCODING", "UTF-8"}};
-
-
-  TestLogger log(connInfo);
-
-  RegisterId registerID = log.start(1);
-
-  log.addValue("tag1", "value1", registerID);
-  log.addValue("tag2", "value2", registerID);
-  log.addValue("tag1", "value3", registerID);
-  log.addValue("tag2", "value4", registerID);
-  log.error("Unit Test Error", registerID);
-  log.error("Unit Test second Error", registerID);
-
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
-
-  log.done(dataTime, registerID);
-
-  QCOMPARE(dataTime->getTimeInstantTZ(), log.getDataLastTimestamp(registerID)->getTimeInstantTZ());
-}
 
 void TsUtility::testTimerNoFrequencyException()
 {
@@ -101,8 +51,9 @@ void TsUtility::testTimerNoFrequencyException()
     schedule.frequency = 0;
     schedule.frequencyUnit = "second";
 
-    auto logger = getLogger();
-    auto lastTime = logger->getLastProcessTimestamp(1);
+    terrama2::core::MockProcessLogger logger;
+    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timer(schedule, 1, lastTime);
 
     QFAIL("Should not be here!");
@@ -122,8 +73,9 @@ void TsUtility::testTimerInvalidUnitException()
     schedule.frequency = 30;
     schedule.frequencyUnit = "invalid";
 
-    auto logger = getLogger();
-    auto lastTime = logger->getLastProcessTimestamp(1);
+    terrama2::core::MockProcessLogger logger;
+    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timer(schedule, 1, lastTime);
 
     QFAIL("Should not be here!");
@@ -145,8 +97,9 @@ void TsUtility::testFrequencyTimer()
     schedule.frequency = 800;
     schedule.frequencyUnit = "second";
 
-    auto logger = getLogger();
-    auto lastTime = logger->getLastProcessTimestamp(1);
+    terrama2::core::MockProcessLogger logger;
+    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timerSecond1(schedule, 1, lastTime);
 
     schedule.frequencyUnit = "ss";
@@ -215,8 +168,9 @@ void TsUtility::testScheduleTimer()
     schedule.scheduleTime = "09:00:00.000";
     schedule.scheduleUnit = "week";
 
-    auto logger = getLogger();
-    auto lastTime = logger->getLastProcessTimestamp(1);
+    terrama2::core::MockProcessLogger logger;
+    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timerWeek1(schedule, 1, lastTime);
   }
   catch(...)
