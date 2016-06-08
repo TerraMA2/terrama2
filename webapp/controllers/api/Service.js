@@ -1,6 +1,7 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
 var TokenCode = require('./../../core/Enums').TokenCode;
+var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
   return {
@@ -37,11 +38,11 @@ module.exports = function(app) {
           response.json({status: 200, result: service.rawObject()});
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
-        }) 
+        })
       }
     },
 
-    post: function(request, response) {
+    post: [passport.isAdministrator, function(request, response) {
       var serviceObject = request.body.service;
       serviceObject.log = request.body.log;
       DataManager.addServiceInstance(serviceObject).then(function(service) {
@@ -51,9 +52,9 @@ module.exports = function(app) {
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       });
-    },
+    }],
 
-    delete: function(request, response) {
+    delete: [passport.isAdministrator, function(request, response) {
       var serviceId = request.params.id;
       DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
         DataManager.removeServiceInstance({id: serviceId}).then(function() {
@@ -64,6 +65,6 @@ module.exports = function(app) {
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       })
-    }
+    }]
   };
 };

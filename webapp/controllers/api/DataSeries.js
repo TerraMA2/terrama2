@@ -5,10 +5,11 @@ var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var DataSeriesType = require('./../../core/Enums').DataSeriesType;
 var TokenCode = require('./../../core/Enums').TokenCode;
 var isEmpty = require('lodash').isEmpty;
+var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
   return {
-    post: function(request, response) {
+    post: [passport.isCommonUser, function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
       var scheduleObject = request.body.schedule;
       var filterObject = request.body.filter;
@@ -73,7 +74,7 @@ module.exports = function(app) {
           return Utils.handleRequestError(response, err, 400);
         });
       }
-    },
+    }],
 
     get: function(request, response) {
       var dataSeriesId = request.params.id;
@@ -139,7 +140,7 @@ module.exports = function(app) {
 
     },
 
-    delete: function(request, response) {
+    delete: [passport.isCommonUser, function(request, response) {
       var id = request.params.id;
 
       if (id) {
@@ -171,6 +172,6 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }
-    }
+    }]
   };
 };

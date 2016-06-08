@@ -411,10 +411,10 @@ var DataManager = {
                 } else
                   self.data.dataSets.push(dSet);
               });
-              
+
               self.data.dataSeries.push(builtDataSeries);
             });
-            
+
 
             self.isLoaded = true;
             resolve();
@@ -990,6 +990,19 @@ var DataManager = {
         var provider = self.data.dataProviders[index];
         if (provider.id == dataProviderParam.id || provider.name == dataProviderParam.name) {
           models.db.DataProvider.destroy({where: {id: provider.id}}).then(function() {
+
+            // remove data series
+            self.data.dataSeries.forEach(function(dataSerie, dataSerieIndex, dataSerieArr) {
+              if (dataSerie.data_provider_id == provider.id) {
+                // remove it from memory
+                self.data.dataSets.forEach(function(dataset, datasetIndex, datasetArr) {
+                  if (dataset.data_series_id === dataSerie.id) {
+                    datasetArr.splice(datasetIndex, 1);
+                  }
+                })
+                dataSerieArr.splice(dataSerieIndex, 1);
+              }
+            })
             self.data.dataProviders.splice(index, 1);
             resolve();
           }).catch(function(err) {

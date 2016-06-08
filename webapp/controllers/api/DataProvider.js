@@ -3,10 +3,11 @@ var DataProviderError = require('./../../core/Exceptions').DataProviderError;
 var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
+var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
   return {
-    post: function(request, response) {
+    post: [passport.isCommonUser, function(request, response) {
       var dataProviderReceived = request.body;
 
       var uriObject = dataProviderReceived.uriObject;
@@ -65,7 +66,7 @@ module.exports = function(app) {
         _makeProvider();
       });
 
-    },
+    }],
 
     get: function(request, response) {
       var name = request.query.name;
@@ -86,7 +87,7 @@ module.exports = function(app) {
       }
     },
 
-    put: function(request, response) {
+    put: [passport.isCommonUser, function(request, response) {
       var dataProviderName = request.params.name;
 
       if (dataProviderName) {
@@ -109,9 +110,9 @@ module.exports = function(app) {
         response.status(400);
         response.json({status: 400, message: "DataProvider name not identified"});
       }
-    },
+    }],
 
-    delete: function(request, response) {
+    delete: [passport.isCommonUser, function(request, response) {
       var id = request.params.id;
       if (id) {
         DataManager.getDataProvider({id: id}).then(function(dProvider) {
@@ -127,7 +128,7 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataProviderError("Missing data provider id"), 400);
       }
-    }
+    }]
 
   };
 };
