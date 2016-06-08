@@ -37,8 +37,15 @@ int main(int argc, char** argv)
 
   }
 
-  TsLogger testLogger;
-  ret += QTest::qExec(&testLogger, argc, argv);
+  try
+  {
+    TsLogger testLogger;
+    ret += QTest::qExec(&testLogger, argc, argv);
+  }
+  catch(...)
+  {
+
+  }
 
   try
   {
