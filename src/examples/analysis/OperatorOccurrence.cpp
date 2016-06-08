@@ -134,6 +134,7 @@ int main(int argc, char* argv[])
   analysis.outputDataSeriesId = 3;
   analysis.scriptLanguage = ScriptLanguage::PYTHON;
   analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis.serviceInstanceId = 1;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
@@ -229,6 +230,7 @@ int main(int argc, char* argv[])
 
   // Starts the service and adds the analysis
   Context::getInstance().setDataManager(dataManager);
+  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
   service.updateLoggerConnectionInfo(connInfo);
   service.start();

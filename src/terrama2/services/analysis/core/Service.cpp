@@ -94,6 +94,9 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
       connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
       timers_.emplace(analysisId, timer);
     }
+
+    // add to queue to run now
+    addToQueue(analysisId);
   }
   catch(terrama2::core::InvalidFrequencyException&)
   {
@@ -105,8 +108,6 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     TERRAMA2_LOG_ERROR() << e.what();
   }
 
-  // add to queue to run now
-  addToQueue(analysisId);
 }
 
 void terrama2::services::analysis::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)

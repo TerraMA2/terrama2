@@ -7,14 +7,36 @@ var Collector = module.exports = function(params) {
   this.service_instance_id = params.service_instance_id;
   this.input_data_series = params.data_series_input;
   this.output_data_series = params.data_series_output;
-  this.input_output_map = params.input_output_map || [];
-  this.schedule = params.schedule || {};
+
+  if (params.CollectorInputOutputs)
+    this.setInputOutputMap(params.CollectorInputOutputs);
+  else
+    this.input_output_map = params.input_output_map || [];
+
+  if (params.Schedule)
+    this.schedule = params.Schedule.get() || {};
+  else
+    this.schedule = params.schedule || {};
+
   this.intersection = params.intersection || {};
   this.active = params.active;
 };
 
 Collector.prototype = Object.create(BaseClass.prototype);
 Collector.prototype.constructor = Collector;
+
+Collector.prototype.setInputOutputMap = function (inputOutputModel) {
+  var output = [];
+  inputOutputModel.forEach(function(element) {
+    // TODO: fix it
+    if (typeof element.get === "function") {
+      output.push({input: element.input_dataset, output: element.output_dataset});
+    }
+    else
+      output.push(element);
+  })
+  this.input_output_map = output;
+};
 
 Collector.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
@@ -24,7 +46,7 @@ Collector.prototype.toObject = function() {
     input_data_series: this.input_data_series,
     output_data_series: this.output_data_series,
     input_output_map: this.input_output_map || [],
-    schedule: this['schedule'],
+    schedule: this['schedule'].id,
     intersection: this.intersection,
     active: this.active
   });

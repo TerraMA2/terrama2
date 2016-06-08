@@ -371,104 +371,54 @@ var DataManager = {
             self.data.dataProviders.push(provider);
           });
 
-          // find all dataseries
+          // find all data series
           models.db.DataSeries.findAll({
             include: [
-              models.db['DataSeriesSemantics']
+              models.db['DataSeriesSemantics'],
+              {
+                model: models.db['DataSet'],
+                include: [
+                  {
+                    model: models.db['DataSetDcp'],
+                    attributes: ['position'],
+                    required: false
+                  },
+                  {
+                    model: models.db.DataSetOccurrence,
+                    required: false
+                  },
+                  {
+                    model: models.db.DataSetMonitored,
+                    required: false
+                  },
+                  models.db['DataSetFormat']
+                ]
+              }
             ]
           }).then(function(dataSeries) {
+            var _setWKT = function(data, wkt) {
+              data.position = wkt;
+              self.data.dataSets.push(data);
+            };
+            dataSeries.forEach(function(dSeries) {
+              var builtDataSeries = new DataModel.DataSeries(dSeries.get());
 
-            //todo: include grid too
-            var dbOperations = [];
-            dbOperations.push(models.db.DataSet.findAll({
-              attributes: ['id', 'active', 'data_series_id'],
-              include: [
-                {
-                  model: models.db.DataSetDcp,
-                  attributes: ['position'],
-                  required: true
-                },
-                models.db.DataSetFormat
-              ]
-            }));
-            dbOperations.push(models.db.DataSet.findAll({
-              attributes: ['id', 'active', 'data_series_id'],
-              include: [
-                {
-                  model: models.db.DataSetOccurrence,
-                  required: true
-                },
-                models.db.DataSetFormat
-              ]
-            }));
+              builtDataSeries.dataSets.forEach(function(dSet) {
+                if (dSet.position) {
+                  self.getWKT(dSet.position).then(function(wktPosition) {
+                    _setWKT(dSet, wktPosition);
+                  }).catch(_rejectClean);
+                } else
+                  self.data.dataSets.push(dSet);
+              });
+              
+              self.data.dataSeries.push(builtDataSeries);
+            });
+            
 
-            dbOperations.push(models.db.DataSet.findAll({
-              attributes: ['id', 'active', 'data_series_id'],
-              include: [
-                {
-                  model: models.db.DataSetMonitored
-                },
-                models.db.DataSetFormat
-              ]
-            }));
+            self.isLoaded = true;
+            resolve();
 
-            // find all datasets
-            Promise.all(dbOperations).then(function(dataSetsArray) {
-              // for each dataSeries
-              dataSeries.forEach(function(dSeries) {
-                var builtDataSeries = new DataModel.DataSeries(dSeries.get());
-
-                dataSetsArray.forEach(function(dataSets) {
-                  // for each data set retrieved
-                  dataSets.forEach(function(dataSet) {
-                    if (dSeries.id == dataSet.data_series_id) {
-
-                      var dSetObject = {
-                        id: dataSet.id,
-                        data_series_id: dataSet.data_series_id,
-                        active: dataSet.active
-                      };
-
-                      if (dataSet.DataSetDcp) {
-                        var dcpDset = dataSet.DataSetDcp.get();
-
-                        // checking dcp position is null
-                        if (dcpDset.position) {
-                          self.getWKT(dcpDset.position).then(function(wktPosition) {
-                            dcpDset.position = wktPosition;
-                            Object.assign(dSetObject, dcpDset);
-
-                            _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
-                          }).catch(_rejectClean);
-                        } else {
-                          Object.assign(dSetObject, dcpDset);
-                          _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
-                        }
-                      }
-                      else if (dataSet.DataSetOccurrence)
-                        _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
-                      else if (dataSet.DataSetMonitored) {
-                        dSetObject.geometry_column = dataSet.geometry_column;
-                        dSetObject.id_column = dataSet.id_column;
-                        dSetObject.time_column = dataSet.time_column;
-                        dSetObject.srid = dataSet.srid;
-
-                        _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
-                      } else // todo: grid
-                        _continueInMemory(dSetObject, dataSet.DataSetFormats, builtDataSeries);
-                    }
-                  }); // end foreach dataSets
-                }); // end foreach dataSetsArray
-
-                // adding local cache
-                self.data.dataSeries.push(builtDataSeries);
-              }); // end foreach dataseries
-
-              self.isLoaded = true;
-              resolve();
-
-              // }).catch(_rejectClean);
-            }).catch(_rejectClean);
           }).catch(_rejectClean);
         }).catch(_rejectClean);
       }).catch(_rejectClean);
@@ -655,7 +605,7 @@ var DataManager = {
         services.forEach(function(service){
           var serviceObject = new DataModel.Service(service.get());
           var logObject = new DataModel.Log(service.Log || {});
-          serviceObject.log = logObject.toObject();
+          serviceObject.log = logObject;
           output.push(serviceObject);
         });
 
@@ -1153,7 +1103,7 @@ var DataManager = {
             collectorsResult.some(function(collector) {
               // collect
               if (collector.output_data_series == element.id) {
-                arr.splice(index, 1);
+                // arr.splice(index, 1);
                 return true;
               } else if (collector.input_data_series == element.id) { // removing input dataseries
                 arr.splice(index, 1);
@@ -1679,7 +1629,9 @@ var DataManager = {
 
             self.addCollector(collectorObject, filterObject).then(function(collectorResult) {
               var collector = new DataModel.Collector(collectorResult);
-              var input_output_map = [];
+              // var input_output_map = [];
+
+              var inputOutputArray = [];
 
               for(var i = 0; i < dataSeriesResult.dataSets.length; ++i) {
                 var inputDataSet = dataSeriesResult.dataSets[i];
@@ -1688,17 +1640,44 @@ var DataManager = {
                   outputDataSet = dataSeriesResultOutput.dataSets[0];
                 else
                   outputDataSet = dataSeriesResultOutput.dataSets[i];
+                //
+                // input_output_map.push({
+                //   input: inputDataSet.id,
+                //   output: outputDataSet.id
+                // });
 
-                input_output_map.push({
-                  input: inputDataSet.id,
-                  output: outputDataSet.id
-                });
+                inputOutputArray.push({
+                  collector_id: collectorResult.id,
+                  input_dataset: inputDataSet.id,
+                  output_dataset: outputDataSet.id
+                })
               }
 
-              collector.input_output_map = input_output_map;
-              collector.schedule = schedule.toObject()
+              models.db['CollectorInputOutput'].bulkCreate(inputOutputArray).then(function(bulkInputOutputResult) {
+                var input_output_map = [];
+                bulkInputOutputResult.forEach(function(bulkResult) {
+                  input_output_map.push({
+                    input: bulkResult.input_dataset,
+                    output: bulkResult.output_dataset
+                  })
+                });
+                collector.input_output_map = input_output_map;
+                collector.schedule = schedule.toObject()
 
-              resolve({collector: collector, input: dataSeriesResult, output:dataSeriesResultOutput, schedule: schedule});
+                resolve({
+                  collector: collector,
+                  input: dataSeriesResult,
+                  output:dataSeriesResultOutput,
+                  schedule: schedule
+                });
+              }).catch(function(err) {
+                rollbackPromise([
+                  // self.removeSchedule(scheduleResult),
+                  self.removeDataSerie(dataSeriesResult),
+                  self.removeDataSerie(dataSeriesResultOutput)
+                ], err)
+              })
+
               // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
@@ -1842,8 +1821,11 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var output = [];
+
       self.listDataSeries().then(function(dataSeriesResult) {
+
         collectorsResult.forEach(function(collector) {
+
           var input_output_map = [];
           var inputDataSeries = null;
           var outputDataSeries = null;
@@ -1894,15 +1876,38 @@ var DataManager = {
     });
   },
 
+  listCollectorInputOutput: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db['CollectorInputOutput'].findAll({where: restriction || {}}).then(function(inputOutputResult) {
+        var output = [];
+        inputOutputResult.forEach(function(element) {
+          output.push(element.get());
+        })
+        resolve(output);
+      }).catch(function(err) {
+        reject(err);
+      })
+    })
+  },
+
   listCollectors: function(restriction, projectId) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db['Collector'].findAll({where: restriction, include: [models.db.Schedule]}).then(function(collectorsResult) {
-        self._prepareCollector(collectorsResult, projectId).then(function(output) {
-          resolve(output);
-        }).catch(function(err) {
-          reject(err);
-        })
+      models.db['Collector'].findAll({
+        where: restriction,
+        include: [
+          models.db.Schedule,
+          models.db['CollectorInputOutput']
+        ]
+      }).then(function(collectorsResult) {
+        var output = [];
+        collectorsResult.forEach(function(collector) {
+          output.push(new DataModel.Collector(collector.get()));
+        });
+
+        resolve(output);
+
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
@@ -1928,16 +1933,14 @@ var DataManager = {
           {
             model: models.db['DataSeries'],
             where: restrictionOutput
+          },
+          {
+            model: models.db['CollectorInputOutput']
           }
         ]
       }).then(function(collectorResult) {
         if (collectorResult) {
-          self._prepareCollector([collectorResult]).then(function(collectors) {
-            console.log(collectors);
-            resolve(collectors[0]);
-          }).catch(function(err) {
-            reject(err);
-          })
+          resolve(new DataModel.Collector(collectorResult.get()));
         } else {
           console.log("Retrieved null while getting collector");
           reject(new exceptions.CollectorError("Could not find collector. "));

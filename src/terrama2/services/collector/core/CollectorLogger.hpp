@@ -57,6 +57,11 @@ namespace terrama2
           CollectorLogger(std::map<std::string, std::string> connInfo);
 
           /*!
+            * \brief Class destructor
+            */
+          virtual ~CollectorLogger() = default;
+
+          /*!
            * \brief This method will log a file input for a determinated process log.
            * \param value The input file to add in logger
            * \param registerID The table id to update with the input file.

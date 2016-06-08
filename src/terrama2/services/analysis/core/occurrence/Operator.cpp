@@ -33,7 +33,6 @@
 
 #include <QTextStream>
 
-#include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/data-model/Filter.hpp"
 
 // TerraLib
@@ -78,14 +77,12 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
     if(moDsContext->series.syncDataSet->size() == 0)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -99,7 +96,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     if(!moGeom.get())
     {
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-      TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -118,7 +114,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
         {
           QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
           errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-          TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
@@ -168,7 +163,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
               if(!property && statisticOperation != StatisticOperation::COUNT)
               {
                 QString errMsg(QObject::tr("Invalid attribute name"));
-                TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
                 throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
               }
               attributeType = property->getType();
@@ -279,7 +273,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
       catch(...)
       {
         QString errMsg = QObject::tr("An unknown exception occurred.");
-        TERRAMA2_LOG_ERROR() << QString(QObject::tr("Analysis %1: ")).arg(analysis.id) << errMsg;
         Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
         exceptionOccurred = true;
       }
@@ -311,7 +304,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    TERRAMA2_LOG_ERROR() << errMsg;
     Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return NAN;
   }

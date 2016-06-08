@@ -20,43 +20,28 @@
 */
 
 /*!
-  \file unittest/core/TsUtility.hpp
+  \file unittest/core/TsLogger.hpp
 
-  \brief Tests for Core Utility class
+  \brief Tests for Core Logger class
 
   \author Vinicius Campanha
 */
 
-//TerraMA2
+#ifndef __TERRAMA2_UNITTEST_CORE_TSLOGGER_HPP__
+#define __TERRAMA2_UNITTEST_CORE_TSLOGGER_HPP__
 
 
 //QT
 #include <QtTest/QTest>
 
-
-class TsUtility : public QObject
+class TsLogger : public QObject
 {
   Q_OBJECT
 
-public:
-
-
 private slots:
 
-  void testTimerNoFrequencyException();
-  void testTimerInvalidUnitException();
-  void testFrequencyTimer();
-  void testScheduleTimer();
+  void testProcessLogger();
 
-  void testTimeUtilsAddMonth();
-  void testTimeUtilsAddDay();
-  void testTimeUtilsAddYear();
-
-  void ValidMask();
-  void invalidValidMask();
-
-  void testValidDataSetName();
-  void testValidDataSetName2DigitsYear();
-  void testValidDataSetName2DigitsYear1900();
-  void testIgnoreArchiveExtension();
 };
+
+#endif // __TERRAMA2_UNITTEST_CORE_TSLOGGER_HPP__

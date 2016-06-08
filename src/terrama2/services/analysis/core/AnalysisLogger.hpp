@@ -56,6 +56,11 @@ namespace terrama2
            */
           AnalysisLogger(std::map< std::string, std::string > connInfo);
 
+          /*!
+           * \brief Class destructor
+           */
+          virtual ~AnalysisLogger() = default;
+
         };
       }
     }

@@ -345,14 +345,10 @@ angular.module('terrama2.dataseries.registration', [
         switch(value) {
           case "seconds":
           case "minutes":
-            resetHelper(1);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 60;
-            break;
           case "hours":
             resetHelper(1);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 24;
+            $scope.minSchedule = 0;
+            $scope.maxSchedule = 2147483648; // setting max value to schedule (int32)
             break;
           case "weeks":
             resetHelper(2);
@@ -509,7 +505,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.dataSeries.access = 'PROCESSING';
             // $scope.alertLevel = "alert-warning";
             // $scope.alertBox.title = "Data Series";
-            // $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+            // $scope.alertBox.message = "Note: No storager configuration, this data will be accessed when needed.";
             // $scope.display = true;
           } else {
             $scope.dataSeries.access = 'COLLECT';
@@ -884,7 +880,7 @@ angular.module('terrama2.dataseries.registration', [
             //  display alert box
             $scope.alertLevel = "alert-warning";
             $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+            $scope.alertBox.message = "Note: No storager configuration, this data will be accessed when needed.";
             $scope.display = true;
             $scope.extraProperties.object = {
               dataToSend: dataObject.dataSeries,

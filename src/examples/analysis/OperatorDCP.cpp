@@ -109,6 +109,7 @@ int main(int argc, char* argv[])
   analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
   analysis.active = false;
   analysis.outputDataSeriesId = 3;
+  analysis.serviceInstanceId = 1;
 
   analysis.metadata["INFLUENCE_TYPE"] = "1";
   analysis.metadata["INFLUENCE_RADIUS"] = "50";
