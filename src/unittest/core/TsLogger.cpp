@@ -48,6 +48,8 @@ void TsLogger::testProcessLogger()
   log.logValue("tag2", "value4", registerID);
   log.error("Unit Test Error", registerID);
   log.error("Unit Test second Error", registerID);
+  log.info("Unit Test Info", registerID);
+  log.info("Unit Test seconde Info", registerID);
 
   std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
 
