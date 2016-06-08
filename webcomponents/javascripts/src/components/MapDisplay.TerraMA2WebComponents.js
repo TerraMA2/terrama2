@@ -15,6 +15,10 @@
  * @property {int} memberSingleClickEventKey - Single click event key.
  * @property {object} memberSocket - Socket object.
  * @property {function} memberCapabilitiesCallbackFunction - 'addCapabilitiesLayers' callback function.
+ * @property {function} memberLayersStartLoadingFunction - Function triggered when a layer starts to load
+ * @property {function} memberLayersEndLoadingFunction - Function triggered when a layer is loaded
+ * @property {function} memberLoading - Loading layers counters
+ * @property {function} memberLoaded - Loaded layers counters
  */
 define(
   function() {
@@ -41,6 +45,14 @@ define(
     var memberSocket = null;
     // 'addCapabilitiesLayers' callback function
     var memberCapabilitiesCallbackFunction = null;
+    // Function triggered when a layer starts to load
+    var memberLayersStartLoadingFunction = null;
+    // Function triggered when a layer is loaded
+    var memberLayersEndLoadingFunction = null;
+    // Loading layers counters
+    var memberLoading = {};
+    // Loaded layers counters
+    var memberLoaded = {};
 
     /**
      * Returns the map object.
@@ -343,13 +355,21 @@ define(
       if(time !== null && time !== undefined && time !== '')
         params['TIME'] = time;
 
+      var layerSource = new ol.source.TileWMS({
+        preload: Infinity,
+        url: url,
+        serverType: type,
+        params: params
+      });
+
+      if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
+        layerSource.on('tileloadstart', function() { increaseLoading(layerId); });
+        layerSource.on('tileloadend', function() { increaseLoaded(layerId); });
+        layerSource.on('tileloaderror', function() { increaseLoaded(layerId); });
+      }
+
       var tile = new ol.layer.Tile({
-        source: new ol.source.TileWMS({
-          preload: Infinity,
-          url: url,
-          serverType: type,
-          params: params
-        }),
+        source: layerSource,
         id: layerId,
         name: layerName,
         visible: layerVisible
@@ -477,6 +497,48 @@ define(
     };
 
     /**
+     * Increases the loading tiles counter of a given layer. If the counter doesn't exist, it's created and the layer loading start function is executed.
+     * @param {string} layerId - Layer id
+     *
+     * @private
+     * @function increaseLoading
+     * @memberof MapDisplay
+     * @inner
+     */
+    var increaseLoading = function(layerId) {
+      if(memberLoading[layerId] === undefined) memberLoading[layerId] = 0;
+
+      if(memberLoading[layerId] === 0) {
+        memberLayersStartLoadingFunction();
+      }
+
+      ++memberLoading[layerId];
+    };
+
+    /**
+     * Increases the loaded tiles counter of a given layer. If the loaded or the loading counter doesn't exist, it's created, and if the counters are equal after the increase, the layer loading end function is executed.
+     * @param {string} layerId - Layer id
+     *
+     * @private
+     * @function increaseLoaded
+     * @memberof MapDisplay
+     * @inner
+     */
+    var increaseLoaded = function(layerId) {
+      if(memberLoading[layerId] === undefined) memberLoading[layerId] = 0;
+      if(memberLoaded[layerId] === undefined) memberLoaded[layerId] = 0;
+
+      ++memberLoaded[layerId];
+
+      if(memberLoading[layerId] === memberLoaded[layerId]) {
+        memberLoading[layerId] = 0;
+        memberLoaded[layerId] = 0;
+
+        memberLayersEndLoadingFunction();
+      }
+    };
+
+    /**
      * Adds a layer group of base layers to the map.
      * @param {string} id - Layer id
      * @param {string} name - Layer name
@@ -493,23 +555,41 @@ define(
       if(layerGroupExists) {
         var layers = layerGroup.getLayers();
 
+        var osmSource = new ol.source.OSM();
+        var mqtSource = new ol.source.MapQuest({layer: 'osm'});
+        var satSource = new ol.source.MapQuest({layer: 'sat'});
+
+        if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
+          osmSource.on('tileloadstart', function() { increaseLoading('osm'); });
+          osmSource.on('tileloadend', function() { increaseLoaded('osm'); });
+          osmSource.on('tileloaderror', function() { increaseLoaded('osm'); });
+
+          mqtSource.on('tileloadstart', function() { increaseLoading('mapquest_osm'); });
+          mqtSource.on('tileloadend', function() { increaseLoaded('mapquest_osm'); });
+          mqtSource.on('tileloaderror', function() { increaseLoaded('mapquest_osm'); });
+
+          satSource.on('tileloadstart', function() { increaseLoading('mapquest_sat'); });
+          satSource.on('tileloadend', function() { increaseLoaded('mapquest_sat'); });
+          satSource.on('tileloaderror', function() { increaseLoaded('mapquest_sat'); });
+        }
+
         layers.push(
           new ol.layer.Group({
             layers: [
               new ol.layer.Tile({
-                source: new ol.source.OSM(),
+                source: osmSource,
                 id: 'osm',
                 name: 'Open Street Map',
                 visible: false
               }),
               new ol.layer.Tile({
-                source: new ol.source.MapQuest({layer: 'osm'}),
+                source: mqtSource,
                 id: 'mapquest_osm',
                 name: 'MapQuest OSM',
                 visible: false
               }),
               new ol.layer.Tile({
-                source: new ol.source.MapQuest({layer: 'sat'}),
+                source: satSource,
                 id: 'mapquest_sat',
                 name: 'MapQuest Sat&eacute;lite',
                 visible: true
@@ -542,6 +622,30 @@ define(
     var addCapabilitiesLayers = function(capabilitiesUrl, serverUrl, serverType, serverId, serverName, callbackFunction) {
       memberCapabilitiesCallbackFunction = callbackFunction;
       memberSocket.emit('proxyRequest', { url: capabilitiesUrl, additionalParameters: { serverUrl: serverUrl, serverType: serverType, serverId: serverId, serverName: serverName } });
+    };
+
+    /**
+     * Sets the layers start loading function.
+     * @param {function} startLoadingFunction - Layers start loading function
+     *
+     * @function setLayersStartLoadingFunction
+     * @memberof MapDisplay
+     * @inner
+     */
+    var setLayersStartLoadingFunction = function(startLoadingFunction) {
+      memberLayersStartLoadingFunction = startLoadingFunction;
+    };
+
+    /**
+     * Sets the layers end loading function.
+     * @param {function} endLoadingFunction - Layers end loading function
+     *
+     * @function setLayersEndLoadingFunction
+     * @memberof MapDisplay
+     * @inner
+     */
+    var setLayersEndLoadingFunction = function(endLoadingFunction) {
+      memberLayersEndLoadingFunction = endLoadingFunction;
     };
 
     /**
@@ -1003,6 +1107,8 @@ define(
       addGeoJSONVectorLayer: addGeoJSONVectorLayer,
       addBaseLayers: addBaseLayers,
       addCapabilitiesLayers: addCapabilitiesLayers,
+      setLayersStartLoadingFunction: setLayersStartLoadingFunction,
+      setLayersEndLoadingFunction: setLayersEndLoadingFunction,
       setLayerVisibility: setLayerVisibility,
       setLayerVisibilityById: setLayerVisibilityById,
       isLayerVisible: isLayerVisible,
