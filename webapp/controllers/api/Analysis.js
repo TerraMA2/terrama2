@@ -1,6 +1,7 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
 var TcpManager = require("../../core/TcpManager");
+var passport = require('./../../config/Passport');
 
 
 module.exports = function(app) {
@@ -21,7 +22,7 @@ module.exports = function(app) {
       })
     },
 
-    post: function(request, response) {
+    post: [passport.isCommonUser, function(request, response) {
       var analysisObject = request.body.analysis;
       var storager = request.body.storager;
       console.log(storager);
@@ -77,9 +78,9 @@ module.exports = function(app) {
       } catch (err) {
         Utils.handleRequestError(response, err, 400);
       }
-    },
+    }],
 
-    delete: function(request, response) {
+    delete: [passport.isCommonUser, function(request, response) {
       var id = request.params.id;
       if(id) {
         DataManager.listAnalyses({id: id}).then(function(analysis) {
@@ -94,6 +95,6 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new AnalysisError("Missing analysis id"), 400);
       }
-    }
+    }]
   };
 };

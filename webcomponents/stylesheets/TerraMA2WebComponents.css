@@ -33,7 +33,7 @@
 
 #terrama2-map .ol-attribution {
   text-align: right;
-  bottom: 40px;
+  bottom: 62px;
   right: 15px;
   max-width: calc(100% - 1.3em);
 }
@@ -48,8 +48,8 @@
   -webkit-tap-highlight-color: transparent;
   background: rgba(0,60,136,.3);
   border-radius: 4px;
-  bottom: 8px;
-  right: 13px;
+  bottom: 35px;
+  right: 15px;
   position: absolute;
   padding: 2px;
   z-index: 99;
@@ -62,6 +62,11 @@
   text-align: center;
   margin: 1px;
   will-change: contents,width;
+}
+
+.ol-scale-line {
+  right: 15px;
+  left: auto !important;
 }
 
 /* LayerExplorer style */
