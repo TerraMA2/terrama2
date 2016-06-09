@@ -60,6 +60,11 @@ namespace terrama2
         DONE        = 4  /*!< Process finished */
       };
 
+      /*!
+        \enum messageType
+
+        \brief Possible status of logged messages.
+      */
       enum messageType
       {
         ERROR_MESSAGE     = 1,

@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
   outputDataProvider->id = 3;
   outputDataProvider->name = "DataProvider postgis";
   outputDataProvider->uri = uri.url().toStdString();
-  outputDataProvider->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   outputDataProvider->dataProviderType = "POSTGIS";
   outputDataProvider->active = true;
 
@@ -103,40 +103,45 @@ int main(int argc, char* argv[])
   analysis.name = "Analysis";
   analysis.active = false;
 
-  std::string script = "buffer = Buffer()\n"
-          "x = occurrence.count(\"Occurrence\", buffer, \"500d\", \"\")\n"
+  std::string script = "moBuffer = Buffer()\n"
+          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
           "add_value(\"count\", x)\n"
 
-          "x = occurrence.max(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.count(\"occ\", moBuffer, \"500d\", \"\")\n"
+          "add_value(\"count_alias\", x)\n"
+
+          "x = occurrence.max(\"Occurrence"
+          "\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"max\", x)\n"
 
-          "x = occurrence.min(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.min(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"min\", x)\n"
 
-          "x = occurrence.mean(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.mean(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"mean\", x)\n"
 
-          "x = occurrence.median(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.median(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"median\", x)\n"
 
-          "x = occurrence.standard_deviation(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.standard_deviation(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"standard_deviation\", x)\n"
 
-          "x = occurrence.sum(\"Occurrence\", buffer, \"500d\", \"v\", \"\")\n"
+          "x = occurrence.sum(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
           "add_value(\"sum\", x)\n";
 
 
   analysis.script = script;
   analysis.outputDataSeriesId = 3;
-  analysis.scriptLanguage = PYTHON;
-  analysis.type = MONITORED_OBJECT_TYPE;
+  analysis.scriptLanguage = ScriptLanguage::PYTHON;
+  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis.serviceInstanceId = 1;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
   dataProvider->name = "Provider";
   dataProvider->uri += TERRAMA2_DATA_DIR;
   dataProvider->uri += "/shapefile";
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
@@ -148,7 +153,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.code = "STATIC_DATA-ogr";
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -169,7 +174,7 @@ int main(int argc, char* argv[])
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
-  monitoredObjectADS.type = DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
 
 
   //DataProvider information
@@ -178,7 +183,7 @@ int main(int argc, char* argv[])
   dataProvider2->id = 2;
   dataProvider2->name = "DataProvider queimadas postgis";
   dataProvider2->uri = uri.url().toStdString();
-  dataProvider2->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  dataProvider2->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   dataProvider2->dataProviderType = "POSTGIS";
   dataProvider2->active = true;
 
@@ -209,7 +214,8 @@ int main(int argc, char* argv[])
   AnalysisDataSeries occurrenceADS;
   occurrenceADS.id = 2;
   occurrenceADS.dataSeriesId = occurrenceDataSeriesPtr->id;
-  occurrenceADS.type = ADDITIONAL_DATA_TYPE;
+  occurrenceADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
+  occurrenceADS.alias = "occ";
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(monitoredObjectADS);
@@ -217,22 +223,22 @@ int main(int argc, char* argv[])
 
   analysis.analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
+  analysis.schedule.frequency = 30;
+  analysis.schedule.frequencyUnit = "sec";
 
   dataManager->add(analysis);
 
   // Starts the service and adds the analysis
   Context::getInstance().setDataManager(dataManager);
+  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
   service.updateLoggerConnectionInfo(connInfo);
   service.start();
   service.addAnalysis(1);
 
-
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);
+  timer.start(100000);
   app.exec();
 
 

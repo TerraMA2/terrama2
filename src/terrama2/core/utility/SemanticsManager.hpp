@@ -35,7 +35,7 @@
 
 // STL
 #include <string>
-#include <map>
+#include <unordered_map>
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -54,9 +54,10 @@ namespace terrama2
         */
         DataSeriesSemantics addSemantics(const std::string& code,
                                          const std::string& name,
-                                         const DataSeriesSemantics::DataSeriesType& dataSeriesType,
+                                         const DataSeriesType& dataSeriesType,
                                          const DataFormat& format,
-                                         const std::vector<DataProviderType>& providersTypeList);
+                                         const std::vector<DataProviderType>& providersTypeList,
+                                         const std::unordered_map<std::string, std::string>& metadata);
         /*!
           \brief Recover a DataSeriesSemantics by name
 
@@ -77,7 +78,7 @@ namespace terrama2
         SemanticsManager& operator=(SemanticsManager&& other) = delete;
 
       private:
-        std::map<std::string, DataSeriesSemantics> semanticsMap_;//!< Semantics map by code
+        std::unordered_map<std::string, DataSeriesSemantics> semanticsMap_;//!< Semantics map by code
     };
   } /* core */
 } /* terrama2 */

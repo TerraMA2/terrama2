@@ -32,6 +32,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "../Typedef.hpp"
 
@@ -40,6 +41,16 @@ namespace terrama2
   namespace core
   {
     typedef std::string DataFormat;
+
+    enum class DataSeriesType
+    {
+      DCP = 1,//!< Fixed position data producer station. (Data Collection Platform).
+      OCCURRENCE = 2,//!< Dated-positioned occurrence.
+      GRID = 3,//!< Spatialy indexed data matrix.
+      MONITORED_OBJECT = 4,//!< Group of vector-spatial-geometry to be monitored (//TODO: NOT in use, to be used for dynamic monitored objects).
+      STATIC = 5, //<! Group  of vector-spatial-geometry.
+      ANALYSIS_MONITORED_OBJECT = 6 //<! Analysis result data series.
+    };
 
     /*!
       \struct DataSeriesSemantics
@@ -55,21 +66,12 @@ namespace terrama2
     */
     struct DataSeriesSemantics
     {
-      enum DataSeriesType
-      {
-        DCP = 1,//!< Fixed position data producer station. (Data Collection Platform).
-        OCCURRENCE = 2,//!< Dated-positioned occurrence.
-        GRID = 3,//!< Spatialy indexed data matrix.
-        MONITORED_OBJECT = 4,//!< Group of vector-spatial-geometry to be monitored (//TODO: NOT in use, to be used for dynamic monitored objects).
-        STATIC = 5, //<! Group  of vector-spatial-geometry.
-        ANALYSIS_MONITORED_OBJECT = 6 //<! Analysis result data series.
-      };
-
       std::string name;//!< Name of the semantics.
       std::string code;//!< Name of the semantics.
-      DataSeriesType dataSeriesType = STATIC;//!< Semantics type of DataSeries
+      DataSeriesType dataSeriesType = DataSeriesType::STATIC;//!< Semantics type of DataSeries
       DataFormat dataFormat;//TODO: how to doc this?!
       std::vector<DataProviderType> providersTypeList;
+      std::unordered_map<std::string, std::string> metadata;
 
       bool operator<(const DataSeriesSemantics& rhs) const { return code < rhs.code; }
       bool operator==(const DataSeriesSemantics& rhs) const { return code == rhs.code; }

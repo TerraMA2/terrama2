@@ -2,23 +2,19 @@ var Occurrence = require('./Occurrence');
 var Enums = require('./../Enums');
 var Form = Enums.Form;
 
-var WildFire = function() {
-  Occurrence.call(this, {name: "WILD-FIRES"});
+var WildFire = function(args) {
+  Occurrence.call(this, args);
 };
 
 WildFire.prototype = Object.create(Occurrence.prototype);
 WildFire.prototype.constructor = WildFire;
 
-WildFire.demand = function () {
-  return ["FILE", "FTP"];
-};
-
 WildFire.identifier = function() {
   return "OCCURRENCE-wfp";
 };
 
-WildFire.schema = function() {
-  var occurrenceSchema = Occurrence.schema.call(this);
+WildFire.prototype.schema = function() {
+  var occurrenceSchema = Occurrence.prototype.schema.call(this);
 
   var properties = {
     mask: {
@@ -28,53 +24,33 @@ WildFire.schema = function() {
     srid: {
       type: Form.Field.NUMBER,
       title: "SRID"
-    },
-    timezone: {
-      type: Form.Field.TEXT,
-      title: "Timezone"
     }
   };
 
   if (occurrenceSchema.hasOwnProperty('properties')) {
     occurrenceSchema.properties.srid = properties.srid;
-    occurrenceSchema.properties.timezone = properties.timezone;
   } else {
     Object.assign(occurrenceSchema, {properties: properties});
   }
 
-  var requiredFields = ['mask', 'srid', 'timezone'];
+  var requiredFields = ['mask', 'srid'];
 
   occurrenceSchema.required = occurrenceSchema.hasOwnProperty('required') ? occurrenceSchema.required.concat(requiredFields) : requiredFields;
 
   return occurrenceSchema;
 };
 
-WildFire.form = function() {
+WildFire.prototype.form = function() {
   return [
     {
       key: 'mask',
-      htmlClass: 'col-md-4'
+      htmlClass: 'col-md-6'
     },
     {
       key: 'srid',
-      htmlClass: "col-md-4"
-    },
-    {
-      key: 'timezone',
-      type: 'select',
-      htmlClass: "col-md-4",
-      titleMap: [
-        {
-          value: '00:00',
-          name: '00:00'
-        },
-        {
-          value: '12:00',
-          name: '12:00'
-        }
-      ]
+      htmlClass: "col-md-6"
     }
-  ].concat(Occurrence.form.call(this));
+  ].concat(Occurrence.prototype.form.call(this));
 };
 
 module.exports = WildFire;

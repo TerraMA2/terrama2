@@ -48,77 +48,84 @@ namespace terrama2
     */
     class DataAccessorFile : public virtual DataAccessor
     {
-    public:
-      DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
-        : DataAccessor(dataProvider, dataSeries, filter)
-      {}
-      virtual ~DataAccessorFile() = default;
+      public:
+        DataAccessorFile(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
+          : DataAccessor(dataProvider, dataSeries, filter)
+        {}
+        virtual ~DataAccessorFile() = default;
 
-      using terrama2::core::DataAccessor::getSeries;
-      // Doc in base class
-      virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const override;
-      // Doc in base class
-      virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
-      //! Recover file mask
-      virtual std::string getMask(DataSetPtr dataset) const;
-      //! Recover timezone information from dataset
-      std::string getTimeZone(DataSetPtr dataSet) const;
+        using terrama2::core::DataAccessor::getSeries;
+        // Doc in base class
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const override;
+        // Doc in base class
+        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
+        //! Recover file mask
+        virtual std::string getMask(DataSetPtr dataset) const;
+        //! Recover timezone information from dataset
+        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
 
-    protected:
-      virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
-      virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
-                                                                  std::shared_ptr<te::da::DataSet> dataSet,
-                                                                  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const;
-      virtual std::shared_ptr<te::da::DataSet> getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor, const std::string& dataSetName, std::shared_ptr<te::da::DataSetTypeConverter> converter) const;
+      protected:
+        virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
+        virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+                                          std::shared_ptr<te::da::DataSet> dataSet,
+                                          std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const;
+        virtual std::shared_ptr<te::da::DataSet> getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor, const std::string& dataSetName, std::shared_ptr<te::da::DataSetTypeConverter> converter) const;
 
-      /*!
-        \brief Filter dataset based on Filter
-      */
-      virtual void filterDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, const Filter& filter) const;
+        /*!
+          \brief Filter dataset based on Filter
+        */
+        virtual void filterDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, const Filter& filter) const;
+        void filterDataSetByLastValue(std::shared_ptr<te::da::DataSet> completeDataSet,
+                                      const Filter& filter,
+                                      std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const;
 
-      /*!
-        \brief Filter dataset by timestamp range
+        /*!
+          \brief Filter dataset by timestamp range
 
-        This method will check if the DateTime in the dateColumn is greater then
-         Filter discardBefore attribute and lesser than the discardAfter.
-         If they are not set, will return true.
+          This method will check if the DateTime in the dateColumn is greater then
+           Filter discardBefore attribute and lesser than the discardAfter.
+           If they are not set, will return true.
 
-        will automatically return true if
-         - no date/time column is found
-         - Filter has no discardBefore AND no discardAfter set
-         - DateTime attribute is null (will be logged)
+          will automatically return true if
+           - no date/time column is found
+           - Filter has no discardBefore AND no discardAfter set
+           - DateTime attribute is null (will be logged)
 
-      */
-      virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const;
-      /*!
-        \brief Filter dataset by geometry
+        */
+        virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t dateColumn) const;
+        /*!
+          \brief Filter dataset by geometry
 
-        This method will check if the Geometry in the geomColumn intersects the
-        Filter region attribute.
+          This method will check if the Geometry in the geomColumn intersects the
+          Filter region attribute.
 
-        will automatically return true if
-         - no geometry column is found
-         - Filter has no region set
-         - Geometry attribute is null (will be logged)
+          will automatically return true if
+           - no geometry column is found
+           - Filter has no region set
+           - Geometry attribute is null (will be logged)
 
-      */
-      virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int geomColumn) const;
+        */
+        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t geomColumn) const;
 
-      /*!
-        \brief Filter dataset by raster envelope
+        /*!
+          \brief Filter dataset by raster envelope
 
-        This method will check if the raster in the rasterColumn intersects the
-        Filter region attribute.
+          This method will check if the raster in the rasterColumn intersects the
+          Filter region attribute.
 
-        will automatically return true if
-         - no geometry column is found
-         - Filter has no region set
-         - Raster attribute is null (will be logged)
+          will automatically return true if
+           - no geometry column is found
+           - Filter has no region set
+           - Raster attribute is null (will be logged)
 
-      */
-      virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const;
+        */
+        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn) const;
 
-      std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const;
+        virtual std::string getFolder(DataSetPtr dataSet) const;
+
+        std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const;
+
+        bool isValidColumn(size_t value) const;
     };
   }
 }

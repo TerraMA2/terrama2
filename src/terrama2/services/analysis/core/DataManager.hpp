@@ -141,7 +141,31 @@ namespace terrama2
               \note Thread-safe.
             */
             Analysis findAnalysis(const AnalysisId analysisId) const;
+
+            using terrama2::core::DataManager::findDataSeries;
+
+            /*!
+            \brief Search for a dataseries with the given name, also look for alias configured in the analysis.
+
+            In case none is found it will return an empty smart pointer.
+
+            \param id The analysis identifier.
+            \param name Name of the dataseries.
+            \return A smart pointer to the dataseries.
+
+            \exception terrama2::InvalidArgumentException If some error occur when trying to find the dataseries.
+
+            \note Thread-safe.
+            */
+            terrama2::core::DataSeriesPtr findDataSeries(const AnalysisId analysisId, const std::string& name) const;
+
+            /*!
+            \brief Returns true if exists an analysis with the given identifier in the data manager, false otherwise.
+
+            \note Thread-safe.
+            */
             bool hasAnalysis(const AnalysisId analysisId) const;
+
 
           signals:
 

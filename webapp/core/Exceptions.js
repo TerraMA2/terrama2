@@ -255,3 +255,17 @@ errors.SignalError = function(message) {
   this.name = 'SignalError';
 };
 util.inherits(errors.SignalError, errors.BaseError);
+
+
+/**
+ * Thrown when Service Type is invalid.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.ServiceTypeError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'ServiceTypeError';
+};
+util.inherits(errors.ServiceTypeError, errors.BaseError);

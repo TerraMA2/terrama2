@@ -138,27 +138,39 @@ void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
   }
 }
 
-bool terrama2::core::TcpManager::sendLog(std::string log)
+bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray)
 {
-  QByteArray bytearray;
-  QDataStream out(&bytearray, QIODevice::WriteOnly);
-  out.setVersion(QDataStream::Qt_5_2);
+  QJsonParseError error;
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
-  out << static_cast<uint32_t>(0);
-  out << TcpSignals::LOG_SIGNAL;
-  out << log.c_str();
-  out.device()->seek(0);
-  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
-
-  // wait while sending message
-  qint64 written = tcpSocket_->write(bytearray);
-  if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
+  if(error.error != QJsonParseError::NoError)
   {
-    // couldn't write to socket
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
     return false;
   }
   else
-    return true;
+  {
+    QByteArray logArray;
+    QDataStream out(&logArray, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_2);
+
+    out << static_cast<uint32_t>(0);
+    out << static_cast<uint32_t>(TcpSignal::LOG_SIGNAL);
+    //TODO: pegar log do processLogger
+    // out << log.c_str();
+    out.device()->seek(0);
+    out << static_cast<uint32_t>(logArray.size() - sizeof(uint32_t));
+
+    // wait while sending message
+    qint64 written = tcpSocket_->write(logArray);
+    if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
+    {
+      // couldn't write to socket
+      return false;
+    }
+    else
+      return true;
+  }
 }
 
 void terrama2::core::TcpManager::readReadySlot()
@@ -194,26 +206,23 @@ void terrama2::core::TcpManager::readReadySlot()
   int sigInt = -1;
   in >> sigInt;
 
-  TcpSignals::TcpSignal signal = static_cast<TcpSignals::TcpSignal>(sigInt);
-  if(signal != TcpSignals::UPDATE_SERVICE_SIGNAL && !serviceManager_->serviceLoaded())
+  TcpSignal signal = static_cast<TcpSignal>(sigInt);
+  if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && !serviceManager_->serviceLoaded())
   {
-    TERRAMA2_LOG_ERROR() << tr("Signal received before service load information.");
-
-    //FIXME: remove comment when web interface start sending TcpSignals::UPDATE_SERVICE_SIGNAL
-    // emit stopSignal();
-    // return;
+    // wait for TcpSignals::UPDATE_SERVICE_SIGNAL
+    return;
   }
 
   switch(signal)
   {
-    case TcpSignals::UPDATE_SERVICE_SIGNAL:
+    case TcpSignal::UPDATE_SERVICE_SIGNAL:
     {
       QByteArray bytearray = tcpSocket_->readAll();
 
       updateService(bytearray);
       break;
     }
-    case TcpSignals::TERMINATE_SERVICE_SIGNAL:
+    case TcpSignal::TERMINATE_SERVICE_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "TERMINATE_SERVICE_SIGNAL";
 
@@ -222,7 +231,7 @@ void terrama2::core::TcpManager::readReadySlot()
       emit stopSignal();
       break;
     }
-    case TcpSignals::ADD_DATA_SIGNAL:
+    case TcpSignal::ADD_DATA_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
       QByteArray bytearray = tcpSocket_->readAll();
@@ -230,7 +239,7 @@ void terrama2::core::TcpManager::readReadySlot()
       addData(bytearray);
       break;
     }
-    case TcpSignals::REMOVE_DATA_SIGNAL:
+    case TcpSignal::REMOVE_DATA_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "REMOVE_DATA_SIGNAL";
       QByteArray bytearray = tcpSocket_->readAll();
@@ -238,7 +247,7 @@ void terrama2::core::TcpManager::readReadySlot()
       removeData(bytearray);
       break;
     }
-    case TcpSignals::START_PROCESS_SIGNAL:
+    case TcpSignal::START_PROCESS_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
       int dataId;
@@ -248,7 +257,7 @@ void terrama2::core::TcpManager::readReadySlot()
 
       break;
     }
-    case TcpSignals::STATUS_SIGNAL:
+    case TcpSignal::STATUS_SIGNAL:
     {
       TERRAMA2_LOG_DEBUG() << "STATUS_SIGNAL";
       QByteArray bytearray;
@@ -258,7 +267,7 @@ void terrama2::core::TcpManager::readReadySlot()
       QJsonDocument doc(jsonObj);
 
       out << static_cast<uint32_t>(0);
-      out << TcpSignals::STATUS_SIGNAL;
+      out << static_cast<uint32_t>(TcpSignal::STATUS_SIGNAL);
       out << doc.toJson(QJsonDocument::Compact);
       bytearray.remove(8, 4);//Remove QByteArray header
       out.device()->seek(0);
@@ -271,6 +280,13 @@ void terrama2::core::TcpManager::readReadySlot()
 
       break;
     }
+  case TcpSignal::LOG_SIGNAL:
+  {
+    TERRAMA2_LOG_DEBUG() << "LOG_SIGNAL";
+
+    // removeData(bytearray);
+    break;
+  }
     default:
       TERRAMA2_LOG_ERROR() << QObject::tr("Error\n Unknown signal received.");
       break;

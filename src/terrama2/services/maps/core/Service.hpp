@@ -48,7 +48,7 @@ namespace terrama2
 
           Service();
 
-          virtual ~Service();
+          virtual ~Service() = default;
 
         public slots:
 

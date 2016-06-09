@@ -12,22 +12,14 @@ var Form = Enums.Form;
  * @param {Object} args - It defines an object for semantics representation.
  */
 var Dcp = function(args) {
-  if (!args.name)
-    throw new DataSeriesSemanticsError("Dcp name is required.");
-
-  var object = {};
-  object[DataSeriesSemantics.NAME] = args.name;
-  object[DataSeriesSemantics.FORMAT] = "DCP";
-  object[DataSeriesSemantics.TYPE] = DataSeriesType.DCP;
-
-  AbstractClass.apply(this, [object]);
+  AbstractClass.apply(this, [args]);
 };
 
 Dcp.prototype = Object.create(AbstractClass.prototype);
 Dcp.prototype.constructor = Dcp;
 
 Dcp.schema = function() {
-  var parentValues = AbstractClass.schema.call(this);
+  var parentValues = AbstractClass.prototype.schema.call(this);
 
   var properties = {
     latitude: {
@@ -66,7 +58,7 @@ Dcp.form = function() {
       key: "projection",
       htmlClass: "col-md-2"
     }
-  ].concat(AbstractClass.form.call(this));
+  ].concat(AbstractClass.prototype.form.call(this));
 };
 
 module.exports = Dcp;

@@ -62,9 +62,6 @@ namespace terrama2
       virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
     private:
-      std::string getTimeZone(DataSetPtr dataset) const;
-      std::string getTimestampPropertyName() const;
-
       /*!
         \brief Convert string to TimeInstantTZ.
 

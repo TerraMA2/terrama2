@@ -22,7 +22,7 @@
 /*!
   \file terrama2/services/analysis/core/OperatorCache.hpp
 
-  \brief Cache to store the context of execution of a python script.
+  \brief Cache to store the context of execution of an analysis.
 
   \author Paulo R. M. Oliveira
 */
@@ -45,17 +45,21 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \struct OperatorCache
+          \brief Model object to the analysis result.
+        */
         struct OperatorCache
         {
-          int64_t index = -1;
-          AnalysisId analysisId = terrama2::core::InvalidId();
-          double sum = 0;
-          double max = std::numeric_limits<double>::min();
-          double min = std::numeric_limits<double>::max();
-          double median = 0;
-          double mean = 0;
-          double standardDeviation = 0;
-          uint64_t count = 0;
+          int64_t index = -1; //!< Geometry index of the monitored object.
+          size_t analysisHashCode = 0; //!< Hashcode of current analysis.
+          double sum = 0; //!< Result of the sum.
+          double max = std::numeric_limits<double>::min(); //!< Maximum value.
+          double min = std::numeric_limits<double>::max(); //!< Minimum value.
+          double median = 0; //!< Median value.
+          double mean = 0; //!< Mean value.
+          double standardDeviation = 0; //!< Standard deviation value.
+          uint64_t count = 0; //!< Count value.
         };
       } // end namespace core
     }   // end namespace analysis

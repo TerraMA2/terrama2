@@ -61,25 +61,6 @@ terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(DataProviderPtr dataPro
   }
 }
 
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimestampPropertyName() const
-{
-  return "N/A";
-}
-
-std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::getTimeZone(DataSetPtr dataSet) const
-{
-  try
-  {
-    return dataSet->format.at("timezone");
-  }
-  catch (...)
-  {
-    QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
-
 std::string terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe::dataSourceType() const
 {
   return "OGR";
@@ -144,7 +125,7 @@ void terrama2::core::DataAccessorDcpInpe::adapt(DataSetPtr dataSet, std::shared_
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
-    if(property->getName() == getTimestampPropertyName())
+    if(property->getName() == getTimestampPropertyName(dataSet))
     {
       // datetime column found
       converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpInpe::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));

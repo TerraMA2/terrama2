@@ -1,6 +1,8 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
+
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
@@ -12,7 +14,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   {
     //DataProvider information
@@ -22,19 +24,19 @@ int main(int argc, char* argv[])
     dataProvider->uri += TERRAMA2_DATA_DIR;
     dataProvider->uri += "/fire_system";
 
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
 
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "OCCURRENCE-wfp";
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
 
     terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "fires.csv");
-    dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
     dataSet->format.emplace("srid", "4326");
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -90,7 +92,7 @@ int main(int argc, char* argv[])
     std::cout << "\nDataSet size: " << teDataSet->size() << std::endl;
   }
 
-  terrama2::core::finalizeTerralib();
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }

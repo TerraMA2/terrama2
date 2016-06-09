@@ -12,7 +12,6 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       description: DataTypes.TEXT,
-      script_language: DataTypes.STRING,
       script: DataTypes.TEXT,
       active: DataTypes.BOOLEAN
     },
@@ -77,6 +76,14 @@ module.exports = function(sequelize, DataTypes) {
             onDelete: "CASCADE",
             foreignKey: {
               name: 'schedule_id',
+              allowNull: false
+            }
+          });
+
+          Analysis.belongsTo(models.ScriptLanguage, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "script_language_id",
               allowNull: false
             }
           });

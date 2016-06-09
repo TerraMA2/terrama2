@@ -127,7 +127,7 @@ $ export PATH=$PATH:/Users/user/Qt5.4.1/5.4/clang_64/bin:/Applications/CMake.app
 
 - In the shell command line, call the script *install-3rdparty-macosx-yosemite.sh* (or the El-Capitan one) setting the target to install all the stuffs from these third-party libraries and tools:
 ```
-$ TERRAMA2_DEPENDENCIES_DIR="/Users/user/mylibs" ./install-3rdparty-macosx-yosemite.sh
+$ ./install-3rdparty-macosx-yosemite.sh /home/gribeiro/MyLibs /home/gribeiro/MyDevel/terrama2/codebase
 ```
 
 **Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *user* by your user name.
@@ -180,6 +180,7 @@ We have the following branches:
 - **master:** This is the branch where the development team is working to add new features to future versions of TerraMA². It may be instable although the codebase is subject to automatic tests (regression and unittests). We don't recommend to generate production versions of TerraMA² from this branch. Use it for testing new features and get involved with TerraMA² development.
 
 - **b-4.0.0-alpha:** This will be the first branch in TerraMA²'s codebase for the generation 4.
+- **b-4.0.0-alpha2:** Minimal working version with web user interface. Services: Collector and Analysis.
 
 To switch to one of the branches listed above, use the checkout command and create a local branch to track the remote branch. The syntax of "git checkout" is:
 

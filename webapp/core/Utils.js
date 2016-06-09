@@ -139,13 +139,13 @@ module.exports = {
     if (analysisCode) {
       switch(parseInt(analysisCode)) {
         case Enums.AnalysisType.DCP:
-          return "Dcp";
+          return Enums.DataSeriesType.DCP;
           break;
         case Enums.AnalysisType.GRID:
-          return "Grid";
+          return Enums.DataSeriesType.GRID;
           break;
         case Enums.AnalysisType.MONITORED:
-          return "Monitored Object";
+          return Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
           break;
         default:
           throw new Error("Invalid analysis id");
@@ -274,7 +274,7 @@ module.exports = {
 
     return output;
   },
-  
+
   matchObject: function(obj, target) {
     return Object.keys(obj).every(function(key) {
       return target[key] == obj[key];
@@ -285,5 +285,33 @@ module.exports = {
     return where.filter(function(entry) {
       return this.matchObject(restriction, entry)
     })
+  },
+
+  getServiceTypeName: function(intServiceType) {
+    switch(intServiceType) {
+      case Enums.ServiceType.COLLECTOR:
+        return "COLLECTOR";
+        break;
+      case Enums.ServiceType.ANALYSIS:
+        return "ANALYSIS";
+        break;
+      default:
+        throw new exceptions.ServiceTypeError("Invalid service type value");
+    }
+  },
+
+  isValidDataSeriesType: function(code) {
+    switch(code) {
+      case Enums.DataSeriesType.DCP:
+      case Enums.DataSeriesType.STATIC_DATA:
+      case Enums.DataSeriesType.OCCURRENCE:
+      case Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+      case Enums.DataSeriesType.GRID:
+      case Enums.DataSeriesType.POSGIS:
+        return true;
+        break;
+      default:
+        throw new Error("Invalid data series type");
+    }
   }
 };

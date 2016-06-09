@@ -18,11 +18,12 @@ $(document).ready(function(){
         $('#systemError').css('display', 'none');
       }
 
-      $('#analysisSaveButton').attr('disabled', 'disabled');
+      // $('#analysisSaveButton').attr('disabled', 'disabled');
     } else {
       $('#systemError').css('display', 'none');
-      $('#analysisSaveButton').removeAttr('disabled');
     }
+
+    $('#analysisSaveButton').removeAttr('disabled');
 
     $('#scriptCheckResult').text(result.messages);
   });

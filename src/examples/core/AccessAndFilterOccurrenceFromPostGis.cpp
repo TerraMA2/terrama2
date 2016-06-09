@@ -17,7 +17,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   {
     QUrl uri;
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = uri.url().toStdString();
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "POSTGIS";
     dataProvider->active = true;
 
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
     std::cout << "\ndataset size: " << teDataSet->size() << std::endl;
   }
 
-  terrama2::core::finalizeTerralib();
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }

@@ -47,7 +47,7 @@ void terrama2::core::Service::start(uint threadNumber)
   // if service already running, throws
   if(mainLoopThread_.valid())
   {
-    QString errMsg = tr("Service alredy running.");
+    QString errMsg = tr("Service already running.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ServiceException() << ErrorDescription(errMsg);
   }
@@ -61,6 +61,7 @@ void terrama2::core::Service::start(uint threadNumber)
 
     //check for the number o threads to create
     threadNumber = verifyNumberOfThreads(threadNumber);
+    threadNumber = 1;
 
     //Starts collection threads
     for(uint i = 0; i < threadNumber; ++i)
@@ -78,9 +79,9 @@ void terrama2::core::Service::start(uint threadNumber)
 
 int terrama2::core::Service::verifyNumberOfThreads(int numberOfThreads) const
 {
-  if(numberOfThreads)
+  if(numberOfThreads == 0)
     numberOfThreads = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
-  if(!numberOfThreads)
+  if(numberOfThreads == 0)
     numberOfThreads = 1; //if not able to find out set to 1
 
   return numberOfThreads;
@@ -182,3 +183,13 @@ void terrama2::core::Service::processingTaskThread() noexcept
     TERRAMA2_LOG_ERROR() << e.what();
   }
 }
+
+void terrama2::core::Service::updateNumberOfThreads(int numberOfThreads)
+{
+  numberOfThreads = verifyNumberOfThreads(numberOfThreads);
+  //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
+  stop();
+  start(numberOfThreads);
+}
+
+

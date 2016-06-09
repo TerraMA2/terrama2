@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
   outputDataProvider->id = 3;
   outputDataProvider->name = "DataProvider postgis";
   outputDataProvider->uri = uri.url().toStdString();
-  outputDataProvider->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   outputDataProvider->dataProviderType = "POSTGIS";
   outputDataProvider->active = true;
 
@@ -92,28 +92,29 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  std::string script = "buffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-          "x = dcp.history.sum(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+  std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
+          "x = dcp.history.sum(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_sum\",x)\n"
-          "x = dcp.history.max(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.max(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_max\",x)\n"
-          "x = dcp.history.min(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.min(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_min\",x)\n"
-          "x = dcp.history.mean(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.mean(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_mean\",x)\n"
-          "x = dcp.history.median(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.median(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_median\",x)\n"
-          "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, buffer, \"3650d\")\n"
+          "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_standard_deviation\",x)\n";
 
   Analysis analysis;
   analysis.id = 1;
   analysis.name = "History DCP";
   analysis.script = script;
-  analysis.scriptLanguage = PYTHON;
-  analysis.type = MONITORED_OBJECT_TYPE;
+  analysis.scriptLanguage = ScriptLanguage::PYTHON;
+  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
   analysis.outputDataSeriesId = 3;
   analysis.active = false;
+  analysis.serviceInstanceId = 1;
 
 
   analysis.metadata["INFLUENCE_TYPE"] = "1";
@@ -125,7 +126,7 @@ int main(int argc, char* argv[])
   dataProvider->name = "Provider";
   dataProvider->uri += TERRAMA2_DATA_DIR;
   dataProvider->uri += "/shapefile";
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 1;
@@ -137,7 +138,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics.code = "STATIC_DATA-ogr";
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -159,7 +160,7 @@ int main(int argc, char* argv[])
   dataProvider2->name = "Provider";
   dataProvider2->uri += TERRAMA2_DATA_DIR;
   dataProvider2->uri += "/PCD_serrmar_INPE";
-  dataProvider2->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider2->dataProviderType = "FILE";
   dataProvider2->active = true;
   dataProvider2->id = 2;
@@ -170,7 +171,7 @@ int main(int argc, char* argv[])
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
-  monitoredObjectADS.type = DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
 
 
   //DataSeries information
@@ -178,7 +179,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
   dcpSeries->semantics.code = "DCP-inpe";
-  dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesSemantics::DCP;
+  dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
   dcpSeries->name = "DCP-Angra";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
@@ -208,7 +209,7 @@ int main(int argc, char* argv[])
   AnalysisDataSeries dcpADS;
   dcpADS.id = 2;
   dcpADS.dataSeriesId = dcpSeriesPtr->id;
-  dcpADS.type = ADDITIONAL_DATA_TYPE;
+  dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
   dataManager->add(dcpSeriesPtr);
 
@@ -230,9 +231,9 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
-  /*QTimer timer;
+  QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);*/
+  timer.start(10000);
   app.exec();
 
 

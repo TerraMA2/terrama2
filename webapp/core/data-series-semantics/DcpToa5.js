@@ -6,22 +6,18 @@ var Form = Enums.Form;
  * It handles DCP-INPE semantics type.
  * @constructor
  */
-var DcpToa5 = function() {
-  Dcp.call(this, {name: "DCP-toa5"});
+var DcpToa5 = function(args) {
+  Dcp.call(this, args);
 };
 
 DcpToa5.prototype = Object.create(Dcp.prototype);
 DcpToa5.prototype.constructor = DcpToa5;
 
-DcpToa5.demand = function () {
-  return ["FILE", "FTP"];
-};
-
 DcpToa5.identifier = function() {
   return "DCP-toa5";
 };
 
-DcpToa5.schema = function() {
+DcpToa5.prototype.schema = function() {
   var dcpSchema = Dcp.schema.call(this);
   dcpSchema.properties.mask = {
     type: Form.Field.TEXT,
@@ -38,7 +34,7 @@ DcpToa5.schema = function() {
   return dcpSchema;
 };
 
-DcpToa5.form = function() {
+DcpToa5.prototype.form = function() {
   return [
     {
       key: 'mask',
@@ -62,8 +58,5 @@ DcpToa5.form = function() {
   ].concat(Dcp.form.call(this));
 };
 
-DcpToa5.demand = function () {
-  return ["FILE", "FTP"];
-};
 
 module.exports = DcpToa5;
