@@ -20,50 +20,51 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/OperatorCache.hpp
+  \file terrama2/services/analysis/analysis.hpp
 
-  \brief Cache to store the context of execution of an analysis.
+  \brief This file contains include headers for the TerraMA2 analysis service module.
 
   \author Paulo R. M. Oliveira
 */
 
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_HPP__
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_OPERATOR_CACHE_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_OPERATOR_CACHE_HPP__
-
-
-// TerraLib
-#include "../Typedef.hpp"
-#include "../../../core/Typedef.hpp"
-
+// TerraMA2
+#include "Shared.hpp"
+#include "Typedef.hpp"
+#include "core/Analysis.hpp"
+#include "core/AnalysisExceutor.hpp"
+#include "core/AnalysisLogger.hpp"
+#include "core/BufferMemory.hpp"
+#include "core/Context.hpp"
+#include "core/DataManager.hpp"
+#include "core/Excpetion.hpp"
+#include "core/JSonUtils.hpp"
+#include "core/OperatorCache.hpp"
+#include "core/PythonInterpreter.hpp"
+#include "core/Service.hpp"
+#include "core/Utils.hpp"
+#include "dcp/Operator.hpp"
+#include "dcp/history/Operator.hpp"
+#include "occurrence/Operator.hpp"
+#include "occurrence/aggregation/Operator.hpp"
 
 namespace terrama2
 {
+  /*! \brief Namespace for the TerraMA2 services module. */
   namespace services
   {
+    /*! \brief Namespace for the TerraMA2 analysis service module. */
     namespace analysis
     {
+      /*! \brief Namespace for the TerraMA2 analysis service core classes. */
       namespace core
       {
-        /*!
-          \struct OperatorCache
-          \brief Model object to the analysis result.
-        */
-        struct OperatorCache
-        {
-          int64_t index = -1; //!< Geometry index of the monitored object.
-          AnalysisHashCode analysisHashCode = 0; //!< Hashcode of current analysis.
-          double sum = 0; //!< Result of the sum.
-          double max = std::numeric_limits<double>::min(); //!< Maximum value.
-          double min = std::numeric_limits<double>::max(); //!< Minimum value.
-          double median = 0; //!< Median value.
-          double mean = 0; //!< Mean value.
-          double standardDeviation = 0; //!< Standard deviation value.
-          uint64_t count = 0; //!< Count value.
-        };
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
 
-#endif //__TERRAMA2_ANALYSIS_CORE_CONTEXT_HPP__
+#endif  // __TERRAMA2_SERVICES_ANALYSIS_HPP__

@@ -46,6 +46,9 @@
 #include <QUrl>
 #include <QDir>
 
+//STL
+#include <limits>
+
 terrama2::core::DataAccessorOccurrenceWfp::DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
   : DataAccessor(dataProvider, dataSeries, filter), DataAccessorOccurrence(dataProvider, dataSeries, filter),
     DataAccessorFile(dataProvider, dataSeries, filter)
@@ -70,8 +73,8 @@ std::string terrama2::core::DataAccessorOccurrenceWfp::typePrefix() const
 void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
 {
   // only one timestamp column
-  int lonPos = -1;
-  int latPos = -1;
+  size_t lonPos = std::numeric_limits<size_t>::max();
+  size_t latPos = std::numeric_limits<size_t>::max();
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
 
@@ -96,7 +99,7 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
       if(property->getName() == getLongitudePropertyName(dataSet))
         lonPos = i;
 
-      if(latPos == -1 || lonPos == -1)
+      if(!isValidColumn(latPos) || !isValidColumn(lonPos))
         continue;
 
       // geometry columns found

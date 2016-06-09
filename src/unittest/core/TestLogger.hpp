@@ -91,6 +91,7 @@ public:
   {
     std::unique_ptr< te::da::MockDataSource > mockDataSource(new te::da::MockDataSource());
 
+    ON_CALL(*mockDataSource.get(), isOpened()).WillByDefault(::testing::Return(true));
     ON_CALL(*mockDataSource.get(), dataSetExists(::testing::_)).WillByDefault(::testing::Return(false));
 
     /* Every time the mockDataSource object calls a method that returns a DataSourceTransactor

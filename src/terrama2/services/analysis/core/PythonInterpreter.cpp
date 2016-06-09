@@ -80,7 +80,7 @@ std::string terrama2::services::analysis::core::extractException()
   }
 }
 
-void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, size_t analysisHashCode,
+void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode,
                                                                           std::vector<uint64_t> indexes)
 {
   Analysis analysis = Context::getInstance().getAnalysis(analysisHashCode);
@@ -122,7 +122,7 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
   }
 }
 
-void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, size_t analysisHashCode)
+void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode)
 {
 
   Analysis analysis = Context::getInstance().getAnalysis(analysisHashCode);
@@ -179,11 +179,13 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
     terrama2::core::DataSetPtr datasetMO;
 
     // Reads the object monitored
+    bool found = false;
     auto analysisDataSeriesList = analysis.analysisDataSeriesList;
     for(auto analysisDataSeries : analysisDataSeriesList)
     {
       if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
+        found = true;
         auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
         assert(dataSeries->datasetList.size() == 1);
         datasetMO = dataSeries->datasetList[0];
@@ -197,7 +199,12 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 
         moDsContext = Context::getInstance().getContextDataset(analysis.hashCode(), datasetMO->id);
 
-        assert(!moDsContext->identifier.empty());
+        if(moDsContext->identifier.empty())
+        {
+          QString errMsg(QObject::tr("Monitored object identifier is empty."));
+          Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+          return;
+        }
 
         // Stores the result in the context
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
@@ -206,6 +213,13 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         Context::getInstance().addAttribute(analysis.hashCode(), attribute);
         Context::getInstance().setAnalysisResult(analysis.hashCode(), geomId, attribute, value);
       }
+    }
+
+    if(!found)
+    {
+      QString errMsg(QObject::tr("Could not find a monitored data series in this analysis."));
+      Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+      return;
     }
   }
 }

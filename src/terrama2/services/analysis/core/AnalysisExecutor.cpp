@@ -107,6 +107,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       {
         QString errMsg = QObject::tr("Invalid analysis type.");
         Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
+        break;
       }
     }
   }
@@ -286,6 +287,12 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
 void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber)
 {
+  // TODO: Ticket #433
+  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception() << ErrorDescription(errMsg);
+
+  /*
   try
   {
 
@@ -345,7 +352,7 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
-  }
+  }*/
 }
 
 void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis)

@@ -138,7 +138,7 @@ namespace terrama2
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.
           */
-          size_t hashCode() const
+          AnalysisHashCode hashCode() const
           {
             if(!startDate)
               throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));
