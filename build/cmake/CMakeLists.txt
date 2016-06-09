@@ -304,6 +304,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_IMPLEMENTATION_ENABLED "Build Implementation mod
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_ANALYSIS_CORE_ENABLED "Build Analysis core module?" ON "TERRAMA2_CORE_ENABLED" OFF)
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_MAPS_ENABLED "Build Maps module?" ON "TERRAMA2_CORE_ENABLED" OFF)
+
 #####################################
 
 #####################################
@@ -321,6 +323,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_COLLECTOR_ENABLED "Build unittest for c
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_ANALYSIS_ENABLED "Build unittest for analysis module?" ON "TERRAMA2_ANALYSIS_CORE_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
 
+CMAKE_DEPENDENT_OPTION(TERRAMA2_UNITTEST_MAPS_ENABLED "Build unittest for maps module?" ON "TERRAMA2_MAPS_ENABLED;TERRAMA2_BUILD_UNITTEST_ENABLED" OFF)
+
 ######################################
 
 
@@ -331,6 +335,8 @@ CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_CORE_ENABLED "Build examples for core m
 CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_ANALYSIS_ENABLED "Build examples for analysis module?" ON "TERRAMA2_ANALYSIS_CORE_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
 
 CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_COLLECTOR_ENABLED "Build examples for collector module?" ON "TERRAMA2_COLLECTOR_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
+
+CMAKE_DEPENDENT_OPTION(TERRAMA2_EXAMPLES_MAPS_ENABLED "Build examples for maps module?" ON "TERRAMA2_MAPS_ENABLED;TERRAMA2_IMPLEMENTATION_ENABLED;TERRAMA2_BUILD_EXAMPLES_ENABLED" OFF)
 
 ######################################
 
@@ -376,8 +382,8 @@ if(TERRAMA2_ANALYSIS_CORE_ENABLED)
   add_subdirectory(terrama2_analysis_core)
 endif()
 
-if(TERRAMA2_SERVICE_ENABLED)
-  add_subdirectory(terrama2_service)
+if(TERRAMA2_MAPS_ENABLED)
+  add_subdirectory(terrama2_maps_core)
 endif()
 
 if(TERRAMA2_UNITTEST_CORE_ENABLED)
@@ -392,6 +398,10 @@ if(TERRAMA2_UNITTEST_ANALYSIS_ENABLED)
   add_subdirectory(terrama2_unittest_analysis)
 endif()
 
+if(TERRAMA2_UNITTEST_MAPS_ENABLED)
+  add_subdirectory(terrama2_unittest_maps)
+endif()
+
 if(TERRAMA2_EXAMPLES_CORE_ENABLED)
   add_subdirectory(terrama2_examples_core)
 endif()
@@ -402,6 +412,10 @@ endif()
 
 if(TERRAMA2_EXAMPLES_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_examples_collector)
+endif()
+
+if(TERRAMA2_EXAMPLES_MAPS_ENABLED)
+  add_subdirectory(terrama2_examples_maps)
 endif()
 
 
