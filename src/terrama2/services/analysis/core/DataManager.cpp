@@ -159,14 +159,42 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
 
 terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::findDataSeries(const AnalysisId analysisId, const std::string& name) const
 {
+  terrama2::core::DataSeriesPtr dataSeries;
   auto analysis = findAnalysis(analysisId);
   for(auto analysisDataSeries : analysis.analysisDataSeriesList)
   {
     if(analysisDataSeries.alias == name)
-      return terrama2::core::DataManager::findDataSeries(analysisDataSeries.dataSeriesId);
+    {
+      dataSeries = terrama2::core::DataManager::findDataSeries(analysisDataSeries.dataSeriesId);
+      break;
+    }
   }
 
-  return terrama2::core::DataManager::findDataSeries(name);
+
+  if(!dataSeries)
+  {
+
+    dataSeries = terrama2::core::DataManager::findDataSeries(name);
+  }
+
+
+  bool inAdditionalDataSeriesList = false;
+  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  {
+    if(analysisDataSeries.dataSeriesId == dataSeries->id)
+    {
+      inAdditionalDataSeriesList = true;
+      break;
+    }
+  }
+
+  if(!inAdditionalDataSeriesList)
+  {
+    QString errMsg = QObject::tr("The selected data series is not present in the additional data list: %1.").arg(QString::fromStdString(name));
+    throw InvalidParameterException() << ErrorDescription(errMsg);
+  }
+
+  return dataSeries;
 }
 
 bool terrama2::services::analysis::core::DataManager::hasAnalysis(const AnalysisId analysisId) const

@@ -107,6 +107,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       {
         QString errMsg = QObject::tr("Invalid analysis type.");
         Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
+        break;
       }
     }
   }
