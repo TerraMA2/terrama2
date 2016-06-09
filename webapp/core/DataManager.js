@@ -1779,18 +1779,21 @@ var DataManager = {
         if (_.isEmpty(filterObject))
           return resolve(collectorResult.get());
 
+        if (_.isEmpty(filterObject.date)) {
+          return resolve(collectorResult.get())
+        } else {
+          filterObject.collector_id = collectorResult.id;
 
-        filterObject.collector_id = collectorResult.id;
+          self.addFilter(filterObject).then(function(filterResult) {
+            var output = Utils.clone(collectorResult.get());
+            output.filter = filterResult;
 
-        self.addFilter(filterObject).then(function(filterResult) {
-          var output = Utils.clone(collectorResult.get());
-          output.filter = filterResult;
-
-          resolve(output);
-        }).catch(function(err) {
-          console.log(err);
-          reject(new exceptions.CollectorError("Could not save collector: ", err));
-        })
+            resolve(output);
+          }).catch(function(err) {
+            console.log(err);
+            reject(new exceptions.CollectorError("Could not save collector: ", err));
+          })
+        }
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not save collector: ", err));
