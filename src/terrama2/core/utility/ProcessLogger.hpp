@@ -72,6 +72,19 @@ namespace terrama2
         WARNING_MESSAGE   = 3
       };
 
+      struct Log
+      {
+        Log() {};
+
+        RegisterId id = 0;
+        ProcessId processId = 0;
+        Status status;
+        std::shared_ptr< te::dt::TimeInstantTZ > start_timestamp;
+        std::shared_ptr< te::dt::TimeInstantTZ > data_timestamp;
+        std::shared_ptr< te::dt::TimeInstantTZ > last_process_timestamp;
+        std::string data = "";
+      };
+
       /*!
        * \brief Class Constructor.
        * \param processID ID of the process to log.
@@ -110,15 +123,17 @@ namespace terrama2
 
       /*!
        * \brief Returns the process last log timestamp
+       * \param processId The ID of the process
        * \return A TimeInstantTZ with the last time that process logged something
        */
       virtual std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
 
       /*!
        * \brief Returns the last timestamp of a data
+       * \param processId The ID of the process
        * \return A TimeInstantTZ with the data last timestamp
        */
-      virtual std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const RegisterId registerId) const;
+      virtual std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const ProcessId processId) const;
 
       /*!
        * \brief Get the logs of a process in a determined interval.
@@ -128,7 +143,7 @@ namespace terrama2
        * \param begin The number order of the first wanted register
        * \param end The number in order of the last wanted register
        */
-      void getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const;
+      std::vector<Log> getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const;
 
       /*!
        * \brief Returns the process ID

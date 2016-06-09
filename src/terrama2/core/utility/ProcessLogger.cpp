@@ -110,7 +110,7 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  boost::format query("INSERT INTO "+ tableName_ + " (processId, status, start_timestamp, last_process_timestamp) VALUES(%1%, %2%, '%3%', '%4%')");
+  boost::format query("INSERT INTO "+ tableName_ + " (process_id, status, start_timestamp, last_process_timestamp) VALUES(%1%, %2%, '%3%', '%4%')");
 
   query.bind_arg(1, processId);
   query.bind_arg(2, static_cast<int>(Status::START));
@@ -268,7 +268,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastP
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::string sql = "SELECT MAX(last_process_timestamp) FROM "+ tableName_ + " WHERE processId = " + std::to_string(processId);
+  std::string sql = "SELECT MAX(last_process_timestamp) FROM "+ tableName_ + " WHERE process_id = " + std::to_string(processId);
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
@@ -285,7 +285,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastP
   return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(columnPos).release()));
 }
 
-std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataLastTimestamp(const RegisterId registerId) const
+std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataLastTimestamp(const ProcessId processId) const
 {
   if(tableName_.empty())
   {
@@ -294,7 +294,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::string sql = "SELECT MAX(data_timestamp) FROM "+ tableName_ + " WHERE processId = " + QString::number(processID(registerId)).toStdString();
+  std::string sql = "SELECT MAX(data_timestamp) FROM "+ tableName_ + " WHERE process_id = " + std::to_string(processId);
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
@@ -311,7 +311,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
   return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(columnPos).release()));
 }
 
-void terrama2::core::ProcessLogger::getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const
+std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger::getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const
 {
   if(tableName_.empty())
   {
@@ -326,20 +326,33 @@ void terrama2::core::ProcessLogger::getLogs(const ProcessId processId, uint32_t 
   int rowNumbers = end - begin;
 
   std::string sql ="SELECT * FROM " + tableName_ +
-                   " WHERE processId = "  + std::to_string(processId) +
+                   " WHERE process_id = "  + std::to_string(processId) +
                    " ORDER BY id DESC" +
                    " LIMIT " + std::to_string(rowNumbers) +
                    " OFFSET " + std::to_string(begin);
 
-  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+  std::unique_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
-  std::shared_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
+  std::unique_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
 
-//  if(!tempDataSet)
-//    return nullptr;
+  std::vector< Log > logs;
 
-//  if(!tempDataSet->moveNext() || tempDataSet->isNull(columnPos))
-//    return nullptr;
+  while(tempDataSet->moveNext())
+  {
+    Log temp;
+
+    temp.id = tempDataSet->getInt32("id");
+    temp.processId = tempDataSet->getInt32("process_id");
+    temp.status = Status(tempDataSet->getInt32("status"));
+    temp.start_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("start_timestamp").release()));
+    temp.data_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("data_timestamp").release()));
+    temp.last_process_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("last_process_timestamp").release()));
+    temp.data = tempDataSet->getAsString("data");
+
+    logs.push_back(temp);
+  }
+
+    return logs;
 }
 
 ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) const
@@ -351,7 +364,7 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::string sql = "SELECT processId FROM "+ tableName_ + " WHERE id = " + QString::number(registerId).toStdString();
+  std::string sql = "SELECT process_id FROM "+ tableName_ + " WHERE id = " + QString::number(registerId).toStdString();
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
@@ -371,7 +384,7 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  return tempDataSet->getInt32("processId");
+  return tempDataSet->getInt32("process_id");
 }
 
 void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
@@ -388,7 +401,7 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
     id->setAutoNumber(true);
     datasetType->add(id->clone());
 
-    datasetType->add(new te::dt::SimpleProperty("processId", te::dt::INT32_TYPE, true));
+    datasetType->add(new te::dt::SimpleProperty("process_id", te::dt::INT32_TYPE, true));
     datasetType->add(new te::dt::SimpleProperty("status", te::dt::INT32_TYPE, true));
     datasetType->add(new te::dt::DateTimeProperty("start_timestamp", te::dt::TIME_INSTANT_TZ, true));
     datasetType->add(new te::dt::DateTimeProperty("data_timestamp", te::dt::TIME_INSTANT_TZ));
