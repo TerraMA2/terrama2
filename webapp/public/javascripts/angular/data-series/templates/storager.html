@@ -6,6 +6,7 @@
       <div class="form-group">
         <label>{{ i18n.__('Output Format') }}:</label>
           <select id="storageFormat" class="form-control" name="format" ng-model="storager.format"
+                  ng-disabled="isUpdating"
                   ng-change="onStoragerFormatChange()"
                   ng-options="format.name for format in storagerFormats" ng-required="dataSeries.access == 'COLLECT'">
         </select>
@@ -18,6 +19,7 @@
                       'has-success': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$valid}">
         <label>{{ i18n.__('Provider Output') }}:</label>
         <select class="form-control" name="storager_data_provider_id" ng-model="storager_data_provider_id"
+                ng-disabled="isUpdating"
                 ng-options="provider.id as provider.name for provider in dataProvidersStorager" ng-required="storager.format.name">
           <option></option>
         </select>
@@ -36,6 +38,7 @@
         <label>{{ i18n.__('Output Service') }}:</label>
         <select id="storageService" class="form-control" name="service" ng-model="storager_service"
                 ng-required="storager.format.name"
+                ng-disabled="isUpdating"
                 ng-options="service.id as service.name for service in services">
         </select>
 

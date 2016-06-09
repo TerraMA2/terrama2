@@ -1,4 +1,5 @@
 var BaseClass = require("./AbstractData");
+var Schedule = require("./Schedule");
 
 var Collector = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Collector'});
@@ -14,9 +15,14 @@ var Collector = module.exports = function(params) {
     this.input_output_map = params.input_output_map || [];
 
   if (params.Schedule)
-    this.schedule = params.Schedule.get() || {};
+    this.schedule = new Schedule(params.Schedule.get() || {});
   else
     this.schedule = params.schedule || {};
+
+  if (params.Filter)
+    this.filter = params.Filter.get() || {};
+  else
+    this.filter = params.filter || {};
 
   this.intersection = params.intersection || {};
   this.active = params.active;
@@ -40,7 +46,8 @@ Collector.prototype.setInputOutputMap = function (inputOutputModel) {
 
 Collector.prototype.rawObject = function () {
   var obj = this.toObject();
-  obj.schedule = this.schedule;
+  obj.schedule = this.schedule.toObject();
+  obj.filter = this.filter;
   return obj;
 };
 

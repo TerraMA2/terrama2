@@ -189,7 +189,7 @@ angular.module('terrama2.dataseries.registration', [
 
         }
 
-        if ($scope.formatSelected.data_series_type_name === "DCP") {
+        if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
           Object.keys(properties).forEach(function(key) {
             $scope.tableFieldsStorager.push(key);
           });
@@ -214,8 +214,38 @@ angular.module('terrama2.dataseries.registration', [
             return;
 
           // fill out default
-          if ($scope.formatSelected.data_series_type_name != "DCP") {
-            $scope.modelStorager = outputDataseries.dataSets[0].format;
+          if ($scope.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
+            $scope.modelStorager = $scope.prepareFormatToForm(outputDataseries.dataSets[0].format);
+          }
+
+          if ($scope.hasCollector) {
+            var collector = configuration.collector;
+            $scope.storager_service = collector.service_instance_id;
+            $scope.storager_data_provider_id = outputDataseries.data_provider_id;
+
+            // fill schedule
+            var schedule = collector.schedule;
+            if (schedule.frequency_unit) {
+              $scope.schedule.scheduleHandler = schedule.frequency_unit;
+              $scope.onScheduleChange(schedule.frequency_unit);
+              $scope.schedule.frequency = $scope.tryParseInt(schedule.frequency);
+            } else {
+              $scope.schedule.scheduleHandler = schedule.schedule_unit;
+              $scope.onScheduleChange(schedule.schedule_unit);
+              $scope.schedule.schedule = $scope.tryParseInt(schedule.schedule);
+              $scope.schedule.schedule_time = schedule.schedule_time;
+            }
+
+            var _prepareDate = function(dt) {
+              return "2000-10-10T" + dt.slice(0, 8);
+            }
+
+            // fill filter
+            // var filter = collector.filter;
+            // if (filter.discard_before)
+            //   $scope.filter.date.beforeDate = _prepareDate(filter.discard_before);
+            // if (filter.discard_after)
+            //   $scope.filter.date.afterDate = _prepareDate(filter.discard_after);
           }
         }
 
@@ -287,6 +317,12 @@ angular.module('terrama2.dataseries.registration', [
           }
         }
         return output;
+      }
+
+      $scope.tryParseInt = function(value) {
+        if (isNaN(value))
+          return value;
+        return parseInt(value);
       }
 
 
@@ -715,6 +751,9 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.save = function() {
+        if ($scope.isUpdating)
+          return;
+
         var generalDataForm = angular.element('form[name="generalDataForm"]').scope().generalDataForm;
         if(generalDataForm.$invalid) {
           errorHelper(generalDataForm);

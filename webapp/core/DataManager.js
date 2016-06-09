@@ -1916,7 +1916,11 @@ var DataManager = {
         where: restriction,
         include: [
           models.db.Schedule,
-          models.db['CollectorInputOutput']
+          models.db['CollectorInputOutput'],
+          {
+            model: models.db['Filter'],
+            required: false
+          }
         ]
       }).then(function(collectorsResult) {
         var output = [];
@@ -1954,6 +1958,10 @@ var DataManager = {
           },
           {
             model: models.db['CollectorInputOutput']
+          },
+          {
+            model: models.db['Filter'],
+            required: false
           }
         ]
       }).then(function(collectorResult) {
