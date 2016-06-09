@@ -52,7 +52,7 @@ namespace terrama2
         struct OperatorCache
         {
           int64_t index = -1; //!< Geometry index of the monitored object.
-          size_t analysisHashCode = 0; //!< Hashcode of current analysis.
+          AnalysisHashCode analysisHashCode = 0; //!< Hashcode of current analysis.
           double sum = 0; //!< Result of the sum.
           double max = std::numeric_limits<double>::min(); //!< Maximum value.
           double min = std::numeric_limits<double>::max(); //!< Minimum value.
