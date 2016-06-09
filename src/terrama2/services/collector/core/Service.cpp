@@ -204,7 +204,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << tr("Unkonwn error.");
+    TERRAMA2_LOG_ERROR() << tr("Unkown error.");
   }
 }
 

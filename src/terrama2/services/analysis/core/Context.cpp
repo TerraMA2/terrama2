@@ -120,8 +120,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
       auto seriesMap = accessor->getSeries(filter);
       auto series = seriesMap[dataset];
 
-      auto format = dataset->format;
-      std::string identifier = format["identifier"];
+      std::string identifier = analysisDataSeries.metadata["identifier"];
 
       std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
@@ -154,8 +153,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
         auto seriesMap = accessor->getSeries(filter);
         auto series = seriesMap[dataset];
 
-        auto format = dataset->format;
-        std::string identifier = format["identifier"];
+        std::string identifier = analysisDataSeries.metadata["identifier"];
 
         std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
@@ -235,12 +233,8 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
   {
     auto series = mapItem.second;
 
-    auto format = series.dataSet->format;
-    std::string identifier = format["identifier"];
-
     std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
     dataSeriesContext->series = series;
-    dataSeriesContext->identifier = identifier;
 
     terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(series.dataSet);
     if(!dcpDataset->position)
@@ -252,9 +246,9 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
     int srid  = dcpDataset->position->getSRID();
     if(srid == 0)
     {
-      if(format.find("srid") != format.end())
+      if(dcpDataset->format.find("srid") != dcpDataset->format.end())
       {
-        srid = std::stoi(format["srid"]);
+        srid = std::stoi(dcpDataset->format.at("srid"));
         dcpDataset->position->setSRID(srid);
       }
     }
@@ -370,15 +364,12 @@ void terrama2::services::analysis::core::Context::addDataSeries(const size_t ana
   {
     auto series = mapItem.second;
 
-    auto format = series.dataSet->format;
-    std::string identifier = format["identifier"];
 
     std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
     std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
     dataSeriesContext->series = series;
-    dataSeriesContext->identifier = identifier;
     dataSeriesContext->geometryPos = geomPropertyPosition;
 
     if(createSpatialIndex)
