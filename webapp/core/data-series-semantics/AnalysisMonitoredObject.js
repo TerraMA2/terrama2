@@ -12,7 +12,7 @@ AnalysisMonitoredObject.identifier = function() {
 AnalysisMonitoredObject.prototype = Object.create(AbstractClass.prototype);
 AnalysisMonitoredObject.prototype.constructor = AnalysisMonitoredObject;
 
-AnalysisMonitoredObject.schema = function() {
+AnalysisMonitoredObject.prototype.schema = function() {
   return {
     properties: {
       table_name: {
@@ -24,10 +24,6 @@ AnalysisMonitoredObject.schema = function() {
   }
 };
 
-AnalysisMonitoredObject.form = function() {
+AnalysisMonitoredObject.prototype.form = function() {
   return ['*'];
-};
-
-AnalysisMonitoredObject.demand = function () {
-  return ["POSTGIS"];
 };

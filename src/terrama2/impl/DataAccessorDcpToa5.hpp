@@ -40,13 +40,13 @@
 namespace terrama2
 {
   namespace core
-  {    
+  {
     /*!
      * \brief The DataAccessorDcpToa5 class is responsible for making the parser file in the format TOA5.
      *
     */
     class DataAccessorDcpToa5 : public DataAccessorDcp, public DataAccessorFile
-    {        
+    {
       public:
         /*!
          * \brief DataAccessorDcpToa5 Constructor.
@@ -102,37 +102,22 @@ namespace terrama2
          * \param uri Uri to the dataset;
          * \param filter Filter applyed to the dataset;
          * \param dataSet It contains description of a dataset. Ex. information of DCP-TOA5;
-         */      
+         */
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
 
       private:
-        /*!
-         * \brief getTimeZone Get the timezone of the dataset.
-         * \param dataset It contains description of a dataset. Ex. information of DCP-TOA5;
-         * \return Return timezone of the dataset.
-         */
-        std::string getTimeZone(DataSetPtr dataset) const;
-
-        //! Get folder of DCP-TOA5.
-        std::string getFolder(DataSetPtr dataSet) const;
-
-        /*!
-         * \brief timestampColumn Get timestamp column.
-         * \return Return TimeStamp Column.
-         */
-        std::string timestampProperty() const;
 
         /*!
          * \brief recordColumn Get record column.
          * \return Return Record Column.
          */
-        std::string recordProperty() const;
+        std::string getRecordPropertyName(DataSetPtr dataSet) const;
 
         /*!
          * \brief stationColumn Get station column.
          * \return Return Station Column.
          */
-        std::string stationProperty() const;
+        std::string getStationPropertyName(DataSetPtr dataSet) const;
 
         /*!
          * \brief stringToTimestamp is the function is responsible for handling the date and time fields

@@ -101,6 +101,10 @@
     pointer-events: none !important;
 }
 
+.terrama2-font-black {
+    color: #333 !important;
+}
+
 .terrama2-font-red {
     color: red !important;
 }
@@ -143,7 +147,7 @@
   from { transform: scale(1) rotate(0deg);}
   to { transform: scale(1) rotate(360deg);}
 }
-  
+
 @-webkit-keyframes spinw {
   from { -webkit-transform: rotate(0deg);}
   to { -webkit-transform: rotate(360deg);}

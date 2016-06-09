@@ -52,7 +52,7 @@ terrama2::core::DataProviderPtr buildInputProvider()
   dataProvider->projectId = 1;
   dataProvider->name = "Provider";
   dataProvider->description = "Testing provider";
-  dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->uri = uri.toStdString();
   dataProvider->active = true;
   dataProvider->dataProviderType = "FILE";
@@ -67,7 +67,8 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.code = "OCCURRENCE-wfp";
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
   dataSeries->dataProviderId = 1;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -93,12 +94,12 @@ terrama2::core::DataProviderPtr buildOutputProvider()
   postgisUri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
   postgisUri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
   postgisUri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
-  
+
   dataProvider->id = 2;
   dataProvider->projectId = 1;
   dataProvider->name = "Output provider";
   dataProvider->description = "Testing output provider";
-  dataProvider->intent = terrama2::core::DataProvider::PROCESS_INTENT;
+  dataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
   dataProvider->uri = postgisUri.url().toStdString();
   dataProvider->active = true;
   dataProvider->dataProviderType = "POSTGIS";
@@ -113,7 +114,8 @@ terrama2::core::DataSeriesPtr buildOutputDataSeries()
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 2;
   outputDataSeries->name = "DataProvider queimadas postgis";
-  outputDataSeries->semantics.code = "OCCURRENCE-postgis";
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  outputDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
   outputDataSeries->dataProviderId = 2;
 
   // DataSet information
@@ -139,8 +141,6 @@ terrama2::services::collector::core::CollectorPtr buildCollector()
   collector->inputDataSeries = 1;
   collector->outputDataSeries = 2;
   collector->inputOutputMap.emplace(1, 2);
-  collector->schedule;
-  collector->intersection;
 
   return collectorPtr;
 }
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
     QDataStream out(&bytearray, QIODevice::WriteOnly);
 
     out << static_cast<uint32_t>(0);
-    out << terrama2::core::TcpSignals::ADD_DATA_SIGNAL;
+    out << static_cast<uint32_t>(terrama2::core::TcpSignal::ADD_DATA_SIGNAL);
     out << doc.toJson();
     bytearray.remove(8, 4);//Remove QByteArray header
     out.device()->seek(0);

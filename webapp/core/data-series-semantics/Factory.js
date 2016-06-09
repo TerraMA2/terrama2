@@ -3,7 +3,7 @@ var DcpInpe = require('./DcpInpe');
 var DcpPostgis = require('./DcpPostgis');
 var WildFire = require('./WildFire');
 var OccurrencePostgis = require('./OccurrencePostgis');
-var AnalysisPostgis = require('./AnalysisPostgis');
+// var AnalysisPostgis = require('./AnalysisPostgis');
 var FileStaticDataOgr = require('./FileStaticDataOgr');
 var PostgisStaticDataOgr = require('./PostgisStaticDataOgr');
 var AnalysisMonitoredObject = require('./AnalysisMonitoredObject');
@@ -12,7 +12,9 @@ var DcpToa5 = require('./DcpToa5');
 var DataSeriesSemanticsError = require('./../Exceptions').DataSeriesSemanticsError;
 var PluginLoader = require('./../PluginLoader');
 
-var Factory = module.exports = {};
+// nodejs
+var fs = require('fs');
+var path = require('path');
 
 function availableTypes() {
   var output = [];
@@ -22,7 +24,7 @@ function availableTypes() {
   output.push(DcpPostgis);
   output.push(WildFire);
   output.push(OccurrencePostgis);
-  output.push(AnalysisPostgis);
+  // output.push(AnalysisPostgis);
   output.push(FileStaticDataOgr);
   output.push(AnalysisMonitoredObject);
   output.push(GridGeoTiff);
@@ -50,53 +52,47 @@ function availablePlugins() {
   return output;
 }
 
-function getSemanticHelper(identifier) {
-  var types = availableTypes();
 
-  var dataSeriesSemantics;
+// loading semantics json
+var semanticsJsonPath = path.join(__dirname, "../../../src/terrama2/core/semantics.json");
+var semanticsObject = JSON.parse(fs.readFileSync(semanticsJsonPath, 'utf-8'));
 
-  types.some(function(semantics) {
-    if (semantics.identifier() === identifier) {
-      dataSeriesSemantics = semantics;
+// list of all instances of semantics type
+var semanticsTypes = [];
+var supportedTypes = availableTypes().concat(availablePlugins());
+semanticsObject.forEach(function(semantics) {
+  supportedTypes.some(function(type, typeIndex, typeArr) {
+    if (type.identifier() === semantics.code) {
+      semanticsTypes.push(new type(semantics));
+
+      // remove it from list
+      typeArr.splice(typeIndex, 1);
       return true;
     }
-    return false;
+  })
+});
+
+var Factory = module.exports = {};
+
+function getSemanticHelper(identifier) {
+  var semanticsOutput = null;
+  semanticsTypes.some(function(semantics) {
+    if (semantics.get().code === identifier) {
+      semanticsOutput = semantics;
+      return true;
+    }
   });
 
-  if (dataSeriesSemantics)
-    return dataSeriesSemantics;
+  if (semanticsOutput)
+    return semanticsOutput;
 
   throw new DataSeriesSemanticsError("DataSeriesSemantics is invalid.");
 }
 
 Factory.build = function(args) {
-  var dataSeriesSemantics = getSemanticHelper(args.name);
-  return new dataSeriesSemantics();
-};
-
-Factory.getDataSeriesSemantics = function(identifier) {
-  var dataSeriesSemantics = getSemanticHelper(identifier);
-  return {
-    name: dataSeriesSemantics.identifier(),
-    form: dataSeriesSemantics.form(),
-    schema: dataSeriesSemantics.schema(),
-    demand: dataSeriesSemantics.demand()
-  };
+  return getSemanticHelper(args.code);
 };
 
 Factory.listAll = function() {
-  var output = [];
-
-  var types = availableTypes();
-
-  types.forEach(function(typ) {
-    output.push({
-      name: typ.identifier(),
-      form: typ.form(),
-      schema: typ.schema(),
-      demand: typ.demand()
-    })
-  })
-
-  return output;
+  return semanticsTypes;
 };

@@ -319,7 +319,7 @@ namespace terrama2
       protected:
         std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from DataProviderId to DataProvider.
         std::map<DataSeriesId, DataSeriesPtr> dataseries_;    //!< A map from DataSeriesId to DataSeries.
-        mutable std::recursive_mutex mtx_;                    //!< A mutex to syncronize all operations.
+        mutable std::recursive_mutex mtx_;                    //!< A mutex to synchronize all operations.
     };
 
   } // end namespace core

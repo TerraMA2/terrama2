@@ -41,13 +41,14 @@ int main(int argc, char* argv[])
 
   std::string path;
   std::string mask = "exporta_20160501_0230.csv";
+
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::CurlPtr curlwrapper;
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 

@@ -50,128 +50,116 @@ namespace terrama2
 
     class Unpack : public boost::noncopyable
     {
-    public:
+      public:
+        /*!
+         * \brief unpackList - the descompressing a file gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
+         * \param uri - It contains absolute file path.
+         * \param Returns the path of the temporary folder where the files uncompressed.
+         */
+        std::string unpackList(std::string uri);
 
         /*!
-       * \brief unpackList - the descompressing a file gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.       
-       * \param uri - It contains absolute file path.
-       * \param Returns the path of the temporary folder where the files uncompressed.
-       */
-      std::string unpackList(std::string uri);
-
-      /*!
-       * \brief verifyCompressFile - checks if the file is compressed or not.
-       * \param uri - It contains absolute file path.
-       * \return Returns true if the file compressed, or false if the file uncompressed.
-       */
-      bool verifyCompressFile(std::string uri);
-
-      /*!
-       * \brief isGzipCompress - Verify is a file with extension gz.
-       * \param fileinfo - Compressed file.
-       * \return Returns true if the file has the gz extension, or false if it is not with gz extension.
-       */
-      static bool isGzipCompress(const QFileInfo fileinfo);
-
-      /*!
-       * \brief isTarCompress - Verify is a file with extension tar.
-       * \param fileinfo - Compressed file.
-       * \return Returns true if the file has the tar extesion, or false if it is not with tar extension.
-       */
-      static bool isTarCompress(const QFileInfo fileinfo);
-
-      /*!
-       * \brief isBzipCompress - Verify is file with extension bz2.
-       * \param fileinfo - Compressed file.
-       * \return Returns true if the file has the bz2 extension, or false if it is not with bz2 extension.
-       */
-      static bool isBzipCompress(const QFileInfo fileinfo);
-
-      /*!
-       * \brief isZipCompress - Verify is file with extension zip.
-       * \param fileinfo - Compressed file.
-       * \return Returns true if the file has the zip extension, or false if it is not with zip extension.
-       */
-      static bool isZipCompress(const QFileInfo fileinfo);
-
-      /*!
-       * \brief nameFileUncompressed - Name file uncompressed.
-       * \param fileinfo - Compressed file.
-       * \return Returns the name of the uncompressed file.
-       */
-      static QString nameFileUncompressed(const QFileInfo fileinfo);
-
-      /*!
-       * \brief parseoct - Parse an octal number, ignoring leading and trailing nonsense.
-       * \param p - Octal number.
-       * \param n - base Octal.
-       * \return Returns decimal number.
-       */
-      static int parseoct(const char *p, size_t n);
-
-      /*!
-       * \brief is_end_of_archive - Verify it is the end of a tar file.
-       * \param p - Number of bytes.
-       * \return Returns true if this is 512 zero bytes.
-       */
-      static int is_end_of_archive(const char *p);
-
-      /*!
-       * \brief create_dir - Create a directory, including parent directories as necessary.
-       * \param pathname - It contains the file path.
-       * \param mode - It contains the building permission mode directory.
-       */
-      static void create_dir(char *pathname, int mode);
-
-      /*!
-       * \brief create_file - Create a file, including parent directory as necessary.
-       * \param pathname - It contains the file path.
-       * \param mode - It contains the building permission mode directory.
-       * \param savePath - It contains the path where the file is saved.
-       * \param vFiles - vector with the name of the unpack files.
-       * \return Returns Create file.
-       */
-      static FILE* create_file(char *pathname, int mode, std::string savePath);
-
-      /*!
-       * \brief verify_checksum - Verify the tar checksum.
-       * \param p - Number of bytes.
-       * \return Returns The default signing a tar file.
-       */
-      static int verify_checksum(const char *p);
-
-      /*!
-       * \brief untar - Extract a tar file.
-       * \param path - It contains the path of the compressed file.
-       *
-       */
-      static void untar(const std::string& path);
-
-      /*!
-       * \brief uncompressGz - Uncompress a GZ file.
-       * \param saveName - It contains the absolute path where the file uncompressed is saved.
-       * \param fileName - It contains the absolute path of file compressed.
-       * \return Returns - The name of the unpack files.
-       */
-      QString uncompressGz(QString saveName, QFileInfo fileName);
-
-      /*!
-       * \brief uncompressBzip - Uncompress a Bzip2 file.
-       * \param saveName - It contains the absolute path where the file uncompressed is saved.
-       * \param fileName - It contains the absolute path of file compressed.
-       * \return Returns - The name of the unpack files.
-       */
-      QString uncompressBzip(QString saveName, QFileInfo fileName);
-
-      /*!
-       * \brief uncompressZip - Uncompress a Zip file.
-       * \param saveName - It contains the absolute path where the file uncompressed is saved.
-       * \param fileName - It contains the absolute path of file compressed.
-       *
-       */
-      void uncompressZip(QString saveName, QFileInfo fileName);
+         * \brief verifyCompressFile - checks if the file is compressed or not.
+         * \param uri - It contains absolute file path.
+         * \return Returns true if the file compressed, or false if the file uncompressed.
+         */
+        bool verifyCompressFile(std::string uri);
 
       private:
+        /*!
+         * \brief isGzipCompress - Verify is a file with extension gz.
+         * \param fileinfo - Compressed file.
+         * \return Returns true if the file has the gz extension, or false if it is not with gz extension.
+         */
+        bool isGzipCompress(const QFileInfo fileinfo);
+        /*!
+         * \brief isTarCompress - Verify is a file with extension tar.
+         * \param fileinfo - Compressed file.
+         * \return Returns true if the file has the tar extesion, or false if it is not with tar extension.
+         */
+        bool isTarCompress(const QFileInfo fileinfo);
+        /*!
+         * \brief isBzipCompress - Verify is file with extension bz2.
+         * \param fileinfo - Compressed file.
+         * \return Returns true if the file has the bz2 extension, or false if it is not with bz2 extension.
+         */
+        bool isBzipCompress(const QFileInfo fileinfo);
+        /*!
+         * \brief isZipCompress - Verify is file with extension zip.
+         * \param fileinfo - Compressed file.
+         * \return Returns true if the file has the zip extension, or false if it is not with zip extension.
+         */
+        bool isZipCompress(const QFileInfo fileinfo);
+        /*!
+         * \brief nameFileUncompressed - Name file uncompressed.
+         * \param fileinfo - Compressed file.
+         * \return Returns the name of the uncompressed file.
+         */
+        QString nameFileUncompressed(const QFileInfo fileinfo);
+
+        /*!
+         * \brief parseOct - Parse an octal number, ignoring leading and trailing nonsense.
+         * \param p - Octal number.
+         * \param n - base Octal.
+         * \return Returns decimal number.
+        */
+        int parseOct(const char *p, size_t n);
+        /*!
+         * \brief isEndOfArchive - Verify it is the end of a tar file.
+         * \param p - Number of bytes.
+         * \return Returns true if this is 512 zero bytes.
+         */
+        int isEndOfArchive(const char *p);
+        /*!
+         * \brief createDir - Create a directory, including parent directories as necessary.
+         * \param pathname - It contains the file path.
+         * \param mode - It contains the building permission mode directory.
+         */
+        void createDir(char *pathname, int mode);
+        /*!
+         * \brief createFile - Create a file, including parent directory as necessary.
+         * \param pathname - It contains the file path.
+         * \param mode - It contains the building permission mode directory.
+         * \param savePath - It contains the path where the file is saved.
+         * \param vFiles - vector with the name of the unpack files.
+         * \return Returns Create file.
+         */
+        FILE* createFile(char *pathname, int mode, std::string savePath);
+        /*!
+         * \brief verifyChecksum - Verify the tar checksum.
+         * \param p - Number of bytes.
+         * \return Returns The default signing a tar file.
+         */
+        int verifyChecksum(const char *p);
+
+        /*!
+         * \brief untar - Extract a tar file.
+         * \param path - It contains the path of the compressed file.
+         *
+        */
+        void untar(const std::string& path);
+        /*!
+         * \brief uncompressGz - Uncompress a GZ file.
+         * \param saveName - It contains the absolute path where the file uncompressed is saved.
+         * \param fileName - It contains the absolute path of file compressed.
+         * \return Returns - The name of the unpack files.
+        */
+        QString uncompressGz(QString saveName, QFileInfo fileName);
+        /*!
+         * \brief uncompressBzip - Uncompress a Bzip2 file.
+         * \param saveName - It contains the absolute path where the file uncompressed is saved.
+         * \param fileName - It contains the absolute path of file compressed.
+         * \return Returns - The name of the unpack files.
+        */
+        QString uncompressBzip(QString saveName, QFileInfo fileName);
+        /*!
+         * \brief uncompressZip - Uncompress a Zip file.
+         * \param saveName - It contains the absolute path where the file uncompressed is saved.
+         * \param fileName - It contains the absolute path of file compressed.
+         *
+         */
+        void uncompressZip(QString saveName, QFileInfo fileName);
+
         std::string temporaryFolder_; //! Folder information where the files will be saved. Ex. "/tmp/".
 
     };

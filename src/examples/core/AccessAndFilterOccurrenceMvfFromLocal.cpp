@@ -2,6 +2,8 @@
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
+
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
@@ -15,7 +17,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   {
     //DataProvider information
@@ -25,30 +27,28 @@ int main(int argc, char* argv[])
     dataProvider->uri += TERRAMA2_DATA_DIR;
     dataProvider->uri += "/fire_system";
 
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
+
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "OCCURRENCE-wfp";
+    dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
 
     terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "fires.csv");
+    dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
     dataSet->format.emplace("timezone", "+00");
     dataSet->format.emplace("srid", "4326");
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
     terrama2::core::Filter filter;
-    filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2015-08-26 15:18:40-00", "%Y-%m-%d %H:%M:%S%ZP");
-    filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2015-08-26 15:18:42-00", "%Y-%m-%d %H:%M:%S%ZP");
-    std::string boundingBoxWkt = "POLYGON((-74. -13., -73. -13., -73. -14., -74. -14., -74. -13.))";
-    te::gm::Geometry* geometry = te::gm::WKTReader::read(boundingBoxWkt.c_str());
-    geometry->setSRID(4326);
-    filter.region = std::shared_ptr<te::gm::Geometry>(geometry);
+    filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-05-01 08:29:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
+    filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-05-01 08:31:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
     std::cout << "\nDataSet size: " << teDataSet->size() << std::endl;
   }
 
-  terrama2::core::finalizeTerralib();
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }

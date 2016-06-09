@@ -198,7 +198,8 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
 
   try
   {
-    DataRetrieverPtr dataRetriever = DataRetrieverFactory::getInstance().make(dataProvider_);
+    auto& retrieverFactory = DataRetrieverFactory::getInstance();
+    DataRetrieverPtr dataRetriever = retrieverFactory.make(dataProvider_);
     for(const auto& dataset : dataSeries_->datasetList)
     {
       //if the dataset is not active, continue to next.
@@ -238,9 +239,9 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
       }
     }//for each dataset
   }
-  catch(const terrama2::Exception& e)
+  catch(const terrama2::Exception&)
   {
-    throw;
+
   }
   catch(const boost::exception& e)
   {
@@ -267,4 +268,63 @@ void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTyp
 
     converter->add(i,p->clone());
   }
+}
+
+Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
+{
+  try
+  {
+    Srid srid = std::stoi(dataSet->format.at("srid"));
+    return srid;
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined srid in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessor::getProperty(DataSetPtr dataSet, std::string tag, bool logErrors) const
+{
+  std::string property;
+  try
+  {
+    auto semantics = dataSeries_->semantics;
+    property = semantics.metadata.at(tag);
+  }
+  catch(...)  //exceptions will be treated after
+  {
+  }
+
+  if(property.empty())
+  {
+    try
+    {
+      property = dataSet->format.at(tag);
+    }
+    catch(...)  //exceptions will be treated after
+    {
+    }
+  }
+
+  if(property.empty())
+  {
+    QString errMsg = QObject::tr("Undefined %2 in dataset: %1.").arg(dataSet->id).arg(QString::fromStdString(tag));
+    if(logErrors)
+      TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+
+  return property;
+}
+
+std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, "timestamp_property");
+}
+
+std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, "geometry_property");
 }

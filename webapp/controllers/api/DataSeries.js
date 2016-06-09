@@ -5,10 +5,11 @@ var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var DataSeriesType = require('./../../core/Enums').DataSeriesType;
 var TokenCode = require('./../../core/Enums').TokenCode;
 var isEmpty = require('lodash').isEmpty;
+var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
   return {
-    post: function(request, response) {
+    post: [passport.isCommonUser, function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
       var scheduleObject = request.body.schedule;
       var filterObject = request.body.filter;
@@ -73,11 +74,12 @@ module.exports = function(app) {
           return Utils.handleRequestError(response, err, 400);
         });
       }
-    },
+    }],
 
     get: function(request, response) {
       var dataSeriesId = request.params.id;
       var dataSeriesType = request.query.type;
+      var schema = request.query.schema;
 
       // collector scope
       var collector = request.query['collector'];
@@ -104,9 +106,13 @@ module.exports = function(app) {
         };
       }
 
-      if (collector) {
-        console.log("has collector ", collector);
-        restriction.Collector = {};
+      if (!schema) {
+        if (collector) {
+          console.log("has collector ", collector);
+          restriction.Collector = {};
+        }
+      } else {
+        restriction.schema = schema;
       }
 
       if (dataSeriesId) {
@@ -120,7 +126,7 @@ module.exports = function(app) {
         DataManager.listDataSeries(restriction).then(function(dataSeriesList) {
           var output = [];
           dataSeriesList.forEach(function(dataSeries) {
-            output.push(dataSeries.toObject());
+            output.push(dataSeries.rawObject());
           });
           response.json(output);
         }).catch(function(err) {
@@ -134,15 +140,31 @@ module.exports = function(app) {
 
     },
 
-    delete: function(request, response) {
+    delete: [passport.isCommonUser, function(request, response) {
       var id = request.params.id;
 
       if (id) {
         DataManager.getDataSeries({id: id}).then(function(dataSeriesResult) {
-          DataManager.removeDataSerie({id: id}).then(function() {
-            response.json({status: 200, name: dataSeriesResult.name});
+
+          DataManager.getCollector({data_series_output: id}).then(function(collectorResult) {
+
+            DataManager.removeDataSerie({id: id}).then(function() {
+
+              DataManager.removeDataSerie({id: collectorResult.input_data_series}).then(function() {
+                response.json({status: 200, name: dataSeriesResult.name});
+              }).catch(function(err) {
+                Utils.handleRequestError(response, err, 400);
+              });
+            }).catch(function(err) {
+              Utils.handleRequestError(response, err, 400);
+            });
           }).catch(function(err) {
-            Utils.handleRequestError(response, err, 400);
+            // if not find collector, it is processing data series or analysis data series
+            DataManager.removeDataSerie({id: dataSeriesResult.id}).then(function() {
+              response.json({status: 200, name: dataSeriesResult.name});
+            }).catch(function(error) {
+              Utils.handleRequestError(response, error, 400);
+            })
           });
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
@@ -150,6 +172,6 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }
-    }
+    }]
   };
 };

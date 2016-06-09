@@ -16,7 +16,7 @@ module.exports = function(app) {
       var dataSeriesId = request.params.id;
 
       DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeriesResult) {
-        response.render('configuration/dataset');
+        response.render('configuration/dataset', {type: "static", dataSeries: {input: dataSeriesResult.rawObject()}});
       }).catch(function(err) {
         response.render('base/404');
       })

@@ -60,8 +60,10 @@
 #include <QLocale>
 #include <QFile>
 #include <QByteArray>
-#include <JlCompress.h>
+
+// Quazip
 #include <quazip.h>
+#include <JlCompress.h>
 
 // Boost
 #include <fstream>
@@ -211,7 +213,7 @@ QString terrama2::core::Unpack::nameFileUncompressed(const QFileInfo fileinfo)
 }
 
 // Parse an octal number, ignoring leading and trailing nonsense.
-int terrama2::core::Unpack::parseoct(const char *p, size_t n)
+int terrama2::core::Unpack::parseOct(const char *p, size_t n)
 {
   int i = 0;
 
@@ -233,7 +235,7 @@ int terrama2::core::Unpack::parseoct(const char *p, size_t n)
 }
 
 // Returns true if this is 512 zero bytes.
-int terrama2::core::Unpack::is_end_of_archive(const char *p)
+int terrama2::core::Unpack::isEndOfArchive(const char *p)
 {
   int n;
   for (n = 511; n >= 0; --n)
@@ -243,7 +245,7 @@ int terrama2::core::Unpack::is_end_of_archive(const char *p)
 }
 
 // Create a directory, including parent directories as necessary.
-void terrama2::core::Unpack::create_dir(char *pathname, int mode)
+void terrama2::core::Unpack::createDir(char *pathname, int mode)
 {
   char *p;
   int r;
@@ -262,7 +264,7 @@ void terrama2::core::Unpack::create_dir(char *pathname, int mode)
     if (p != nullptr)
     {
       *p = '\0';
-      create_dir(pathname, 0755); //pathname
+      createDir(pathname, 0755); //pathname
       *p = '/';
       r = mkdir(pathname, mode); // pathname
     }
@@ -272,7 +274,7 @@ void terrama2::core::Unpack::create_dir(char *pathname, int mode)
 }
 
 // Create a file, including parent directory as necessary.
-std::FILE* terrama2::core::Unpack::create_file(char *pathname, int mode, std::string savePath)
+std::FILE* terrama2::core::Unpack::createFile(char *pathname, int mode, std::string savePath)
 {
   std::FILE *newFile;
 
@@ -287,7 +289,7 @@ std::FILE* terrama2::core::Unpack::create_file(char *pathname, int mode, std::st
     if (p != nullptr)
     {
       *p = '\0';
-      create_dir(absolutePath, 0755);
+      createDir(absolutePath, 0755);
       *p = '/';
       newFile = std::fopen((savePath+pathname).c_str(), "w+");
     }
@@ -297,7 +299,7 @@ std::FILE* terrama2::core::Unpack::create_file(char *pathname, int mode, std::st
 }
 
 // Verify the tar checksum.
-int terrama2::core::Unpack::verify_checksum(const char *p)
+int terrama2::core::Unpack::verifyChecksum(const char *p)
 {
   int n, u = 0;
 
@@ -310,7 +312,7 @@ int terrama2::core::Unpack::verify_checksum(const char *p)
       u += 0x20;
   }
 
-  return (u == parseoct(p + 148, 8));
+  return (u == parseOct(p + 148, 8));
 }
 
 // Extract a tar archive.
@@ -318,8 +320,8 @@ void terrama2::core::Unpack::untar(const std::string& path)
 {
   char buff[512];
   std::FILE *fileUncompressed = nullptr;
-  size_t bytes_read;
-  int filesize;
+  size_t bytesRead;
+  int fileSize;
 
   FilePtr fileCompressed(path.c_str(),"r");
 
@@ -329,28 +331,28 @@ void terrama2::core::Unpack::untar(const std::string& path)
 
   for (;;)
   {
-    bytes_read = std::fread(buff, 1, 512, fileCompressed.file());
+    bytesRead = std::fread(buff, 1, 512, fileCompressed.file());
 
-    if (bytes_read < 512)
+    if (bytesRead < 512)
     {
-      std::fprintf(stderr,"Short read on %s: expected 512, got %d\n",path.c_str(), bytes_read);
+      std::fprintf(stderr,"Short read on %s: expected 512, got %d\n",path.c_str(), bytesRead);
       return;
     }
 
-    if (is_end_of_archive(buff))
+    if (isEndOfArchive(buff))
     {
       QString errMsg = QObject::tr("End of %1").arg(path.c_str());
       TERRAMA2_LOG_DEBUG() << errMsg;
       return;
     }
 
-    if (!verify_checksum(buff))
+    if (!verifyChecksum(buff))
     {
       std::fprintf(stderr, "Checksum failure\n");
       return;
     }
 
-    filesize = parseoct(buff + 124, 12);
+    fileSize = parseOct(buff + 124, 12);
 
     switch (buff[156])
     {
@@ -375,14 +377,14 @@ void terrama2::core::Unpack::untar(const std::string& path)
       case '4':
       {
         QString errMsg = QObject::tr("Ignoring block device %1").arg(buff);
-        TERRAMA2_LOG_DEBUG() << errMsg;        
+        TERRAMA2_LOG_DEBUG() << errMsg;
         break;
       }
       case '5':
       {
         QString errMsg = QObject::tr("Extracting dir %1").arg(buff);
         TERRAMA2_LOG_DEBUG() << errMsg;
-        filesize = 0;
+        fileSize = 0;
         break;
       }
       case '6':
@@ -395,33 +397,33 @@ void terrama2::core::Unpack::untar(const std::string& path)
       {
         QString errMsg = QObject::tr("Extracting file %1").arg(buff);
         TERRAMA2_LOG_DEBUG() << errMsg;
-        fileUncompressed = create_file(buff, parseoct(buff + 100, 8), savePath);
+        fileUncompressed = createFile(buff, parseOct(buff + 100, 8), savePath);
         break;
       }
     }
 
-    while (filesize > 0)
+    while (fileSize > 0)
     {
-      bytes_read = std::fread(buff, 1, 512, fileCompressed.file());
-      if (bytes_read < 512)
+      bytesRead = std::fread(buff, 1, 512, fileCompressed.file());
+      if (bytesRead < 512)
       {
-        std::fprintf(stderr,"Short read on %s: Expected 512, got %d\n",path.c_str(), bytes_read);
+        std::fprintf(stderr,"Short read on %s: Expected 512, got %d\n",path.c_str(), bytesRead);
         return;
       }
 
-      if (filesize < 512)
-        bytes_read = filesize;
+      if (fileSize < 512)
+        bytesRead = fileSize;
 
       if (fileUncompressed != nullptr)
       {
-        if (std::fwrite(buff, 1, bytes_read, fileUncompressed) != bytes_read)
+        if (std::fwrite(buff, 1, bytesRead, fileUncompressed) != bytesRead)
         {
           std::fprintf(stderr, "Failed write\n");
           std::fclose(fileUncompressed);
           fileUncompressed = nullptr;
         }
       }
-      filesize -= bytes_read;
+      fileSize -= bytesRead;
     }
 
     if (fileUncompressed != nullptr)

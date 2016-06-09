@@ -191,7 +191,7 @@ angular.module('terrama2.dataseries.registration', [
           $scope.$broadcast('schemaFormRedraw');
         } else {
         //   occurrence
-          $scope.modelStorager = {};
+          $scope.modelStorager = Object.assign({}, $scope.dataSeries.semantics.metadata.metadata);
           $scope.formStorager = metadata.form;
           $scope.schemaStorager = {
             type: 'object',
@@ -345,16 +345,12 @@ angular.module('terrama2.dataseries.registration', [
         switch(value) {
           case "seconds":
           case "minutes":
-            resetHelper(1);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 60;
-            break;
           case "hours":
             resetHelper(1);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 24;
+            $scope.minSchedule = 0;
+            $scope.maxSchedule = 2147483648; // setting max value to schedule (int32)
             break;
-          case "weekly":
+          case "weeks":
             resetHelper(2);
             $scope.minSchedule = 1;
             $scope.maxSchedule = 7;
@@ -438,11 +434,13 @@ angular.module('terrama2.dataseries.registration', [
       var inputDataSeries = configuration.dataSeries.input || {};
       var outputDataseries = configuration.dataSeries.output || {};
 
+      var inputSemantics = inputDataSeries.data_series_semantics || {};
+
       $scope.dataSeries = {
-        data_provider_id: inputDataSeries.data_provider_id || "",
+        data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
         name: inputDataSeries.name || "",
         access: inputDataSeries.access,
-        semantics: inputDataSeries.data_series_semantic_name || "",
+        semantics: inputSemantics.code || "",
         active: inputDataSeries.active
       };
 
@@ -462,7 +460,7 @@ angular.module('terrama2.dataseries.registration', [
 
         if ($scope.dataSeries.semantics) {
           semanticsList.forEach(function(semantics) {
-            if (semantics.name === $scope.dataSeries.semantics) {
+            if (semantics.code === $scope.dataSeries.semantics) {
               $scope.dataSeries.semantics = semantics;
               $scope.onDataSemanticsChange();
             }
@@ -507,7 +505,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.dataSeries.access = 'PROCESSING';
             // $scope.alertLevel = "alert-warning";
             // $scope.alertBox.title = "Data Series";
-            // $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+            // $scope.alertBox.message = "Note: No storager configuration, this data will be accessed when needed.";
             // $scope.display = true;
           } else {
             $scope.dataSeries.access = 'COLLECT';
@@ -574,9 +572,23 @@ angular.module('terrama2.dataseries.registration', [
             })
           }
 
+          // // fill out
+          // if (inputDataSeries) {
+          //   if (dcp) {
+          //     // fill out dcp table
+          //   } else {
+          //     // resetting
+          //     // $scope.dcps = [];
+          //     // $scope.$broadcast("resetStoragerDataSets");
+          //   }
+          // } else {
+          //   // $scope.model = {};
+          // }
+
           // resetting
           $scope.dcps = [];
           $scope.$broadcast("resetStoragerDataSets");
+
 
           $scope.model = {};
           $scope.form = data.metadata.form;
@@ -761,11 +773,13 @@ angular.module('terrama2.dataseries.registration', [
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
               break;
 
-            case "weekly":
+            case "weeks":
             case "monthly":
             case "yearly":
               // todo: verify
+              var dt = scheduleValues.schedule_time;
               scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+              scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
               break;
 
             default:
@@ -866,7 +880,7 @@ angular.module('terrama2.dataseries.registration', [
             //  display alert box
             $scope.alertLevel = "alert-warning";
             $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = "Note: Tha data will be acquired when it has been accessed";
+            $scope.alertBox.message = "Note: No storager configuration, this data will be accessed when needed.";
             $scope.display = true;
             $scope.extraProperties.object = {
               dataToSend: dataObject.dataSeries,

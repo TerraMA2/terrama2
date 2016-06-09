@@ -7,10 +7,7 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      alias: {
-        type: DataTypes.STRING,
-        allowNull: false
-      }
+      alias: DataTypes.STRING
     },
     {
       underscored: true,

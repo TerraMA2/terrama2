@@ -1,6 +1,8 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
+
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
@@ -25,19 +27,20 @@ int main(int argc, char* argv[])
     dataProvider->uri += TERRAMA2_DATA_DIR;
     dataProvider->uri += "/geotiff";
 
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
 
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "GRID-geotiff";
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "hhmmyyyyMMdd_r3g2b1.tif");
-//    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+    dataSet->format.emplace("timezone", "+00");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -58,12 +61,12 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-    outputDataSeries->semantics.code = "GRID-geotiff";
+    outputDataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
 
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);
     outputDataSet->active = true;
-    outputDataSet->format.emplace("mask", "dd-MM-yy_hhmmss.tif");
+    outputDataSet->format.emplace("mask", "L5219076_076yyyMMdd_r3g2b1.tif");
     outputDataSeries->datasetList.push_back(outputDataSetPtr);
 
     auto seriesMap = gridSeries->getSeries();

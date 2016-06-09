@@ -49,6 +49,7 @@
 #include <terralib/srs/SpatialReferenceSystem.h>
 
 #include <ctime>
+#include <unordered_map>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -225,13 +226,19 @@ void terrama2::core::initializeTerraMA()
     auto jsonProvidersTypes = obj["providers_type_list"].toArray();
     std::vector<DataProviderType> providersTypes;
     for(const auto& providerType : jsonProvidersTypes)
-    providersTypes.push_back(providerType.toString().toStdString());
+      providersTypes.push_back(providerType.toString().toStdString());
+
+    auto jsonMetadata = obj["metadata"].toObject();
+    std::unordered_map<std::string, std::string> metadata;
+    for(auto it = jsonMetadata.constBegin(); it != jsonMetadata.constEnd(); ++it)
+      metadata.emplace(it.key().toStdString(), it.value().toString().toStdString()) ;
 
     semanticsManager.addSemantics(obj["code"].toString().toStdString(),
                                   obj["name"].toString().toStdString(),
                                   dataSeriesTypeFromString(obj["type"].toString().toStdString()),
                                   obj["format"].toString().toStdString(),
-                                  providersTypes);
+                                  providersTypes,
+                                  metadata);
   }
 }
 
@@ -301,20 +308,20 @@ double terrama2::core::convertDistanceUnit(double distance, const std::string& f
 
 }
 
-terrama2::core::DataSeriesSemantics::DataSeriesType terrama2::core::dataSeriesTypeFromString(const std::string& type)
+terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const std::string& type)
 {
   if(type == "DCP")
-    return terrama2::core::DataSeriesSemantics::DCP;
+    return terrama2::core::DataSeriesType::DCP;
   else if(type == "OCCURRENCE")
-    return terrama2::core::DataSeriesSemantics::OCCURRENCE;
+    return terrama2::core::DataSeriesType::OCCURRENCE;
   else if(type == "GRID")
-    return terrama2::core::DataSeriesSemantics::GRID;
+    return terrama2::core::DataSeriesType::GRID;
   else if(type == "MONITORED_OBJECT")
-    return terrama2::core::DataSeriesSemantics::MONITORED_OBJECT;
+    return terrama2::core::DataSeriesType::MONITORED_OBJECT;
   else if(type == "STATIC_DATA")
-    return terrama2::core::DataSeriesSemantics::STATIC;
+    return terrama2::core::DataSeriesType::STATIC;
   else if(type == "ANALYSIS_MONITORED_OBJECT")
-    return terrama2::core::DataSeriesSemantics::ANALYSIS_MONITORED_OBJECT;
+    return terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT;
   else
   {
     QString errMsg = QObject::tr("Unknown DataSeriesType: %1.").arg(QString::fromStdString(type));

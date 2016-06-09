@@ -1,5 +1,6 @@
 var DataSeriesType = require('./Enums').DataSeriesType;
 var FormField = require("./Enums").Form.Field;
+var Utils = require('./Utils');
 
 /**
  * Generic DataSeriesSemantics type.
@@ -10,16 +11,7 @@ var AbstractSemantics = module.exports = function(semanticsObject) {
   if (this.constructor === AbstractSemantics)
     throw new Error("AbstractSemantic cannot be instantiated");
 
-  switch (semanticsObject.data_series_type_name) {
-    case DataSeriesType.DCP:
-      break;
-    case DataSeriesType.OCCURRENCE:
-      break;
-    case DataSeriesType.GRID:
-      break;
-    default:
-      throw new Error("Unknown data series type");
-  }
+  Utils.isValidDataSeriesType(semanticsObject.data_series_type_name);
 
   this.semantics = semanticsObject;
 };
@@ -49,14 +41,18 @@ AbstractSemantics.prototype.get = function() {
   return this.semantics;
 };
 
+AbstractSemantics.prototype.metadata = function() {
+  return this.semantics.metadata;
+}
+
 /**
  * It retrieves a list of DataProviders type that semantics works with.
  *
  * @abstract
  * @return {Array}.
  */
-AbstractSemantics.demand = function() {
-  return [];
+AbstractSemantics.prototype.demand = function() {
+  return this.semantics.providers_type_list;
 };
 
 
@@ -65,7 +61,7 @@ AbstractSemantics.demand = function() {
  * @abstract
  * @return {Object}
  */
-AbstractSemantics.schema = function() {
+AbstractSemantics.prototype.schema = function() {
   return {};
 };
 
@@ -74,7 +70,7 @@ AbstractSemantics.schema = function() {
  * @abstract
  * @return {Object}
  */
-AbstractSemantics.form = function() {
+AbstractSemantics.prototype.form = function() {
   return [
     {
       key: 'active',
@@ -90,10 +86,12 @@ AbstractSemantics.form = function() {
  * @abstract
  * @return {Object}
  */
-AbstractSemantics.databaseValues = function() {
+AbstractSemantics.prototype.databaseValues = function() {
+  var semantics = this.get();
   return {
-    name: this.name,
-    data_format_name: this.data_format_name,
-    data_series_type_name: this.data_series_type_name
+    name: semantics.name,
+    code: semantics.code,
+    data_format_name: semantics.data_format_name,
+    data_series_type_name: semantics.data_series_type_name
   }
 };

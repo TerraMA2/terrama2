@@ -5,12 +5,13 @@ var DataSeriesSemanticsFactory = require('./../../core/data-series-semantics/Fac
 var DataSeriesType = require('./../../core/Enums').DataSeriesType;
 
 function makeMetadata(identifier) {
-  var semanticsStructure = DataSeriesSemanticsFactory.getDataSeriesSemantics(identifier);
+  var semanticsStructure = DataSeriesSemanticsFactory.build({code: identifier});
 
   return {
-    form: semanticsStructure.form,
-    schema: semanticsStructure.schema,
-    demand: semanticsStructure.demand
+    form: semanticsStructure.form(),
+    schema: semanticsStructure.schema(),
+    demand: semanticsStructure.demand(),
+    metadata: semanticsStructure.metadata()
   };
 }
 
@@ -33,7 +34,6 @@ module.exports = function(app) {
         }
       }
 
-      // todo: validate it from database
       // get just one semantics
       if (semanticsName) {
         queryParams['code'] = semanticsName;

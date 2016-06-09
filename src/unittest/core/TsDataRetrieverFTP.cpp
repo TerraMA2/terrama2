@@ -76,7 +76,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 
@@ -91,7 +91,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
 
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception expected!");
     }
     catch(terrama2::core::DataRetrieverException& e)
     {
@@ -115,7 +115,6 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
 }
 
-
 void TsDataRetrieverFTP::TestFailLoginInvalid()
 {
   try
@@ -134,7 +133,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 
@@ -149,7 +148,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr,  std::move(mock_));
 
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception expected!");
     }
     catch(terrama2::core::DataRetrieverException& e)
     {
@@ -191,7 +190,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = url.url().toStdString();
-    dataProvider->intent = terrama2::core::DataProvider::COLLECTOR_INTENT;
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FTP";
     dataProvider->active = true;
 
@@ -209,7 +208,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     }
     catch(...)
     {
-      QFAIL("Exception expected - DataRetrieverException!");
+      QFAIL("Exception unexpected!");
     }
 
     curl_global_cleanup();
@@ -229,3 +228,245 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 
 }
 
+void TsDataRetrieverFTP::TestFailVectorFileEmpty()
+{
+  try
+  {
+    QUrl url;
+    url.setHost("ftp.dgi.inpe.br");
+    url.setPath("/focos_operacao/");
+    url.setScheme("FTP");
+    url.setPort(21);
+    url.setUserName("queimadas");
+    url.setPassword("inpe_2012");
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = url.url().toStdString();
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FTP";
+    dataProvider->active = true;
+
+    std::string path;
+    std::string mask = "exporta_20160501_0230.csv";
+    std::vector<std::string> vectorFiles; // VectorFiles Empty
+
+    //empty filter
+    terrama2::core::Filter filter;
+
+    MockCurlWrapper mock_;
+
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, getListFiles(_,_,_)).WillByDefault(Return(vectorFiles));
+
+    try
+    {
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
+      path = retrieverFTP.retrieveData(mask, filter);
+
+    }
+    catch(...)
+    {
+      QFAIL("Exception expected!");
+    }
+
+    curl_global_cleanup();
+
+  }
+  catch(terrama2::Exception& e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+
+  catch(...)
+  {
+    QFAIL("Exception unexpected!");
+  }
+
+  return;
+
+}
+
+void TsDataRetrieverFTP::TestOKVectorWithFiles()
+{
+  try
+  {
+    QUrl url;
+    url.setHost("ftp.dgi.inpe.br");
+    url.setPath("/focos_operacao/");
+    url.setScheme("FTP");
+    url.setPort(21);
+    url.setUserName("queimadas");
+    url.setPassword("inpe_2012");
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = url.url().toStdString();
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FTP";
+    dataProvider->active = true;
+
+    std::string path;
+    std::string mask = "exporta_20160501_0230.csv";
+    std::vector<std::string> vectorFiles;
+    vectorFiles.push_back("exporta_20160501_0230.csv");
+
+    //empty filter
+    terrama2::core::Filter filter;
+
+    MockCurlWrapper mock_;
+
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, getListFiles(_,_,_)).WillByDefault(Return(vectorFiles));
+
+    try
+    {
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
+      path = retrieverFTP.retrieveData(mask, filter);
+
+    }
+    catch(...)
+    {
+      QFAIL("Exception unexpected!");
+    }
+
+    curl_global_cleanup();
+
+  }
+  catch(terrama2::Exception& e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+
+  catch(...)
+  {
+    QFAIL("Exception unexpected!");
+  }
+
+  return;
+
+}
+
+void TsDataRetrieverFTP::TestFailDownloadFile()
+{
+  try
+  {
+    QUrl url;
+    url.setHost("ftp.dgi.inpe.br");
+    url.setPath("/focos_operacao/");
+    url.setScheme("FTP");
+    url.setPort(21);
+    url.setUserName("queimadas");
+    url.setPassword("inpe_2012");
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = url.url().toStdString();
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FTP";
+    dataProvider->active = true;
+
+    //empty filter
+    terrama2::core::Filter filter;
+    std::string path;
+    std::string mask = "exporta_20160501_0230.csv";
+
+    MockCurlWrapper mock_;
+
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, getDownloadFiles(_,_,_)).WillByDefault(Return(CURLE_COULDNT_RESOLVE_HOST));
+
+    try
+    {
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
+      path = retrieverFTP.retrieveData(mask, filter);
+    }
+    catch(...)
+    {
+      QFAIL("Exception expected!");
+    }
+
+    curl_global_cleanup();
+
+  }
+  catch(terrama2::Exception& e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+
+  catch(...)
+  {
+    QFAIL("Exception unexpected!");
+  }
+
+  return;
+
+}
+
+void TsDataRetrieverFTP::TestOKDownloadFile()
+{
+  try
+  {
+    QUrl url;
+    url.setHost("ftp.dgi.inpe.br");
+    url.setPath("/focos_operacao/");
+    url.setScheme("FTP");
+    url.setPort(21);
+    url.setUserName("queimadas");
+    url.setPassword("inpe_2012");
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = url.url().toStdString();
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FTP";
+    dataProvider->active = true;
+
+    //empty filter
+    terrama2::core::Filter filter;
+    std::string path;
+    std::string mask = "exporta_20160501_0230.csv";
+
+    MockCurlWrapper mock_;
+
+    ON_CALL(mock_, verifyURL(_)).WillByDefault(Return(CURLE_OK));
+    ON_CALL(mock_, getDownloadFiles(_,_,_)).WillByDefault(Return(CURLE_OK));
+
+    try
+    {
+      terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
+      path = retrieverFTP.retrieveData(mask, filter);
+    }
+    catch(...)
+    {
+      QFAIL("Exception unexpected!");
+    }
+
+    curl_global_cleanup();
+
+  }
+  catch(terrama2::Exception& e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+
+  catch(...)
+  {
+    QFAIL("Exception unexpected!");
+  }
+
+  return;
+
+}

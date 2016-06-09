@@ -22,7 +22,7 @@
 /*!
   \file terrama2/services/collector/core/CollectorLogger.hpp
 
-  \brief
+  \brief Class to log the steps of Terrama2 Collector Service
 
   \author Vinicius Campanha
 */
@@ -41,13 +41,38 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+         * \brief The CollectorLogger class is responsible for uses the Process Logger to
+         * log the processes in the Collector Service.
+         */
         class CollectorLogger : public terrama2::core::ProcessLogger
         {
         public:
+
+          /*!
+           * \brief Class constructor, it will pass the connection information about the Log DB and
+           * set the collector log table.
+           * \param connInfo Has the access information to the log Database
+           */
           CollectorLogger(std::map<std::string, std::string> connInfo);
 
+          /*!
+            * \brief Class destructor
+            */
+          virtual ~CollectorLogger() = default;
+
+          /*!
+           * \brief This method will log a file input for a determinated process log.
+           * \param value The input file to add in logger
+           * \param registerID The table id to update with the input file.
+           */
           void addInput(std::string value, RegisterId registerID);
 
+          /*!
+           * \brief This method will log a file output for a determinated process log.
+           * \param value The output file to add in logger
+           * \param registerID The table id to update with the output file.
+           */
           void addOutput(std::string value, RegisterId registerID);
 
         };

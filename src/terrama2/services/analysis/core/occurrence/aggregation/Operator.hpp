@@ -52,7 +52,7 @@ namespace terrama2
           {
 
             int count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter,
-                                           terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction);
+                                           terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction = "");
 
             /*!
               \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.
@@ -68,7 +68,7 @@ namespace terrama2
             */
             double min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter,
                                             const std::string& attribute, terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                            terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction);
+                                            terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction = "");
 
             /*!
               \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.
@@ -84,7 +84,7 @@ namespace terrama2
             */
             double max(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter,
                                             const std::string& attribute, terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                            terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction);
+                                            terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction = "");
 
             /*!
               \brief It calculates the mean value of the attribute of occurrences in the monitored object area.
@@ -100,7 +100,7 @@ namespace terrama2
             */
             double mean(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter,
                                              const std::string& attribute, terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                             terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction);
+                                             terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction = "");
 
             /*!
               \brief It calculates the median value of the attribute of occurrences in the monitored object area.
@@ -115,8 +115,8 @@ namespace terrama2
               \return The median value of the attribute of occurrences in the monitored object area.
             */
             double median(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter,
-                                               const std::string& restriction, terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                               terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& attribute);
+                                               const std::string& attribute, terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
+                                               terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction = "");
 
             /*!
               \brief It calculates the sum of values of the attribute of occurrences in the monitored object area.
@@ -131,8 +131,8 @@ namespace terrama2
               \return The sum of values of the attribute of occurrences in the monitored object area.
             */
             double sum(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter,
-                                            const std::string& restriction, terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                            terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& attribute);
+                                            const std::string& attribute, terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
+                                            terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction = "");
 
             /*!
               \brief It calculates the median value of the attribute of occurrences in the monitored object area.
@@ -147,9 +147,9 @@ namespace terrama2
               \return The median value of the attribute of occurrences in the monitored object area.
             */
             double standardDeviation(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
-                                                          const std::string& dateFilter, const std::string& restriction,
+                                                          const std::string& dateFilter, const std::string& attribute,
                                                           terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                                          terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& attribute);
+                                                          terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string& restriction = "");
 
 
           } // end namespace aggregation

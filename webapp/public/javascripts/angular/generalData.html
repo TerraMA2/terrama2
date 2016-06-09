@@ -25,7 +25,6 @@
       <label>{{ i18n.__('Provider') }}:</label>
       <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()" required>
         <option ng-repeat="provider in dataProviders" value="{{ provider.id }}">{{ provider.name }}</option>
-        <option value="" ng-click="onDataProviderClick(-1)">New dataprovider</option>
       </select>
 
       <label class="help-block text-danger" ng-show="generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$error.required">{{ i18n.__("Data provider is required") }}</label>

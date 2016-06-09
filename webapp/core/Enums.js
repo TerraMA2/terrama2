@@ -42,20 +42,36 @@ module.exports = {
     PASSWORD: 'password'
   },
 
+  /**
+   * It represents available services type id from Database
+   * @readonly
+   * @enum {ServiceType}
+  */
+  ServiceType: {
+    COLLECTOR: 1,
+    ANALYSIS: 2
+  },
+
   DataSeriesType: {
     DCP: 'DCP',
     OCCURRENCE: 'OCCURRENCE',
     GRID: 'GRID',
     ANALYSIS_MONITORED_OBJECT: 'ANALYSIS_MONITORED_OBJECT',
-    ANALYSIS: 'ANALYSIS',
     STATIC_DATA: 'STATIC_DATA',
     POSTGIS: 'POSTGIS'
   },
 
   AnalysisType: {
     DCP: 1,
-    GRID: 2,
-    MONITORED: 3
+    MONITORED: 2,
+    GRID: 3
+  },
+
+  AnalysisDataSeriesType: {
+    DATASERIES_MONITORED_OBJECT_TYPE: 1,
+    DATASERIES_GRID_TYPE: 2,
+    DATASERIES_DCP_TYPE: 3,
+    ADDITIONAL_DATA_TYPE: 4
   },
 
   DataSeriesFormat: {
@@ -110,5 +126,10 @@ module.exports = {
       Name: "Region",
       Value: 3
     }
+  },
+
+  ScriptLanguage: {
+    PYTHON: 1,
+    LUA: 2
   }
 };

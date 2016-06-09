@@ -82,13 +82,61 @@ namespace terrama2
       /*!
        * \brief Class destructor
        */
-      ~ProcessLogger();
+      virtual ~ProcessLogger();
 
       /*!
        * \brief Log the start of the process.
        * \return The ID of table register
        */
-      RegisterId start(ProcessId processId) const;
+      virtual RegisterId start(ProcessId processId) const;
+
+      /*!
+       * \brief Log an error of process
+       * \param description Error description
+       */
+      virtual void error(const std::string description, const RegisterId registerId) const;
+
+      /*!
+       * \brief Log an information of process
+       * \param description Error description
+       */
+      virtual void info(const std::string description, const RegisterId registerId) const;
+
+      /*!
+       * \brief Log the end of process
+       * \param dataTimestamp The las timestamp of data.
+       */
+      virtual void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
+
+      /*!
+       * \brief Returns the process last log timestamp
+       * \return A TimeInstantTZ with the last time that process logged something
+       */
+      virtual std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
+
+      /*!
+       * \brief Returns the last timestamp of a data
+       * \return A TimeInstantTZ with the data last timestamp
+       */
+      virtual std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const RegisterId registerId) const;
+
+      /*!
+       * \brief Returns the process ID
+       * \return Returns the process ID
+       */
+      virtual ProcessId processID(const RegisterId registerId) const;
+
+    protected:
+
+      /*!
+       * \brief Default constructor
+       */
+      ProcessLogger() = default;
+
+      /*!
+       * \brief Set the process logger data source
+       */
+      void setDataSource(te::da::DataSource* dataSource);
 
       /*!
        * \brief Store data in a Json to be logged after
@@ -97,44 +145,12 @@ namespace terrama2
        */
       void addValue(const std::string tag, const std::string value, const RegisterId registerId) const;
 
-      /*!
-       * \brief Log an error in the process
-       * \param description Error description
-       */
-      void error(const std::string description, const RegisterId registerId) const;
 
-      /*!
-       * \brief Log the end of process
-       * \param dataTimestamp The las timestamp of data.
-       */
-      void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
-
-      /*!
-       * \brief Returns the process last log timestamp
-       * \return A TimeInstantTZ with the last time that process logged something
-       */
-      std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
-
-      /*!
-       * \brief Returns the last timestamp of a data
-       * \return A TimeInstantTZ with the data last timestamp
-       */
-      std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const RegisterId registerId) const;
-
-      /*!
-       * \brief Returns the process ID
-       * \return Returns the process ID
-       */
-      ProcessId processID(const RegisterId registerId) const;
-
-    protected:
       /*!
        * \brief Store the table name of the process log
        * \param tableName The log table name
        */
       void setTableName(const std::string tableName);
-      std::string getMessagesTableName(const RegisterId registerId) const;
-
 
     private:
       /*!
@@ -142,11 +158,9 @@ namespace terrama2
        */
       void updateData(const RegisterId registerId, const QJsonObject obj) const;
 
-
-    private:
       std::string tableName_ = "";
       std::string messagesTableName_ = "";
-      std::shared_ptr< te::da::DataSource > dataSource_;
+      std::unique_ptr< te::da::DataSource > dataSource_;
 
     };
   }

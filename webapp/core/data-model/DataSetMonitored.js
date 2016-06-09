@@ -14,7 +14,7 @@ DataSetMonitored.prototype.constructor = DataSetMonitored;
 
 
 DataSetMonitored.prototype.toObject = function() {
-  return Object.assign(DataSet.prototype.call(this), {
+  return Object.assign(DataSet.prototype.toObject.call(this), {
     geometry_column: this.geometry_column,
     time_column: this.time_column,
     srid: this.srid,
