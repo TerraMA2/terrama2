@@ -36,10 +36,14 @@
 #include "DataAccessorOccurrencePostGis.hpp"
 #include "DataAccessorStaticDataOGR.hpp"
 #include "DataAccessorAnalysisPostGis.hpp"
+
 #include "DataStoragerPostGis.hpp"
+
+#include "DataRetrieverFTP.hpp"
 
 #include "../core/utility/DataAccessorFactory.hpp"
 #include "../core/utility/DataStoragerFactory.hpp"
+#include "../core/utility/DataRetrieverFactory.hpp"
 
 void terrama2::core::registerFactories()
 {
@@ -54,4 +58,6 @@ void terrama2::core::registerFactories()
 
   // Data storager
   terrama2::core::DataStoragerFactory::getInstance().add("POSTGIS", terrama2::core::DataStoragerPostGis::make);
+
+  terrama2::core::DataRetrieverFactory::getInstance().add("FTP", terrama2::core::DataRetrieverFTP::make);
 }
