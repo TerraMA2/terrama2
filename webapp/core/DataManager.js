@@ -2193,6 +2193,33 @@ var DataManager = {
     });
   },
 
+  getAnalysis: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db['Analysis'].findOne({
+        where: restriction || {},
+        include: [
+          models.db['AnalysisDataSeries'],
+          models.db['AnalysisMetadata'],
+          models.db['ScriptLanguage'],
+          models.db['AnalysisType'],
+          models.db['Schedule']
+        ]
+      }).then(function(analysisResult) {
+        var analysisInstance = new DataModel.Analysis(analysisResult.get());
+
+        analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
+          analysisInstance.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
+        })
+
+        resolve(analysisInstance);
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
+      });
+    });
+  },
+
   /**
    * It removes Analysis from param. It should be an object containing either id identifier or name identifier.
    *
