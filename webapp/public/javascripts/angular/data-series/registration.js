@@ -190,10 +190,28 @@ angular.module('terrama2.dataseries.registration', [
 
         }
 
+        var outputDataseries = configuration.dataSeries.output;
+
+        if ($scope.hasCollector) {
+          var collector = configuration.collector;
+          $scope.storager_service = collector.service_instance_id;
+          $scope.storager_data_provider_id = outputDataseries.data_provider_id;
+
+          // fill schedule
+          var schedule = collector.schedule;
+          $scope.$broadcast("updateSchedule", schedule);
+        }
+
         if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
           Object.keys(properties).forEach(function(key) {
             $scope.tableFieldsStorager.push(key);
           });
+
+          if ($scope.hasCollector) {
+            outputDataseries.dataSets.forEach(function(dataset) {
+              $scope.dcpsStorager.push(dataset.format);
+            })
+          }
 
           $scope.modelStorager = {};
           $scope.formStorager = [];
@@ -201,7 +219,6 @@ angular.module('terrama2.dataseries.registration', [
           $scope.$broadcast('schemaFormRedraw');
         } else {
         //   occurrence
-          // $scope.modelStorager = Object.assign({}, $scope.dataSeries.semantics.metadata.metadata);
           $scope.formStorager = metadata.form;
           $scope.schemaStorager = {
             type: 'object',
@@ -210,45 +227,12 @@ angular.module('terrama2.dataseries.registration', [
           };
           $scope.$broadcast('schemaFormRedraw');
 
-          var outputDataseries = configuration.dataSeries.output;
           if (!outputDataseries)
             return;
 
           // fill out default
           if ($scope.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
             $scope.modelStorager = $scope.prepareFormatToForm(outputDataseries.dataSets[0].format);
-          }
-
-          if ($scope.hasCollector) {
-            var collector = configuration.collector;
-            $scope.storager_service = collector.service_instance_id;
-            $scope.storager_data_provider_id = outputDataseries.data_provider_id;
-
-            // fill schedule
-            var schedule = collector.schedule;
-
-            $scope.$broadcast("updateSchedule", schedule);
-            if (schedule.frequency_unit) {
-              $scope.schedule.scheduleHandler = schedule.frequency_unit;
-              $scope.onScheduleChange(schedule.frequency_unit);
-              $scope.schedule.frequency = $scope.tryParseInt(schedule.frequency);
-            } else {
-              $scope.schedule.scheduleHandler = schedule.schedule_unit;
-              $scope.onScheduleChange(schedule.schedule_unit);
-              $scope.schedule.schedule = $scope.tryParseInt(schedule.schedule);
-              $scope.schedule.schedule_time = schedule.schedule_time;
-            }
-
-            var _prepareDate = function(dt) {
-              return "2000-10-10T" + dt.slice(0, 8);
-            }
-
-            // fill filter
-            // var filter = collector.filter;
-            // if (filter.discard_before)
-            //   $scope.filter.date.beforeDate = _prepareDate(filter.discard_before);
-            // if (filter.discard_after)
-            //   $scope.filter.date.afterDate = _prepareDate(filter.discard_after);
           }
         }
 
@@ -661,6 +645,31 @@ angular.module('terrama2.dataseries.registration', [
           if ($scope.isUpdating) {
             if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
               // TODO: prepare format as dcp item
+              if ($scope.hasCollector) {
+                $scope.dcps = [];
+                inputDataSeries.dataSets.forEach(function(dataset) {
+                  if (dataset.position) {
+                    var lat;
+                    var long;
+                    if (dataset.position.type) {
+                      // geojson
+                      lat = dataset.position.coordinates[0];
+                      long = dataset.position.coordinates[1];
+                    } else {
+                      var first = dataset.position.indexOf("(");
+                      var firstSpace = dataset.position.indexOf(" ", first);
+                      lat = parseInt(dataset.position.slice(first+1, firstSpace));
+
+                      var last = dataset.position.indexOf(")", firstSpace);
+                      long = dataset.position.slice(firstSpace + 1, last);
+
+                    }
+                    dataset.format["latitude"] = lat;
+                    dataset.format["longitude"] = long;
+                  }
+                  $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
+                });
+              }
             } else {
               $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
             }

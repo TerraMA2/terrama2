@@ -31,10 +31,10 @@ angular.module("terrama2.schedule", ['terrama2'])
         $scope.$on("updateSchedule", function(event, scheduleObject) {
           if (scheduleObject.schedule_unit) {
             $scope.model.scheduleHandler = scheduleObject.schedule_unit;
-            $scope.model.schedule = scheduleObject.schedule ? scheduleObject.schedule.toString() : scheduleObject.schedule;
+            $scope.model.schedule = scheduleObject.schedule;
             $scope.model.schedule_time = scheduleObject.schedule_time;
           }else if (scheduleObject.frequency_unit) {
-            $scope.model.frequency = scheduleObject.frequency ? scheduleObject.frequency.toString() : scheduleObject.frequency;
+            $scope.model.frequency = scheduleObject.frequency;
             $scope.model.frequency_unit = scheduleObject.frequency_unit;
             $scope.model.scheduleHandler = scheduleObject.frequency_unit;
           }
