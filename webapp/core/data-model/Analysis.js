@@ -27,7 +27,12 @@ var Analysis = module.exports = function(params) {
     this.metadata = params.metadata || {};
 
   this.analysis_dataseries_list = [];
-  this.schedule_id = params.schedule_id;
+
+  if (params.Schedule)
+    this.schedule = params.Schedule.get() || {};
+  else
+    this.schedule = params.schedule;
+
   this.instance_id = params.instance_id;
 };
 
@@ -37,6 +42,20 @@ Analysis.prototype.constructor = Analysis;
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
   this.analysis_dataseries_list.push(analysisDataSeries);
 };
+
+Analysis.prototype.setScriptLanguage = function(scriptLanguage) {
+  if (scriptLanguage.get)
+    this.script_language = scriptLanguage.get() || {};
+  else
+    this.script_language = scriptLanguage || {};
+};
+
+Analysis.prototype.setSchedule = function(schedule) {
+  if (schedule.Schedule)
+    this.schedule = schedule.Schedule.get() || {};
+  else
+    this.schedule = schedule || {};
+}
 
 Analysis.prototype.setMetadata = function(metadata) {
   var meta = {};
@@ -82,7 +101,7 @@ Analysis.prototype.toObject = function() {
     output_dataseries_id: this['dataset_output'],
     metadata: this.metadata,
     'analysis_dataseries_list': outputDataSeriesList,
-    schedule: this['schedule_id'],
+    schedule: this['schedule'] instanceof BaseClass ? this['schedule'].toObject() : this['schedule'],
     service_instance_id: this.instance_id
   });
 };

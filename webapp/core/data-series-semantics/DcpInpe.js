@@ -1,6 +1,7 @@
 var Dcp = require('./Dcp');
 var Enums = require('./../Enums');
 var Form = Enums.Form;
+var Utils = require('./../Utils');
 
 /**
  * It handles DCP-INPE semantics type.
@@ -44,16 +45,7 @@ DcpInpe.prototype.form = function() {
       key: 'timezone',
       htmlClass: "col-md-6",
       type: 'select',
-      titleMap: [
-        {
-          value: '00:00',
-          name: '00:00'
-        },
-        {
-          value: '12:00',
-          name: '12:00'
-        }
-      ]
+      titleMap: Utils.getTimezonesGUI()
     }
   ].concat(Dcp.form.call(this));
 };

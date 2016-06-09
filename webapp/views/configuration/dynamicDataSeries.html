@@ -24,7 +24,10 @@
     message: "{[ message ]}",
     dataSeriesType: 'dynamic',
     link: function(object) {
-      return "/configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#wizard";
+      var typeName = object.data_series_semantics.data_series_type_name;
+      if (typeName === "ANALYSIS_MONITORED_OBJECT")
+        return "/configuration/analyses/new";// + object.id + "/edit";
+      return "/configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
     },
     iconFn: function(object) {
       switch(object.data_series_semantics.data_series_type_name) {

@@ -9,6 +9,7 @@
 {% block styles %}
   <!-- Angular tree control -->
   <!-- link for CSS when using the tree as a Dom element -->
+  <link rel="stylesheet" href="/externals/angular-datatimepicker/css/datetimepicker.css">
   <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control.css">
   <!-- link for CSS when using the tree as an attribute -->
   <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control-attribute.css">
@@ -72,11 +73,18 @@
 <!-- terrama2 Script -->
 <script type="text/javascript" src="/javascripts/terrama2.js"></script>
 
+<script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
+
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
 
 <script type="text/javascript" src="/externals/moment/moment.js"></script>
+
+<!-- Angular date input handler -->
+<script type="text/javascript" src="/externals/angular-datatimepicker/js/datetimepicker.js"></script>
+<script type="text/javascript" src="/externals/angular-datatimepicker/js/datetimepicker.templates.js"></script>
+<script type="text/javascript" src="/externals/angular-datatimepicker/js/dateTimeInput.js"></script>
 
 <script type="text/javascript">
   ace.require("ace/ext/language_tools");
@@ -283,8 +291,23 @@
                   <form name="storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
                 </div>
               </div>
+
+              <div class="col-md-12" style="margin-top: 30px;">
+                <div class="col-md-12 terrama2-nopadding-box">
+                  <div class="box box-default box-solid">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">{{ i18n.__('Schedule') }}</h3>
+                    </div>
+
+                    <div style="display: block;" class="box-body">
+                      <terrama2-schedule model="schedule"></terrama2-schedule>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+          <!-- ./box-body -->
         </div>
       </div>
 
@@ -324,7 +347,7 @@
                     <div class="form-group has-feedback"
                       ng-class="{'has-error': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$error.required, 'has-success': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$valid}">
                       <label>{[ __("Attribute Identifier") ]}:</label>
-                      <input type="text" class="form-control" name="identifier" ng-model="identifier" required>
+                      <input type="text" class="form-control" name="identifier" ng-model="identifier" ng-required="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
 
                       <!-- required -->
                       <span class="help-block" ng-show="targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$error.required">
@@ -369,7 +392,10 @@
                   <tr style="cursor:pointer;" ng-repeat="dataSeries in selectedDataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
                     <td>{{ dataSeries.name }}</td>
                     <td>{{ dataSeries.data_series_semantics.name }}</td>
-                    <td>
+                    <!-- <td>
+                      <button type="button" class="btn btn-primary" data-ng-click="onDataSeriesClick(dataSeries);"><i class="fa fa-gear"></i></button>
+                    </td> -->
+                    <td class="pull-cell-left">
                       <button type="button" class="btn btn-danger btn-small" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
                     </td>
                   </tr>

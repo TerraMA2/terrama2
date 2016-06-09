@@ -313,5 +313,17 @@ module.exports = {
       default:
         throw new Error("Invalid data series type");
     }
+  },
+
+  getTimezonesGUI: function() {
+    var output = [];
+    for(var i = -12; i < 13; ++i) {
+      var val = i < 0 ? i : "+" + i;
+      output.push({
+        name: val,
+        value: val
+      })
+    }
+    return output;
   }
 };
