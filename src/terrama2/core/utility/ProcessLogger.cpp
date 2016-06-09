@@ -60,23 +60,44 @@ terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::
 
     if(!dataSource_->isOpened())
     {
-      QString errMsg = QObject::tr("Could not connect to database");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw LogException() << ErrorDescription(errMsg);
+      throw LogException();
     }
   }
   catch(std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
-    TERRAMA2_LOG_ERROR() << errMsg;
+    TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
+    throw LogException() << ErrorDescription(errMsg);
+  }
+}
+
+void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)
+{
+  dataSource_.reset(dataSource);
+
+  try
+  {
+    dataSource_->open();
+
+    if(!dataSource_->isOpened())
+    {
+      throw LogException();
+    }
+  }
+  catch(std::exception& e)
+  {
+    QString errMsg = QObject::tr("Could not connect to database");
+    TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     throw LogException() << ErrorDescription(errMsg);
   }
 }
 
 terrama2::core::ProcessLogger::~ProcessLogger()
 {
-  dataSource_->close();
+  if(dataSource_)
+    dataSource_->close();
 }
+
 
 RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 {
@@ -89,7 +110,7 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  boost::format query("INSERT INTO "+ tableName_ + " (pid, status, start_timestamp, last_process_timestamp) VALUES(%1%, %2%, '%3%', '%4%')");
+  boost::format query("INSERT INTO "+ tableName_ + " (processId, status, start_timestamp, last_process_timestamp) VALUES(%1%, %2%, '%3%', '%4%')");
 
   query.bind_arg(1, processId);
   query.bind_arg(2, static_cast<int>(Status::START));
@@ -148,9 +169,9 @@ void terrama2::core::ProcessLogger::addValue(const std::string tag, const std::s
 
 void terrama2::core::ProcessLogger::error(const std::string description, RegisterId registerId) const
 {
-  if(tableName_.empty())
+  if(tableName_.empty() || messagesTableName_.empty())
   {
-    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    QString errMsg = QObject::tr("Can not find log tables names. Are they setted?");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
@@ -162,14 +183,39 @@ void terrama2::core::ProcessLogger::error(const std::string description, Registe
   query.bind_arg(1, static_cast<int>(Status::ERROR));
   query.bind_arg(2, now->toString());
 
-  boost::format queryMessages("INSERT INTO " + getMessagesTableName(registerId) + " (log_id, type, description, timestamp) VALUES(" + QString::number(registerId).toStdString() + ", %1%, '%2%', '%3%')");
+  boost::format queryMessages("INSERT INTO " + messagesTableName_ + " (log_id, type, description, timestamp) VALUES(" + QString::number(registerId).toStdString() + ", %1%, '%2%', '%3%')");
   queryMessages.bind_arg(1, static_cast<int>(messageType::ERROR_MESSAGE));
   queryMessages.bind_arg(2, description);
   queryMessages.bind_arg(3, now->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+
   transactor->execute(query.str());
-  transactor->execute(queryMessages.str());
+  transactor->execute(transactor->escape(queryMessages.str()));
+
+  transactor->commit();
+}
+
+void terrama2::core::ProcessLogger::info(const std::string description, RegisterId registerId) const
+{
+  if(tableName_.empty() || messagesTableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log tables names. Are they setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  std::shared_ptr< te::dt::TimeInstantTZ> now(TimeUtils::nowUTC());
+
+  boost::format queryMessages("INSERT INTO " + messagesTableName_ + " (log_id, type, description, timestamp) VALUES(" + QString::number(registerId).toStdString() + ", %1%, '%2%', '%3%')");
+  queryMessages.bind_arg(1, static_cast<int>(messageType::INFO_MESSAGE));
+  queryMessages.bind_arg(2, description);
+  queryMessages.bind_arg(3, now->toString());
+
+  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+
+  transactor->execute(transactor->escape(queryMessages.str()));
+
   transactor->commit();
 }
 
@@ -178,7 +224,7 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
 {
   if(tableName_.empty())
   {
-    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    QString errMsg = QObject::tr("Can not find log table name");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
@@ -222,7 +268,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastP
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::string sql = "SELECT MAX(last_process_timestamp) FROM "+ tableName_ + " WHERE pid = " + std::to_string(processId);
+  std::string sql = "SELECT MAX(last_process_timestamp) FROM "+ tableName_ + " WHERE processId = " + std::to_string(processId);
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
@@ -248,7 +294,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::string sql = "SELECT MAX(data_timestamp) FROM "+ tableName_ + " WHERE pid = " + QString::number(processID(registerId)).toStdString();
+  std::string sql = "SELECT MAX(data_timestamp) FROM "+ tableName_ + " WHERE processId = " + QString::number(processID(registerId)).toStdString();
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
@@ -265,6 +311,37 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
   return std::shared_ptr< te::dt::TimeInstantTZ >(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime(columnPos).release()));
 }
 
+void terrama2::core::ProcessLogger::getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const
+{
+  if(tableName_.empty())
+  {
+    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  if(end > begin)
+    std::swap(begin, end);
+
+  int rowNumbers = end - begin;
+
+  std::string sql ="SELECT * FROM " + tableName_ +
+                   " WHERE processId = "  + std::to_string(processId) +
+                   " ORDER BY id DESC" +
+                   " LIMIT " + std::to_string(rowNumbers) +
+                   " OFFSET " + std::to_string(begin);
+
+  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
+
+  std::shared_ptr<te::da::DataSet> tempDataSet(transactor->query(sql));
+
+//  if(!tempDataSet)
+//    return nullptr;
+
+//  if(!tempDataSet->moveNext() || tempDataSet->isNull(columnPos))
+//    return nullptr;
+}
+
 ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) const
 {
   if(tableName_.empty())
@@ -274,7 +351,7 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  std::string sql = "SELECT pid FROM "+ tableName_ + " WHERE id = " + QString::number(registerId).toStdString();
+  std::string sql = "SELECT processId FROM "+ tableName_ + " WHERE id = " + QString::number(registerId).toStdString();
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
 
@@ -294,7 +371,7 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  return tempDataSet->getInt32("pid");
+  return tempDataSet->getInt32("processId");
 }
 
 void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
@@ -311,7 +388,7 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
     id->setAutoNumber(true);
     datasetType->add(id->clone());
 
-    datasetType->add(new te::dt::SimpleProperty("pid", te::dt::INT32_TYPE, true));
+    datasetType->add(new te::dt::SimpleProperty("processId", te::dt::INT32_TYPE, true));
     datasetType->add(new te::dt::SimpleProperty("status", te::dt::INT32_TYPE, true));
     datasetType->add(new te::dt::DateTimeProperty("start_timestamp", te::dt::TIME_INSTANT_TZ, true));
     datasetType->add(new te::dt::DateTimeProperty("data_timestamp", te::dt::TIME_INSTANT_TZ));
@@ -334,17 +411,14 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
       throw terrama2::core::LogException() << ErrorDescription(errMsg);
     }
   }
-}
 
-std::string terrama2::core::ProcessLogger::getMessagesTableName(const RegisterId registerId) const
-{
-  std::string messagesTableName = "messages_" + std::to_string(processID(registerId));
+  messagesTableName_ = tableName_ + "_messages";
 
-  if(!dataSource_->dataSetExists(messagesTableName))
+  if(!dataSource_->dataSetExists(messagesTableName_))
   {
     std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
 
-    std::shared_ptr< te::da::DataSetType > datasetType(new te::da::DataSetType(messagesTableName));
+    std::shared_ptr< te::da::DataSetType > datasetType(new te::da::DataSetType(messagesTableName_));
 
     std::shared_ptr< te::dt::SimpleProperty > id(new te::dt::SimpleProperty("id", te::dt::INT32_TYPE, true));
     id->setAutoNumber(true);
@@ -359,13 +433,13 @@ std::string terrama2::core::ProcessLogger::getMessagesTableName(const RegisterId
     transactor->createDataSet(datasetType.get(),options);
 
     std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(datasetType->getName(),"id");
-    te::da::PrimaryKey* pk = new te::da::PrimaryKey(messagesTableName + "_pk");
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey(messagesTableName_ + "_pk");
     pk->add(id_pk1.get());
 
     transactor->addPrimaryKey(datasetType->getName(),pk);
 
     std::shared_ptr<te::dt::Property> log_id = transactor->getProperty(datasetType->getName(),"log_id");
-    te::da::ForeignKey* fk = new te::da::ForeignKey(messagesTableName + "_fk");
+    te::da::ForeignKey* fk = new te::da::ForeignKey(messagesTableName_ + "_fk");
 
     std::shared_ptr<te::dt::Property> id_fk = transactor->getProperty(tableName_,"id");
     fk->addRefProperty(id_fk.get());
@@ -382,8 +456,6 @@ std::string terrama2::core::ProcessLogger::getMessagesTableName(const RegisterId
       throw terrama2::core::LogException() << ErrorDescription(errMsg);
     }
   }
-
-  return messagesTableName;
 }
 
 void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const QJsonObject obj) const
