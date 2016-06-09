@@ -25,7 +25,7 @@ module.exports = function(app) {
     post: [passport.isCommonUser, function(request, response) {
       var analysisObject = request.body.analysis;
       var storager = request.body.storager;
-      console.log(storager);
+      var scheduleObject = request.body.schedule;
 
       try {
         analysisObject.type = Utils.getAnalysisType(analysisObject.type_id);
@@ -36,7 +36,6 @@ module.exports = function(app) {
 
         // temp code. TODO:fix
         analysisObject.script_language_id = 1;
-        analysisObject.schedule_id = 1;
         analysisObject.data_series_id = analysisObject.dataSeries.id;
 
         var dataSeries = {
@@ -54,7 +53,7 @@ module.exports = function(app) {
           ]
         };
 
-        DataManager.addAnalysis(analysisObject, dataSeries).then(function(analysisResult) {
+        DataManager.addAnalysis(analysisObject, scheduleObject, dataSeries).then(function(analysisResult) {
           DataManager.listServiceInstances().then(function(services) {
             services.forEach(function(service) {
               try {
