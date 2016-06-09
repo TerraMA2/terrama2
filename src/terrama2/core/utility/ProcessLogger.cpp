@@ -49,6 +49,9 @@
 // Boost
 #include <boost/format.hpp>
 
+// STL
+#include <utility>
+
 terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::string > connInfo)
 {
   dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
@@ -320,10 +323,10 @@ std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger:
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
-  if(end > begin)
+  if(begin > end)
     std::swap(begin, end);
 
-  int rowNumbers = end - begin;
+  int rowNumbers = (end - begin) + 1;
 
   std::string sql ="SELECT * FROM " + tableName_ +
                    " WHERE process_id = "  + std::to_string(processId) +
@@ -390,6 +393,8 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
 void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
 {
   tableName_ = tableName;
+
+  std::transform(tableName_.begin(), tableName_.end(), tableName_.begin(), ::tolower);
 
   if(!dataSource_->dataSetExists(tableName_))
   {
