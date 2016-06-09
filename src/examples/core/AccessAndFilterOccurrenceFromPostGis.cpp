@@ -17,7 +17,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   {
     QUrl uri;
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
     std::cout << "\ndataset size: " << teDataSet->size() << std::endl;
   }
 
-  terrama2::core::finalizeTerralib();
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }

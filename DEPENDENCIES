@@ -1,13 +1,15 @@
   TerraMA2 - Dependencies
   =======================
 
-If you want to build yourself TerraMA2 then you need to install some third-party libraries. Below is a list of third-party libraries dependencies and its versions.
+If you want to build yourself TerraMA2 then you need to install some third-party libraries.
+Below is a list of third-party libraries dependencies and its versions.
 
 
 1. Boost (Mandatory)
 --------------------
 
-TerraMA2 is built on top of Boost libraries. You will need to have them installed in order to build TerraMA2. Make sure to have at least version 1.54.0 installed.
+TerraMA2 is built on top of Boost libraries. You will need to have them installed in order to build TerraMA2.
+Make sure to have at least version 1.54.0 installed.
 
 If you prefer to install from source, download it from: http://www.boost.org.
 
@@ -26,19 +28,26 @@ If you prefer to install from source, download it from: http://qt-project.org/do
 4. TerraLib (Mandatory)
 -----------------------
 
-TerraMA2 is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.1.0. You can download it from: http://www.dpi.inpe.br/terralib5.
+TerraMA2 is built on top of TerraLib, a free and open source library for building GIS enabled applications.
+Make sure to have at least TerraLib version 5.1.0.
+
+You can download it from: http://www.dpi.inpe.br/terralib5.
 
 
 5. libCURL (Mandatory)
 ----------------------
 
-libcurl is a multiprotocol file transfer library. Make sure you have at least version 7.42.1 in your system. You can download it from: http://curl.haxx.se/libcurl.
+libcurl is a multiprotocol file transfer library. Make sure you have at least version 7.42.1 in your system.
+
+You can download it from: http://curl.haxx.se/libcurl.
 
 
 6. Google Test (Optional)
 -------------------------
 
-Google Test is the Google's C++ test framework. You can download it from: https://github.com/google/googletest.
+Google Test is the Google's C++ test framework.
+
+You can download it from: https://github.com/google/googletest.
 
 
 7. Web Application and Components:
@@ -90,7 +99,7 @@ Follow the steps below:
 - Copy the script install-3rdparty-linux-ubuntu-14.04.sh to the same folder you have downloaded the terrama2-3rdparty-linux-ubuntu-14.04.tar.gz.
 
 - Open the shell command line and call the script install-3rdparty-linux-ubuntu-14.04.sh setting the target to install all the stuffs from these third-party libraries and tools:
-  $ TERRAMA2_DEPENDENCIES_DIR="/home/user/mylibs" ./install-3rdparty-linux-ubuntu-14.04.sh
+  ./install-3rdparty-linux-ubuntu-14.04.sh /home/user/mylibs /home/user/terrama2/codebase
 
 
 Bash script for building all dependencies on Mac OS X Yosemite

@@ -67,7 +67,8 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.code = "OCCURRENCE-wfp";
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
   dataSeries->dataProviderId = 1;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -113,7 +114,8 @@ terrama2::core::DataSeriesPtr buildOutputDataSeries()
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 2;
   outputDataSeries->name = "DataProvider queimadas postgis";
-  outputDataSeries->semantics.code = "OCCURRENCE-postgis";
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  outputDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
   outputDataSeries->dataProviderId = 2;
 
   // DataSet information
@@ -139,8 +141,6 @@ terrama2::services::collector::core::CollectorPtr buildCollector()
   collector->inputDataSeries = 1;
   collector->outputDataSeries = 2;
   collector->inputOutputMap.emplace(1, 2);
-  collector->schedule;
-  collector->intersection;
 
   return collectorPtr;
 }

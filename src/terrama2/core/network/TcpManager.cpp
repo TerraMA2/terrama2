@@ -138,27 +138,39 @@ void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
   }
 }
 
-bool terrama2::core::TcpManager::sendLog(std::string log)
+bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray)
 {
-  QByteArray bytearray;
-  QDataStream out(&bytearray, QIODevice::WriteOnly);
-  out.setVersion(QDataStream::Qt_5_2);
+  QJsonParseError error;
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
 
-  out << static_cast<uint32_t>(0);
-  out << static_cast<uint32_t>(TcpSignal::LOG_SIGNAL);
-  out << log.c_str();
-  out.device()->seek(0);
-  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
-
-  // wait while sending message
-  qint64 written = tcpSocket_->write(bytearray);
-  if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
+  if(error.error != QJsonParseError::NoError)
   {
-    // couldn't write to socket
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
     return false;
   }
   else
-    return true;
+  {
+    QByteArray logArray;
+    QDataStream out(&logArray, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_2);
+
+    out << static_cast<uint32_t>(0);
+    out << static_cast<uint32_t>(TcpSignal::LOG_SIGNAL);
+    //TODO: pegar log do processLogger
+    // out << log.c_str();
+    out.device()->seek(0);
+    out << static_cast<uint32_t>(logArray.size() - sizeof(uint32_t));
+
+    // wait while sending message
+    qint64 written = tcpSocket_->write(logArray);
+    if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
+    {
+      // couldn't write to socket
+      return false;
+    }
+    else
+      return true;
+  }
 }
 
 void terrama2::core::TcpManager::readReadySlot()
@@ -197,11 +209,8 @@ void terrama2::core::TcpManager::readReadySlot()
   TcpSignal signal = static_cast<TcpSignal>(sigInt);
   if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && !serviceManager_->serviceLoaded())
   {
-    TERRAMA2_LOG_ERROR() << tr("Signal received before service load information.");
-
-    //FIXME: remove comment when web interface start sending TcpSignals::UPDATE_SERVICE_SIGNAL
-    // emit stopSignal();
-    // return;
+    // wait for TcpSignals::UPDATE_SERVICE_SIGNAL
+    return;
   }
 
   switch(signal)
@@ -271,6 +280,13 @@ void terrama2::core::TcpManager::readReadySlot()
 
       break;
     }
+  case TcpSignal::LOG_SIGNAL:
+  {
+    TERRAMA2_LOG_DEBUG() << "LOG_SIGNAL";
+
+    // removeData(bytearray);
+    break;
+  }
     default:
       TERRAMA2_LOG_ERROR() << QObject::tr("Error\n Unknown signal received.");
       break;

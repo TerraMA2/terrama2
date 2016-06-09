@@ -10,10 +10,12 @@
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/Config.hpp>
 
 //STL
 #include <iostream>
+#include <thread>
 
 // Qt
 #include <QUrl>
@@ -71,7 +73,8 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.code = "OCCURRENCE-wfp";
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
   dataSeries->dataProviderId = 1;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
@@ -87,6 +90,8 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
 
 int main(int argc, char* argv[])
 {
+  std::cout << "NOT WORKING" << std::endl;
+  return 1;
 
   terrama2::core::initializeTerraMA();
   QCoreApplication app(argc, argv);
@@ -109,7 +114,30 @@ int main(int argc, char* argv[])
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
 
-  //Code commented for tests with TCP communication
+
+  QJsonObject logDb;
+  logDb.insert("PG_HOST", QString::fromStdString(TERRAMA2_DATABASE_HOST));
+  logDb.insert("PG_PORT", QString::fromStdString(TERRAMA2_DATABASE_PORT));
+  logDb.insert("PG_USER", QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
+  logDb.insert("PG_PASSWORD", QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
+  logDb.insert("PG_DB_NAME", QString::fromStdString(TERRAMA2_DATABASE_DBNAME));
+
+  QJsonObject serviceConf;
+  serviceConf.insert("instance_id", 1);
+  serviceConf.insert("log_database", logDb);
+
+  QJsonDocument serviceConfDoc(serviceConf);
+  QByteArray serviceConfBytearray;
+  QDataStream out2(&serviceConfBytearray, QIODevice::WriteOnly);
+  auto jsonServiceConf = serviceConfDoc.toJson(QJsonDocument::Compact);
+  out2 << static_cast<uint32_t>(0);
+  out2 << static_cast<uint32_t>(terrama2::core::TcpSignal::UPDATE_SERVICE_SIGNAL);
+  out2 << jsonServiceConf;
+  serviceConfBytearray.remove(8, 4);//Remove QByteArray header
+  out2.device()->seek(0);
+  out2 << static_cast<uint32_t>(serviceConfBytearray.size() - sizeof(uint32_t));
+
+
 
   auto json = doc.toJson(QJsonDocument::Compact);
   out << static_cast<uint32_t>(0);
@@ -119,13 +147,17 @@ int main(int argc, char* argv[])
   out.device()->seek(0);
   out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
 
+
+
   QTcpSocket socket;
   socket.connectToHost("localhost", 30000);
+  socket.write(serviceConfBytearray);
+  socket.waitForBytesWritten();
   socket.write(bytearray);
 
-  // QTimer timer;
-  // QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  // timer.start(10000);
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(10000);
   app.exec();
 
   terrama2::core::finalizeTerraMA();

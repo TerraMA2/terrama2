@@ -92,7 +92,7 @@ namespace terrama2
            - DateTime attribute is null (will be logged)
 
         */
-        virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const;
+        virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t dateColumn) const;
         /*!
           \brief Filter dataset by geometry
 
@@ -105,7 +105,7 @@ namespace terrama2
            - Geometry attribute is null (will be logged)
 
         */
-        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int geomColumn) const;
+        virtual bool isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t geomColumn) const;
 
         /*!
           \brief Filter dataset by raster envelope
@@ -119,9 +119,13 @@ namespace terrama2
            - Raster attribute is null (will be logged)
 
         */
-        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const;
+        virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn) const;
+
+        virtual std::string getFolder(DataSetPtr dataSet) const;
 
         std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const;
+
+        bool isValidColumn(size_t value) const;
     };
   }
 }

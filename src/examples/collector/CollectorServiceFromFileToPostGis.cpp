@@ -35,6 +35,7 @@
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
@@ -76,19 +77,19 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
 
   dataManager->add(dataProviderPtr);
 
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
   // DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->id = 1;
   dataSeries->name = "DataProvider queimadas local";
-  dataSeries->semantics.code = "OCCURRENCE-wfp";
+  dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
   dataSeries->dataProviderId = dataProviderPtr->id;
 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
   dataSet->id = 1;
   dataSet->active = true;
-  dataSet->format.emplace("mask", "fires.csv");
-  dataSet->format.emplace("timezone", "+00");
+  dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
   dataSet->format.emplace("srid", "4326");
 
   dataSeries->datasetList.emplace_back(dataSet);
@@ -126,7 +127,8 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 2;
   outputDataSeries->name = "DataProvider queimadas postgis";
-  outputDataSeries->semantics.code = "OCCURRENCE-postgis";
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  outputDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
   outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
   dataManager->add(outputDataSeriesPtr);
@@ -135,7 +137,7 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
   outputDataSet->active = true;
   outputDataSet->id = 2;
-  outputDataSet->format.emplace("table_name", "queimadas");
+  outputDataSet->format.emplace("table_name", "queimadas_teste");
 
   outputDataSeries->datasetList.emplace_back(outputDataSet);
 }
@@ -160,6 +162,7 @@ int main(int argc, char* argv[])
                                                     {"PG_CLIENT_ENCODING", "UTF-8"}
                                                   };
       serviceManager.setLogConnectionInfo(connInfo);
+      serviceManager.setInstanceId(1);
 
       auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
 

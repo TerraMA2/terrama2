@@ -238,9 +238,9 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
       }
     }//for each dataset
   }
-  catch(const terrama2::Exception& e)
+  catch(const terrama2::Exception&)
   {
-    throw;
+
   }
   catch(const boost::exception& e)
   {
@@ -286,36 +286,36 @@ Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
 
 std::string terrama2::core::DataAccessor::getProperty(DataSetPtr dataSet, std::string tag, bool logErrors) const
 {
-  std::string propertyName;
+  std::string property;
   try
   {
     auto semantics = dataSeries_->semantics;
-    propertyName = semantics.metadata.at(tag);
+    property = semantics.metadata.at(tag);
   }
   catch(...)  //exceptions will be treated after
   {
   }
 
-  if(propertyName.empty())
+  if(property.empty())
   {
     try
     {
-      propertyName = dataSet->format.at(tag);
+      property = dataSet->format.at(tag);
     }
     catch(...)  //exceptions will be treated after
     {
     }
   }
 
-  if(propertyName.empty())
+  if(property.empty())
   {
-    QString errMsg = QObject::tr("Undefined timestamp property name in dataset: %1.").arg(dataSet->id);
+    QString errMsg = QObject::tr("Undefined %2 in dataset: %1.").arg(dataSet->id).arg(QString::fromStdString(tag));
     if(logErrors)
       TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 
-  return propertyName;
+  return property;
 }
 
 std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet) const

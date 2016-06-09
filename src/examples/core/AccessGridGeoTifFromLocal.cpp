@@ -53,6 +53,8 @@ int main(int argc, char* argv[])
     output+="/grid_output.tif";
 
     te::rp::Copy2DiskRaster(*raster, output);
+
+    std::cout << "Tiff file copied to " << output << std::endl;
   }
 
   terrama2::core::finalizeTerraMA();
