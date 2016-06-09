@@ -2,19 +2,25 @@ angular.module('terrama2.analysis.registration', [
     'terrama2',
     'terrama2.services',
     'terrama2.components.messagebox',
+    'ui.bootstrap.datetimepicker',
+    'ui.dateTimeInput',
     'schemaForm',
+    'terrama2.schedule',
     'treeControl'
   ])
 
   .controller('AnalysisRegistration',
     [
       '$scope',
+      'i18n',
       'ServiceInstanceFactory',
       'DataSeriesFactory',
       'DataSeriesSemanticsFactory',
       'AnalysisFactory',
       'DataProviderFactory',
-  function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory) {
+  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory) {
+    // injecting i18n module
+    $scope.i18n = i18n;
     // initializing objects
     $scope.analysis = {
       metadata: {}
@@ -25,6 +31,11 @@ angular.module('terrama2.analysis.registration', [
     $scope.dataProviders = [];
 
     $scope.identifier = "";
+
+    // schedule
+    $scope.schedule = {};
+    $scope.isFrequency = false;
+    $scope.isSchedule = false;
 
     // define dataseries selected in modal
     $scope.nodesDataSeries = [];
@@ -66,6 +77,9 @@ angular.module('terrama2.analysis.registration', [
       {name: "Static", children: []},
       {name: "Dynamic", children: []}
     ]
+
+    // checking if is update mode
+    $scope.isUpdating = false;
 
     // watchers
     // cleaning analysis metadata when analysis type has been changed.
@@ -314,6 +328,13 @@ angular.module('terrama2.analysis.registration', [
         return;
       }
 
+      // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
+      var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
+      if (scheduleForm.$invalid) {
+        errorHelper(scheduleForm);
+        return;
+      }
+
       if ($scope.targetDataSeriesForm.$invalid) {
         formErrorDisplay($scope.targetDataSeriesForm);
         return;
@@ -396,10 +417,32 @@ angular.module('terrama2.analysis.registration', [
 
       var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
 
+      var scheduleValues = Object.assign({}, $scope.schedule);
+      switch(scheduleValues.scheduleHandler) {
+        case "seconds":
+        case "minutes":
+        case "hours":
+          scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+          break;
+
+        case "weeks":
+        case "monthly":
+        case "yearly":
+          // todo: verify
+          var dt = scheduleValues.schedule_time;
+          scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+          scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+          break;
+
+        default:
+          break;
+      }
+
       // sending post operation
       AnalysisFactory.post({
         analysis: analysisToSend,
-        storager: storager
+        storager: storager,
+        schedule: scheduleValues
       }).success(function(data) {
         window.location = "/configuration/analyses";
       }).error(function(err) {

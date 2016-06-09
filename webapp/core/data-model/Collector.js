@@ -59,7 +59,8 @@ Collector.prototype.toObject = function() {
     input_data_series: this.input_data_series,
     output_data_series: this.output_data_series,
     input_output_map: this.input_output_map || [],
-    schedule: this['schedule'].id,
+    schedule: this['schedule'],
+    filter: this['filter'],
     intersection: this.intersection,
     active: this.active
   });

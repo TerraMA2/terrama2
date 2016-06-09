@@ -7,7 +7,8 @@ angular.module('terrama2.dataseries.registration', [
     'ui.bootstrap.datetimepicker',
     'ui.dateTimeInput',
     'schemaForm',
-    'xeditable'
+    'xeditable',
+    'terrama2.schedule'
   ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
