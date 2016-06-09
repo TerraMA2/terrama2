@@ -82,7 +82,7 @@ namespace terrama2
         TcpManager& operator=(TcpManager&& other) = delete;
 
         //! Send log information to the TerraMA² application.
-        bool sendLog(std::string log);
+        bool sendLog(const QByteArray& bytearray);
         /*!
           \brief Listens to TCP socket connections.
 

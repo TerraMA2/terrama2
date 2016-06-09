@@ -107,9 +107,6 @@ namespace terrama2
 
       private:
 
-        //! Get folder of DCP-TOA5.
-        std::string getFolder(DataSetPtr dataSet) const;
-
         /*!
          * \brief recordColumn Get record column.
          * \return Return Record Column.

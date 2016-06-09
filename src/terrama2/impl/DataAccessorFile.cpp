@@ -35,6 +35,7 @@
 
 //STL
 #include <algorithm>
+#include <limits>
 
 //QT
 #include <QUrl>
@@ -83,34 +84,34 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::createComplet
 void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, const Filter& filter) const
 {
   auto dataSet = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
-  int propertiesNumber = dataSet->getNumProperties();
+  size_t propertiesNumber = dataSet->getNumProperties();
 
-  int dateColumn = -1;
-  int geomColumn = -1;
-  int rasterColumn = -1;
-  for(int i = 0; i < propertiesNumber; ++i)
+  size_t dateColumn = std::numeric_limits<size_t>::max();;
+  size_t geomColumn = std::numeric_limits<size_t>::max();;
+  size_t rasterColumn = std::numeric_limits<size_t>::max();;
+  for(size_t i = 0; i < propertiesNumber; ++i)
   {
-    if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    if(!isValidColumn(dateColumn) && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
     {
       dateColumn = i;
       continue;
     }
 
-    if(geomColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::GEOMETRY_TYPE)
+    if(!isValidColumn(geomColumn) && dataSet->getPropertyDataType(i) == te::dt::GEOMETRY_TYPE)
     {
       geomColumn = i;
       continue;
     }
 
-    if(rasterColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::RASTER_TYPE)
+    if(!isValidColumn(rasterColumn) && dataSet->getPropertyDataType(i) == te::dt::RASTER_TYPE)
     {
       geomColumn = i;
       continue;
     }
   }
 
-  int size = dataSet->size();
-  int i = 0;
+  size_t size = dataSet->size();
+  size_t i = 0;
 
   while(i < size)
   {
@@ -138,17 +139,17 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
   auto dataSet = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   auto propertiesNumber = dataSet->getNumProperties();
 
-  int dateColumn = -1;
+  size_t dateColumn = std::numeric_limits<size_t>::max();
   for(size_t i = 0; i < propertiesNumber; ++i)
   {
-    if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    if(!isValidColumn(dateColumn) && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
     {
       dateColumn = i;
       continue;
     }
   }
 
-  if(dateColumn < 0)
+  if(!isValidColumn(dateColumn))
     return;
 
   size_t size = dataSet->size();
@@ -178,9 +179,9 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
   }
 }
 
-bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int dateColumn) const
+bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t dateColumn) const
 {
-  if(dateColumn < 0 || (!filter.discardBefore.get() && !filter.discardAfter.get()))
+  if(!isValidColumn(dateColumn) || (!filter.discardBefore.get() && !filter.discardAfter.get()))
     return true;
 
   if(dataSet->isNull(dateColumn))
@@ -202,9 +203,9 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
   return true;
 }
 
-bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, int geomColumn) const
+bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn) const
 {
-  if(geomColumn < 0 || !filter.region.get())
+  if(!isValidColumn(geomColumn) || !filter.region.get())
     return true;
 
   if(dataSet->isNull(geomColumn))
@@ -222,9 +223,9 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
   return true;
 }
 
-bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, int rasterColumn) const
+bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn) const
 {
-  if(rasterColumn < 0 || !filter.region.get())
+  if(!isValidColumn(rasterColumn) || !filter.region.get())
     return true;
 
   if(dataSet->isNull(rasterColumn))
@@ -241,6 +242,11 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
     return false;
 
   return true;
+}
+
+std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, "folder", false);
 }
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
@@ -263,7 +269,16 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     const terrama2::core::Filter& filter,
     terrama2::core::DataSetPtr dataSet) const
 {
-  QUrl url(uri.c_str());
+  QUrl url;
+  try
+  {
+    url = QUrl(QString::fromStdString(uri+"/"+getFolder(dataSet)));
+  }
+  catch(UndefinedTagException&)
+  {
+    url = QUrl(QString::fromStdString(uri));
+  }
+
   QDir dir(url.path());
   QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
   if(fileInfoList.empty())
@@ -407,18 +422,18 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const
 {
-  int propertiesNumber = dataSet->getNumProperties();
-  int dateColumn = -1;
-  for(int i = 0; i < propertiesNumber; ++i)
+  size_t propertiesNumber = dataSet->getNumProperties();
+  size_t dateColumn = std::numeric_limits<size_t>::max();
+  for(size_t i = 0; i < propertiesNumber; ++i)
   {
-    if(dateColumn < 0 && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    if(!isValidColumn(dateColumn) && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
     {
       dateColumn = i;
       break;
     }
   }
 
-  if(dateColumn < 0)
+  if(!isValidColumn(dateColumn))
   {
     boost::local_time::local_date_time boostTime(boost::posix_time::not_a_date_time);
     return std::make_shared<te::dt::TimeInstantTZ>(boostTime);
@@ -471,4 +486,9 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   }
 
   return lastDateTimeTz;
+}
+
+bool terrama2::core::DataAccessorFile::isValidColumn(size_t value) const
+{
+   return value != std::numeric_limits<size_t>::max();
 }

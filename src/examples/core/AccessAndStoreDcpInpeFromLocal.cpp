@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
@@ -16,7 +17,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   //DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -32,7 +33,8 @@ int main(int argc, char* argv[])
   //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics.code = "DCP-inpe";
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
 
 
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
@@ -83,7 +85,7 @@ int main(int argc, char* argv[])
 
   dataStorager.store( (*dcpSeries->getDcpSeries().begin()).second, dataSetOutputPtr);
 
-  terrama2::core::finalizeTerralib();
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }
