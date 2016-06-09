@@ -4,12 +4,43 @@ angular.module("terrama2.schedule", ['terrama2'])
       restrict: 'E',
       templateUrl: '/javascripts/angular/data-series/templates/schedule.html',
       scope: {
-        model: '=model'
+        model: '=model',
+        options: '=?options'
       },
       controller: ['$scope', 'i18n', function($scope, i18n) {
         $scope.i18n = i18n;
         $scope.isFrequency = false;
         $scope.isSchedule = false;
+
+        $scope.weekDays = [
+          {id: 1, name: i18n.__('Sunday')},
+          {id: 2, name: i18n.__('Monday')},
+          {id: 3, name: i18n.__('Tuesday')},
+          {id: 4, name: i18n.__('Wednesday')},
+          {id: 5, name: i18n.__('Thursday')},
+          {id: 6, name: i18n.__('Friday')},
+          {id: 7, name: i18n.__('Saturday')},
+        ];
+
+        $scope.tryParseInt = function(value) {
+          if (isNaN(value))
+            return value;
+          return parseInt(value);
+        }
+
+        $scope.$on("updateSchedule", function(event, scheduleObject) {
+          if (scheduleObject.schedule_unit) {
+            $scope.model.scheduleHandler = scheduleObject.schedule_unit;
+            $scope.model.schedule = scheduleObject.schedule ? scheduleObject.schedule.toString() : scheduleObject.schedule;
+            $scope.model.schedule_time = scheduleObject.schedule_time;
+          }else if (scheduleObject.frequency_unit) {
+            $scope.model.frequency = scheduleObject.frequency ? scheduleObject.frequency.toString() : scheduleObject.frequency;
+            $scope.model.frequency_unit = scheduleObject.frequency_unit;
+            $scope.model.scheduleHandler = scheduleObject.frequency_unit;
+          }
+
+          $scope.onScheduleChange($scope.model.scheduleHandler)
+        });
 
         $scope.onScheduleChange = function(value) {
           var resetHelper = function(i) {

@@ -226,6 +226,8 @@ angular.module('terrama2.dataseries.registration', [
 
             // fill schedule
             var schedule = collector.schedule;
+
+            $scope.$broadcast("updateSchedule", schedule);
             if (schedule.frequency_unit) {
               $scope.schedule.scheduleHandler = schedule.frequency_unit;
               $scope.onScheduleChange(schedule.frequency_unit);
@@ -502,9 +504,9 @@ angular.module('terrama2.dataseries.registration', [
       $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
       $scope.hasCollector = Object.keys(outputDataseries).length > 0;
 
-      // fill out collector values
-
-
+      $scope.scheduleOptions = {
+        disabled: $scope.isUpdating
+      }
 
       var inputName = "";
 
