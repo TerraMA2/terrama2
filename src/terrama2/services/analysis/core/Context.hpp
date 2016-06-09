@@ -31,6 +31,7 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_CONTEXT_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_CONTEXT_HPP__
 
+#include "../Typedef.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -81,7 +82,7 @@ namespace terrama2
         struct ContextKey
         {
           DataSetId datasetId_; //!< DataSet identifier.
-          size_t analysisHashCode_; //!< Analysis hashCode.
+          AnalysisHashCode analysisHashCode_; //!< Analysis hashCode.
           std::string dateFilter_; //!< Date restriction.
         };
 
@@ -140,7 +141,7 @@ namespace terrama2
               \param analysisHashCode Hash code of the analysis.
               \return The map with the analysis result.
             */
-            std::map<std::string, std::map<std::string, double> > analysisResult(size_t analysisHashCode);
+            std::map<std::string, std::map<std::string, double> > analysisResult(AnalysisHashCode analysisHashCode);
 
             /*!
               \brief Sets the analysis result for a geometry and a given attribute.
@@ -150,14 +151,14 @@ namespace terrama2
               \param attribute Name of the attribute.
               \param result The result value.
             */
-            void setAnalysisResult(size_t analysisHashCode, const std::string& geomId, const std::string& attribute,
+            void setAnalysisResult(AnalysisHashCode analysisHashCode, const std::string& geomId, const std::string& attribute,
                                    double result);
 
             /*!
               \brief Clear all values stored for an analysis.
               \param analysisHashCode Hash code of the analysis.
             */
-            void clearAnalysisContext(size_t analysisHashCode);
+            void clearAnalysisContext(AnalysisHashCode analysisHashCode);
 
             /*!
               \brief Returns a weak pointer to the data manager.
@@ -178,7 +179,7 @@ namespace terrama2
 
               \param analysisHashCode The analysis hash code.
             */
-            Analysis getAnalysis(size_t analysisHashCode) const;
+            Analysis getAnalysis(AnalysisHashCode analysisHashCode) const;
 
             /*!
               \brief Adds the analysis configuration to context.
@@ -194,7 +195,7 @@ namespace terrama2
               \param datasetId The DataSet identifier.
               \param dateFilter The date restriction to be used in the DataSet.
             */
-            std::shared_ptr<ContextDataSeries> getContextDataset(const size_t analysisHashCode, const DataSetId datasetId,
+            std::shared_ptr<ContextDataSeries> getContextDataset(const AnalysisHashCode analysisHashCode, const DataSetId datasetId,
                                                                  const std::string& dateFilter = "") const;
 
             /*!
@@ -212,7 +213,7 @@ namespace terrama2
               \param dateFilter The date restriction to be used in the DataSet.
               \return True if the given dataset has already been loaded into the context.
             */
-            bool exists(const size_t analysisHashCode, const DataSetId datasetId,
+            bool exists(const AnalysisHashCode analysisHashCode, const DataSetId datasetId,
                         const std::string& dateFilter = "") const;
 
             /*!
@@ -224,7 +225,7 @@ namespace terrama2
               \param envelope Monitored object envelope to be used as filter.
               \param createSpatialIndex Defines if a spatial index should be created to optimize data access.
             */
-            void addDataSeries(const size_t analysisHashCode, terrama2::core::DataSeriesPtr dataSeries,
+            void addDataSeries(const AnalysisHashCode analysisHashCode, terrama2::core::DataSeriesPtr dataSeries,
                                std::shared_ptr<te::gm::Geometry> envelope,
                                const std::string& dateFilter = "", bool createSpatialIndex = true);
 
@@ -236,7 +237,7 @@ namespace terrama2
               \param dateFilter The date restriction to be used in the DataSet.
               \param lastValue Defines if is an historic operator or if it should access only the latest data.
             */
-            void addDCPDataSeries(const size_t analysisHashCode, terrama2::core::DataSeriesPtr dataSeries,
+            void addDCPDataSeries(const AnalysisHashCode analysisHashCode, terrama2::core::DataSeriesPtr dataSeries,
                                   const std::string& dateFilter = "", const bool lastValue = false);
 
             /*!
@@ -244,7 +245,7 @@ namespace terrama2
 
               \param analysisHashCode Hash code of the analysis.
             */
-            std::set<std::string> getAttributes(size_t analysisHashCode) const;
+            std::set<std::string> getAttributes(AnalysisHashCode analysisHashCode) const;
 
             /*!
               \brief Adds an attribute to the result list of the given analysis.
@@ -252,7 +253,7 @@ namespace terrama2
               \param analysisHashCode Hash code of the analysis.
               \param attribute The name of the attribute.
             */
-            void addAttribute(size_t analysisHashCode, const std::string& attribute);
+            void addAttribute(AnalysisHashCode analysisHashCode, const std::string& attribute);
 
             /*!
               \brief Returns the python interpreter main thread state.
@@ -273,23 +274,23 @@ namespace terrama2
               \param analysisHashCode Hash code of the analysis.
               \param errorMessage The error message.
             */
-            void addError(size_t analysisHashCode, const std::string& errorMessage);
+            void addError(AnalysisHashCode analysisHashCode, const std::string& errorMessage);
 
             /*!
               \brief Returns the set of errors that occurred in the analysis execution.
               \param analysisHashCode Hash code of the analysis.
               \return The set of error messages.
             */
-            std::set<std::string> getErrors(size_t analysisHashCode);
+            std::set<std::string> getErrors(AnalysisHashCode analysisHashCode);
 
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_; //!< Weak pointer to the data manager.
-            std::map<size_t, std::set<std::string> > attributes_; //!< Set of attributes that compose the result of an analysis.
-            std::map<size_t, std::map<std::string, std::map<std::string, double> > > analysisResult_; //!< Map with analysis result Analysis HashCocde -> GeomId -> Attribute -> Value.
+            std::map<AnalysisHashCode, std::set<std::string> > attributes_; //!< Set of attributes that compose the result of an analysis.
+            std::map<AnalysisHashCode, std::map<std::string, std::map<std::string, double> > > analysisResult_; //!< Map with analysis result Analysis HashCocde -> GeomId -> Attribute -> Value.
             std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_; //!< Map containing all loaded datasets.
-            std::map<size_t, Analysis> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
+            std::map<AnalysisHashCode, Analysis> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
             PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
-            std::map<size_t, std::set<std::string> > analysisErrorsMap_; //!< Map containing analysis execution errors.
+            std::map<AnalysisHashCode, std::set<std::string> > analysisErrorsMap_; //!< Map containing analysis execution errors.
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
         };
       } // end namespace core

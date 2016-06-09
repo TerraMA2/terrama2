@@ -34,6 +34,7 @@
 #include "Analysis.hpp"
 #include "OperatorCache.hpp"
 #include "Context.hpp"
+#include "../Typedef.hpp"
 
 // STL
 #include <vector>
@@ -90,14 +91,14 @@ namespace terrama2
           \param analysisHashCode Analysis hash code.
           \param indexes Vector of geometries indexes.
         */
-        void runScriptMonitoredObjectAnalysis(PyThreadState* state, size_t analysisHashCode, std::vector<uint64_t> indexes);
+        void runScriptMonitoredObjectAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> indexes);
 
         /*!
           \brief Run Python script for a monitored object analysis.
           \param state Python thread state.
           \param analysisHashCode Analysis hash code.
         */
-        void runScriptDCPAnalysis(PyThreadState* state, size_t analysisHashCode);
+        void runScriptDCPAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode);
 
         /*!
           \brief Read analysis information from Python thread dict.

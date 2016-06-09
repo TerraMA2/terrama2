@@ -59,13 +59,13 @@
 #include <pystate.h>
 
 
-std::map<std::string, std::map<std::string, double> > terrama2::services::analysis::core::Context::analysisResult(size_t analysisHashCode)
+std::map<std::string, std::map<std::string, double> > terrama2::services::analysis::core::Context::analysisResult(AnalysisHashCode analysisHashCode)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return analysisResult_[analysisHashCode];
 }
 
-void terrama2::services::analysis::core::Context::setAnalysisResult(size_t analysisHashCode, const std::string& geomId, const std::string& attribute, double result)
+void terrama2::services::analysis::core::Context::setAnalysisResult(AnalysisHashCode analysisHashCode, const std::string& geomId, const std::string& attribute, double result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto& geomIdMap = analysisResult_[analysisHashCode];
@@ -74,7 +74,7 @@ void terrama2::services::analysis::core::Context::setAnalysisResult(size_t analy
 }
 
 
-std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::Context::getContextDataset(const size_t analysisHashCode, const DataSetId datasetId, const std::string& dateFilter) const
+std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::Context::getContextDataset(const AnalysisHashCode analysisHashCode, const DataSetId datasetId, const std::string& dateFilter) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -172,7 +172,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
   }
 }
 
-void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t analysisHashCode,
+void terrama2::services::analysis::core::Context::addDCPDataSeries(const AnalysisHashCode analysisHashCode,
                                                                    terrama2::core::DataSeriesPtr dataSeries,
                                                                    const std::string& dateFilter, const bool lastValue)
 {
@@ -274,7 +274,7 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const size_t 
   }
 }
 
-bool terrama2::services::analysis::core::Context::exists(const size_t analysisHashCode, const DataSetId datasetId, const std::string& dateFilter) const
+bool terrama2::services::analysis::core::Context::exists(const AnalysisHashCode analysisHashCode, const DataSetId datasetId, const std::string& dateFilter) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -287,7 +287,7 @@ bool terrama2::services::analysis::core::Context::exists(const size_t analysisHa
   return it != datasetMap_.end();
 }
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::Context::getAnalysis(size_t analysisHashCode) const
+terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::Context::getAnalysis(AnalysisHashCode analysisHashCode) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -300,7 +300,7 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
 
 }
 
-void terrama2::services::analysis::core::Context::addDataSeries(const size_t analysisHashCode,
+void terrama2::services::analysis::core::Context::addDataSeries(const AnalysisHashCode analysisHashCode,
                                                                 terrama2::core::DataSeriesPtr dataSeries,
                                                                 std::shared_ptr<te::gm::Geometry> envelope,
                                                                 const std::string& dateFilter, bool createSpatialIndex)
@@ -405,18 +405,18 @@ std::weak_ptr<terrama2::services::analysis::core::DataManager> terrama2::service
   return dataManager_;
 }
 
-std::set<std::string> terrama2::services::analysis::core::Context::getAttributes(size_t analysisHashCode) const
+std::set<std::string> terrama2::services::analysis::core::Context::getAttributes(AnalysisHashCode analysisHashCode) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return attributes_.at(analysisHashCode);
 }
-void terrama2::services::analysis::core::Context::addAttribute(size_t analysisHashCode, const std::string& attribute)
+void terrama2::services::analysis::core::Context::addAttribute(AnalysisHashCode analysisHashCode, const std::string& attribute)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   attributes_[analysisHashCode].insert(attribute);
 }
 
-void terrama2::services::analysis::core::Context::clearAnalysisContext(size_t analysisHashCode)
+void terrama2::services::analysis::core::Context::clearAnalysisContext(AnalysisHashCode analysisHashCode)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   attributes_.erase(analysisHashCode);
@@ -457,13 +457,13 @@ PyThreadState* terrama2::services::analysis::core::Context::getMainThreadState()
   return mainThreadState_;
 }
 
-void terrama2::services::analysis::core::Context::addError(size_t analysisHashCode, const std::string& errorMessage)
+void terrama2::services::analysis::core::Context::addError(AnalysisHashCode analysisHashCode, const std::string& errorMessage)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   analysisErrorsMap_[analysisHashCode].insert(errorMessage);
 }
 
-std::set<std::string> terrama2::services::analysis::core::Context::getErrors(size_t analysisHashCode)
+std::set<std::string> terrama2::services::analysis::core::Context::getErrors(AnalysisHashCode analysisHashCode)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return analysisErrorsMap_[analysisHashCode];
