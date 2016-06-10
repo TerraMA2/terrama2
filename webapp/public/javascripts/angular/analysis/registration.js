@@ -426,6 +426,12 @@ angular.module('terrama2.analysis.registration', [
         return;
       }
 
+      // checking script form if there any "add_value"
+      if ($scope.analysis.script.indexOf("add_value") < 0) {
+        makeDialog("alert-danger", "Analysis will not able to generate a output data. Please fill at least a add_value() in script field.", true);
+        return;
+      }
+
       // checking dataseries analysis
       var dataSeriesError = {};
       var hasError = $scope.selectedDataSeriesList.some(function(dSeries) {
