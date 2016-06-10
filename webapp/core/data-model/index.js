@@ -15,4 +15,5 @@ exports.Collector = require('./Collector');
 exports.Analysis = require('./Analysis');
 exports.AnalysisDataSeries = require('./AnalysisDataSeries');
 exports.Log = require('./Log');
+exports.Filter = require('./Filter');
 exports.Service = require('./Service');
