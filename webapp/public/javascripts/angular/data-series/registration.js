@@ -801,7 +801,7 @@ angular.module('terrama2.dataseries.registration', [
           var dataToSend = Object.assign({}, $scope.dataSeries);
           dataToSend.data_series_semantic_id = $scope.dataSeries.semantics.id;
 
-          var semantics = dataToSend.semantics;
+          var semantics = Object.assign({}, dataToSend.semantics);
           delete dataToSend.semantics;
 
           dataToSend.dataSets = [];
@@ -929,6 +929,7 @@ angular.module('terrama2.dataseries.registration', [
           $scope.$on("storageValuesReceive", function(event, values) {
           //  todo: improve
 
+            var dSemantics = Object.assign({}, $scope.dataSeries.semantics);
             var dataObject = _save();
             var dSeriesName = dataObject.dataSeries.name;
             // setting _input in data series
@@ -943,6 +944,11 @@ angular.module('terrama2.dataseries.registration', [
                 if (dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id")
                   format_[key] = dSetObject[key];
               }
+
+              // adding extra metadata
+              if (dSemantics.metadata.metadata && Object.keys(dSemantics.metadata.metadata).length > 0)
+                Object.assign(format_, dSemantics.metadata.metadata);
+
               return format_;
             };
 
