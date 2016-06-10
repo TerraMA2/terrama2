@@ -55,6 +55,7 @@ angular.module('terrama2.analysis.registration', [
     $scope.metadata = {};
     $scope.semantics = {};
     $scope.storagerFormats = [];
+    $scope.storager = {};
     $scope.buffers = {
       "static": [],
       "dynamic": []
@@ -153,6 +154,9 @@ angular.module('terrama2.analysis.registration', [
     $scope.formStorager = [];
     $scope.modelStorager = {};
     $scope.schemaStorager = {};
+    $scope.options = {};
+    if ($scope.isUpdating)
+      $scope.options.formDefaults = {readonly: true};
 
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format;
@@ -162,7 +166,11 @@ angular.module('terrama2.analysis.registration', [
         var metadata = data.metadata;
         var properties = metadata.schema.properties;
 
-        $scope.modelStorager = {};
+        if ($scope.isUpdating) {
+          $scope.modelStorager = configuration.analysis.dataSeries.dataSets[0].format;
+        } else
+          $scope.modelStorager = {};
+
         $scope.formStorager = metadata.form;
         $scope.schemaStorager = {
           type: 'object',
@@ -229,8 +237,14 @@ angular.module('terrama2.analysis.registration', [
 
             // setting storager format
             $scope.storagerFormats.some(function(storagerFmt) {
-              
+              if (analysisInstance.dataSeries.data_series_semantics.id === storagerFmt.id) {
+                $scope.storager.format = storagerFmt;
+                $scope.onStoragerFormatChange();
+                return true;
+              }
             });
+
+            $scope.analysis.data_provider_id = analysisInstance.dataSeries.data_provider_id;
           })
 
           // TODO: change it to angular ui-ace.
@@ -409,6 +423,12 @@ angular.module('terrama2.analysis.registration', [
 
       if ($scope.scriptForm.$invalid) {
         formErrorDisplay($scope.scriptForm);
+        return;
+      }
+
+      // checking script form if there any "add_value"
+      if ($scope.analysis.script.indexOf("add_value") < 0) {
+        makeDialog("alert-danger", "Analysis will not able to generate a output data. Please fill at least a add_value() in script field.", true);
         return;
       }
 
