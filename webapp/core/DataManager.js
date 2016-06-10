@@ -2220,14 +2220,23 @@ var DataManager = {
       }).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
-        analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
-          var ds = getItemByParam(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
-          var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
-          analysisDsMeta.setDataSeries(ds);
-          analysisInstance.addAnalysisDataSeries(analysisDsMeta);
-        });
+        self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
+          self.getDataSeries({id: analysisOutputDataSet.data_series_id}).then(function(analysisOutputDataSeries) {
+            analysisInstance.setDataSeries(analysisOutputDataSeries);
+            analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
+              var ds = getItemByParam(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
+              var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
+              analysisDsMeta.setDataSeries(ds);
+              analysisInstance.addAnalysisDataSeries(analysisDsMeta);
+            });
 
-        resolve(analysisInstance);
+            resolve(analysisInstance);
+          }).catch(function(err) {
+            reject(err);
+          })
+        }).catch(function(err) {
+          reject(err);
+        })
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
