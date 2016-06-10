@@ -342,5 +342,14 @@ module.exports = {
     }
 
     return dateWithoutTimezone + tzStr;
+  },
+
+  formatMetadataFromDB: function(values) {
+    var metadata = {};
+    values.forEach(function(meta) {
+      metadata[meta.key] = meta.value;
+    })
+
+    return metadata;
   }
 };
