@@ -615,7 +615,7 @@
     <!-- /.box body -->
 
     <div class="box-footer">
-      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton" disabled="disabled">{[ __('OK') ]}</button>
+      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton" ng-disabled="isUpdating">{[ __('OK') ]}</button>
       <a href="/configuration/analyses/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
   </div>

@@ -2166,10 +2166,19 @@ var DataManager = {
       // TODO: building analysis from a factory. (AnalysisGrid, AnalysisDataseries...)
       models.db['Analysis'].findAll({
         include: [
-          models.db['AnalysisDataSeries'],
+          {
+            model: models.db['AnalysisDataSeries'],
+            include: [
+              {
+                model: models.db['AnalysisDataSeriesMetadata'],
+                required: false
+              }
+            ]
+          },
           models.db['AnalysisMetadata'],
           models.db['ScriptLanguage'],
-          models.db['AnalysisType']
+          models.db['AnalysisType'],
+          models.db['Schedule']
         ]
       }).then(function(analysesResult) {
         var output = [];
@@ -2194,7 +2203,15 @@ var DataManager = {
       models.db['Analysis'].findOne({
         where: restriction || {},
         include: [
-          models.db['AnalysisDataSeries'],
+          {
+            model: models.db['AnalysisDataSeries'],
+            include: [
+              {
+                model: models.db['AnalysisDataSeriesMetadata'],
+                required: false
+              }
+            ]
+          },
           models.db['AnalysisMetadata'],
           models.db['ScriptLanguage'],
           models.db['AnalysisType'],
