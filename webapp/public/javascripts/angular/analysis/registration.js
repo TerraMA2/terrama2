@@ -18,13 +18,19 @@ angular.module('terrama2.analysis.registration', [
       'DataSeriesSemanticsFactory',
       'AnalysisFactory',
       'DataProviderFactory',
-  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory) {
+      'TryCaster',
+  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster) {
     // injecting i18n module
     $scope.i18n = i18n;
+
+    // checking if is update mode
+    $scope.isUpdating = Object.keys(configuration.analysis).length > 0;
+
     // initializing objects
     $scope.analysis = {
       metadata: {}
     };
+
     $scope.instances = [];
     $scope.dataSeriesList = [];
     $scope.dataProvidersList = [];
@@ -36,6 +42,9 @@ angular.module('terrama2.analysis.registration', [
     $scope.schedule = {};
     $scope.isFrequency = false;
     $scope.isSchedule = false;
+    $scope.scheduleOptions = {
+      disabled: $scope.isUpdating
+    }
 
     // define dataseries selected in modal
     $scope.nodesDataSeries = [];
@@ -77,9 +86,6 @@ angular.module('terrama2.analysis.registration', [
       {name: "Static", children: []},
       {name: "Dynamic", children: []}
     ]
-
-    // checking if is update mode
-    $scope.isUpdating = false;
 
     // watchers
     // cleaning analysis metadata when analysis type has been changed.
@@ -175,6 +181,30 @@ angular.module('terrama2.analysis.registration', [
 
     DataSeriesSemanticsFactory.list().success(function(semanticsList) {
       $scope.dataSeriesSemantics = semanticsList;
+
+      // fill analysis in gui
+      if ($scope.isUpdating) {
+        var analysisInstance = configuration.analysis;
+
+        $scope.analysis.name = analysisInstance.name;
+        $scope.analysis.description = analysisInstance.description;
+        $scope.analysis.type_id = analysisInstance.type.id.toString();
+        $scope.analysis.instance_id = analysisInstance.service_instance_id.toString();
+        $scope.analysis.script = analysisInstance.script;
+
+        // schedule update
+        $scope.$broadcast("updateSchedule", analysisInstance.schedule);
+
+        // TODO: change it to angular ui-ace.
+        editor.setValue($scope.analysis.script);
+        editor.setOptions({
+          readOnly: true,
+          highlightActiveLine: false,
+          highlightGutterLine: false
+        })
+        editor.renderer.$cursorLayer.element.style.opacity=0
+
+      }
     }).error(function(err) {
       console.log(err);
     });

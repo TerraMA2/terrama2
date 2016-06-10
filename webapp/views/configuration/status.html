@@ -15,29 +15,7 @@
 <script>
   angular.module('terrama2.projects.status', ['terrama2.table'])
     .controller("ListController", ['$scope', function($scope) {
-      $scope.model = [
-        {
-          name: "Service",
-          message: "Could not start service",
-          date: '12/03/2016 12:00',
-          type: 'Service',
-          status: 'Error'
-        },
-        {
-          name: "An_1",
-          message: "Error accessing \"DataXXX\"",
-          date: '12/03/2016 12:30',
-          type: 'Analysis',
-          status: 'Error'
-        },
-        {
-          name: "Collector 2324",
-          message: "No data collected",
-          date: '12/03/2016 14:30',
-          type: 'Collector',
-          status: 'NoDataCollected'
-        }
-      ];
+      $scope.model = [];
 
       $scope.fields = ['name', 'message', 'date'];
 
