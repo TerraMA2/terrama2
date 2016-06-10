@@ -2094,32 +2094,41 @@ var DataManager = {
                 analysisInstance.setSchedule(scheduleResult);
                 analysisInstance.setMetadata(analysisMetadataOutput);
 
-                Promise.all(promises).then(function(results) {
-                  results.forEach(function(result) {
-                    var analysisDataSeries = new DataModel.AnalysisDataSeries(result.get());
-                    var analysisDataSeriesMetadata = {};
+                analysisResult.getAnalysisType().then(function(analysisTypeResult) {
+                  analysisInstance.type = analysisTypeResult.get();
+                  Promise.all(promises).then(function(results) {
+                    results.forEach(function(result) {
+                      var analysisDataSeries = new DataModel.AnalysisDataSeries(result.get());
+                      var analysisDataSeriesMetadata = {};
 
-                    result.AnalysisDataSeriesMetadata.forEach(function(meta) {
-                      var data = meta.get();
-                      analysisDataSeriesMetadata[data.key] = data.value;
+                      result.AnalysisDataSeriesMetadata.forEach(function(meta) {
+                        var data = meta.get();
+                        analysisDataSeriesMetadata[data.key] = data.value;
+                      });
+
+                      analysisDataSeries.metadata = analysisDataSeriesMetadata;
+
+                      analysisInstance.addAnalysisDataSeries(analysisDataSeries);
                     });
 
-                    analysisDataSeries.metadata = analysisDataSeriesMetadata;
+                    // setting metadata
 
-                    analysisInstance.addAnalysisDataSeries(analysisDataSeries);
+                    resolve(analysisInstance);
+                  }).catch(function(err) {
+                    console.log(err);
+                    // rollback analysis data series
+                    Utils.rollbackPromises([
+                      self.removeDataSerie({id: dataSeriesResult.id}),
+                      self.removeSchedule({id: scheduleResult.id}),
+                    ], new exceptions.AnalysisError("Could not save analysis data series"), reject);
                   });
-
-                  // setting metadata
-
-                  resolve(analysisInstance);
                 }).catch(function(err) {
-                  console.log(err);
-                  // rollback analysis data series
+                  // rollback analysis metadata
                   Utils.rollbackPromises([
                     self.removeDataSerie({id: dataSeriesResult.id}),
                     self.removeSchedule({id: scheduleResult.id}),
-                  ], new exceptions.AnalysisError("Could not save analysis data series"), reject);
-                });
+                  ], new exceptions.AnalysisError("Could not save analysis while retrieving analysis type " + err.message), reject);
+                })
 
               }).catch(function(err) {
                 // rollback analysis metadata
@@ -2220,14 +2229,23 @@ var DataManager = {
       }).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
-        analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
-          var ds = getItemByParam(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
-          var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
-          analysisDsMeta.setDataSeries(ds);
-          analysisInstance.addAnalysisDataSeries(analysisDsMeta);
-        });
+        self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
+          self.getDataSeries({id: analysisOutputDataSet.data_series_id}).then(function(analysisOutputDataSeries) {
+            analysisInstance.setDataSeries(analysisOutputDataSeries);
+            analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
+              var ds = getItemByParam(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
+              var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
+              analysisDsMeta.setDataSeries(ds);
+              analysisInstance.addAnalysisDataSeries(analysisDsMeta);
+            });
 
-        resolve(analysisInstance);
+            resolve(analysisInstance);
+          }).catch(function(err) {
+            reject(err);
+          })
+        }).catch(function(err) {
+          reject(err);
+        })
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
