@@ -57,13 +57,19 @@ module.exports = function(app) {
           DataManager.listServiceInstances().then(function(services) {
             services.forEach(function(service) {
               try {
-                TcpManager.sendData(service, {"Analysis": [analysisResult.toObject()]});
+                TcpManager.sendData(service, {
+                  "DataSeries": [analysisResult.dataSeries.toObject()],
+                  "Analysis": [analysisResult.toObject()]
+                });
               } catch (e) {
                 console.log(e);
               }
             });
 
-            console.log(JSON.stringify(analysisResult.toObject()));
+            console.log(JSON.stringify({
+              "DataSeries": [analysisResult.dataSeries.toObject()],
+              "Analysis": [analysisResult.toObject()]
+            }));
             response.json({status: 200});
           // DataManager.getServiceInstance({id: analysisObject.instance_id}).then(function(serviceInstance) {
           }).catch(function(err) {

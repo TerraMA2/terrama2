@@ -2093,6 +2093,7 @@ var DataManager = {
                 analysisInstance.setScriptLanguage(scriptLanguageResult);
                 analysisInstance.setSchedule(scheduleResult);
                 analysisInstance.setMetadata(analysisMetadataOutput);
+                analysisInstance.setDataSeries(dataSeriesResult);
 
                 analysisResult.getAnalysisType().then(function(analysisTypeResult) {
                   analysisInstance.type = analysisTypeResult.get();
@@ -2261,16 +2262,27 @@ var DataManager = {
    * @return {Promise} - a 'bluebird' module with Analysis instance or error callback
    */
   removeAnalysis: function(analysisParam, cascade) {
+    var self = this;
     return new Promise(function(resolve, reject) {
       if(!cascade)
         cascade = false;
 
-      models.db.Analysis.destroy({where: {id: analysisParam.id}}).then(function() {
-        resolve();
+      self.getAnalysis({id: analysisParam.id}).then(function(analysisResult) {
+        models.db.Analysis.destroy({where: {id: analysisParam.id}}).then(function() {
+          self.removeDataSerie({id: analysisResult.dataSeries.id}).then(function() {
+            resolve();
+          }).catch(function(err) {
+            console.log("Could not remove output data series ", err);
+            reject(err);
+          })
+        }).catch(function(err) {
+          console.log(err);
+          reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
+        });
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
-      });
+        reject(err);
+      })
     });
   }
 
