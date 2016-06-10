@@ -200,6 +200,13 @@ angular.module('terrama2.dataseries.registration', [
           // fill schedule
           var schedule = collector.schedule;
           $scope.$broadcast("updateSchedule", schedule);
+
+          // fill filter
+          var filter = collector.filter || {};
+          if (filter.discard_before)
+            $scope.filter.date.beforeDate = filter.discard_before;
+          if (filter.discard_after)
+            $scope.filter.date.afterDate = filter.discard_after;
         }
 
         if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {

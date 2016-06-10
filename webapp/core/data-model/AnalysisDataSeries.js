@@ -10,10 +10,15 @@ var AnalysisDataSeries = module.exports = function(params) {
   this.alias = params.alias;
 
   this.metadata = params.metadata || {};
+  this.dataSeries = {};
 };
 
 AnalysisDataSeries.prototype = Object.create(BaseClass.prototype);
 AnalysisDataSeries.prototype.constructor = AnalysisDataSeries;
+
+AnalysisDataSeries.prototype.setDataSeries = function(dataSeries) {
+  this.dataSeries = dataSeries;
+}
 
 AnalysisDataSeries.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
@@ -24,3 +29,10 @@ AnalysisDataSeries.prototype.toObject = function() {
     metadata: this.metadata
   });
 };
+
+AnalysisDataSeries.prototype.rawObject = function() {
+  var obj = this.toObject();
+
+  obj.dataSeries = this.dataSeries;
+  return obj;
+}
