@@ -187,7 +187,7 @@ void terrama2::core::ProcessLogger::error(const std::string description, Registe
   query.bind_arg(2, now->toString());
 
   boost::format queryMessages("INSERT INTO " + messagesTableName_ + " (log_id, type, description, timestamp) VALUES(" + QString::number(registerId).toStdString() + ", %1%, '%2%', '%3%')");
-  queryMessages.bind_arg(1, static_cast<int>(messageType::ERROR_MESSAGE));
+  queryMessages.bind_arg(1, static_cast<int>(MessageType::ERROR_MESSAGE));
   queryMessages.bind_arg(2, description);
   queryMessages.bind_arg(3, now->toString());
 
@@ -211,7 +211,7 @@ void terrama2::core::ProcessLogger::info(const std::string description, Register
   std::shared_ptr< te::dt::TimeInstantTZ> now(TimeUtils::nowUTC());
 
   boost::format queryMessages("INSERT INTO " + messagesTableName_ + " (log_id, type, description, timestamp) VALUES(" + QString::number(registerId).toStdString() + ", %1%, '%2%', '%3%')");
-  queryMessages.bind_arg(1, static_cast<int>(messageType::INFO_MESSAGE));
+  queryMessages.bind_arg(1, static_cast<int>(MessageType::INFO_MESSAGE));
   queryMessages.bind_arg(2, description);
   queryMessages.bind_arg(3, now->toString());
 
@@ -342,17 +342,41 @@ std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger:
 
   while(tempDataSet->moveNext())
   {
-    Log temp;
+    Log tempLog;
 
-    temp.id = tempDataSet->getInt32("id");
-    temp.processId = tempDataSet->getInt32("process_id");
-    temp.status = Status(tempDataSet->getInt32("status"));
-    temp.start_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("start_timestamp").release()));
-    temp.data_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("data_timestamp").release()));
-    temp.last_process_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("last_process_timestamp").release()));
-    temp.data = tempDataSet->getAsString("data");
+    tempLog.id = tempDataSet->getInt32("id");
+    tempLog.processId = tempDataSet->getInt32("process_id");
+    tempLog.status = Status(tempDataSet->getInt32("status"));
+    tempLog.start_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("start_timestamp").release()));
+    tempLog.data_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("data_timestamp").release()));
+    tempLog.last_process_timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempDataSet->getDateTime("last_process_timestamp").release()));
+    tempLog.data = tempDataSet->getAsString("data");
 
-    logs.push_back(temp);
+
+    std::string sqlMessages ="SELECT * FROM " + messagesTableName_ +
+                             " WHERE log_id = "  + std::to_string(tempLog.id) +
+                             "ORDER BY id";
+
+    std::unique_ptr<te::da::DataSet> tempMessagesDataSet(transactor->query(sqlMessages));
+
+    std::vector< MessageLog > messages;
+
+    while(tempMessagesDataSet->moveNext())
+    {
+      MessageLog tempMessage;
+
+      tempMessage.id = tempMessagesDataSet->getInt32("id");
+      tempMessage.log_id = RegisterId(tempMessagesDataSet->getInt32("log_id"));
+      tempMessage.type = MessageType(tempMessagesDataSet->getInt32("type"));
+      tempMessage.description = tempMessagesDataSet->getAsString("description");
+      tempMessage.timestamp = std::shared_ptr<te::dt::TimeInstantTZ>(dynamic_cast<te::dt::TimeInstantTZ*>(tempMessagesDataSet->getDateTime("timestamp").release()));
+
+      messages.push_back(tempMessage);
+    }
+
+    tempLog.messages = messages;
+
+    logs.push_back(tempLog);
   }
 
     return logs;

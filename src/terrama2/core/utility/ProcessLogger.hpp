@@ -65,11 +65,23 @@ namespace terrama2
 
         \brief Possible status of logged messages.
       */
-      enum messageType
+      enum MessageType
       {
         ERROR_MESSAGE     = 1,
         INFO_MESSAGE      = 2,
         WARNING_MESSAGE   = 3
+      };
+
+
+      struct MessageLog
+      {
+        MessageLog() {};
+
+        uint32_t id =0;
+        RegisterId log_id =0;
+        MessageType type;
+        std::string description = "";
+        std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
       };
 
       struct Log
@@ -83,6 +95,8 @@ namespace terrama2
         std::shared_ptr< te::dt::TimeInstantTZ > data_timestamp;
         std::shared_ptr< te::dt::TimeInstantTZ > last_process_timestamp;
         std::string data = "";
+
+        std::vector< MessageLog > messages;
       };
 
       /*!
@@ -137,8 +151,10 @@ namespace terrama2
 
       /*!
        * \brief Get the logs of a process in a determined interval.
-       *        The order of register is from last log to the first. So if you want
-       *        from 3º to 10º last logs, begin = 3 and end = 10.
+       *        The order of register is from last log to the first, and
+       *        the first is 0.
+       *        So if you want from 1º to 10º last logs, begin = 0 and end = 9,
+       *        or from 3º to 5º last logs, begin = 2 and end = 4.
        * \param processId The ID of the process
        * \param begin The number order of the first wanted register
        * \param end The number in order of the last wanted register

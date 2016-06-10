@@ -1,6 +1,12 @@
+
+// TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/ProcessLogger.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
+
+// STL
+#include <vector>
+#include <iostream>
 
 class Logger : public terrama2::core::ProcessLogger
 {
@@ -81,10 +87,27 @@ int main(int argc, char* argv[])
     std::shared_ptr< te::dt::TimeInstantTZ > lastDataTimestamp = log.getDataLastTimestamp(process_id);
 
     // Get the first to tenth logs from this process
-    std::vector< Logger::Log > logs = log.getLogs(process_id, 1 , 10);
+    std::vector< Logger::Log > logs = log.getLogs(process_id, 0 , 9);
 
-    logs.size();
+    /*
+    Logger::Log log1= logs.at(0);
 
+    std::cout << log1.id << std::endl;
+    std::cout << int(log1.processId) << std::endl;
+    std::cout << int(log1.status) << std::endl;
+    std::cout << log1.start_timestamp->toString() << std::endl;
+    std::cout << log1.data_timestamp->toString() << std::endl;
+    std::cout << log1.last_process_timestamp->toString() << std::endl;
+    std::cout << log1.data << std::endl;
+
+    Logger::MessageLog mLog = log1.messages.at(0);
+
+    std::cout << mLog.id << std::endl;
+    std::cout << int(mLog.log_id) << std::endl;
+    std::cout << int(mLog.type) << std::endl;
+    std::cout << mLog.description << std::endl;
+    std::cout << mLog.timestamp->toString() << std::endl;
+    */
   }
   catch(...)
   {
