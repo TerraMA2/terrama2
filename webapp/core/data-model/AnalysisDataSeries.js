@@ -1,4 +1,5 @@
 var BaseClass = require("./AbstractData");
+var Utils = require('./../Utils');
 
 var AnalysisDataSeries = module.exports = function(params) {
   BaseClass.call(this, {'class': "AnalysisDataSeries"});
@@ -10,15 +11,27 @@ var AnalysisDataSeries = module.exports = function(params) {
     this.type = params.AnalysisDataSeriesType.get();
   else
     this.type = params.type || {}
+
+  if (params.AnalysisDataSeriesMetadata)
+    this.setMetadata(params.AnalysisDataSeriesMetadata);
+  else
+    this.metadata = params.metadata || {};
+
   this.type_id = params.type_id;
   this.alias = params.alias;
 
-  this.metadata = params.metadata || {};
   this.dataSeries = {};
 };
 
 AnalysisDataSeries.prototype = Object.create(BaseClass.prototype);
 AnalysisDataSeries.prototype.constructor = AnalysisDataSeries;
+
+AnalysisDataSeries.prototype.setMetadata = function(metadataObject) {
+  if (metadataObject instanceof Array)
+    this.metadata = Utils.formatMetadataFromDB(metadataObject);
+  else
+    this.metadata = metadataObject;
+}
 
 AnalysisDataSeries.prototype.setDataSeries = function(dataSeries) {
   this.dataSeries = dataSeries;

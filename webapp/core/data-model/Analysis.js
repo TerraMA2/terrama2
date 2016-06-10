@@ -1,4 +1,5 @@
 var BaseClass = require("./AbstractData");
+var Schedule = require("./Schedule");
 
 var Analysis = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Analysis'});
@@ -29,11 +30,13 @@ var Analysis = module.exports = function(params) {
   this.analysis_dataseries_list = [];
 
   if (params.Schedule)
-    this.schedule = params.Schedule.get() || {};
+    this.schedule = new Schedule(params.Schedule.get() || {});
   else
     this.schedule = params.schedule;
 
   this.instance_id = params.instance_id;
+
+  this.dataSeries = {};
 };
 
 Analysis.prototype = Object.create(BaseClass.prototype);
@@ -41,6 +44,10 @@ Analysis.prototype.constructor = Analysis;
 
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
   this.analysis_dataseries_list.push(analysisDataSeries);
+};
+
+Analysis.prototype.setDataSeries = function(dataSeries) {
+  this.dataSeries = dataSeries;
 };
 
 Analysis.prototype.setScriptLanguage = function(scriptLanguage) {
@@ -52,7 +59,7 @@ Analysis.prototype.setScriptLanguage = function(scriptLanguage) {
 
 Analysis.prototype.setSchedule = function(schedule) {
   if (schedule.Schedule)
-    this.schedule = schedule.Schedule.get() || {};
+    this.schedule = new Schedule(schedule.Schedule.get() || {});
   else
     this.schedule = schedule || {};
 }
@@ -116,6 +123,7 @@ Analysis.prototype.rawObject = function() {
   })
   var obj = this.toObject();
 
+  obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
   obj.analysis_dataseries_list = outputDataSeriesList;
   obj.type = this.type;
   return obj;

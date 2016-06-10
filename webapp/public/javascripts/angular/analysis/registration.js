@@ -135,6 +135,9 @@ angular.module('terrama2.analysis.registration', [
         if (semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA)
           $scope.filteredDataSeries.push(dataSeries);
       });
+
+      if ($scope.isUpdating)
+        $scope.$emit("analysisTypeChanged");
     });
 
     // targetDataSeries change. When
@@ -185,54 +188,66 @@ angular.module('terrama2.analysis.registration', [
     DataSeriesSemanticsFactory.list().success(function(semanticsList) {
       $scope.dataSeriesSemantics = semanticsList;
 
-      // fill analysis in gui
-      if ($scope.isUpdating) {
-        var analysisInstance = configuration.analysis;
+      DataProviderFactory.get().success(function(dataProviders) {
+        $scope.dataProvidersList = dataProviders;
 
-        $scope.analysis.name = analysisInstance.name;
-        $scope.analysis.description = analysisInstance.description;
-        $scope.analysis.type_id = analysisInstance.type.id.toString();
-        $scope.analysis.instance_id = analysisInstance.service_instance_id.toString();
-        $scope.analysis.script = analysisInstance.script;
+        // fill analysis in gui
+        if ($scope.isUpdating) {
+          var analysisInstance = configuration.analysis;
 
-        // schedule update
-        $scope.$broadcast("updateSchedule", analysisInstance.schedule);
+          $scope.analysis.name = analysisInstance.name;
+          $scope.analysis.description = analysisInstance.description;
+          $scope.analysis.type_id = analysisInstance.type.id.toString();
+          $scope.analysis.instance_id = analysisInstance.service_instance_id.toString();
+          $scope.analysis.script = analysisInstance.script;
 
-        analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
-          var ds = analysisDs.dataSeries;
+          // schedule update
+          $scope.$broadcast("updateSchedule", analysisInstance.schedule);
 
-          if (analysisDs.type === globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE)
-            $scope.selectedDataSeriesList.push(ds);
-          else {
-            $scope.filteredDataSeries.some(function(filteredDs) {
-              if (filteredDs.id === ds.id) {
-                $scope.targetDataSeries = filteredDs;
-                $scope.onTargetDataSeriesChange();
-                return true;
+          // wait for watchers (type_id)
+          $scope.$on("analysisTypeChanged", function(event) {
+            analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
+              var ds = analysisDs.dataSeries;
+
+              if (analysisDs.type === globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE)
+                $scope.selectedDataSeriesList.push(ds);
+              else {
+                $scope.filteredDataSeries.some(function(filteredDs) {
+                  if (filteredDs.id === ds.id) {
+                    $scope.targetDataSeries = filteredDs;
+                    $scope.onTargetDataSeriesChange();
+
+                    // set identifier
+                    $scope.identifier = analysisDs.metadata['identifier'] ;
+                    return true;
+                  }
+                })
               }
-            })
-          }
 
+              $scope.metadata[ds.name] = Object.assign({alias: analysisDs.alias}, analysisDs.metadata);
+            });
 
-          $scope.metadata[ds.name] = Object.assign({alias: analysisDs.alias}, analysisDs.metadata);
-        });
+            // setting storager format
+            $scope.storagerFormats.some(function(storagerFmt) {
+              
+            });
+          })
 
-        // TODO: change it to angular ui-ace.
-        editor.setValue($scope.analysis.script);
-        editor.setOptions({
-          readOnly: true,
-          highlightActiveLine: false,
-          highlightGutterLine: false
-        })
-        editor.renderer.$cursorLayer.element.style.opacity=0
+          // TODO: change it to angular ui-ace.
+          editor.setValue($scope.analysis.script);
+          editor.setOptions({
+            readOnly: true,
+            highlightActiveLine: false,
+            highlightGutterLine: false
+          })
+          editor.renderer.$cursorLayer.element.style.opacity=0
 
-      }
-    }).error(function(err) {
-      console.log(err);
-    });
+        }
 
-    DataProviderFactory.get().success(function(dataProviders) {
-      $scope.dataProvidersList = dataProviders;
+      }).error(function(err) {
+        console.log(err);
+      });
+
     }).error(function(err) {
       console.log(err);
     });
