@@ -566,7 +566,7 @@
 
               <div class="col-md-12">
                 <form name="scriptForm">
-                  <div class="form-group" ng-class="{'has-error': scriptForm.script.$dirty && scriptForm.script.$error.required,
+                  <div class="form-group" ng-class="{'has-error': scriptForm.script.$dirty && scriptForm.script.$error.required || analysis_script_error,
                                                      'has-success': scriptForm.script.$dirty && scriptForm.script.$valid}">
 
                     <!-- todo: adding helper functions, syntax validation and syntax highlighter -->

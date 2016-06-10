@@ -399,6 +399,7 @@ angular.module('terrama2.analysis.registration', [
 
     // save function
     $scope.save = function() {
+      $scope.analysis_script_error = false;
       if ($scope.generalDataForm.$invalid) {
         formErrorDisplay($scope.generalDataForm);
         return;
@@ -428,7 +429,10 @@ angular.module('terrama2.analysis.registration', [
 
       // checking script form if there any "add_value"
       if ($scope.analysis.script.indexOf("add_value") < 0) {
-        makeDialog("alert-danger", "Analysis will not able to generate a output data. Please fill at least a add_value() in script field.", true);
+        $scope.analysis_script_error = true;
+        $scope.analysis_script_error_message = "Analysis will not able to generate a output data. Please fill at least a add_value() in script field.";
+        angular.element("#scriptCheckResult").html($scope.analysis_script_error_message);
+        // makeDialog("alert-danger", $scope.analysis_script_error_message, true);
         return;
       }
 
