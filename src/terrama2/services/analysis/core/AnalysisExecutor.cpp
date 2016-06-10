@@ -361,9 +361,8 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
 
   if(resultMap.empty())
   {
-    QString errMsg = QObject::tr("Analysis %1 returned an empty result.").arg(analysis.id);
-    TERRAMA2_LOG_WARNING() << errMsg;
-    return;
+    QString errMsg = QObject::tr("Empty result.");
+    throw EmptyResultException() << ErrorDescription(errMsg);
   }
 
   // In case an error occurred in the analysis execution there is nothing to do.
