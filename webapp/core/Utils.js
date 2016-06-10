@@ -6,6 +6,7 @@ var crypto = require('crypto');
 var exceptions = require('./Exceptions');
 var Signals = require('./Signals');
 var Promise = require("bluebird");
+var util = require('util');
 
 // nodejs
 var glob = require('glob');
@@ -325,5 +326,21 @@ module.exports = {
       })
     }
     return output;
+  },
+
+  formatDateToTimezone: function(dateValue) {
+    var timeZone = dateValue.getTimezoneOffset() / 60;
+    var timezoneIndex = dateValue.toISOString().lastIndexOf("Z");
+    var dateWithoutTimezone = dateValue.toISOString().slice(0, timezoneIndex);
+
+    var tzStr;
+    if (timeZone > 0) {
+      tzStr = timeZone < 10 ? "-0" + timeZone + "00" : "-" + timeZone + "00";
+    } else {
+      var absTimezone = timeZone * (-1);
+      tzStr = absTimezone < 10 ? "+0" + absTimezone + "00" : "+" + absTimezone + "00";
+    }
+
+    return dateWithoutTimezone + tzStr;
   }
 };
