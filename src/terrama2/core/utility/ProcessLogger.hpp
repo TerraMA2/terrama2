@@ -199,6 +199,7 @@ namespace terrama2
        */
       void updateData(const RegisterId registerId, const QJsonObject obj) const;
 
+      std::string schema_ = "terrama2";
       std::string tableName_ = "";
       std::string messagesTableName_ = "";
       std::unique_ptr< te::da::DataSource > dataSource_;

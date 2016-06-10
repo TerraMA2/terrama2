@@ -416,7 +416,7 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
 
 void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
 {
-  tableName_ = tableName;
+  tableName_ = schema_ + "." + tableName;
 
   std::transform(tableName_.begin(), tableName_.end(), tableName_.begin(), ::tolower);
 
@@ -441,7 +441,7 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
     transactor->createDataSet(datasetType.get(),options);
 
     std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(datasetType->getName(),"id");
-    te::da::PrimaryKey* pk = new te::da::PrimaryKey(tableName_ + "_pk");
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey("process_log_pk");
     pk->add(id_pk1.get());
 
     transactor->addPrimaryKey(datasetType->getName(),pk);
@@ -475,13 +475,13 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
     transactor->createDataSet(datasetType.get(),options);
 
     std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(datasetType->getName(),"id");
-    te::da::PrimaryKey* pk = new te::da::PrimaryKey(messagesTableName_ + "_pk");
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey("process_log_messages_pk");
     pk->add(id_pk1.get());
 
     transactor->addPrimaryKey(datasetType->getName(),pk);
 
     std::shared_ptr<te::dt::Property> log_id = transactor->getProperty(datasetType->getName(),"log_id");
-    te::da::ForeignKey* fk = new te::da::ForeignKey(messagesTableName_ + "_fk");
+    te::da::ForeignKey* fk = new te::da::ForeignKey("process_log_fk");
 
     std::shared_ptr<te::dt::Property> id_fk = transactor->getProperty(tableName_,"id");
     fk->addRefProperty(id_fk.get());

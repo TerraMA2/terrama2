@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     // Get the first to tenth logs from this process
     std::vector< Logger::Log > logs = log.getLogs(process_id, 0 , 9);
 
-    /*
+
     Logger::Log log1= logs.at(0);
 
     std::cout << log1.id << std::endl;
@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
     std::cout << int(mLog.type) << std::endl;
     std::cout << mLog.description << std::endl;
     std::cout << mLog.timestamp->toString() << std::endl;
-    */
+
   }
   catch(...)
   {
