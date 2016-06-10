@@ -107,8 +107,16 @@ Analysis.prototype.toObject = function() {
 };
 
 Analysis.prototype.rawObject = function() {
+  var outputDataSeriesList = [];
+  this.analysis_dataseries_list.forEach(function(analysisDataSeries) {
+    if (analysisDataSeries instanceof BaseClass)
+      outputDataSeriesList.push(analysisDataSeries.rawObject());
+    else
+      outputDataSeriesList.push(analysisDataSeries);
+  })
   var obj = this.toObject();
 
+  obj.analysis_dataseries_list = outputDataSeriesList;
   obj.type = this.type;
   return obj;
 }
