@@ -258,30 +258,33 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
+  std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%f%ZP";
   terrama2::core::Filter filter;
-  if(json.contains("discard_before"))
+  if(json.contains("discard_before") && !json.value("discard_before").isNull())
   {
-    std::string dateTime = json["discard_before"].toString().toStdString();
-    filter.discardBefore = TimeUtils::stringToTimestamp(dateTime, "%Y-%m-%dT%H:%M:%S%ZP");
+    std::string dateTime = json.value("discard_before").toString().toStdString();
+    filter.discardBefore = TimeUtils::stringToTimestamp(dateTime, timestampFacet);
   }
-  if(json.contains("discard_after"))
+  if(json.contains("discard_after") && !json.value("discard_after").isNull())
   {
     std::string dateTime = json["discard_after"].toString().toStdString();
-    filter.discardAfter = TimeUtils::stringToTimestamp(dateTime, "%Y-%m-%dT%H:%M:%S%ZP");
+    filter.discardAfter = TimeUtils::stringToTimestamp(dateTime, timestampFacet);
   }
 
-  if(json.contains("region"))
+  if(json.contains("region") && !json.value("region").isNull())
   {
     filter.region = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(json["region"].toString().toStdString().c_str()));
   }
 
-  if(json.contains("value_comparison_operation"))
+  if(json.contains("value_comparison_operation")
+     && !json.value("value_comparison_operation").isNull()
+     && !json.value("by_value").isNull())
   {
     filter.value = std::make_shared<double>(json["by_value"].toDouble());
     // filter.discard_before = json["value_comparison_operation"].toString();//TODO: filter by value operation
   }
 
-  if(json.contains("last_value"))
+  if(json.contains("last_value") && !json.value("value_comparison_operation").isNull())
   {
     filter.lastValue = json["last_value"].toBool();
   }
