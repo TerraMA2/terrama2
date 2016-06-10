@@ -2209,8 +2209,11 @@ var DataManager = {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
         analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
-          analysisInstance.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
-        })
+          var ds = getItemByParam(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
+          var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
+          analysisDsMeta.setDataSeries(ds);
+          analysisInstance.addAnalysisDataSeries(analysisDsMeta);
+        });
 
         resolve(analysisInstance);
       }).catch(function(err) {
