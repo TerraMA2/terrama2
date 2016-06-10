@@ -30,6 +30,7 @@ angular.module('terrama2.analysis.registration', [
     $scope.analysis = {
       metadata: {}
     };
+    $scope.targetDataSeries = {};
 
     $scope.instances = [];
     $scope.dataSeriesList = [];
@@ -136,6 +137,8 @@ angular.module('terrama2.analysis.registration', [
       });
     });
 
+    // targetDataSeries change. When
+
     // terrama2 alert box
     $scope.alertBox = {};
     $scope.display = false;
@@ -194,6 +197,25 @@ angular.module('terrama2.analysis.registration', [
 
         // schedule update
         $scope.$broadcast("updateSchedule", analysisInstance.schedule);
+
+        analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
+          var ds = analysisDs.dataSeries;
+
+          if (analysisDs.type === globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE)
+            $scope.selectedDataSeriesList.push(ds);
+          else {
+            $scope.filteredDataSeries.some(function(filteredDs) {
+              if (filteredDs.id === ds.id) {
+                $scope.targetDataSeries = filteredDs;
+                $scope.onTargetDataSeriesChange();
+                return true;
+              }
+            })
+          }
+
+
+          $scope.metadata[ds.name] = Object.assign({alias: analysisDs.alias}, analysisDs.metadata);
+        });
 
         // TODO: change it to angular ui-ace.
         editor.setValue($scope.analysis.script);

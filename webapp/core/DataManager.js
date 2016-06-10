@@ -1658,11 +1658,6 @@ var DataManager = {
                   outputDataSet = dataSeriesResultOutput.dataSets[0];
                 else
                   outputDataSet = dataSeriesResultOutput.dataSets[i];
-                //
-                // input_output_map.push({
-                //   input: inputDataSet.id,
-                //   output: outputDataSet.id
-                // });
 
                 inputOutputArray.push({
                   collector_id: collectorResult.id,
@@ -2018,7 +2013,7 @@ var DataManager = {
 
       // checking filter
       models.db.Filter.create(filterValues).then(function(filter) {
-        resolve(filter.get());
+        resolve(new DataModel.Filter(filter.get()));
       }).catch(function(err) {
         // todo: improve error message
         reject(new Error("Could not save filter. ", err));

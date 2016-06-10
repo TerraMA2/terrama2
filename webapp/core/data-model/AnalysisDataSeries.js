@@ -6,6 +6,10 @@ var AnalysisDataSeries = module.exports = function(params) {
   this.id = params.id;
   this.data_series_id = params.data_series_id;
 
+  if (params.AnalysisDataSeriesType)
+    this.type = params.AnalysisDataSeriesType.get();
+  else
+    this.type = params.type || {}
   this.type_id = params.type_id;
   this.alias = params.alias;
 
@@ -33,6 +37,6 @@ AnalysisDataSeries.prototype.toObject = function() {
 AnalysisDataSeries.prototype.rawObject = function() {
   var obj = this.toObject();
 
-  obj.dataSeries = this.dataSeries;
+  obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
   return obj;
 }

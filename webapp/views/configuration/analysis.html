@@ -401,68 +401,40 @@
                 <button type="button" class="btn btn-default pull-right" ng-disabled="isUpdating" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
                   <i class="fa fa-plus"></i>
                 </button>
-                <table class="table table-bordered table-hover">
-                  <tbody>
-                  <tr>
-                    <th>{[ __('Name') ]}</th>
-                    <th>{[ __('Type') ]}</th>
-                    <th></th>
-                  </tr>
-                  <tr style="cursor:pointer;" ng-repeat="dataSeries in selectedDataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
-                    <td>{{ dataSeries.name }}</td>
-                    <td>{{ dataSeries.data_series_semantics.name }}</td>
-                    <!-- <td>
-                      <button type="button" class="btn btn-primary" data-ng-click="onDataSeriesClick(dataSeries);"><i class="fa fa-gear"></i></button>
-                    </td> -->
-                    <td class="pull-cell-left">
-                      <button type="button" class="btn btn-danger btn-small" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
-                    </td>
-                  </tr>
-                  <tr ng-if="selectedDataSeriesList.length == 0">
-                    <td colspan="2">
-                      {[ __('No data series selected') ]}
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-                <!--./table-->
+                <!-- metadata form handler -->
+                <form name="metadataForm">
+                  <table class="table table-bordered table-hover">
+                    <tbody>
+                    <tr>
+                      <th>{[ __('Name') ]}</th>
+                      <th>{[ __('Type') ]}</th>
+                      <th>{[ __('Alias') ]}</th>
+                      <th></th>
+                    </tr>
+                    <tr style="cursor:pointer;" ng-repeat="dataSeries in selectedDataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
+                      <td>{{ dataSeries.name }}</td>
+                      <td>{{ dataSeries.data_series_semantics.name }}</td>
+                      <td>
+                        <input type="text" class="form-control" name="name" ng-disabled="isUpdating" ng-model="metadata[dataSeries.name].alias" required>
+                      </td>
+                      <!-- <td>
+                        <button type="button" class="btn btn-primary" data-ng-click="onDataSeriesClick(dataSeries);"><i class="fa fa-gear"></i></button>
+                      </td> -->
+                      <td class="pull-cell-left">
+                        <button type="button" class="btn btn-danger btn-small" ng-disabled="isUpdating" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
+                      </td>
+                    </tr>
+                    <tr ng-if="selectedDataSeriesList.length == 0">
+                      <td colspan="2">
+                        {[ __('No data series selected') ]}
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                  <!--./table-->
+                </form>
                 <!--todo: open box-->
 
-                <div class="col-md-12 terrama2-nopadding-box" ng-if="isAnyDataSeriesSelected()">
-                  <div class="box box-default box-solid">
-                    <div class="box-header with-border">
-                      <h3 class="box-title">{{ selectedDataSeries.name }}</h3>
-                    </div>
-
-                    <div style="display: block;" class="box-body">
-                      <div class="row">
-                        <div class="col-md-12">
-                          <!-- metadata form handler -->
-                          <form name="metadataForm">
-                            <div>
-                              <div class="col-md-12">
-                                <div class="form-group">
-                                  <label>{[ __("Alias") ]}:</label>
-                                  <input class="form-control"
-                                         name="radius"
-                                         type="text"
-                                         ng-disabled="isUpdating"
-                                         ng-model="metadata[selectedDataSeries.name].alias"
-                                         ng-required="selectedDataSeriesList.length > 0">
-                                </div>
-                              </div>
-                            </div>
-                            <!-- Occurrence -->
-                            <div ng-if="semantics.data_series_type_name === 'Occurrence'">
-                              <div class="col-md-12 terrama2-nopadding-box">
-                              </div>
-                            </div>
-                          </form><!--/.metadataForm-->
-                        </div><!--./col-md-12-->
-                      </div>
-                    </div><!-- ./box-body-->
-                  </div><!--./box-solid-->
-                </div><!--./col-md-12-->
               </div><!--./col-md-12-->
             </div><!--./row-->
           </div><!--./box-body-->
