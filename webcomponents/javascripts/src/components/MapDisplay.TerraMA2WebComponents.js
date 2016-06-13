@@ -340,13 +340,14 @@ define(
      * @param {float} minResolution - Layer minimum resolution
      * @param {float} maxResolution - Layer maximum resolution
      * @param {string} time - Time parameter for temporal layers
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
      * @returns {ol.layer.Tile} tile - New tiled wms layer
      *
      * @function createTileWMS
      * @memberof MapDisplay
      * @inner
      */
-    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time) {
+    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled) {
       var params = {
         'LAYERS': layerId,
         'TILED': true
@@ -372,7 +373,8 @@ define(
         source: layerSource,
         id: layerId,
         name: layerName,
-        visible: layerVisible
+        visible: layerVisible,
+        disabled: disabled
       });
 
       if(minResolution !== undefined && minResolution !== null)
@@ -395,13 +397,14 @@ define(
      * @param {float} maxResolution - Layer maximum resolution
      * @param {string} parentGroup - Parent group id
      * @param {string} time - Time parameter for temporal layers
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addTileWMSLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time) {
+    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -409,7 +412,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time)
+          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled)
         );
 
         layerGroup.setLayers(layers);
@@ -798,10 +801,10 @@ define(
 
           var subLayersLength = layers.Layer[i].Layer.length;
           for(var j = 0; j < subLayersLength; j++) {
-            tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false));
+            tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, false));
           }
         } else {
-          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false));
+          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false, false));
         }
       }
 
