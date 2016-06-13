@@ -26,7 +26,7 @@
 #
 #
 #  Example:
-#  $ TERRAMA2_DEPENDENCIES_DIR="/Users/gribeiro/MyLibs" ./install-3rdparty-macosx-el-capitan.sh
+#  $ ./install-3rdparty-macosx-el-capitan.sh /home/gribeiro/MyLibs /home/gribeiro/MyDevel/terrama2/codebase
 #
 
 echo "**********************************************"
@@ -82,8 +82,10 @@ valid $? "Error: could not enter 3rd-party libraries dir (terrama2-3rdparty-maco
 #
 # Check installation dir
 #
-if [ "$TERRAMA2_DEPENDENCIES_DIR" == "" ]; then
-  TERRAMA2_DEPENDENCIES_DIR = "/opt/terrama2"
+if [ "$1" == "" ]; then
+ TERRAMA2_DEPENDENCIES_DIR="/opt/terrama2"
+else
+ TERRAMA2_DEPENDENCIES_DIR="$1"
 fi
 
 export PATH="$PATH:$TERRAMA2_DEPENDENCIES_DIR/bin"
