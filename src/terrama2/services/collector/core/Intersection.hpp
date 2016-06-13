@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_CORE_INTERSECTION_HPP__
 #define __TERRAMA2_CORE_INTERSECTION_HPP__
 
-#include "../../../core/Typedef.hpp"
+#include "Typedef.hpp"
 
 // STL
 #include <vector>
@@ -39,23 +39,26 @@
 
 namespace terrama2
 {
-  namespace core
+  namespace services
   {
-
-    /*!
-      \class Intersection
-
-      \brief Intersection information of a DataSeries.
-     */
-    struct Intersection
+    namespace collector
     {
-      IntersectionId intersectionId_; //!< Intersection identifier.
-      DataSeriesId dataSeriesId_; //!< Associates the intersection to a given DataSet.
-      std::map<DataSeriesId, std::vector<std::string> > attributeMap_; //!< Map with the attributes of a DataSeries to be added to the collected data.
-    };
+      namespace core
+      {
+        /*!
+          \class Intersection
 
-  } // end namespace core
-}   // end namespace terrama2
+          \brief Intersection information of a DataSeries.
+         */
+        struct Intersection
+        {
+          CollectorId collectorId; //!< Collector identifier.
+          std::map<DataSeriesId, std::vector<std::string> > attributeMap; //!< Map with the attributes of a DataSeries to be added to the collected data.
+        };
+      } // end namespace core
+    }   // end namespace collector
+  }     // end namespace services
+}       // end namespace terrama2
 
 #endif  // __TERRAMA2_CORE_INTERSECTION_HPP__
 

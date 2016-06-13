@@ -20,17 +20,21 @@
 */
 
 /*!
-  \file terrama2/collector/IntersectionOperation.hpp
+  \file terrama2/services/collector/core/IntersectionOperation.hpp
 
-  \brief Instersects the collected data with the intersection data configured in the dataset, in order to add more information to the collected data.
+  \brief Instersects the collected data with the intersection data configured in the dataset,
+  in order to add more information to the collected data.
 
   \author Paulo R. M. Oliveira
 */
 
 
-#ifndef __TERRAMA2_COLLECTOR_INTERSECTIONOPERATION_HPP__
-#define __TERRAMA2_COLLECTOR_INTERSECTIONOPERATION_HPP__
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTIONOPERATION_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTIONOPERATION_HPP__
 
+#include "Intersection.hpp"
+#include "Shared.hpp"
+#include "../../../core/data-access/DataSetSeries.hpp"
 
 // STL
 #include <memory>
@@ -39,6 +43,7 @@
 
 namespace te
 {
+  // Forward declaration
   namespace da
   {
     class DataSet;
@@ -53,25 +58,37 @@ namespace te
 
 namespace terrama2
 {
-  namespace core
-  {
-    class DataSet;
-  }
-
   namespace services
   {
     namespace collector
     {
-      /*
-      void processIntersection(TransferenceData& transferenceData);
+      namespace core
+      {
+        /*
+         \brief Intersects the collected data with the intersection data configured in the dataset, in order to add
+         more information to the collected data.
 
-      te::da::DataSetType* createDataSetType(std::string newName,
-                                             te::da::DataSetType* firstDt,
-                                             std::vector<te::dt::Property*> firstProps,
-                                             te::da::DataSetType* secondDt,
-                                             std::vector<te::dt::Property*> secondProps);*/
-    }
-  }
-}
+         \param dataManager Smart pointer to the data manager.
+         \param intersection Intersection configuration for the collected DataSeries.
+         \param collectedDataSetSeries DataSetSeries of the collected data.
+         \return The new DataSetSeries with added columns from intersection.
+         */
+        terrama2::core::DataSetSeries processIntersection(DataManagerPtr dataManager, IntersectionPtr intersection, terrama2::core::DataSetSeries collectedDataSetSeries);
 
-#endif //__TERRAMA2_COLLECTOR_INTERSECTIONOPERATION_HPP__
+        /*
+         \brief Creates a DataSetType with the attributes from the collected dataset plus the attributes configured in the intersection.
+
+         \param collectedDST DataSetType of the collected DataSet.
+         \param intersectionDST DataSetType of the intersection DataSet.
+         \param intersectionDSProperties Vector of properties to be added to the collected DataSet.
+         \return A DataSetType with the attributes from the collected dataset plus the attributes configured in the intersection.
+         */
+        te::da::DataSetType* createDataSetType(te::da::DataSetType* collectedDST,
+                                               te::da::DataSetType* intersectionDST,
+                                               std::vector<te::dt::Property*> intersectionDSProperties);
+      } // end namespace core
+    }   // end namespace collector
+  }     // end namespace services
+}       // end namespace terrama2
+
+#endif //__TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTIONOPERATION_HPP__

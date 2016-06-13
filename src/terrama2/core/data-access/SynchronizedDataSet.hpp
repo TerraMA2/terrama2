@@ -295,6 +295,30 @@ namespace terrama2
         std::shared_ptr<te::dt::DateTime> getDateTime(std::size_t row, std::string columnName) const;
 
         /*!
+          \brief Method for retrieving any other type of data value stored in the data source.
+
+          This method can be use for extensible datatypes.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param i The attribute index.
+
+          \return A pointer to the data value.
+        */
+        virtual std::shared_ptr<te::dt::AbstractData> getValue(std::size_t row, std::size_t i) const;
+
+        /*!
+          \brief Method for retrieving any other type of data value stored in the data source.
+
+          This method can be use for extensible datatypes.
+
+          \param row The position the dataset internal pointer must be set up.
+          \param name The attribute name.
+
+          \return A pointer to the data value.
+         */
+        virtual std::shared_ptr<te::dt::AbstractData> getValue(std::size_t row, const std::string& name) const;
+
+        /*!
           \brief It checks if the attribute value is NULL.
 
           \param row The position the dataset internal pointer must be set up.
