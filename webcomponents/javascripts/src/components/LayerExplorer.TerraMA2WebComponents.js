@@ -56,6 +56,7 @@ define(
      * @param {string} name - Layer name
      * @param {string} parent - Parent id
      * @param {boolean} visible - Flag that indicates if the layer should be visible when created
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled when created
      * @returns {string} html - HTML code of the layer
      *
      * @private
@@ -63,10 +64,11 @@ define(
      * @memberof LayerExplorer
      * @inner
      */
-    var createLayer = function(id, name, parent, visible) {
+    var createLayer = function(id, name, parent, visible, disabled) {
       var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
+      var classes = disabled ? "layer disabled-content" : "layer";
 
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
+      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='" + classes + "'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
     };
 
     /**
@@ -127,7 +129,7 @@ define(
           elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem);
       } else {
         if(!$("#" + layer.get('id').replace(':', '')).length)
-          elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'));
+          elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'), layer.get('disabled'));
       }
 
       return elem;
