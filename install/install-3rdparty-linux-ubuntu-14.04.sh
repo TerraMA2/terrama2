@@ -100,6 +100,7 @@ sleep 1s
 mkdir -p "$TERRAMA2_DEPENDENCIES_DIR/lib/"
 mkdir -p "$TERRAMA2_DEPENDENCIES_DIR/bin/"
 
+
 #
 # GMock
 # Site: https://github.com/google/googletest
@@ -225,12 +226,53 @@ else
   echo "Node.js already installed!"
 fi
 
+#
+# Python
+#
+python_test=`dpkg -s python2.7-dev | grep Status`
+
+if [ "$python_test" != "Status: install ok installed" ]; then
+  sudo apt-get install python2.7-dev
+  valid $? "Error: could not install python2.7-dev! Please, install python2.7-dev: sudo apt-get install python2.7-dev"
+
+  echo "python2.7-dev installed!"
+else
+  echo "python2.7-dev already installed!"
+fi
+
+#
+# Pip
+#
+pip_test=`dpkg -s python-pip | grep Status`
+
+if [ "$pip_test" != "Status: install ok installed" ]; then
+  sudo apt-get -y install python-pip
+  valid $? "Error: could not install python-pip! Please, install python-pip: sudo apt-get -y install python-pip"
+
+  echo "python-pip installed!"
+else
+  echo "python-pip already installed!"
+fi
+
+#
+# Pylint
+#
+pylint_test=`pip show pylint --disable-pip-version-check`
+
+if [ "$pylint_test" != "" ]; then
+  echo "pylint already installed!"
+else
+  sudo pip install pylint
+  valid $? "Error: could not install pylint! Please, install pylint: sudo pip install pylint"
+
+  echo "pylint installed!"
+fi
 
 #
 # TerraMA2 Web Dependencies
 #
 
-if [ -f "$2/webapp/app.js" ]; then
+if [ ! -d "$2/webapp/public/externals" ]; then
   echo "Installing TerraMA2 web dependencies..."
   echo ""
 
