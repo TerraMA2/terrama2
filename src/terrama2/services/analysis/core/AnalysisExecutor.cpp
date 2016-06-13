@@ -278,9 +278,18 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     storeAnalysisResult(dataManager, analysis);
 
   }
-  catch(std::exception& e)
+  catch(terrama2::Exception e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    Context::getInstance().addError(analysis.hashCode(),  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+  }
+  catch(std::exception e)
+  {
+    Context::getInstance().addError(analysis.hashCode(), e.what());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
   }
 }
 
