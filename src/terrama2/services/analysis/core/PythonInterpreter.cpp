@@ -80,7 +80,7 @@ std::string terrama2::services::analysis::core::extractException()
   }
 }
 
-void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, size_t analysisHashCode,
+void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode,
                                                                           std::vector<uint64_t> indexes)
 {
   Analysis analysis = Context::getInstance().getAnalysis(analysisHashCode);
@@ -122,7 +122,7 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
   }
 }
 
-void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, size_t analysisHashCode)
+void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode)
 {
 
   Analysis analysis = Context::getInstance().getAnalysis(analysisHashCode);

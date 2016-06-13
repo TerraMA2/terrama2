@@ -1,4 +1,5 @@
 var DataManager = require('./../../core/DataManager');
+var Enums = require('./../../core/Enums');
 
 
 module.exports = function(app) {
@@ -9,14 +10,14 @@ module.exports = function(app) {
     },
 
     new: function(request, response) {
-      response.render('configuration/dataset', {type: "static"});
+      response.render('configuration/dataset', {type: "static", "Enums": Enums});
     },
 
     edit: function(request, response) {
       var dataSeriesId = request.params.id;
 
       DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeriesResult) {
-        response.render('configuration/dataset', {type: "static", dataSeries: {input: dataSeriesResult.rawObject()}});
+        response.render('configuration/dataset', {type: "static", "Enums": Enums, dataSeries: {input: dataSeriesResult.rawObject()}});
       }).catch(function(err) {
         response.render('base/404');
       })

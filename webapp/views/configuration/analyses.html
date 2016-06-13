@@ -32,7 +32,7 @@
       $scope.linkToAdd = "/configuration/analyses/new";
 
       $scope.link = function(object) {
-        return "/configuration/analyses/new";
+        return "/configuration/analyses/" + object.id + "/edit";
       };
 
       $scope.remove = function(object) {

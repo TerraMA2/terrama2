@@ -1,4 +1,5 @@
 var BaseClass = require("./AbstractData");
+var Schedule = require("./Schedule");
 
 var Analysis = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Analysis'});
@@ -27,8 +28,15 @@ var Analysis = module.exports = function(params) {
     this.metadata = params.metadata || {};
 
   this.analysis_dataseries_list = [];
-  this.schedule_id = params.schedule_id;
+
+  if (params.Schedule)
+    this.schedule = new Schedule(params.Schedule.get() || {});
+  else
+    this.schedule = params.schedule;
+
   this.instance_id = params.instance_id;
+
+  this.dataSeries = {};
 };
 
 Analysis.prototype = Object.create(BaseClass.prototype);
@@ -37,6 +45,24 @@ Analysis.prototype.constructor = Analysis;
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
   this.analysis_dataseries_list.push(analysisDataSeries);
 };
+
+Analysis.prototype.setDataSeries = function(dataSeries) {
+  this.dataSeries = dataSeries;
+};
+
+Analysis.prototype.setScriptLanguage = function(scriptLanguage) {
+  if (scriptLanguage.get)
+    this.script_language = scriptLanguage.get() || {};
+  else
+    this.script_language = scriptLanguage || {};
+};
+
+Analysis.prototype.setSchedule = function(schedule) {
+  if (schedule.Schedule)
+    this.schedule = new Schedule(schedule.Schedule.get() || {});
+  else
+    this.schedule = schedule || {};
+}
 
 Analysis.prototype.setMetadata = function(metadata) {
   var meta = {};
@@ -82,14 +108,23 @@ Analysis.prototype.toObject = function() {
     output_dataseries_id: this['dataset_output'],
     metadata: this.metadata,
     'analysis_dataseries_list': outputDataSeriesList,
-    schedule: this['schedule_id'],
+    schedule: this['schedule'] instanceof BaseClass ? this['schedule'].toObject() : this['schedule'],
     service_instance_id: this.instance_id
   });
 };
 
 Analysis.prototype.rawObject = function() {
+  var outputDataSeriesList = [];
+  this.analysis_dataseries_list.forEach(function(analysisDataSeries) {
+    if (analysisDataSeries instanceof BaseClass)
+      outputDataSeriesList.push(analysisDataSeries.rawObject());
+    else
+      outputDataSeriesList.push(analysisDataSeries);
+  })
   var obj = this.toObject();
 
+  obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
+  obj.analysis_dataseries_list = outputDataSeriesList;
   obj.type = this.type;
   return obj;
 }

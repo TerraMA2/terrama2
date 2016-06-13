@@ -1,4 +1,6 @@
 var BaseClass = require("./AbstractData");
+var Schedule = require("./Schedule");
+var Filter = require('./Filter');
 
 var Collector = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Collector'});
@@ -14,9 +16,14 @@ var Collector = module.exports = function(params) {
     this.input_output_map = params.input_output_map || [];
 
   if (params.Schedule)
-    this.schedule = params.Schedule.get() || {};
+    this.schedule = new Schedule(params.Schedule.get() || {});
   else
     this.schedule = params.schedule || {};
+
+  if (params.Filter)
+    this.filter = new Filter(params.Filter.get() || {});
+  else
+    this.filter = params.filter || {};
 
   this.intersection = params.intersection || {};
   this.active = params.active;
@@ -38,6 +45,13 @@ Collector.prototype.setInputOutputMap = function (inputOutputModel) {
   this.input_output_map = output;
 };
 
+Collector.prototype.rawObject = function () {
+  var obj = this.toObject();
+  obj.schedule = this.schedule.toObject();
+  obj.filter = this.filter instanceof BaseClass ? this.filter.toObject() : this.filter;
+  return obj;
+};
+
 Collector.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
@@ -46,7 +60,8 @@ Collector.prototype.toObject = function() {
     input_data_series: this.input_data_series,
     output_data_series: this.output_data_series,
     input_output_map: this.input_output_map || [],
-    schedule: this['schedule'].id,
+    schedule: this['schedule'] instanceof BaseClass ? this['schedule'].toObject() : this['schedule'],
+    filter: this['filter'] instanceof BaseClass ? this.filter.toObject() : this.filter,
     intersection: this.intersection,
     active: this.active
   });

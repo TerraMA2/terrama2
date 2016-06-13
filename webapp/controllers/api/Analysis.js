@@ -25,7 +25,7 @@ module.exports = function(app) {
     post: [passport.isCommonUser, function(request, response) {
       var analysisObject = request.body.analysis;
       var storager = request.body.storager;
-      console.log(storager);
+      var scheduleObject = request.body.schedule;
 
       try {
         analysisObject.type = Utils.getAnalysisType(analysisObject.type_id);
@@ -36,7 +36,6 @@ module.exports = function(app) {
 
         // temp code. TODO:fix
         analysisObject.script_language_id = 1;
-        analysisObject.schedule_id = 1;
         analysisObject.data_series_id = analysisObject.dataSeries.id;
 
         var dataSeries = {
@@ -54,17 +53,23 @@ module.exports = function(app) {
           ]
         };
 
-        DataManager.addAnalysis(analysisObject, dataSeries).then(function(analysisResult) {
+        DataManager.addAnalysis(analysisObject, scheduleObject, dataSeries).then(function(analysisResult) {
           DataManager.listServiceInstances().then(function(services) {
             services.forEach(function(service) {
               try {
-                TcpManager.sendData(service, {"Analysis": [analysisResult.toObject()]});
+                TcpManager.sendData(service, {
+                  "DataSeries": [analysisResult.dataSeries.toObject()],
+                  "Analysis": [analysisResult.toObject()]
+                });
               } catch (e) {
                 console.log(e);
               }
             });
 
-            console.log(JSON.stringify(analysisResult.toObject()));
+            console.log(JSON.stringify({
+              "DataSeries": [analysisResult.dataSeries.toObject()],
+              "Analysis": [analysisResult.toObject()]
+            }));
             response.json({status: 200});
           // DataManager.getServiceInstance({id: analysisObject.instance_id}).then(function(serviceInstance) {
           }).catch(function(err) {
