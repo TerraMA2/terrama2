@@ -3,8 +3,8 @@ module.exports = function(sequelize, DataTypes) {
     {
       frequency: DataTypes.INTEGER,
       frequency_unit: DataTypes.STRING,
-      discard_before: DataTypes.TIME,
-      discard_after: DataTypes.TIME,
+      discard_before: DataTypes.DATE,
+      discard_after: DataTypes.DATE,
       region: DataTypes.GEOMETRY('POLYGON', 4326),
       by_value: DataTypes.DECIMAL
     },
@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
               unique: true
             }
           });
-          
+
           Filter.hasMany(models.ValueComparisonOperation, {
             onDelete: "CASCADE",
             foreignKey: {

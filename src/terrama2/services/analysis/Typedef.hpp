@@ -34,5 +34,6 @@
 
 typedef uint32_t AnalysisDataSeriesId;
 typedef ProcessId AnalysisId;
+typedef size_t AnalysisHashCode;
 
 #endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__

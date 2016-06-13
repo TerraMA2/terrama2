@@ -3,7 +3,7 @@
   <div class="col-md-7">
     <div class="form-group" ng-class="{'has-error': generalDataForm.name.$dirty && generalDataForm.name.$error.required, 'has-success': generalDataForm.name.$dirty && generalDataForm.name.$valid}">
       <label for="name">{{ i18n.__('Name') }}:</label>
-      <input class="form-control" id="name" name="name" ng-model="dataSeries.name" placeholder="{{ i18n.__('Data Series Name') }}" type="text" required>
+      <input class="form-control" id="name" name="name" ng-model="dataSeries.name" placeholder="{{ i18n.__('Data Series Name') }}" type="text" ng-disabled="isUpdating" required>
 
       <label class="help-block text-danger" ng-show="generalDataForm.name.$dirty && generalDataForm.name.$error.required">{{ i18n.__("Data series name is required") }}</label>
     </div>
@@ -13,7 +13,7 @@
   <div class="col-md-5">
     <div class="form-group" ng-class="{'has-error': generalDataForm.semantics.$dirty && generalDataForm.semantics.$invalid, 'has-success': generalDataForm.semantics.$dirty && generalDataForm.semantics.$valid}">
       <label>{{ i18n.__('Format') }}:</label>
-      <select class="form-control" name="semantics" ng-model="dataSeries.semantics" ng-options="semantics.name for semantics in dataSeriesSemantics" ng-change="onDataSemanticsChange();" required>
+      <select class="form-control" name="semantics" ng-model="dataSeries.semantics" ng-options="semantics.name for semantics in dataSeriesSemantics" ng-disabled="isUpdating" ng-change="onDataSemanticsChange();" required>
       </select>
 
       <label class="help-block text-danger" ng-show="generalDataForm.semantics.$dirty && generalDataForm.semantics.$error.required">{{ i18n.__("Format is required") }}</label>
@@ -23,7 +23,7 @@
   <div class="col-md-7">
     <div class="form-group" ng-class="{'has-error': generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$error.required, 'has-success': generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$valid}">
       <label>{{ i18n.__('Provider') }}:</label>
-      <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()" required>
+      <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()" ng-disabled="isUpdating" required>
         <option ng-repeat="provider in dataProviders" value="{{ provider.id }}">{{ provider.name }}</option>
       </select>
 
@@ -35,7 +35,7 @@
     <div class="form-group">
       <div class="checkbox">
         <label style="font-weight: 700; margin-top:19px;">
-          <input name="active" ng-model="dataSeries.active" ng-init="dataSeries.active = true" type="checkbox"> {{ i18n.__("Active") }}
+          <input name="active" ng-model="dataSeries.active" ng-init="dataSeries.active = true" type="checkbox" ng-disabled="isUpdating"> {{ i18n.__("Active") }}
         </label>
       </div>
     </div>

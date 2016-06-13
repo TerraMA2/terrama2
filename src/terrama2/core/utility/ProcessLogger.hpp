@@ -65,11 +65,38 @@ namespace terrama2
 
         \brief Possible status of logged messages.
       */
-      enum messageType
+      enum MessageType
       {
         ERROR_MESSAGE     = 1,
         INFO_MESSAGE      = 2,
         WARNING_MESSAGE   = 3
+      };
+
+
+      struct MessageLog
+      {
+        MessageLog() {};
+
+        uint32_t id =0;
+        RegisterId log_id =0;
+        MessageType type;
+        std::string description = "";
+        std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+      };
+
+      struct Log
+      {
+        Log() {};
+
+        RegisterId id = 0;
+        ProcessId processId = 0;
+        Status status;
+        std::shared_ptr< te::dt::TimeInstantTZ > start_timestamp;
+        std::shared_ptr< te::dt::TimeInstantTZ > data_timestamp;
+        std::shared_ptr< te::dt::TimeInstantTZ > last_process_timestamp;
+        std::string data = "";
+
+        std::vector< MessageLog > messages;
       };
 
       /*!
@@ -110,15 +137,29 @@ namespace terrama2
 
       /*!
        * \brief Returns the process last log timestamp
+       * \param processId The ID of the process
        * \return A TimeInstantTZ with the last time that process logged something
        */
       virtual std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
 
       /*!
        * \brief Returns the last timestamp of a data
+       * \param processId The ID of the process
        * \return A TimeInstantTZ with the data last timestamp
        */
-      virtual std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const RegisterId registerId) const;
+      virtual std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const ProcessId processId) const;
+
+      /*!
+       * \brief Get the logs of a process in a determined interval.
+       *        The order of register is from last log to the first, and
+       *        the first is 0.
+       *        So if you want from 1º to 10º last logs, begin = 0 and end = 9,
+       *        or from 3º to 5º last logs, begin = 2 and end = 4.
+       * \param processId The ID of the process
+       * \param begin The number order of the first wanted register
+       * \param end The number in order of the last wanted register
+       */
+      std::vector<Log> getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const;
 
       /*!
        * \brief Returns the process ID
@@ -147,7 +188,7 @@ namespace terrama2
 
 
       /*!
-       * \brief Store the table name of the process log
+       * \brief Store the name of the process log table and the message log table
        * \param tableName The log table name
        */
       void setTableName(const std::string tableName);
@@ -158,6 +199,7 @@ namespace terrama2
        */
       void updateData(const RegisterId registerId, const QJsonObject obj) const;
 
+      std::string schema_ = "terrama2";
       std::string tableName_ = "";
       std::string messagesTableName_ = "";
       std::unique_ptr< te::da::DataSource > dataSource_;

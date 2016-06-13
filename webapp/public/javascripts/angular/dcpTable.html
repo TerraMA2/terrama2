@@ -24,7 +24,7 @@
               </span>
           </td>
           <td>
-            <button class="btn btn-danger" ng-click="removePcd(dcp)">{{ i18n.__("Remove") }}</button>
+            <button class="btn btn-danger" ng-click="removePcd(dcp)" ng-disabled="isUpdating">{{ i18n.__("Remove") }}</button>
           </td>
         </tr>
         </tbody>

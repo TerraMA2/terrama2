@@ -332,37 +332,48 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::creat
   std::shared_ptr<te::gm::Geometry> buffer;
 
   // For influence based on radius, creates a buffer for the DCP location
-  if(influenceType == InfluenceType::RADIUS_CENTER || influenceType == InfluenceType::RADIUS_TOUCHES)
+  switch(influenceType)
   {
-
-    if(analysis.metadata.at("INFLUENCE_RADIUS").empty())
+    case InfluenceType::RADIUS_CENTER:
+    case InfluenceType::RADIUS_TOUCHES:
     {
-      QString errMsg(QObject::tr("Invalid influence radius."));
-      errMsg = errMsg.arg(analysis.id);
-      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+
+      if(analysis.metadata.at("INFLUENCE_RADIUS").empty())
+      {
+        QString errMsg(QObject::tr("Invalid influence radius."));
+        errMsg = errMsg.arg(analysis.id);
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+
+
+      std::string radiusStr = analysis.metadata.at("INFLUENCE_RADIUS");
+      std::string radiusUnit = analysis.metadata.at("INFLUENCE_RADIUS_UNIT");
+
+      if(radiusStr.empty())
+        radiusStr = "0";
+      if(radiusUnit.empty())
+        radiusUnit = "km";
+
+      double influenceRadius = std::atof(radiusStr.c_str());
+
+      influenceRadius =
+              te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * influenceRadius;
+
+      buffer.reset(position->buffer(influenceRadius, 16, te::gm::CapButtType));
+
+      int srid = position->getSRID();
+      buffer->setSRID(srid);
+
+      // Converts the buffer to monitored object SRID
+      buffer->transform(monitoredObjectSrid);
+      break;
     }
-
-
-    std::string radiusStr = analysis.metadata.at("INFLUENCE_RADIUS");
-    std::string radiusUnit = analysis.metadata.at("INFLUENCE_RADIUS_UNIT");
-
-    if(radiusStr.empty())
-      radiusStr = "0";
-    if(radiusUnit.empty())
-      radiusUnit = "km";
-
-    double influenceRadius = std::atof(radiusStr.c_str());
-
-    influenceRadius =
-            te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * influenceRadius;
-
-    buffer.reset(position->buffer(influenceRadius, 16, te::gm::CapButtType));
-
-    int srid = position->getSRID();
-    buffer->setSRID(srid);
-
-    // Converts the buffer to monitored object SRID
-    buffer->transform(monitoredObjectSrid);
+    case InfluenceType::REGION:
+    {
+      // TODO: Ticket #482
+      QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+      throw Exception() << ErrorDescription(errMsg);
+    }
   }
   return buffer;
 }

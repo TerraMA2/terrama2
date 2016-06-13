@@ -15,17 +15,17 @@
             <div class="form-group">
               <label>{{ i18n.__('Ignores data previous to') }}:</label>
               <div class="dropdown dropup">
-                <a class="dropdown-toggle" id="dropdownBeforeDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2">
+                <a class="dropdown-toggle" id="dropdownBeforeDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2" ng-disabled="isUpdating">
                   <div class="input-group">
-                    <input type="text" class="form-control" data-date-time-input="YYYY-MM-DD HH:mm" data-ng-model="filter.date.beforeDate">
+                    <input type="text" class="form-control" ng-disabled="isUpdating" data-date-time-input="YYYY-MM-DD HH:mm" data-ng-model="filter.date.beforeDate">
 
-                    <span class="input-group-addon">
+                    <span class="input-group-addon" style="cursor: {{ isUpdating ? 'not-allowed' : 'default' }}">
                       <i class="glyphicon glyphicon-calendar"></i>
                     </span>
                   </div>
                 </a>
-                <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel">
-                  <datetimepicker data-ng-model="filter.date.beforeDate" data-datetimepicker-config="{ dropdownSelector: '#dropdownBeforeDate' }" data-before-render="beforeRenderStartDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
+                <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel" ng-if="!isUpdating">
+                  <datetimepicker data-ng-model="filter.date.beforeDate" ng-disabled="isUpdating" data-datetimepicker-config="{ dropdownSelector: '#dropdownBeforeDate' }" data-before-render="beforeRenderStartDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
                 </ul>
               </div>
             </div>
@@ -36,15 +36,15 @@
               <div class="dropdown dropup">
                 <a class="dropdown-toggle" id="dropdownAfterDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2">
                   <div class="input-group">
-                    <input type="text" class="form-control" data-date-time-input="YYYY-MM-DD hh:mm" data-ng-model="filter.date.afterDate">
+                    <input type="text" class="form-control" ng-disabled="isUpdating" data-date-time-input="YYYY-MM-DD hh:mm" data-ng-model="filter.date.afterDate">
 
-                    <span class="input-group-addon">
+                    <span class="input-group-addon" style="cursor: {{ isUpdating ? 'not-allowed' : 'default' }}">
                       <i class="glyphicon glyphicon-calendar"></i>
                     </span>
                   </div>
                 </a>
-                <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel">
-                  <datetimepicker data-ng-model="filter.date.afterDate" data-datetimepicker-config="{ dropdownSelector: '#dropdownAfterDate' }" data-before-render="beforeRenderEndDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
+                <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel" ng-if="!isUpdating">
+                  <datetimepicker data-ng-model="filter.date.afterDate" ng-disabled="isUpdating" data-datetimepicker-config="{ dropdownSelector: '#dropdownAfterDate' }" data-before-render="beforeRenderEndDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
                 </ul>
               </div>
             </div>
@@ -59,7 +59,7 @@
           <div class='col-md-12'>
             <div class="form-group">
               <label>{{ i18n.__('Select the filter area type') }}:</label>
-              <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-model="filterArea" ng-change="filter.area={};" ng-init="filterArea='1';">
+              <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-disabled="isUpdating" ng-model="filterArea" ng-change="filter.area={};" ng-init="filterArea='1';">
                 <option value="1">Do not filter</option>
                 <option value="2">Filter by limits</option>
               </select>
@@ -70,28 +70,28 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label>X min:</label>
-                <input class="form-control" id="minX" name="filterMinX" ng-model="filter.area.minX" placeholder="" type="text">
+                <input class="form-control" id="minX" name="filterMinX" ng-disabled="isUpdating" ng-model="filter.area.minX" placeholder="" type="text">
               </div>
             </div>
 
             <div class="col-md-6">
               <div class="form-group">
                 <label>X max:</label>
-                <input class="form-control" id="maxX" name="filterMaxX" ng-model="filter.area.maxX" placeholder="" type="text">
+                <input class="form-control" id="maxX" name="filterMaxX" ng-disabled="isUpdating" ng-model="filter.area.maxX" placeholder="" type="text">
               </div>
             </div>
 
             <div class="col-md-6">
               <div class="form-group">
                 <label>Y min:</label>
-                <input class="form-control" id="minY" name="filterMinY" ng-model="filter.area.minY" placeholder="" type="text">
+                <input class="form-control" id="minY" name="filterMinY" ng-disabled="isUpdating" ng-model="filter.area.minY" placeholder="" type="text">
               </div>
             </div>
 
             <div class="col-md-6">
               <div class="form-group">
                 <label>Y max:</label>
-                <input class="form-control" id="maxY" name="filterMaxY" ng-model="filter.area.maxY" placeholder="" type="text">
+                <input class="form-control" id="maxY" name="filterMaxY" ng-disabled="isUpdating" ng-model="filter.area.maxY" placeholder="" type="text">
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@
             <div class="form-group">
               <div class="radio">
                 <label>
-                  <input name="optionsRadios" id="doNotMakePreAnalysis" ng-model="radioPreAnalysis.doNotMake" value="option1" ng-init="radioPreAnalysis={'doNotMake':true};" type="radio" data-ng-click="handlePreAnalysisFilter({'doNotMake': radioPreAnalysis.doNotMake})">
+                  <input name="optionsRadios" id="doNotMakePreAnalysis" ng-disabled="isUpdating" ng-model="radioPreAnalysis.doNotMake" value="option1" ng-init="radioPreAnalysis={'doNotMake':true};" type="radio" data-ng-click="handlePreAnalysisFilter({'doNotMake': radioPreAnalysis.doNotMake})">
                   {{ i18n.__('Do not make pre-analysis') }}
                 </label>
               </div>
@@ -119,7 +119,7 @@
             <div class="form-group">
               <div class="radio">
                 <label>
-                  <input name="optionsRadios" id="cutByArea" value="option1" type="radio" ng-model="radioPreAnalysis.lessThan" data-ng-click="handlePreAnalysisFilter({'lessThan': radioPreAnalysis.lessThan})">
+                  <input name="optionsRadios" id="cutByArea" value="option1" type="radio" ng-disabled="isUpdating" ng-model="radioPreAnalysis.lessThan" data-ng-click="handlePreAnalysisFilter({'lessThan': radioPreAnalysis.lessThan})">
                   {{ i18n.__('Ignores all data LESS than') }}:
                 </label>
               </div>
@@ -129,7 +129,7 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <input class="form-control" id="name" placeholder="" type="text" ng-model="filter.pre_analysis.less_than" ng-disabled="!radioPreAnalysis.lessThan">
+              <input class="form-control" id="name" placeholder="" type="text" ng-disabled="isUpdating" ng-model="filter.pre_analysis.less_than" ng-disabled="!radioPreAnalysis.lessThan">
             </div>
           </div>
           <!-- ./col-md-4 -->
@@ -138,7 +138,7 @@
             <div class="form-group">
               <div class="radio">
                 <label>
-                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-model="radioPreAnalysis.greaterThan" data-ng-click="handlePreAnalysisFilter({'greaterThan': radioPreAnalysis.greaterThan})">
+                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-disabled="isUpdating" ng-model="radioPreAnalysis.greaterThan" data-ng-click="handlePreAnalysisFilter({'greaterThan': radioPreAnalysis.greaterThan})">
                   {{ i18n.__('Ignores all data GREATER than') }}:
                 </label>
               </div>
@@ -148,7 +148,7 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <input class="form-control" name="greater_than" ng-model="filter.pre_analysis.greater_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.greaterThan">
+              <input class="form-control" name="greater_than" ng-disabled="isUpdating" ng-model="filter.pre_analysis.greater_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.greaterThan">
             </div>
           </div>
           <!-- ./col-md-4 -->
@@ -157,7 +157,7 @@
             <div class="form-group">
               <div class="radio">
                 <label>
-                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-model="radioPreAnalysis.avgLessThan" data-ng-click="handlePreAnalysisFilter({'avgLessThan': radioPreAnalysis.avgLessThan})">
+                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-disabled="isUpdating" ng-model="radioPreAnalysis.avgLessThan" data-ng-click="handlePreAnalysisFilter({'avgLessThan': radioPreAnalysis.avgLessThan})">
                   {{ i18n.__('Ignores if average is LESS than') }}:
                 </label>
               </div>
@@ -167,7 +167,7 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <input class="form-control" name="less_than" ng-model="filter.pre_analysis.less_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.avgLessThan">
+              <input class="form-control" name="less_than" ng-disabled="isUpdating" ng-model="filter.pre_analysis.less_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.avgLessThan">
             </div>
           </div>
           <!-- ./col-md-4 -->
@@ -176,7 +176,7 @@
             <div class="form-group">
               <div class="radio">
                 <label>
-                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-model="radioPreAnalysis.avgGreaterThan" data-ng-click="handlePreAnalysisFilter({'avgGreaterThan': radioPreAnalysis.avgGreaterThan})">
+                  <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-disabled="isUpdating" ng-model="radioPreAnalysis.avgGreaterThan" data-ng-click="handlePreAnalysisFilter({'avgGreaterThan': radioPreAnalysis.avgGreaterThan})">
                   {{ i18n.__('Ignores if average is GREATER than') }}:
                 </label>
               </div>
@@ -186,7 +186,7 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <input class="form-control" name="avg_greater_than" ng-model="filter.pre_analysis.avg_greater_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.avgGreaterThan">
+              <input class="form-control" name="avg_greater_than" ng-disabled="isUpdating" ng-model="filter.pre_analysis.avg_greater_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.avgGreaterThan">
             </div>
           </div>
           <!-- ./col-md-4 -->
@@ -194,7 +194,7 @@
           <div class='col-md-12'>
             <div class="form-group">
               <label>
-                <input name="optionsRadios" id="cutByLimits" value="option1" type="checkbox">
+                <input name="optionsRadios" id="cutByLimits" value="option1" ng-disabled="isUpdating" type="checkbox">
                 {{ i18n.__('Analyse only data inside selected plan') }}:
               </label>
             </div>
@@ -203,11 +203,11 @@
 
           <div class='col-md-12'>
             <div class="form-group">
-              <textarea class="form-control" name="plan" ng-model="filter.pre_analysis.plan" id="selectPlans"></textarea>
+              <textarea class="form-control" name="plan" ng-disabled="isUpdating" ng-model="filter.pre_analysis.plan" id="selectPlans"></textarea>
             </div>
           </div>
           <!-- ./col-md-12 -->
-        </div> 
+        </div>
         <!-- /.col-md-12 -->
       </div>
       <div class="tab-pane" id="filterBandTab">
@@ -216,7 +216,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label>{{ i18n.__('Bands to be skipped') }}:</label>
-              <input class="form-control" id="bands" name="bands" ng-model="filter.bands.name" type="text">
+              <input class="form-control" id="bands" name="bands" ng-disabled="isUpdating" ng-model="filter.bands.name" type="text">
             </div>
           </div>
         </div>
