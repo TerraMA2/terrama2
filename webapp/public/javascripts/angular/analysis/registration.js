@@ -2,29 +2,50 @@ angular.module('terrama2.analysis.registration', [
     'terrama2',
     'terrama2.services',
     'terrama2.components.messagebox',
+    'ui.bootstrap.datetimepicker',
+    'ui.dateTimeInput',
     'schemaForm',
+    'terrama2.schedule',
     'treeControl'
   ])
 
   .controller('AnalysisRegistration',
     [
       '$scope',
+      'i18n',
       'ServiceInstanceFactory',
       'DataSeriesFactory',
       'DataSeriesSemanticsFactory',
       'AnalysisFactory',
       'DataProviderFactory',
-  function($scope, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory) {
+      'TryCaster',
+  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster) {
+    // injecting i18n module
+    $scope.i18n = i18n;
+
+    // checking if is update mode
+    $scope.isUpdating = Object.keys(configuration.analysis).length > 0;
+
     // initializing objects
     $scope.analysis = {
       metadata: {}
     };
+    $scope.targetDataSeries = {};
+
     $scope.instances = [];
     $scope.dataSeriesList = [];
     $scope.dataProvidersList = [];
     $scope.dataProviders = [];
 
     $scope.identifier = "";
+
+    // schedule
+    $scope.schedule = {};
+    $scope.isFrequency = false;
+    $scope.isSchedule = false;
+    $scope.scheduleOptions = {
+      disabled: $scope.isUpdating
+    }
 
     // define dataseries selected in modal
     $scope.nodesDataSeries = [];
@@ -34,6 +55,7 @@ angular.module('terrama2.analysis.registration', [
     $scope.metadata = {};
     $scope.semantics = {};
     $scope.storagerFormats = [];
+    $scope.storager = {};
     $scope.buffers = {
       "static": [],
       "dynamic": []
@@ -114,7 +136,12 @@ angular.module('terrama2.analysis.registration', [
         if (semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA)
           $scope.filteredDataSeries.push(dataSeries);
       });
+
+      if ($scope.isUpdating)
+        $scope.$emit("analysisTypeChanged");
     });
+
+    // targetDataSeries change. When
 
     // terrama2 alert box
     $scope.alertBox = {};
@@ -127,6 +154,9 @@ angular.module('terrama2.analysis.registration', [
     $scope.formStorager = [];
     $scope.modelStorager = {};
     $scope.schemaStorager = {};
+    $scope.options = {};
+    if ($scope.isUpdating)
+      $scope.options.formDefaults = {readonly: true};
 
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format;
@@ -136,7 +166,11 @@ angular.module('terrama2.analysis.registration', [
         var metadata = data.metadata;
         var properties = metadata.schema.properties;
 
-        $scope.modelStorager = {};
+        if ($scope.isUpdating) {
+          $scope.modelStorager = configuration.analysis.dataSeries.dataSets[0].format;
+        } else
+          $scope.modelStorager = {};
+
         $scope.formStorager = metadata.form;
         $scope.schemaStorager = {
           type: 'object',
@@ -161,12 +195,73 @@ angular.module('terrama2.analysis.registration', [
 
     DataSeriesSemanticsFactory.list().success(function(semanticsList) {
       $scope.dataSeriesSemantics = semanticsList;
-    }).error(function(err) {
-      console.log(err);
-    });
 
-    DataProviderFactory.get().success(function(dataProviders) {
-      $scope.dataProvidersList = dataProviders;
+      DataProviderFactory.get().success(function(dataProviders) {
+        $scope.dataProvidersList = dataProviders;
+
+        // fill analysis in gui
+        if ($scope.isUpdating) {
+          var analysisInstance = configuration.analysis;
+
+          $scope.analysis.name = analysisInstance.name;
+          $scope.analysis.description = analysisInstance.description;
+          $scope.analysis.type_id = analysisInstance.type.id.toString();
+          $scope.analysis.instance_id = analysisInstance.service_instance_id.toString();
+          $scope.analysis.script = analysisInstance.script;
+
+          // schedule update
+          $scope.$broadcast("updateSchedule", analysisInstance.schedule);
+
+          // wait for watchers (type_id)
+          $scope.$on("analysisTypeChanged", function(event) {
+            analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
+              var ds = analysisDs.dataSeries;
+
+              if (analysisDs.type === globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE)
+                $scope.selectedDataSeriesList.push(ds);
+              else {
+                $scope.filteredDataSeries.some(function(filteredDs) {
+                  if (filteredDs.id === ds.id) {
+                    $scope.targetDataSeries = filteredDs;
+                    $scope.onTargetDataSeriesChange();
+
+                    // set identifier
+                    $scope.identifier = analysisDs.metadata['identifier'] ;
+                    return true;
+                  }
+                })
+              }
+
+              $scope.metadata[ds.name] = Object.assign({alias: analysisDs.alias}, analysisDs.metadata);
+            });
+
+            // setting storager format
+            $scope.storagerFormats.some(function(storagerFmt) {
+              if (analysisInstance.dataSeries.data_series_semantics.id === storagerFmt.id) {
+                $scope.storager.format = storagerFmt;
+                $scope.onStoragerFormatChange();
+                return true;
+              }
+            });
+
+            $scope.analysis.data_provider_id = analysisInstance.dataSeries.data_provider_id;
+          })
+
+          // TODO: change it to angular ui-ace.
+          editor.setValue($scope.analysis.script);
+          editor.setOptions({
+            readOnly: true,
+            highlightActiveLine: false,
+            highlightGutterLine: false
+          })
+          editor.renderer.$cursorLayer.element.style.opacity=0
+
+        }
+
+      }).error(function(err) {
+        console.log(err);
+      });
+
     }).error(function(err) {
       console.log(err);
     });
@@ -304,6 +399,7 @@ angular.module('terrama2.analysis.registration', [
 
     // save function
     $scope.save = function() {
+      $scope.analysis_script_error = false;
       if ($scope.generalDataForm.$invalid) {
         formErrorDisplay($scope.generalDataForm);
         return;
@@ -314,6 +410,13 @@ angular.module('terrama2.analysis.registration', [
         return;
       }
 
+      // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
+      var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
+      if (scheduleForm.$invalid) {
+        errorHelper(scheduleForm);
+        return;
+      }
+
       if ($scope.targetDataSeriesForm.$invalid) {
         formErrorDisplay($scope.targetDataSeriesForm);
         return;
@@ -321,6 +424,15 @@ angular.module('terrama2.analysis.registration', [
 
       if ($scope.scriptForm.$invalid) {
         formErrorDisplay($scope.scriptForm);
+        return;
+      }
+
+      // checking script form if there any "add_value"
+      if ($scope.analysis.script.indexOf("add_value") < 0) {
+        $scope.analysis_script_error = true;
+        $scope.analysis_script_error_message = "Analysis will not able to generate a output data. Please fill at least a add_value() in script field.";
+        angular.element("#scriptCheckResult").html($scope.analysis_script_error_message);
+        // makeDialog("alert-danger", $scope.analysis_script_error_message, true);
         return;
       }
 
@@ -396,10 +508,32 @@ angular.module('terrama2.analysis.registration', [
 
       var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
 
+      var scheduleValues = Object.assign({}, $scope.schedule);
+      switch(scheduleValues.scheduleHandler) {
+        case "seconds":
+        case "minutes":
+        case "hours":
+          scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+          break;
+
+        case "weeks":
+        case "monthly":
+        case "yearly":
+          // todo: verify
+          var dt = scheduleValues.schedule_time;
+          scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+          scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+          break;
+
+        default:
+          break;
+      }
+
       // sending post operation
       AnalysisFactory.post({
         analysis: analysisToSend,
-        storager: storager
+        storager: storager,
+        schedule: scheduleValues
       }).success(function(data) {
         window.location = "/configuration/analyses";
       }).error(function(err) {

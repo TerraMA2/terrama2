@@ -1,4 +1,5 @@
 var DataManager = require('./../../core/DataManager');
+var Enums = require('./../../core/Enums');
 
 
 module.exports = function(app) {
@@ -9,7 +10,7 @@ module.exports = function(app) {
     },
 
     new: function(request, response) {
-      response.render('configuration/dataset', {type: "dynamic"});
+      response.render('configuration/dataset', {type: "dynamic", "Enums": Enums});
     },
 
     edit: function(request, response) {
@@ -30,10 +31,12 @@ module.exports = function(app) {
           response.render('configuration/dataset', {
             state: "dynamic",
             type: "dynamic",
+            "Enums": Enums,
             dataSeries: {
               input: dataSeriesResults[0].rawObject(),
               output: dataSeriesResults[1].rawObject(),
-            }
+            },
+            collector: collectorResult.rawObject()
           });
         }).catch(function(err) {
           console.log(err);

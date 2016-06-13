@@ -71,6 +71,8 @@
   <!-- terrama2 app -->
   <script type="text/javascript" src="/javascripts/angular/app.js"></script>
 
+  <script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
+
   <!-- Angular i18n -->
   <script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
 
@@ -80,8 +82,16 @@
       state: "{[ state ]}"
     };
 
+    var globals = {
+      enums: {
+        DataSeriesType: {[ Enums.DataSeriesType|json|safe ]}  || {},
+        DataSeriesFormat: {[ Enums.DataSeriesFormat|json|safe ]} || {}
+      }
+    }
+
     var configuration = {
       dataSeries: {[ dataSeries|json|safe ]},
+      collector: {[ collector|json|safe ]},
       parametersData: {[ parametersData|json|safe ]},
       dataSeriesType: "{[ type ]}"
     }

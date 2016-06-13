@@ -1,76 +1,85 @@
 <div class="row">
-  <div class="col-md-7">
-    <div class="form-group" style="top:30px;">
-      <label>{{ i18n.__('Type') }}:</label>
-      <select class="form-control" name="schedule" ng-model="schedule.scheduleHandler" ng-change="onScheduleChange(schedule.scheduleHandler)">
-        <option value="seconds">{{ i18n.__('Seconds') }}</option>
-        <option value="minutes">{{ i18n.__('Minutes') }}</option>
-        <option value="hours">{{ i18n.__('Hours') }}</option>
-        <option value="weeks">{{ i18n.__('Weekly') }}</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="col-md-5" ng-if="isFrequency">
-    <div class="form-group" ng-class="{'has-error': scheduleForm.frequency.$dirty && scheduleForm.frequency.$invalid, 'has-success': scheduleForm.frequency.$dirty && scheduleForm.frequency.$valid}">
-      <label>{{ i18n.__('Frequency') }}:</label>
-      <input class="form-control" name="frequency" ng-model="schedule.frequency" type="number" ng-required="isFrequency" min="{{ minSchedule }}" max="{{ maxSchedule }}">
-
-      <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && scheduleForm.frequency.$error.required">{{ i18n.__("Frequency value is required") }}</label>
-
-      <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && (scheduleForm.frequency.$error.max || scheduleForm.frequency.$error.min)">{{ i18n.__("Frequency value is invalid") }}</label>
-    </div>
-  </div>
-
-  <div class="col-md-5" ng-if="isSchedule">
-    <div class="form-group" ng-class="{'has-error': scheduleForm.schedule.$invalid,
-                                       'has-success': scheduleForm.schedule.$valid}">
-      <label>{{ i18n.__('Schedule') }}:</label>
-
-      <!-- weekly -->
-      <select ng-if="schedule.scheduleHandler == 'weeks'" class="form-control" name="schedule" ng-model="schedule.schedule" required>
-        <option value="1">{{ i18n.__('Sunday') }}</option>
-        <option value="2">{{ i18n.__('Monday') }}</option>
-        <option value="3">{{ i18n.__('Tuesday') }}</option>
-        <option value="4">{{ i18n.__('Wednesday') }}</option>
-        <option value="5">{{ i18n.__('Thursday') }}</option>
-        <option value="6">{{ i18n.__('Friday') }}</option>
-        <option value="7">{{ i18n.__('Saturday') }}</option>
-      </select>
-
-      <!-- monthly -->
-      <select class="form-control" name="schedule" ng-if="schedule.scheduleHandler == 'monthly'" ng-model="schedule.schedule" required>
-        <option ng-repeat="day in range(1, 32)" value="{{ day }}">{{ day}}</option>
-      </select>
-
-      <!-- yearly -->
-      <input type="number" class="form-control" ng-if="schedule.scheduleHandler == 'yearly'" ng-model="schedule.schedule" min="1" max="366" required>
-
-      <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$invalid">{{ i18n.__("Schedule value is required") }}</label>
-
-      <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$error.number">{{ i18n.__("Schedule value is not a valid integer") }}</label>
-      <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && (scheduleForm.schedule.$error.min || scheduleForm.schedule.$error.max)">{{ i18n.__("Schedule value is not in range") }}</label>
-    </div>
-  </div>
-
-  <div class="col-md-5 col-md-offset-7" ng-if="schedule.scheduleHandler == 'weeks'">
-    <div class="form-group" ng-class="{'has-error': scheduleForm.schedule_time.$invalid, has-success': scheduleForm.schedule_time.$valid}">
-      <label class="ng-binding">{{ i18n.__('Time') }}</label>
-      <div class="dropdown">
-        <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
-          <div class="input-group">
-            <input type="text" class="form-control" data-date-time-input="HH:mm:ss" data-ng-model="schedule.schedule_time">
-            <span class="input-group-addon">
-              <i class="glyphicon glyphicon-time"></i>
-            </span>
-          </div>
-        </a>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-          <datetimepicker data-ng-model="schedule.schedule_time" data-datetimepicker-config="{dropdownSelector: '#dropdown2', 'startView': 'hour', 'minView': 'minute'}"/>
-        </ul>
+  <form name="scheduleForm">
+    <div class="col-md-7">
+      <div class="form-group" style="top:30px;">
+        <label>{{ i18n.__('Type') }}:</label>
+        <select class="form-control" name="schedule"
+                ng-disabled="options.disabled"
+                ng-model="model.scheduleHandler"
+                ng-change="onScheduleChange(model.scheduleHandler)">
+          <option value="seconds">{{ i18n.__('Seconds') }}</option>
+          <option value="minutes">{{ i18n.__('Minutes') }}</option>
+          <option value="hours">{{ i18n.__('Hours') }}</option>
+          <option value="weeks">{{ i18n.__('Weekly') }}</option>
+        </select>
       </div>
     </div>
-  </div>
 
+    <div class="col-md-5" ng-if="isFrequency">
+      <div class="form-group" ng-class="{'has-error': scheduleForm.frequency.$dirty && scheduleForm.frequency.$invalid, 'has-success': scheduleForm.frequency.$dirty && scheduleForm.frequency.$valid}">
+        <label>{{ i18n.__('Frequency') }}:</label>
+        <input class="form-control"
+               name="frequency"
+               ng-model="model.frequency"
+               type="number"
+               ng-disabled="options.disabled"
+               ng-required="isFrequency"
+               min="{{ minSchedule }}"
+               max="{{ maxSchedule }}">
+
+        <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && scheduleForm.frequency.$error.required">{{ i18n.__("Frequency value is required") }}</label>
+
+        <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && (scheduleForm.frequency.$error.max || scheduleForm.frequency.$error.min)">{{ i18n.__("Frequency value is invalid") }}</label>
+      </div>
+    </div>
+
+    <div class="col-md-5" ng-if="isSchedule">
+      <div class="form-group" ng-class="{'has-error': scheduleForm.schedule.$invalid, 'has-success': scheduleForm.schedule.$valid}">
+        <label>{{ i18n.__('Schedule') }}:</label>
+
+        <!-- weekly -->
+        <select ng-if="model.scheduleHandler == 'weeks'"
+                class="form-control"
+                name="schedule"
+                ng-disabled="options.disabled"
+                ng-model="model.schedule"
+                ng-options="day.id as day.name for day in weekDays"
+                required>
+        </select>
+
+        <!-- monthly -->
+        <select class="form-control" name="schedule" ng-if="model.scheduleHandler == 'monthly'" ng-disabled="options.disabled" ng-model="model.schedule" required>
+          <option ng-repeat="day in range(1, 32)" value="{{ day }}">{{ day }}</option>
+        </select>
+
+        <!-- yearly -->
+        <input type="number" class="form-control" ng-if="model.scheduleHandler == 'yearly'" ng-model="model.schedule" min="1" max="366" required>
+
+        <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$invalid">{{ i18n.__("Schedule value is required") }}</label>
+        <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$error.number">{{ i18n.__("Schedule value is not a valid integer") }}</label>
+        <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && (scheduleForm.schedule.$error.min || scheduleForm.schedule.$error.max)">{{ i18n.__("Schedule value is not in range") }}</label>
+      </div>
+    </div>
+
+    <div class="col-md-5 col-md-offset-7" ng-if="model.scheduleHandler == 'weeks'">
+      <div class="form-group" ng-class="{'has-error': scheduleForm.schedule_time.$invalid, has-success': scheduleForm.schedule_time.$valid}">
+        <label class="ng-binding">{{ i18n.__('Time') }}</label>
+        <div class="dropdown">
+          <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
+            <div class="input-group">
+              <input type="text" class="form-control" ng-disabled="options.disabled" data-date-time-input="HH:mm:ss" data-ng-model="model.schedule_time">
+              <span class="input-group-addon">
+                <i class="glyphicon glyphicon-time"></i>
+              </span>
+            </div>
+          </a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <datetimepicker data-ng-model="model.schedule_time" ng-disabled="options.disabled" data-datetimepicker-config="{dropdownSelector: '#dropdown2', 'startView': 'hour', 'minView': 'minute'}"/>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </form>
 </div>
 <!-- /.row -->
