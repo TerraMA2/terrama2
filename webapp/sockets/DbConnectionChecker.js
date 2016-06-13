@@ -3,19 +3,19 @@
 var UriPattern = require('./../core/Enums').Uri;
 
 /**
- * Socket responsible for checking the ssh connection with a given host.
+ * Socket responsible for checking the database connection with a given host.
  * @class SSHConnectionChecker
  *
  * @author Raphael Willian da Costa
  *
  * @property {object} memberSockets - Sockets object.
- * @property {object} memberPostgis - Postgis class.
+ * @property {object} memberPostgis - PostgisRequest class.
  */
 var DbConnectionChecker = function(io) {
 
   // Sockets object
   var memberSockets = io.sockets;
-  // Ssh class
+  // PostgisRequest class
   var memberPostgis = require("../core/PostgisRequest.js");
 
   // Socket connection event
