@@ -53,7 +53,7 @@ private slots:
     void TestNullDataSet();
 
     /*!
-     * \brief Tests the timer signal emition.
+     * \brief Tests the timer signal emission.
      */
     void TestTimerSignalEmit();
 

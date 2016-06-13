@@ -335,10 +335,10 @@ module.exports = {
 
     var tzStr;
     if (timeZone > 0) {
-      tzStr = timeZone < 10 ? "-0" + timeZone + "00" : "-" + timeZone + "00";
+      tzStr = timeZone < 10 ? "-0" + timeZone + ":00" : "-" + timeZone + ":00";
     } else {
       var absTimezone = timeZone * (-1);
-      tzStr = absTimezone < 10 ? "+0" + absTimezone + "00" : "+" + absTimezone + "00";
+      tzStr = absTimezone < 10 ? "+0" + absTimezone + ":00" : "+" + absTimezone + ":00";
     }
 
     return dateWithoutTimezone + tzStr;

@@ -70,7 +70,7 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
   }
   catch(boost::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str();
+    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(std::exception& e)
   {
