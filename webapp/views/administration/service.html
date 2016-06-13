@@ -25,6 +25,11 @@
       if ($scope.service.service_type_id) {
         $scope.service.service_type_id = $scope.service.service_type_id.toString();
       }
+
+      if (!$scope.service.numberOfThreads) {
+        $scope.service.numberOfThreads = 1;
+      }
+
       $scope.log = $scope.service.log || {};
 
       $scope.update = false;
@@ -129,8 +134,8 @@
         }
 
         // validating enviroment
-        // if ($scope.service.runEnviroment)
-        //   $scope.service.runEnviroment = $scope.service.runEnviroment.split("\n").join(" ");
+        if ($scope.service.runEnviroment)
+          $scope.service.runEnviroment = $scope.service.runEnviroment.split("\n").join(" ");
 
         $scope.isChecking = true;
         $scope.display = false;
@@ -345,7 +350,7 @@
                     </div>
                   </div>
                   <!-- ./col-md-12 -->
-<!--
+
                   <div class="col-md-12">
                     <div class="col-md-6">
                       <div class="form-group has-feedback"
@@ -354,17 +359,17 @@
                         <input class="form-control" name="numberOfThreads" ng-disabled="update" ng-model="service.numberOfThreads" placeholder="Number of thread to run" required="" type="number">
 
                         <span class="form-control-feedback glyphicon ng-hide glyphicon-remove" ng-show="serviceForm.numberOfThreads.$dirty" ng-class="{'glyphicon-ok': serviceForm.numberOfThreads.$valid, 'glyphicon-remove': serviceForm.numberOfThreads.$invalid }"></span>
-                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">Number of threads is requiredd</span>
+                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">Number of threads is required</span>
                         <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.number">Number of threads is invalid</span>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>{[ __("Enviroment") ]}:</label>
-                        <textarea class="form-control" ng-disabled="update" ng-model="service.runEnviroment" rows="3" placeholder="Enviroment Variables"></textarea>
+                        <textarea class="form-control" style="max-width: 100%; max-height: 200px;" ng-disabled="update" ng-model="service.runEnviroment" rows="6" placeholder="Enviroment Variables"></textarea>
                       </div>
                     </div>
-                  </div> -->
+                  </div>
                 </form>
                 <!-- ./form serviceForm -->
               </div>
