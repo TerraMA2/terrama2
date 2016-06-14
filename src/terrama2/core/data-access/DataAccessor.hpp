@@ -98,8 +98,10 @@ namespace terrama2
           \sa getSeries()
         */
         virtual std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime() const {return lastDateTime_; }
+
         //! Returns the DataSeriesSemantics of the DataSeries.
         DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
+
         /*!
           \brief Get access to the filtered data of a DataSeries
 
