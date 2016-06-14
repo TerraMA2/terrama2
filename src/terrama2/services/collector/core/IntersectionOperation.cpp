@@ -55,7 +55,7 @@
 #include <terralib/vp/IntersectionMemory.h>
 #include <terralib/vp/Utils.h>
 
-terrama2::core::DataSetSeries terrama2::services::collector::core::processIntersection(DataManagerPtr dataManager, core::IntersectionPtr intersection, terrama2::core::DataSetSeries collectedDataSetSeries)
+terrama2::core::DataSetSeries terrama2::services::collector::core::processIntersection(DataManagerPtr dataManager, IntersectionPtr intersection, terrama2::core::DataSetSeries collectedDataSetSeries)
 {
   auto collectedData = collectedDataSetSeries.syncDataSet;
   auto collectedDataSetType = collectedDataSetSeries.teDataSetType;
