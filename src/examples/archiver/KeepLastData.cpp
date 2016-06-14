@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
     assert(primaryKey);
     assert(!teDataSet->isEmpty());
 
-//    auto pkName = primaryKey->getName();
+    auto pkName = primaryKey->getName();
     std::string sql("DELETE FROM " +tableName+" WHERE "+pkName+" NOT IN (");
 
     auto pos = datasetSeries.teDataSetType->getPropertyPosition(pkName);
