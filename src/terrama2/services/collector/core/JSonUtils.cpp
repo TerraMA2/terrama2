@@ -49,7 +49,7 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
-//FIXME: wrong format collector json
+
   if(!(json.contains("id") && json.contains("project_id") && json.contains("service_instance_id") && json.contains("input_data_series") &&
        json.contains("output_data_series") && json.contains("input_output_map") && json.contains("schedule") &&
        json.contains("active")))
@@ -87,8 +87,15 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
 
 terrama2::services::collector::core::IntersectionPtr terrama2::services::collector::core::fromIntersectionJson(QJsonObject json)
 {
+  if(json.empty())
+    return nullptr;
+
   if(! (json.contains("collector_id") && json.contains("attribute_map")))
-    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+  {
+    QString errMsg = QObject::tr("Invalid Intersection JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
 
   Intersection* intersection = new Intersection();
   IntersectionPtr intersectionPtr(intersection);

@@ -299,5 +299,6 @@
 	"Data Series is required": "Data Series is required",
 	"Select the DataSeries": "Select the DataSeries",
 	"Attribute Identifier": "Attribute Identifier",
-	"Type attribute identifier of Monitored Object": "Type attribute identifier of Monitored Object"
+	"Type attribute identifier of Monitored Object": "Type attribute identifier of Monitored Object",
+	"User Update": "User Update"
 }
