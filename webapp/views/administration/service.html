@@ -27,7 +27,7 @@
       }
 
       if (!$scope.service.numberOfThreads) {
-        $scope.service.numberOfThreads = 1;
+        $scope.service.numberOfThreads = 0;
       }
 
       $scope.log = $scope.service.log || {};
@@ -356,11 +356,20 @@
                       <div class="form-group has-feedback"
                         ng-class="{'has-error': serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
                         <label>{[ __("Number of Threads") ]}:</label>
-                        <input class="form-control" name="numberOfThreads" ng-disabled="update" ng-model="service.numberOfThreads" placeholder="Number of thread to run" required="" type="number">
+                        <input class="form-control"
+                               data-toggle="tooltip"
+                               data-placement="top"
+                               title="{[ __('When the value is 0, it will use thread number supported by the server') ]}"
+                               name="numberOfThreads"
+                               ng-disabled="update"
+                               ng-model="service.numberOfThreads"
+                               placeholder="Number of thread to run"
+                               required=""
+                               type="number" min="0">
 
                         <span class="form-control-feedback glyphicon ng-hide glyphicon-remove" ng-show="serviceForm.numberOfThreads.$dirty" ng-class="{'glyphicon-ok': serviceForm.numberOfThreads.$valid, 'glyphicon-remove': serviceForm.numberOfThreads.$invalid }"></span>
                         <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">Number of threads is required</span>
-                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.number">Number of threads is invalid</span>
+                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && (serviceForm.numberOfThreads.$error.number || serviceForm.numberOfThreads.$error.min)">Number of threads is invalid</span>
                       </div>
                     </div>
                     <div class="col-md-6">
