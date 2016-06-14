@@ -2270,7 +2270,12 @@ var DataManager = {
       self.getAnalysis({id: analysisParam.id}).then(function(analysisResult) {
         models.db.Analysis.destroy({where: {id: analysisParam.id}}).then(function() {
           self.removeDataSerie({id: analysisResult.dataSeries.id}).then(function() {
-            resolve();
+            self.removeSchedule({id: analysisResult.schedule.id}).then(function() {
+              resolve();
+            }).catch(function(err) {
+              console.log("Could not remove analysis schedule ", err);
+              reject(err);
+            })
           }).catch(function(err) {
             console.log("Could not remove output data series ", err);
             reject(err);

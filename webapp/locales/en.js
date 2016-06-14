@@ -299,5 +299,9 @@
 	"Data Series is required": "Data Series is required",
 	"Select the DataSeries": "Select the DataSeries",
 	"Attribute Identifier": "Attribute Identifier",
-	"Type attribute identifier of Monitored Object": "Type attribute identifier of Monitored Object"
+	"Type attribute identifier of Monitored Object": "Type attribute identifier of Monitored Object",
+	"Connection": "Connection",
+	"SSH connection": "SSH connection",
+	"Database connection": "Database connection",
+	"DB connection": "DB connection"
 }
