@@ -84,7 +84,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
 
   std::vector<te::dt::Property*> collectedProperties = collectedDataSetType->getProperties();
 
-  // Reads the vetorial intersection configuration
+  // Reads the intersection configuration
   auto attrMap = intersection->attributeMap;
   for(auto it = attrMap.begin(); it != attrMap.end(); ++it)
   {
@@ -107,6 +107,14 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
     terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
 
     terrama2::core::Filter filter;
+
+    // In case the DataSeries is GRID we have to use only the last data
+    if(dataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
+    {
+      filter.lastValue = true;
+    }
+
+    // Reads data
     auto seriesMap = accessor->getSeries(filter);
 
     for(auto it = seriesMap.begin(); it != seriesMap.end(); ++it)

@@ -142,7 +142,6 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
   dataSet->format.emplace("mask", "municipios_afetados.shp");
-  dataSet->format.emplace("identifier", "objet_id_5");
   dataSet->id = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
@@ -166,6 +165,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "objet_id_5";
 
 
   //DataSeries information

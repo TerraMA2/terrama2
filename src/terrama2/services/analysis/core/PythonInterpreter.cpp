@@ -74,8 +74,6 @@ std::string terrama2::services::analysis::core::extractException()
     object formatted_list(format_exception(hexc,hval,htb));
     object formatted(str("").join(formatted_list));
     std::string errMsg = extract<std::string>(formatted);
-    boost::replace_all(errMsg, "\"", "");
-    boost::replace_all(errMsg, "\'", "");
     return errMsg;
   }
 }
