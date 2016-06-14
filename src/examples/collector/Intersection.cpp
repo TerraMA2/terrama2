@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
       addStaticDataSeries(dataManager);
 
       terrama2::services::collector::core::Service service(dataManager);
-      //service.start();
+      service.start();
 
       terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
       terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
@@ -232,16 +232,12 @@ int main(int argc, char* argv[])
       attrVec.push_back("sigla");
       intersection->attributeMap[3] = attrVec;
 
-      collector->intersection = intersectionPtr;
-
-      auto json = terrama2::services::collector::core::toJson(intersectionPtr);
-      auto inter = terrama2::services::collector::core::fromIntersectionJson(json);
 
       dataManager->add(collectorPtr);
 
-      /*QTimer timer;
+      QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-      timer.start(30000);*/
+      timer.start(30000);
       app.exec();
 
       service.stop();
