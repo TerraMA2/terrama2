@@ -27,11 +27,11 @@
   \author Jano Simas
 */
 
+#include "JSonUtils.hpp"
+#include "Intersection.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
-
-#include "JSonUtils.hpp"
 
 // Terralib
 #include <terralib/geometry/WKTReader.h>
@@ -87,8 +87,33 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
 
 terrama2::services::collector::core::IntersectionPtr terrama2::services::collector::core::fromIntersectionJson(QJsonObject json)
 {
-  //FIXME: implement fromIntersectionJson
-  return nullptr;
+  if(! (json.contains("collector_id") && json.contains("attribute_map")))
+    throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid JSON object."));
+
+  Intersection* intersection = new Intersection();
+  IntersectionPtr intersectionPtr(intersection);
+
+  intersection->collectorId = json["collector_id"].toInt();
+
+  QJsonObject attributeMapJson = json["attribute_map"].toObject();
+  std::map<DataSeriesId, std::vector<std::string> > attributeMap;
+  for(auto it = attributeMapJson.begin(); it != attributeMapJson.end(); ++it)
+  {
+    QJsonArray attrListJson = it.value().toArray();
+
+    std::vector<std::string> attrList;
+    for (const QJsonValue & value: attrListJson)
+    {
+      attrList.push_back(value.toString().toStdString());
+    }
+
+    attributeMap[it.key().toInt()] = attrList;
+  }
+  intersection->attributeMap = attributeMap;
+
+
+
+  return intersectionPtr;
 }
 
 QJsonObject terrama2::services::collector::core::toJson(CollectorPtr collector)
@@ -119,6 +144,23 @@ QJsonObject terrama2::services::collector::core::toJson(CollectorPtr collector)
 
 QJsonObject terrama2::services::collector::core::toJson(IntersectionPtr intersection)
 {
-  //FIXME: implement toJson(IntersectionPtr intersection)
-  return QJsonObject();
+  QJsonObject json;
+
+  json["class"] = QString("Intersection");
+
+  json["collector_id"] = static_cast<qint32>(intersection->collectorId);
+
+  QJsonObject attributeMapJson;
+  for(auto it = intersection->attributeMap.begin(); it != intersection->attributeMap.end(); ++it)
+  {
+    QJsonArray attrList;
+    for(auto attr : it->second)
+    {
+      attrList.append(QString(attr.c_str()));
+    }
+    attributeMapJson[QString(it->first)] = attrList;
+  }
+  json["attribute_map"] = attributeMapJson;
+
+  return json;
 }
