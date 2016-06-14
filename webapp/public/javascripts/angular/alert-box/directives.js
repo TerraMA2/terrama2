@@ -62,4 +62,23 @@ angular.module("terrama2.components.messagebox", [])
         }
       }
     }
+  })
+
+  .directive("terrama2ModalBox", function() {
+    return {
+      restrict: 'E',
+      transclude: true,
+      templateUrl: '/javascripts/angular/alert-box/templates/modal.html',
+      scope: {
+        title: '=title',
+        modalId: '=modalId',
+        modalType: '=modalType',
+        properties: '=?properties'
+      },
+      controller: function($scope) {
+        if ($scope.properties === undefined)
+          $scope.properties = {};
+        $scope.css = $scope.properties.css || "modal fade"
+      }
+    }
   });

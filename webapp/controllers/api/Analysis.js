@@ -1,5 +1,6 @@
 var DataManager = require("../../core/DataManager.js");
-var Utils = require("../../core/Utils");
+var Utils = require('./../../core/Utils');
+var TokenCode = require('./../../core/Enums').TokenCode;
 var TcpManager = require("../../core/TcpManager");
 var passport = require('./../../config/Passport');
 
@@ -70,7 +71,10 @@ module.exports = function(app) {
               "DataSeries": [analysisResult.dataSeries.toObject()],
               "Analysis": [analysisResult.toObject()]
             }));
-            response.json({status: 200});
+
+            // generating token
+            var token = Utils.generateToken(app, TokenCode.SAVE, analysisResult.name);
+            response.json({status: 200, result: analysisResult.toObject(), token: token});
           // DataManager.getServiceInstance({id: analysisObject.instance_id}).then(function(serviceInstance) {
           }).catch(function(err) {
             console.log(err);
@@ -88,7 +92,7 @@ module.exports = function(app) {
     delete: [passport.isCommonUser, function(request, response) {
       var id = request.params.id;
       if(id) {
-        DataManager.listAnalyses({id: id}).then(function(analysis) {
+        DataManager.getAnalysis({id: id}).then(function(analysis) {
           DataManager.removeAnalysis({id: id}).then(function() {
             response.json({status: 200, name: analysis.name});
           }).catch(function(err) {
