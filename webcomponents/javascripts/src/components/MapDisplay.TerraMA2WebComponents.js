@@ -160,6 +160,69 @@ define(
     };
 
     /**
+     * Converts a coordinate from decimal format to DMS.
+     * @param {string} coordinate - Coordinate to be converted
+     * @param {string} type - Coordinate type
+     * @returns {array} coordinates - Corrected coordinate
+     *
+     * @private
+     * @function convertCoordinateToDMS
+     * @memberof MapDisplay
+     * @inner
+     */
+    var convertCoordinateToDMS = function(coordinate, type) {
+      var coordinates = new Array();
+
+      var absCoordinate = Math.abs(coordinate);
+      var coordinateDegrees = Math.floor(absCoordinate);
+
+      var coordinateMinutes = (absCoordinate - coordinateDegrees) / (1 / 60);
+      var tempCoordinateMinutes = coordinateMinutes;
+      coordinateMinutes = Math.floor(coordinateMinutes);
+      var coordinateSeconds = (tempCoordinateMinutes - coordinateMinutes) / (1 / 60);
+      coordinateSeconds =  Math.round(coordinateSeconds * 10);
+      coordinateSeconds /= 10;
+
+      if(coordinateDegrees < 10)
+        coordinateDegrees = "0" + coordinateDegrees;
+
+      if(coordinateMinutes < 10)
+        coordinateMinutes = "0" + coordinateMinutes;
+
+      if(coordinateSeconds < 10)
+        coordinateSeconds = "0" + coordinateSeconds;
+
+      coordinates[0] = coordinateDegrees;
+      coordinates[1] = coordinateMinutes;
+      coordinates[2] = coordinateSeconds;
+      coordinates[3] = getCoordinateHemisphereAbbreviation(coordinate, type);
+
+      return coordinates;
+    };
+
+    /**
+     * Returns the hemisphere abbreviation for the given coordinate.
+     * @param {string} coordinate - Coordinate
+     * @param {string} type - Coordinate type
+     * @returns {string} coordinateHemisphereAbbreviation - Hemisphere abbreviation
+     *
+     * @private
+     * @function getCoordinateHemisphereAbbreviation
+     * @memberof MapDisplay
+     * @inner
+     */
+    var getCoordinateHemisphereAbbreviation = function(coordinate, type) {
+      var coordinateHemisphereAbbreviation = "";
+
+      if(type == 'LAT')
+        coordinateHemisphereAbbreviation = coordinate >= 0 ? "N" : "S";
+      else if(type == 'LON')
+        coordinateHemisphereAbbreviation = coordinate >= 0 ? "E" : "W";
+
+      return coordinateHemisphereAbbreviation;
+    };
+
+    /**
      * Adds a mouse position display in the map.
      *
      * @function addMousePosition
@@ -182,7 +245,17 @@ define(
         var mousePositionControl = new ol.control.MousePosition({
           coordinateFormat: (function(precision) {
             return (function(coordinates) {
-              return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision);
+              var convertedLongitude = convertCoordinateToDMS(correctLongitude(coordinates[0]), 'LON');
+              var convertedLatitude = convertCoordinateToDMS(coordinates[1], 'LAT');
+              return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision) +
+              "<br/>" + convertedLongitude[0] +
+              " " + convertedLongitude[1] +
+              " " + convertedLongitude[2] +
+              " " + convertedLongitude[3] +
+              " " + convertedLatitude[0] +
+              " " + convertedLatitude[1] +
+              " " + convertedLatitude[2] +
+              " " + convertedLatitude[3];
             });
           })(6),
           projection: 'EPSG:4326',
