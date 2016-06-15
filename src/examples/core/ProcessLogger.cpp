@@ -15,8 +15,8 @@ public:
   /*!
    * \brief Class constructor
    */
-  Logger(std::map<std::string, std::string> connInfo)
-    : ProcessLogger(connInfo)
+  Logger()
+    : ProcessLogger()
   {
     setTableName("example_processlogger_1");
   }
@@ -52,7 +52,8 @@ int main(int argc, char* argv[])
                                                   {"PG_CLIENT_ENCODING", "UTF-8"}
                                                 };
 
-    Logger log(connInfo);
+    Logger log;
+    log.setConnectionInfo(connInfo);
 
     ProcessId processId = 1;
 

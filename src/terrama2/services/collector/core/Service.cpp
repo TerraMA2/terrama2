@@ -230,7 +230,8 @@ void terrama2::services::collector::core::Service::updateLoggerConnectionInfo(co
 {
   try
   {
-    logger_ = std::make_shared<CollectorLogger>(connInfo);
+    logger_ = std::make_shared<CollectorLogger>();
+    logger_->setConnectionInfo(connInfo);
   }
   catch(boost::exception& e)
   {

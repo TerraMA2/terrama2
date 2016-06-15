@@ -47,19 +47,21 @@ namespace terrama2
          */
         class CollectorLogger : public terrama2::core::ProcessLogger
         {
+          Q_OBJECT
         public:
+
 
           /*!
            * \brief Class constructor, it will pass the connection information about the Log DB and
            * set the collector log table.
            * \param connInfo Has the access information to the log Database
            */
-          CollectorLogger(std::map<std::string, std::string> connInfo);
+          CollectorLogger();
 
           /*!
             * \brief Class destructor
             */
-          virtual ~CollectorLogger() = default;
+          virtual ~CollectorLogger() {}
 
           /*!
            * \brief This method will log a file input for a determinated process log.

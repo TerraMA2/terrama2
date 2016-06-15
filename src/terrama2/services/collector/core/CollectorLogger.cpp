@@ -32,8 +32,8 @@
 #include "../../../core/utility/ServiceManager.hpp"
 
 
-terrama2::services::collector::core::CollectorLogger::CollectorLogger(std::map< std::string, std::string > connInfo)
- : ProcessLogger(connInfo)
+terrama2::services::collector::core::CollectorLogger::CollectorLogger()
+ : ProcessLogger()
 {
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   setTableName("collector_"+std::to_string(serviceManager.instanceId()));

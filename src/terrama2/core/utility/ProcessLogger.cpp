@@ -52,7 +52,7 @@
 // STL
 #include <utility>
 
-terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::string > connInfo)
+void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::string, std::string > connInfo)
 {
   dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
   dataSource_->setConnectionInfo(connInfo);
@@ -63,7 +63,9 @@ terrama2::core::ProcessLogger::ProcessLogger(const std::map < std::string, std::
 
     if(!dataSource_->isOpened())
     {
-      throw LogException();
+      QString errMsg = QObject::tr("Could not connect to database");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw LogException() << ErrorDescription(errMsg);
     }
   }
   catch(std::exception& e)

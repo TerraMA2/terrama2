@@ -30,6 +30,8 @@
 // TerraMA2
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
+#include <terrama2/services/collector/core/CollectorLogger.hpp>
+
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
