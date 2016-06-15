@@ -60,6 +60,9 @@ namespace terrama2
         //! To be used when the monitored object data
         struct PythonInterpreterException: virtual Exception {};
 
+        //! An exception indicating that an analysis returned an empty result.
+        struct EmptyResultException: virtual Exception { };
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
