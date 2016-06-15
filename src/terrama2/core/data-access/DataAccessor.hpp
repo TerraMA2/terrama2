@@ -135,9 +135,9 @@ namespace terrama2
         //! Default move constructor
         DataAccessor(DataAccessor&& other) = default;
         //! Default const assignment operator
-        DataAccessor& operator=(const DataAccessor& other) = default;
+        virtual DataAccessor& operator=(const DataAccessor& other) = default;
         //! Default assignment operator
-        DataAccessor& operator=(DataAccessor&& other) = default;
+        virtual DataAccessor& operator=(DataAccessor&& other) = default;
 
         /*!
           \brief Get name of the timestamp property
