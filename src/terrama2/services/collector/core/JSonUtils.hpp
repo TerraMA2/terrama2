@@ -29,6 +29,7 @@
 
 #include "Collector.hpp"
 #include "Shared.hpp"
+
 // Qt
 #include <QJsonObject>
 
@@ -43,7 +44,7 @@ namespace terrama2
         /*!
           \brief Creates a Collector from a QJsonObject.
           \see Collector for json structure
-          \see [Collector at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/collector/Collector) for more information.
+          \see [Collector at Trac](https://trac.dpi.inpe.br/terrqama2/wiki/programmersguide/architecture/services/collector/Collector) for more information.
           */
         CollectorPtr fromCollectorJson(QJsonObject json);
 
@@ -59,12 +60,14 @@ namespace terrama2
           \attention This is a function created for debug and tests
         */
         QJsonObject toJson(CollectorPtr collector);
+
         /*!
           \brief Creates a Json object from an Intersection
           \attention This is a function created for debug and tests
         */
         QJsonObject toJson(IntersectionPtr intersection);
-      } /* core */
-    }   /* collector */
-  }     /* services */
-} /* terrama2 */
+
+      } // end namespace core
+    }   // end namespace collector
+  }     // end namespace services
+}       // end namespace terrama2

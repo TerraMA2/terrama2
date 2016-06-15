@@ -535,7 +535,8 @@ angular.module('terrama2.analysis.registration', [
         storager: storager,
         schedule: scheduleValues
       }).success(function(data) {
-        window.location = "/configuration/analyses";
+
+        window.location = "/configuration/analyses?token=" + data.token;
       }).error(function(err) {
         console.log(err);
         makeDialog("alert-danger", err.message, true);
