@@ -231,6 +231,7 @@ int main(int argc, char* argv[])
 
   // Starts the service and adds the analysis
   Context::getInstance().setDataManager(dataManager);
+  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
   service.updateLoggerConnectionInfo(connInfo);
   service.start();
@@ -241,6 +242,8 @@ int main(int argc, char* argv[])
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
   timer.start(1000);
   app.exec();
+
+  terrama2::core::finalizeTerraMA();
 
 
   return 0;

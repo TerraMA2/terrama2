@@ -64,7 +64,6 @@ namespace terrama2
           DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
 
           std::map<DataSetId, DataSetId> inputOutputMap;//!< Map of source DataSet to destiny DataSet.
-
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the collector.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
           IntersectionPtr intersection;//!< Complementary data that should be appended on original data before storage.
