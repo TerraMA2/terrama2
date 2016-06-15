@@ -45,9 +45,9 @@ int main(int argc, char* argv[])
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
 
-    assert(gridSeries->gridList().size() == 1);
+    assert(gridSeries->gridMap().size() == 1);
 
-    auto raster = gridSeries->gridList().begin()->second;
+    auto raster = gridSeries->gridMap().begin()->second;
 
     std::string output = TERRAMA2_DATA_DIR;
     output+="/grid_output.tif";
