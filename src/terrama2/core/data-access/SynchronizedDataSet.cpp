@@ -222,6 +222,24 @@ std::shared_ptr<te::gm::Envelope> terrama2::core::SynchronizedDataSet::getExtent
   return std::shared_ptr<te::gm::Envelope>(dataset_->getExtent(i));
 }
 
+std::shared_ptr<te::dt::AbstractData> terrama2::core::SynchronizedDataSet::getValue(std::size_t row, std::size_t i) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return std::shared_ptr<te::dt::AbstractData>(dataset_->getValue(i));
+}
+
+std::shared_ptr<te::dt::AbstractData> terrama2::core::SynchronizedDataSet::getValue(std::size_t row, const std::string& name) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  dataset_->move(row);
+  return std::shared_ptr<te::dt::AbstractData>(dataset_->getValue(name));
+}
+
+
+
+
+
 
 
 

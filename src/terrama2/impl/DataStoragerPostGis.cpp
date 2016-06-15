@@ -82,6 +82,16 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
   {
     // create and save datasettype in the datasource destination
     newDataSetType = std::shared_ptr<te::da::DataSetType>(static_cast<te::da::DataSetType*>(datasetType->clone()));
+    if(!newDataSetType->getPrimaryKey())
+    {
+      std::string pkName = "\""+newDataSetType->getName()+"_pk\"";
+      auto pk = new te::da::PrimaryKey(pkName, newDataSetType.get());
+
+      te::dt::SimpleProperty* serialPk = new te::dt::SimpleProperty("pid", te::dt::INT32_TYPE, true);
+      serialPk->setAutoNumber(true);
+      newDataSetType->add(serialPk);
+      pk->add(serialPk);
+    }
 
     newDataSetType->setName(destinationDataSetName);
     transactorDestination->createDataSet(newDataSetType.get(),options);

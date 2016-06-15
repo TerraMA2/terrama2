@@ -240,6 +240,7 @@ int main(int argc, char* argv[])
     terrama2::core::TcpManager tcpManager(dataManager);
     tcpManager.listen(QHostAddress::Any, 30001);
     terrama2::services::analysis::core::Service service(dataManager);
+    terrama2::core::ServiceManager::getInstance().setInstanceId(1);
     service.updateLoggerConnectionInfo(connInfo);
     service.start();
 
@@ -260,9 +261,9 @@ int main(int argc, char* argv[])
     socket.write(bytearray);
     socket.waitForBytesWritten();
 
-    /*QTimer timer;
+    QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    timer.start(30000);*/
+    timer.start(30000);
     app.exec();
 
     service.stop();
