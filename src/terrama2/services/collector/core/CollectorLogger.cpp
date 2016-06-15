@@ -35,8 +35,6 @@
 terrama2::services::collector::core::CollectorLogger::CollectorLogger()
  : ProcessLogger()
 {
-  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  setTableName("collector_"+std::to_string(serviceManager.instanceId()));
 }
 
 void terrama2::services::collector::core::CollectorLogger::addInput(std::string value, RegisterId registerID)
@@ -47,4 +45,12 @@ void terrama2::services::collector::core::CollectorLogger::addInput(std::string 
 void terrama2::services::collector::core::CollectorLogger::addOutput(std::string value, RegisterId registerID)
 {
   addValue("output", value, registerID);
+}
+
+void terrama2::services::collector::core::CollectorLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo)
+{
+  terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
+
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  setTableName("collector_"+std::to_string(serviceManager.instanceId()));
 }

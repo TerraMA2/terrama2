@@ -66,25 +66,32 @@ bool checkServiceType(const std::string& serviceType)
   return false;
 }
 
-std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service> >
+std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createCollector()
 {
   auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
   auto service = std::make_shared<terrama2::services::collector::core::Service>(dataManager);
+  auto logger = std::make_shared<terrama2::services::collector::core::CollectorLogger>();
 
-  return std::make_tuple(dataManager, service);
+  service->setLogger(logger);
+
+  return std::make_tuple(dataManager, service, logger);
 }
 
-std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service> >
+std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createAnalysis()
 {
   auto dataManager = std::make_shared<terrama2::services::analysis::core::DataManager>();
   auto service = std::make_shared<terrama2::services::analysis::core::Service>(dataManager);
 
-  return std::make_tuple(dataManager, service);
+  auto logger = std::make_shared<terrama2::services::analysis::core::AnalysisLogger>();
+
+  service->setLogger(logger);
+
+  return std::make_tuple(dataManager, service, logger);
 }
 
-std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service> >
+std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createService(const std::string& serviceType)
 {
   if(serviceType == collectorType)
@@ -137,7 +144,8 @@ int main(int argc, char* argv[])
 
       std::shared_ptr<terrama2::core::DataManager> dataManager;
       std::shared_ptr<terrama2::core::Service> service;
-      std::tie(dataManager, service) = createService(serviceType);
+      std::shared_ptr<terrama2::core::ProcessLogger> logger;
+      std::tie(dataManager, service, logger) = createService(serviceType);
       if(!service.get()
           || !dataManager.get())
         return SERVICE_LOAD_ERROR;
@@ -154,7 +162,8 @@ int main(int argc, char* argv[])
 
       QObject::connect(tcpManager.get(), &terrama2::core::TcpManager::startProcess, service.get(), &terrama2::core::Service::addToQueue);
       QObject::connect(&serviceManager, &terrama2::core::ServiceManager::numberOfThreadsUpdated, service.get(), &terrama2::core::Service::updateNumberOfThreads);
-      QObject::connect(&serviceManager, &terrama2::core::ServiceManager::logConnectionInfoUpdated, service.get(), &terrama2::core::Service::updateLoggerConnectionInfo);
+
+      QObject::connect(&serviceManager, &terrama2::core::ServiceManager::logConnectionInfoUpdated, logger.get(), &terrama2::core::ProcessLogger::setConnectionInfo);
 
       QObject::connect(tcpManager.get(), &terrama2::core::TcpManager::stopSignal, service.get(), &terrama2::core::Service::stop);
       QObject::connect(tcpManager.get(), &terrama2::core::TcpManager::stopSignal, &app, &QCoreApplication::quit);

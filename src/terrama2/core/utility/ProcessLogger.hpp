@@ -203,6 +203,7 @@ namespace terrama2
         std::string messagesTableName_ = "";
         std::unique_ptr< te::da::DataSource > dataSource_;
 
+        void closeConnection();
     };
   }
 }

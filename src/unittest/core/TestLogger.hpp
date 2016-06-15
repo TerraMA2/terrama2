@@ -101,6 +101,7 @@ public:
      */
     ON_CALL(*mockDataSource.get(), DataSourceTransactoPtrReturn()).WillByDefault(::testing::Invoke(&createMockDataSourceTransactor));
 
+
     setDataSource(mockDataSource.release());
     setTableName("unittest"+std::to_string(1));
   }

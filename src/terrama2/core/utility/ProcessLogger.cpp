@@ -54,6 +54,8 @@
 
 void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::string, std::string > connInfo)
 {
+  closeConnection();
+
   dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
   dataSource_->setConnectionInfo(connInfo);
 
@@ -97,10 +99,15 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
   }
 }
 
-terrama2::core::ProcessLogger::~ProcessLogger()
+void terrama2::core::ProcessLogger::closeConnection()
 {
   if(dataSource_)
     dataSource_->close();
+}
+
+terrama2::core::ProcessLogger::~ProcessLogger()
+{
+  closeConnection();
 }
 
 

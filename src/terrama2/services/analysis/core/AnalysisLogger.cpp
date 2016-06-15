@@ -34,6 +34,12 @@
 terrama2::services::analysis::core::AnalysisLogger::AnalysisLogger()
  : ProcessLogger()
 {
+}
+
+void terrama2::services::analysis::core::AnalysisLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo)
+{
+  terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
+
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   setTableName("analysis_"+std::to_string(serviceManager.instanceId()));
 }
