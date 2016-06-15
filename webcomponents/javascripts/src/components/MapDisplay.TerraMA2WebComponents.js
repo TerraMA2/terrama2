@@ -163,7 +163,7 @@ define(
      * Converts a coordinate from decimal format to DMS.
      * @param {string} coordinate - Coordinate to be converted
      * @param {string} type - Coordinate type
-     * @returns {array} coordinates - Corrected coordinate
+     * @returns {string} dmsCoordinate - Converted coordinate
      *
      * @private
      * @function convertCoordinateToDMS
@@ -171,8 +171,6 @@ define(
      * @inner
      */
     var convertCoordinateToDMS = function(coordinate, type) {
-      var coordinates = new Array();
-
       var absCoordinate = Math.abs(coordinate);
       var coordinateDegrees = Math.floor(absCoordinate);
 
@@ -192,12 +190,9 @@ define(
       if(coordinateSeconds < 10)
         coordinateSeconds = "0" + coordinateSeconds;
 
-      coordinates[0] = coordinateDegrees;
-      coordinates[1] = coordinateMinutes;
-      coordinates[2] = coordinateSeconds;
-      coordinates[3] = getCoordinateHemisphereAbbreviation(coordinate, type);
+      var dmsCoordinate = coordinateDegrees + " " + coordinateMinutes + " " + coordinateSeconds + " " + getCoordinateHemisphereAbbreviation(coordinate, type);
 
-      return coordinates;
+      return dmsCoordinate;
     };
 
     /**
@@ -245,17 +240,7 @@ define(
         var mousePositionControl = new ol.control.MousePosition({
           coordinateFormat: (function(precision) {
             return (function(coordinates) {
-              var convertedLongitude = convertCoordinateToDMS(correctLongitude(coordinates[0]), 'LON');
-              var convertedLatitude = convertCoordinateToDMS(coordinates[1], 'LAT');
-              return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision) +
-              "<br/>" + convertedLongitude[0] +
-              " " + convertedLongitude[1] +
-              " " + convertedLongitude[2] +
-              " " + convertedLongitude[3] +
-              " " + convertedLatitude[0] +
-              " " + convertedLatitude[1] +
-              " " + convertedLatitude[2] +
-              " " + convertedLatitude[3];
+              return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision) + "<br/>" + convertCoordinateToDMS(correctLongitude(coordinates[0]), 'LON') + ", " + convertCoordinateToDMS(coordinates[1], 'LAT');
             });
           })(6),
           projection: 'EPSG:4326',
