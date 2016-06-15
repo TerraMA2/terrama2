@@ -128,9 +128,6 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
-
     QFAIL("Exception expected!");
   }
   catch(terrama2::core::SemanticsException& e)
@@ -169,7 +166,7 @@ void TsDataAccessorDcpInpe::TestOK()
     dataSet->active = true;
     dataSet->format.emplace("mask", "30885.txt");
     dataSet->format.emplace("timezone", "+00");
-    dataSet->format.emplace("folder", "");
+    //dataSet->format.emplace("folder", "");
 
     dataSeries->datasetList.emplace_back(dataSet);
 

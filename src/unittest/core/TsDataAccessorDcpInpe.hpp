@@ -21,8 +21,8 @@
   \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_HPP__
-#define __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_HPP__
+#ifndef __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_DCP_INPE_HPP__
+#define __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_DCP_INPE_HPP__
 
 
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
