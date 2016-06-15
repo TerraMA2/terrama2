@@ -1,3 +1,33 @@
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
+
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
+
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
+/*!
+  \file examples/core/ProcessLogger.cpp
+
+  \brief Example about how to log your process using TerraMA2
+          Process Logger base class
+
+  \author Vinicius Campanha
+*/
+
 
 // TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
@@ -8,6 +38,10 @@
 #include <vector>
 #include <iostream>
 
+
+/* Create a derived class is required to access protected members
+*   from the base class Process Logger
+*/
 class Logger : public terrama2::core::ProcessLogger
 {
 public:
@@ -18,6 +52,7 @@ public:
   Logger(std::map<std::string, std::string> connInfo)
     : ProcessLogger(connInfo)
   {
+    // Need to set the wanted log table name
     setTableName("example_processlogger_1");
   }
 
@@ -27,8 +62,8 @@ public:
   virtual ~Logger() = default;
 
   /*!
-   * \brief The method addValue is protected in ProcessLog, so was needed to implement a method
-   * that calls it.
+   * \brief The method addValue is protected in ProcessLog, so is needed implement a method
+   * to calls it.
    */
   void logValue(const std::string tag, const std::string value, const RegisterId registerId) const
   {
@@ -53,6 +88,7 @@ int main(int argc, char* argv[])
                                                   {"PG_CLIENT_ENCODING", "UTF-8"}
                                                 };
 
+    // Use the derived class to log
     Logger log(connInfo);
 
     ProcessId processId = 1;

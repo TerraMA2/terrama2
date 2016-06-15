@@ -102,7 +102,7 @@ namespace terrama2
       /*!
        * \brief Class Constructor.
        * \param processID ID of the process to log.
-       * \param connInfo Datasource connection information.
+       * \param connInfo Datasource connection information to a POSTGRES database.
        */
       ProcessLogger(const std::map < std::string, std::string > connInfo);
 
@@ -188,8 +188,11 @@ namespace terrama2
 
 
       /*!
-       * \brief Store the name of the process log table and the message log table
-       * \param tableName The log table name
+       * \brief Create log tables and store their names.
+       *        This method will create two tables in database, a log table and a log message table,
+       *        both in configured schema.
+       * \param tableName The log table name, it is also used to compose message table name.
+       *        The table name will be in lower case.
        */
       void setTableName(const std::string tableName);
 
