@@ -30,6 +30,8 @@
 
 #include <memory>
 
+#include "../utility/ProcessLogger.hpp"
+
 class QTcpSocket;
 
 namespace terrama2
@@ -70,7 +72,9 @@ namespace terrama2
 
       public:
         //! Constructor, connects signal.
-        TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager, QObject* parent = 0);
+        TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager,
+                   std::weak_ptr<terrama2::core::ProcessLogger> logger,
+                   QObject* parent = 0);
         /*!
           \brief Send a finishing service message and destroys the object.
         */
@@ -112,10 +116,12 @@ namespace terrama2
         //! Parse bytearray as a json and remove contents from the DataManager.
         void removeData(const QByteArray& bytearray);
         void updateService(const QByteArray& bytearray);
+        QJsonObject logToJson(const terrama2::core::ProcessLogger::Log& log);
 
 
         std::unique_ptr<QTcpSocket> tcpSocket_ = nullptr;//!< Current socket for tcp communication.
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.
+        std::weak_ptr<terrama2::core::ProcessLogger> logger_;
 
         ServiceManager* serviceManager_;
     };
