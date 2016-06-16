@@ -90,10 +90,6 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
 
 int main(int argc, char* argv[])
 {
-  //TODO: fix Listen to tcp example
-  std::cout << "NOT WORKING" << std::endl;
-  return 1;
-
   terrama2::core::initializeTerraMA();
   QCoreApplication app(argc, argv);
 
