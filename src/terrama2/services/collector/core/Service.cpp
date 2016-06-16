@@ -196,7 +196,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     if(logger.get())
       logger->done(lastDateTime, logId);
   }
-  catch(const terrama2::Exception& e)
+  catch(const terrama2::Exception&)
   {
     // should have been logged on emission
   }
@@ -226,25 +226,9 @@ void terrama2::services::collector::core::Service::connectDataManager()
           &terrama2::services::collector::core::Service::updateCollector);
 }
 
-void terrama2::services::collector::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
+void terrama2::services::collector::core::Service::setLogger(std::shared_ptr<CollectorLogger> logger) noexcept
 {
-  try
-  {
-    logger_ = std::make_shared<CollectorLogger>(connInfo);
-  }
-  catch(boost::exception& e)
-  {
-    std::cout << boost::diagnostic_information(e) << std::endl;
-  }
-  catch(std::exception& e)
-  {
-    std::cout << e.what() << std::endl;
-  }
-  catch(...)
-  {
-    // TODO: o que fazer com uncaught exception
-    std::cout << "\n\nException...\n" << std::endl;
-  }
+  logger_ = logger;
 }
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)

@@ -110,9 +110,9 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 
 }
 
-void terrama2::services::analysis::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
+void terrama2::services::analysis::core::Service::setLogger(std::shared_ptr<AnalysisLogger> logger) noexcept
 {
-  logger_ = std::make_shared<AnalysisLogger>(connInfo);
+  logger_ = logger;
 }
 
 void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)
