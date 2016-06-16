@@ -117,6 +117,8 @@ namespace terrama2
     double convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit);
 
     DataSeriesType dataSeriesTypeFromString(const std::string& type);
+
+    bool isValidColumn(size_t value);
   } // end namespace core
 }   // end namespace terrama2
 
