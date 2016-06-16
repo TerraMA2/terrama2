@@ -156,7 +156,29 @@ module.exports = function(app) {
             DataManager.removeDataSerie({id: id}).then(function() {
               DataManager.removeDataSerie({id: collectorResult.input_data_series}).then(function() {
                 DataManager.removeSchedule({id: collectorResult.schedule.id}).then(function() {
-                  response.json({status: 200, name: dataSeriesResult.name});
+                  var objectToSend = {
+                    "Collectors": [collectorResult.id],
+                    "DataSeries": [collectorResult.input_data_series, collectorResult.output_data_series],
+                    "Schedule": [collectorResult.schedule.id]
+                  };
+
+                  if (Object.keys(collectorResult.intersection).length > 0) {
+                    // TODO: add intersection in object to send
+                  }
+
+                  DataManager.listServiceInstances().then(function(services) {
+                    services.forEach(function (service) {
+                      try {
+                        TcpManager.removeData(service, objectToSend);
+                      } catch (e) {
+                        console.log(e);
+                      }
+                    });
+
+                    return response.json({status: 200, name: dataSeriesResult.name});
+                  }).catch(function(err) {
+                    return Utils.handleRequestError(response, err, 400);
+                  })
                 }).catch(function(err) {
                   Utils.handleRequestError(response, err, 400);
                 });
@@ -169,7 +191,25 @@ module.exports = function(app) {
           }).catch(function(err) {
             // if not find collector, it is processing data series or analysis data series
             DataManager.removeDataSerie({id: dataSeriesResult.id}).then(function() {
-              response.json({status: 200, name: dataSeriesResult.name});
+
+              var objectToSend = {
+                "DataSeries": [dataSeriesResult.id]
+              }
+
+              DataManager.listServiceInstances().then(function(services) {
+                services.forEach(function (service) {
+                  try {
+                    TcpManager.removeData(service, objectToSend);
+                  } catch (e) {
+                    console.log(e);
+                  }
+                });
+
+                response.json({status: 200, name: dataSeriesResult.name});
+              }).catch(function(err) {
+                return Utils.handleRequestError(response, err, 400);
+              })
+
             }).catch(function(error) {
               Utils.handleRequestError(response, error, 400);
             })
