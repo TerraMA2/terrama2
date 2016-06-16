@@ -35,7 +35,7 @@ module.exports = function(app) {
                     }).catch(function(err) {
                       _handleError(response, err);
                     }); // end statusService
-                  }, 1000);
+                  }, 2000);
                 }).catch(function(err) {
                   // error during connection
                   _handleError(response, err);
@@ -43,7 +43,7 @@ module.exports = function(app) {
               }).catch(function(err) {
                 _handleError(response, err);
               }) // end connect
-            }, 2000);
+            }, 1000);
           } catch (e) {
             _handleError(response, e);
           }
