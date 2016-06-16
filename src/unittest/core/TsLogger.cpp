@@ -30,6 +30,7 @@
 //TerraMA2
 #include <terrama2/core/Typedef.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
+#include <terrama2/Exception.hpp>
 
 #include "TsLogger.hpp"
 #include "TestLogger.hpp"
@@ -38,6 +39,8 @@
 
 void TsLogger::testProcessLogger()
 {
+  try
+  {
   TestLogger log;
 
   RegisterId registerID = log.start(1);
@@ -54,4 +57,9 @@ void TsLogger::testProcessLogger()
   std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
 
   log.done(dataTime, registerID);
+  }
+  catch(terrama2::Exception& e)
+  {
+    QFAIL(e.what());
+  }
 }

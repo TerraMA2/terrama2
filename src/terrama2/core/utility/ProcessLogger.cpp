@@ -388,7 +388,7 @@ std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger:
     logs.push_back(tempLog);
   }
 
-    return logs;
+  return logs;
 }
 
 ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) const
@@ -425,11 +425,12 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
 
 void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
 {
-  std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
-
   // Check if schema_ exists in database
   {
+    std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
     transactor->execute("CREATE SCHEMA IF NOT EXISTS " + schema_ );
+
+    transactor->commit();
   }
 
   tableName_ = schema_ + "." + tableName;
@@ -438,6 +439,8 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
 
   if(!dataSource_->dataSetExists(tableName_))
   {
+    std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+
     std::shared_ptr< te::da::DataSetType > datasetType(new te::da::DataSetType(tableName_));
 
     std::shared_ptr< te::dt::SimpleProperty > id(new te::dt::SimpleProperty("id", te::dt::INT32_TYPE, true));
@@ -466,12 +469,16 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::LogException() << ErrorDescription(errMsg);
     }
+
+    transactor->commit();
   }
 
   messagesTableName_ = tableName_ + "_messages";
 
   if(!dataSource_->dataSetExists(messagesTableName_))
   {
+    std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+
     std::shared_ptr< te::da::DataSetType > datasetType(new te::da::DataSetType(messagesTableName_));
 
     std::shared_ptr< te::dt::SimpleProperty > id(new te::dt::SimpleProperty("id", te::dt::INT32_TYPE, true));
@@ -509,9 +516,9 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::LogException() << ErrorDescription(errMsg);
     }
-  }
 
-  transactor->commit();
+    transactor->commit();
+  }
 }
 
 void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const QJsonObject obj) const
