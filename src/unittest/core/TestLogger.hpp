@@ -44,7 +44,7 @@
  */
 te::da::MockDataSet* createMockDataSet()
 {
-  te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
+  te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
 
   ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(true));
   ON_CALL(*mockDataSet, getAsString(std::string(),::testing::_)).WillByDefault(::testing::Return(""));
@@ -59,7 +59,7 @@ te::da::MockDataSet* createMockDataSet()
  */
 te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
 {
-  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
+  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
 
   ON_CALL(*mockDataSourceTransactor, createDataSet(::testing::_, ::testing::_)).WillByDefault(::testing::Return());
   ON_CALL(*mockDataSourceTransactor, PrimaryKeyPtrReturn()).WillByDefault(::testing::Return(new te::da::PrimaryKey()));
@@ -89,7 +89,7 @@ public:
   TestLogger()
     : ProcessLogger()
   {
-    std::unique_ptr< te::da::MockDataSource > mockDataSource(new ::testing::NiceMock<te::da::MockDataSource>());
+    std::unique_ptr< te::da::MockDataSource > mockDataSource(new te::da::MockDataSource());
 
     ON_CALL(*mockDataSource.get(), isOpened()).WillByDefault(::testing::Return(true));
     ON_CALL(*mockDataSource.get(), dataSetExists(::testing::_)).WillByDefault(::testing::Return(false));
