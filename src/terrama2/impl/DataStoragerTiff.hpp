@@ -58,7 +58,7 @@ namespace terrama2
       protected:
         std::string getMask(DataSetPtr dataSet) const;
         std::string getTimezone(DataSetPtr dataSet) const;
-        std::string zeroPadNumber(int num, int size) const;
+        std::string zeroPadNumber(long num, int size) const;
         std::string replaceMask(const std::string& mask,
                                 std::shared_ptr<te::dt::DateTime> timestamp,
                                 terrama2::core::DataSetPtr dataSet) const;

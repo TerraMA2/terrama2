@@ -330,3 +330,8 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
     throw terrama2::core::DataModelException() << terrama2::ErrorDescription(errMsg);
   }
 }
+
+bool terrama2::core::isValidColumn(size_t value)
+{
+   return value != std::numeric_limits<size_t>::max();
+}

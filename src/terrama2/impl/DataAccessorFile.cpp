@@ -32,6 +32,7 @@
 #include "../core/utility/TimeUtils.hpp"
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
+#include "../core/utility/Utils.hpp"
 
 //STL
 #include <algorithm>
@@ -488,7 +489,3 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   return lastDateTimeTz;
 }
 
-bool terrama2::core::DataAccessorFile::isValidColumn(size_t value) const
-{
-   return value != std::numeric_limits<size_t>::max();
-}
