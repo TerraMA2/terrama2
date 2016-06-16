@@ -29,6 +29,7 @@
 
 #include "DataStoragerTiff.hpp"
 #include "../core/utility/TimeUtils.hpp"
+#include "../core/utility/Utils.hpp"
 #include "../core/data-model/DataProvider.hpp"
 
 //terralib
@@ -72,7 +73,7 @@ std::string terrama2::core::DataStoragerTiff::getTimezone(DataSetPtr dataSet) co
   }
 }
 
-std::string terrama2::core::DataStoragerTiff::zeroPadNumber(int num, int size) const
+std::string terrama2::core::DataStoragerTiff::zeroPadNumber(long num, int size) const
 {
   std::ostringstream ss;
   ss << std::setw(size) << std::setfill('0') << num;
@@ -86,12 +87,12 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   if(!timestamp.get())
     return mask;
 
-  int year = 0;
-  int month = 0;
-  int day = 0;
-  int hour = 0;
-  int minutes = 0;
-  int seconds = 0;
+  long year = 0;
+  long month = 0;
+  long day = 0;
+  long hour = 0;
+  long minutes = 0;
+  long seconds = 0;
 
   if(timestamp->getDateTimeType() == te::dt::TIME_INSTANT)
   {
@@ -125,7 +126,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
       //get dataset timezone
       timezone = getTimezone(dataSet);
     }
-    catch(const terrama2::core::UndefinedTagException& e)
+    catch(const terrama2::core::UndefinedTagException&)
     {
       //if no timezone is set use UTC
       timezone = "UTC+00";
@@ -153,7 +154,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
 
   //replace wildcards in mask
   std::string fileName = mask;
-  int pos = fileName.find("yyyy");
+  size_t pos = fileName.find("yyyy");
   if(pos != std::string::npos)
     fileName.replace(pos, 4, zeroPadNumber(year, 4));
 
@@ -204,22 +205,22 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     std::string mask = getMask(outputDataSet);
 
     auto dataset = series.syncDataSet->dataset();
-    int rasterColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::RASTER_TYPE);
-    if(rasterColumn == -1)
+    size_t rasterColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::RASTER_TYPE);
+    if(!isValidColumn(rasterColumn))
     {
       QString errMsg = QObject::tr("No raster attribute.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw DataStoragerException() << ErrorDescription(errMsg);
     }
 
-    int timestampColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::DATETIME_TYPE);
+    size_t timestampColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::DATETIME_TYPE);
 
     dataset->moveBeforeFirst();
     while(dataset->moveNext())
     {
       std::shared_ptr<te::rst::Raster> raster(dataset->isNull(rasterColumn) ? nullptr : dataset->getRaster(rasterColumn).release());
       std::shared_ptr<te::dt::DateTime> timestamp;
-      if(timestampColumn == -1 ||dataset->isNull(timestampColumn))
+      if(!isValidColumn(timestampColumn) || dataset->isNull(timestampColumn))
         timestamp = nullptr;
       else
         timestamp.reset(dataset->getDateTime(timestampColumn).release());
@@ -237,7 +238,7 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
       te::rp::Copy2DiskRaster(*raster, output);
     }
   }
-  catch(const DataStoragerException& e)
+  catch(const DataStoragerException&)
   {
     throw;
   }
