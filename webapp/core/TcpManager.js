@@ -8,10 +8,10 @@ var Service = require('./Service');
 var TcpManager = module.exports = {};
 
 
-/** 
-The structure looks like: 
+/**
+The structure looks like:
 
-@example 
+@example
 {
   servicename..: {socket: clientSocket, service: ServiceInstance}
 }
@@ -62,7 +62,7 @@ function makeBuffer(signal, object) {
       totalSize = jsonMessage.length + 4;
     } else
       totalSize = 4;
-  
+
 
     // Creates the buffer and fills it with zeros
     var buffer = new Buffer(totalSize + 4);
@@ -86,7 +86,7 @@ function makeBuffer(signal, object) {
 
 /**
 This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
-@param {ServiceInstance} serviceInstance - a terrama2 service instance 
+@param {ServiceInstance} serviceInstance - a terrama2 service instance
 @param {Object} data - a javascript object message to send
 */
 TcpManager.sendData = function(serviceInstance, data) {
@@ -94,7 +94,7 @@ TcpManager.sendData = function(serviceInstance, data) {
     var buffer = makeBuffer(Signals.ADD_DATA_SIGNAL, data);
 
     console.log(buffer);
-    
+
     // getting client and writing in the channel
     var client = _getClient(serviceInstance);
 
@@ -106,10 +106,32 @@ TcpManager.sendData = function(serviceInstance, data) {
   }
 };
 
+/**
+This method sends a REMOVE_DATA_SIGNAL with bytearray to tcp socket. It is async
+@param {ServiceInstance} serviceInstance - a terrama2 service instance
+@param {Object} data - a javascript object message to send
+*/
+TcpManager.removeData = function(serviceInstance, data) {
+  try {
+    var buffer = makeBuffer(Signals.REMOVE_DATA_SIGNAL, data);
+
+    console.log(buffer);
+
+    // getting client and writing in the channel
+    var client = _getClient(serviceInstance);
+
+    client.send(buffer);
+
+  } catch (e) {
+    console.log(e);
+    throw new Error("Could not send data REMOVE_DATA_SIGNAL to service", e);
+  }
+};
+
 
 /**
 This method sends a UPDATE_SERVICE_SIGNAL with service instance values to tcp socket.
-@param {ServiceInstance} serviceInstance - a terrama2 service instance 
+@param {ServiceInstance} serviceInstance - a terrama2 service instance
 @return {Promise} a bluebird promise
 */
 TcpManager.updateService = function(serviceInstance) {
@@ -134,7 +156,7 @@ TcpManager.updateService = function(serviceInstance) {
 
 /**
 This method connects via ssh to service host and sends terminal command to start service.
-@param {ServiceInstance} serviceInstance - a terrama2 service instance 
+@param {ServiceInstance} serviceInstance - a terrama2 service instance
 @return {Promise} a bluebird promise
 */
 TcpManager.startService = function(serviceInstance) {
@@ -159,7 +181,7 @@ TcpManager.startService = function(serviceInstance) {
 
 /**
 This method sends STATUS_SIGNAL and waits for tcp client response.
-@param {ServiceInstance} serviceInstance - a terrama2 service instance 
+@param {ServiceInstance} serviceInstance - a terrama2 service instance
 @return {Promise} a bluebird promise
 */
 TcpManager.statusService = function(serviceInstance) {
