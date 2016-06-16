@@ -378,6 +378,10 @@ if(TERRAMA2_IMPLEMENTATION_ENABLED)
   add_subdirectory(terrama2_impl)
 endif()
 
+if(TERRAMA2_SERVICE_ENABLED)
+  add_subdirectory(terrama2_service)
+endif()
+
 if(TERRAMA2_COLLECTOR_ENABLED)
   add_subdirectory(terrama2_collector_core)
 endif()

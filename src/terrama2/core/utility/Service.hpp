@@ -117,13 +117,6 @@ namespace terrama2
       */
       virtual void updateNumberOfThreads(int numberOfThreads = 0);
 
-      /*!
-        \brief Updates the connection parameters of the process log database.
-
-        Running processes may keep old connection info until finish.
-      */
-      virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) = 0;
-
     protected:
       /*!
          \brief Returns true if the main loop should continue.

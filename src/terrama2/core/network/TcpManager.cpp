@@ -64,10 +64,13 @@ bool terrama2::core::TcpManager::updateListeningPort(int port)
   return listen(serverAddress(), port);
 }
 
-terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager, QObject* parent)
+terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager,
+                                       std::weak_ptr<terrama2::core::ProcessLogger> logger,
+                                       QObject* parent)
   : QTcpServer(parent),
     blockSize_(0),
-    dataManager_(dataManager)
+    dataManager_(dataManager),
+    logger_(logger)
 {
   QObject::connect(this, &terrama2::core::TcpManager::newConnection, this, &terrama2::core::TcpManager::receiveConnection);
   serviceManager_ = &terrama2::core::ServiceManager::getInstance();
@@ -138,6 +141,31 @@ void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
   }
 }
 
+QJsonObject terrama2::core::TcpManager::logToJson(const terrama2::core::ProcessLogger::Log& log)
+{
+  QJsonObject obj;
+  obj.insert("process_id", static_cast<int>(log.processId));
+  obj.insert("status", static_cast<int>(log.status));
+  obj.insert("start_timestamp", log.start_timestamp.get() ? QString::fromStdString(log.start_timestamp->toString()) : "");
+  obj.insert("data_timestamp", log.data_timestamp.get() ? QString::fromStdString(log.data_timestamp->toString()) : "");
+  obj.insert("last_process_timestamp", log.last_process_timestamp.get() ? QString::fromStdString(log.last_process_timestamp->toString()) : "");
+  obj.insert("data", QString::fromStdString(log.data));
+
+  QJsonArray msgArray;
+  for (const auto& msg  : log.messages)
+  {
+    QJsonObject msgObj;
+    msgObj.insert("type", static_cast<int>(msg.type));
+    msgObj.insert("description", QString::fromStdString(msg.description));
+    msgObj.insert("timestamp", msg.timestamp.get() ? QString::fromStdString(msg.timestamp->toString()) : "");
+
+    msgArray.append(msgObj);
+  }
+  obj.insert("messages", msgArray);
+
+  return obj;
+}
+
 bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray)
 {
   QJsonParseError error;
@@ -150,14 +178,30 @@ bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray)
   }
   else
   {
+    auto jsonObject = jsonDoc.object();
+    ProcessId processId = static_cast<ProcessId>(jsonObject.value("process_id").toInt());
+    uint32_t begin = static_cast<uint32_t>(jsonObject.value("begin").toInt());
+    uint32_t end = static_cast<uint32_t>(jsonObject.value("end").toInt());
+
+    QJsonArray logList;
+    auto logger = logger_.lock();
+    auto logs = logger->getLogs(processId, begin, end);
+    for (const auto& log : logs)
+    {
+      logList.append(logToJson(log));
+    }
+
+    QJsonDocument doc(logList);
+
     QByteArray logArray;
     QDataStream out(&logArray, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_2);
 
     out << static_cast<uint32_t>(0);
     out << static_cast<uint32_t>(TcpSignal::LOG_SIGNAL);
-    //TODO: pegar log do processLogger
-    // out << log.c_str();
+
+    out << doc.toJson(QJsonDocument::Compact);
+    logArray.remove(8, 4);//Remove QByteArray header
     out.device()->seek(0);
     out << static_cast<uint32_t>(logArray.size() - sizeof(uint32_t));
 
