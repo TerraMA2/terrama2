@@ -95,7 +95,7 @@ namespace terrama2
         using QTcpServer::listen;
 
       public slots:
-        bool updateListeningPort(int);
+        bool updateListeningPort(uint32_t);
 
       signals:
         //! Emited when the service should be terminated.
