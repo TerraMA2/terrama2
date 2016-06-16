@@ -29,7 +29,7 @@ module.exports = function(sequelize, DataTypes) {
 
           DataSeries.belongsTo(models.DataSeriesSemantics, {
             onDelete: "CASCADE",
-            foreignKey: { 
+            foreignKey: {
               allowNull: false
             }
           });
@@ -41,6 +41,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          DataSeries.hasMany(models.Intersection, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'dataseries_id',
+              allowNull: false
+            }
+          })
 
           DataSeries.hasMany(models.DataSet, {
             onDelete: "CASCADE",

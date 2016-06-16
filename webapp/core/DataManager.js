@@ -1427,11 +1427,10 @@ var DataManager = {
             case DataSeriesType.GRID:
               //  todo: implement it
               rollback(dataSet);
+
               break;
             case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-              // models.db.DataSetOccurrence.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
               models.db.DataSetMonitored.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
-
 
               break;
             default:
@@ -1594,42 +1593,10 @@ var DataManager = {
     return dataSetsList;
   },
 
-  addDataSeriesAndCollector: function(dataSeriesObject, scheduleObject, filterObject, serviceObject) {
+  addDataSeriesAndCollector: function(dataSeriesObject, scheduleObject, filterObject, serviceObject, intersectionArray) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-
-      var rollback = function(model, instance) {
-        return model.destroy({
-          where: {
-            id: instance.id
-          }
-        })
-      };
-
-      var rollbackModels = function(models, instances, exception) {
-        var promises = [];
-        for(var i = 0; i < models.length; ++i) {
-          promises.push(rollback(models[i], instances[i]));
-        }
-
-        Promise.all(promises).then(function() {
-          console.log("Rollback all");
-          return reject(exception);
-        }).catch(function(err) {
-          reject(err);
-        })
-      };
-
-      var rollbackPromise = function(promises, exception) {
-        Promise.all(promises).then(function() {
-          console.log("Rollback all promises");
-          return reject(exception);
-        }).catch(function(err) {
-          reject(err);
-        })
-      };
-
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
@@ -1675,36 +1642,65 @@ var DataManager = {
                   })
                 });
                 collector.input_output_map = input_output_map;
-                collector.schedule = schedule.toObject()
+                collector.schedule = schedule.toObject();
 
-                resolve({
-                  collector: collector,
-                  input: dataSeriesResult,
-                  output:dataSeriesResultOutput,
-                  schedule: schedule
-                });
+                // checking for intersection
+                if (!intersectionArray) {
+                  resolve({
+                    collector: collector,
+                    input: dataSeriesResult,
+                    output:dataSeriesResultOutput,
+                    schedule: schedule
+                  });
+                } else {
+                  intersectionArray.forEach(function(intersect) {
+                    intersect.collector_id = collector.id;
+                  });
+                  models.db['Intersection'].bulkCreate(intersectionArray, {returning: true}).then(function(bulkIntersectionResult) {
+                    collector.setIntersection(bulkIntersectionResult);
+                    resolve({
+                      collector: collector,
+                      input: dataSeriesResult,
+                      output:dataSeriesResultOutput,
+                      schedule: schedule,
+                      intersection: bulkIntersectionResult
+                    });
+                  }).catch(function(err) {
+                    Utils.rollbackPromises([
+                      self.removeDataSerie(dataSeriesResult),
+                      self.removeDataSerie(dataSeriesResultOutput),
+                      self.removeSchedule({id: scheduleResult.id})
+                    ], new exceptions.AnalysisError("Could not save data series"), reject);
+                  })
+                }
               }).catch(function(err) {
-                rollbackPromise([
-                  // self.removeSchedule(scheduleResult),
+                Utils.rollbackPromises([
                   self.removeDataSerie(dataSeriesResult),
-                  self.removeDataSerie(dataSeriesResultOutput)
-                ], err)
+                  self.removeDataSerie(dataSeriesResultOutput),
+                  self.removeSchedule({id: scheduleResult.id})
+                ], err, reject);
               })
 
-              // resolve([dataSeriesResult, dataSeriesResultOutput])
             }).catch(function(err) {
               // rollback schedule
               console.log("rollback schedule")
-              rollbackPromise([self.removeSchedule(scheduleResult), self.removeDataSerie(dataSeriesResult), self.removeDataSerie(dataSeriesResultOutput)], err);
+              Utils.rollbackPromises([
+                self.removeSchedule(scheduleResult),
+                self.removeDataSerie(dataSeriesResult),
+                self.removeDataSerie(dataSeriesResultOutput)
+              ], err, reject);
             });
           }).catch(function(err) {
             // rollback dataseries
             console.log("rollback dataseries in out");
-            rollbackPromise([self.removeDataSerie(dataSeriesResultOutput), self.removeDataSerie(dataSeriesResult)], err);
+            Utils.rollbackPromises([
+              self.removeDataSerie(dataSeriesResultOutput),
+              self.removeDataSerie(dataSeriesResult)
+            ], err, reject);
           });
         }).catch(function(err) {
           console.log("rollback dataseries");
-          rollbackPromise([self.removeDataSerie(dataSeriesResult)], err);
+          Utils.rollbackPromises([self.removeDataSerie(dataSeriesResult)], err, reject);
         })
       }).catch(function(err) {
         reject(err);
@@ -1833,65 +1829,6 @@ var DataManager = {
     });
   },
 
-  _prepareCollector: function(collectorsResult, projectId) {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      var output = [];
-
-      self.listDataSeries().then(function(dataSeriesResult) {
-
-        collectorsResult.forEach(function(collector) {
-
-          var input_output_map = [];
-          var inputDataSeries = null;
-          var outputDataSeries = null;
-
-          dataSeriesResult.some(function(dataSeries) {
-            if (collector.data_series_input == dataSeries.id) { // input
-              inputDataSeries = dataSeries;
-              return inputDataSeries && outputDataSeries;
-            } else if (collector.data_series_output == dataSeries.id) {
-              outputDataSeries = dataSeries;
-              return inputDataSeries && outputDataSeries;
-            }
-            return false;
-          }); // end some dataseries
-
-          if (inputDataSeries && outputDataSeries) {
-            // iterating over datasets
-            for(var i = 0; i < inputDataSeries.dataSets.length; ++i) {
-              var inputDataSet = inputDataSeries.dataSets[i];
-              var outputDataSet;
-              if (outputDataSeries.dataSets.length == 1)
-                outputDataSet = outputDataSeries.dataSets[0];
-              else
-                outputDataSet = outputDataSeries.dataSets[i];
-
-              input_output_map.push({
-                input: inputDataSet.id,
-                output: outputDataSet.id
-              });
-            }
-
-            var schedule = new DataModel.Schedule(collector.Schedule.get());
-            output.push(new DataModel.Collector(Object.assign({
-              input_output_map: input_output_map,
-              project_id: projectId,
-              schedule: schedule.toObject()
-            }, collector.get())));
-            input_output_map = [];
-
-          }
-        }); // end foreach collectors
-
-        resolve(output);
-      }).catch(function(err) {
-        console.log(err);
-        reject(err);
-      });
-    });
-  },
-
   listCollectorInputOutput: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -1917,6 +1854,10 @@ var DataManager = {
           models.db['CollectorInputOutput'],
           {
             model: models.db['Filter'],
+            required: false
+          },
+          {
+            model: models.db['Intersection'],
             required: false
           }
         ]
@@ -1959,6 +1900,10 @@ var DataManager = {
           },
           {
             model: models.db['Filter'],
+            required: false
+          },
+          {
+            model: models.db['Intersection'],
             required: false
           }
         ]

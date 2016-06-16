@@ -25,7 +25,8 @@
 
 <script>
     angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
-        .controller('ListController', ['$scope', 'ServiceInstanceFactory', '$http', function($scope, ServiceInstanceFactory, $http) {
+        .controller('ListController', ['$scope', 'ServiceInstanceFactory', '$HttpTimeout',
+          function($scope, ServiceInstanceFactory, $HttpTimeout) {
             $scope.link = function(object) {
                 return "/administration/services/" + object.id;
             };
@@ -48,23 +49,26 @@
                   default:
                     break;
                 }
-                // checking online flag in model
-                // if (!service.hasOwnProperty('online'))
-                //   service.online = false;
               });
 
               $scope.model = services;
 
               services.forEach(function(service) {
                 service.loading = true;
-                $http.post("/api/Remote/status/" + service.id, {}).success(function(data) {
+                $HttpTimeout({
+                  url: "/api/Remote/status/" + service.id,
+                  method: 'post',
+                  data: {}
+                }).then(function(data) {
                   service.online = data.online;
-                }).error(function(err) {
+                  service.loading = false;
+                }).catch(function(err) {
                   console.log("Could not retrieve status of " + service.name);
                   console.log(err);
                   service.online = err.online;
-                }).finally(function() {
                   service.loading = false;
+                }).finally(function() {
+                  console.log("finaly exists");
                 })
               });
 
@@ -105,30 +109,46 @@
                 handler: function(serviceInstance) {
                   if (!serviceInstance.online) {
                     serviceInstance.loading = true;
-                    $http.post("/api/Remote/start", {serviceId: serviceInstance.id}).success(function(data) {
+                    $HttpTimeout({
+                      url: "/api/Remote/start",
+                      data: {serviceId: serviceInstance.id},
+                      method: 'post'
+                    }, 8).then(function(data) {
                       serviceInstance.online = data.online;
                       console.log(data);
+                      serviceInstance.loading = false;
                     }).catch(function(err) {
                       console.log("Error while starting remote service: ", err);
                       serviceInstance.online = err.online;
+                      serviceInstance.loading = false;
                     }).finally(function() {
                       serviceInstance.loading = false;
                     })
                   } else {
                     serviceInstance.requestingForClose = true;
-                    $http.post("/api/Remote/stop", {serviceId: serviceInstance.id}).success(function(data) {
+                    $HttpTimeout({
+                      url: "/api/Remote/stop",
+                      data: {serviceId: serviceInstance.id},
+                      method: 'post'
+                    }, 4).then(function(data) {
                       serviceInstance.online = data.online || false;
                       console.log(data);
-                    }).error(function(err) {
+                      serviceInstance.requestingForClose = false;
+                    }).catch(function(err) {
                       console.log("Error while stoping remote service: ", err);
                       serviceInstance.online = err.online;
+                      serviceInstance.requestingForClose = false;
                     }).finally(function() {
                       serviceInstance.requestingForClose = false;
                     });
                   }
                 },
                 reload: function(serviceInstance) {
-                  $http.post("/api/Remote/reload", {serviceId: serviceInstance.id}).success(function(data) {
+                  $HttpTimeout({
+                    url: "/api/Remote/reload",
+                    data: {serviceId: serviceInstance.id},
+                    method: 'post'
+                  }).then(function(data) {
                     serviceInstance.online = data.online;
                     console.log(data);
                   }).catch(function(err) {
