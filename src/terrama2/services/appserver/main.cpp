@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
           || !dataManager.get())
         return SERVICE_LOAD_ERROR;
 
-      auto tcpManager = std::make_shared<terrama2::core::TcpManager>(dataManager);
+      auto tcpManager = std::make_shared<terrama2::core::TcpManager>(dataManager, logger);
       if(!tcpManager->listen(QHostAddress::Any, serviceManager.listeningPort()))
       {
         std::cerr << QObject::tr("\nUnable to listen to port: ").toStdString() << serviceManager.listeningPort() << "\n" << std::endl;
