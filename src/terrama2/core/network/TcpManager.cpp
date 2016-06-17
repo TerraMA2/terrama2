@@ -208,6 +208,25 @@ bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray)
   }
 }
 
+void terrama2::core::TcpManager::sendTerminateSignal()
+{
+  TERRAMA2_LOG_DEBUG() << "sending TERMINATE_SERVICE_SIGNAL";
+  QByteArray bytearray;
+  QDataStream out(&bytearray, QIODevice::WriteOnly);
+
+  out << static_cast<uint32_t>(0);
+  out << static_cast<uint32_t>(TcpSignal::TERMINATE_SERVICE_SIGNAL);
+  out.device()->seek(0);
+  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+
+  // wait while sending message
+  qint64 written = tcpSocket_->write(bytearray);
+  if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
+    TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
+
+  return;
+}
+
 void terrama2::core::TcpManager::readReadySlot()
 {
   {
@@ -269,6 +288,11 @@ void terrama2::core::TcpManager::readReadySlot()
         serviceManager_->setShuttingDownProcessInitiated();
 
         emit stopSignal();
+
+        sendTerminateSignal();
+
+        emit closeApp();
+
         break;
       }
       case TcpSignal::ADD_DATA_SIGNAL:
