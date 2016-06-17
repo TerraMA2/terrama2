@@ -76,12 +76,20 @@
             <i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Start') }}
           </button>
           <button type="button"
-                  ng-if="element.loading && !element.online"
+                  ng-if="!element.checking && element.loading && !element.online"
                   class="btn btn-primary btn-sm"
                   ng-disabled="element.loading"
                   style="margin-left: 19px">
             <i class="fa fa-magic" style="margin-right: 5px;"></i>
             {{ i18n.__("Starting...") }}
+          </button>
+          <button type="button"
+                  ng-if="element.checking"
+                  class="btn btn-primary btn-sm"
+                  ng-disabled="element.loading"
+                  style="margin-left: 19px">
+            <i class="glyphicon glyphicon-info-sign" style="margin-right: 5px;"></i>
+            {{ i18n.__("Checking...") }}
           </button>
 
           <button class="btn btn-danger btn-sm"
@@ -92,7 +100,7 @@
             <i class="fa fa-power-off" style="margin-right: 5px;"></i>{{ i18n.__('Stop') }}
           </button>
           <button type="button"
-                  ng-if="element.loading && element.online"
+                  ng-if="!element.checking && element.loading && element.online"
                   class="btn btn-danger btn-sm"
                   ng-disabled="element.loading"
                   style="margin-left: 19px">
