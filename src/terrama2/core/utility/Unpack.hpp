@@ -48,9 +48,8 @@ namespace terrama2
        \brief This class is responsible for decompressing files with  gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
    */
 
-    class Unpack : public boost::noncopyable
+    namespace Unpack
     {
-      public:
         /*!
          * \brief unpackList - the descompressing a file gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
          * \param uri - It contains absolute file path.
@@ -65,7 +64,6 @@ namespace terrama2
          */
         bool verifyCompressFile(std::string uri);
 
-      private:
         /*!
          * \brief isGzipCompress - Verify is a file with extension gz.
          * \param fileinfo - Compressed file.
@@ -160,7 +158,7 @@ namespace terrama2
          */
         void uncompressZip(QString saveName, QFileInfo fileName);
 
-        std::string temporaryFolder_; //! Folder information where the files will be saved. Ex. "/tmp/".
+        static std::string temporaryFolder_; //! Folder information where the files will be saved. Ex. "/tmp/".
 
     };
   } // end namespace core

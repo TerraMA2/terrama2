@@ -335,6 +335,7 @@ void terrama2::core::Unpack::untar(const std::string& path)
 
     if (bytesRead < 512)
     {
+      //TODO: Why fprint?
       std::fprintf(stderr,"Short read on %s: expected 512, got %d\n",path.c_str(), bytesRead);
       return;
     }
