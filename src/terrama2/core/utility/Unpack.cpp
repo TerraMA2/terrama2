@@ -75,51 +75,44 @@
 #include <boost/iostreams/filter/bzip2.hpp>
 
 
-QString terrama2::core::Unpack::uncompressGz(QString saveName, QFileInfo fileName)
+QString terrama2::core::Unpack::uncompressGz(QFileInfo fileInfo, QString temporaryFolder)
 {
-  saveName = nameFileUncompressed(fileName);
+  QString saveName = temporaryFolder+"/"+nameFileUncompressed(fileInfo);
 
-  std::ifstream inFile(fileName.absoluteFilePath().toStdString(), std::ios_base::in);
-  std::ofstream outFile(temporaryFolder_+saveName.toStdString(), std::ios_base::out);
+  std::ifstream inFile(fileInfo.absoluteFilePath().toStdString(), std::ios_base::in);
+  std::ofstream outFile(saveName.toStdString(), std::ios_base::out);
   boost::iostreams::filtering_streambuf< boost::iostreams::input> inStreamBuff;
   inStreamBuff.push( boost::iostreams::gzip_decompressor());
   inStreamBuff.push( inFile );
   boost::iostreams::copy(inStreamBuff, outFile);
 
-  QString tempFolder = QString::fromStdString(temporaryFolder_);
-  return tempFolder+saveName;
+  return saveName;
 }
 
-QString terrama2::core::Unpack::uncompressBzip(QString saveName, QFileInfo fileName)
+QString terrama2::core::Unpack::uncompressBzip(QFileInfo fileInfo, QString temporaryFolder)
 {
-  saveName = nameFileUncompressed(fileName);
+  QString saveName = temporaryFolder+"/"+nameFileUncompressed(fileInfo);
 
-  std::ifstream inFile(fileName.absoluteFilePath().toStdString(), std::ios_base::in);
-  std::ofstream outFile(temporaryFolder_+saveName.toStdString(), std::ios_base::out);
+  std::ifstream inFile(fileInfo.absoluteFilePath().toStdString(), std::ios_base::in);
+  std::ofstream outFile(saveName.toStdString(), std::ios_base::out);
   boost::iostreams::filtering_streambuf< boost::iostreams::input> inStreamBuff;
   inStreamBuff.push(boost::iostreams::bzip2_decompressor());
   inStreamBuff.push(inFile);
   boost::iostreams::copy(inStreamBuff, outFile);
 
-  QString tempFolder = QString::fromStdString(temporaryFolder_);
-  return tempFolder+saveName;
+  return saveName;
 }
 
-void terrama2::core::Unpack::uncompressZip(QString saveName, QFileInfo fileName)
+void terrama2::core::Unpack::uncompressZip(QFileInfo fileInfo, QString temporaryFolder)
 {
-  std::size_t found = saveName.toStdString().find_last_of("/\\");
-  std::string savePath = saveName.toStdString().substr(0,found);
-  savePath.append("/");
-
-  JlCompress::extractDir(fileName.absoluteFilePath().toStdString().c_str(), temporaryFolder_.c_str());
-
+  JlCompress::extractDir(fileInfo.absoluteFilePath(), temporaryFolder);
 }
 
 bool terrama2::core::Unpack::verifyCompressFile(std::string uri)
 {
   QUrl url(uri.c_str());
-  QFileInfo fileName(url.path());
-  QString saveName = fileName.absoluteFilePath();
+  QFileInfo fileInfo(url.path());
+  QString saveName = fileInfo.absoluteFilePath();
 
   if ((isGzipCompress(saveName)) || (isBzipCompress(saveName)) || (isZipCompress(saveName)))
     return true;
@@ -130,37 +123,39 @@ bool terrama2::core::Unpack::verifyCompressFile(std::string uri)
 std::string terrama2::core::Unpack::unpackList(std::string uri)
 {
 
-  temporaryFolder_ = "/tmp/terrama2-unpack/";
+  QString temporaryFolder = "/tmp/terrama2-unpack";
 
   // Create the directory where you will download the files.
-  QDir dir(temporaryFolder_.c_str());
+  QDir dir(temporaryFolder);
   if (!dir.exists())
-    dir.mkpath(temporaryFolder_.c_str());
+    dir.mkpath(temporaryFolder);
 
   try
   {
     QUrl url(uri.c_str());
-    QFileInfo fileName(url.path());
-    QString saveName = fileName.absoluteFilePath();
+    QFileInfo fileInfo(url.path());
+    QString filePath = fileInfo.absoluteFilePath();
 
-    if (isGzipCompress(saveName))
+    if (isGzipCompress(filePath))
     {
-      saveName = uncompressGz(saveName, fileName);
+      filePath = uncompressGz(fileInfo, temporaryFolder);
+      fileInfo.setFile(filePath);
     }
 
-    if (isBzipCompress(saveName))
+    if (isBzipCompress(filePath))
     {
-      saveName = uncompressBzip(saveName, fileName);
+      filePath = uncompressBzip(fileInfo, temporaryFolder);
+      fileInfo.setFile(filePath);
     }
 
-    if (isZipCompress(saveName))
+    if (isZipCompress(filePath))
     {
-      uncompressZip(saveName, fileName);
+      uncompressZip(fileInfo, temporaryFolder);
     }
 
-    else if (isTarCompress(saveName))
+    if (isTarCompress(filePath))
     {
-      untar(saveName.toStdString());
+      untar(fileInfo, temporaryFolder);
     }
 
   }
@@ -177,7 +172,7 @@ std::string terrama2::core::Unpack::unpackList(std::string uri)
     TERRAMA2_LOG_ERROR() << e.what();
   }
 
-  return temporaryFolder_;
+  return temporaryFolder.toStdString();
 }
 
 bool terrama2::core::Unpack::isGzipCompress(const QFileInfo fileinfo)
@@ -278,9 +273,9 @@ std::FILE* terrama2::core::Unpack::createFile(char *pathname, int mode, std::str
 {
   std::FILE *newFile;
 
-  char *absolutePath = const_cast <char*> ((savePath+pathname).c_str());
+  char *absolutePath = const_cast <char*> ((savePath+"/"+pathname).c_str());
 
-  newFile = std::fopen((savePath+pathname).c_str(), "w+");
+  newFile = std::fopen((savePath+"/"+pathname).c_str(), "w+");
 
   if (newFile == nullptr)
   {
@@ -291,7 +286,7 @@ std::FILE* terrama2::core::Unpack::createFile(char *pathname, int mode, std::str
       *p = '\0';
       createDir(absolutePath, 0755);
       *p = '/';
-      newFile = std::fopen((savePath+pathname).c_str(), "w+");
+      newFile = std::fopen((savePath+"/"+pathname).c_str(), "w+");
     }
   }
 
@@ -316,8 +311,9 @@ int terrama2::core::Unpack::verifyChecksum(const char *p)
 }
 
 // Extract a tar archive.
-void terrama2::core::Unpack::untar(const std::string& path)
+void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
 {
+  std::string path = fileInfo.absoluteFilePath().toStdString();
   char buff[512];
   std::FILE *fileUncompressed = nullptr;
   size_t bytesRead;
@@ -325,9 +321,7 @@ void terrama2::core::Unpack::untar(const std::string& path)
 
   FilePtr fileCompressed(path.c_str(),"r");
 
-  std::size_t found = path.find_last_of("/\\");
-  std::string savePath = path.substr(0,found);
-  savePath.append("/");
+  std::string savePath = temporaryFolder.toStdString();
 
   for (;;)
   {
