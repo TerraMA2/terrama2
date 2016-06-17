@@ -460,7 +460,13 @@ PyThreadState* terrama2::services::analysis::core::Context::getMainThreadState()
 void terrama2::services::analysis::core::Context::addError(AnalysisHashCode analysisHashCode, const std::string& errorMessage)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  analysisErrorsMap_[analysisHashCode].insert(errorMessage);
+
+  // Removes quotes from error message
+  std::string errMsg = errorMessage;
+  boost::replace_all(errMsg, "\"", "");
+  boost::replace_all(errMsg, "\'", "");
+
+  analysisErrorsMap_[analysisHashCode].insert(errMsg);
 }
 
 std::set<std::string> terrama2::services::analysis::core::Context::getErrors(AnalysisHashCode analysisHashCode)

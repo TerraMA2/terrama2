@@ -49,11 +49,11 @@
 #include <algorithm>
 
 terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter)
-  : dataProvider_(dataProvider),
-    dataSeries_(dataSeries),
-    filter_(filter)
+        : dataProvider_(dataProvider),
+          dataSeries_(dataSeries),
+          filter_(filter)
 {
-  if(!dataProvider_.get() || ! dataSeries_.get())
+  if(!dataProvider_.get() || !dataSeries_.get())
   {
     QString errMsg = QObject::tr("Mandatory parameters not provided.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -153,7 +153,6 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
 }
 
 
-
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter(DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
@@ -162,8 +161,8 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
 
   adapt(dataset, converter);
   std::string id = "FID";
-  const std::vector< te::dt::Property* >& propertyList = converter->getResult()->getProperties();
-  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property *property)
+  const std::vector<te::dt::Property*>& propertyList = converter->getResult()->getProperties();
+  auto it = std::find_if(propertyList.cbegin(), propertyList.cend(), [id](te::dt::Property* property)
   {
     return property->getName() == id;
   });
@@ -173,7 +172,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
+std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> terrama2::core::DataAccessor::getSeries(const Filter& filter) const
 {
 
   //if data provider is not active, nothing to do
@@ -186,7 +185,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
   }
 
   if(filter.discardAfter.get() && filter.discardBefore.get()
-      && (*filter.discardAfter) < (*filter.discardBefore))
+     && (*filter.discardAfter) < (*filter.discardBefore))
   {
     QString errMsg = QObject::tr("Empty filter time range.");
 
@@ -194,7 +193,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
     throw DataProviderException() << ErrorDescription(errMsg);
   }
 
-  std::map<DataSetPtr,DataSetSeries> series;
+  std::map<DataSetPtr, DataSetSeries> series;
 
   try
   {
@@ -241,19 +240,20 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
   }
   catch(const terrama2::Exception&)
   {
-
+    throw;
   }
   catch(const boost::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
+    throw DataAccessorException() << ErrorDescription(boost::diagnostic_information(e).c_str());
   }
   catch(const std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    throw DataAccessorException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    //TODO: catch cannot open DataProvider, log here
+    QString errMsg = QObject::tr("Unknown exception occurred");
+    throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
   return series;
@@ -266,7 +266,7 @@ void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTyp
   {
     te::dt::Property* p = datasetType->getProperty(i);
 
-    converter->add(i,p->clone());
+    converter->add(i, p->clone());
   }
 }
 

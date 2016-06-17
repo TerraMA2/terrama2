@@ -50,7 +50,7 @@ namespace terrama2
         //! Add a group of DataSet data to the OccurrenceSeries.
         void addOccurrences(std::map<DataSetPtr,DataSetSeries> seriesMap);
         //! Returns a map of DataSetOccurrence data.
-        const std::map<DataSetOccurrencePtr,DataSetSeries >& getOccurrences();
+        const std::map<DataSetOccurrencePtr,DataSetSeries >& occurrencesMap();
 
       private:
         std::map<DataSetOccurrencePtr,DataSetSeries > occurrenceMap;//!< Map of DataSetOccurrence data.
