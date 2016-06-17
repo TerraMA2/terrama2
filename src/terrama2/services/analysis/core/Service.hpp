@@ -54,7 +54,7 @@ namespace terrama2
          */
         class Service : public terrama2::core::Service
         {
-          Q_OBJECT
+            Q_OBJECT
 
           public:
             //! Constructor
@@ -62,6 +62,9 @@ namespace terrama2
 
             //! Destructor
             virtual ~Service();
+
+            //! Set ProcessLogger
+            void setLogger(std::shared_ptr<AnalysisLogger> logger) noexcept;
 
           public slots:
 
@@ -87,13 +90,6 @@ namespace terrama2
               \brief Adds the analysis to the queue of execution.
              */
             virtual void addToQueue(AnalysisId analysisId) override;
-
-            /*!
-              \brief Updates the connection parameters of the process log database.
-
-              Running processes may keep old connection info until finish.
-            */
-            virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;
 
           protected:
 

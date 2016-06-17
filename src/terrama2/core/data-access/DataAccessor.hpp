@@ -98,8 +98,10 @@ namespace terrama2
           \sa getSeries()
         */
         virtual std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime() const {return lastDateTime_; }
+
         //! Returns the DataSeriesSemantics of the DataSeries.
         DataSeriesSemantics semantics() const { return dataSeries_->semantics; }
+
         /*!
           \brief Get access to the filtered data of a DataSeries
 
@@ -133,9 +135,9 @@ namespace terrama2
         //! Default move constructor
         DataAccessor(DataAccessor&& other) = default;
         //! Default const assignment operator
-        DataAccessor& operator=(const DataAccessor& other) = default;
+        virtual DataAccessor& operator=(const DataAccessor& other) = default;
         //! Default assignment operator
-        DataAccessor& operator=(DataAccessor&& other) = default;
+        virtual DataAccessor& operator=(DataAccessor&& other) = default;
 
         /*!
           \brief Get name of the timestamp property

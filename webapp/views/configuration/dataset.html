@@ -8,10 +8,24 @@
   <link href="/externals/angular-xeditable/css/xeditable.css" rel="stylesheet">
 
   <style>
-    table > tbody {
-      overflow-y: auto !important;
-      height: 150px !important;
+    tr {
+      width: 100% !important;
+      display: inline-table !important;
+      table-layout: fixed !important;
     }
+
+    table{
+      height:220 !important;
+      display: -moz-groupbox !important;
+    }
+
+    tbody {
+      overflow-y: scroll !important;
+      height: 200px !important;
+      width: 100% !important;
+      display: block !important;
+    }
+
     .terrama2-pcd-header {
       width: 100% ;
     }

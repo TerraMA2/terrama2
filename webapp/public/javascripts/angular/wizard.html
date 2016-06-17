@@ -71,10 +71,26 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
+          <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
           <button class="btn btn-primary" type="submit" ng-disabled="isUpdating" wz-finish>{{ i18n.__('Save') }}</button>
         </div>
       </div>
     </wz-step>
+
+    <wz-step wz-title="Intersection" ng-if="isDynamic">
+      <div class="col-md-12">
+        <div ng-include="'/javascripts/angular/data-series/templates/intersection.html'">
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="pull-right">
+          <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
+          <button class="btn btn-primary" type="submit" ng-disabled="isUpdating" wz-finish>{{ i18n.__('Save') }}</button>
+        </div>
+      </div>
+    </wz-step>
+
   </wizard>
 
 </div>

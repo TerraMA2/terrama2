@@ -32,6 +32,7 @@
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/FilterUtils.hpp"
+#include "../core/utility/Utils.hpp"
 
 // terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>

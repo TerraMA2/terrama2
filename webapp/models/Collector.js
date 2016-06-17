@@ -32,6 +32,14 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
+          Collector.hasMany(models.Intersection, {
+            onDelete: 'CASCADE',
+            foreignKey: {
+              name: 'collector_id',
+              allowNull: false
+            }
+          })
+
           Collector.belongsTo(models.ServiceInstance, {
             foreignKey: {
               allowNull: true

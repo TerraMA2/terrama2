@@ -39,6 +39,7 @@
 
 
 // TerraLib
+#include <terralib/core/utils/Platform.h>
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/common.h>
@@ -131,7 +132,7 @@ void terrama2::core::initializeTerralib()
   TerraLib::getInstance().initialize();
 
   te::plugin::PluginInfo* info;
-  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
+  std::string plugins_path = te::core::FindInTerraLibPath("share/terralib/plugins");
   info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
   te::plugin::PluginManager::getInstance().add(info);
 
@@ -328,4 +329,9 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::DataModelException() << terrama2::ErrorDescription(errMsg);
   }
+}
+
+bool terrama2::core::isValidColumn(size_t value)
+{
+   return value != std::numeric_limits<size_t>::max();
 }

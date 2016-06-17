@@ -220,7 +220,12 @@ int main(int argc, char* argv[])
 
   // Starts the service and adds the analysis
   Service service(dataManager);
-  service.updateLoggerConnectionInfo(connInfo);
+  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
+
+  auto logger = std::make_shared<AnalysisLogger>();
+  logger->setConnectionInfo(connInfo);
+  service.setLogger(logger);
+  
   service.start();
   service.addAnalysis(1);
   service.addAnalysis(1);
@@ -232,7 +237,7 @@ int main(int argc, char* argv[])
   app.exec();
 
 
-  terrama2::core::finalizeTerralib();
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }

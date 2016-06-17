@@ -278,9 +278,18 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     storeAnalysisResult(dataManager, analysis);
 
   }
-  catch(std::exception& e)
+  catch(terrama2::Exception e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    Context::getInstance().addError(analysis.hashCode(),  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+  }
+  catch(std::exception e)
+  {
+    Context::getInstance().addError(analysis.hashCode(), e.what());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
   }
 }
 
@@ -361,9 +370,8 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
 
   if(resultMap.empty())
   {
-    QString errMsg = QObject::tr("Analysis %1 returned an empty result.").arg(analysis.id);
-    TERRAMA2_LOG_WARNING() << errMsg;
-    return;
+    QString errMsg = QObject::tr("Empty result.");
+    throw EmptyResultException() << ErrorDescription(errMsg);
   }
 
   // In case an error occurred in the analysis execution there is nothing to do.

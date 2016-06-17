@@ -100,92 +100,11 @@ sleep 1s
 mkdir -p "$TERRAMA2_DEPENDENCIES_DIR/lib/"
 mkdir -p "$TERRAMA2_DEPENDENCIES_DIR/bin/"
 
-
-#
-# GMock
-# Site: https://github.com/google/googletest
-#
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libgmock.a" ]; then
-  echo "installing GMock..."
-  sleep 1s
-
-  unzip -o googletest-master.zip
-  valid $? "Error: could not uncompress googletestmaster.zip!"
-
-  cd googletest-master/googletest
-  valid $? "Error: could not enter googletestmaster!"
-
-  cmake .
-  valid $? "Error: could not configure googletest!"
-
-  make
-  valid $? "Error: could not make googletest!"
-
-  cp libgtest.a $TERRAMA2_DEPENDENCIES_DIR/lib/
-  valid $? "Error: could not copy libgtest.a!"
-
-  cp libgtest_main.a $TERRAMA2_DEPENDENCIES_DIR/lib/
-  valid $? "Error: could not copy libgtest_main.a!"
-
-  cp -r include/gtest $TERRAMA2_DEPENDENCIES_DIR/include/
-  valid $? "Error: could not copy include dir!"
-
-  cd ../googlemock
-
-  cmake .
-  valid $? "Error: could not configure googlemock!"
-
-  make
-  valid $? "Error: could not make googlemock!"
-
-  cp libgmock.a $TERRAMA2_DEPENDENCIES_DIR/lib/
-  valid $? "Error: could not copy libgmock.a!"
-
-  cp libgmock_main.a $TERRAMA2_DEPENDENCIES_DIR/lib/
-  valid $? "Error: could not copy libgmock_main.a!"
-
-  cp -r include/gmock $TERRAMA2_DEPENDENCIES_DIR/include/
-  valid $? "Error: could not copy include dir!"
-
-  cd ../..
-fi
-
-
-#
-#
-# TerraLib
-#
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/terralib5/lib/libterralib_mod_common.so" ]; then
-  echo "installing TerraLib..."
-  echo ""
-  sleep 1s
-
-  tar jxvf terralib5-2015-09-28.bz2
-  valid $? "Error: could not uncompress terralib5-2015-09-28.bz2!"
-
-  mkdir terralib5_build_make
-  #valid $? "Error: could not create terralib5_build_make!"
-
-  cd terralib5_build_make
-  valid $? "Error: could not enter terralib5_build_make!"
-
-  cmake ../terralib5/build/cmake -DCMAKE_BUILD_TYPE:STRING='Release' -DCMAKE_INSTALL_PREFIX:PATH="$TERRAMA2_DEPENDENCIES_DIR/terralib5" -DCMAKE_PREFIX_PATH:PATH="$TERRAMA2_DEPENDENCIES_DIR;$TERRAMA2_DEPENDENCIES_DIR/lib;$TERRAMA2_DEPENDENCIES_DIR/gdal2;$TERRAMA2_DEPENDENCIES_DIR/pgsql" -DTERRALIB_BUILD_EXAMPLES_ENABLED:BOOL=OFF -DTERRALIB_BUILD_UNITTEST_ENABLED:BOOL=OFF -DTERRALIB_DOXYGEN_ENABLED:BOOL=OFF -DTERRALIB_QHELP_ENABLED:BOOL=OFF -DTERRALIB_QTRANSLATION_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_JAVA_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_PYTHON_ENABLED:BOOL=OFF -DTERRALIB_MOD_BINDING_LUA_ENABLED:BOOL=OFF -DGEOS_INCLUDE_DIR:PATH="$TERRAMA2_DEPENDENCIES_DIR/include/geos" -DGNUGETTEXT_INCLUDE_DIR:PATH="/usr/include" -DGNUGETTEXT_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libgettextpo.so' -DGNUICONV_LIBRARY:FILEPATH='/usr/lib/x86_64-linux-gnu/libc.so'
-  valid $? "Error: could not configure terralib5!"
-
-  make -j 4
-  valid $? "Error: could not make terralib5"
-
-  make install
-  valid $? "Error: Could not install terralib5"
-
-  cd ..
-fi
-
 #
 # Quazip
 #
 
-if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip.so" ]; then
+if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip5.so" ]; then
  echo "installing Quazip..."
  echo ""
  sleep 1s
@@ -196,7 +115,7 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip.so" ]; then
  cd quazip-0.7.2
  valid $? "Error: could not enter quazip-0.7.2"
 
- cmake . -DCMAKE_INSTALL_PREFIX=$TERRAMA2_DEPENDENCIES_DIR -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+ cmake . -DCMAKE_INSTALL_PREFIX:PATH="$TERRAMA2_DEPENDENCIES_DIR" -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL="ON"
 
  valid $? "Error: could not configure Quazip!"
 

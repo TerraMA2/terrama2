@@ -54,12 +54,14 @@ namespace terrama2
            * set the analysis log table.
            * \param connInfo Has the access information to the log Database
            */
-          AnalysisLogger(std::map< std::string, std::string > connInfo);
+          AnalysisLogger();
 
           /*!
            * \brief Class destructor
            */
           virtual ~AnalysisLogger() = default;
+
+          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) override;
 
         };
       }

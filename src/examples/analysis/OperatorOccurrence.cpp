@@ -232,7 +232,11 @@ int main(int argc, char* argv[])
   Context::getInstance().setDataManager(dataManager);
   terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
-  service.updateLoggerConnectionInfo(connInfo);
+
+  auto logger = std::make_shared<AnalysisLogger>();
+  logger->setConnectionInfo(connInfo);
+  service.setLogger(logger);
+  
   service.start();
   service.addAnalysis(1);
 
@@ -241,6 +245,8 @@ int main(int argc, char* argv[])
   timer.start(100000);
   app.exec();
 
+
+  terrama2::core::finalizeTerraMA();
 
   return 0;
 }

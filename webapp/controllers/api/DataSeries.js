@@ -14,10 +14,17 @@ module.exports = function(app) {
       var scheduleObject = request.body.schedule;
       var filterObject = request.body.filter;
       var serviceId = request.body.service;
+      var intersection = request.body.intersection;
 
       if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
         DataManager.getServiceInstance({id: serviceId}).then(function(serviceResult) {
-          DataManager.addDataSeriesAndCollector(dataSeriesObject, scheduleObject, filterObject, serviceResult).then(function(collectorResult) {
+          DataManager.addDataSeriesAndCollector(
+            dataSeriesObject,
+            scheduleObject,
+            filterObject,
+            serviceResult,
+            intersection
+          ).then(function(collectorResult) {
             var collector = collectorResult.collector;
             collector['project_id'] = app.locals.activeProject.id;
 

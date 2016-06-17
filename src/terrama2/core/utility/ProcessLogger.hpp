@@ -38,172 +38,172 @@
 
 // Qt
 #include <QJsonObject>
+#include <QObject>
 
 namespace terrama2
 {
   namespace core
   {
-    class ProcessLogger
+    class ProcessLogger : public QObject
     {
-    public:
+        Q_OBJECT
 
-      /*!
-        \enum Status
+      public:
 
-        \brief Possible status of manipulate data.
-      */
-      enum Status
-      {
-        ERROR       = 1, /*!< Error during process */
-        START       = 2, /*!< The process started */
-        DOWNLOADED  = 3, /*!< The data was downloaded */
-        DONE        = 4  /*!< Process finished */
-      };
+        /*!
+          \enum Status
 
-      /*!
-        \enum messageType
+          \brief Possible status of manipulate data.
+        */
+        enum Status
+        {
+          ERROR       = 1, /*!< Error during process */
+          START       = 2, /*!< The process started */
+          DOWNLOADED  = 3, /*!< The data was downloaded */
+          DONE        = 4  /*!< Process finished */
+        };
 
-        \brief Possible status of logged messages.
-      */
-      enum MessageType
-      {
-        ERROR_MESSAGE     = 1,
-        INFO_MESSAGE      = 2,
-        WARNING_MESSAGE   = 3
-      };
+        /*!
+          \enum messageType
 
-
-      struct MessageLog
-      {
-        MessageLog() {};
-
-        uint32_t id =0;
-        RegisterId log_id =0;
-        MessageType type;
-        std::string description = "";
-        std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
-      };
-
-      struct Log
-      {
-        Log() {};
-
-        RegisterId id = 0;
-        ProcessId processId = 0;
-        Status status;
-        std::shared_ptr< te::dt::TimeInstantTZ > start_timestamp;
-        std::shared_ptr< te::dt::TimeInstantTZ > data_timestamp;
-        std::shared_ptr< te::dt::TimeInstantTZ > last_process_timestamp;
-        std::string data = "";
-
-        std::vector< MessageLog > messages;
-      };
-
-      /*!
-       * \brief Class Constructor.
-       * \param processID ID of the process to log.
-       * \param connInfo Datasource connection information.
-       */
-      ProcessLogger(const std::map < std::string, std::string > connInfo);
-
-      /*!
-       * \brief Class destructor
-       */
-      virtual ~ProcessLogger();
-
-      /*!
-       * \brief Log the start of the process.
-       * \return The ID of table register
-       */
-      virtual RegisterId start(ProcessId processId) const;
-
-      /*!
-       * \brief Log an error of process
-       * \param description Error description
-       */
-      virtual void error(const std::string description, const RegisterId registerId) const;
-
-      /*!
-       * \brief Log an information of process
-       * \param description Error description
-       */
-      virtual void info(const std::string description, const RegisterId registerId) const;
-
-      /*!
-       * \brief Log the end of process
-       * \param dataTimestamp The las timestamp of data.
-       */
-      virtual void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
-
-      /*!
-       * \brief Returns the process last log timestamp
-       * \param processId The ID of the process
-       * \return A TimeInstantTZ with the last time that process logged something
-       */
-      virtual std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
-
-      /*!
-       * \brief Returns the last timestamp of a data
-       * \param processId The ID of the process
-       * \return A TimeInstantTZ with the data last timestamp
-       */
-      virtual std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const ProcessId processId) const;
-
-      /*!
-       * \brief Get the logs of a process in a determined interval.
-       *        The order of register is from last log to the first, and
-       *        the first is 0.
-       *        So if you want from 1º to 10º last logs, begin = 0 and end = 9,
-       *        or from 3º to 5º last logs, begin = 2 and end = 4.
-       * \param processId The ID of the process
-       * \param begin The number order of the first wanted register
-       * \param end The number in order of the last wanted register
-       */
-      std::vector<Log> getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const;
-
-      /*!
-       * \brief Returns the process ID
-       * \return Returns the process ID
-       */
-      virtual ProcessId processID(const RegisterId registerId) const;
-
-    protected:
-
-      /*!
-       * \brief Default constructor
-       */
-      ProcessLogger() = default;
-
-      /*!
-       * \brief Set the process logger data source
-       */
-      void setDataSource(te::da::DataSource* dataSource);
-
-      /*!
-       * \brief Store data in a Json to be logged after
-       * \param tag A tag to identify data
-       * \param value The data
-       */
-      void addValue(const std::string tag, const std::string value, const RegisterId registerId) const;
+          \brief Possible status of logged messages.
+        */
+        enum MessageType
+        {
+          ERROR_MESSAGE     = 1,
+          INFO_MESSAGE      = 2,
+          WARNING_MESSAGE   = 3
+        };
 
 
-      /*!
-       * \brief Store the name of the process log table and the message log table
-       * \param tableName The log table name
-       */
-      void setTableName(const std::string tableName);
+        struct MessageLog
+        {
+          uint32_t id =0;
+          RegisterId log_id =0;
+          MessageType type;
+          std::string description = "";
+          std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+        };
 
-    private:
-      /*!
-       * \brief Log in the log table the data stored in Json
-       */
-      void updateData(const RegisterId registerId, const QJsonObject obj) const;
+        struct Log
+        {
+          RegisterId id = 0;
+          ProcessId processId = 0;
+          Status status;
+          std::shared_ptr< te::dt::TimeInstantTZ > start_timestamp;
+          std::shared_ptr< te::dt::TimeInstantTZ > data_timestamp;
+          std::shared_ptr< te::dt::TimeInstantTZ > last_process_timestamp;
+          std::string data = "";
 
-      std::string schema_ = "terrama2";
-      std::string tableName_ = "";
-      std::string messagesTableName_ = "";
-      std::unique_ptr< te::da::DataSource > dataSource_;
+          std::vector< MessageLog > messages;
+        };
 
+        /*!
+         * \brief Class destructor
+         */
+        virtual ~ProcessLogger();
+
+        /*!
+         * \brief Log the start of the process.
+         * \return The ID of table register
+         */
+        virtual RegisterId start(ProcessId processId) const;
+
+        /*!
+         * \brief Log an error of process
+         * \param description Error description
+         */
+        virtual void error(const std::string description, const RegisterId registerId) const;
+
+        /*!
+         * \brief Log an information of process
+         * \param description Error description
+         */
+        virtual void info(const std::string description, const RegisterId registerId) const;
+
+        /*!
+         * \brief Log the end of process
+         * \param dataTimestamp The las timestamp of data.
+         */
+        virtual void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
+
+        /*!
+         * \brief Returns the process last log timestamp
+         * \param processId The ID of the process
+         * \return A TimeInstantTZ with the last time that process logged something
+         */
+        virtual std::shared_ptr< te::dt::TimeInstantTZ > getLastProcessTimestamp(const ProcessId processId) const;
+
+        /*!
+         * \brief Returns the last timestamp of a data
+         * \param processId The ID of the process
+         * \return A TimeInstantTZ with the data last timestamp
+         */
+        virtual std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(const ProcessId processId) const;
+
+        /*!
+         * \brief Get the logs of a process in a determined interval.
+         *        The order of register is from last log to the first, and
+         *        the first is 0.
+         *        So if you want from 1º to 10º last logs, begin = 0 and end = 9,
+         *        or from 3º to 5º last logs, begin = 2 and end = 4.
+         * \param processId The ID of the process
+         * \param begin The number order of the first wanted register
+         * \param end The number in order of the last wanted register
+         */
+        std::vector<Log> getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const;
+
+        /*!
+         * \brief Returns the process ID
+         * \return Returns the process ID
+         */
+        virtual ProcessId processID(const RegisterId registerId) const;
+
+      public slots:
+        /*!
+        * \brief Reset connection to log database information
+        * \param connInfo Datasource connection information.
+        */
+        virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo);
+
+      protected:
+
+        /*!
+         * \brief Default constructor
+         */
+        ProcessLogger() = default;
+
+        /*!
+         * \brief Set the process logger data source
+         */
+        void setDataSource(te::da::DataSource* dataSource);
+
+        /*!
+         * \brief Store data in a Json to be logged after
+         * \param tag A tag to identify data
+         * \param value The data
+         */
+        void addValue(const std::string tag, const std::string value, const RegisterId registerId) const;
+
+
+        /*!
+         * \brief Store the name of the process log table and the message log table
+         * \param tableName The log table name
+         */
+        void setTableName(const std::string tableName);
+
+      private:
+        /*!
+         * \brief Log in the log table the data stored in Json
+         */
+        void updateData(const RegisterId registerId, const QJsonObject obj) const;
+
+        std::string schema_ = "terrama2";
+        std::string tableName_ = "";
+        std::string messagesTableName_ = "";
+        std::unique_ptr< te::da::DataSource > dataSource_;
+
+        void closeConnection();
     };
   }
 }
