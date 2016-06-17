@@ -49,6 +49,8 @@ int main(int argc, char* argv[])
 
     auto raster = gridSeries->gridList().begin()->second;
 
+    std::cout << "SRID: " << raster->getSRID() << std::endl;
+
     std::string output = TERRAMA2_DATA_DIR;
     output+="/grid_output.tif";
 
