@@ -99,7 +99,7 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
 
     if(dataseries->id == terrama2::core::InvalidId())
     {
-      QString errMsg = QObject::tr("Can not add a data series with empty name.");
+      QString errMsg = QObject::tr("Can not add a data series with invalid identifier.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }

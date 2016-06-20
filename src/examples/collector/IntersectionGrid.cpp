@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file examples/collector/IntersectionStaticData.Cpp
+  \file examples/collector/IntersectionGrid.Cpp
 
-  \brief Example of the use of intersection to add the attribute 'state' to occurrence data series.
+  \brief Examples of the configuration of grid intersection for an occurrence DataSeries.
 
   \author Paulo R. M. Oliveira
  */
@@ -40,11 +40,12 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
+#include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
-#include <terrama2/services/collector/core/Collector.hpp>
 #include <terrama2/services/collector/core/Intersection.hpp>
+#include <terrama2/services/collector/core/Collector.hpp>
 #include <terrama2/services/collector/core/JSonUtils.hpp>
 
 #include <terrama2/impl/Utils.hpp>
@@ -60,42 +61,39 @@
 #include <QTimer>
 #include <QUrl>
 
-void addStaticDataSeries(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
+void addGridSeries(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
 {
+  //DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-  std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
-  dataProvider->name = "Provider";
+  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  dataProvider->uri = "file://";
   dataProvider->uri += TERRAMA2_DATA_DIR;
-  dataProvider->uri += "/shapefile";
+  dataProvider->uri += "/geotiff";
+
   dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
   dataProvider->active = true;
   dataProvider->id = 3;
+  dataProvider->name = "Local Geotiff";
 
   dataManager->add(dataProviderPtr);
 
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
+  //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
-  dataSeries->name = "States Brazil";
+  dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  dataSeries->name = "geotiff";
   dataSeries->id = 3;
-  dataSeries->dataProviderId = dataProvider->id;
+  dataSeries->dataProviderId = 3;
 
-  //DataSet information
-  terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
-  terrama2::core::DataSetPtr dataSetPtr(dataSet);
+  terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
   dataSet->active = true;
-  dataSet->format.emplace("mask", "estados_2010.shp");
-  dataSet->format.emplace("srid", "4326");
-  dataSet->format.emplace("identifier", "nome");
-  dataSet->id = 1;
-  dataSet->dataSeriesId = dataSeries->id;
+  dataSet->format.emplace("mask", "cbers2b_hrc_crop.tif");
 
-  dataSeries->datasetList.push_back(dataSetPtr);
+  dataSeries->datasetList.emplace_back(dataSet);
+
   dataManager->add(dataSeriesPtr);
 
 }
@@ -210,7 +208,7 @@ int main(int argc, char* argv[])
 
       addInput(dataManager);
       addOutput(dataManager);
-      addStaticDataSeries(dataManager);
+      addGridSeries(dataManager);
 
       terrama2::services::collector::core::Service service(dataManager);
       service.start();
@@ -231,7 +229,6 @@ int main(int argc, char* argv[])
       // Adds the attribute "SIGLA" to the collected occurrences.
       intersection->collectorId = collector->id;
       std::vector<std::string> attrVec;
-      attrVec.push_back("sigla");
       intersection->attributeMap[3] = attrVec;
       collector->intersection = intersectionPtr;
 
