@@ -229,6 +229,12 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const Analysi
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
   std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
 
+  if(seriesMap.empty())
+  {
+    QString errMsg(QObject::tr("The data series %1 does not contain data").arg(dataSeries->id));
+    throw EmptyDataSeriesException() << terrama2::ErrorDescription(errMsg);
+  }
+
   for(auto mapItem : seriesMap)
   {
     auto series = mapItem.second;
@@ -359,6 +365,13 @@ void terrama2::services::analysis::core::Context::addDataSeries(const AnalysisHa
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
   std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
+
+
+  if(seriesMap.empty())
+  {
+    QString errMsg(QObject::tr("The data series %1 does not contain data").arg(dataSeries->id));
+    throw EmptyDataSeriesException() << terrama2::ErrorDescription(errMsg);
+  }
 
   for(auto mapItem : seriesMap)
   {

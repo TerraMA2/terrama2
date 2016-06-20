@@ -32,7 +32,7 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTIONOPERATION_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTIONOPERATION_HPP__
 
-#include "Intersection.hpp"
+#include "IntersectionStaticData.hpp"
 #include "Shared.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 
@@ -47,6 +47,7 @@ namespace te
   namespace da
   {
     class DataSet;
+
     class DataSetType;
   }
 
@@ -73,7 +74,8 @@ namespace terrama2
          \param collectedDataSetSeries DataSetSeries of the collected data.
          \return The new DataSetSeries with added columns from intersection.
          */
-        terrama2::core::DataSetSeries processIntersection(DataManagerPtr dataManager, IntersectionPtr intersection, terrama2::core::DataSetSeries collectedDataSetSeries);
+        terrama2::core::DataSetSeries processIntersection(DataManagerPtr dataManager, IntersectionPtr intersection,
+                                                          terrama2::core::DataSetSeries collectedDataSetSeries);
 
         /*
          \brief Creates a DataSetType with the attributes from the collected dataset plus the attributes configured in the intersection.
@@ -86,6 +88,36 @@ namespace terrama2
         te::da::DataSetType* createDataSetType(te::da::DataSetType* collectedDST,
                                                te::da::DataSetType* intersectionDST,
                                                std::vector<te::dt::Property*> intersectionDSProperties);
+
+        /*
+         \brief Process the intersection for vector data.
+
+         \param dataManager Smart pointer to the data manager.
+         \param intersection Intersection configuration for the collected DataSeries.
+         \param collectedDataSetSeries DataSetSeries of the collected data.
+         \paran vecAttributes List of attributes to be added to the collected DataSeries.
+         \param intersectionDataSeries DataSet to be used in the intersection.
+         \return The new DataSetSeries with added columns from intersection.
+         */
+        terrama2::core::DataSetSeries processVectorIntersection(DataManagerPtr dataManager,
+                                                                  core::IntersectionPtr intersection,
+                                                                  terrama2::core::DataSetSeries collectedDataSetSeries,
+                                                                  std::vector<std::string>& vecAttributes,
+                                                                  terrama2::core::DataSeriesPtr intersectionDataSeries);
+
+        /*
+         \brief Process the intersection for grid data.
+
+         \param dataManager Smart pointer to the data manager.
+         \param intersection Intersection configuration for the collected DataSeries.
+         \param collectedDataSetSeries DataSetSeries of the collected data.
+         \param intersectionDataSeries DataSet to be used in the intersection.
+         \return The new DataSetSeries with added columns from intersection.
+         */
+        terrama2::core::DataSetSeries processGridIntersection(DataManagerPtr dataManager,
+                                                                  core::IntersectionPtr intersection,
+                                                                  terrama2::core::DataSetSeries collectedDataSetSeries,
+                                                                  terrama2::core::DataSeriesPtr intersectionDataSeries);
       } // end namespace core
     }   // end namespace collector
   }     // end namespace services

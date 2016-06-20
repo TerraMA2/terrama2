@@ -198,20 +198,22 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch(const terrama2::Exception&)
   {
-    // should have been logged on emission
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(const boost::exception& e)
   {
-
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unkown error.");
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
 }
 

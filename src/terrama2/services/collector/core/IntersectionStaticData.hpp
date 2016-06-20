@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/core/Intersection.hpp
+  \file terrama2/services/collector/core/Intersection.hpp
 
   \brief Intersection information of a DataSet.
 
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_CORE_INTERSECTION_HPP__
-#define __TERRAMA2_CORE_INTERSECTION_HPP__
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTION_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTION_HPP__
 
 #include "Typedef.hpp"
 
@@ -55,10 +55,11 @@ namespace terrama2
           CollectorId collectorId; //!< Collector identifier.
           std::map<DataSeriesId, std::vector<std::string> > attributeMap; //!< Map with the attributes of a DataSeries to be added to the collected data.
         };
+
       } // end namespace core
     }   // end namespace collector
   }     // end namespace services
 }       // end namespace terrama2
 
-#endif  // __TERRAMA2_CORE_INTERSECTION_HPP__
+#endif  // __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTION_HPP__
 

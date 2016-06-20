@@ -67,7 +67,7 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
 
 std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet, bool logErrors) const
 {
-  return getProperty(dataSet, "timezone", logErrors); 
+  return getProperty(dataSet, "timezone", logErrors);
 }
 
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const
@@ -163,6 +163,7 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
     {
       QString errMsg = QObject::tr("Null date/time attribute.");
       TERRAMA2_LOG_WARNING() << errMsg;
+      ++i;
       continue;
     }
 
