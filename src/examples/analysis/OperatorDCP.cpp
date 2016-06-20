@@ -227,13 +227,11 @@ int main(int argc, char* argv[])
   auto logger = std::make_shared<AnalysisLogger>();
   logger->setConnectionInfo(connInfo);
   service.setLogger(logger);
-  
+
   service.start();
   service.addAnalysis(1);
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(300000);
+  service.removeAnalysis(1);
 
   app.exec();
 

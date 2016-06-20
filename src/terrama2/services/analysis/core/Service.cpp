@@ -102,6 +102,10 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
   {
     // invalid schedule, already logged
   }
+  catch(terrama2::Exception&)
+  {
+
+  }
   catch(const te::common::Exception& e)
   {
     //TODO: should be caught elsewhere?
@@ -117,13 +121,49 @@ void terrama2::services::analysis::core::Service::setLogger(std::shared_ptr<Anal
 
 void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
+  try
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
 
-  auto analysis = dataManager_->findAnalysis(analysisId);
+    TERRAMA2_LOG_INFO() << tr("Removing analysis %1.").arg(analysisId);
 
-  auto it = std::find(analysisQueue_.begin(), analysisQueue_.end(), analysis);
-  if(it != analysisQueue_.end())
-    analysisQueue_.erase(it);
+    auto it = timers_.find(analysisId);
+
+    if (it == timers_.end())
+      return;
+
+    it->second->disconnect();
+    timers_.erase(analysisId);
+
+    // remove from queue
+    auto rit = analysisQueue_.rbegin();
+    auto rend = analysisQueue_.rend();
+    while(rit != rend)
+    {
+      if(rit->id == analysisId)
+        analysisQueue_.erase(rit.base());
+
+      ++rit;
+    }
+
+
+    TERRAMA2_LOG_INFO() << tr("Analysis %1 removed successfully.").arg(analysisId);
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << tr("Unknown error");
+    TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
+  }
 }
 
 void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId /*analysisId*/)

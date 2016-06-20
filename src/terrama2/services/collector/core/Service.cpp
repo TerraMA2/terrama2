@@ -276,24 +276,37 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
+
+    TERRAMA2_LOG_INFO() << tr("Removing collector %1.").arg(collectorId);
+
+    auto it = timers_.find(collectorId);
+    if(it == timers_.end())
+      return;
+
     auto timer = timers_.at(collectorId);
     timer->disconnect();
     timers_.erase(collectorId);
 
     // remove from queue
     collectorQueue_.erase(std::remove(collectorQueue_.begin(), collectorQueue_.end(), collectorId), collectorQueue_.end());
+
+
+    TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
   }
   catch(std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unknown error");
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
 }
 
