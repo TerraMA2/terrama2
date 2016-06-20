@@ -165,6 +165,7 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
     {
       QString errMsg = QObject::tr("Null date/time attribute.");
       TERRAMA2_LOG_WARNING() << errMsg;
+      ++i;
       continue;
     }
 

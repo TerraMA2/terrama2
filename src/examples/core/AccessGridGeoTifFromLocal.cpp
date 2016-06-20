@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+    dataSet->format.emplace("mask", "teste.tif");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
     assert(gridSeries->gridList().size() == 1);
 
     auto raster = gridSeries->gridList().begin()->second;
+    assert(raster->getSRID() != 0);
 
     std::cout << "SRID: " << raster->getSRID() << std::endl;
 

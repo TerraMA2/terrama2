@@ -124,6 +124,12 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
 
       std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
+      if(!series.syncDataSet)
+      {
+        QString errMsg(QObject::tr("No data available for DataSeries %1").arg(dataSeriesPtr->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+
       if(!series.syncDataSet->dataset())
       {
         QString errMsg(QObject::tr("Adding an invalid dataset to the analysis context: DataSeries %1").arg(dataSeriesPtr->id));
@@ -228,6 +234,12 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const Analysi
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
   std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
+
+  if(seriesMap.empty())
+  {
+    QString errMsg(QObject::tr("The data series %1 does not contain data").arg(dataSeries->id));
+    throw EmptyDataSeriesException() << terrama2::ErrorDescription(errMsg);
+  }
 
   for(auto mapItem : seriesMap)
   {
@@ -359,6 +371,13 @@ void terrama2::services::analysis::core::Context::addDataSeries(const AnalysisHa
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
   std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
+
+
+  if(seriesMap.empty())
+  {
+    QString errMsg(QObject::tr("The data series %1 does not contain data").arg(dataSeries->id));
+    throw EmptyDataSeriesException() << terrama2::ErrorDescription(errMsg);
+  }
 
   for(auto mapItem : seriesMap)
   {
