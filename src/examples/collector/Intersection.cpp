@@ -44,7 +44,7 @@
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
 #include <terrama2/services/collector/core/Collector.hpp>
-#include <terrama2/services/collector/core/IntersectionStaticData.hpp>
+#include <terrama2/services/collector/core/Intersection.hpp>
 #include <terrama2/services/collector/core/JSonUtils.hpp>
 
 #include <terrama2/impl/Utils.hpp>

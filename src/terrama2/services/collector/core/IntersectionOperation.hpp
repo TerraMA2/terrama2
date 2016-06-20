@@ -32,7 +32,7 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTIONOPERATION_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTIONOPERATION_HPP__
 
-#include "IntersectionStaticData.hpp"
+#include "Intersection.hpp"
 #include "Shared.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 

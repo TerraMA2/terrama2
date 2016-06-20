@@ -28,7 +28,7 @@
 */
 
 #include "JSonUtils.hpp"
-#include "IntersectionStaticData.hpp"
+#include "Intersection.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
