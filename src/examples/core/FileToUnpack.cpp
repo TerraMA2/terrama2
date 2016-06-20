@@ -16,7 +16,7 @@
 
 
 int main(int argc, char* argv[])
-{  
+{
   std::string uri;
   std::string path;
   uri = "file://";
@@ -25,15 +25,13 @@ int main(int argc, char* argv[])
   uri += "SetoresCubatao_UTM_sad69.zip";
   //uri += "30885.txt";
 
-  terrama2::core::Unpack unpack;
-
-  if(!unpack.verifyCompressFile(uri))
+  if(!terrama2::core::Unpack::verifyCompressFile(uri))
   {
     qDebug() << "File not compressed!";
   }
   else
   {
-    path = unpack.unpackList(uri);
+    path = terrama2::core::Unpack::unpackList(uri);
     qDebug() << "File descompressed!";
 
     QUrl uriLocal(path.c_str());
@@ -58,4 +56,4 @@ int main(int argc, char* argv[])
   }
 
   return 0;
-}  
+}

@@ -34,13 +34,6 @@ terrama2::services::maps::core::Service::Service()
 
 }
 
-
-void terrama2::services::maps::core::Service::updateNumberOfThreads(int numberOfThreads)
-{
-  stop();
-  start(numberOfThreads);
-}
-
 // TODO:
 bool terrama2::services::maps::core::Service::hasDataOnQueue()
 {

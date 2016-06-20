@@ -46,7 +46,7 @@ bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& f
 {
   if(!isValidDatedMask(mask))
   {
-    QString errMsg = QObject::tr("The mask don't have the minimal needed parts of a date!");
+    QString errMsg = QObject::tr("The mask don't have the minimal needed parameters of a date!");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::UtilityException() << ErrorDescription(errMsg);
   }

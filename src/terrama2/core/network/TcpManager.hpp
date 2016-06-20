@@ -95,11 +95,12 @@ namespace terrama2
         using QTcpServer::listen;
 
       public slots:
-        bool updateListeningPort(int);
+        bool updateListeningPort(uint32_t);
 
       signals:
         //! Emited when the service should be terminated.
         void stopSignal();
+        void closeApp();
         //! Emited when a process should be started immediately.
         void startProcess(uint32_t);
 
@@ -117,6 +118,7 @@ namespace terrama2
         void removeData(const QByteArray& bytearray);
         void updateService(const QByteArray& bytearray);
         QJsonObject logToJson(const terrama2::core::ProcessLogger::Log& log);
+        void sendTerminateSignal();
 
 
         std::unique_ptr<QTcpSocket> tcpSocket_ = nullptr;//!< Current socket for tcp communication.

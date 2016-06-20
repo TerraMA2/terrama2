@@ -38,7 +38,7 @@ terrama2::core::Service::Service()
 
 terrama2::core::Service::~Service()
 {
-  stop();
+  stopService();
 }
 
 void terrama2::core::Service::start(uint threadNumber)
@@ -87,7 +87,12 @@ int terrama2::core::Service::verifyNumberOfThreads(int numberOfThreads) const
   return numberOfThreads;
 }
 
-void terrama2::core::Service::stop() noexcept
+void terrama2::core::Service::stopService() noexcept
+{
+  stop(false);
+}
+
+void terrama2::core::Service::stop(bool holdStopSignal) noexcept
 {
   {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -109,6 +114,9 @@ void terrama2::core::Service::stop() noexcept
     if(future.valid())
       future.get();
   }
+
+  if(!holdStopSignal)
+    emit serviceFinishedSignal();
 }
 
 void terrama2::core::Service::mainLoopThread() noexcept
@@ -188,8 +196,6 @@ void terrama2::core::Service::updateNumberOfThreads(int numberOfThreads)
 {
   numberOfThreads = verifyNumberOfThreads(numberOfThreads);
   //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
-  stop();
+  stop(true);
   start(numberOfThreads);
 }
-
-
