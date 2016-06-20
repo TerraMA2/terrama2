@@ -126,7 +126,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
 
       if(!series.syncDataSet)
       {
-        QString errMsg(QObject::tr("Adding an invalid dataset to the analysis context: DataSeries %1").arg(dataSeriesPtr->id));
+        QString errMsg(QObject::tr("No data available for DataSeries %1").arg(dataSeriesPtr->id));
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
