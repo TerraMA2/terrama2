@@ -129,11 +129,11 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
 
     auto it = timers_.find(analysisId);
 
-    if (it == timers_.end())
-      return;
-
-    it->second->disconnect();
-    timers_.erase(analysisId);
+    if (it != timers_.end())
+    {
+      it->second->disconnect();
+      timers_.erase(analysisId);
+    }
 
     // remove from queue
     auto rit = analysisQueue_.rbegin();
@@ -141,11 +141,12 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
     while(rit != rend)
     {
       if(rit->id == analysisId)
+      {
         analysisQueue_.erase(rit.base());
+      }
 
       ++rit;
     }
-
 
     TERRAMA2_LOG_INFO() << tr("Analysis %1 removed successfully.").arg(analysisId);
   }

@@ -280,12 +280,12 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
     TERRAMA2_LOG_INFO() << tr("Removing collector %1.").arg(collectorId);
 
     auto it = timers_.find(collectorId);
-    if(it == timers_.end())
-      return;
-
-    auto timer = timers_.at(collectorId);
-    timer->disconnect();
-    timers_.erase(collectorId);
+    if(it != timers_.end())
+    {
+      auto timer = timers_.at(collectorId);
+      timer->disconnect();
+      timers_.erase(collectorId);
+    }
 
     // remove from queue
     collectorQueue_.erase(std::remove(collectorQueue_.begin(), collectorQueue_.end(), collectorId), collectorQueue_.end());

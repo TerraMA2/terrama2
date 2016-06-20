@@ -231,7 +231,6 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
-  service.removeAnalysis(1);
 
   app.exec();
 
