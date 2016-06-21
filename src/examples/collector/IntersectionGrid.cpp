@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file examples/collector/IntersectionGrid.Cpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Examples of the configuration of grid intersection for an occurrence DataSeries.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Paulo R. M. Oliveira
  */
 
 // TerraMA2
@@ -40,10 +40,13 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
+#include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
+#include <terrama2/services/collector/core/Intersection.hpp>
 #include <terrama2/services/collector/core/Collector.hpp>
+#include <terrama2/services/collector/core/JSonUtils.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -57,6 +60,43 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <QUrl>
+
+void addGridSeries(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
+{
+  //DataProvider information
+  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+  dataProvider->uri = "file://";
+  dataProvider->uri += TERRAMA2_DATA_DIR;
+  dataProvider->uri += "/geotiff";
+
+  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+  dataProvider->dataProviderType = "FILE";
+  dataProvider->active = true;
+  dataProvider->id = 3;
+  dataProvider->name = "Local Geotiff";
+
+  dataManager->add(dataProviderPtr);
+
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
+  //DataSeries information
+  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+  dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  dataSeries->name = "geotiff";
+  dataSeries->id = 3;
+  dataSeries->dataProviderId = 3;
+
+  terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
+  dataSet->active = true;
+  dataSet->format.emplace("mask", "cbers2b_hrc_crop.tif");
+
+  dataSeries->datasetList.emplace_back(dataSet);
+
+  dataManager->add(dataSeriesPtr);
+
+}
 
 void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
 {
@@ -168,6 +208,7 @@ int main(int argc, char* argv[])
 
       addInput(dataManager);
       addOutput(dataManager);
+      addGridSeries(dataManager);
 
       terrama2::services::collector::core::Service service(dataManager);
       service.start();
@@ -182,11 +223,21 @@ int main(int argc, char* argv[])
       collector->outputDataSeries = 2;
       collector->inputOutputMap.emplace(1, 2);
 
+      terrama2::services::collector::core::Intersection* intersection(new terrama2::services::collector::core::Intersection());
+      terrama2::services::collector::core::IntersectionPtr intersectionPtr(intersection);
+
+      // Adds the attribute "SIGLA" to the collected occurrences.
+      intersection->collectorId = collector->id;
+      std::vector<std::string> attrVec;
+      intersection->attributeMap[3] = attrVec;
+      collector->intersection = intersectionPtr;
+
+
       dataManager->add(collectorPtr);
 
       QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-      timer.start(30000);
+      timer.start(300000);
       app.exec();
 
       service.stopService();

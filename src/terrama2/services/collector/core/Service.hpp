@@ -76,26 +76,26 @@ namespace terrama2
 
           public slots:
             //! Slot to be called when a DataSetTimer times out.
-            virtual void addToQueue(CollectorId collectorId) override;
+            virtual void addToQueue(CollectorId collectorId) noexcept override;
             /*!
               \brief Add a Collector to the service
 
               Check if this is the instance where the colelctor should run.
             */
-            void addCollector(CollectorPtr);
+            void addCollector(CollectorPtr) noexcept;
 
             /*!
               \brief Updates the Collector.
 
               calls addCollector()
             */
-            void updateCollector(CollectorPtr collector);
+            void updateCollector(CollectorPtr collector) noexcept;
             /*!
               \brief Removes the Collector.
 
               Rennuning processes will continue until finished.
             */
-            void removeCollector(CollectorId collectorId);
+            void removeCollector(CollectorId collectorId) noexcept;
 
           protected:
             // comments on base class

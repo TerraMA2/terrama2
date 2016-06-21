@@ -33,6 +33,8 @@
 //STd
 #include <exception>
 
+#include <QDir>
+
 namespace terrama2
 {
   namespace core
@@ -40,107 +42,127 @@ namespace terrama2
     //! Class for Resource Acquisition Is Initialization (RAII) of classes that need to open and close.
     template<class T> class OpenClose
     {
-    public:
-      /*!
-        \brief The constructor will open the object and keep a reference to it.
-        \note The object must not be open, no verification is made.
-        \param obj Object to be open.
-       */
-      OpenClose(T& obj)
-        : obj_(obj)
-      {
-        obj_->open();
-      }
-
-      /*!
-        \brief The destructor will close the object.
-        Any esception thrown will be caught and logged, if unable to log nothing will be done.
-       */
-      ~OpenClose()
-      {
-        try
+      public:
+        /*!
+          \brief The constructor will open the object and keep a reference to it.
+          \note The object must not be open, no verification is made.
+          \param obj Object to be open.
+         */
+        OpenClose(T& obj)
+          : obj_(obj)
         {
-          obj_->close();
+          obj_->open();
         }
-        catch(boost::exception&)
+
+        /*!
+          \brief The destructor will close the object.
+          Any esception thrown will be caught and logged, if unable to log nothing will be done.
+         */
+        ~OpenClose()
         {
           try
           {
-            TERRAMA2_LOG_ERROR() << "boost::exception: Could not close object";
+            obj_->close();
           }
-          catch(...) { }
-        }
-        catch(std::exception&)
-        {
-          try
+          catch(boost::exception&)
           {
-            TERRAMA2_LOG_ERROR() << "std::exception: Could not close object";
+            try
+            {
+              TERRAMA2_LOG_ERROR() << "boost::exception: Could not close object";
+            }
+            catch(...) { }
+          }
+          catch(std::exception&)
+          {
+            try
+            {
+              TERRAMA2_LOG_ERROR() << "std::exception: Could not close object";
+            }
+            catch(...) { }
           }
           catch(...) { }
         }
-        catch(...) { }
-      }
 
-    private:
-      T& obj_;
+      private:
+        T& obj_;
 
     };
 
     //! Class for Resource Acquisition Is Initialization (RAII) of std::FILE*.
     class FilePtr
     {
-    public:
+      public:
 
-      //! Constructs a null pointer to a file
-      FilePtr()
-        : file_(nullptr)
-      {
-      }
-
-      //! Constructs and open the file fileName with flags
-      FilePtr(const std::string& fileName, const std::string& flags)
-        : file_(nullptr)
-      {
-        open(fileName, flags);
-      }
-
-      //! Open the file fileName with flags
-      void open(const std::string& fileName, const std::string& flags)
-      {
-        close();
-        file_ = std::fopen(fileName.c_str(), flags.c_str());
-      }
-
-      //! Closes the file if open.
-      void close()
-      {
-        if(file_)
+        //! Constructs a null pointer to a file
+        FilePtr()
+          : file_(nullptr)
         {
-          std::fclose(file_);
-          file_ = nullptr;
         }
+
+        //! Constructs and open the file fileName with flags
+        FilePtr(const std::string& fileName, const std::string& flags)
+          : file_(nullptr)
+        {
+          open(fileName, flags);
+        }
+
+        //! Open the file fileName with flags
+        void open(const std::string& fileName, const std::string& flags)
+        {
+          close();
+          file_ = std::fopen(fileName.c_str(), flags.c_str());
+        }
+
+        //! Closes the file if open.
+        void close()
+        {
+          if(file_)
+          {
+            std::fclose(file_);
+            file_ = nullptr;
+          }
+        }
+
+        //! Closes the file if open.
+        ~FilePtr()
+        {
+          close();
+        }
+
+        //! Conversion to FILE* operator
+        operator std::FILE* () const
+        {
+          return file_;
+        }
+
+        //! Returns the file pointer.
+        std::FILE* file() const
+        {
+          return file_;
+        }
+
+      private:
+        std::FILE* file_;
+    };
+
+    class TemporaryFolder
+    {
+    public:
+      TemporaryFolder(std::string folder) : folder_(folder){}
+
+      ~TemporaryFolder()
+      {
+        QDir tempDir(QString::fromStdString(folder_));
+        tempDir.removeRecursively();
       }
 
-      //! Closes the file if open.
-      ~FilePtr()
-      {
-        close();
-      }
-
-      //! Conversion to FILE* operator
-      operator std::FILE*() const
-      {
-        return file_;
-      }
-
-     //! Returns the file pointer.
-      std::FILE* file() const
-      {
-        return file_;
-      }
+      TemporaryFolder(const TemporaryFolder& other) = delete;
+      TemporaryFolder(TemporaryFolder&& other) = default;
+      TemporaryFolder& operator=(const TemporaryFolder& other) = delete;
+      TemporaryFolder& operator=(TemporaryFolder&& other) = default;
 
     private:
-      std::FILE* file_;
+      std::string folder_;
     };
   }
 }

@@ -164,7 +164,7 @@ namespace terrama2
         * \brief Reset connection to log database information
         * \param connInfo Datasource connection information.
         */
-        virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo);
+        virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept;
 
       protected:
 

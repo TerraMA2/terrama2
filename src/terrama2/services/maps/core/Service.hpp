@@ -50,10 +50,6 @@ namespace terrama2
 
           virtual ~Service() = default;
 
-        public slots:
-
-          virtual void updateNumberOfThreads(int) override;
-
         protected:
 
           /*!
