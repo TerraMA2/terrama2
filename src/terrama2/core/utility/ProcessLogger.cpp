@@ -52,7 +52,7 @@
 // STL
 #include <utility>
 
-void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::string, std::string > connInfo)
+void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept
 {
   try
   {
