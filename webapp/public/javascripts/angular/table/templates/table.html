@@ -42,7 +42,7 @@
     <tbody id="searchList">
       <!-- header -->
       <tr style="font-weight: bold;">
-        <td ng-show="isFunction(icon())"></td>
+        <td ng-show="isFunction(icon()) && model.length > 0"></td>
         <td ng-repeat="field in displayFields">{{ field }}</td>
         <td ng-if="extra.service">Status</td>
       </tr>
@@ -66,22 +66,46 @@
           <i ng-show="!element.loading"
              title="{{ element.online ? element.requestingForClose ? 'Finalizing...' : 'Online' : 'Offline' }}"
              class="fa fa-circle"
-             style="color: {{ element.online ? element.requestingForClose ? '#FF8C00' : 'green' : 'red' }}"></i>
+             style="color: {{ element.online ? 'green' : 'red' }}"></i>
 
           <button class="btn btn-primary btn-sm"
-                  ng-show="!element.online"
+                  ng-show="!element.online && !element.loading"
                   style="margin-left: 20px;"
                   ng-click="extra.service.handler(element)"
                   ng-disabled="element.loading">
-            <i class="fa fa-magic" style="margin-right: 5px;"></i>Start
+            <i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Start') }}
+          </button>
+          <button type="button"
+                  ng-if="!element.checking && element.loading && !element.online"
+                  class="btn btn-primary btn-sm"
+                  ng-disabled="element.loading"
+                  style="margin-left: 19px">
+            <i class="fa fa-magic" style="margin-right: 5px;"></i>
+            {{ i18n.__("Starting...") }}
+          </button>
+          <button type="button"
+                  ng-if="element.checking"
+                  class="btn btn-primary btn-sm"
+                  ng-disabled="element.loading"
+                  style="margin-left: 19px">
+            <i class="glyphicon glyphicon-info-sign" style="margin-right: 5px;"></i>
+            {{ i18n.__("Checking...") }}
           </button>
 
           <button class="btn btn-danger btn-sm"
-                  ng-show="element.online"
+                  ng-show="element.online && !element.loading"
                   style="margin-left: 20px;"
                   ng-click="extra.service.handler(element)"
-                  ng-disabled="element.requestingForClose">
-            <i class="fa fa-power-off" style="margin-right: 5px;"></i>Stop
+                  ng-disabled="element.loading">
+            <i class="fa fa-power-off" style="margin-right: 5px;"></i>{{ i18n.__('Stop') }}
+          </button>
+          <button type="button"
+                  ng-if="!element.checking && element.loading && element.online"
+                  class="btn btn-danger btn-sm"
+                  ng-disabled="element.loading"
+                  style="margin-left: 19px">
+            <i class="fa fa-power-off" style="margin-right: 5px;"></i>
+            {{ i18n.__("Finalizing...") }}
           </button>
 
           <!-- <button class="btn btn-danger" ng-show="element.online" style="margin-left: 20px;" ng-click="extra.service.reload(element)">

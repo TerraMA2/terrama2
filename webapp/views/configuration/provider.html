@@ -2,7 +2,7 @@
 
 {% set tabActive = "data-provider" %}
 
-{% block title %} TerraMA2 {[ __("Data Provider Registration") ]} {% endblock %}
+{% block title %} TerraMA² {[ __("Data Provider Registration") ]} {% endblock %}
 
 {% block ngApp %} ng-app="terrama2.dataprovider.registration" {% endblock %}
 
@@ -74,7 +74,7 @@
               <div class="form-group">
                 <div class="checkbox">
                   <label style="font-weight: 700; margin-top:19px;">
-                    <input type="checkbox" name="active" ng-model="dataProvider.active" 
+                    <input type="checkbox" name="active" ng-model="dataProvider.active"
                       ng-init="initActive(configuration.dataProvider.active)"> {[ __("Active Server") ]}
                   </label>
                 </div>

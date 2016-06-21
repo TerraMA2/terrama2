@@ -1,5 +1,7 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = "services" %}
+
 {% block ngApp %}ng-app="terrama2.administration.services"{% endblock %}
 
 {% block styles %}
@@ -12,7 +14,7 @@
 </style>
 {% endblock %}
 
-{% block title %} TerraMA2 {[ __('Services Handling') ]} {% endblock %}
+{% block title %} TerraMA² {[ __('Services Handling') ]} {% endblock %}
 
 {% block javascripts %}
 
@@ -107,8 +109,8 @@
 
               service: {
                 handler: function(serviceInstance) {
+                  serviceInstance.loading = true;
                   if (!serviceInstance.online) {
-                    serviceInstance.loading = true;
                     $HttpTimeout({
                       url: "/api/Remote/start",
                       data: {serviceId: serviceInstance.id},
@@ -130,7 +132,7 @@
                       url: "/api/Remote/stop",
                       data: {serviceId: serviceInstance.id},
                       method: 'post'
-                    }, 4).then(function(data) {
+                    }, 60).then(function(data) {
                       serviceInstance.online = data.online || false;
                       console.log(data);
                       serviceInstance.requestingForClose = false;
@@ -140,6 +142,7 @@
                       serviceInstance.requestingForClose = false;
                     }).finally(function() {
                       serviceInstance.requestingForClose = false;
+                      serviceInstance.loading = false;
                     });
                   }
                 },

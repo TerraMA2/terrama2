@@ -6,7 +6,7 @@ module.exports = function(app) {
 
   return {
     get: function(request, response) {
-      response.render('configuration/dynamicDataSeries');
+      response.render('configuration/dynamicDataSeries', {"Enums": Enums});
     },
 
     new: function(request, response) {

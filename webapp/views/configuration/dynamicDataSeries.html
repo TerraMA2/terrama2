@@ -15,11 +15,17 @@
 </style>
 {% endblock %}
 
-{% block title %} TerraMA2 {[ __('Dynamic Data Series') ]} {% endblock %}
+{% block title %} TerraMA² {[ __('Dynamic Data Series') ]} {% endblock %}
 
 {% block javascripts %}
 
 <script type="text/javascript">
+  var globals = {
+    enums: {
+      DataSeriesType: {[ Enums.DataSeriesType|json|safe ]}
+    }
+  };
+
   var configuration = {
     message: "{[ message ]}",
     dataSeriesType: 'dynamic',
