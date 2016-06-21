@@ -31,7 +31,7 @@ module.exports = function(app) {
       try {
         analysisObject.type = Utils.getAnalysisType(analysisObject.type_id);
 
-        // if not has project_id, getting from cache
+        // if does not have project_id, getting from cache
         if (!analysisObject.project_id)
           analysisObject.project_id = app.locals.activeProject.id;
 
@@ -94,7 +94,24 @@ module.exports = function(app) {
       if(id) {
         DataManager.getAnalysis({id: id}).then(function(analysis) {
           DataManager.removeAnalysis({id: id}).then(function() {
-            response.json({status: 200, name: analysis.name});
+            var objectToSend = {
+              "Analysis": [analysis.id],
+              "DataSeries": [analysis.dataSeries.id]
+            };
+
+            DataManager.listServiceInstances().then(function(servicesInstance) {
+              servicesInstance.forEach(function (service) {
+                try {
+                  TcpManager.removeData(service, objectToSend);
+                } catch (e) {
+                  console.log(e);
+                }
+              })
+
+              response.json({status: 200, name: analysis.name});
+            }).catch(function(err) {
+              Utils.handleRequestError(response, err, 400);
+            })
           }).catch(function(err) {
             Utils.handleRequestError(response, err, 400);
           })

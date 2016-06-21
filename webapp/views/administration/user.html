@@ -1,11 +1,13 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = "users" %}
+
 {% block title %}
 
 {% if user !== undefined %}
-  TerraMA2 {[ __('User Update') ]}
+  TerraMA² {[ __('User Update') ]}
 {% else %}
-  TerraMA2 {[ __('User Registration') ]}
+  TerraMA² {[ __('User Registration') ]}
 {% endif %}
 
 {% endblock %}

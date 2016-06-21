@@ -8,14 +8,14 @@
 
 {% else %}
 
-{% set MENU_URLS = {"status": {name: __('Status'), url: "/configuration/status", icon: "fa-feed"}} %}
+{% set MENU_URLS = {"projects": {name: __('Projects'), url: "/configuration/projects", icon: "fa-book"}} %}
 {% set MENU_URLS["data-provider"] = {name: __('Data Provider'), url: "/configuration/providers", icon: "fa-cubes"} %}
 {% set MENU_URLS["static-data"] = {name: __('Static Data'), url: "/configuration/static/dataseries", icon: "fa-folder-o"} %}
 {% set MENU_URLS["dynamic-data"] = {name: __('Dynamic Data'), url: "/configuration/dynamic/dataseries", icon: "fa-exchange"} %}
 {% set MENU_URLS["analyses"] = {name: __('Analyses'), url: "/configuration/analyses", icon: "fa-tasks"} %}
 {% set MENU_URLS["alerts"] = {name: __('Alerts'), url: "/configuration/alerts", icon: "fa-bell"} %}
 {% set MENU_URLS["map-display"] = {name: __('Map Display'), url: "/configuration/mapdisplay", icon: "fa-map"} %}
-
+{% set MENU_URLS["status"] = {name: __('Status'), url: "/configuration/status", icon: "fa-feed"} %}
 {% endif %}
 
 <!DOCTYPE html>
@@ -57,8 +57,8 @@
 
       <!-- Logo -->
       <a href="/" class="logo">
-        <span class="logo-mini"><b></b>MA²</span>
-        <span class="logo-lg"><b>TerraMA2</b></span>
+        <span class="logo-mini"><b></b>TMA²</span>
+        <span class="logo-lg"><b>TerraMA²</b></span>
       </a>
 
       <!-- Header Navbar: style can be found in header.less -->
@@ -170,19 +170,18 @@
     $(document).ready(function(){
       var collapsed = {[ collapsed || false ]};
 
-//      if (collapsed) {
-//        $("#collapseButton").trigger('click');
-//      }
-
       $("#collapseButton").click(function(event) {
         var self = this;
+
+        var inverse = !collapsed;
         $.ajax({
           method: 'POST',
           url: '/userDefaults/',
           data: {
-            collapsed: !collapsed
+            collapsed: inverse
           }
         }).success(function(data) {
+          collapsed = inverse;
           console.log(data);
         }).error(function(err) {
           console.log(err);
