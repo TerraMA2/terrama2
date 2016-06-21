@@ -197,7 +197,7 @@ bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray)
       }
 
       QJsonObject obj;
-      obj.insert("process_id", processId);
+      obj.insert("process_id",  static_cast<int>(processId));
       obj.insert("log", processLogList);
 
       logList.push_back(obj);
