@@ -3,7 +3,6 @@
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/ProcessLogger.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
-//#include <terrama2/Exception.hpp>
 
 // STL
 #include <vector>
@@ -134,7 +133,7 @@ int main(int argc, char* argv[])
   }
   catch(boost::exception& e)
   {
-    std::cout << "Error in Process Logger example: " << std::endl;
+    std::cout << "Error in Process Logger example: " << boost::diagnostic_information(e) << std::endl;
   }
   catch(std::exception& e)
   {
