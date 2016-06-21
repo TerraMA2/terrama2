@@ -10,6 +10,7 @@
 #include <terralib/se.h>
 #include <terralib/qt/widgets/canvas/Canvas.h>
 #include <terralib/memory/DataSource.h>
+#include <terralib/color/ColorTransform.h>
 
 
 // STL
@@ -32,128 +33,178 @@
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/services/maps/core/MemoryDataSetLayer.hpp>
 
-te::se::Style* SimpleRasterStyle(int nBands)
+
+std::string GenerateRandomColor()
 {
-  te::se::RasterSymbolizer* symbolizer = te::se::CreateRasterSymbolizer(nBands);
+  te::color::ColorTransform t;
+  t.setHsv(rand() % 360, 64 + (rand() % 192), 128 + (rand() % 128));
 
-  te::se::Rule* rule = new te::se::Rule;
-  rule->push_back(symbolizer);
+  te::color::RGBAColor color(t.getRgba());
 
-  te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
-  style->push_back(rule);
-
-  return style;
+  return color.getColor();
 }
 
-te::se::Style* SimplePolygonStyle()
+te::se::Stroke* CreateStroke(te::se::Graphic* graphicFill,
+                                     const std::string& width, const std::string& opacity,
+                                     const std::string& dasharray, const std::string& linecap, const std::string& linejoin)
 {
-  te::se::Fill* fill = te::se::CreateFill("#FF8C00", "1.0");
+  te::se::Stroke* stroke = new te::se::Stroke;
 
-  te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
-  symbolizer->setFill(fill);
+  if(graphicFill)
+    stroke->setGraphicFill(graphicFill);
 
-  te::se::Rule* rule = new te::se::Rule;
-  rule->push_back(symbolizer);
+  if(!width.empty())
+    stroke->setWidth(width);
 
-  te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
-  style->push_back(rule);
+  if(!opacity.empty())
+    stroke->setOpacity(opacity);
 
-  return style;
+  if(!dasharray.empty())
+    stroke->setDashArray(dasharray);
+
+  if(!linecap.empty())
+    stroke->setLineCap(linecap);
+
+  if(!linejoin.empty())
+    stroke->setLineJoin(linecap);
+
+  return stroke;
 }
 
-te::se::Style* SimpleLineStyle()
+te::se::Stroke* CreateStroke(const std::string& color, const std::string& width,
+                                     const std::string& opacity, const std::string& dasharray,
+                                     const std::string& linecap, const std::string& linejoin)
 {
-  te::se::Stroke* stroke = te::se::CreateStroke("#000000", "3.0");
+  te::se::Stroke* stroke = CreateStroke(0, width, opacity, dasharray, linecap, linejoin);
 
-  te::se::LineSymbolizer* symbolizer = te::se::CreateLineSymbolizer(stroke);
+  if(!color.empty())
+    stroke->setColor(color);
 
-  te::se::Rule* rule = new te::se::Rule;
-  rule->push_back(symbolizer);
-
-  te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
-  style->push_back(rule);
-
-  return style;
+  return stroke;
 }
 
-te::se::Style* MarkPointStyle(const std::string& markName)
+te::se::Fill* CreateFill(const std::string& color, const std::string& opacity)
 {
-  te::se::Fill* markFill = te::se::CreateFill("#009900", "1.0");
-  te::se::Stroke* markStroke = te::se::CreateStroke("#000000", "1");
-  te::se::Mark* mark = te::se::CreateMark(markName, markStroke, markFill);
+  te::se::Fill* fill = new te::se::Fill;
 
-  te::se::Graphic* graphic = te::se::CreateGraphic(mark, "16", "", "");
+  if(!color.empty())
+    fill->setColor(color);
 
-  te::se::PointSymbolizer* symbolizer = te::se::CreatePointSymbolizer(graphic);
+  if(!opacity.empty())
+    fill->setOpacity(opacity);
 
-  te::se::Rule* rule = new te::se::Rule;
-  rule->push_back(symbolizer);
-
-  te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
-  style->push_back(rule);
-
-  return style;
+  return fill;
 }
 
-void MapDisplay(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> teDataSetType)
+te::se::Symbolizer* CreateSymbolizer(const te::gm::GeomType& geomType, const std::string& color)
 {
-  try
+  switch(geomType)
   {
-    if(!teDataSetType->hasGeom())
-      return;
+    case te::gm::PolygonType:
+    case te::gm::PolygonMType:
+    case te::gm::PolygonZType:
+    case te::gm::PolygonZMType:
+    case te::gm::MultiPolygonType:
+    case te::gm::MultiPolygonMType:
+    case te::gm::MultiPolygonZType:
+    case te::gm::MultiPolygonZMType:
+    case te::gm::MultiSurfaceType:
+    case te::gm::MultiSurfaceMType:
+    case te::gm::MultiSurfaceZType:
+    case te::gm::MultiSurfaceZMType:
+    {
+      te::se::Fill* fill = CreateFill(color, "100.0");
+      te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+      te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
+      symbolizer->setFill(fill);
+      symbolizer->setStroke(stroke);
+      return symbolizer;
+    }
 
-    auto geomProperty = te::da::GetFirstGeomProperty(teDataSetType.get());
-    assert(geomProperty);
+    case te::gm::LineStringType:
+    case te::gm::LineStringMType:
+    case te::gm::LineStringZType:
+    case te::gm::LineStringZMType:
+    case te::gm::MultiLineStringType:
+    case te::gm::MultiLineStringMType:
+    case te::gm::MultiLineStringZType:
+    case te::gm::MultiLineStringZMType:
+    {
+      te::se::Stroke* stroke = CreateStroke(color, "1", "", "", "", "");
+      te::se::LineSymbolizer* symbolizer = new te::se::LineSymbolizer;
+      symbolizer->setStroke(stroke);
+      return symbolizer;
+    }
 
-    std::shared_ptr< te::gm::Envelope > extent(dataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
+    case te::gm::PointType:
+    case te::gm::PointMType:
+    case te::gm::PointZType:
+    case te::gm::PointZMType:
+    case te::gm::MultiPointType:
+    case te::gm::MultiPointMType:
+    case te::gm::MultiPointZType:
+    case te::gm::MultiPointZMType:
+    {
+      te::se::Fill* markFill = CreateFill(color, "1.0");
+      te::se::Stroke* markStroke = CreateStroke("#000000", "1", "", "", "", "");
+      te::se::Mark* mark = CreateMark("circle", markStroke, markFill);
+      te::se::Graphic* graphic = CreateGraphic(mark, "12", "", "");
+      return te::se::CreatePointSymbolizer(graphic);
+    }
 
-    // A map of GeomType -> Style
-    std::map<te::gm::GeomType, te::se::Style*> styles;
-    styles[te::gm::PolygonType] = SimplePolygonStyle();
-    styles[te::gm::LineStringType] = SimpleLineStyle();
-    styles[te::gm::PointType] = MarkPointStyle("circle");
-
-    // Creates a Layer
-    std::shared_ptr< te::map::MemoryDataSetLayer > layer(new te::map::MemoryDataSetLayer(te::common::Convert2String(1), teDataSetType->getName(), dataSet, teDataSetType));
-    layer->setDataSetName(teDataSetType->getName());
-    layer->setVisibility(te::map::VISIBLE);
-    layer->setExtent(*extent);
-    layer->setStyle(styles[geomProperty->getGeometryType()]);
-    layer->setRendererType("ABSTRACT_LAYER_RENDERER");
-    layer->setSRID(geomProperty->getSRID());
-
-    // Creates a canvas
-    double llx = extent->m_llx;
-    double lly = extent->m_lly;
-    double urx = extent->m_urx;
-    double ury = extent->m_ury;
-
-    std::shared_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(800, 600));
-    canvas->calcAspectRatio(llx, lly, urx, ury);
-    canvas->setWindow(llx, lly, urx, ury);
-    canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
-
-    bool cancel = false;
-
-    layer->draw(canvas.get(), *extent.get(), geomProperty->getSRID(), 0, &cancel);
-
-    canvas->save("GeneretadeGeomImage", te::map::PNG);
-
-    canvas->clear();
-
-  }
-  catch(const std::exception& e)
-  {
-    std::cout << std::endl << "An exception has occurred in DrawLayer example: " << e.what() << std::endl;
-  }
-  catch(...)
-  {
-    std::cout << std::endl << "An unexpected exception has occurred in DrawLayer example!" << std::endl;
+    default:
+      return 0;
   }
 }
 
+te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType)
+{
+  std::string color = GenerateRandomColor();
 
-void RGB_012_RGB_Contrast_Style(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> teDataSetType, std::shared_ptr<te::qt::widgets::Canvas> c, te::map::MemoryDataSetLayer* l, te::gm::Envelope* e, int srid)
+  te::se::Symbolizer* symbolizer = CreateSymbolizer(geomType, color);
+
+  te::se::Rule* rule = new te::se::Rule;
+
+  if(symbolizer != 0)
+    rule->push_back(symbolizer);
+
+  te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
+  style->push_back(rule);
+
+  return style;
+}
+
+
+void MONO_0_Style(std::shared_ptr<te::map::MemoryDataSetLayer> layer)
+{
+  //create default raster symbolizer
+  te::se::RasterSymbolizer* rs = new te::se::RasterSymbolizer();
+
+  //set transparency
+  rs->setOpacity(new te::se::ParameterValue("1.0"));
+
+  //set channel selection
+  te::se::ChannelSelection* cs = new te::se::ChannelSelection();
+  cs->setColorCompositionType(te::se::GRAY_COMPOSITION);
+
+  //channel M
+  te::se::SelectedChannel* scM = new te::se::SelectedChannel();
+  scM->setSourceChannelName("0");
+  cs->setGrayChannel(scM);
+
+  rs->setChannelSelection(cs);
+
+  //add symbolizer to a layer style
+  te::se::Rule* r = new te::se::Rule();
+  r->push_back(rs);
+
+  te::se::Style* s = new te::se::CoverageStyle();
+  s->push_back(r);
+
+  layer->setStyle(s);
+}
+
+void RGB_012_RGB_Contrast_Style(std::shared_ptr<te::map::MemoryDataSetLayer> layer)
 {
   //create default raster symbolizer
   te::se::RasterSymbolizer* rs = new te::se::RasterSymbolizer();
@@ -201,18 +252,46 @@ void RGB_012_RGB_Contrast_Style(std::shared_ptr<te::da::DataSet> dataSet, std::s
   te::se::Style* s = new te::se::CoverageStyle();
   s->push_back(r);
 
-  l->setStyle(s);
-
-  bool cancel = false;
-
-  l->draw(c.get(), *e, srid, 0, &cancel);
-
-  c->save("GeneretadeImage", te::map::PNG);
-
-  c->clear();
+  layer->setStyle(s);
 }
 
-void DrawRasterStyledLayersFromDataSet(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> teDataSetType)
+
+std::shared_ptr< te::map::MemoryDataSetLayer > CreateGeometryLayer(std::shared_ptr<te::da::DataSet> dataSet,
+                         std::shared_ptr<te::da::DataSetType> teDataSetType)
+{
+  try
+  {
+    if(!teDataSetType->hasGeom())
+      throw;
+
+    auto geomProperty = te::da::GetFirstGeomProperty(teDataSetType.get());
+    assert(geomProperty);
+
+    std::shared_ptr< te::gm::Envelope > extent(dataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
+
+    // Creates a Layer
+    std::shared_ptr< te::map::MemoryDataSetLayer > layer(new te::map::MemoryDataSetLayer(te::common::Convert2String(1), teDataSetType->getName(), dataSet, teDataSetType));
+    layer->setDataSetName(teDataSetType->getName());
+    layer->setVisibility(te::map::VISIBLE);
+    layer->setExtent(*extent);
+    layer->setStyle(CreateFeatureTypeStyle(geomProperty->getGeometryType()));
+    layer->setRendererType("ABSTRACT_LAYER_RENDERER");
+    layer->setSRID(geomProperty->getSRID());
+
+    return layer;
+
+  }
+  catch(const std::exception& e)
+  {
+    std::cout << std::endl << "An exception has occurred in DrawLayer example: " << e.what() << std::endl;
+  }
+  catch(...)
+  {
+    std::cout << std::endl << "An unexpected exception has occurred in DrawLayer example!" << std::endl;
+  }
+}
+
+std::shared_ptr<te::map::MemoryDataSetLayer> CreateRasterLayer(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> teDataSetType)
 {
   try
   {
@@ -232,20 +311,12 @@ void DrawRasterStyledLayersFromDataSet(std::shared_ptr<te::da::DataSet> dataSet,
     rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
     rasterLayer->setSRID(raster->getSRID());
 
-    // Creates a canvas
-    double llx = extent->m_llx;
-    double lly = extent->m_lly;
-    double urx = extent->m_urx;
-    double ury = extent->m_ury;
+    // set  Style
+//    RGB_012_RGB_Contrast_Style(rasterLayer);
 
-    std::shared_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(800, 600));
-    canvas->calcAspectRatio(llx, lly, urx, ury);
-    canvas->setWindow(llx, lly, urx, ury);
-    canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
+    MONO_0_Style(rasterLayer);
 
-    // RGB 012 with contrast in RGB bands Style
-    RGB_012_RGB_Contrast_Style(dataSet, teDataSetType, canvas, rasterLayer.get(), extent, raster->getSRID());
-
+    return rasterLayer;
   }
   catch(const std::exception& e)
   {
@@ -255,6 +326,47 @@ void DrawRasterStyledLayersFromDataSet(std::shared_ptr<te::da::DataSet> dataSet,
   {
     std::cout << std::endl << "An unexpected exception has occurred in Styling example!" << std::endl;
   }
+}
+
+void Draw(std::shared_ptr<te::map::MemoryDataSetLayer> RasterLayer, std::shared_ptr<te::map::MemoryDataSetLayer> GeometryLayer)
+{
+ te::gm::Envelope extent(RasterLayer->getExtent());
+ int srid = RasterLayer->getSRID();
+
+ extent.Union(GeometryLayer->getExtent());
+
+  // Creates a canvas
+  double llx = extent.m_llx;
+  double lly = extent.m_lly;
+  double urx = extent.m_urx;
+  double ury = extent.m_ury;
+
+  std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(800, 600));
+  canvas->calcAspectRatio(llx, lly, urx, ury);
+  canvas->setWindow(llx, lly, urx, ury);
+  canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
+
+  bool cancel = false;
+
+  RasterLayer->draw(canvas.get(), extent, srid, 0, &cancel);
+  GeometryLayer->draw(canvas.get(), extent, srid, 0, &cancel);
+
+//  std::list<te::map::AbstractLayerPtr> layerList;
+//  layerList.push_back(GeometryLayer.get());
+//  layerList.push_back(RasterLayer.get());
+
+//  std::auto_ptr<te::qt::widgets::MapDisplay> mapDisplay(new te::qt::widgets::MultiThreadMapDisplay(QSize(700, 500)));
+//  mapDisplay->setMinimumSize(QSize(60, 60));
+//  mapDisplay->setResizePolicy(te::qt::widgets::MapDisplay::Center);
+//  mapDisplay->setLayerList(layerList);
+//  mapDisplay->show();
+//  mapDisplay->setExtent(extent);
+
+//  QApplication::exec();
+
+  canvas->save("GeneretadImage", te::map::PNG);
+
+  canvas->clear();
 }
 
 int main(int argc, char** argv)
@@ -267,76 +379,76 @@ int main(int argc, char** argv)
   {
     {
       //DataProvider information
-      terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-      terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-      dataProvider->uri = "file://";
-      dataProvider->uri += TERRAMA2_DATA_DIR;
-      dataProvider->uri += "/geotiff";
+      terrama2::core::DataProvider* dataProviderRaster = new terrama2::core::DataProvider();
+      terrama2::core::DataProviderPtr dataProviderRasterPtr(dataProviderRaster);
+      dataProviderRaster->uri = "file://";
+      dataProviderRaster->uri += TERRAMA2_DATA_DIR;
+      dataProviderRaster->uri += "/geotiff";
 
-      dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-      dataProvider->dataProviderType = "FILE";
-      dataProvider->active = true;
+      dataProviderRaster->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+      dataProviderRaster->dataProviderType = "FILE";
+      dataProviderRaster->active = true;
 
       //DataSeries information
-      terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-      terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-      dataSeries->semantics.code = "GRID-geotiff";
+      terrama2::core::DataSeries* dataSeriesRaster = new terrama2::core::DataSeries();
+      terrama2::core::DataSeriesPtr dataSeriesRasterPtr(dataSeriesRaster);
+      dataSeriesRaster->semantics.code = "GRID-geotiff";
 
-      terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
-      dataSet->active = true;
-      dataSet->format.emplace("mask", "cbers2b_rgb342_crop.tif");
-      dataSet->format.emplace("timezone", "-03");
+      terrama2::core::DataSetGrid* dataSetRaster = new terrama2::core::DataSetGrid();
+      dataSetRaster->active = true;
+      dataSetRaster->format.emplace("mask", "23S465RS.tif");
+      dataSetRaster->format.emplace("timezone", "-03");
 
-      dataSeries->datasetList.emplace_back(dataSet);
+      dataSeriesRaster->datasetList.emplace_back(dataSetRaster);
 
       //empty filter
-      terrama2::core::Filter filter;
+      terrama2::core::Filter filterRaster;
       //accessing data
-      terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+      terrama2::core::DataAccessorGeoTiff accessorRaster(dataProviderRasterPtr, dataSeriesRasterPtr);
 
-      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = accessor.getSeries(filter);
+      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesRaster = accessorRaster.getSeries(filterRaster);
 
-      std::shared_ptr<te::da::DataSet> ds = series.begin()->second.syncDataSet->dataset();
-      std::shared_ptr<te::da::DataSetType> teDataSetType = series.begin()->second.teDataSetType;
+      std::shared_ptr<te::da::DataSet> dsRaster = seriesRaster.begin()->second.syncDataSet->dataset();
+      std::shared_ptr<te::da::DataSetType> teDataSetTypeRaster = seriesRaster.begin()->second.teDataSetType;
 
-      DrawRasterStyledLayersFromDataSet(ds, teDataSetType);
-    }
-
-    {
       //DataProvider information
-      terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-      terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-      dataProvider->uri = "file://";
-      dataProvider->uri += TERRAMA2_DATA_DIR;
-      dataProvider->uri += "/shapefile";
+      terrama2::core::DataProvider* dataProviderGeometry = new terrama2::core::DataProvider();
+      terrama2::core::DataProviderPtr dataProviderGeometryPtr(dataProviderGeometry);
+      dataProviderGeometry->uri = "file://";
+      dataProviderGeometry->uri += TERRAMA2_DATA_DIR;
+      dataProviderGeometry->uri += "/shapefile";
 
-      dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-      dataProvider->dataProviderType = "FILE";
-      dataProvider->active = true;
+      dataProviderGeometry->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+      dataProviderGeometry->dataProviderType = "FILE";
+      dataProviderGeometry->active = true;
 
       //DataSeries information
-      terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-      terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-      dataSeries->semantics.code = "STATIC_DATA-ogr";
+      terrama2::core::DataSeries* dataSeriesGeometry = new terrama2::core::DataSeries();
+      terrama2::core::DataSeriesPtr dataSeriesGeometryPtr(dataSeriesGeometry);
+      dataSeriesGeometry->semantics.code = "STATIC_DATA-ogr";
 
-      terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
-      dataSet->active = true;
-      dataSet->format.emplace("mask", "munic_2001.shp");
-      dataSet->format.emplace("timezone", "-03");
+      terrama2::core::DataSetGrid* dataSetGeometry = new terrama2::core::DataSetGrid();
+      dataSetGeometry->active = true;
+      dataSetGeometry->format.emplace("mask", "35MUE250GC_SIR.shp");
+      dataSetGeometry->format.emplace("timezone", "-03");
 
-      dataSeries->datasetList.emplace_back(dataSet);
+      dataSeriesGeometry->datasetList.emplace_back(dataSetGeometry);
 
       //empty filter
-      terrama2::core::Filter filter;
+      terrama2::core::Filter filterGeometry;
       //accessing data
-      terrama2::core::DataAccessorStaticDataOGR accessor(dataProviderPtr, dataSeriesPtr);
+      terrama2::core::DataAccessorStaticDataOGR accessorGeometry(dataProviderGeometryPtr, dataSeriesGeometryPtr);
 
-      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = accessor.getSeries(filter);
+      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesGeometry = accessorGeometry.getSeries(filterGeometry);
 
-      std::shared_ptr<te::da::DataSet> ds = series.begin()->second.syncDataSet->dataset();
-      std::shared_ptr<te::da::DataSetType> teDataSetType = series.begin()->second.teDataSetType;
+      std::shared_ptr<te::da::DataSet> dsGeometry = seriesGeometry.begin()->second.syncDataSet->dataset();
+      std::shared_ptr<te::da::DataSetType> teDataSetTypeGeometry = seriesGeometry.begin()->second.teDataSetType;
 
-      MapDisplay(ds, teDataSetType);
+      std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer = CreateRasterLayer(dsRaster, teDataSetTypeRaster);
+      std::shared_ptr<te::map::MemoryDataSetLayer> GeometryLayer =CreateGeometryLayer(dsGeometry, teDataSetTypeGeometry);
+
+
+      Draw(rasterLayer,GeometryLayer);
     }
   }
   catch(const std::exception& e)
