@@ -14,6 +14,8 @@
 #include "TsLogger.hpp"
 #include "TsDataRetrieverFTP.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
+#include "TsDataAccessorDcpToa5.hpp"
+
 
 int main(int argc, char** argv)
 {
@@ -61,6 +63,16 @@ int main(int argc, char** argv)
   {
     TsDataAccessorDcpInpe testDataAccessorDcpInpe;
     ret += QTest::qExec(&testDataAccessorDcpInpe, argc, argv);
+  }
+  catch(...)
+  {
+
+  }
+
+  try
+  {
+    TsDataAccessorDcpToa5 testDataAccessorDcpToa5;
+    ret += QTest::qExec(&testDataAccessorDcpToa5, argc, argv);
   }
   catch(...)
   {
