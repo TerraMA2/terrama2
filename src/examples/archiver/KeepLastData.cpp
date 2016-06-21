@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
     teDataSet->moveBeforeFirst();
     while (teDataSet->moveNext())
     {
-      sql+=teDataSet->getInt32(pos)+",";
+      sql+=std::to_string(teDataSet->getInt32(pos))+",";
     }
     sql.pop_back();
     sql+=")";

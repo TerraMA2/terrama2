@@ -33,6 +33,7 @@
 #include "../core/utility/Logger.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/Utils.hpp"
+#include "../core/utility/Unpack.hpp"
 
 //STL
 #include <algorithm>
@@ -68,7 +69,7 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
 
 std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet, bool logErrors) const
 {
-  return getProperty(dataSet, "timezone", logErrors); 
+  return getProperty(dataSet, "timezone", logErrors);
 }
 
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const
@@ -164,6 +165,7 @@ void terrama2::core::DataAccessorFile::filterDataSetByLastValue(std::shared_ptr<
     {
       QString errMsg = QObject::tr("Null date/time attribute.");
       TERRAMA2_LOG_WARNING() << errMsg;
+      ++i;
       continue;
     }
 
@@ -299,23 +301,45 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
   std::shared_ptr< te::dt::TimeInstantTZ > lastFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
 
-  bool first = true;
+  //get timezone of the dataset
+  std::string timezone;
+  try
+  {
+    timezone = getTimeZone(dataSet);
+  }
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
+  {
+    //if timezone is not defined
+    timezone = "UTC+00";
+  }
+
+
+  //fill file list
+  QFileInfoList newFileInfoList;
   for(const auto& fileInfo : fileInfoList)
   {
     std::string name = fileInfo.fileName().toStdString();
-    std::string baseName = fileInfo.baseName().toStdString();
+    std::string folderPath = dir.absolutePath().toStdString();
+    if(terrama2::core::Unpack::verifyCompressFile(folderPath+ "/" + name))
+    {
+      //unpack files
+      std::string tempFolderPath = terrama2::core::Unpack::unpackList(folderPath+ "/" + name);
+      QDir tempDir(QString::fromStdString(tempFolderPath));
+      QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 
-    //get timezone of the dataset
-    std::string timezone;
-    try
-    {
-      timezone = getTimeZone(dataSet);
+      newFileInfoList.append(fileList);
     }
-    catch(const terrama2::core::UndefinedTagException& /*e*/)
+    else
     {
-      //if timezone is not defined
-      timezone = "UTC+00";
+      newFileInfoList.append(fileInfo);
     }
+  }
+
+  bool first = true;
+  for(const auto& fileInfo : newFileInfoList)
+  {
+    std::string name = fileInfo.fileName().toStdString();
+    std::string baseName = fileInfo.baseName().toStdString();
 
     std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
     // Verify if the file name matches the mask
@@ -326,8 +350,9 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     // also joins if the DCP comes from separated files
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
     std::map<std::string, std::string> connInfo;
+    connInfo["URI"] = typePrefix() + fileInfo.absolutePath().toStdString();
 
-    connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
+//    connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
     datasource->setConnectionInfo(connInfo);
 
     //RAII for open/closing the datasource
@@ -339,7 +364,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
       // just log and continue
       QString errMsg = QObject::tr("DataProvider could not be opened.");
       TERRAMA2_LOG_ERROR() << errMsg;
-
       continue;
     }
 
@@ -488,4 +512,3 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
 
   return lastDateTimeTz;
 }
-

@@ -54,6 +54,9 @@ namespace terrama2
         //! To be used when an invalid dataset is dectected.
         struct InvalidDataSetException: virtual Exception {};
 
+        //! To be used when an empty data series is dectected.
+        struct EmptyDataSeriesException: virtual Exception {};
+
         //! To be used when an invalid data series is dectected.
         struct InvalidDataSeriesException: virtual Exception {};
 

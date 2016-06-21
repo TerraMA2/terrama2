@@ -31,7 +31,7 @@
 
 class TsDataAccessorDcpInpe: public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 
   private slots:
 
@@ -47,6 +47,8 @@ class TsDataAccessorDcpInpe: public QObject
     void TestFailDataProviderNull();
     void TestFailDataSeriesNull();
     void TestFailDataSeriesSemanticsInvalid();
+    void TestOKDataRetrieverValid();
+    void TestFailDataRetrieverInvalid();
     void TestOK();
 };
 

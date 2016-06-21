@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
     timer.start(30000);
     app.exec();
 
-    service.stop();
+    service.stopService();
   }
   catch(boost::exception& e)
   {

@@ -89,7 +89,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
   }
 }
 
-void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId)
+void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId) noexcept
 {
   std::lock_guard<std::mutex> lock(mutex_);
   TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
@@ -198,20 +198,22 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch(const terrama2::Exception&)
   {
-    // should have been logged on emission
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(const boost::exception& e)
   {
-
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unkown error.");
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
 }
 
@@ -231,7 +233,7 @@ void terrama2::services::collector::core::Service::setLogger(std::shared_ptr<Col
   logger_ = logger;
 }
 
-void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
+void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector) noexcept
 {
   const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   auto serviceInstanceId = serviceManager.instanceId();
@@ -268,34 +270,47 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
   addToQueue(collector->id);
 }
 
-void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId)
+void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId) noexcept
 {
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    auto timer = timers_.at(collectorId);
-    timer->disconnect();
-    timers_.erase(collectorId);
+
+    TERRAMA2_LOG_INFO() << tr("Removing collector %1.").arg(collectorId);
+
+    auto it = timers_.find(collectorId);
+    if(it != timers_.end())
+    {
+      auto timer = timers_.at(collectorId);
+      timer->disconnect();
+      timers_.erase(collectorId);
+    }
 
     // remove from queue
     collectorQueue_.erase(std::remove(collectorQueue_.begin(), collectorQueue_.end(), collectorId), collectorQueue_.end());
+
+
+    TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
   }
   catch(std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unknown error");
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
 }
 
-void terrama2::services::collector::core::Service::updateCollector(CollectorPtr /*collector*/)
+void terrama2::services::collector::core::Service::updateCollector(CollectorPtr /*collector*/) noexcept
 {
   // Only the Id of the collector is stored, no need to update
 }

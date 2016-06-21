@@ -36,7 +36,7 @@ terrama2::services::analysis::core::AnalysisLogger::AnalysisLogger()
 {
 }
 
-void terrama2::services::analysis::core::AnalysisLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo)
+void terrama2::services::analysis::core::AnalysisLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo) noexcept
 {
   terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
 

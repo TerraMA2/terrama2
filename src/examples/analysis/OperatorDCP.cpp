@@ -1,6 +1,7 @@
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
@@ -20,6 +21,7 @@
 #include <QTimer>
 #include <QCoreApplication>
 #include <QUrl>
+#include <terralib/common/Singleton.h>
 
 
 using namespace terrama2::services::analysis::core;
@@ -172,7 +174,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
-  dcpSeries->semantics.code = "DCP-inpe";
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
   dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
   dcpSeries->name = "Serra do Mar";
   dcpSeries->id = 2;
@@ -215,7 +218,6 @@ int main(int argc, char* argv[])
 
   analysis.schedule.frequency = 1;
   analysis.schedule.frequencyUnit = "min";
-
   dataManager->add(analysis);
 
   // Starts the service and adds the analysis
@@ -225,14 +227,10 @@ int main(int argc, char* argv[])
   auto logger = std::make_shared<AnalysisLogger>();
   logger->setConnectionInfo(connInfo);
   service.setLogger(logger);
-  
+
   service.start();
   service.addAnalysis(1);
-  service.addAnalysis(1);
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(30000);
 
   app.exec();
 

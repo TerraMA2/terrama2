@@ -69,7 +69,7 @@ terrama2::core::Timer::~Timer()
   delete impl_;
 }
 
-void terrama2::core::Timer::timeoutSlot()
+void terrama2::core::Timer::timeoutSlot() noexcept
 {
   emit timeoutSignal(impl_->processId_);
 
