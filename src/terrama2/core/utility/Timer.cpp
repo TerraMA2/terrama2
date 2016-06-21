@@ -71,10 +71,18 @@ terrama2::core::Timer::~Timer()
 
 void terrama2::core::Timer::timeoutSlot() noexcept
 {
-  emit timeoutSignal(impl_->processId_);
+  try
+  {
+    emit timeoutSignal(impl_->processId_);
 
-  impl_->lastEmit_ = terrama2::core::TimeUtils::nowUTC();
-  prepareTimer(impl_->dataSchedule_);
+    impl_->lastEmit_ = terrama2::core::TimeUtils::nowUTC();
+    prepareTimer(impl_->dataSchedule_);
+  }
+  catch (...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
 }
 
 void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)

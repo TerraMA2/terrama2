@@ -61,12 +61,13 @@ module.exports = function(app) {
 
       DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
         TcpManager.stopService(serviceInstance).then(function(result) {
-          console.log("Stoped");
-          TcpManager.statusService(serviceInstance).then(function(statusResult) {
-            response.json({status: 200, online: statusResult.instance_id == serviceInstance.id, result: result})
-          }).catch(function(err) {
-            _handleError(response, err);
-          })
+          console.log("Stoped", result);
+          response.json({status: 200, online: false, result: result});
+        // TcpManager.statusService(serviceInstance).then(function(statusResult) {
+          //   response.json({status: 200, online: statusResult.instance_id == serviceInstance.id, result: result})
+          // }).catch(function(err) {
+          //   _handleError(response, err);
+          // })
         }).catch(function(err) {
           _handleError(response, err);
         })
@@ -91,7 +92,7 @@ module.exports = function(app) {
         }).catch(function(err) {
           _sendStatus();
         });
-        
+
       }).catch(function(err) {
         _handleError(response, err);
       });

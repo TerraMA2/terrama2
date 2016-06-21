@@ -9,6 +9,7 @@ angular.module('terrama2.dataseries.registration', [
     'schemaForm',
     'xeditable',
     'terrama2.schedule'
+    // 'terrama2.components.datetimepicker'
   ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
@@ -675,7 +676,7 @@ angular.module('terrama2.dataseries.registration', [
       });
 
       $scope.i18n = i18n;
-      $scope.isWizard = true;
+      $scope.isWizard = $scope.stateApp.current.name === "wizard" || true;
       $scope.projection = "";
 
       // change form: advanced or wizard
@@ -1008,6 +1009,14 @@ angular.module('terrama2.dataseries.registration', [
             filterValues.area.beforeDate = new Date(filterValues.area.beforeDate.getTime() - filterValues.area.beforeDate.getTimezoneOffset()).toString();
           }
 
+          // checking date
+          // if (filterValues.date.beforeDate) {
+          //   filterValues.date.beforeDate = filterValues.date.beforeDate.toDate();
+          // }
+          // if (filterValues.date.afterDate) {
+          //   filterValues.date.afterDate = filterValues.date.afterDate.toDate();
+          // }
+
           var scheduleValues = Object.assign({}, $scope.schedule);
           switch(scheduleValues.scheduleHandler) {
             case "seconds":
@@ -1040,13 +1049,14 @@ angular.module('terrama2.dataseries.registration', [
 
         // it dispatches post operation to nodejs
         var _sendRequest = function(object) {
-        // var _sendRequest = function(dataToSend, scheduleValues, filterValues, serviceOutput) {
+
           DataSeriesFactory.post({
             dataSeries: object.dataToSend,
             schedule: object.scheduleValues,
             filter: object.filterValues,
             service: object.serviceOutput,
-            intersection: object.intersection
+            intersection: object.intersection,
+            active: object.active
           }).then(function(data) {
             console.log(data);
             $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries";
@@ -1136,7 +1146,8 @@ angular.module('terrama2.dataseries.registration', [
               scheduleValues: dataObject.schedule,
               filterValues: dataObject.filter,
               serviceOutput: values.service,
-              intersection: intersectionValues
+              intersection: intersectionValues,
+              active: dataObject.dataSeries.active
             });
 
           });
@@ -1162,7 +1173,8 @@ angular.module('terrama2.dataseries.registration', [
               dataToSend: dataObject.dataSeries,
               scheduleValues: {},
               filterValues: dataObject.filter,
-              serviceOutput: {}
+              serviceOutput: {},
+              active: dataObject.dataSeries.active || true
             });
           }
         }

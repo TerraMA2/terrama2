@@ -31,6 +31,8 @@
 #define __TERRAMA2_CORE_SERVICE_HPP__
 
 #include "../Typedef.hpp"
+#include "../Shared.hpp"
+#include "../data-model/Schedule.hpp"
 
 //STL
 #include <vector>
@@ -40,6 +42,12 @@
 
 //Qt
 #include <QObject>
+
+namespace te {
+  namespace dt {
+    class TimeInstantTZ;
+  } /* dt */
+} /* te */
 
 namespace terrama2
 {
@@ -122,6 +130,8 @@ namespace terrama2
       virtual void updateNumberOfThreads(int numberOfThreads = 0) noexcept final;
 
     protected:
+
+      TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
       /*!
          \brief Returns true if the main loop should continue.
          \return True if there is data to be tasked.

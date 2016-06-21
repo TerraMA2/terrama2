@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 #define __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 
+// TerraMA2
+#include "../Exception.hpp"
 #include "../Typedef.hpp"
 
 // TerraLib
@@ -48,9 +50,9 @@ namespace terrama2
     {
         Q_OBJECT
 
-      public:
+  public:
 
-        /*!
+      /*!
           \enum Status
 
           \brief Possible status of manipulate data.
@@ -190,7 +192,7 @@ namespace terrama2
          * \brief Store the name of the process log table and the message log table
          * \param tableName The log table name
          */
-        void setTableName(const std::string tableName);
+        void setTableName(std::string tableName);
 
       private:
         /*!

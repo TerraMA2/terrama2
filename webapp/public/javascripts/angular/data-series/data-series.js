@@ -43,7 +43,31 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
 
     DataSeriesFactory.get(queryParams).success(function(data) {
       $scope.model = data instanceof Array ? data : [];
-      $scope.fields = [{key: 'name', as: "Name"}, {key: "data_series_semantics.name", as: "Format"}];
+
+      // processing type
+      $scope.model.forEach(function(instance) {
+        var value;
+        switch(instance.data_series_semantics.data_series_type_name) {
+          case globals.enums.DataSeriesType.DCP:
+            value = "DCP";
+            break;
+          case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+          case globals.enums.DataSeriesType.OCCURRENCE:
+            value = "Occurrence";
+            break;
+          case globals.enums.DataSeriesType.GRID:
+            value = "Grid";
+            break;
+          case globals.enums.DataSeriesType.STATIC_DATA:
+            value = "Static";
+            break;
+          default:
+            value = instance.data_series_semantics.name;
+        }
+
+        instance.model_type = value;
+      });
+      $scope.fields = [{key: 'name', as: "Name"}, {key: "model_type", as: "Type"}];
     }).error(function(err) {
 
     });

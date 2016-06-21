@@ -4,7 +4,7 @@
 
 {% block ngApp %}ng-app="terrama2.projects.status"{% endblock %}
 
-{% block title %} TerraMA2 {{ __('Project Status')}} {% endblock %}
+{% block title %} TerraMA² {{ __('Project Status')}} {% endblock %}
 
 {% block javascripts %}
 
@@ -23,12 +23,7 @@
         return "";
       };
 
-      $scope.iconFn = function(object) {
-        if (object.status === 'Error')
-          return "fa fa-remove label-danger";
-        if (object.status === 'NoDataCollected')
-          return "fa fa-warning label-warning";
-      };
+      $scope.iconFn = null;
 
       $scope.iconProperties = {
         type: "icon"

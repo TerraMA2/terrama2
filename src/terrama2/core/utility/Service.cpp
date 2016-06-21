@@ -29,6 +29,7 @@
 
 #include "Service.hpp"
 #include "Logger.hpp"
+#include "Timer.hpp"
 
 terrama2::core::Service::Service()
   : stop_(false)
@@ -89,34 +90,50 @@ int terrama2::core::Service::verifyNumberOfThreads(int numberOfThreads) const
 
 void terrama2::core::Service::stopService() noexcept
 {
-  stop(false);
+  try
+  {
+    stop(false);
+  }
+  catch (...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
 }
 
 void terrama2::core::Service::stop(bool holdStopSignal) noexcept
 {
+  try
   {
-    std::lock_guard<std::mutex> lock(mutex_);
-    // finish the thread
-    stop_ = true;
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      // finish the thread
+      stop_ = true;
 
-    //wake loop thread and collecting threads
-    mainLoopCondition_.notify_one();
-    processingThreadCondition_.notify_all();
+      //wake loop thread and collecting threads
+      mainLoopCondition_.notify_one();
+      processingThreadCondition_.notify_all();
+    }
+
+    //wait for the loop thread
+    if(mainLoopThread_.valid())
+      mainLoopThread_.get();
+
+    //wait for each collecting thread
+    for (auto& future : processingThreadPool_)
+    {
+      if(future.valid())
+        future.get();
+    }
+
+    if(!holdStopSignal)
+      emit serviceFinishedSignal();
   }
-
-  //wait for the loop thread
-  if(mainLoopThread_.valid())
-    mainLoopThread_.get();
-
-  //wait for each collecting thread
-  for (auto& future : processingThreadPool_)
+  catch (...)
   {
-    if(future.valid())
-      future.get();
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
-
-  if(!holdStopSignal)
-    emit serviceFinishedSignal();
 }
 
 void terrama2::core::Service::mainLoopThread() noexcept
@@ -198,4 +215,12 @@ void terrama2::core::Service::updateNumberOfThreads(int numberOfThreads) noexcep
   //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
   stop(true);
   start(numberOfThreads);
+}
+
+terrama2::core::TimerPtr terrama2::core::Service::createTimer(const Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const
+{
+  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(schedule, processId, lastProcess);
+  connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::core::Service::addToQueue, Qt::UniqueConnection);
+
+  return timer;
 }

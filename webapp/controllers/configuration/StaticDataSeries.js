@@ -6,7 +6,7 @@ module.exports = function(app) {
 
   return {
     get: function(request, response) {
-      response.render('configuration/staticData');
+      response.render('configuration/staticData', {'Enums': Enums});
     },
 
     new: function(request, response) {
