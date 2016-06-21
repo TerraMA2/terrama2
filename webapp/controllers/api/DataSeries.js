@@ -15,6 +15,7 @@ module.exports = function(app) {
       var filterObject = request.body.filter;
       var serviceId = request.body.service;
       var intersection = request.body.intersection;
+      var active = request.body.active;
 
       if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
         DataManager.getServiceInstance({id: serviceId}).then(function(serviceResult) {
@@ -23,7 +24,8 @@ module.exports = function(app) {
             scheduleObject,
             filterObject,
             serviceResult,
-            intersection
+            intersection,
+            active
           ).then(function(collectorResult) {
             var collector = collectorResult.collector;
             collector['project_id'] = app.locals.activeProject.id;

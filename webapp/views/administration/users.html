@@ -1,8 +1,10 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = "users" %}
+
 {% block ngApp %}ng-app="terrama2.administration.users"{% endblock %}
 
-{% block title %} TerraMA2 {[ __('Users Handling') ]} {% endblock %}
+{% block title %} TerraMA² {[ __('Users Handling') ]} {% endblock %}
 
 {% block javascripts %}
 
@@ -27,7 +29,7 @@
             $scope.fields = [
               {
                 key: 'name',
-                as: 'Nome'
+                as: 'Name'
               },
               {
                 key: 'email',
@@ -35,15 +37,15 @@
               },
               {
                 key: 'cellphone',
-                as: 'Celular'
+                as: 'Cellphone'
               },
               {
                 key: 'username',
-                as: 'Usuário'
+                as: 'User'
               },
               {
                 key: 'administrator',
-                as: 'Administrador'
+                as: 'Administrator'
               },
             ];
             $scope.iconFn = null;

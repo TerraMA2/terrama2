@@ -1,0 +1,1835 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/core/DataManager.js" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9ac28738-fe7b-4e5c-9015-3368aa0167cf" name="Default" comment="fixing datamanager load in memory;&#10;adding wkt helper function">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src/terrama2/services/appserver/main.cpp" afterPath="$PROJECT_DIR$/../src/terrama2/services/appserver/main.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controllers/api/Remote.js" afterPath="$PROJECT_DIR$/controllers/api/Remote.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/Service.js" afterPath="$PROJECT_DIR$/core/Service.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/TcpManager.js" afterPath="$PROJECT_DIR$/core/TcpManager.js" />
+    </list>
+    <ignored path="webapp.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="webapp" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="TcpManager.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/TcpManager.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="277">
+              <caret line="269" column="7" selection-start-line="269" selection-start-column="7" selection-end-line="269" selection-end-column="7" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DataSeries.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/controllers/api/DataSeries.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2412">
+              <caret line="134" column="32" selection-start-line="134" selection-start-column="32" selection-end-line="134" selection-end-column="32" />
+              <folding>
+                <marker date="1466510456677" expanded="true" signature="540:788" ph="{...}" />
+                <marker date="1466510456677" expanded="true" signature="8200:8214" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DataManager.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/DataManager.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="20952">
+              <caret line="1164" column="33" selection-start-line="1164" selection-start-column="33" selection-end-line="1164" selection-end-column="33" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Remote.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/controllers/api/Remote.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="124">
+              <caret line="63" column="9" selection-start-line="63" selection-start-column="9" selection-end-line="63" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Service.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/Service.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="338">
+              <caret line="63" column="9" selection-start-line="63" selection-start-column="9" selection-end-line="63" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/.." value="776071108d75b20af7eece84c75aa5e800e022b5" />
+      </map>
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/models/Log.js" />
+        <option value="$PROJECT_DIR$/core/data-model/Service.js" />
+        <option value="$USER_HOME$/Documents/codes/nodejs/server/server1.js" />
+        <option value="$PROJECT_DIR$/sockets/ServiceSocket.js" />
+        <option value="$PROJECT_DIR$/controllers/api/Service.js" />
+        <option value="$PROJECT_DIR$/controllers/configuration/DynamicDataSeries.js" />
+        <option value="$PROJECT_DIR$/core/Enums.js" />
+        <option value="$PROJECT_DIR$/core/AbstractSemantics.js" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/DcpInpe.js" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/DcpPostgis.js" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/OccurrencePostgis.js" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/StaticDataOgr.js" />
+        <option value="$PROJECT_DIR$/models/SemanticsProvidersType.js" />
+        <option value="$PROJECT_DIR$/core/data-model/DataProvider.js" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/FileStaticDataOgr.js" />
+        <option value="internal/util.js" />
+        <option value="$PROJECT_DIR$/controllers/api/DataSeries.js" />
+        <option value="$PROJECT_DIR$/tests/RequestFactory.js" />
+        <option value="$PROJECT_DIR$/core/FtpRequest.js" />
+        <option value="$PROJECT_DIR$/models/DataSeriesSemantics.js" />
+        <option value="$PROJECT_DIR$/models/DataProviderType.js" />
+        <option value="$PROJECT_DIR$/models/DataSet.js" />
+        <option value="$PROJECT_DIR$/core/data-model/DataSetMonitored.js" />
+        <option value="$PROJECT_DIR$/views/administration/service.html" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/Factory.js" />
+        <option value="$PROJECT_DIR$/controllers/api/DataSeriesSemantics.js" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/WildFire.js" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/Dcp.js" />
+        <option value="$PROJECT_DIR$/public/javascripts/angular/data-series/registration.js" />
+        <option value="$PROJECT_DIR$/models/SemanticsMetadata.js" />
+        <option value="$PROJECT_DIR$/core/data-model/DataSet.js" />
+        <option value="$PROJECT_DIR$/core/data-model/DataSetFactory.js" />
+        <option value="$PROJECT_DIR$/core/data-model/DataSeries.js" />
+        <option value="$PROJECT_DIR$/core/data-series-semantics/AnalysisMonitoredObject.js" />
+        <option value="$PROJECT_DIR$/bin/www" />
+        <option value="$PROJECT_DIR$/config/config.terrama2" />
+        <option value="$PROJECT_DIR$/controllers/configuration/StaticDataSeries.js" />
+        <option value="$PROJECT_DIR$/core/data-model/Analysis.js" />
+        <option value="internal/linkedlist.js" />
+        <option value="$PROJECT_DIR$/test.js" />
+        <option value="$PROJECT_DIR$/core/data-model/AnalysisDataSeries.js" />
+        <option value="$PROJECT_DIR$/controllers/api/Analysis.js" />
+        <option value="$PROJECT_DIR$/core/Utils.js" />
+        <option value="$PROJECT_DIR$/sockets/DbConnectionChecker.js" />
+        <option value="$PROJECT_DIR$/core/data-model/Collector.js" />
+        <option value="$PROJECT_DIR$/sockets/TcpSocket.js" />
+        <option value="$PROJECT_DIR$/../src/terrama2/core/utility/Service.hpp" />
+        <option value="$PROJECT_DIR$/core/DataManager.js" />
+        <option value="$PROJECT_DIR$/core/TcpManager.js" />
+        <option value="$PROJECT_DIR$/core/Service.js" />
+        <option value="$PROJECT_DIR$/controllers/api/Remote.js" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBowerSettings">
+    <exe-path />
+    <config-path />
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER">
+    <package-json value="$PROJECT_DIR$/package.json" />
+  </component>
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="NodeJsMochaPackageDirSetting">
+    <data>$PROJECT_DIR$/node_modules/mocha</data>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="43" />
+    <option name="y" value="24" />
+    <option name="width" value="1557" />
+    <option name="height" value="876" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>CSS</id>
+          </State>
+          <State>
+            <id>DOM issuesJavaScript</id>
+          </State>
+          <State>
+            <id>GeneralJavaScript</id>
+          </State>
+          <State>
+            <id>HTML</id>
+          </State>
+          <State>
+            <id>Invalid elementsCSS</id>
+          </State>
+          <State>
+            <id>JavaScript</id>
+          </State>
+          <State>
+            <id>XML</id>
+          </State>
+          <State>
+            <id>XPath</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>AngularJS</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="1" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers ProjectPane="true" />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource ProjectPane="false" />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope">
+        <subPane subId="Changed Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="webapp">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="public">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="webapp">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="models">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="webapp">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="locales">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="webapp">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="core">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="webapp">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="controllers">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+        <subPane subId="Default">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sockets" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="javascripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="javascripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="angular" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="javascripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="angular" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="data-series" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="javascripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="angular" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="alert-box" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="data-model" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controllers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controllers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="configuration" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controllers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="api" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="webapp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bin" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scratches">
+        <subPane />
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="HbShouldOpenHtmlAsHb" value="" />
+    <property name="js-jscs-nodeInterpreter" value="/usr/bin/node" />
+    <property name="settings.editor.selected.configurable" value="preferences.editor" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="202" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="152" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="158" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="956" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder3" value="3" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="134" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="154" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="161" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="1019" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
+    <property name="nodejs.mocha.node_interpreter_path" value="/usr/bin/node" />
+    <property name="nodejs.mocha.mocha_node_package_dir" value="$PROJECT_DIR$/node_modules/mocha" />
+    <property name="editor.config.accepted" value="true" />
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="SearchEverywhereHistoryKey" value="test.&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/test.js&#10;en.js&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/locales/en.js&#10;general&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/generalData.html&#10;provider&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/provider.html&#10;wizard&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/wizard.html&#10;filter&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/filter.html&#10;DataSet.js&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/controllers/configuration/DataSet.js&#10;RequestFa&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/tests/RequestFactory.js&#10;dataSeriesre&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/dataSeriesRegistration.js&#10;advance&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/advanced.html&#10;table&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/table/table.js&#10;table.js&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/table/table.js&#10;filter.&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/filter.html&#10;alerts&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/alerts.html&#10;table.html&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/table/templates/table.html&#10;Login.js&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/controllers/Login.js&#10;projects&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/projects.html&#10;layout&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/base/layout.html&#10;analyses&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/analyses.html&#10;la&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/base/layout.html&#10;provider.html&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/provider.html&#10;providers&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/providers.html&#10;database&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/administration/database.html&#10;layout.&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/base/layout.html&#10;login.html&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/login.html&#10;Project.js&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/controllers/configuration/Project.js&#10;projects.&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/projects.html&#10;advanced&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/advanced.html&#10;occurr&#9;null&#9;null&#10;dataSeries.js&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/models/DataSeries.js&#10;DataManager&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/core/DataManager.js&#10;dataManage&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/tests/DataManager.js&#10;registrat&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/data-provider/registration.js&#10;registration&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/dataSeriesRegistration.js&#10;gener&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/generalData.html&#10;parameters&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/parametersData.html&#10;DataSeries.js&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/models/DataSeries.js&#10;provide&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/provider.html&#10;projec&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/projection.html&#10;provi&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/provider.html&#10;project.html&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/projects.html&#10;angular/filter&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/filter.html&#10;generalDa&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/generalData.html&#10;dataOccu&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/dataSetOccurrence.html&#10;advanc&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/advanced.html&#10;dataseriesre&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/dataSeriesRegistration.js&#10;dataset.html&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/configuration/dataset.html&#10;parame&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/views/base/parametersData.html&#10;dataSeriesRegi&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/public/javascripts/angular/dataSeriesRegistration.js&#10;Factory&#9;FILE&#9;file:///home/raphael/MyDevel/terrama2/codebase/webapp/core/RequestFactory.js" />
+    <property name="nodejs_interpreter_path" value="/usr/bin/node" />
+    <property name="Node.Profiling.V8Profiler.Path" value="" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/core/data-model" />
+      <recent name="$PROJECT_DIR$/core/data-series-semantics" />
+      <recent name="$PROJECT_DIR$/plugins/module1" />
+      <recent name="$PROJECT_DIR$/tests" />
+      <recent name="$PROJECT_DIR$/tests/core" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/public" />
+      <recent name="$PROJECT_DIR$/views/administration" />
+      <recent name="$PROJECT_DIR$/plugins" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Node.js.TerraMA2 WebApp">
+    <configuration default="false" name="RequestFactory" type="mocha-javascript-test-runner" factoryName="Mocha" temporary="true" nameIsGenerated="true">
+      <node-interpreter>/usr/bin/node</node-interpreter>
+      <node-options />
+      <working-directory>$PROJECT_DIR$</working-directory>
+      <pass-parent-env>true</pass-parent-env>
+      <envs />
+      <ui>bdd</ui>
+      <extra-mocha-options>--timeout 5000</extra-mocha-options>
+      <test-kind>SUITE</test-kind>
+      <test-file>$PROJECT_DIR$/tests/RequestFactory.js</test-file>
+      <test-names>
+        <name value="RequestFactory" />
+      </test-names>
+      <method />
+    </configuration>
+    <configuration default="false" name="test.js" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" path-to-node="project" path-to-js-file="test.js" working-dir="$PROJECT_DIR$">
+      <method />
+    </configuration>
+    <configuration default="false" name="Status.js" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" path-to-node="project" path-to-js-file="Status.js" working-dir="$PROJECT_DIR$/controllers/configuration">
+      <method />
+    </configuration>
+    <configuration default="false" name="TcpManager.js" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" path-to-node="project" path-to-js-file="TcpManager.js" working-dir="$PROJECT_DIR$/core">
+      <method />
+    </configuration>
+    <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
+      <method />
+    </configuration>
+    <configuration default="true" type="DartTestRunConfigurationType" factoryName="Dart Test">
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma">
+      <config-file value="" />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
+      <method />
+    </configuration>
+    <configuration default="true" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" working-dir="">
+      <method />
+    </configuration>
+    <configuration default="true" type="NodeJSRemoteDebug" factoryName="Node.js Remote Debug">
+      <node-js-remote-debug />
+      <method />
+    </configuration>
+    <configuration default="true" type="cucumber.js" factoryName="Cucumber.js">
+      <option name="cucumberJsArguments" value="" />
+      <option name="executablePath" />
+      <option name="filePath" />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
+      <command value="run-script" />
+      <scripts />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="mocha-javascript-test-runner" factoryName="Mocha">
+      <node-interpreter>/usr/bin/node</node-interpreter>
+      <node-options />
+      <working-directory>$PROJECT_DIR$</working-directory>
+      <pass-parent-env>true</pass-parent-env>
+      <envs />
+      <ui>bdd</ui>
+      <extra-mocha-options />
+      <test-kind>DIRECTORY</test-kind>
+      <test-directory />
+      <recursive>false</recursive>
+      <method />
+    </configuration>
+    <configuration default="false" name="TerraMA2 - Tests" type="mocha-javascript-test-runner" factoryName="Mocha">
+      <node-interpreter>/usr/bin/node</node-interpreter>
+      <node-options />
+      <working-directory>$PROJECT_DIR$</working-directory>
+      <pass-parent-env>true</pass-parent-env>
+      <envs />
+      <ui>bdd</ui>
+      <extra-mocha-options>--timeout 5000</extra-mocha-options>
+      <test-kind>DIRECTORY</test-kind>
+      <test-directory>$PROJECT_DIR$/tests</test-directory>
+      <recursive>false</recursive>
+      <method />
+    </configuration>
+    <configuration default="false" name="TerraMA2 WebApp" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" path-to-js-file="bin/www" working-dir="$PROJECT_DIR$">
+      <browser name="a7bb68e0-33c0-4d6f-a81a-aac1fdb870c8" with-js-debugger="true" />
+      <method />
+    </configuration>
+    <configuration default="false" name="localserver" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" path-to-js-file="server1.js" working-dir="$USER_HOME$/Documents/codes/nodejs/server">
+      <method />
+    </configuration>
+    <configuration default="false" name="TerraMA2 WebApp Debug" type="js.build_tools.npm" factoryName="npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run-script" />
+      <scripts>
+        <script value="debug" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <list size="8">
+      <item index="0" class="java.lang.String" itemvalue="Mocha.TerraMA2 - Tests" />
+      <item index="1" class="java.lang.String" itemvalue="Node.js.TerraMA2 WebApp" />
+      <item index="2" class="java.lang.String" itemvalue="Node.js.localserver" />
+      <item index="3" class="java.lang.String" itemvalue="npm.TerraMA2 WebApp Debug" />
+      <item index="4" class="java.lang.String" itemvalue="Mocha.RequestFactory" />
+      <item index="5" class="java.lang.String" itemvalue="Node.js.test.js" />
+      <item index="6" class="java.lang.String" itemvalue="Node.js.Status.js" />
+      <item index="7" class="java.lang.String" itemvalue="Node.js.TcpManager.js" />
+    </list>
+    <recent_temporary>
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Mocha.RequestFactory" />
+        <item index="1" class="java.lang.String" itemvalue="Node.js.test.js" />
+        <item index="2" class="java.lang.String" itemvalue="Node.js.TcpManager.js" />
+        <item index="3" class="java.lang.String" itemvalue="Node.js.Status.js" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="StructureViewFactory">
+    <option name="ACTIVE_ACTIONS" value=",HIDE_INHERITED_FROM_OBJECT,HIDE_INHERITED" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration>$USER_HOME$/.subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9ac28738-fe7b-4e5c-9015-3368aa0167cf" name="Default" comment="" />
+      <created>1456753258299</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1456753258299</updated>
+      <workItem from="1459452743564" duration="488000" />
+      <workItem from="1459453242306" duration="4404000" />
+      <workItem from="1459509900857" duration="25744000" />
+      <workItem from="1459769229298" duration="17254000" />
+      <workItem from="1459788857887" duration="2579000" />
+      <workItem from="1459791446104" duration="4462000" />
+      <workItem from="1459855857948" duration="6489000" />
+      <workItem from="1459862418424" duration="17712000" />
+      <workItem from="1459885730854" duration="3586000" />
+      <workItem from="1459889342496" duration="144000" />
+      <workItem from="1459942715596" duration="26562000" />
+      <workItem from="1460037404052" duration="17652000" />
+      <workItem from="1460115052049" duration="25909000" />
+      <workItem from="1460374059607" duration="27823000" />
+      <workItem from="1460460353454" duration="18653000" />
+      <workItem from="1460482071299" duration="8772000" />
+      <workItem from="1460547243023" duration="28869000" />
+      <workItem from="1460643164782" duration="17158000" />
+      <workItem from="1460667155376" duration="40000" />
+      <workItem from="1460719749219" duration="24903000" />
+      <workItem from="1460750911676" duration="2337000" />
+      <workItem from="1460980118480" duration="13896000" />
+      <workItem from="1461065289188" duration="242000" />
+      <workItem from="1461065540049" duration="16141000" />
+      <workItem from="1461086478805" duration="10273000" />
+      <workItem from="1461152478207" duration="28821000" />
+      <workItem from="1461584234894" duration="30448000" />
+      <workItem from="1461669631085" duration="28595000" />
+      <workItem from="1461756685229" duration="27091000" />
+      <workItem from="1461852923317" duration="16544000" />
+      <workItem from="1461874582840" duration="2058000" />
+      <workItem from="1461929625270" duration="13667000" />
+      <workItem from="1461949014748" duration="13693000" />
+      <workItem from="1462188538665" duration="4000" />
+      <workItem from="1462197374597" duration="1457000" />
+      <workItem from="1462201058775" duration="144000" />
+      <workItem from="1462204437201" duration="1847000" />
+      <workItem from="1462206717108" duration="286000" />
+      <workItem from="1462208607415" duration="887000" />
+      <workItem from="1462213034747" duration="604000" />
+      <workItem from="1462276257662" duration="1256000" />
+      <workItem from="1462277988115" duration="366000" />
+      <workItem from="1462279677730" duration="1332000" />
+      <workItem from="1462297339736" duration="962000" />
+      <workItem from="1462304506200" duration="417000" />
+      <workItem from="1462305216944" duration="720000" />
+      <workItem from="1462306913403" duration="635000" />
+      <workItem from="1462361180173" duration="504000" />
+      <workItem from="1462366723828" duration="590000" />
+      <workItem from="1462373206231" duration="238000" />
+      <workItem from="1462387883631" duration="2000" />
+      <workItem from="1462393566099" duration="117000" />
+      <workItem from="1462460637858" duration="864000" />
+      <workItem from="1462471450757" duration="672000" />
+      <workItem from="1462478892864" duration="23000" />
+      <workItem from="1462481125792" duration="711000" />
+      <workItem from="1462534897232" duration="1721000" />
+      <workItem from="1462542991957" duration="1186000" />
+      <workItem from="1462551568172" duration="14000" />
+      <workItem from="1462553055285" duration="48000" />
+      <workItem from="1462556881280" duration="1264000" />
+      <workItem from="1462559786623" duration="1006000" />
+      <workItem from="1462802465819" duration="529000" />
+      <workItem from="1462804952219" duration="394000" />
+      <workItem from="1462809264363" duration="496000" />
+      <workItem from="1462811093528" duration="1240000" />
+      <workItem from="1462815889539" duration="788000" />
+      <workItem from="1462817056871" duration="537000" />
+      <workItem from="1462818399588" duration="2130000" />
+      <workItem from="1462825307841" duration="816000" />
+      <workItem from="1462883194532" duration="974000" />
+      <workItem from="1462969840622" duration="1726000" />
+      <workItem from="1462971581629" duration="1434000" />
+      <workItem from="1462973045164" duration="1378000" />
+      <workItem from="1462975447793" duration="1806000" />
+      <workItem from="1462988219215" duration="225000" />
+      <workItem from="1462988486688" duration="584000" />
+      <workItem from="1462995602816" duration="990000" />
+      <workItem from="1462997445418" duration="1350000" />
+      <workItem from="1463052505324" duration="1803000" />
+      <workItem from="1463055427912" duration="179000" />
+      <workItem from="1463056608012" duration="1160000" />
+      <workItem from="1463077143816" duration="1287000" />
+      <workItem from="1463078984343" duration="932000" />
+      <workItem from="1463080133230" duration="1066000" />
+      <workItem from="1463081229423" duration="1887000" />
+      <workItem from="1463083133693" duration="2258000" />
+      <workItem from="1463150931216" duration="1256000" />
+      <workItem from="1463157107594" duration="993000" />
+      <workItem from="1463160540280" duration="1223000" />
+      <workItem from="1463169859415" duration="1190000" />
+      <workItem from="1463398720698" duration="898000" />
+      <workItem from="1463400680066" duration="282000" />
+      <workItem from="1463401276680" duration="447000" />
+      <workItem from="1463402980566" duration="441000" />
+      <workItem from="1463405098005" duration="222000" />
+      <workItem from="1463410426733" duration="829000" />
+      <workItem from="1463418737403" duration="447000" />
+      <workItem from="1463427262447" duration="1096000" />
+      <workItem from="1463429275745" duration="75000" />
+      <workItem from="1463430368641" duration="1428000" />
+      <workItem from="1463582877190" duration="1446000" />
+      <workItem from="1463595599596" duration="1223000" />
+      <workItem from="1463598039176" duration="1143000" />
+      <workItem from="1463603980141" duration="1022000" />
+      <workItem from="1463656191888" duration="20000" />
+      <workItem from="1463656236463" duration="1645000" />
+      <workItem from="1463662171237" duration="1182000" />
+      <workItem from="1463667656413" duration="1434000" />
+      <workItem from="1463673002454" duration="2169000" />
+      <workItem from="1463675947178" duration="1741000" />
+      <workItem from="1463681359747" duration="553000" />
+      <workItem from="1463683377072" duration="797000" />
+      <workItem from="1463687939060" duration="1126000" />
+      <workItem from="1463691282721" duration="220000" />
+      <workItem from="1463745856326" duration="759000" />
+      <workItem from="1463747660205" duration="566000" />
+      <workItem from="1463748842304" duration="1139000" />
+      <workItem from="1463750929066" duration="1859000" />
+      <workItem from="1463753827132" duration="456000" />
+      <workItem from="1463771803338" duration="182000" />
+      <workItem from="1463773660903" duration="248000" />
+      <workItem from="1464007193743" duration="1265000" />
+      <workItem from="1464008742704" duration="761000" />
+      <workItem from="1464021714012" duration="1369000" />
+      <workItem from="1464029621237" duration="960000" />
+      <workItem from="1464034689941" duration="1582000" />
+      <workItem from="1464089638279" duration="120000" />
+      <workItem from="1464090075571" duration="1491000" />
+      <workItem from="1464091594018" duration="601000" />
+      <workItem from="1464094906899" duration="1385000" />
+      <workItem from="1464107829951" duration="341000" />
+      <workItem from="1464114786609" duration="1627000" />
+      <workItem from="1464123166352" duration="48000" />
+      <workItem from="1464177656014" duration="389000" />
+      <workItem from="1464187217816" duration="1176000" />
+      <workItem from="1464195355597" duration="497000" />
+      <workItem from="1464197816666" duration="1107000" />
+      <workItem from="1464207521585" duration="875000" />
+      <workItem from="1464613115308" duration="202000" />
+      <workItem from="1464614220373" duration="1097000" />
+      <workItem from="1464615341568" duration="674000" />
+      <workItem from="1464617044011" duration="1588000" />
+      <workItem from="1464619549530" duration="846000" />
+      <workItem from="1464627001942" duration="33000" />
+      <workItem from="1464627057557" duration="925000" />
+      <workItem from="1464630815493" duration="647000" />
+      <workItem from="1464632684652" duration="268000" />
+      <workItem from="1464633034172" duration="865000" />
+      <workItem from="1464636611888" duration="862000" />
+      <workItem from="1464637520446" duration="347000" />
+      <workItem from="1464726119254" duration="901000" />
+      <workItem from="1464792592570" duration="1015000" />
+      <workItem from="1464797713261" duration="1166000" />
+      <workItem from="1464801030443" duration="1121000" />
+      <workItem from="1464802822879" duration="674000" />
+      <workItem from="1464803637866" duration="746000" />
+      <workItem from="1464804396845" duration="974000" />
+      <workItem from="1464805380570" duration="609000" />
+      <workItem from="1464871054108" duration="805000" />
+      <workItem from="1464873995487" duration="1499000" />
+      <workItem from="1464888324467" duration="1156000" />
+      <workItem from="1464889826790" duration="608000" />
+      <workItem from="1464893440142" duration="511000" />
+      <workItem from="1464894520203" duration="692000" />
+      <workItem from="1464896583151" duration="469000" />
+      <workItem from="1464897247031" duration="739000" />
+      <workItem from="1464898343555" duration="1626000" />
+      <workItem from="1464965666096" duration="939000" />
+      <workItem from="1464970751059" duration="640000" />
+      <workItem from="1464984097529" duration="771000" />
+      <workItem from="1464984886681" duration="1073000" />
+      <workItem from="1465237198348" duration="1682000" />
+      <workItem from="1465238943506" duration="1352000" />
+      <workItem from="1465240896683" duration="885000" />
+      <workItem from="1465242708751" duration="599000" />
+      <workItem from="1465243516791" duration="1044000" />
+      <workItem from="1465303468526" duration="2379000" />
+      <workItem from="1465306383289" duration="1731000" />
+      <workItem from="1465308123513" duration="1096000" />
+      <workItem from="1465309238866" duration="860000" />
+      <workItem from="1465310107699" duration="1238000" />
+      <workItem from="1465311745623" duration="859000" />
+      <workItem from="1465388268721" duration="324000" />
+      <workItem from="1465403663944" duration="1003000" />
+      <workItem from="1465405131758" duration="360000" />
+      <workItem from="1465411139628" duration="269000" />
+      <workItem from="1465414894311" duration="81000" />
+      <workItem from="1465472898785" duration="232000" />
+      <workItem from="1465474092756" duration="173000" />
+      <workItem from="1465492069218" duration="1171000" />
+      <workItem from="1465497443500" duration="234000" />
+      <workItem from="1465561898552" duration="59000" />
+      <workItem from="1465561976175" duration="98000" />
+      <workItem from="1465569850096" duration="140000" />
+      <workItem from="1465576274243" duration="905000" />
+      <workItem from="1465578502828" duration="442000" />
+      <workItem from="1465580944459" duration="363000" />
+      <workItem from="1465583978713" duration="129000" />
+      <workItem from="1465590205673" duration="281000" />
+      <workItem from="1465834827360" duration="915000" />
+      <workItem from="1465836786195" duration="66000" />
+      <workItem from="1465840332097" duration="2000" />
+      <workItem from="1465992575222" duration="1138000" />
+      <workItem from="1465995799489" duration="1810000" />
+      <workItem from="1466006303694" duration="454000" />
+      <workItem from="1466007637368" duration="739000" />
+      <workItem from="1466079934790" duration="1268000" />
+      <workItem from="1466081219896" duration="1064000" />
+      <workItem from="1466094104882" duration="1197000" />
+      <workItem from="1466100742308" duration="1159000" />
+      <workItem from="1466102575450" duration="717000" />
+      <workItem from="1466109242534" duration="461000" />
+      <workItem from="1466165985994" duration="1591000" />
+      <workItem from="1466175330570" duration="614000" />
+      <workItem from="1466183261491" duration="444000" />
+      <workItem from="1466188848336" duration="1222000" />
+      <workItem from="1466444630415" duration="1180000" />
+      <workItem from="1466446580433" duration="1643000" />
+      <workItem from="1466448232555" duration="1882000" />
+      <workItem from="1466454529542" duration="1235000" />
+      <workItem from="1466511182270" duration="802000" />
+      <workItem from="1466512523409" duration="910000" />
+      <workItem from="1466525764020" duration="314000" />
+    </task>
+    <task id="LOCAL-00074" summary="skipping file validation. todo: should it apply remote validation?">
+      <created>1461009781442</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1461009781442</updated>
+    </task>
+    <task id="LOCAL-00075" summary="adding alert box in data series registration, fixing error message dataseries (datamanager)">
+      <created>1461012138929</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1461012138929</updated>
+    </task>
+    <task id="LOCAL-00076" summary="updating error message - datamanager">
+      <created>1461066511868</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1461066511868</updated>
+    </task>
+    <task id="LOCAL-00077" summary="fixing tcpmanager server close">
+      <created>1461069048242</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1461069048242</updated>
+    </task>
+    <task id="LOCAL-00078" summary="adding tcp server close, tcp client error handler;&#10;fixing enums DataProviderIntent and dataseries api">
+      <created>1461084838965</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1461084838965</updated>
+    </task>
+    <task id="LOCAL-00079" summary="updating signals">
+      <created>1461160854843</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1461160854844</updated>
+    </task>
+    <task id="LOCAL-00080" summary="adding service registration (todo: show online/off);&#10;adding models: analysis, collector, filter, schedule;&#10;">
+      <created>1461162124899</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1461162124899</updated>
+    </task>
+    <task id="LOCAL-00081" summary="removing useless code">
+      <created>1461162426832</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1461162426832</updated>
+    </task>
+    <task id="LOCAL-00082" summary="adding auth in service api;">
+      <created>1461171907686</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1461171907686</updated>
+    </task>
+    <task id="LOCAL-00083" summary="saving test filter (date, area) and schedule;">
+      <created>1461181896841</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1461181896841</updated>
+    </task>
+    <task id="LOCAL-00084" summary="merge and fixing angular terrama2 table component">
+      <created>1461182928172</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1461182928172</updated>
+    </task>
+    <task id="LOCAL-00085" summary="fixing table iterator in template">
+      <created>1461184227276</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1461184227276</updated>
+    </task>
+    <task id="LOCAL-00086" summary="enabling tcp send in dataseries">
+      <created>1461184856307</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1461184856307</updated>
+    </task>
+    <task id="LOCAL-00087" summary="mock analysis template">
+      <created>1461185259299</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1461185259299</updated>
+    </task>
+    <task id="LOCAL-00088" summary="re-adding exceptions: schedule, collector, filter.&#10;&#10;adding analysis exceptions">
+      <created>1461594473699</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1461594473699</updated>
+    </task>
+    <task id="LOCAL-00089" summary="adding default AnalysisDataSeriesType; mock for analysis and removing warning">
+      <created>1461594593590</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1461594593590</updated>
+    </task>
+    <task id="LOCAL-00090" summary="updating context in angular template: table.js">
+      <created>1461602119320</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1461602119320</updated>
+    </task>
+    <task id="LOCAL-00091" summary="adding DataManager load and unload in login/logout;&#10;fixing dataseries: default data is an empty array.">
+      <created>1461613160783</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1461613160783</updated>
+    </task>
+    <task id="LOCAL-00092" summary="grammar review">
+      <created>1461613786158</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1461613786158</updated>
+    </task>
+    <task id="LOCAL-00093" summary="adding remove btn in terrama2 angular table">
+      <created>1461616530131</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1461616530131</updated>
+    </task>
+    <task id="LOCAL-00094" summary="pull right the add button">
+      <created>1461617622120</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1461617622120</updated>
+    </task>
+    <task id="LOCAL-00095" summary="removing project and updating remove provider">
+      <created>1461617660537</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1461617660537</updated>
+    </task>
+    <task id="LOCAL-00096" summary="remove provider and project">
+      <created>1461669683519</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1461669683519</updated>
+    </task>
+    <task id="LOCAL-00097" summary="fixing default inserts datamanager and models">
+      <created>1461671438528</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1461671438528</updated>
+    </task>
+    <task id="LOCAL-00098" summary="remove dataseries in template;&#10;adding styles">
+      <created>1461675444800</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1461675444801</updated>
+    </task>
+    <task id="LOCAL-00099" summary="adding required tab in wizard and analysis template (todo save)">
+      <created>1461678157921</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1461678157921</updated>
+    </task>
+    <task id="LOCAL-00100" summary="adding mock analysis api">
+      <created>1461678997127</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1461678997127</updated>
+    </task>
+    <task id="LOCAL-00101" summary="dataseries: fixing wizard(validate onexit without lock) nad implementing storager(todo: avoid angular variable bind)">
+      <created>1461703226905</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1461703226905</updated>
+    </task>
+    <task id="LOCAL-00102" summary="storager template">
+      <created>1461762631306</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1461762631307</updated>
+    </task>
+    <task id="LOCAL-00103" summary="adding csv data format">
+      <created>1461766546977</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
+      <option name="project" value="LOCAL" />
+      <updated>1461766546977</updated>
+    </task>
+    <task id="LOCAL-00104" summary="schedule with combobox">
+      <created>1461767076763</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1461767076763</updated>
+    </task>
+    <task id="LOCAL-00105" summary="web: dcp table in storager - adding xeditable(todo: add in terrama2 tar gz)">
+      <created>1461782530603</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1461782530603</updated>
+    </task>
+    <task id="LOCAL-00106" summary="adding session for collapse bar">
+      <created>1461787942372</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1461787942372</updated>
+    </task>
+    <task id="LOCAL-00107" summary="web: adding dataseries (example)">
+      <created>1461789635066</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1461789635066</updated>
+    </task>
+    <task id="LOCAL-00108" summary="fixing add dataseries (dcp, occurrence), adding database config as external file (config/config.terrama2)">
+      <created>1461868271021</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1461868271022</updated>
+    </task>
+    <task id="LOCAL-00109" summary="re-adding tcpmanager sending dataseries">
+      <created>1461868707713</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
+      <option name="project" value="LOCAL" />
+      <updated>1461868707714</updated>
+    </task>
+    <task id="LOCAL-00110" summary="removing user">
+      <created>1461869638898</created>
+      <option name="number" value="00110" />
+      <option name="presentableId" value="LOCAL-00110" />
+      <option name="project" value="LOCAL" />
+      <updated>1461869638898</updated>
+    </task>
+    <task id="LOCAL-00111" summary="adding analysis registration js file(angular). todo: implement it">
+      <created>1461873184572</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1461873184572</updated>
+    </task>
+    <task id="LOCAL-00112" summary="removing old code (commented)">
+      <created>1461931371537</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
+      <option name="project" value="LOCAL" />
+      <updated>1461931371537</updated>
+    </task>
+    <task id="LOCAL-00113" summary="adding dataprovider output in storager">
+      <created>1461948816204</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
+      <option name="project" value="LOCAL" />
+      <updated>1461948816204</updated>
+    </task>
+    <task id="LOCAL-00114" summary="fixing data series insertion: adding active field in general data">
+      <created>1461961036370</created>
+      <option name="number" value="00114" />
+      <option name="presentableId" value="LOCAL-00114" />
+      <option name="project" value="LOCAL" />
+      <updated>1461961036370</updated>
+    </task>
+    <task id="LOCAL-00115" summary="adding analysis validation. (todo: save it)">
+      <created>1461961723727</created>
+      <option name="number" value="00115" />
+      <option name="presentableId" value="LOCAL-00115" />
+      <option name="project" value="LOCAL" />
+      <updated>1461961723727</updated>
+    </task>
+    <task id="LOCAL-00116" summary="updating list data series: collector dataseriesoutput">
+      <created>1461963067130</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1461963067130</updated>
+    </task>
+    <task id="LOCAL-00117" summary="filtering dataseries with output and processing;&#10;fixing empty filter object">
+      <created>1462204935712</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1462204935713</updated>
+    </task>
+    <task id="LOCAL-00118" summary="adding collector structure: sending it in tcp">
+      <created>1462208881929</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1462208881930</updated>
+    </task>
+    <task id="LOCAL-00119" summary="fixing datamanager load in memory;&#10;adding wkt helper function;&#10;adding ssh class to start service">
+      <created>1462816603973</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
+      <option name="project" value="LOCAL" />
+      <updated>1462816603974</updated>
+    </task>
+    <task id="LOCAL-00120" summary="fixing dataset factory">
+      <created>1462820505326</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1462820505328</updated>
+    </task>
+    <task id="LOCAL-00121" summary="fixing optional geom field (dcp);&#10;retrieving collector object fulfilled">
+      <created>1462826106126</created>
+      <option name="number" value="00121" />
+      <option name="presentableId" value="LOCAL-00121" />
+      <option name="project" value="LOCAL" />
+      <updated>1462826106126</updated>
+    </task>
+    <task id="LOCAL-00122" summary="start/stop service working">
+      <created>1463161651837</created>
+      <option name="number" value="00122" />
+      <option name="presentableId" value="LOCAL-00122" />
+      <option name="project" value="LOCAL" />
+      <updated>1463161651838</updated>
+    </task>
+    <option name="localTasksCounter" value="123" />
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="RequestFactory - 2016.06.02 at 14h 50m 40s.xml">
+      <configuration name="RequestFactory" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="RequestFactory - 2016.06.02 at 14h 51m 31s.xml">
+      <configuration name="RequestFactory" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="RequestFactory - 2016.06.02 at 14h 51m 32s.xml">
+      <configuration name="RequestFactory" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="RequestFactory - 2016.06.02 at 14h 53m 07s.xml">
+      <configuration name="RequestFactory" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="RequestFactory - 2016.06.02 at 14h 54m 12s.xml">
+      <configuration name="RequestFactory" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="RequestFactory - 2016.06.02 at 14h 54m 56s.xml">
+      <configuration name="RequestFactory" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="RequestFactory - 2016.06.02 at 15h 00m 33s.xml">
+      <configuration name="RequestFactory" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="TerraMA2_-_Tests - 2016.04.29 at 14h 06m 16s.xml">
+      <configuration name="TerraMA2 - Tests" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="TerraMA2_-_Tests - 2016.04.29 at 14h 06m 42s.xml">
+      <configuration name="TerraMA2 - Tests" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+    <history-entry file="TerraMA2_-_Tests - 2016.04.29 at 14h 06m 55s.xml">
+      <configuration name="TerraMA2 - Tests" configurationId="mocha-javascript-test-runner" />
+    </history-entry>
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="648110000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="43" y="24" width="1557" height="876" extended-state="6" />
+    <editor active="false" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29053608" sideWeight="0.40501043" order="2" side_tool="false" content_ui="combo" x="660" y="161" width="322" height="582" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991013" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42179486" sideWeight="0.51356715" order="8" side_tool="true" content_ui="tabs" />
+      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2422237" sideWeight="0.59498954" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.47179487" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4076923" sideWeight="0.485771" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.1581734" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="625" y="103" width="393" height="809" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32051283" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24354732" sideWeight="0.5820513" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42179486" sideWeight="0.48643282" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32948717" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32948717" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="V8 CPU Profiling" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5974359" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="remove dataseries in template;&#10;adding styles" />
+    <MESSAGE value="adding required tab in wizard and analysis template (todo save)" />
+    <MESSAGE value="adding mock analysis api" />
+    <MESSAGE value="dataseries: fixing wizard(validate onexit without lock) nad implementing storager(todo: avoid angular variable bind)" />
+    <MESSAGE value="storager template" />
+    <MESSAGE value="adding csv data format" />
+    <MESSAGE value="schedule with combobox" />
+    <MESSAGE value="web: dcp table in storager - adding xeditable(todo: add in terrama2 tar gz)" />
+    <MESSAGE value="adding session for collapse bar" />
+    <MESSAGE value="web: adding dataseries (example)" />
+    <MESSAGE value="fixing add dataseries (dcp, occurrence), adding database config as external file (config/config.terrama2)" />
+    <MESSAGE value="re-adding tcpmanager sending dataseries" />
+    <MESSAGE value="removing user" />
+    <MESSAGE value="adding analysis registration js file(angular). todo: implement it" />
+    <MESSAGE value="removing old code (commented)" />
+    <MESSAGE value="adding dataprovider output in storager" />
+    <MESSAGE value="fixing data series insertion: adding active field in general data" />
+    <MESSAGE value="adding analysis validation. (todo: save it)" />
+    <MESSAGE value="updating list data series: collector dataseriesoutput" />
+    <MESSAGE value="filtering dataseries with output and processing;&#10;fixing empty filter object" />
+    <MESSAGE value="adding collector structure: sending it in tcp" />
+    <MESSAGE value="fixing datamanager load in memory;&#10;adding wkt helper function;&#10;adding ssh class to start service" />
+    <MESSAGE value="fixing dataset factory" />
+    <MESSAGE value="fixing optional geom field (dcp);&#10;retrieving collector object fulfilled" />
+    <MESSAGE value="start/stop service working" />
+    <option name="LAST_COMMIT_MESSAGE" value="start/stop service working" />
+    <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.87344915" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/core/Service.js</url>
+          <line>49</line>
+          <option name="timeStamp" value="1738" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/core/Service.js</url>
+          <line>63</line>
+          <properties />
+          <option name="timeStamp" value="1742" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/core/TcpManager.js</url>
+          <line>269</line>
+          <properties />
+          <option name="timeStamp" value="1743" />
+        </line-breakpoint>
+      </breakpoints>
+      <breakpoints-dialog>
+        <breakpoints-dialog />
+      </breakpoints-dialog>
+      <default-breakpoints>
+        <breakpoint enabled="true" type="javascript-exception">
+          <properties />
+        </breakpoint>
+      </default-breakpoints>
+      <option name="time" value="1744" />
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="NodeJSConfigurationType">
+        <watch expression="collector.input_data_series" language="JavaScript" />
+        <watch expression="collector.output_data_series" language="JavaScript" />
+        <watch expression="element.id" language="JavaScript" />
+        <watch expression="element.name" language="JavaScript" />
+        <watch expression="copyDataSeries" language="JavaScript" />
+      </configuration>
+      <configuration name="mocha-javascript-test-runner">
+        <watch expression="self.params[self.syntax().HOST]" language="JavaScript" />
+        <watch expression="self" language="JavaScript" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/core/data-model/DataSetDcp.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="9" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-model/DataSetFactory.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="15" column="1" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-model/DataSet.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="11" column="6" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/api/Uri.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-series-semantics/DcpInpe.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-433">
+          <caret line="21" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-series-semantics/WildFire.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="936">
+          <caret line="52" column="41" selection-start-line="52" selection-start-column="37" selection-end-line="52" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-series-semantics/AnalysisMonitoredObject.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="504">
+          <caret line="28" column="2" selection-start-line="28" selection-start-column="2" selection-end-line="28" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/api/DataSeriesSemantics.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="275">
+          <caret line="55" column="13" selection-start-line="55" selection-start-column="13" selection-end-line="55" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/config.terrama2">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" column="20" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/administration/Service.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="18" column="18" selection-start-line="18" selection-start-column="18" selection-end-line="18" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/pylintrc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/ScriptChecker.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="41" column="86" selection-start-line="41" selection-start-column="70" selection-end-line="41" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/api/Service.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="16" column="11" selection-start-line="16" selection-start-column="11" selection-end-line="16" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/configuration/StaticDataSeries.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="1" column="42" selection-start-line="1" selection-start-column="42" selection-end-line="1" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/sequelize/lib/sql-string.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="131">
+          <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/swig/dist/swig.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="131">
+          <caret line="4429" column="0" selection-start-line="4429" selection-start-column="0" selection-end-line="4429" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/mocha/mocha.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="131">
+          <caret line="11004" column="0" selection-start-line="11004" selection-start-column="0" selection-end-line="11004" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/sequelize/lib/utils.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="131">
+          <caret line="56" column="2" selection-start-line="56" selection-start-column="2" selection-end-line="56" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.js" />
+    <entry file="file://$PROJECT_DIR$/core/data-model/Filter.js" />
+    <entry file="file://$PROJECT_DIR$/core/data-model/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="13" column="39" selection-start-line="13" selection-start-column="39" selection-end-line="13" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/configuration/Analysis.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/api/Analysis.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="54" column="10" selection-start-line="54" selection-start-column="10" selection-end-line="54" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/AbstractSemantics.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="13" column="8" selection-start-line="13" selection-start-column="8" selection-end-line="13" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-series-semantics/Occurrence.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" column="16" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-series-semantics/OccurrencePostgis.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-series-semantics/Factory.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1134">
+          <caret line="63" column="17" selection-start-line="63" selection-start-column="17" selection-end-line="63" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/Utils.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6246">
+          <caret line="347" column="22" selection-start-line="347" selection-start-column="22" selection-end-line="347" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sockets/AnalysisScriptChecker.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="97">
+          <caret line="16" column="54" selection-start-line="16" selection-start-column="54" selection-end-line="16" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sockets/DbConnectionChecker.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="990">
+          <caret line="55" column="7" selection-start-line="55" selection-start-column="7" selection-end-line="55" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/javascripts/angular/alert-box/directives.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/www">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="594">
+          <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/javascripts/angular/data-series/registration.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3924">
+          <caret line="218" column="63" selection-start-line="218" selection-start-column="63" selection-end-line="218" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-model/AnalysisDataSeries.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-551">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-model/Analysis.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-155">
+          <caret line="40" column="0" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-model/DataProvider.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-594">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-model/DataSeries.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-109">
+          <caret line="42" column="5" selection-start-line="42" selection-start-column="5" selection-end-line="42" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/sequelize/lib/model.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="44622">
+          <caret line="2479" column="13" selection-start-line="2479" selection-start-column="4" selection-end-line="2479" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/api/DataProvider.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="118" column="36" selection-start-line="118" selection-start-column="36" selection-end-line="118" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/configuration/DynamicDataSeries.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="684">
+          <caret line="38" column="42" selection-start-line="38" selection-start-column="42" selection-end-line="38" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sockets/SSHConnectionChecker.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="504">
+          <caret line="28" column="5" selection-start-line="28" selection-start-column="5" selection-end-line="28" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-model/Collector.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="714">
+          <caret line="72" column="1" selection-start-line="72" selection-start-column="1" selection-end-line="72" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/data-model/Intersection.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/bluebird/js/release/debuggability.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="271" column="8" selection-start-line="271" selection-start-column="8" selection-end-line="271" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sockets/TcpSocket.js" />
+    <entry file="file://$PROJECT_DIR$/controllers/api/DataSeries.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2412">
+          <caret line="134" column="32" selection-start-line="134" selection-start-column="32" selection-end-line="134" selection-end-column="32" />
+          <folding>
+            <marker date="1466510456677" expanded="true" signature="540:788" ph="{...}" />
+            <marker date="1466510456677" expanded="true" signature="8200:8214" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src/terrama2/core/utility/Service.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="108" column="22" selection-start-line="108" selection-start-column="22" selection-end-line="108" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/DataManager.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="20952">
+          <caret line="1164" column="33" selection-start-line="1164" selection-start-column="33" selection-end-line="1164" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/Service.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="338">
+          <caret line="63" column="9" selection-start-line="63" selection-start-column="9" selection-end-line="63" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/TcpManager.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="277">
+          <caret line="269" column="7" selection-start-line="269" selection-start-column="7" selection-end-line="269" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controllers/api/Remote.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="63" column="9" selection-start-line="63" selection-start-column="9" selection-end-line="63" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

@@ -70,12 +70,12 @@
             </div>
 
             <div class="col-md-12">
-              <table class="table table-bordered">
-                <tbody>
+              <table class="table table-bordered terrama2-table">
+                <tbody class="terrama2-tbody">
                   <th>{{ i18n.__('Attribute') }}</th>
                   <th></th>
 
-                  <tr ng-repeat="att in intersection[selectedIntersection.id].attributes">
+                  <tr class="terrama2-tr"ng-repeat="att in intersection[selectedIntersection.id].attributes">
                     <td>{{ att }}</td>
                     <td>
                       <button class="btn btn-sm btn-danger pull-right"

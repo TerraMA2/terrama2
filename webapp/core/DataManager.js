@@ -1125,7 +1125,7 @@ var DataManager = {
       } else if (restriction && restriction.hasOwnProperty("Collector")) {
         // todo: should have parent search module? #tempCode for filtering
         // collector restriction
-        self.listCollectors({active: true}).then(function(collectorsResult) {
+        self.listCollectors({}).then(function(collectorsResult) {
 
           if (collectorsResult.length == 0)
             return resolve(collectorsResult);
@@ -1137,21 +1137,32 @@ var DataManager = {
               copyDataSeries.push(new DataModel.DataSeries(ds));
           });
 
+          var output = [];
+
           copyDataSeries.forEach(function(element, index, arr) {
+            console.log(element.name);
             collectorsResult.some(function(collector) {
               // collect
-              if (collector.output_data_series == element.id) {
-                // arr.splice(index, 1);
+              if (collector.output_data_series === element.id) {
                 return true;
-              } else if (collector.input_data_series == element.id) { // removing input dataseries
-                arr.splice(index, 1);
+              } else if (collector.input_data_series === element.id) {
+                // removing input data series. TODO: improve this approach
+                delete copyDataSeries[index];
+                return true;
               }
               return false;
             })
           });
 
+          // removing holes in array
+          copyDataSeries.forEach(function(copyDs) {
+            if (copyDs)
+              output.push(copyDs);
+          });
+
+
           // collect output and processing
-          return resolve(copyDataSeries);
+          return resolve(output);
         }).catch(function(err) {
           return reject(err);
         });
@@ -1613,7 +1624,7 @@ var DataManager = {
     return dataSetsList;
   },
 
-  addDataSeriesAndCollector: function(dataSeriesObject, scheduleObject, filterObject, serviceObject, intersectionArray) {
+  addDataSeriesAndCollector: function(dataSeriesObject, scheduleObject, filterObject, serviceObject, intersectionArray, active) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
@@ -1628,7 +1639,7 @@ var DataManager = {
             collectorObject.data_series_output = dataSeriesResultOutput.id;
             collectorObject.service_instance_id = serviceObject.id;
             collectorObject.schedule_id = scheduleResult.id;
-            collectorObject.active = true;
+            collectorObject.active = active;
             collectorObject.collector_type = 1;
             collectorObject.schedule_id = scheduleResult.id;
 

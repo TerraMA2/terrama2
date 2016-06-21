@@ -130,6 +130,32 @@ TcpManager.removeData = function(serviceInstance, data) {
 
 
 /**
+This method sends a LOG_SIGNAL with bytearray to tcp socket. It is async
+@param {ServiceInstance} serviceInstance - a terrama2 service instance
+@param {Object} data - a javascript object message to send
+*/
+TcpManager.logData = function(serviceInstance, data) {
+  try {
+    var buffer = makeBuffer(Signals.LOG_SIGNAL, data);
+
+    console.log(buffer);
+
+    // getting client and writing in the channel
+    var client = _getClient(serviceInstance);
+
+    client.log(buffer).then(function(parsedObject) {
+      resolve(parsedObject);
+    }).catch(function(err) {
+      reject(err);
+    });
+
+  } catch (e) {
+    console.log(e);
+    throw new Error("Could not send data LOG_SIGNAL to service", e);
+  }
+};
+
+/**
 This method sends a UPDATE_SERVICE_SIGNAL with service instance values to tcp socket.
 @param {ServiceInstance} serviceInstance - a terrama2 service instance
 @return {Promise} a bluebird promise
@@ -222,6 +248,10 @@ TcpManager.connect = function(serviceInstance) {
   });
 }
 
+TcpManager.getService = function(serviceInstance) {
+  return _getClient(serviceInstance);
+};
+
 // async
 TcpManager.stopService = function(serviceInstance) {
   return new Promise(function(resolve, reject) {
@@ -230,18 +260,36 @@ TcpManager.stopService = function(serviceInstance) {
 
       var client = _getClient(serviceInstance);
 
-      client.stop(buffer).then(function() {
+      var stopHandler = function(response) {
+        resolve(response);
+
+        client.removeListener("stop", stopHandler);
+      }
+
+      client.once('stop', function(response) {
+        resolve(response);
+      });
+
+      client.stop(buffer)/*.then(function() {
         resolve();
       }).catch(function(err) {
         console.log(err);
         reject(err)
-      })
+      })*/
 
     } catch(e) {
       reject(e);
     }
   });
 };
+
+TcpManager.initialize = function(serviceInstance) {
+  try {
+    _getClient(serviceInstance);
+  } catch (e) {
+    console.log("error while initializing service");
+  }
+}
 
 TcpManager.disconnect = function() {
   return new Promise(function(resolve, reject) {

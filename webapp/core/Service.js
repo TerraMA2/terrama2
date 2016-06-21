@@ -1,6 +1,9 @@
 var net = require('net');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
+var EventEmitter = require('events').EventEmitter;
+var NodeUtils = require('util');
+var Signals = require('./Signals')
 
 
 /**
@@ -16,7 +19,13 @@ function parseByteArray(byteArray) {
 
   // validate signal
   var signal = Utils.getTcpSignal(signalReceived);
-  var jsonMessage = JSON.parse(rawData);
+
+  var jsonMessage;
+
+  if (rawData.length === 0)
+    jsonMessage = {};
+  else
+    jsonMessage = JSON.parse(rawData);
 
   return {
     size: messageSizeReceived,
@@ -27,6 +36,7 @@ function parseByteArray(byteArray) {
 
 
 var Service = module.exports = function(serviceInstance) {
+  EventEmitter.call(this);
   this.service = serviceInstance;
 
   var self = this;
@@ -38,9 +48,22 @@ var Service = module.exports = function(serviceInstance) {
 
   self.socket.on('data', function(byteArray) {
     console.log("client received: ", byteArray);
+    console.log("client received: ", byteArray.toString());
 
     try  {
       var parsed = parseByteArray(byteArray);
+
+      switch(parsed.signal) {
+        case Signals.LOG_SIGNAL:
+          self.emit("log", parsed.message);
+          break;
+        case Signals.STATUS_SIGNAL:
+          self.emit("status", parsed.message);
+          break;
+        case Signals.TERMINATE_SERVICE_SIGNAL:
+          self.emit("stop", parsed);
+          break;
+      }
 
       if (callbackSuccess)
         callbackSuccess(parsed);
@@ -53,6 +76,7 @@ var Service = module.exports = function(serviceInstance) {
   });
 
   self.socket.on('close', function(byteArray) {
+    self.emit('close', byteArray);
     console.log("client closed: ", byteArray);
   });
 
@@ -112,8 +136,12 @@ var Service = module.exports = function(serviceInstance) {
       if (!self.isOpen())
         return reject(new Error("Could not close a no existent connection"));
 
+      callbackSuccess = resolve;
+      callbackError = reject;
+
       self.socket.write(buffer);
-      resolve();
     });
   };
 };
+
+NodeUtils.inherits(Service, EventEmitter);

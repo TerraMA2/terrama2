@@ -31,7 +31,7 @@ module.exports = function(app) {
       try {
         analysisObject.type = Utils.getAnalysisType(analysisObject.type_id);
 
-        // if not has project_id, getting from cache
+        // if does not have project_id, getting from cache
         if (!analysisObject.project_id)
           analysisObject.project_id = app.locals.activeProject.id;
 
