@@ -44,7 +44,7 @@ class RaiiBlock
     uint32_t& block_;
 };
 
-bool terrama2::core::TcpManager::updateListeningPort(uint32_t port)
+bool terrama2::core::TcpManager::updateListeningPort(uint32_t port) noexcept
 {
   try
   {
@@ -235,7 +235,7 @@ void terrama2::core::TcpManager::sendTerminateSignal()
   return;
 }
 
-void terrama2::core::TcpManager::readReadySlot()
+void terrama2::core::TcpManager::readReadySlot() noexcept
 {
   try
   {
@@ -377,7 +377,7 @@ void terrama2::core::TcpManager::readReadySlot()
   }
 }
 
-void terrama2::core::TcpManager::receiveConnection()
+void terrama2::core::TcpManager::receiveConnection() noexcept
 {
   try
   {
