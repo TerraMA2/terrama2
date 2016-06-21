@@ -90,8 +90,7 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
       std::lock_guard<std::mutex> lock(mutex_);
 
       auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
-      terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
-      connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+      terrama2::core::TimerPtr timer = createTimer(analysis.schedule, analysisId, lastProcess);
       timers_.emplace(analysisId, timer);
     }
 
@@ -110,6 +109,11 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
   {
     //TODO: should be caught elsewhere?
     TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
 
 }
@@ -162,15 +166,16 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << tr("Unknown error");
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
     TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
   }
 }
 
-void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId /*analysisId*/) noexcept
+void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId) noexcept
 {
-  // the analysis object will only be fetched when the execution process begin.
-  // we only have the id so there is no need to update.
+  //TODO: addAnalysis adds to queue, is this expected?
+  addAnalysis(analysisId);
 }
 
 void terrama2::services::analysis::core::Service::prepareTask(Analysis& analysis)
@@ -210,6 +215,11 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
   catch(std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
 }
 

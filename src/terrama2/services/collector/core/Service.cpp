@@ -91,21 +91,29 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 
 void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId) noexcept
 {
-  std::lock_guard<std::mutex> lock(mutex_);
-  TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
+  try
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
 
-  auto datamanager = dataManager_.lock();
-  auto collector = datamanager->findCollector(collectorId);
+    auto datamanager = dataManager_.lock();
+    auto collector = datamanager->findCollector(collectorId);
 
-  const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  auto serviceInstanceId = serviceManager.instanceId();
+    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    auto serviceInstanceId = serviceManager.instanceId();
 
-  // Check if this collector should be executed in this instance
-  if(collector->serviceInstanceId != serviceInstanceId)
-    return;
+    // Check if this collector should be executed in this instance
+    if(collector->serviceInstanceId != serviceInstanceId)
+      return;
 
-  collectorQueue_.push_back(collectorId);
-  mainLoopCondition_.notify_one();
+    collectorQueue_.push_back(collectorId);
+    mainLoopCondition_.notify_one();
+  }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
 }
 
 void terrama2::services::collector::core::Service::collect(CollectorId collectorId, std::shared_ptr< terrama2::services::collector::core::CollectorLogger > logger, std::weak_ptr<DataManager> weakDataManager)
@@ -235,39 +243,46 @@ void terrama2::services::collector::core::Service::setLogger(std::shared_ptr<Col
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector) noexcept
 {
-  const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  auto serviceInstanceId = serviceManager.instanceId();
-
-  // Check if this collector should be executed in this instance
-  if(collector->serviceInstanceId != serviceInstanceId)
-    return;
-
   try
   {
-    if(collector->active)
+    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    auto serviceInstanceId = serviceManager.instanceId();
+
+    // Check if this collector should be executed in this instance
+    if(collector->serviceInstanceId != serviceInstanceId)
+      return;
+
+    try
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      if(collector->active)
+      {
+        std::lock_guard<std::mutex> lock(mutex_);
 
-      std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
-      if(logger_.get())
-        lastProcess = logger_->getLastProcessTimestamp(collector->id);
+        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
+        if(logger_.get())
+          lastProcess = logger_->getLastProcessTimestamp(collector->id);
 
-      terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(collector->schedule, collector->id, lastProcess);
-      connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::collector::core::Service::addToQueue, Qt::UniqueConnection);
-      timers_.emplace(collector->id, timer);
+        terrama2::core::TimerPtr timer = createTimer(collector->schedule, collector->id, lastProcess);
+        timers_.emplace(collector->id, timer);
+      }
     }
+    catch(terrama2::core::InvalidFrequencyException&)
+    {
+      // invalid schedule, already logged
+    }
+    catch(const te::common::Exception& e)
+    {
+      TERRAMA2_LOG_ERROR() << e.what();
+    }
+
+    addToQueue(collector->id);
   }
-  catch(terrama2::core::InvalidFrequencyException&)
+  catch(...)
   {
-    // invalid schedule, already logged
-  }
-  catch(const te::common::Exception& e)
-  {
-    //TODO: should be caught elsewhere?
-    TERRAMA2_LOG_ERROR() << e.what();
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
 
-  addToQueue(collector->id);
 }
 
 void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId) noexcept
@@ -310,7 +325,8 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   }
 }
 
-void terrama2::services::collector::core::Service::updateCollector(CollectorPtr /*collector*/) noexcept
+void terrama2::services::collector::core::Service::updateCollector(CollectorPtr collector) noexcept
 {
-  // Only the Id of the collector is stored, no need to update
+  //TODO: addCollector adds to queue, is this expected?
+  addCollector(collector);
 }
