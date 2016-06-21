@@ -95,7 +95,7 @@ namespace terrama2
         using QTcpServer::listen;
 
       public slots:
-        bool updateListeningPort(uint32_t);
+        bool updateListeningPort(uint32_t) noexcept;
 
       signals:
         //! Emited when the service should be terminated.
@@ -106,9 +106,9 @@ namespace terrama2
 
       private slots:
         //! Slot called when a new conenction arrives.
-        void receiveConnection();
+        void receiveConnection() noexcept;
         //! Slot called when finished receiving a tcp message.
-        void readReadySlot();
+        void readReadySlot() noexcept;
 
       private:
         uint32_t blockSize_; //!< Size of the message received.

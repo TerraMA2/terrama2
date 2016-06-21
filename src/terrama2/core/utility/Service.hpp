@@ -101,7 +101,7 @@ namespace terrama2
 
     public slots:
 
-      virtual void addToQueue(ProcessId processId) = 0;
+      virtual void addToQueue(ProcessId processId) noexcept = 0;
 
       /*!
          \brief  Stops the service.
@@ -119,7 +119,7 @@ namespace terrama2
 
         \param numberOfThreads Number of threads desired, if 0 the maximum number of threads allowed by the system the will be used.
       */
-      virtual void updateNumberOfThreads(int numberOfThreads = 0) final;
+      virtual void updateNumberOfThreads(int numberOfThreads = 0) noexcept final;
 
     protected:
       /*!
