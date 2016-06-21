@@ -124,10 +124,10 @@ namespace terrama2
         virtual std::string getFolder(DataSetPtr dataSet) const;
 
         std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const;
-
-        bool isValidColumn(size_t value) const;
     };
   }
 }
+
+
 
 #endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__

@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
     serviceManager.setLogConnectionInfo(connInfo);
 
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
-    terrama2::core::TcpManager tcpManager(dataManager);
+    terrama2::core::TcpManager tcpManager(dataManager, std::weak_ptr<terrama2::core::ProcessLogger>());
     tcpManager.listen(QHostAddress::Any, 30000);
     terrama2::services::collector::core::Service service(dataManager);
     service.start();
@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
     timer.start(30000);
     app.exec();
 
-    service.stop();
+    service.stopService();
   }
   catch(boost::exception& e)
   {

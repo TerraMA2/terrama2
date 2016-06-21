@@ -1,4 +1,4 @@
-angular.module("terrama2.services", [])
+angular.module("terrama2.services", ['terrama2'])
   .factory("DataProviderFactory", ["$http", function($http) {
     return {
       get: function() {
@@ -29,7 +29,7 @@ angular.module("terrama2.services", [])
     }
   }])
 
-  .factory("DataSeriesFactory", ["$http", function($http) {
+  .factory("DataSeriesFactory", ["$http", "$HttpSync", function($http, $HttpSync) {
     var url = "/api/DataSeries";
     return {
       get: function(extra) {
@@ -41,7 +41,7 @@ angular.module("terrama2.services", [])
       },
 
       post: function(dataSeriesObject) {
-        return $http.post(url, dataSeriesObject);
+        return $HttpSync.post(url, dataSeriesObject);
       }
     }
   }])
@@ -78,4 +78,30 @@ angular.module("terrama2.services", [])
         return $http.post(url, serviceObject);
       }
     }
-  }]);
+  }]).
+
+  factory("Socket", function($rootScope) {
+    var socket = io.connect(window.location.origin);
+
+    return {
+      on: function(name, callback) {
+        socket.on(name, function() {
+          var args = arguments;
+          $rootScope.$apply(function() {
+            callback.apply(socket, args);
+          })
+        })
+      },
+
+      emit: function (eventName, data, callback) {
+        socket.emit(eventName, data, function () {
+          var args = arguments;
+          $rootScope.$apply(function () {
+            if (callback) {
+              callback.apply(socket, args);
+            }
+          });
+        })
+      }
+    }
+  });

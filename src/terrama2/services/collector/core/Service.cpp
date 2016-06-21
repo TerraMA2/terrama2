@@ -196,22 +196,24 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     if(logger.get())
       logger->done(lastDateTime, logId);
   }
-  catch(const terrama2::Exception& e)
+  catch(const terrama2::Exception&)
   {
-    // should have been logged on emission
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(const boost::exception& e)
   {
-
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unkown error.");
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
 }
 
@@ -226,25 +228,9 @@ void terrama2::services::collector::core::Service::connectDataManager()
           &terrama2::services::collector::core::Service::updateCollector);
 }
 
-void terrama2::services::collector::core::Service::updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo)
+void terrama2::services::collector::core::Service::setLogger(std::shared_ptr<CollectorLogger> logger) noexcept
 {
-  try
-  {
-    logger_ = std::make_shared<CollectorLogger>(connInfo);
-  }
-  catch(boost::exception& e)
-  {
-    std::cout << boost::diagnostic_information(e) << std::endl;
-  }
-  catch(std::exception& e)
-  {
-    std::cout << e.what() << std::endl;
-  }
-  catch(...)
-  {
-    // TODO: o que fazer com uncaught exception
-    std::cout << "\n\nException...\n" << std::endl;
-  }
+  logger_ = logger;
 }
 
 void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
@@ -290,24 +276,37 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    auto timer = timers_.at(collectorId);
-    timer->disconnect();
-    timers_.erase(collectorId);
+
+    TERRAMA2_LOG_INFO() << tr("Removing collector %1.").arg(collectorId);
+
+    auto it = timers_.find(collectorId);
+    if(it != timers_.end())
+    {
+      auto timer = timers_.at(collectorId);
+      timer->disconnect();
+      timers_.erase(collectorId);
+    }
 
     // remove from queue
     collectorQueue_.erase(std::remove(collectorQueue_.begin(), collectorQueue_.end(), collectorId), collectorQueue_.end());
+
+
+    TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
   }
   catch(std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unknown error");
+    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
 }
 

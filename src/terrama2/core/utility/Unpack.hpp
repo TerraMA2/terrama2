@@ -48,9 +48,8 @@ namespace terrama2
        \brief This class is responsible for decompressing files with  gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
    */
 
-    class Unpack : public boost::noncopyable
+    namespace Unpack
     {
-      public:
         /*!
          * \brief unpackList - the descompressing a file gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
          * \param uri - It contains absolute file path.
@@ -65,7 +64,6 @@ namespace terrama2
          */
         bool verifyCompressFile(std::string uri);
 
-      private:
         /*!
          * \brief isGzipCompress - Verify is a file with extension gz.
          * \param fileinfo - Compressed file.
@@ -137,31 +135,28 @@ namespace terrama2
          * \param path - It contains the path of the compressed file.
          *
         */
-        void untar(const std::string& path);
+        void untar(QFileInfo fileInfo, QString temporaryFolder);
         /*!
          * \brief uncompressGz - Uncompress a GZ file.
          * \param saveName - It contains the absolute path where the file uncompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          * \return Returns - The name of the unpack files.
         */
-        QString uncompressGz(QString saveName, QFileInfo fileName);
+        QString uncompressGz(QFileInfo fileInfo, QString temporaryFolder);
         /*!
          * \brief uncompressBzip - Uncompress a Bzip2 file.
          * \param saveName - It contains the absolute path where the file uncompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          * \return Returns - The name of the unpack files.
         */
-        QString uncompressBzip(QString saveName, QFileInfo fileName);
+        QString uncompressBzip(QFileInfo fileInfo, QString temporaryFolder);
         /*!
          * \brief uncompressZip - Uncompress a Zip file.
          * \param saveName - It contains the absolute path where the file uncompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          *
          */
-        void uncompressZip(QString saveName, QFileInfo fileName);
-
-        std::string temporaryFolder_; //! Folder information where the files will be saved. Ex. "/tmp/".
-
+        void uncompressZip(QFileInfo fileInfo, QString temporaryFolder);
     };
   } // end namespace core
 }   // end namespace terrama2

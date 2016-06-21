@@ -30,6 +30,8 @@
 
 #include <memory>
 
+#include "../utility/ProcessLogger.hpp"
+
 class QTcpSocket;
 
 namespace terrama2
@@ -70,7 +72,9 @@ namespace terrama2
 
       public:
         //! Constructor, connects signal.
-        TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager, QObject* parent = 0);
+        TcpManager(std::weak_ptr<terrama2::core::DataManager> dataManager,
+                   std::weak_ptr<terrama2::core::ProcessLogger> logger,
+                   QObject* parent = 0);
         /*!
           \brief Send a finishing service message and destroys the object.
         */
@@ -91,19 +95,20 @@ namespace terrama2
         using QTcpServer::listen;
 
       public slots:
-        bool updateListeningPort(uint32_t);
+        bool updateListeningPort(uint32_t) noexcept;
 
       signals:
         //! Emited when the service should be terminated.
         void stopSignal();
+        void closeApp();
         //! Emited when a process should be started immediately.
         void startProcess(uint32_t);
 
       private slots:
         //! Slot called when a new conenction arrives.
-        void receiveConnection();
+        void receiveConnection() noexcept;
         //! Slot called when finished receiving a tcp message.
-        void readReadySlot();
+        void readReadySlot() noexcept;
 
       private:
         uint32_t blockSize_; //!< Size of the message received.
@@ -112,10 +117,13 @@ namespace terrama2
         //! Parse bytearray as a json and remove contents from the DataManager.
         void removeData(const QByteArray& bytearray);
         void updateService(const QByteArray& bytearray);
+        QJsonObject logToJson(const terrama2::core::ProcessLogger::Log& log);
+        void sendTerminateSignal();
 
 
         std::unique_ptr<QTcpSocket> tcpSocket_ = nullptr;//!< Current socket for tcp communication.
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.
+        std::weak_ptr<terrama2::core::ProcessLogger> logger_;
 
         ServiceManager* serviceManager_;
     };

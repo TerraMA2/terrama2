@@ -71,31 +71,31 @@ namespace terrama2
             Service& operator=(const Service& other) = delete;
             Service& operator=(Service&& other) = default;
 
+            //! Set ProcessLogger
+            void setLogger(std::shared_ptr<CollectorLogger> logger) noexcept;
+
           public slots:
             //! Slot to be called when a DataSetTimer times out.
-            virtual void addToQueue(CollectorId collectorId) override;
+            virtual void addToQueue(CollectorId collectorId) noexcept override;
             /*!
               \brief Add a Collector to the service
 
               Check if this is the instance where the colelctor should run.
             */
-            void addCollector(CollectorPtr);
+            void addCollector(CollectorPtr) noexcept;
 
             /*!
               \brief Updates the Collector.
 
               calls addCollector()
             */
-            void updateCollector(CollectorPtr collector);
+            void updateCollector(CollectorPtr collector) noexcept;
             /*!
               \brief Removes the Collector.
 
               Rennuning processes will continue until finished.
             */
-            void removeCollector(CollectorId collectorId);
-
-            //doc in base class
-            virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) override;
+            void removeCollector(CollectorId collectorId) noexcept;
 
           protected:
             // comments on base class

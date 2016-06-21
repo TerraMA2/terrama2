@@ -14,15 +14,22 @@
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-<!-- terrama2 Script -->
-<script type="text/javascript" src="/javascripts/terrama2.js"></script>
 <script>
   angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
-    .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', function($scope, $window, ServiceInstanceFactory) {
+    .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', 'Socket', function($scope, $window, ServiceInstanceFactory, Socket) {
+      var socket = Socket;
+
+      $scope.isCheckingConnection = false;
+
       $scope.service = {[ service|json|safe ]} || {sshPort: 22};
       if ($scope.service.service_type_id) {
         $scope.service.service_type_id = $scope.service.service_type_id.toString();
       }
+
+      if (!$scope.service.numberOfThreads) {
+        $scope.service.numberOfThreads = 0;
+      }
+
       $scope.log = $scope.service.log || {};
 
       $scope.update = false;
@@ -52,7 +59,62 @@
       });
 
       $scope.checkConnection = function() {
-        // TODO: log db connection
+        if (!socket) {
+          // TODO: error message
+          return;
+        }
+
+        $scope.isCheckingConnection = true;
+
+        $scope.ssh = {
+          isLoading: true
+        }
+
+        $scope.db = {
+          isLoading: true
+        }
+
+        setTimeout(function() {
+
+          // SSH
+          socket.emit('testSSHConnectionRequest',
+            {
+              host: $scope.service.host,
+              port: $scope.service.sshPort,
+              username: $scope.service.sshUser
+            }
+          )
+
+          socket.on('testSSHConnectionResponse', function(result) {
+            $scope.ssh.isLoading = false;
+            if (result.error) {
+              $scope.modalType = "modal-danger";
+              $scope.ssh.isValid = false;
+              $scope.ssh.message = result.message;
+            } else {
+              $scope.modalType = "modal-success";
+              $scope.ssh.isValid = true;
+            }
+          });
+
+          socket.emit('testDbConnection', $scope.log);
+
+          socket.on('testDbConnectionResponse', function(result) {
+            $scope.db.isLoading = false;
+            if (result.error) {
+              $scope.modalType = "modal-danger";
+              $scope.db.isValid = false;
+              $scope.db.message = result.message;
+            } else {
+              $scope.modalType = "modal-success";
+              $scope.db.isValid = true;
+              $scope.db.message = "";
+            }
+          })
+        }, 1000);
+
+
+        // Log DB
       };
 
       $scope.save = function() {
@@ -72,8 +134,8 @@
         }
 
         // validating enviroment
-        // if ($scope.service.runEnviroment)
-        //   $scope.service.runEnviroment = $scope.service.runEnviroment.split("\n").join(" ");
+        if ($scope.service.runEnviroment)
+          $scope.service.runEnviroment = $scope.service.runEnviroment.split("\n").join(" ");
 
         $scope.isChecking = true;
         $scope.display = false;
@@ -106,10 +168,11 @@
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span></button>
-        <h4 class="modal-title">{[ __("Ssh Connection") ]}</h4>
+        <h4 class="modal-title">{[ __("Connection") ]}</h4>
       </div>
       <div class="modal-body">
-        <p></p>
+        <p>{[ __("SSH connection") ]}: <i class="fa" ng-class="{'fa-check': ssh.isValid, 'fa-times': !ssh.isValid, 'fa-spinner': ssh.isLoading}"></i></p>
+        <p>{[ __("Database connection") ]}: <i class="fa" ng-class="{'fa-check': db.isValid, 'fa-times': !db.isValid, 'fa-spinner': db.isLoading}"></i></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" data-dismiss="modal">Close</button>
@@ -128,6 +191,45 @@
         <div class="row">
           <div class="col-md-12">
             <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+
+            <terrama2-modal-box ng-show="isCheckingConnection" title="'{[ __("Connection") ]}'" modal-id="'modalConnection'">
+              <div class="panel-group">
+                <div class="panel panel-default" ng-class="{'panel-danger': !ssh.isValid && ssh.message, 'panel-success': ssh.isValid}">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" href="#sshError">{[ __("SSH connection") ]}:</a>
+                      <span ng-if="ssh.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                      <span ng-if="!ssh.isLoading && ssh.isValid" class="glyphicon glyphicon-ok"></span>
+                      <span ng-if="!ssh.isLoading && !ssh.isValid" class="glyphicon glyphicon-remove"></span>
+                    </h4>
+                  </div>
+                  <div ng-if="!ssh.isValid && ssh.message" id="sshError" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                      <span class="text-danger">{{ ssh.message }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel-group">
+                <div class="panel panel-default" ng-class="{'panel-danger': !db.isValid && db.message, 'panel-success': db.isValid}">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                      <a data-toggle="collapse" href="#dbError">{[ __("DB connection") ]}:</a>
+                      <span ng-if="db.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                      <span ng-if="!db.isLoading && db.isValid" class="glyphicon glyphicon-ok"></span>
+                      <span ng-if="!db.isLoading && !db.isValid" class="glyphicon glyphicon-remove"></span>
+                    </h4>
+                  </div>
+                  <div ng-if="!db.isValid && db.message" id="dbError" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                      <span class="text-danger">{{ db.message }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </terrama2-modal-box>
           </div>
 
           <div class="col-md-12">
@@ -248,26 +350,35 @@
                     </div>
                   </div>
                   <!-- ./col-md-12 -->
-<!--
+
                   <div class="col-md-12">
                     <div class="col-md-6">
                       <div class="form-group has-feedback"
                         ng-class="{'has-error': serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
                         <label>{[ __("Number of Threads") ]}:</label>
-                        <input class="form-control" name="numberOfThreads" ng-disabled="update" ng-model="service.numberOfThreads" placeholder="Number of thread to run" required="" type="number">
+                        <input class="form-control"
+                               data-toggle="tooltip"
+                               data-placement="top"
+                               title="{[ __('When the value is 0, it will use thread number supported by the server') ]}"
+                               name="numberOfThreads"
+                               ng-disabled="update"
+                               ng-model="service.numberOfThreads"
+                               placeholder="Number of thread to run"
+                               required=""
+                               type="number" min="0">
 
                         <span class="form-control-feedback glyphicon ng-hide glyphicon-remove" ng-show="serviceForm.numberOfThreads.$dirty" ng-class="{'glyphicon-ok': serviceForm.numberOfThreads.$valid, 'glyphicon-remove': serviceForm.numberOfThreads.$invalid }"></span>
-                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">Number of threads is requiredd</span>
-                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.number">Number of threads is invalid</span>
+                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">Number of threads is required</span>
+                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && (serviceForm.numberOfThreads.$error.number || serviceForm.numberOfThreads.$error.min)">Number of threads is invalid</span>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>{[ __("Enviroment") ]}:</label>
-                        <textarea class="form-control" ng-disabled="update" ng-model="service.runEnviroment" rows="3" placeholder="Enviroment Variables"></textarea>
+                        <textarea class="form-control" style="max-width: 100%; max-height: 200px;" ng-disabled="update" ng-model="service.runEnviroment" rows="6" placeholder="Enviroment Variables"></textarea>
                       </div>
                     </div>
-                  </div> -->
+                  </div>
                 </form>
                 <!-- ./form serviceForm -->
               </div>
@@ -358,7 +469,7 @@
       <!-- /.box body -->
 
       <div class="box-footer">
-        <button type="submit" class="btn btn-primary pull-right" id="serviceCheckConnection" style="margin-left: 10px; width: 135px;" ng-click="checkConnection()">
+        <button type="submit" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalConnection" style="margin-left: 10px; width: 135px;" ng-click="checkConnection()">
           <span class="loading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
           <span class="text">Check Connection</span>
         </button>
