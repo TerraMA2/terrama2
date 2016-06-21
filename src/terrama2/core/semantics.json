@@ -75,6 +75,9 @@
     "code": "GRID-geotiff",
     "type": "GRID",
     "format": "GEOTIFF",
-    "providers_type_list": ["FILE", "FTP"]
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "file_timestamp"
+    }
   }
 ]

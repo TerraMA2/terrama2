@@ -60,6 +60,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 {
   OperatorCache cache;
 
+
   // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
@@ -67,6 +68,12 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   try
   {
     readInfoFromDict(cache);
+
+    // In case an error has already occurred, there is nothing to be done
+    if(!Context::getInstance().getErrors(cache.analysisHashCode).empty())
+    {
+      return NAN;
+    }
 
     bool hasData = false;
 

@@ -1,6 +1,7 @@
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var Filter = require('./Filter');
+var Intersection = require('./Intersection');
 
 var Collector = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Collector'});
@@ -25,12 +26,30 @@ var Collector = module.exports = function(params) {
   else
     this.filter = params.filter || {};
 
-  this.intersection = params.intersection || {};
+  if (params.Intersections)
+    this.setIntersection(params.Intersections);
+  else
+    this.intersection = params.intersection || [];
+
   this.active = params.active;
 };
 
 Collector.prototype = Object.create(BaseClass.prototype);
 Collector.prototype.constructor = Collector;
+
+Collector.prototype.setIntersection = function (intersection) {
+  if (intersection instanceof Array) {
+    var output = [];
+    intersection.forEach(function(instance) {
+      if (instance instanceof BaseClass)
+        output.push(instance);
+      else // sequelize
+        output.push(new Intersection(instance.get()));
+    });
+    this.intersection = output;
+  } else
+    this.intersection = intersection || [];
+};
 
 Collector.prototype.setInputOutputMap = function (inputOutputModel) {
   var output = [];
@@ -49,10 +68,37 @@ Collector.prototype.rawObject = function () {
   var obj = this.toObject();
   obj.schedule = this.schedule.toObject();
   obj.filter = this.filter instanceof BaseClass ? this.filter.toObject() : this.filter;
+
+  var intersectionArray = [];
+  this.intersection.forEach(function(intersect) {
+    if (intersect instanceof BaseClass)
+      intersectionArray.push(intersect.toObject());
+    else
+      intersectionArray.push(intersect);
+  })
+  obj.intersection = intersectionArray;
   return obj;
 };
 
 Collector.prototype.toObject = function() {
+  // preparing intersection
+  var intersectionOutput = {};
+  this.intersection.forEach(function(intersectionInstance) {
+    intersectionOutput.collector_id = intersectionInstance.collector_id;
+
+    if (!intersectionOutput.attribute_map)
+      intersectionOutput.attribute_map = {};
+
+    if (!intersectionOutput.attribute_map[intersectionInstance.dataseries_id])
+      intersectionOutput.attribute_map[intersectionInstance.dataseries_id] = [];
+
+    if (intersectionInstance.attribute)
+      intersectionOutput.attribute_map[intersectionInstance.dataseries_id].push(intersectionInstance.attribute);
+  });
+
+  if (Object.keys(intersectionOutput).length > 0)
+    intersectionOutput.class = "Intersection";
+
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
     project_id: this.project_id,
@@ -62,7 +108,7 @@ Collector.prototype.toObject = function() {
     input_output_map: this.input_output_map || [],
     schedule: this['schedule'] instanceof BaseClass ? this['schedule'].toObject() : this['schedule'],
     filter: this['filter'] instanceof BaseClass ? this.filter.toObject() : this.filter,
-    intersection: this.intersection,
+    intersection: intersectionOutput,
     active: this.active
   });
 };

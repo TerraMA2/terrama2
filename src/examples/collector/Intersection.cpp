@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file terrama2/Exception.hpp
+  \file examples/collector/IntersectionStaticData.Cpp
 
-  \brief Base exception classes in TerraMA2.
+  \brief Example of the use of intersection to add the attribute 'state' to occurrence data series.
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Paulo R. M. Oliveira
  */
 
 // TerraMA2
@@ -74,11 +74,12 @@ void addStaticDataSeries(std::shared_ptr<terrama2::services::collector::core::Da
 
   dataManager->add(dataProviderPtr);
 
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics.code = "STATIC_DATA-ogr";
+  dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
   dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
   dataSeries->name = "States Brazil";
   dataSeries->id = 3;
@@ -227,20 +228,22 @@ int main(int argc, char* argv[])
       terrama2::services::collector::core::Intersection* intersection(new terrama2::services::collector::core::Intersection());
       terrama2::services::collector::core::IntersectionPtr intersectionPtr(intersection);
 
+      // Adds the attribute "SIGLA" to the collected occurrences.
       intersection->collectorId = collector->id;
       std::vector<std::string> attrVec;
       attrVec.push_back("sigla");
       intersection->attributeMap[3] = attrVec;
+      collector->intersection = intersectionPtr;
 
 
       dataManager->add(collectorPtr);
 
       QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-      timer.start(30000);
+      timer.start(300000);
       app.exec();
 
-      service.stop();
+      service.stopService();
     }
 
     terrama2::core::finalizeTerraMA();
