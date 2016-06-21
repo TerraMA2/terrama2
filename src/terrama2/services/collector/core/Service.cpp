@@ -89,7 +89,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
   }
 }
 
-void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId)
+void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId) noexcept
 {
   std::lock_guard<std::mutex> lock(mutex_);
   TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
@@ -233,7 +233,7 @@ void terrama2::services::collector::core::Service::setLogger(std::shared_ptr<Col
   logger_ = logger;
 }
 
-void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector)
+void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector) noexcept
 {
   const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   auto serviceInstanceId = serviceManager.instanceId();
@@ -270,7 +270,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
   addToQueue(collector->id);
 }
 
-void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId)
+void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId) noexcept
 {
   try
   {
@@ -310,7 +310,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   }
 }
 
-void terrama2::services::collector::core::Service::updateCollector(CollectorPtr /*collector*/)
+void terrama2::services::collector::core::Service::updateCollector(CollectorPtr /*collector*/) noexcept
 {
   // Only the Id of the collector is stored, no need to update
 }
