@@ -3,6 +3,7 @@
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/ProcessLogger.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
+//#include <terrama2/Exception.hpp>
 
 // STL
 #include <vector>
@@ -22,14 +23,24 @@ public:
   Logger()
     : ProcessLogger()
   {
-    // Need to set the wanted log table name
-    setTableName("example_processlogger_1");
+
   }
 
   /*!
    * \brief Class destructor
    */
   virtual ~Logger() = default;
+
+  /*!
+   * \brief The method start is protected in ProcessLog, so is needed implement a method
+   * to calls it.
+   */
+  uint32_t startLog(uint32_t processId)
+  {
+    // Need to set the wanted log table name
+    setTableName("example_processlogger_6");
+    return start(processId);
+  }
 
   /*!
    * \brief The method addValue is protected in ProcessLog, so is needed implement a method
@@ -65,7 +76,7 @@ int main(int argc, char* argv[])
     ProcessId processId = 1;
 
     // Start logger for a Process
-    RegisterId registerID = log.start(processId);
+    RegisterId registerID = log.startLog(processId);
 
     // Log informations with tags descriptions
     log.logValue("tag1", "value1", registerID);
@@ -116,6 +127,18 @@ int main(int argc, char* argv[])
     std::cout << mLog.description << std::endl;
     std::cout << mLog.timestamp->toString() << std::endl;
 */
+  }
+  catch(terrama2::Exception& e)
+  {
+    std::cout << "Error in Process Logger example: " << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;;
+  }
+  catch(boost::exception& e)
+  {
+    std::cout << "Error in Process Logger example: " << std::endl;
+  }
+  catch(std::exception& e)
+  {
+    std::cout << "Error in Process Logger example: " << e.what() << std::endl;;
   }
   catch(...)
   {
