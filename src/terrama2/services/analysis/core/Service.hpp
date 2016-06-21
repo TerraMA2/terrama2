@@ -72,24 +72,24 @@ namespace terrama2
               \brief Adds the analysis to the queue of execution and starts the schedule for future executions.
               \param analysisId Analysis identifier.
             */
-            void addAnalysis(AnalysisId analysisId);
+            void addAnalysis(AnalysisId analysisId) noexcept;
 
             /*!
               \brief Removes an analysis from the queue of execution.
               \param analysisId Analysis identifier.
             */
-            void removeAnalysis(AnalysisId analysisId);
+            void removeAnalysis(AnalysisId analysisId) noexcept;
 
             /*!
               \brief Updates an analysis in the queue of execution.
               \param analysisId Analysis identifier.
             */
-            void updateAnalysis(AnalysisId analysisId);
+            void updateAnalysis(AnalysisId analysisId) noexcept;
 
             /*!
               \brief Adds the analysis to the queue of execution.
              */
-            virtual void addToQueue(AnalysisId analysisId) override;
+            virtual void addToQueue(AnalysisId analysisId) noexcept override;
 
           protected:
 
