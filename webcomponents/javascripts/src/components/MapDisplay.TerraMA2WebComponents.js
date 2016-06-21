@@ -160,6 +160,64 @@ define(
     };
 
     /**
+     * Converts a coordinate from decimal format to DMS.
+     * @param {string} coordinate - Coordinate to be converted
+     * @param {string} type - Coordinate type
+     * @returns {string} dmsCoordinate - Converted coordinate
+     *
+     * @private
+     * @function convertCoordinateToDMS
+     * @memberof MapDisplay
+     * @inner
+     */
+    var convertCoordinateToDMS = function(coordinate, type) {
+      var absCoordinate = Math.abs(coordinate);
+      var coordinateDegrees = Math.floor(absCoordinate);
+
+      var coordinateMinutes = (absCoordinate - coordinateDegrees) / (1 / 60);
+      var tempCoordinateMinutes = coordinateMinutes;
+      coordinateMinutes = Math.floor(coordinateMinutes);
+      var coordinateSeconds = (tempCoordinateMinutes - coordinateMinutes) / (1 / 60);
+      coordinateSeconds =  Math.round(coordinateSeconds * 10);
+      coordinateSeconds /= 10;
+
+      if(coordinateDegrees < 10)
+        coordinateDegrees = "0" + coordinateDegrees;
+
+      if(coordinateMinutes < 10)
+        coordinateMinutes = "0" + coordinateMinutes;
+
+      if(coordinateSeconds < 10)
+        coordinateSeconds = "0" + coordinateSeconds;
+
+      var dmsCoordinate = coordinateDegrees + " " + coordinateMinutes + " " + coordinateSeconds + " " + getCoordinateHemisphereAbbreviation(coordinate, type);
+
+      return dmsCoordinate;
+    };
+
+    /**
+     * Returns the hemisphere abbreviation for the given coordinate.
+     * @param {string} coordinate - Coordinate
+     * @param {string} type - Coordinate type
+     * @returns {string} coordinateHemisphereAbbreviation - Hemisphere abbreviation
+     *
+     * @private
+     * @function getCoordinateHemisphereAbbreviation
+     * @memberof MapDisplay
+     * @inner
+     */
+    var getCoordinateHemisphereAbbreviation = function(coordinate, type) {
+      var coordinateHemisphereAbbreviation = "";
+
+      if(type == 'LAT')
+        coordinateHemisphereAbbreviation = coordinate >= 0 ? "N" : "S";
+      else if(type == 'LON')
+        coordinateHemisphereAbbreviation = coordinate >= 0 ? "E" : "W";
+
+      return coordinateHemisphereAbbreviation;
+    };
+
+    /**
      * Adds a mouse position display in the map.
      *
      * @function addMousePosition
@@ -182,7 +240,7 @@ define(
         var mousePositionControl = new ol.control.MousePosition({
           coordinateFormat: (function(precision) {
             return (function(coordinates) {
-              return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision);
+              return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision) + "<br/>" + convertCoordinateToDMS(correctLongitude(coordinates[0]), 'LON') + ", " + convertCoordinateToDMS(coordinates[1], 'LAT');
             });
           })(6),
           projection: 'EPSG:4326',
@@ -340,13 +398,14 @@ define(
      * @param {float} minResolution - Layer minimum resolution
      * @param {float} maxResolution - Layer maximum resolution
      * @param {string} time - Time parameter for temporal layers
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
      * @returns {ol.layer.Tile} tile - New tiled wms layer
      *
      * @function createTileWMS
      * @memberof MapDisplay
      * @inner
      */
-    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time) {
+    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled) {
       var params = {
         'LAYERS': layerId,
         'TILED': true
@@ -372,7 +431,8 @@ define(
         source: layerSource,
         id: layerId,
         name: layerName,
-        visible: layerVisible
+        visible: layerVisible,
+        disabled: disabled
       });
 
       if(minResolution !== undefined && minResolution !== null)
@@ -395,13 +455,14 @@ define(
      * @param {float} maxResolution - Layer maximum resolution
      * @param {string} parentGroup - Parent group id
      * @param {string} time - Time parameter for temporal layers
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addTileWMSLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time) {
+    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -409,7 +470,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time)
+          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled)
         );
 
         layerGroup.setLayers(layers);
@@ -798,10 +859,10 @@ define(
 
           var subLayersLength = layers.Layer[i].Layer.length;
           for(var j = 0; j < subLayersLength; j++) {
-            tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false));
+            tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, false));
           }
         } else {
-          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false));
+          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false, false));
         }
       }
 

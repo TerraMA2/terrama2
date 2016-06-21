@@ -14,10 +14,11 @@ module.exports = function(app) {
         users.forEach(function(user) {
           var userObj = user.get();
 
+          // TODO: use i18n module
           if(userObj.administrator)
-            userObj.administrator = "Sim";
+            userObj.administrator = "Yes";
           else
-            userObj.administrator = "Não";
+            userObj.administrator = "No";
 
           usersArray.push(userObj);
         });
@@ -135,7 +136,7 @@ module.exports = function(app) {
         Utils.handleRequestError(response, new UserError("Incorrect password"), 400);
       }
     },
-    
+
     // api: json
     delete: function(request, response) {
       var userId = request.params.id;
