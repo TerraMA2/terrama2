@@ -350,9 +350,9 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     // also joins if the DCP comes from separated files
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
     std::map<std::string, std::string> connInfo;
-    connInfo["URI"] = typePrefix() + fileInfo.absolutePath().toStdString();
+   // connInfo["URI"] = typePrefix() + fileInfo.absolutePath().toStdString();
 
-//    connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
+    connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
     datasource->setConnectionInfo(connInfo);
 
     //RAII for open/closing the datasource

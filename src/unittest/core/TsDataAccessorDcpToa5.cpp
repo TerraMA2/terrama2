@@ -34,7 +34,7 @@
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
 
 #include "TsDataAccessorDcpToa5.hpp"
-//#include "MockDataRetriever.hpp"
+#include "MockDataRetriever.hpp"
 
 // QT
 #include <QObject>
@@ -47,8 +47,8 @@
 // GMock
 #include <gtest/gtest.h>
 
-//using ::testing::Return;
-//using ::testing::_;
+using ::testing::Return;
+using ::testing::_;
 
 
 void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
@@ -145,7 +145,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesSemanticsInvalid()
   }
   return;
 }
-/*
+
 void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 {
   try
@@ -168,7 +168,6 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
     dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
-
     dataSet->format.emplace("timezone", "+00");
     dataSet->format.emplace("folder", "GRM");
 
@@ -182,14 +181,13 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    MockDataRetriever *mock = new MockDataRetriever(dataProviderPtr);
+    MockDataRetriever *mock_ = new MockDataRetriever(dataProviderPtr);
 
-    MockDataRetriever::setMockDataRetriever(mock);
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    ON_CALL(*mock, isRetrivable()).WillByDefault(Return(false));
-    ON_CALL(*mock, retrieveData(_,_)).WillByDefault(Return(uri));
-
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", MockDataRetriever::makeMockDataRetriever);
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
+    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", makeMock);
 
     try
     {
@@ -201,7 +199,7 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
-    delete mock;
+    delete mock_;
 
   }
   catch(terrama2::Exception& e)
@@ -217,8 +215,7 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
   return;
 
 }
-*/
-/*
+
 void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
 {
   try
@@ -241,7 +238,6 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
     dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
-
     dataSet->format.emplace("timezone", "+00");
     dataSet->format.emplace("folder", "GRM");
 
@@ -255,14 +251,13 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    MockDataRetriever *mock = new MockDataRetriever(dataProviderPtr);
+    MockDataRetriever *mock_ = new MockDataRetriever(dataProviderPtr);
 
-    MockDataRetriever::setMockDataRetriever(mock);
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    ON_CALL(*mock, isRetrivable()).WillByDefault(Return(true));
-    ON_CALL(*mock, retrieveData(_,_)).WillByDefault(Return(uri));
-
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", MockDataRetriever::makeMockDataRetriever);
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
+    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", makeMock);
 
     try
     {
@@ -274,7 +269,7 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
-    delete mock;
+    delete mock_;
 
   }
   catch(terrama2::Exception& e)
@@ -290,7 +285,6 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
   return;
 
 }
-*/
 
 void TsDataAccessorDcpToa5::TestOK()
 {
@@ -338,7 +332,6 @@ void TsDataAccessorDcpToa5::TestOK()
     QUrl url((uri+"/"+folder+"/"+mask).c_str());
     QFileInfo originalInfo(url.path());
     QFile file(originalInfo.absoluteFilePath());
-    //QFile file(url.path());
     QString errMsg;
     QFileDevice::FileError err = QFileDevice::NoError;
     if (!file.open(QIODevice::ReadOnly))
