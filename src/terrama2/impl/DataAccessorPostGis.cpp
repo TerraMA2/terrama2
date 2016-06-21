@@ -119,8 +119,9 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
 
 
     whereCondition = new te::da::Where(expr);
-    whereCondition = addLastValueFilter(dataSet, filter, whereCondition);
   }
+
+  whereCondition = addLastValueFilter(dataSet, filter, whereCondition);
 
   te::da::Select select(fields, from, whereCondition);
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(select);
@@ -210,14 +211,18 @@ te::da::Where* terrama2::core::DataAccessorPostGis::addLastValueFilter(terrama2:
     te::da::Field* propertyName = new te::da::Field(max);
     maxTimestamp->push_back(propertyName);
 
-    auto oldwhere = new te::da::Where(*whereCondition);
+    auto oldwhere = whereCondition ? new te::da::Where(*whereCondition) : nullptr;
     te::da::Select* selectMaxTimestamp = new te::da::Select(maxTimestamp, from, oldwhere);
     te::da::SelectExpression* selectMaxTimestampExpression = new te::da::SelectExpression(selectMaxTimestamp);
 
     te::da::EqualTo* equals = new te::da::EqualTo(timestampProperty, selectMaxTimestampExpression);
 
-    auto whereExpression = whereCondition->getExp();
-    auto expr = new te::da::And(equals, whereExpression);
+    te::da::Expression* expr = equals;
+    if(whereCondition)
+    {
+      auto whereExpression = whereCondition->getExp();
+      expr = new te::da::And(equals, whereExpression);
+    }
 
     whereCondition = new te::da::Where(expr);
   }

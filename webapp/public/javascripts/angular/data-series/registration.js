@@ -118,6 +118,7 @@ angular.module('terrama2.dataseries.registration', [
               semantics: $scope.formatSelected
             });
             break;
+          case "GRID":
           case "OCCURRENCE":
             $scope.$emit("storageValuesReceive", {
               data: $scope.modelStorager,
@@ -262,7 +263,10 @@ angular.module('terrama2.dataseries.registration', [
     "DataSeriesFactory",
     "ServiceInstanceFactory",
     "$timeout",
-    function($scope, $http, i18n, $window, $state, $httpParamSerializer, DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory, ServiceInstanceFactory, $timeout) {
+    'FormHelper',
+    function($scope, $http, i18n, $window, $state, $httpParamSerializer,
+             DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
+             ServiceInstanceFactory, $timeout, FormHelper) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -284,6 +288,9 @@ angular.module('terrama2.dataseries.registration', [
         $scope.alertBox.message = "";
         $scope.display = false;
       };
+
+      // data series used for intersection
+      $scope.dataSeriesList = [];
 
       // table fields
       $scope.tableFields = [];
@@ -332,9 +339,90 @@ angular.module('terrama2.dataseries.registration', [
         if (form.$valid)
           return true;
 
-        errorHelper(form);
+        FormHelper(form);
         return false;
       };
+
+      // intersection
+      // syntax: {data_series_id: {data_series: DataSeries, attributes: []}}
+      $scope.intersection = {};
+      $scope.selectedIntersection = null;
+
+      $scope.onIntersectionDataSeriesClick = function(dataSeries) {
+        $scope.selectedIntersection = dataSeries;
+        if (!$scope.intersection[dataSeries.id])
+          $scope.intersection[dataSeries.id] = {};
+
+        var intersection = $scope.intersection[dataSeries.id];
+        if (!intersection.attributes) {
+          intersection.data_series = dataSeries;
+          intersection.attributes = [];
+          intersection.selected = false;
+        }
+      }
+
+      $scope.addAttribute = function(form, selected, attributeValue) {
+        if (form.$invalid) {
+          FormHelper(form);
+          return;
+        }
+
+        if (!selected || !attributeValue)
+          return;
+
+        var attributes = $scope.intersection[selected.id].attributes;
+
+        var found = attributes.filter(function(elm) {
+          return elm === attributeValue;
+        })
+
+        if (found.length === 0) {
+          // check first: if has at least 1 attribute, mark as selected
+          if (attributes.length === 0)
+            $scope.intersection[selected.id].selected = true;
+
+          attributes.push(attributeValue);
+          $scope.attribute = "";
+          // set form to default state
+          form.$setPristine();
+        } else {
+          // TODO: throw error message
+
+        }
+      };
+
+      $scope.removeAttribute = function(selected, attributeValue) {
+        var intersection = $scope.intersection[selected.id];
+
+        intersection.attributes.some(function(attr, index, arr) {
+          if (attr === attributeValue) {
+            arr.splice(index, 1);
+            return true;
+          }
+        })
+
+        if (intersection.attributes.length === 0)
+          $scope.intersection[selected.id].selected = false;
+
+        delete $scope.intersection[selected.id];
+      };
+
+      $scope.onIntersectionCheck = function(dataSeries, boolFlag) {
+        if (!boolFlag) {
+          $scope.selectedIntersection = null;
+          delete $scope.intersection[dataSeries.id];
+          return;
+        }
+
+        // emit row click
+        $scope.onIntersectionDataSeriesClick(dataSeries);
+      }
+
+      // filters
+      $scope.intersectionDataSeries = function(dataSeries) {
+        return (dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.STATIC_DATA ||
+                dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GRID)
+      }
 
       // storager
       $scope.showStoragerForm = false;
@@ -530,6 +618,34 @@ angular.module('terrama2.dataseries.registration', [
       } else {
         queryParams["type"] = "static";
       }
+
+      // list data series
+      DataSeriesFactory.get({schema: 'all'}).success(function(dataSeriesList) {
+        $scope.dataSeriesList = dataSeriesList;
+
+        if ($scope.isUpdating) {
+          // setting intersection values
+          var collector = configuration.collector || {};
+          var intersection = collector.intersection || [];
+
+          var attrs = [];
+          intersection.forEach(function(element) {
+            attrs.push(element.attribute);
+            $scope.dataSeriesList.some(function(ds) {
+              if (ds.id === element.dataseries_id) {
+                $scope.intersection[ds.id] = {
+                  data_series: ds,
+                  attributes: attrs,
+                  selected: true
+                }
+                return true;
+              }
+            });
+          });
+        }
+      }).error(function(err) {
+        console.log("Could not list data series ", err);
+      });
 
       DataSeriesSemanticsFactory.list(queryParams).success(function(semanticsList) {
         $scope.dataSeriesSemantics = semanticsList;
@@ -761,35 +877,52 @@ angular.module('terrama2.dataseries.registration', [
         console.log($scope.dataSeries);
       };
 
-      var errorHelper = function(form) {
-        angular.forEach(form.$error, function (field) {
-          angular.forEach(field, function(errorField){
-            errorField.$setDirty();
-          })
-        });
-      };
-
       $scope.save = function() {
         if ($scope.isUpdating)
           return;
 
         var generalDataForm = angular.element('form[name="generalDataForm"]').scope().generalDataForm;
         if(generalDataForm.$invalid) {
-          errorHelper(generalDataForm);
+          FormHelper(generalDataForm);
           return;
         }
         // checking parameters form (semantics) is invalid
         var parametersForm = angular.element('form[name="parametersForm"]').scope().parametersForm;
         if ($scope.dcps.length === 0 && !isValidParametersForm(parametersForm)) {
-          errorHelper(parametersForm);
+          FormHelper(parametersForm);
           return;
         }
 
         if ($scope.isDynamic) {
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
           if (scheduleForm.$invalid) {
-            errorHelper(scheduleForm);
+            FormHelper(scheduleForm);
             return;
+          }
+        }
+
+        // checking intersection
+        if (Object.keys($scope.intersection).length > 0) {
+          for(var k in $scope.intersection) {
+            if ($scope.intersection.hasOwnProperty(k)) {
+              if (!$scope.intersection[k].selected) {
+                continue;
+              }
+
+              var dsIntersection = $scope.intersection[k].data_series;
+
+              // checking GRID. Grid does not need attribute
+              if (dsIntersection.data_series_semantics.data_series_type_name !== globals.enums.DataSeriesType.GRID) {
+                if ($scope.intersection[k].attributes.length == 0) {
+                  var intersectionForm = angular.element('form[name="intersectionForm"]').scope().intersectionForm;
+                  // TODO: alert box with error message
+                  if (intersectionForm.$invalid) {
+                    FormHelper(intersectionForm);
+                    return;
+                  }
+                }
+              }
+            }
           }
         }
 
@@ -912,11 +1045,12 @@ angular.module('terrama2.dataseries.registration', [
             dataSeries: object.dataToSend,
             schedule: object.scheduleValues,
             filter: object.filterValues,
-            service: object.serviceOutput
-          }).success(function(data) {
+            service: object.serviceOutput,
+            intersection: object.intersection
+          }).then(function(data) {
             console.log(data);
             $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries";
-          }).error(function(err) {
+          }).catch(function(err) {
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.message = err.message;
             $scope.display = true;
@@ -969,6 +1103,26 @@ angular.module('terrama2.dataseries.registration', [
               out = [dSets];
             }
 
+            // preparing intersection
+            var intersectionValues = [];
+            for(var k in $scope.intersection) {
+              if ($scope.intersection.hasOwnProperty(k)) {
+                if (!$scope.intersection[k].selected) {
+                  continue;
+                }
+                var attributes = $scope.intersection[k].attributes;
+                var dataseries_id = $scope.intersection[k].data_series.id;
+
+                attributes.forEach(function(attribute) {
+                  intersectionValues.push({
+                    attribute: attribute,
+                    dataseries_id: dataseries_id
+                  })
+                })
+              }
+            }
+
+
             var outputDataSeries = {
               name: dSeriesName,
               description: dataObject.dataSeries.description,
@@ -981,7 +1135,8 @@ angular.module('terrama2.dataseries.registration', [
               dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
               scheduleValues: dataObject.schedule,
               filterValues: dataObject.filter,
-              serviceOutput: values.service
+              serviceOutput: values.service,
+              intersection: intersectionValues
             });
 
           });
@@ -991,8 +1146,6 @@ angular.module('terrama2.dataseries.registration', [
           var dataObject = _save();
 
           if ($scope.isDynamic) {
-            // processing
-
             //  display alert box
             $scope.alertLevel = "alert-warning";
             $scope.alertBox.title = "Data Series";
@@ -1013,7 +1166,6 @@ angular.module('terrama2.dataseries.registration', [
             });
           }
         }
-
       };
     }
   ])

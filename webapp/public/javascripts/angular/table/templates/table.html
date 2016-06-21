@@ -68,11 +68,19 @@
              class="fa fa-circle"
              style="color: {{ element.online ? element.requestingForClose ? '#FF8C00' : 'green' : 'red' }}"></i>
 
-          <button class="btn btn-primary btn-sm" ng-show="!element.online" style="margin-left: 20px;" ng-click="extra.service.handler(element)">
+          <button class="btn btn-primary btn-sm"
+                  ng-show="!element.online"
+                  style="margin-left: 20px;"
+                  ng-click="extra.service.handler(element)"
+                  ng-disabled="element.loading">
             <i class="fa fa-magic" style="margin-right: 5px;"></i>Start
           </button>
 
-          <button class="btn btn-danger btn-sm" ng-show="element.online" style="margin-left: 20px;" ng-click="extra.service.handler(element)">
+          <button class="btn btn-danger btn-sm"
+                  ng-show="element.online"
+                  style="margin-left: 20px;"
+                  ng-click="extra.service.handler(element)"
+                  ng-disabled="element.requestingForClose">
             <i class="fa fa-power-off" style="margin-right: 5px;"></i>Stop
           </button>
 

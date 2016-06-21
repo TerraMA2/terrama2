@@ -13,7 +13,7 @@
 #include "TsUtility.hpp"
 #include "TsLogger.hpp"
 #include "TsDataRetrieverFTP.hpp"
-
+#include "TsDataAccessorDcpInpe.hpp"
 
 int main(int argc, char** argv)
 {
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
   ::testing::GTEST_FLAG(throw_on_failure) = true;
   ::testing::InitGoogleMock(&argc, argv);
 
-  terrama2::core::initializeTerralib();
+  terrama2::core::initializeTerraMA();
 
   terrama2::core::disableLogger();
 
@@ -57,8 +57,17 @@ int main(int argc, char** argv)
 
   }
 
+  try
+  {
+    TsDataAccessorDcpInpe testDataAccessorDcpInpe;
+    ret += QTest::qExec(&testDataAccessorDcpInpe, argc, argv);
+  }
+  catch(...)
+  {
 
-  terrama2::core::finalizeTerralib();
+  }
+
+  terrama2::core::finalizeTerraMA();
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

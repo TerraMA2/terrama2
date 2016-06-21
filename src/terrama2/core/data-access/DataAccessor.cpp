@@ -293,7 +293,7 @@ std::string terrama2::core::DataAccessor::getProperty(DataSetPtr dataSet, std::s
     auto semantics = dataSeries_->semantics;
     property = semantics.metadata.at(tag);
   }
-  catch(...)  //exceptions will be treated after
+  catch(...)  //exceptions will be treated later
   {
   }
 
@@ -303,7 +303,7 @@ std::string terrama2::core::DataAccessor::getProperty(DataSetPtr dataSet, std::s
     {
       property = dataSet->format.at(tag);
     }
-    catch(...)  //exceptions will be treated after
+    catch(...)  //exceptions will be treated later
     {
     }
   }

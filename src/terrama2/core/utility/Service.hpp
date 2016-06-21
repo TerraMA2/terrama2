@@ -96,9 +96,12 @@ namespace terrama2
        */
       virtual void start(uint threadNumber = 0);
 
+    signals:
+      void serviceFinishedSignal();
+
     public slots:
 
-      virtual void addToQueue(ProcessId processId) = 0;
+      virtual void addToQueue(ProcessId processId) noexcept = 0;
 
       /*!
          \brief  Stops the service.
@@ -106,7 +109,8 @@ namespace terrama2
          \note Incomplete tasks might be lost and will be restarted when the service is started again.
 
        */
-      void stop() noexcept;
+      void stopService() noexcept;
+      void stop(bool holdStopSignal) noexcept;
 
       /*!
         \brief Updates the number of process threads in the threa dpool
@@ -115,14 +119,7 @@ namespace terrama2
 
         \param numberOfThreads Number of threads desired, if 0 the maximum number of threads allowed by the system the will be used.
       */
-      virtual void updateNumberOfThreads(int numberOfThreads = 0);
-
-      /*!
-        \brief Updates the connection parameters of the process log database.
-
-        Running processes may keep old connection info until finish.
-      */
-      virtual void updateLoggerConnectionInfo(const std::map<std::string, std::string>& connInfo) = 0;
+      virtual void updateNumberOfThreads(int numberOfThreads = 0) noexcept final;
 
     protected:
       /*!

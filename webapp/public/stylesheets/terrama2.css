@@ -166,3 +166,21 @@
 .terrama2-combobox-feedback {
   margin-right: 15px !important;
 }
+
+.terrama2-table-tr tr {
+  width: 100% !important;
+  display: inline-table !important;
+  table-layout: fixed !important;
+}
+
+.terrama2-table table{
+  height:300px !important;              // <-- Select the height of the table
+  display: -moz-groupbox !important;    // Firefox Bad Effect
+}
+
+.terrama2-table-tbody tbody {
+  overflow-y: scroll !important;
+  height: 200px !important;            //  <-- Select the height of the body
+  width: 100% !important;
+  position: absolute !important;
+}

@@ -29,6 +29,7 @@
 
 #include "DataAccessorGeoTiff.hpp"
 #include "../core/utility/Logger.hpp"
+#include "../core/utility/Utils.hpp"
 
 //TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
@@ -69,28 +70,25 @@ void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<t
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->moveLast();
 
-  int rasterColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
-  if(rasterColumn == -1)
+  size_t rasterColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
+  if(!isValidColumn(rasterColumn))
   {
     QString errMsg = QObject::tr("No raster attribute.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  int timestampColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::DATETIME_TYPE);
+  size_t timestampColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::DATETIME_TYPE);
 
   dataSet->moveBeforeFirst();
   while(dataSet->moveNext())
   {
     std::unique_ptr<te::rst::Raster> raster(dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
-    auto info = raster->getInfo();
-    QFileInfo fileInfo(QString::fromStdString(info["URI"]));
-    raster->setName(fileInfo.baseName().toStdString());
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
 
     item->setRaster(rasterColumn, raster.release());
-    if(timestampColumn != -1)
+    if(isValidColumn(timestampColumn ))
       item->setDateTime(timestampColumn, fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
 
     complete->add(item);

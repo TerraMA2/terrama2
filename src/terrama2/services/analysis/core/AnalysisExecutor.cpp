@@ -276,7 +276,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     PyEval_ReleaseLock();
 
     storeAnalysisResult(dataManager, analysis);
-
   }
   catch(terrama2::Exception e)
   {
@@ -300,72 +299,14 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
   TERRAMA2_LOG_ERROR() << errMsg;
   throw Exception() << ErrorDescription(errMsg);
-
-  /*
-  try
-  {
-
-    int size = 0;
-    for(auto analysisDataSeries : analysis.analysisDataSeriesList)
-    {
-      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
-      {
-        auto dataSeriesPtr = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
-        size =  dataSeriesPtr->datasetList.size();
-
-        Context::getInstance().addDCPDataSeries(analysis.hashCode(), dataSeriesPtr);
-        break;
-      }
-    }
-
-    // Recovers the main thread state
-    PyThreadState * mainThreadState = Context::getInstance().getMainThreadState();
-    assert(mainThreadState != nullptr);
-
-    // get a reference to the PyInterpreterState
-    PyInterpreterState * mainInterpreterState = mainThreadState->interp;
-    assert(mainInterpreterState != nullptr);
-
-    // create a thread state object for this thread
-    PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
-    std::thread thread(&terrama2::services::analysis::core::runScriptDCPAnalysis, myThreadState, analysis.id);
-
-    thread.join();
-
-
-    // grab the lock
-    PyEval_AcquireLock();
-
-    // swap my thread state out of the interpreter
-    PyThreadState_Swap(NULL);
-    // clear out any cruft from thread state object
-    PyThreadState_Clear(myThreadState);
-    // delete my thread state object
-    PyThreadState_Delete(myThreadState);
-
-    PyThreadState_Swap(mainThreadState);
-
-    // release the lock
-    PyEval_ReleaseLock();
-
-  }
-  catch(terrama2::Exception e)
-  {
-    Context::getInstance().addError(analysis.hashCode(),  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-  }
-  catch(std::exception e)
-  {
-    Context::getInstance().addError(analysis.hashCode(), e.what());
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("An unknown exception occurred.");
-    Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
-  }*/
 }
 
 void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis)
 {
+  auto errors = Context::getInstance().getErrors(analysis.hashCode());
+  if(!errors.empty())
+    return;
+
   auto resultMap = Context::getInstance().analysisResult(analysis.hashCode());
 
   if(resultMap.empty())

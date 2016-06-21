@@ -1,10 +1,12 @@
 var Enums = require('../../core/Enums');
+var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 var DataManager = require('./../../core/DataManager');
 
 module.exports = function(app) {
   return {
-    "index": function analysesController(request, response) {
-      response.render("configuration/analyses");
+    "get": function analysesController(request, response) {
+      var parameters = makeTokenParameters(request.query.token, app);
+      response.render("configuration/analyses", parameters);
     },
     "new": function newAnalyseController(request, response) {
       response.render("configuration/analysis", { Enums: Enums });

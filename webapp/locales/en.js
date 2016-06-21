@@ -300,5 +300,11 @@
 	"Select the DataSeries": "Select the DataSeries",
 	"Attribute Identifier": "Attribute Identifier",
 	"Type attribute identifier of Monitored Object": "Type attribute identifier of Monitored Object",
+	"Connection": "Connection",
+	"SSH connection": "SSH connection",
+	"Database connection": "Database connection",
+	"DB connection": "DB connection",
+	"When value is 0, the default will be supported threads by server": "When value is 0, the default will be supported threads by server",
+	"When the value is 0, it will use thread number supported by the server": "When the value is 0, it will use thread number supported by the server",
 	"User Update": "User Update"
 }
