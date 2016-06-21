@@ -74,7 +74,7 @@ bool terrama2::services::analysis::core::Service::processNextData()
   return !analysisQueue_.empty();
 }
 
-void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId) noexcept
 {
   try
   {
@@ -119,7 +119,7 @@ void terrama2::services::analysis::core::Service::setLogger(std::shared_ptr<Anal
   logger_ = logger;
 }
 
-void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId) noexcept
 {
   try
   {
@@ -167,7 +167,7 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
   }
 }
 
-void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId /*analysisId*/)
+void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId /*analysisId*/) noexcept
 {
   // the analysis object will only be fetched when the execution process begin.
   // we only have the id so there is no need to update.
@@ -186,7 +186,7 @@ void terrama2::services::analysis::core::Service::prepareTask(Analysis& analysis
 }
 
 
-void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId) noexcept
 {
   try
   {
