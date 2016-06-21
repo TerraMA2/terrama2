@@ -192,7 +192,7 @@ void terrama2::core::Service::processingTaskThread() noexcept
   }
 }
 
-void terrama2::core::Service::updateNumberOfThreads(int numberOfThreads)
+void terrama2::core::Service::updateNumberOfThreads(int numberOfThreads) noexcept
 {
   numberOfThreads = verifyNumberOfThreads(numberOfThreads);
   //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
