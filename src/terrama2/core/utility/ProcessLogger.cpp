@@ -53,28 +53,35 @@
 
 void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::string, std::string > connInfo)
 {
-  closeConnection();
-
-  dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
-  dataSource_->setConnectionInfo(connInfo);
-
   try
   {
-    dataSource_->open();
+    closeConnection();
 
-    if(!dataSource_->isOpened())
+    dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
+    dataSource_->setConnectionInfo(connInfo);
+
+    try
+    {
+      dataSource_->open();
+
+      if(!dataSource_->isOpened())
+      {
+        QString errMsg = QObject::tr("Could not connect to database");
+        TERRAMA2_LOG_ERROR() << errMsg;
+      }
+    }
+    catch(std::exception& e)
     {
       QString errMsg = QObject::tr("Could not connect to database");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw LogException() << ErrorDescription(errMsg);
+      TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     }
   }
-  catch(std::exception& e)
+  catch (...)
   {
-    QString errMsg = QObject::tr("Could not connect to database");
-    TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
-    throw LogException() << ErrorDescription(errMsg);
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
+
 }
 
 void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)

@@ -72,7 +72,7 @@ namespace terrama2
     private slots:
 
         //! Slot called when the timer times out, emits timeoutSignal.
-        void timeoutSlot();
+        void timeoutSlot() noexcept;
 
     private:
         /*!
