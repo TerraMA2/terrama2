@@ -35,6 +35,7 @@ source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 include_directories ( SYSTEM
+  ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR})
 
