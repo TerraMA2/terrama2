@@ -3,6 +3,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
@@ -174,7 +175,10 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr occurrenceDataSeriesPtr(occurrenceDataSeries);
   occurrenceDataSeries->id = 2;
   occurrenceDataSeries->name = "Occurrence";
-  occurrenceDataSeries->semantics.code = "OCCURRENCE-postgis";
+
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  occurrenceDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
+
   occurrenceDataSeries->dataProviderId = dataProvider2Ptr->id;
 
 
