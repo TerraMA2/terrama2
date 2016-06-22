@@ -63,9 +63,9 @@ bool terrama2::services::analysis::core::Service::processNextData()
   if(analysisQueue_.empty())
     return false;
 
-  auto analysis = analysisQueue_.front();
+  auto analysisPair = analysisQueue_.front();
   //prepare task for collecting
-  prepareTask(analysis);
+  prepareTask(analysisPair.first, analysisPair.second);
 
   //remove from queue
   analysisQueue_.erase(analysisQueue_.begin());
@@ -144,7 +144,7 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
     auto rend = analysisQueue_.rend();
     while(rit != rend)
     {
-      if(rit->get()->id == analysisId)
+      if(rit->first == analysisId)
       {
         analysisQueue_.erase(rit.base());
       }
@@ -178,11 +178,12 @@ void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId anal
   addAnalysis(analysisId);
 }
 
-void terrama2::services::analysis::core::Service::prepareTask(AnalysisPtr analysis)
+void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, logger_, analysis, processingThreadPool_.size()));
+    auto analysisPtr = dataManager_->findAnalysis(analysisId);
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, logger_, startTime, analysisPtr, processingThreadPool_.size()));
   }
   catch(std::exception& e)
   {
@@ -205,9 +206,9 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
       return;
     }
 
-    analysis->startDate = terrama2::core::TimeUtils::nowUTC();
+    auto startTime = terrama2::core::TimeUtils::nowUTC();
 
-    analysisQueue_.push_back(analysis);
+    analysisQueue_.push_back(std::make_pair(analysisId, startTime));
 
     //wake loop thread
     mainLoopCondition_.notify_one();

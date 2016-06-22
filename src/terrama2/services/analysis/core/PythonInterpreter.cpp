@@ -190,14 +190,14 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         assert(dataSeries->datasetList.size() == 1);
         datasetMO = dataSeries->datasetList[0];
 
-        if(!Context::getInstance().exists(analysis->hashCode(), datasetMO->id))
+        if(!Context::getInstance().exists(cache.analysisHashCode, datasetMO->id))
         {
           QString errMsg(QObject::tr("Could not recover monitored object dataset."));
           Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
           return;
         }
 
-        moDsContext = Context::getInstance().getContextDataset(analysis->hashCode(), datasetMO->id);
+        moDsContext = Context::getInstance().getContextDataset(cache.analysisHashCode, datasetMO->id);
 
         if(moDsContext->identifier.empty())
         {
@@ -210,8 +210,8 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
         assert(!geomId.empty());
 
-        Context::getInstance().addAttribute(analysis->hashCode(), attribute);
-        Context::getInstance().setAnalysisResult(analysis->hashCode(), geomId, attribute, value);
+        Context::getInstance().addAttribute(cache.analysisHashCode, attribute);
+        Context::getInstance().setAnalysisResult(cache.analysisHashCode, geomId, attribute, value);
       }
     }
 
@@ -252,9 +252,11 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
 
 
 std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::getMonitoredObjectContextDataSeries(
-        AnalysisPtr analysis, std::shared_ptr<DataManager>& dataManagerPtr)
+        AnalysisHashCode analysisHashCode, std::shared_ptr<DataManager>& dataManagerPtr)
 {
   std::shared_ptr<ContextDataSeries> contextDataSeries;
+
+  auto analysis = Context::getInstance().getAnalysis(analysisHashCode);
 
   for(const AnalysisDataSeries& analysisDataSeries : analysis->analysisDataSeriesList)
   {
@@ -265,15 +267,15 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
 
-      if(!Context::getInstance().exists(analysis->hashCode(), datasetMO->id))
+      if(!Context::getInstance().exists(analysisHashCode, datasetMO->id))
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
 
-        Context::getInstance().addError(analysis->hashCode(), errMsg.toStdString());
+        Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
         return contextDataSeries;
       }
 
-      return Context::getInstance().getContextDataset(analysis->hashCode(), datasetMO->id);
+      return Context::getInstance().getContextDataset(analysisHashCode, datasetMO->id);
     }
   }
 

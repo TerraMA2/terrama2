@@ -55,41 +55,42 @@ namespace terrama2
           \brief Starts the process of an analysis execution.
           \param dataManager A smart pointer to the data manager.
           \param logger Smart pointer to the analysis process logger.
+          \param startTime Start time of analysis execution.
           \param analysis The analysis to be executed.
           \param threadNumber The number of threads that can be used.
         */
-        void runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, AnalysisPtr analysis, unsigned int threadNumber);
+        void runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, unsigned int threadNumber);
 
         /*!
           \brief Prepare the context for a monitored object analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
-          \param analysis The analysis to be executed.
+          \param analysisHashCode The analysis hashcode.
           \param threadNumber The number of threads that can be used.
         */
-        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, unsigned int threadNumber);
+        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode, unsigned int threadNumber);
 
         /*!
           \brief Prepare the context for a DCP analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
-          \param analysis The analysis to be executed.
+          \param analysisHashCode The analysis hashcode.
           \param threadNumber The number of threads that can be used.
         */
-        void runDCPAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, unsigned int threadNumber);
+        void runDCPAnalysis(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode, unsigned int threadNumber);
 
         /*!
           \brief Prepare the context for a grid analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
-          \param analysis The analysis to be executed.
+          \param analysisHashCode The analysis hashcode.
           \param threadNumber The number of threads that can be used.
         */
-        void runGridAnalysis(DataManagerPtr shared_ptr, AnalysisPtr analysis, unsigned int number);
+        void runGridAnalysis(DataManagerPtr shared_ptr, AnalysisHashCode analysisHashCode, unsigned int number);
 
         /*!
           \brief Reads the analysis result from context and stores it to the configured output dataset.
           \param dataManager A smart pointer to the data manager.
-          \param analysis The analysis to be executed
+          \param analysisHashCode The analysis hashcode.
         */
-        void storeAnalysisResult(DataManagerPtr dataManager, AnalysisPtr analysis);
+        void storeAnalysisResult(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode);
 
       } // end namespace core
     }   // end namespace analysis

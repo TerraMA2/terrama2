@@ -106,9 +106,10 @@ namespace terrama2
 
             /*!
               \brief Binds the method of execution to the task queue.
-              \param analysis Analysis configuration.
+              \param analysisId Analysis identifier.
+              \param startTime Start time of the analysis execution.
             */
-            void prepareTask(AnalysisPtr analysis);
+            void prepareTask(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
             /*!
               \brief Connects data manager signals to analysis management methods.
@@ -117,8 +118,8 @@ namespace terrama2
 
 
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
-            std::vector<AnalysisPtr> analysisQueue_; //!< Analysis queue.
-            std::shared_ptr<AnalysisLogger> logger_; //!< Analysis proccess logger.
+            std::vector<std::pair<AnalysisId, std::shared_ptr<te::dt::TimeInstantTZ> > > analysisQueue_; //!< Analysis queue.
+            std::shared_ptr<AnalysisLogger> logger_; //!< Analysis process logger.
             DataManagerPtr dataManager_; //!< Data manager.
 
         };

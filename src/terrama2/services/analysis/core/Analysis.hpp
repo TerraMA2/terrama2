@@ -133,12 +133,11 @@ namespace terrama2
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the analysis.
-          mutable std::shared_ptr<te::dt::TimeInstantTZ> startDate; //!< Execution start date.
 
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.
           */
-          AnalysisHashCode hashCode() const
+          AnalysisHashCode hashCode2(std::shared_ptr<te::dt::TimeInstantTZ> startDate) const
           {
             if(!startDate)
               throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));

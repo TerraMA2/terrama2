@@ -80,7 +80,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
+    auto moDsContext = getMonitoredObjectContextDataSeries(cache.analysisHashCode, dataManagerPtr);
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object dataset."));
@@ -110,13 +110,13 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
-        Context::getInstance().addDCPDataSeries(analysis->hashCode(), dataSeries, dateFilter, false);
+        Context::getInstance().addDCPDataSeries(cache.analysisHashCode, dataSeries, dateFilter, false);
 
         for(auto dataset : dataSeries->datasetList)
         {
           if(dataset->id != dcpId)
             continue;
-          contextDataSeries = Context::getInstance().getContextDataset(analysis->hashCode(), dataset->id, dateFilter);
+          contextDataSeries = Context::getInstance().getContextDataset(cache.analysisHashCode, dataset->id, dateFilter);
 
           terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                   dataset);

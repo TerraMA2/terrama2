@@ -86,7 +86,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
     AnalysisPtr analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
 
-    auto moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
+    auto moDsContext = getMonitoredObjectContextDataSeries(cache.analysisHashCode, dataManagerPtr);
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
@@ -121,14 +121,14 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
-        Context::getInstance().addDCPDataSeries(analysis->hashCode(), dataSeries, "", true);
+        Context::getInstance().addDCPDataSeries(cache.analysisHashCode, dataSeries, "", true);
 
         // For DCP operator count returns the number of DCP that influence the monitored object
         uint64_t influenceCount = 0;
 
         for(auto dataset : dataSeries->datasetList)
         {
-          dcpContextDataSeries = Context::getInstance().getContextDataset(analysis->hashCode(), dataset->id);
+          dcpContextDataSeries = Context::getInstance().getContextDataset(cache.analysisHashCode, dataset->id);
 
           terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                   dataset);
