@@ -55,6 +55,8 @@ var Service = module.exports = function(serviceInstance) {
 
       switch(parsed.signal) {
         case Signals.LOG_SIGNAL:
+
+          self.logs.push(parsed.message);
           self.emit("log", parsed.message);
           break;
         case Signals.STATUS_SIGNAL:
@@ -69,6 +71,7 @@ var Service = module.exports = function(serviceInstance) {
         callbackSuccess(parsed);
     } catch (e) {
       console.log("Error parsing bytearray: ", e);
+      self.emit('error', e);
       if (callbackError)
         callbackError(e);
     }
@@ -103,19 +106,25 @@ var Service = module.exports = function(serviceInstance) {
 
   self.status = function(buffer) {
     return new Promise(function(resolve, reject) {
-      if (!self.isOpen())
-        return reject(new Error("Could not retrieve status from closed connection"));
+      if (!self.isOpen()) {
+        self.emit('error', new Error("Could not retrieve status from closed connection"));
+        return;
+      }
 
-      callbackSuccess = resolve;
-      callbackError = reject;
       self.socket.write(buffer);
+
+      socket.setTimeout(2000, function() {
+        self.emit("error", new Error("Status Timeout exceeded."));
+      })
     });
   };
 
   self.update = function(buffer) {
     return new Promise(function(resolve, reject) {
-      if (!self.isOpen())
-        return reject(new Error("Could not update service from closed connection"));
+      if (!self.isOpen()) {
+        self.emit('error', new Error("Could not update service from closed connection"));
+        return;
+      }
 
       callbackError = reject;
       self.socket.write(buffer);
@@ -125,23 +134,44 @@ var Service = module.exports = function(serviceInstance) {
   };
 
   self.send = function(buffer) {
-    if (!self.isOpen())
-      throw new Error("Could not send data from closed connection");
+    if (!self.isOpen()) {
+      self.emit('error', new Error("Could not send data from closed connection"));
+      return;
+    }
 
     self.socket.write(buffer);
   };
 
   self.stop = function(buffer) {
     return new Promise(function(resolve, reject) {
-      if (!self.isOpen())
-        return reject(new Error("Could not close a no existent connection"));
+      if (!self.isOpen()) {
+        self.emit('error', new Error("Could not close a no existent connection"));
+        return;
+      }
 
       callbackSuccess = resolve;
       callbackError = reject;
 
       self.socket.write(buffer);
+
+      self.socket.setTimeout(5000, function() {
+        self.emit("error", new Error("Stop Timeout exceeded."));
+      })
     });
   };
+
+  self.log = function(buffer) {
+    return new Promise(function(resolve, reject) {
+      if (!self.isOpen()) {
+        return reject(new Error("Could not apply log request from a no existent connection"));
+      }
+
+      callbackSuccess = resolve;
+      callbackError = reject;
+
+      self.socket.write(buffer);
+    })
+  }
 };
 
 NodeUtils.inherits(Service, EventEmitter);
