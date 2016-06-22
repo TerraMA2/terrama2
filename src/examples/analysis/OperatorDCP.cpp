@@ -103,19 +103,21 @@ int main(int argc, char* argv[])
           "x = dcp.standard_deviation(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
           "add_value(\"standardDeviation\", x)\n";
 
-  Analysis analysis;
-  analysis.id = 1;
-  analysis.name = "Min DCP";
-  analysis.script = script;
-  analysis.scriptLanguage = ScriptLanguage::PYTHON;
-  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis.active = false;
-  analysis.outputDataSeriesId = 3;
-  analysis.serviceInstanceId = 1;
 
-  analysis.metadata["INFLUENCE_TYPE"] = "1";
-  analysis.metadata["INFLUENCE_RADIUS"] = "50";
-  analysis.metadata["INFLUENCE_RADIUS_UNIT"] = "km";
+  Analysis* analysis = new Analysis;
+  AnalysisPtr analysisPtr(analysis);
+  analysis->id = 1;
+  analysis->name = "Min DCP";
+  analysis->script = script;
+  analysis->scriptLanguage = ScriptLanguage::PYTHON;
+  analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis->active = false;
+  analysis->outputDataSeriesId = 3;
+  analysis->serviceInstanceId = 1;
+
+  analysis->metadata["INFLUENCE_TYPE"] = "1";
+  analysis->metadata["INFLUENCE_RADIUS"] = "50";
+  analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -213,12 +215,12 @@ int main(int argc, char* argv[])
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
+  analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
-  dataManager->add(analysis);
+  analysis->schedule.frequency = 1;
+  analysis->schedule.frequencyUnit = "min";
+  dataManager->add(analysisPtr);
 
   // Starts the service and adds the analysis
   Service service(dataManager);

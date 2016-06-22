@@ -34,7 +34,7 @@
 #include "Analysis.hpp"
 #include "OperatorCache.hpp"
 #include "Context.hpp"
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 
 // STL
 #include <vector>
@@ -119,7 +119,7 @@ namespace terrama2
           \param dataManagerPtr Smart pointer to the data manager.
           \return The ContextDataSeries of the monitored object.
         */
-        std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries(const Analysis& analysis,
+        std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries(AnalysisPtr analysis,
                                                                                std::shared_ptr<DataManager>& dataManagerPtr);
 
         /*!

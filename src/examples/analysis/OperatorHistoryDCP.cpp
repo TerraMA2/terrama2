@@ -6,7 +6,7 @@
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
-#include <terrama2/services/analysis/Shared.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
@@ -107,20 +107,22 @@ int main(int argc, char* argv[])
           "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_standard_deviation\",x)\n";
 
-  Analysis analysis;
-  analysis.id = 1;
-  analysis.name = "History DCP";
-  analysis.script = script;
-  analysis.scriptLanguage = ScriptLanguage::PYTHON;
-  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis.outputDataSeriesId = 3;
-  analysis.active = false;
-  analysis.serviceInstanceId = 1;
+  
+  Analysis* analysis = new Analysis;
+  AnalysisPtr analysisPtr(analysis);
+  analysis->id = 1;
+  analysis->name = "History DCP";
+  analysis->script = script;
+  analysis->scriptLanguage = ScriptLanguage::PYTHON;
+  analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis->outputDataSeriesId = 3;
+  analysis->active = false;
+  analysis->serviceInstanceId = 1;
 
 
-  analysis.metadata["INFLUENCE_TYPE"] = "1";
-  analysis.metadata["INFLUENCE_RADIUS"] = "50";
-  analysis.metadata["INFLUENCE_RADIUS_UNIT"] = "km";
+  analysis->metadata["INFLUENCE_TYPE"] = "1";
+  analysis->metadata["INFLUENCE_RADIUS"] = "50";
+  analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -218,13 +220,13 @@ int main(int argc, char* argv[])
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
+  analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
+  analysis->schedule.frequency = 1;
+  analysis->schedule.frequencyUnit = "min";
 
-  dataManager->add(analysis);
+  dataManager->add(analysisPtr);
 
   // Starts the service and adds the analysis
   Service service(dataManager);

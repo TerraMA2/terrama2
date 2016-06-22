@@ -33,7 +33,7 @@
 
 
 // TerraLib
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 #include "../../../core/Typedef.hpp"
 
 

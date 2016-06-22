@@ -27,7 +27,7 @@
   \author Paulo R. M. Oliveira
 */
 
-#include "Analysis.hpp"
+#include "Shared.hpp"
 
 // Qt
 #include <QJsonObject>
@@ -44,12 +44,12 @@ namespace terrama2
           \brief Creates an Analysis object from a QJsonObject.
           \see [Analysis at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/Analysis) for more information.
         */
-        Analysis fromAnalysisJson(const QJsonObject& json);
+        AnalysisPtr fromAnalysisJson(const QJsonObject& json);
 
         /*!
           \brief Creates a QJsonObject from an Analysis.
         */
-        QJsonObject toJson(const Analysis& analysis);
+        QJsonObject toJson(AnalysisPtr analysis);
 
       } // end namespace core
     }   // end namespace analysis

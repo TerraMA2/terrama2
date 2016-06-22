@@ -14,7 +14,7 @@
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/Context.hpp>
-#include <terrama2/services/analysis/Shared.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -97,11 +97,13 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  Analysis analysis;
+  
+  Analysis* analysis = new Analysis;
+  AnalysisPtr analysisPtr(analysis);
 
-  analysis.id = 1;
-  analysis.name = "Analysis";
-  analysis.active = false;
+  analysis->id = 1;
+  analysis->name = "Analysis";
+  analysis->active = false;
 
   std::string script = "moBuffer = Buffer()\n"
           "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
@@ -132,11 +134,11 @@ int main(int argc, char* argv[])
           "add_value(\"distance_zone\", x)\n";
 
 
-  analysis.script = script;
-  analysis.outputDataSeriesId = 3;
-  analysis.scriptLanguage = ScriptLanguage::PYTHON;
-  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis.serviceInstanceId = 1;
+  analysis->script = script;
+  analysis->outputDataSeriesId = 3;
+  analysis->scriptLanguage = ScriptLanguage::PYTHON;
+  analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis->serviceInstanceId = 1;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
@@ -222,12 +224,12 @@ int main(int argc, char* argv[])
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysisDataSeriesList.push_back(occurrenceADS);
 
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
+  analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
+  analysis->schedule.frequency = 1;
+  analysis->schedule.frequencyUnit = "min";
 
-  dataManager->add(analysis);
+  dataManager->add(analysisPtr);
 
   // Starts the service and adds the analysis
   Context::getInstance().setDataManager(dataManager);
@@ -237,7 +239,7 @@ int main(int argc, char* argv[])
   auto logger = std::make_shared<AnalysisLogger>();
   logger->setConnectionInfo(connInfo);
   service.setLogger(logger);
-  
+
   service.start();
   service.addAnalysis(1);
 

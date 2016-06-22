@@ -56,27 +56,17 @@
 #include <terralib/memory/DataSetItem.h>
 
 
-void terrama2::services::analysis::core::joinThread(std::thread& t)
-{
-  if(t.joinable())
-    t.join();
-}
 
-void terrama2::services::analysis::core::joinAllThreads(std::vector<std::thread>& threads)
-{
-  std::for_each(threads.begin(), threads.end(), joinThread);
-}
-
-void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, const Analysis& analysis, unsigned int threadNumber)
+void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, AnalysisPtr analysis, unsigned int threadNumber)
 {
   RegisterId logId = 0;
 
   try
   {
 
-    TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution").arg(analysis.id);
+    TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution").arg(analysis->id);
     if(logger.get())
-      logId = logger->start(analysis.id);
+      logId = logger->start(analysis->id);
 
     // If it's the first analysis to be run, it needs to set the main thread state in the context.
     if(Context::getInstance().getMainThreadState() == nullptr)
@@ -86,7 +76,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
 
     Context::getInstance().addAnalysis(analysis);
 
-    switch(analysis.type)
+    switch(analysis->type)
     {
       case AnalysisType::MONITORED_OBJECT_TYPE:
       {
@@ -106,28 +96,28 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       default:
       {
         QString errMsg = QObject::tr("Invalid analysis type.");
-        Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
+        Context::getInstance().addError(analysis->hashCode(), errMsg.toStdString());
         break;
       }
     }
   }
   catch(terrama2::Exception e)
   {
-    Context::getInstance().addError(analysis.hashCode(),  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    Context::getInstance().addError(analysis->hashCode(),  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
   }
   catch(std::exception e)
   {
-    Context::getInstance().addError(analysis.hashCode(), e.what());
+    Context::getInstance().addError(analysis->hashCode(), e.what());
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
+    Context::getInstance().addError(analysis->hashCode(), errMsg.toStdString());
   }
 
   try
   {
-    auto errors = Context::getInstance().getErrors(analysis.hashCode());
+    auto errors = Context::getInstance().getErrors(analysis->hashCode());
     if(!errors.empty())
     {
 
@@ -140,21 +130,21 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       if(logger.get())
         logger->error(errorStr, logId);
 
-      QString errMsg = QObject::tr("Analysis %1 finished with the following error(s):\n%2").arg(analysis.id).arg(QString::fromStdString(errorStr));
+      QString errMsg = QObject::tr("Analysis %1 finished with the following error(s):\n%2").arg(analysis->id).arg(QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
     }
     else
     {
       if(logger.get())
-        logger->done(analysis.startDate, logId);
+        logger->done(analysis->startDate, logId);
 
-      QString errMsg = QObject::tr("Analysis %1 finished successfully.").arg(analysis.id);
+      QString errMsg = QObject::tr("Analysis %1 finished successfully.").arg(analysis->id);
       TERRAMA2_LOG_INFO() << errMsg;
     }
 
 
     // Clears context
-    Context::getInstance().clearAnalysisContext(analysis.hashCode());
+    Context::getInstance().clearAnalysisContext(analysis->hashCode());
   }
   catch(terrama2::Exception e)
   {
@@ -171,14 +161,15 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   }
 }
 
-void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber)
+void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, unsigned int threadNumber)
 {
+  std::vector<std::thread> threads;
   try
   {
     terrama2::services::analysis::core::Context::getInstance().loadMonitoredObject(analysis);
 
     int size = 0;
-    for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+    for(auto analysisDataSeries : analysis->analysisDataSeriesList)
     {
       if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
@@ -187,7 +178,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
         assert(datasets.size() == 1);
         auto dataset = datasets[0];
 
-        auto contextDataset = terrama2::services::analysis::core::Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id);
+        auto contextDataset = terrama2::services::analysis::core::Context::getInstance().getContextDataset(analysis->hashCode(), dataset->id);
         if(!contextDataset->series.syncDataSet->dataset())
         {
           QString errMsg = QObject::tr("Could not recover monitored object dataset.");
@@ -229,7 +220,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
     unsigned int begin = 0;
 
-    std::vector<std::thread> threads(threadNumber);
     std::vector<PyThreadState*> states;
 
     //Starts collection threads
@@ -250,12 +240,12 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       // create a thread state object for this thread
       PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
-      threads[i] = std::thread(&terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis, myThreadState, analysis.hashCode(), indexes);
+      threads.push_back(std::thread(&terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis, myThreadState, analysis->hashCode(), indexes));
 
       begin += packageSize;
     }
 
-    joinAllThreads(threads);
+    std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
 
 
     // grab the lock
@@ -279,21 +269,24 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
   }
   catch(terrama2::Exception e)
   {
-    Context::getInstance().addError(analysis.hashCode(),  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    Context::getInstance().addError(analysis->hashCode(),  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
   }
   catch(std::exception e)
   {
-    Context::getInstance().addError(analysis.hashCode(), e.what());
+    Context::getInstance().addError(analysis->hashCode(), e.what());
+    std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
+    Context::getInstance().addError(analysis->hashCode(), errMsg.toStdString());
+    std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
   }
 }
 
 
-void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber)
+void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, unsigned int threadNumber)
 {
   // TODO: Ticket #433
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
@@ -301,13 +294,13 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
   throw Exception() << ErrorDescription(errMsg);
 }
 
-void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis)
+void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr dataManager, AnalysisPtr analysis)
 {
-  auto errors = Context::getInstance().getErrors(analysis.hashCode());
+  auto errors = Context::getInstance().getErrors(analysis->hashCode());
   if(!errors.empty())
     return;
 
-  auto resultMap = Context::getInstance().analysisResult(analysis.hashCode());
+  auto resultMap = Context::getInstance().analysisResult(analysis->hashCode());
 
   if(resultMap.empty())
   {
@@ -316,14 +309,14 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
   }
 
   // In case an error occurred in the analysis execution there is nothing to do.
-  if(!Context::getInstance().getErrors(analysis.hashCode()).empty())
+  if(!Context::getInstance().getErrors(analysis->hashCode()).empty())
   {
     return;
   }
 
-  auto attributes = Context::getInstance().getAttributes(analysis.hashCode());
+  auto attributes = Context::getInstance().getAttributes(analysis->hashCode());
 
-  auto dataSeries = dataManager->findDataSeries(analysis.outputDataSeriesId);
+  auto dataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
 
   if(!dataSeries)
   {
@@ -338,7 +331,7 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  if(analysis.type == AnalysisType::MONITORED_OBJECT_TYPE || analysis.type == AnalysisType::PCD_TYPE)
+  if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE || analysis->type == AnalysisType::PCD_TYPE)
   {
     assert(dataSeries->datasetList.size() == 1);
 
@@ -425,12 +418,12 @@ void terrama2::services::analysis::core::storeAnalysisResult(DataManagerPtr data
     }
     catch(terrama2::Exception /*e*/)
     {
-      QString errMsg = QObject::tr("Could not store the result of the analysis: %1.").arg(analysis.id);
+      QString errMsg = QObject::tr("Could not store the result of the analysis: %1.").arg(analysis->id);
     }
   }
 }
 
-void ::terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr shared_ptr, const Analysis& analysis, unsigned int number)
+void ::terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr shared_ptr, AnalysisPtr analysis, unsigned int number)
 {
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
   throw Exception()  << ErrorDescription(errMsg);

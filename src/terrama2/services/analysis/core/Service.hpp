@@ -30,9 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 
-#include "Analysis.hpp"
 #include "AnalysisLogger.hpp"
-#include "../Shared.hpp"
+#include "Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 
 //STL
@@ -109,7 +108,7 @@ namespace terrama2
               \brief Binds the method of execution to the task queue.
               \param analysis Analysis configuration.
             */
-            void prepareTask(Analysis& analysis);
+            void prepareTask(AnalysisPtr analysis);
 
             /*!
               \brief Connects data manager signals to analysis management methods.
@@ -118,7 +117,7 @@ namespace terrama2
 
 
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
-            std::vector<Analysis> analysisQueue_; //!< Analysis queue.
+            std::vector<AnalysisPtr> analysisQueue_; //!< Analysis queue.
             std::shared_ptr<AnalysisLogger> logger_; //!< Analysis proccess logger.
             DataManagerPtr dataManager_; //!< Data manager.
 
