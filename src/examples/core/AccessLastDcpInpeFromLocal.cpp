@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
-    assert(dcpSeries->getDcpSeries().size() == 1);
+    assert(dcpSeries->dcpSeriesMap().size() == 1);
     auto series = dcpSeries->getSeries().begin()->second;
     auto teDataSet = series.syncDataSet->dataset();
 

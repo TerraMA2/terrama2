@@ -373,7 +373,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   filter.lastValue = true;
 
   auto gridSeries = accessorGrid->getGridSeries(filter);
-  auto gridMap = gridSeries->gridList();
+  auto gridMap = gridSeries->gridMap();
 
   for(auto it = gridMap.begin(); it != gridMap.end(); ++it)
   {
@@ -486,5 +486,3 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   return outputDataSeries;
 
 }
-
-

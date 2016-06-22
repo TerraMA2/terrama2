@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
   terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
-  assert(dcpSeries->getDcpSeries().size() == 1);
+  assert(dcpSeries->dcpSeriesMap().size() == 1);
 
   QUrl uri;
   uri.setScheme("postgis");
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 
   terrama2::core::DataStoragerPostGis dataStorager(dataProviderPostGisPtr);
 
-  dataStorager.store( (*dcpSeries->getDcpSeries().begin()).second, dataSetOutputPtr);
+  dataStorager.store( (*dcpSeries->dcpSeriesMap().begin()).second, dataSetOutputPtr);
 
   terrama2::core::finalizeTerraMA();
 

@@ -64,7 +64,7 @@ void terrama2::core::OccurrenceSeries::addOccurrences(std::map<DataSetPtr,DataSe
   }
 }
 
-const std::map<terrama2::core::DataSetOccurrencePtr, terrama2::core::DataSetSeries>& terrama2::core::OccurrenceSeries::getOccurrences()
+const std::map<terrama2::core::DataSetOccurrencePtr, terrama2::core::DataSetSeries>& terrama2::core::OccurrenceSeries::occurrencesMap()
 {
   return occurrenceMap;
 }

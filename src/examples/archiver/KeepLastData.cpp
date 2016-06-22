@@ -62,9 +62,9 @@ int main(int argc, char* argv[])
     terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
     std::cout << "\nLast data timestamp: " << accessor.lastDateTime()->toString() << std::endl;
 
-    assert(dcpSeries->getDcpSeries().size() == 1);
+    assert(dcpSeries->dcpSeriesMap().size() == 1);
 
-    auto datasetSeries = (*dcpSeries->getDcpSeries().begin()).second;
+    auto datasetSeries = (*dcpSeries->dcpSeriesMap().begin()).second;
     std::shared_ptr<te::da::DataSet> teDataSet = datasetSeries.syncDataSet->dataset();
 
 

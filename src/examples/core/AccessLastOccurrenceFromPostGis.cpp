@@ -68,9 +68,9 @@ int main(int argc, char* argv[])
 
     terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
 
-    assert(occurrenceSeries->getOccurrences().size() == 1);
+    assert(occurrenceSeries->occurrencesMap().size() == 1);
 
-    auto teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.syncDataSet->dataset();
+    auto teDataSet = (*occurrenceSeries->occurrencesMap().begin()).second.syncDataSet->dataset();
 
 
     //Print column names and types (DateTime/Double)

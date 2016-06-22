@@ -65,7 +65,7 @@ void terrama2::core::DcpSeries::addDcpSeries(std::map<DataSetPtr,DataSetSeries> 
   }
 }
 
-const std::map<terrama2::core::DataSetDcpPtr, terrama2::core::DataSetSeries>& terrama2::core::DcpSeries::getDcpSeries()
+const std::map<terrama2::core::DataSetDcpPtr, terrama2::core::DataSetSeries>& terrama2::core::DcpSeries::dcpSeriesMap()
 {
   return dcpMap_;
 }
