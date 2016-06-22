@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
   terrama2::core::initializeTerraMA();
 
   std::cout << "NOT WORKING" << std::endl;
-  return;
+  return 1;
 
   {
     QUrl uri;

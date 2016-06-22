@@ -28,7 +28,7 @@
 */
 
 #include "Collector.hpp"
-#include "Shared.hpp"
+#include "../Shared.hpp"
 
 // Qt
 #include <QJsonObject>

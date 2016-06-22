@@ -33,7 +33,7 @@
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTIONOPERATION_HPP__
 
 #include "Intersection.hpp"
-#include "Shared.hpp"
+#include "../Shared.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 
 // STL

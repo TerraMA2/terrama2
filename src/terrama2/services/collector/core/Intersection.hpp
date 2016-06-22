@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTION_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTION_HPP__
 
-#include "Typedef.hpp"
+#include "../Typedef.hpp"
 
 // STL
 #include <vector>
@@ -62,4 +62,3 @@ namespace terrama2
 }       // end namespace terrama2
 
 #endif  // __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTION_HPP__
-

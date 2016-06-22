@@ -31,8 +31,8 @@
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_DATAMANAGER_HPP__
 
 #include "../../../core/data-model/DataManager.hpp"
-#include "Typedef.hpp"
-#include "Shared.hpp"
+#include "../Typedef.hpp"
+#include "../Shared.hpp"
 
 namespace terrama2
 {
@@ -141,7 +141,7 @@ namespace terrama2
               \note Thread-safe.
             */
             virtual CollectorPtr findCollector(CollectorId id) const;
-            
+
             //! Verify if the Collector already exists in the DataManager
             virtual bool hasCollector(CollectorId id) const;
 

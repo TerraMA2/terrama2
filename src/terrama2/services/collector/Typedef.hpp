@@ -25,14 +25,14 @@
   \author Jano Simas
 */
 
-#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_TYPEDEF_HPP__
-#define __TERRAMA2_SERVICES_COLLECTOR_CORE_TYPEDEF_HPP__
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_TYPEDEF_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_TYPEDEF_HPP__
 
 #include <cstdint>
 
-#include "../../../core/Typedef.hpp"
+#include "../../core/Typedef.hpp"
 
 //! Unique identifier of a Collector
 typedef ProcessId CollectorId;
 
-#endif // __TERRAMA2_SERVICES_COLLECTOR_CORE_TYPEDEF_HPP__
+#endif // __TERRAMA2_SERVICES_COLLECTOR_TYPEDEF_HPP__
