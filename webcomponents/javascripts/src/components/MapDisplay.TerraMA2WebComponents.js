@@ -1307,6 +1307,8 @@ define(
 
       memberInitialExtent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
 
+      $('.ol-attribution > button > span').html('©');
+
       $(document).ready(function() {
         updateMapSize();
       });
