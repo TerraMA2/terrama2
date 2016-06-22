@@ -8,6 +8,10 @@
 #include <vector>
 #include <iostream>
 
+
+/* Create a derived class is required to access protected members
+*   from the base class Process Logger
+*/
 class Logger : public terrama2::core::ProcessLogger
 {
 public:
@@ -18,7 +22,7 @@ public:
   Logger()
     : ProcessLogger()
   {
-    setTableName("example_processlogger_1");
+
   }
 
   /*!
@@ -27,8 +31,19 @@ public:
   virtual ~Logger() = default;
 
   /*!
-   * \brief The method addValue is protected in ProcessLog, so was needed to implement a method
-   * that calls it.
+   * \brief The method start is protected in ProcessLog, so is needed implement a method
+   * to calls it.
+   */
+  uint32_t startLog(uint32_t processId)
+  {
+    // Need to set the wanted log table name
+    setTableName("example_processlogger_6");
+    return start(processId);
+  }
+
+  /*!
+   * \brief The method addValue is protected in ProcessLog, so is needed implement a method
+   * to calls it.
    */
   void logValue(const std::string tag, const std::string value, const RegisterId registerId) const
   {
@@ -43,22 +58,24 @@ int main(int argc, char* argv[])
 
   try
   {
-    std::map<std::string, std::string> connInfo { {"PG_HOST", "localhost"},
-                                                  {"PG_PORT", "5432"},
-                                                  {"PG_USER", "postgres"},
-                                                  {"PG_PASSWORD", "postgres"},
-                                                  {"PG_DB_NAME", "example"},
+
+    std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
+                                                  {"PG_PORT", TERRAMA2_DATABASE_PORT},
+                                                  {"PG_USER", TERRAMA2_DATABASE_USERNAME},
+                                                  {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
+                                                  {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
                                                   {"PG_CONNECT_TIMEOUT", "4"},
                                                   {"PG_CLIENT_ENCODING", "UTF-8"}
                                                 };
 
+ // Use the derived class to log
     Logger log;
     log.setConnectionInfo(connInfo);
 
     ProcessId processId = 1;
 
     // Start logger for a Process
-    RegisterId registerID = log.start(processId);
+    RegisterId registerID = log.startLog(processId);
 
     // Log informations with tags descriptions
     log.logValue("tag1", "value1", registerID);
@@ -90,7 +107,7 @@ int main(int argc, char* argv[])
     // Get the first to tenth logs from this process
     std::vector< Logger::Log > logs = log.getLogs(process_id, 0 , 9);
 
-
+/*
     Logger::Log log1= logs.at(0);
 
     std::cout << log1.id << std::endl;
@@ -108,11 +125,23 @@ int main(int argc, char* argv[])
     std::cout << int(mLog.type) << std::endl;
     std::cout << mLog.description << std::endl;
     std::cout << mLog.timestamp->toString() << std::endl;
-
+*/
+  }
+  catch(terrama2::Exception& e)
+  {
+    std::cout << "Error in Process Logger example: " << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;;
+  }
+  catch(boost::exception& e)
+  {
+    std::cout << "Error in Process Logger example: " << boost::diagnostic_information(e) << std::endl;
+  }
+  catch(std::exception& e)
+  {
+    std::cout << "Error in Process Logger example: " << e.what() << std::endl;;
   }
   catch(...)
   {
-
+    std::cout << "Error in Process Logger example!" << std::endl;
   }
 
   terrama2::core::finalizeTerraMA();

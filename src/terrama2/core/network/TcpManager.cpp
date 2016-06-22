@@ -178,16 +178,29 @@ bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray)
   else
   {
     auto jsonObject = jsonDoc.object();
-    ProcessId processId = static_cast<ProcessId>(jsonObject.value("process_id").toInt());
+    auto idsArray = jsonObject.value("process_ids").toArray();
+
     uint32_t begin = static_cast<uint32_t>(jsonObject.value("begin").toInt());
     uint32_t end = static_cast<uint32_t>(jsonObject.value("end").toInt());
 
     QJsonArray logList;
-    auto logger = logger_.lock();
-    auto logs = logger->getLogs(processId, begin, end);
-    for(const auto& log : logs)
+    for (const auto& value : idsArray)
     {
-      logList.append(logToJson(log));
+      auto processId = static_cast<ProcessId>(value.toInt());
+
+      QJsonArray processLogList;
+      auto logger = logger_.lock();
+      auto logs = logger->getLogs(processId, begin, end);
+      for(const auto& log : logs)
+      {
+        processLogList.append(logToJson(log));
+      }
+
+      QJsonObject obj;
+      obj.insert("process_id",  static_cast<int>(processId));
+      obj.insert("log", processLogList);
+
+      logList.push_back(obj);
     }
 
     QJsonDocument doc(logList);

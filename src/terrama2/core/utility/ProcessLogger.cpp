@@ -30,7 +30,6 @@
 // TerraMA2
 #include "ProcessLogger.hpp"
 #include "TimeUtils.hpp"
-#include "../Exception.hpp"
 #include "../utility/Logger.hpp"
 
 //TerraLib
@@ -395,7 +394,7 @@ std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger:
     logs.push_back(tempLog);
   }
 
-    return logs;
+  return logs;
 }
 
 ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) const
@@ -430,11 +429,19 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
   return tempDataSet->getInt32("process_id");
 }
 
-void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
+void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 {
-  tableName_ = schema_ + "." + tableName;
+  // Check if schema_ exists in database
+  {
+    std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
+    transactor->execute("CREATE SCHEMA IF NOT EXISTS " + schema_ );
 
-  std::transform(tableName_.begin(), tableName_.end(), tableName_.begin(), ::tolower);
+    transactor->commit();
+  }
+
+  std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::tolower);
+
+  tableName_ = schema_ + "." + tableName;
 
   if(!dataSource_->dataSetExists(tableName_))
   {
@@ -457,7 +464,7 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
     transactor->createDataSet(datasetType.get(),options);
 
     std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(datasetType->getName(),"id");
-    te::da::PrimaryKey* pk = new te::da::PrimaryKey("process_log_pk");
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey(tableName + "_pk");
     pk->add(id_pk1.get());
 
     transactor->addPrimaryKey(datasetType->getName(),pk);
@@ -468,6 +475,8 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::LogException() << ErrorDescription(errMsg);
     }
+
+    transactor->commit();
   }
 
   messagesTableName_ = tableName_ + "_messages";
@@ -491,13 +500,13 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
     transactor->createDataSet(datasetType.get(),options);
 
     std::shared_ptr<te::dt::Property> id_pk1 = transactor->getProperty(datasetType->getName(),"id");
-    te::da::PrimaryKey* pk = new te::da::PrimaryKey("process_log_messages_pk");
+    te::da::PrimaryKey* pk = new te::da::PrimaryKey(tableName + "_messages_pk");
     pk->add(id_pk1.get());
 
     transactor->addPrimaryKey(datasetType->getName(),pk);
 
     std::shared_ptr<te::dt::Property> log_id = transactor->getProperty(datasetType->getName(),"log_id");
-    te::da::ForeignKey* fk = new te::da::ForeignKey("process_log_fk");
+    te::da::ForeignKey* fk = new te::da::ForeignKey(tableName + "_fk");
 
     std::shared_ptr<te::dt::Property> id_fk = transactor->getProperty(tableName_,"id");
     fk->addRefProperty(id_fk.get());
@@ -513,6 +522,8 @@ void terrama2::core::ProcessLogger::setTableName(const std::string tableName)
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::core::LogException() << ErrorDescription(errMsg);
     }
+
+    transactor->commit();
   }
 }
 
