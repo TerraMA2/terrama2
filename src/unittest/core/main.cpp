@@ -22,64 +22,86 @@ int main(int argc, char** argv)
   int ret = 0;
   QCoreApplication app(argc, argv);
 
-  ::testing::GTEST_FLAG(throw_on_failure) = true;
-  ::testing::InitGoogleMock(&argc, argv);
-
-  terrama2::core::initializeTerraMA();
-
-  terrama2::core::disableLogger();
-
   try
   {
-    TsUtility testUtility;
-    ret += QTest::qExec(&testUtility, argc, argv);
+    ::testing::GTEST_FLAG(throw_on_failure) = true;
+    ::testing::InitGoogleMock(&argc, argv);
+
+    terrama2::core::initializeTerraMA();
+    terrama2::core::disableLogger();
+
+    try
+    {
+      TsLogger testLogger;
+      ret += QTest::qExec(&testLogger, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsDataRetrieverFTP testDataRetrieverFTP;
+      ret += QTest::qExec(&testDataRetrieverFTP, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsDataAccessorDcpInpe testDataAccessorDcpInpe;
+      ret += QTest::qExec(&testDataAccessorDcpInpe, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsDataAccessorDcpToa5 testDataAccessorDcpToa5;
+      ret += QTest::qExec(&testDataAccessorDcpToa5, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsUtility testUtility;
+      ret += QTest::qExec(&testUtility, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    terrama2::core::finalizeTerraMA();
   }
-  catch(...)
+  catch (const terrama2::Exception& e)
   {
-
+    std::cerr << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;
+    return 1;
   }
-
-  try
+  catch (const boost::exception& e)
   {
-    TsLogger testLogger;
-    ret += QTest::qExec(&testLogger, argc, argv);
+    std::cerr << boost::diagnostic_information(e) << std::endl;
+    return 1;
   }
-  catch(...)
+  catch (const std::exception& e)
   {
-
+    std::cerr << e.what() << std::endl;
+    return 1;
   }
-
-  try
+  catch (...)
   {
-    TsDataRetrieverFTP testDataRetrieverFTP;
-    ret += QTest::qExec(&testDataRetrieverFTP, argc, argv);
+    std::cerr << QObject::tr("Unexpected exception...") << std::endl;
+    return 1;
   }
-  catch(...)
-  {
-
-  }
-
-  try
-  {
-    TsDataAccessorDcpInpe testDataAccessorDcpInpe;
-    ret += QTest::qExec(&testDataAccessorDcpInpe, argc, argv);
-  }
-  catch(...)
-  {
-
-  }
-
-  try
-  {
-    TsDataAccessorDcpToa5 testDataAccessorDcpToa5;
-    ret += QTest::qExec(&testDataAccessorDcpToa5, argc, argv);
-  }
-  catch(...)
-  {
-
-  }
-
-  terrama2::core::finalizeTerraMA();
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
