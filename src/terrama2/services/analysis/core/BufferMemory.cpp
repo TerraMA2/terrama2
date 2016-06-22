@@ -88,7 +88,6 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
         QString errMsg(QObject::tr(
                 "The distance must be positive for the buffer type OBJECT_PLUS_BUFFER, given value: %1.").arg(
                 buffer.distance));
-        TERRAMA2_LOG_ERROR() << errMsg;
         throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
       }
       geomResult.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
@@ -101,7 +100,6 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
         QString errMsg(QObject::tr(
                 "The distance must be negative for the buffer type OBJECT_MINUS_BUFFER, given value: %1.").arg(
                 buffer.distance));
-        TERRAMA2_LOG_ERROR() << errMsg;
         throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
       }
       geomResult.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
@@ -172,6 +170,11 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
     double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 
     std::unique_ptr<te::gm::Geometry> tempGeom(dynamic_cast<te::gm::Geometry*>(geom.get()->clone()));
+    if(!tempGeom)
+    {
+      QString errMsg(QObject::tr("Invalid geometry in dataset: ").arg(contextDataSeries->series.dataSet->id));
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
     int utmSrid = terrama2::core::getUTMSrid(tempGeom.get());
 
     // Converts to UTM in order to create buffer in meters
@@ -229,7 +232,6 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
     if(!property)
     {
       QString errMsg(QObject::tr("Invalid attribute: %1").arg(QString::fromStdString(attribute)));
-      TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
     attributeType = property->getType();
@@ -251,7 +253,6 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
         if(attribute.empty())
         {
           QString errMsg(QObject::tr("Invalid attribute"));
-          TERRAMA2_LOG_ERROR() << errMsg;
           throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
         }
 
