@@ -78,19 +78,19 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 {
   try
   {
-    Analysis analysis = dataManager_->findAnalysis(analysisId);
+    AnalysisPtr analysis = dataManager_->findAnalysis(analysisId);
 
-    if(analysis.serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+    if(analysis->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
     {
       return;
     }
 
-    if(analysis.active)
+    if(analysis->active)
     {
       std::lock_guard<std::mutex> lock(mutex_);
 
-      auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
-      terrama2::core::TimerPtr timer = createTimer(analysis.schedule, analysisId, lastProcess);
+      auto lastProcess = logger_->getLastProcessTimestamp(analysis->id);
+      terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
       timers_.emplace(analysisId, timer);
     }
 
@@ -144,7 +144,7 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
     auto rend = analysisQueue_.rend();
     while(rit != rend)
     {
-      if(rit->id == analysisId)
+      if(rit->get()->id == analysisId)
       {
         analysisQueue_.erase(rit.base());
       }
@@ -178,7 +178,7 @@ void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId anal
   addAnalysis(analysisId);
 }
 
-void terrama2::services::analysis::core::Service::prepareTask(Analysis& analysis)
+void terrama2::services::analysis::core::Service::prepareTask(AnalysisPtr analysis)
 {
   try
   {
@@ -200,12 +200,12 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
     auto analysis = dataManager_->findAnalysis(analysisId);
 
-    if(analysis.serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+    if(analysis->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
     {
       return;
     }
 
-    analysis.startDate = terrama2::core::TimeUtils::nowUTC();
+    analysis->startDate = terrama2::core::TimeUtils::nowUTC();
 
     analysisQueue_.push_back(analysis);
 

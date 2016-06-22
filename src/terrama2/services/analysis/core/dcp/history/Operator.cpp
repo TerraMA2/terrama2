@@ -71,7 +71,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 
     bool hasData = false;
 
-    Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
+    AnalysisPtr analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
 
     auto dataManagerPtr = Context::getInstance().getDataManager().lock();
     if(!dataManagerPtr)
@@ -101,7 +101,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
       {
 
         std::shared_ptr <ContextDataSeries> contextDataSeries;
-        auto dataSeries = dataManagerPtr->findDataSeries(analysis.id, dataSeriesName);
+        auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
         if(!dataSeries)
         {
@@ -110,13 +110,13 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
-        Context::getInstance().addDCPDataSeries(analysis.hashCode(), dataSeries, dateFilter, false);
+        Context::getInstance().addDCPDataSeries(analysis->hashCode(), dataSeries, dateFilter, false);
 
         for(auto dataset : dataSeries->datasetList)
         {
           if(dataset->id != dcpId)
             continue;
-          contextDataSeries = Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id, dateFilter);
+          contextDataSeries = Context::getInstance().getContextDataset(analysis->hashCode(), dataset->id, dateFilter);
 
           terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                   dataset);

@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/analysis.hpp
+  \file terrama2/services/analysis/Analysis.hpp
 
   \brief This file contains include headers for the TerraMA2 analysis service module.
 
@@ -31,8 +31,8 @@
 #define __TERRAMA2_SERVICES_ANALYSIS_HPP__
 
 // TerraMA2
-#include "Shared.hpp"
-#include "Typedef.hpp"
+#include "core/Shared.hpp"
+#include "core/Typedef.hpp"
 #include "core/Analysis.hpp"
 #include "core/AnalysisExceutor.hpp"
 #include "core/AnalysisLogger.hpp"
