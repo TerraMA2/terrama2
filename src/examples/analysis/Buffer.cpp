@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  
+
   Analysis* analysis = new Analysis;
   AnalysisPtr analysisPtr(analysis);
 
@@ -168,7 +168,6 @@ int main(int argc, char* argv[])
   dataSet->active = true;
   dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
-  dataSet->format.emplace("identifier", "nome");
   dataSet->id = 1;
   dataSet->dataSeriesId = 1;
 
@@ -179,6 +178,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   //DataProvider information
@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetOccurrence* occurrenceDataSet = new terrama2::core::DataSetOccurrence();
   occurrenceDataSet->active = true;
   occurrenceDataSet->id = 2;
-  occurrenceDataSet->format.emplace("table_name", "queimadas");
+  occurrenceDataSet->format.emplace("table_name", "queimadas_test_table");
   occurrenceDataSet->format.emplace("timestamp_property", "data_pas");
   occurrenceDataSet->format.emplace("geometry_property", "geom");
   occurrenceDataSet->format.emplace("timezone", "UTC-03");
@@ -234,12 +234,12 @@ int main(int argc, char* argv[])
   // Starts the service and adds the analysis
   Context::getInstance().setDataManager(dataManager);
   terrama2::core::ServiceManager::getInstance().setInstanceId(1);
-  Service service(dataManager);
 
+  Service service(dataManager);
   auto logger = std::make_shared<AnalysisLogger>();
   logger->setConnectionInfo(connInfo);
-  service.setLogger(logger);
 
+  service.setLogger(logger);
   service.start();
   service.addAnalysis(1);
 

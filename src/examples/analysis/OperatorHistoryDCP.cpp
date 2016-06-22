@@ -12,7 +12,6 @@
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
-#include <terrama2/services/analysis/core/AnalysisLogger.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -107,9 +106,10 @@ int main(int argc, char* argv[])
           "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
           "add_value(\"history_standard_deviation\",x)\n";
 
-  
+
   Analysis* analysis = new Analysis;
   AnalysisPtr analysisPtr(analysis);
+
   analysis->id = 1;
   analysis->name = "History DCP";
   analysis->script = script;
@@ -151,7 +151,6 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
   dataSet->format.emplace("mask", "municipios_afetados.shp");
-  dataSet->format.emplace("identifier", "objet_id_5");
   dataSet->id = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
@@ -175,6 +174,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "objet_id_5";
 
 
   //DataSeries information
