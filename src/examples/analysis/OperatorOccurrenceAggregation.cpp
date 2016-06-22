@@ -145,6 +145,7 @@ int main(int argc, char* argv[])
   dataSet->active = true;
   dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
+  dataSet->format.emplace("identifier", "nome");
   dataSet->id = 1;
   dataSet->dataSeriesId = 1;
 
@@ -155,7 +156,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata.emplace("identifier", "nome");
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   //DataProvider information
@@ -212,11 +213,9 @@ int main(int argc, char* argv[])
   Context::getInstance().setDataManager(dataManager);
   terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
-
   auto logger = std::make_shared<AnalysisLogger>();
   logger->setConnectionInfo(connInfo);
   service.setLogger(logger);
-
   service.start();
   service.addAnalysis(1);
 
