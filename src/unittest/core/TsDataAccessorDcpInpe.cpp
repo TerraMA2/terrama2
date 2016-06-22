@@ -183,12 +183,12 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
 
-    MockDataRetriever *mock_ = new MockDataRetriever(dataProviderPtr);
+    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
     terrama2::core::DataRetrieverFactory::getInstance().add("DCP-inpe", makeMock);
 
     try
@@ -201,7 +201,6 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
-    delete mock_;
 
   }
   catch(terrama2::Exception& e)
@@ -254,12 +253,12 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
 
-    MockDataRetriever *mock_ = new MockDataRetriever(dataProviderPtr);
+    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
     terrama2::core::DataRetrieverFactory::getInstance().add("DCP-inpe", makeMock);
 
     try
@@ -272,7 +271,6 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
-    delete mock_;
 
   }
   catch(terrama2::Exception& e)

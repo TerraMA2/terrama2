@@ -181,12 +181,12 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    MockDataRetriever *mock_ = new MockDataRetriever(dataProviderPtr);
+    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
     terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", makeMock);
 
     try
@@ -198,8 +198,7 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
       QFAIL("Exception expected!");
     }
 
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
-    delete mock_;
+    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");    
 
   }
   catch(terrama2::Exception& e)
@@ -251,12 +250,12 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    MockDataRetriever *mock_ = new MockDataRetriever(dataProviderPtr);
+    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
     terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", makeMock);
 
     try
@@ -268,8 +267,7 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
       QFAIL("Exception expected!");
     }
 
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
-    delete mock_;
+    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");    
 
   }
   catch(terrama2::Exception& e)
