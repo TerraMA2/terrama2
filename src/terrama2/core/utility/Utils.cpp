@@ -129,7 +129,8 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 void terrama2::core::initializeTerralib()
 {
   // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
+  auto& terralib = TerraLib::getInstance();
+  terralib.initialize();
 
   te::plugin::PluginInfo* info;
   std::string plugins_path = te::core::FindInTerraLibPath("share/terralib/plugins");
