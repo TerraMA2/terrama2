@@ -96,6 +96,9 @@ namespace terrama2
     //! Raised when the receives an invalid collect frequency
     struct InvalidFrequencyException: virtual UtilityException { };
 
+    //! Raised when the receives an invalid SRID
+    struct InvalidSRIDException: virtual UtilityException { };
+
     //! Raised when the receives an log exception
     struct LogException: virtual UtilityException { };
 
