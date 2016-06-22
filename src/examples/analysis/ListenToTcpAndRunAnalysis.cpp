@@ -113,6 +113,7 @@ int main(int argc, char* argv[])
 
     Analysis* analysis = new Analysis;
     AnalysisPtr analysisPtr(analysis);
+
     analysis->id = 1;
     analysis->name = "Min DCP";
     analysis->script = script;
@@ -146,9 +147,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
     terrama2::core::DataSetPtr dataSetPtr(dataSet);
     dataSet->active = true;
-    dataSet->format.emplace("mask", "afetados.shp");
+    dataSet->format.emplace("mask", "municipios_afetados.shp");
     dataSet->format.emplace("srid", "4618");
-    dataSet->format.emplace("identifier", "NOME");
     dataSet->id = 1;
 
     dataSeries->datasetList.push_back(dataSetPtr);
@@ -168,6 +168,7 @@ int main(int argc, char* argv[])
     monitoredObjectADS.id = 1;
     monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    monitoredObjectADS.metadata["identifier"] = "objet_id_5";
 
 
     //DataSeries information
@@ -239,7 +240,7 @@ int main(int argc, char* argv[])
 
     // Starts the service and TCP manager
     auto dataManager = std::make_shared<DataManager>();
-    terrama2::core::TcpManager tcpManager(dataManager, std::weak_ptr<terrama2::core::ProcessLogger>());
+    terrama2::core::TcpManager tcpManager(dataManager);
     tcpManager.listen(QHostAddress::Any, 30001);
     terrama2::services::analysis::core::Service service(dataManager);
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
@@ -272,7 +273,7 @@ int main(int argc, char* argv[])
     timer.start(30000);
     app.exec();
 
-    service.stopService();
+    service.stop();
   }
   catch(boost::exception& e)
   {
