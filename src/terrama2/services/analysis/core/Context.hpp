@@ -31,7 +31,7 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_CONTEXT_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_CONTEXT_HPP__
 
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -179,14 +179,14 @@ namespace terrama2
 
               \param analysisHashCode The analysis hash code.
             */
-            Analysis getAnalysis(AnalysisHashCode analysisHashCode) const;
+            AnalysisPtr getAnalysis(AnalysisHashCode analysisHashCode) const;
 
             /*!
               \brief Adds the analysis configuration to context.
 
               \param analysis The analysis configuration.
             */
-            void addAnalysis(Analysis analysis);
+            void addAnalysis(AnalysisPtr analysis);
 
             /*!
               \brief Returns a smart pointer that contains the TerraLib DataSet for the given DataSetId.
@@ -203,7 +203,7 @@ namespace terrama2
 
               \param analysis The analysis configuration.
             */
-            void loadMonitoredObject(const Analysis& analysis);
+            void loadMonitoredObject(AnalysisPtr analysis);
 
             /*!
               \brief Returns true if the given dataset has already been loaded into the context.
@@ -288,7 +288,7 @@ namespace terrama2
             std::map<AnalysisHashCode, std::set<std::string> > attributes_; //!< Set of attributes that compose the result of an analysis.
             std::map<AnalysisHashCode, std::map<std::string, std::map<std::string, double> > > analysisResult_; //!< Map with analysis result Analysis HashCocde -> GeomId -> Attribute -> Value.
             std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_; //!< Map containing all loaded datasets.
-            std::map<AnalysisHashCode, Analysis> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
+            std::map<AnalysisHashCode, AnalysisPtr> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
             PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
             std::map<AnalysisHashCode, std::set<std::string> > analysisErrorsMap_; //!< Map containing analysis execution errors.
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.

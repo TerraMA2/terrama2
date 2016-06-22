@@ -32,7 +32,7 @@
 #define __TERRAMA2_ANALYSIS_CORE_ANALYSIS_EXECUTOR_HPP__
 
 // TerraMA2
-#include "../Shared.hpp"
+#include "Shared.hpp"
 #include "AnalysisLogger.hpp"
 
 // STL
@@ -50,17 +50,6 @@ namespace terrama2
         // Forward declaration
         struct Analysis;
 
-        /*!
-          \brief Join a given thread.
-          \param t The thread to join.
-        */
-        void joinThread(std::thread& t);
-
-        /*!
-          \brief Join all created threads for an analysis execution.
-          \param threads The threads to join.
-        */
-        void joinAllThreads(std::vector<std::thread>& threads);
 
         /*!
           \brief Starts the process of an analysis execution.
@@ -69,7 +58,7 @@ namespace terrama2
           \param analysis The analysis to be executed.
           \param threadNumber The number of threads that can be used.
         */
-        void runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, const Analysis& analysis, unsigned int threadNumber);
+        void runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, AnalysisPtr analysis, unsigned int threadNumber);
 
         /*!
           \brief Prepare the context for a monitored object analysis and run the analysis.
@@ -77,7 +66,7 @@ namespace terrama2
           \param analysis The analysis to be executed.
           \param threadNumber The number of threads that can be used.
         */
-        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber);
+        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, unsigned int threadNumber);
 
         /*!
           \brief Prepare the context for a DCP analysis and run the analysis.
@@ -85,7 +74,7 @@ namespace terrama2
           \param analysis The analysis to be executed.
           \param threadNumber The number of threads that can be used.
         */
-        void runDCPAnalysis(DataManagerPtr dataManager, const Analysis& analysis, unsigned int threadNumber);
+        void runDCPAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, unsigned int threadNumber);
 
         /*!
           \brief Prepare the context for a grid analysis and run the analysis.
@@ -93,14 +82,14 @@ namespace terrama2
           \param analysis The analysis to be executed.
           \param threadNumber The number of threads that can be used.
         */
-        void runGridAnalysis(DataManagerPtr shared_ptr, const Analysis& analysis, unsigned int number);
+        void runGridAnalysis(DataManagerPtr shared_ptr, AnalysisPtr analysis, unsigned int number);
 
         /*!
           \brief Reads the analysis result from context and stores it to the configured output dataset.
           \param dataManager A smart pointer to the data manager.
           \param analysis The analysis to be executed
         */
-        void storeAnalysisResult(DataManagerPtr dataManager, const Analysis& analysis);
+        void storeAnalysisResult(DataManagerPtr dataManager, AnalysisPtr analysis);
 
       } // end namespace core
     }   // end namespace analysis

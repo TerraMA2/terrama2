@@ -39,7 +39,7 @@
 #include <QJsonArray>
 #include <QObject>
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::fromAnalysisJson(const QJsonObject& json)
+terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::core::fromAnalysisJson(const QJsonObject& json)
 {
   if(json["class"].toString() != "Analysis")
   {
@@ -67,18 +67,20 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  Analysis analysis;
+  Analysis* analysis = new Analysis;
+  AnalysisPtr analysisPtr(analysis);
 
-  analysis.id = json["id"].toInt();
-  analysis.projectId = json["project_id"].toInt();
-  analysis.scriptLanguage = ToScriptLanguage(json["script_language"].toInt());
-  analysis.script = json["script"].toString().toStdString();
-  analysis.type = ToType(json["type"].toInt());
-  analysis.name = json["name"].toString().toStdString();
-  analysis.description = json["description"].toString().toStdString();
-  analysis.active = json["active"].toBool();
-  analysis.outputDataSeriesId = json["output_dataseries_id"].toInt();
-  analysis.serviceInstanceId = json["service_instance_id"].toInt();
+
+  analysis->id = json["id"].toInt();
+  analysis->projectId = json["project_id"].toInt();
+  analysis->scriptLanguage = ToScriptLanguage(json["script_language"].toInt());
+  analysis->script = json["script"].toString().toStdString();
+  analysis->type = ToType(json["type"].toInt());
+  analysis->name = json["name"].toString().toStdString();
+  analysis->description = json["description"].toString().toStdString();
+  analysis->active = json["active"].toBool();
+  analysis->outputDataSeriesId = json["output_dataseries_id"].toInt();
+  analysis->serviceInstanceId = json["service_instance_id"].toInt();
 
 
   QJsonObject metadataJson = json["metadata"].toObject();
@@ -87,7 +89,7 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
   {
     metadata[it.key().toStdString()] = it.value().toString().toStdString();
   }
-  analysis.metadata = metadata;
+  analysis->metadata = metadata;
 
   auto analysisDataSeriesArray = json["analysis_dataseries_list"].toArray();
   for (int i = 0; i < analysisDataSeriesArray.size(); ++i)
@@ -124,33 +126,33 @@ terrama2::services::analysis::core::Analysis terrama2::services::analysis::core:
     }
     analysisDataSeries.metadata = metadata;
 
-    analysis.analysisDataSeriesList.push_back(analysisDataSeries);
+    analysis->analysisDataSeriesList.push_back(analysisDataSeries);
 
   }
 
-  analysis.schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-  analysis.active = json["active"].toBool();
+  analysis->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+  analysis->active = json["active"].toBool();
 
-  return analysis;
+  return analysisPtr;
 }
 
-QJsonObject terrama2::services::analysis::core::toJson(const Analysis& analysis)
+QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
 {
   QJsonObject obj;
   obj.insert("class", QString("Analysis"));
-  obj.insert("id", static_cast<qint32>(analysis.id));
-  obj.insert("project_id", static_cast<qint32>(analysis.projectId));
-  obj.insert("script", QString(analysis.script.c_str()));
-  obj.insert("script_language", static_cast<qint32>(analysis.scriptLanguage));
-  obj.insert("type", static_cast<qint32>(analysis.type));
-  obj.insert("name", QString(analysis.name.c_str()));
-  obj.insert("description", QString(analysis.description.c_str()));
-  obj.insert("output_dataseries_id", static_cast<qint32>(analysis.outputDataSeriesId));
-  obj.insert("service_instance_id", static_cast<qint32>(analysis.serviceInstanceId));
+  obj.insert("id", static_cast<qint32>(analysis->id));
+  obj.insert("project_id", static_cast<qint32>(analysis->projectId));
+  obj.insert("script", QString(analysis->script.c_str()));
+  obj.insert("script_language", static_cast<qint32>(analysis->scriptLanguage));
+  obj.insert("type", static_cast<qint32>(analysis->type));
+  obj.insert("name", QString(analysis->name.c_str()));
+  obj.insert("description", QString(analysis->description.c_str()));
+  obj.insert("output_dataseries_id", static_cast<qint32>(analysis->outputDataSeriesId));
+  obj.insert("service_instance_id", static_cast<qint32>(analysis->serviceInstanceId));
 
   // Analysis metadata
   QJsonObject metadataJson;
-  for(auto it = analysis.metadata.begin(); it != analysis.metadata.end(); ++it)
+  for(auto it = analysis->metadata.begin(); it != analysis->metadata.end(); ++it)
   {
     metadataJson[QString(it->first.c_str())] = QString(it->second.c_str());
   }
@@ -158,7 +160,7 @@ QJsonObject terrama2::services::analysis::core::toJson(const Analysis& analysis)
 
   // Analysis DataSeries
   QJsonArray analysisDataSeriesList;
-  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
   {
     QJsonObject analysisDataSeriesObj;
     analysisDataSeriesObj.insert("class", QString("AnalysisDataSeries"));
@@ -179,8 +181,8 @@ QJsonObject terrama2::services::analysis::core::toJson(const Analysis& analysis)
   }
   obj.insert("analysis_dataseries_list", analysisDataSeriesList);
 
-  obj.insert("schedule", terrama2::core::toJson(analysis.schedule));
-  obj.insert("active", analysis.active);
+  obj.insert("schedule", terrama2::core::toJson(analysis->schedule));
+  obj.insert("active", analysis->active);
 
 
   return obj;

@@ -78,7 +78,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
-    Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
+    AnalysisPtr analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
 
     std::shared_ptr<ContextDataSeries> moDsContext = getMonitoredObjectContextDataSeries(analysis, dataManagerPtr);
     if(!moDsContext)
@@ -115,7 +115,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
       try
       {
-        auto dataSeries = dataManagerPtr->findDataSeries(analysis.id, dataSeriesName);
+        auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
         if(!dataSeries)
         {
@@ -125,14 +125,14 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
         }
 
 
-        Context::getInstance().addDataSeries(analysis.hashCode(), dataSeries, geomEnvelope, dateFilter, true);
+        Context::getInstance().addDataSeries(analysis->hashCode(), dataSeries, geomEnvelope, dateFilter, true);
 
         auto datasets = dataSeries->datasetList;
 
         for(auto dataset : datasets)
         {
 
-          contextDataSeries = Context::getInstance().getContextDataset(analysis.hashCode(), dataset->id, dateFilter);
+          contextDataSeries = Context::getInstance().getContextDataset(analysis->hashCode(), dataset->id, dateFilter);
           if(!contextDataSeries)
           {
             continue;
