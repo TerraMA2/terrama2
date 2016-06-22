@@ -23,6 +23,9 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerraMA();
 
+  std::cout << "NOT WORKING" << std::endl;
+  return;
+
   {
     QUrl uri;
     uri.setScheme("postgis");
