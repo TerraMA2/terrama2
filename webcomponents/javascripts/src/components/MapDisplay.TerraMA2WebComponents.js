@@ -1173,6 +1173,42 @@ define(
     };
 
     /**
+     * Sets the Map single click event to call the GetFeatureInfoUrl function.
+     * @param {string} layerId - Layer to be used in the GetFeatureInfoUrl function
+     * @param {function} callback - Callback function
+     *
+     * @function setGetFeatureInfoUrlOnClick
+     * @memberof MapDisplay
+     * @inner
+     */
+    var setGetFeatureInfoUrlOnClick = function(layerId, callback) {
+      unsetMapSingleClickEvent();
+      setMapSingleClickEvent(function(longitude, latitude) {
+        var source = findBy(memberOlMap.getLayerGroup(), 'id', layerId).getSource();
+        var coordinate = [longitude, latitude];
+        var resolution = memberOlMap.getView().getResolution();
+        var projection = 'EPSG:4326';
+        var params = { 'INFO_FORMAT': 'application/json' };
+
+        var url = source.getGetFeatureInfoUrl(coordinate, resolution, projection, params);
+
+        if(url) callback(url);
+        else callback(null);
+      });
+    };
+
+    /**
+     * Calls the function responsible for unset the Map single click event.
+     *
+     * @function unsetGetFeatureInfoUrlOnClick
+     * @memberof MapDisplay
+     * @inner
+     */
+    var unsetGetFeatureInfoUrlOnClick = function() {
+      unsetMapSingleClickEvent();
+    };
+
+    /**
      * Finds a layer by a given key.
      * @param {ol.layer.Group} layer - The layer group where the method will run the search
      * @param {string} key - Layer attribute to be used in the search
@@ -1316,6 +1352,8 @@ define(
       setMapDoubleClickEvent: setMapDoubleClickEvent,
       setMapSingleClickEvent: setMapSingleClickEvent,
       unsetMapSingleClickEvent: unsetMapSingleClickEvent,
+      setGetFeatureInfoUrlOnClick: setGetFeatureInfoUrlOnClick,
+      unsetGetFeatureInfoUrlOnClick: unsetGetFeatureInfoUrlOnClick,
       findBy: findBy,
       applyCQLFilter: applyCQLFilter,
       alterLayerIndex: alterLayerIndex,
