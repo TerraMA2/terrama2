@@ -15,6 +15,8 @@
 #include "TsDataRetrieverFTP.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
 #include "TsDataAccessorDcpToa5.hpp"
+#include "TsDataAccessorGeoTiff.hpp"
+#include "TsDataAccessorOccurrenceWfp.hpp"
 
 
 int main(int argc, char** argv)
@@ -64,6 +66,26 @@ int main(int argc, char** argv)
     {
       TsDataAccessorDcpToa5 testDataAccessorDcpToa5;
       ret += QTest::qExec(&testDataAccessorDcpToa5, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsDataAccessorGeoTiff testDataAccessorGeoTiff;
+      ret += QTest::qExec(&testDataAccessorGeoTiff, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsDataAccessorOccurrenceWfp testDataAccessorOccurrenceWfp;
+      ret += QTest::qExec(&testDataAccessorOccurrenceWfp, argc, argv);
     }
     catch(...)
     {

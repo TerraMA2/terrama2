@@ -33,8 +33,10 @@
 #include <terrama2/impl/DataAccessorGeoTiff.hpp>
 #include <terrama2/Config.hpp>
 #include <terrama2/core/Exception.hpp>
+#include <terrama2/core/utility/DataRetrieverFactory.hpp>
 
 #include "TsDataAccessorGeoTiff.hpp"
+#include "MockDataRetriever.hpp"
 
 // QT
 #include <QObject>
@@ -47,6 +49,9 @@
 // GMock
 #include <gtest/gtest.h>
 
+using ::testing::Return;
+using ::testing::_;
+
 
 void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
 {
@@ -55,7 +60,7 @@ void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(nullptr, nullptr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -63,7 +68,7 @@ void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -79,7 +84,7 @@ void TsDataAccessorGeoTiff::TestFailDataProviderNull()
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -87,7 +92,7 @@ void TsDataAccessorGeoTiff::TestFailDataProviderNull()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -103,7 +108,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesNull()
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -111,7 +116,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesNull()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -130,7 +135,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -138,11 +143,146 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesSemanticsInvalid()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
 
+void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
+{
+  try
+  {
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = "file://";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/geotiff";
+
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FILE";
+    dataProvider->active = true;
+
+    //DataSeries information
+    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    dataSeries->semantics.code = "GRID-geotiff";
+
+    terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
+    dataSet->active = true;
+    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+
+    dataSeries->datasetList.emplace_back(dataSet);
+
+    //empty filter
+    terrama2::core::Filter filter;
+    std::string uri = "";
+    std::string mask = dataSet->format.at("mask");
+
+    //accessing data
+    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+
+    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    terrama2::core::DataRetrieverFactory::getInstance().add("GRID-geotiff", makeMock);
+
+    try
+    {
+      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+    }
+    catch(const terrama2::Exception&)
+    {
+      QFAIL("Unexpected Exception!");
+    }
+
+    terrama2::core::DataRetrieverFactory::getInstance().remove("GRID-geotiff");
+
+  }
+  catch(terrama2::Exception& e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+
+  return;
+
+}
+
+void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
+{
+  try
+  {
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = "file://";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/geotiff";
+
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FILE";
+    dataProvider->active = true;
+
+    //DataSeries information
+    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    dataSeries->semantics.code = "GRID-geotiff";
+
+    terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
+    dataSet->active = true;
+    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+
+    dataSeries->datasetList.emplace_back(dataSet);
+
+    //empty filter
+    terrama2::core::Filter filter;
+    std::string uri = "";
+    std::string mask = dataSet->format.at("mask");
+
+    //accessing data
+    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+
+    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    terrama2::core::DataRetrieverFactory::getInstance().add("GRID-geotiff", makeMock);
+
+    try
+    {
+      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+    }
+    catch(const terrama2::Exception&)
+    {
+      QFAIL("Expected exception!");
+    }
+
+    terrama2::core::DataRetrieverFactory::getInstance().remove("GRID-geotiff");
+
+  }
+  catch(terrama2::Exception& e)
+  {
+    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+  }
+
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+
+  return;
+
+}
 
 void TsDataAccessorGeoTiff::TestOK()
 {
@@ -179,13 +319,9 @@ void TsDataAccessorGeoTiff::TestOK()
     assert(gridSeries->gridList().size() == 1);
 
   }
-  catch(terrama2::core::DataAccessorException& e)
-  {
-
-  }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;

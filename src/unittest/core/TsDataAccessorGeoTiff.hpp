@@ -47,6 +47,8 @@ class TsDataAccessorGeoTiff: public QObject
     void TestFailDataProviderNull();
     void TestFailDataSeriesNull();
     void TestFailDataSeriesSemanticsInvalid();
+    void TestOKDataRetrieverValid();
+    void TestFailDataRetrieverInvalid();
     void TestOK();
 };
 

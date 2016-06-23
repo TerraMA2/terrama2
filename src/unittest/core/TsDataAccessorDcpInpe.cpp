@@ -59,7 +59,7 @@ void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(nullptr, nullptr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -67,7 +67,7 @@ void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -83,7 +83,7 @@ void TsDataAccessorDcpInpe::TestFailDataProviderNull()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -91,7 +91,7 @@ void TsDataAccessorDcpInpe::TestFailDataProviderNull()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -107,7 +107,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -115,7 +115,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -134,7 +134,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -142,7 +142,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -197,7 +197,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Exception expected!");
+      QFAIL("Unexpected exception!");
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
@@ -210,7 +210,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
@@ -267,7 +267,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Exception expected!");
+      QFAIL("Expected exception!");
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
@@ -280,7 +280,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
@@ -363,13 +363,9 @@ void TsDataAccessorDcpInpe::TestOK()
     QCOMPARE(numberPropertiesOriginalFile.size(),numberPropertiesNewFile);
 
   }
-  catch(terrama2::core::DataAccessorException& e)
-  {
-
-  }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;

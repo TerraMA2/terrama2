@@ -35,7 +35,7 @@
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
 
 #include "TsDataAccessorOccurrenceWfp.hpp"
-//#include "MockDataRetriever.hpp"
+#include "MockDataRetriever.hpp"
 
 // QT
 #include <QObject>
@@ -48,8 +48,8 @@
 // GMock
 #include <gtest/gtest.h>
 
-//using ::testing::Return;
-//using ::testing::_;
+using ::testing::Return;
+using ::testing::_;
 
 
 void TsDataAccessorOccurrenceWfp::TestFailAddNullDataAccessorOccurrenceWfp()
@@ -59,7 +59,7 @@ void TsDataAccessorOccurrenceWfp::TestFailAddNullDataAccessorOccurrenceWfp()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(nullptr, nullptr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -67,7 +67,7 @@ void TsDataAccessorOccurrenceWfp::TestFailAddNullDataAccessorOccurrenceWfp()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -83,7 +83,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataProviderNull()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -91,7 +91,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataProviderNull()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -107,7 +107,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesNull()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -115,7 +115,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesNull()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
@@ -134,7 +134,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected exception!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -142,12 +142,11 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesSemanticsInvalid()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
   return;
 }
 
-/*
 void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
 {
   try
@@ -183,14 +182,13 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
-    MockDataRetriever *mock_ = new MockDataRetriever(dataProviderPtr);
-
-    MockDataRetriever::setMockDataRetriever(mock_);
+    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    terrama2::core::DataRetrieverFactory::getInstance().add("OCCURRENCE-wfp", MockDataRetriever::makeMockDataRetriever);
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    terrama2::core::DataRetrieverFactory::getInstance().add("OCCURRENCE-wfp", makeMock);
 
     try
     {
@@ -198,11 +196,10 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Exception expected!");
+      QFAIL("Unexpected exception!");
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("OCCURRENCE-wfp");
-    delete mock_;
 
   }
   catch(terrama2::Exception& e)
@@ -212,14 +209,13 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
 
 }
-*/
-/*
+
 void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
 {
   try
@@ -255,14 +251,13 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
-    MockDataRetriever *mock_ = new MockDataRetriever(dataProviderPtr);
-
-    MockDataRetriever::setMockDataRetriever(mock_);
+    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    terrama2::core::DataRetrieverFactory::getInstance().add("OCCURRENCE-wfp", MockDataRetriever::makeMockDataRetriever);
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    terrama2::core::DataRetrieverFactory::getInstance().add("OCCURRENCE-wfp", makeMock);
 
     try
     {
@@ -270,11 +265,10 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Exception expected!");
+      QFAIL("Expected exception!");
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("OCCURRENCE-wfp");
-    delete mock_;
 
   }
   catch(terrama2::Exception& e)
@@ -284,13 +278,12 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
 
 }
-*/
 
 void TsDataAccessorOccurrenceWfp::TestOK()
 {
@@ -368,13 +361,9 @@ void TsDataAccessorOccurrenceWfp::TestOK()
     QCOMPARE(numberPropertiesOriginalFile.size(),numberPropertiesNewFile);
 
   }
-  catch(terrama2::core::DataAccessorException& e)
-  {
-
-  }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;

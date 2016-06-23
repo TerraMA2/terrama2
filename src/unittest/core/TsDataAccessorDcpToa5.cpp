@@ -58,7 +58,7 @@ void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(nullptr, nullptr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected Exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -66,7 +66,7 @@ void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected Exception!");
   }
   return;
 }
@@ -82,7 +82,7 @@ void TsDataAccessorDcpToa5::TestFailDataProviderNull()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected Exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -90,7 +90,7 @@ void TsDataAccessorDcpToa5::TestFailDataProviderNull()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected Exception!");
   }
   return;
 }
@@ -106,7 +106,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesNull()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected Exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -114,7 +114,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesNull()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected Exception!");
   }
   return;
 }
@@ -133,7 +133,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Exception expected!");
+    QFAIL("Expected Exception!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -141,7 +141,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesSemanticsInvalid()
   }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected Exception!");
   }
   return;
 }
@@ -195,10 +195,10 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Exception expected!");
+      QFAIL("Unexpected Exception!");
     }
 
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");    
+    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
 
   }
   catch(terrama2::Exception& e)
@@ -208,7 +208,7 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected Exception!");
   }
 
   return;
@@ -264,10 +264,10 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Exception expected!");
+      QFAIL("Expected Exception!");
     }
 
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");    
+    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
 
   }
   catch(terrama2::Exception& e)
@@ -277,7 +277,7 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected Exception!");
   }
 
   return;
@@ -334,7 +334,7 @@ void TsDataAccessorDcpToa5::TestOK()
     QFileDevice::FileError err = QFileDevice::NoError;
     if (!file.open(QIODevice::ReadOnly))
     {
-      QFAIL("Exception unexpected!");
+      QFAIL("Unexpected Exception!");
       errMsg = file.errorString();
       err = file.error();
     }
@@ -371,13 +371,9 @@ void TsDataAccessorDcpToa5::TestOK()
     QCOMPARE(numberPropertiesOriginalFile.size(),numberPropertiesNewFile);
 
   }
-  catch(terrama2::core::DataAccessorException& e)
-  {
-
-  }
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected Exception!");
   }
 
   return;
