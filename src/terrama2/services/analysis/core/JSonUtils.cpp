@@ -139,6 +139,10 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
 QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
 {
   QJsonObject obj;
+
+  if(!analysis)
+    return obj;
+
   obj.insert("class", QString("Analysis"));
   obj.insert("id", static_cast<qint32>(analysis->id));
   obj.insert("project_id", static_cast<qint32>(analysis->projectId));
