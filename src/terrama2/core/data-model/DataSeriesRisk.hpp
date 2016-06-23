@@ -53,6 +53,12 @@ namespace terrama2
       bool operator<(const RiskLevel& rhs) const { return level < rhs.level; }
     };
 
+    enum class RiskType
+    {
+      NUMERIC = 1,
+      TEXT = 2
+    };
+
     /*!
       \brief Risk information of an alert
     */
@@ -62,6 +68,7 @@ namespace terrama2
       DataSeriesId dataSeriesId = 0; //!< The DataSeries that will be used for risk analysis.
       std::string name; //!< Name of the DataSeriesRisk.
       std::string description; //!< Short description of the purpose of the DataSeriesRisk.
+      RiskType riskType = RiskType::NUMERIC;
 
       std::string attribute;//!< Attribute of the DataSeries that will be used for risk analysis.
 
