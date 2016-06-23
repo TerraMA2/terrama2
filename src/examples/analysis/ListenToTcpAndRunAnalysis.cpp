@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
     obj.insert("DataSeries", seriesArray);
 
     QJsonArray analysisArray;
-    analysisArray.push_back(terrama2::services::analysis::core::toJson(analysis));
+    analysisArray.push_back(terrama2::services::analysis::core::toJson(analysisPtr));
     obj.insert("Analysis", analysisArray);
 
     // Creates JSON document
@@ -240,8 +240,8 @@ int main(int argc, char* argv[])
 
     // Starts the service and TCP manager
     auto dataManager = std::make_shared<DataManager>();
-    terrama2::core::TcpManager tcpManager(dataManager);
-    tcpManager.listen(QHostAddress::Any, 30001);
+    terrama2::core::TcpManager tcpManager(dataManager, std::weak_ptr<terrama2::core::ProcessLogger>());
+    tcpManager.listen(QHostAddress::Any, 30000);
     terrama2::services::analysis::core::Service service(dataManager);
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
     timer.start(30000);
     app.exec();
 
-    service.stop();
+    service.stopService();
   }
   catch(boost::exception& e)
   {
