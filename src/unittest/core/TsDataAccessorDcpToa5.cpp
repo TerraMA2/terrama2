@@ -58,7 +58,7 @@ void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(nullptr, nullptr);
 
-    QFAIL("Expected Exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -82,7 +82,7 @@ void TsDataAccessorDcpToa5::TestFailDataProviderNull()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Expected Exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -106,7 +106,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesNull()
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Expected Exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -133,7 +133,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Expected Exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -264,7 +264,7 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Expected Exception!");
+      QFAIL("Exception expected!");
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");

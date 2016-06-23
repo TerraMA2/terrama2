@@ -108,7 +108,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
@@ -165,7 +165,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
@@ -208,7 +208,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     }
     catch(...)
     {
-      QFAIL("Exception unexpected!");
+      QFAIL("Unexpected exception!");
     }
 
     curl_global_cleanup();
@@ -221,7 +221,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
@@ -283,7 +283,7 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
@@ -333,7 +333,7 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
     }
     catch(...)
     {
-      QFAIL("Exception unexpected!");
+      QFAIL("Unexpected exception!");
     }
 
     curl_global_cleanup();
@@ -346,7 +346,7 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
@@ -405,7 +405,7 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;
@@ -451,7 +451,7 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
     }
     catch(...)
     {
-      QFAIL("Exception unexpected!");
+      QFAIL("Unexpected exception!");
     }
 
     curl_global_cleanup();
@@ -464,7 +464,7 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
 
   catch(...)
   {
-    QFAIL("Exception unexpected!");
+    QFAIL("Unexpected exception!");
   }
 
   return;

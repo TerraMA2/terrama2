@@ -60,7 +60,7 @@ void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(nullptr, nullptr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -84,7 +84,7 @@ void TsDataAccessorGeoTiff::TestFailDataProviderNull()
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -108,7 +108,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesNull()
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -135,7 +135,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -264,7 +264,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Expected exception!");
+      QFAIL("Exception expected!");
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("GRID-geotiff");
