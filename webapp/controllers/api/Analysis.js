@@ -58,7 +58,7 @@ module.exports = function(app) {
           DataManager.listServiceInstances().then(function(services) {
             services.forEach(function(service) {
               try {
-                TcpManager.sendData(service, {
+                TcpManager.emit('sendData', service, {
                   "DataSeries": [analysisResult.dataSeries.toObject()],
                   "Analysis": [analysisResult.toObject()]
                 });
@@ -102,7 +102,7 @@ module.exports = function(app) {
             DataManager.listServiceInstances().then(function(servicesInstance) {
               servicesInstance.forEach(function (service) {
                 try {
-                  TcpManager.removeData(service, objectToSend);
+                  TcpManager.emit('removeData', service, objectToSend);
                 } catch (e) {
                   console.log(e);
                 }

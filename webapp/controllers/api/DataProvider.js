@@ -88,11 +88,21 @@ module.exports = function(app) {
     },
 
     put: [passport.isCommonUser, function(request, response) {
-      var dataProviderName = request.params.name;
+      var dataProviderId = request.params.id;
+      var uriObject = request.body.uriObject;
 
-      if (dataProviderName) {
-        DataManager.updateDataProvider({name: dataProviderName, active: request.body.active}).then(function() {
-          DataManager.getDataProvider({name: dataProviderName}).then(function(dProvider) {
+      var requester = RequestFactory.build(uriObject);
+
+      var toUpdate = {
+        name: request.body.name,
+        active: request.body.active,
+        description: request.body.description,
+        uri: requester.uri
+      }
+
+      if (dataProviderId) {
+        DataManager.updateDataProvider(parseInt(dataProviderId), toUpdate).then(function() {
+          DataManager.getDataProvider({id: dataProviderId}).then(function(dProvider) {
             // generating token
             var token = Utils.generateToken(app, TokenCode.UPDATE, dProvider.name);
 
@@ -108,7 +118,7 @@ module.exports = function(app) {
 
       } else {
         response.status(400);
-        response.json({status: 400, message: "DataProvider name not identified"});
+        response.json({status: 400, message: "DataProvider not identified"});
       }
     }],
 

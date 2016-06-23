@@ -871,7 +871,7 @@ var DataManager = {
             var dataToSend = {"DataProviders": [d.toObject()]};
 
             servicesInstance.forEach(function(service) {
-              TcpManager.sendData(service, dataToSend);
+              TcpManager.emit('sendData', service, dataToSend);
             });
 
           }).catch(function(err) {
@@ -945,10 +945,10 @@ var DataManager = {
    * @param {Object} dataProviderObject - An object containing DataProvider identifier to get it.
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
-  updateDataProvider: function(dataProviderObject) {
+  updateDataProvider: function(dataProviderId, dataProviderObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataProvider = getItemByParam(self.data.dataProviders, dataProviderObject);
+      var dataProvider = getItemByParam(self.data.dataProviders, {id: dataProviderId});
 
       if (dataProvider) {
         models.db.DataProvider.update(dataProviderObject, {
@@ -967,6 +967,18 @@ var DataManager = {
             dataProvider.uri = dataProviderObject.uri;
 
           dataProvider.active = dataProviderObject.active;
+
+          self.listServiceInstances().then(function(services) {
+            services.forEach(function(service) {
+              try {
+                TcpManager.emit('sendData', service, {
+                  "DataProviders": [dataProviderObject.toObject()]
+                })
+              } catch (e) {
+
+              }
+            })
+          }).catch(function(err) { });
 
           resolve(new DataModel.DataProvider(dataProvider));
         }).catch(function(err) {
@@ -1019,7 +1031,7 @@ var DataManager = {
               // sending Remove signal
               services.forEach(function(service) {
                 try {
-                  TcpManager.removeData(service, objectToSend);
+                  TcpManager.emit('removeData', service, objectToSend);
                 } catch (e) {
                   console.log(e);
                 }
