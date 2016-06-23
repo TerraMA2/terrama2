@@ -40,6 +40,7 @@ var Service = module.exports = function(serviceInstance) {
   this.service = serviceInstance;
 
   var self = this;
+  self.answered = false;
 
   self.socket = new net.Socket();
 
@@ -47,6 +48,7 @@ var Service = module.exports = function(serviceInstance) {
   var callbackError = null;
 
   self.socket.on('data', function(byteArray) {
+    self.answered = true;
     console.log("client received: ", byteArray);
     console.log("client received: ", byteArray.toString());
 
@@ -77,6 +79,10 @@ var Service = module.exports = function(serviceInstance) {
     }
 
   });
+
+  self.socket.on('drain', function() {
+    console.log('drained');
+  })
 
   self.socket.on('close', function(byteArray) {
     self.emit('close', byteArray);
@@ -111,10 +117,12 @@ var Service = module.exports = function(serviceInstance) {
         return;
       }
 
+      self.answered = false;
       self.socket.write(buffer);
 
-      socket.setTimeout(2000, function() {
-        self.emit("error", new Error("Status Timeout exceeded."));
+      self.socket.setTimeout(2000, function() {
+        if (!self.answered)
+          self.emit("error", new Error("Status Timeout exceeded."));
       })
     });
   };
@@ -151,11 +159,12 @@ var Service = module.exports = function(serviceInstance) {
 
       callbackSuccess = resolve;
       callbackError = reject;
-
+      self.answered = false;
       self.socket.write(buffer);
 
       self.socket.setTimeout(5000, function() {
-        self.emit("error", new Error("Stop Timeout exceeded."));
+        if (!self.answered)
+          self.emit("error", new Error("Stop Timeout exceeded."));
       })
     });
   };

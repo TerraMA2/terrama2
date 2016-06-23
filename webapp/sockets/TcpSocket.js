@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Socket responsible for handling Tcp events from TcpManager.
+ * Socket responsible for handling Tcp events from TcpManager in front end application.
  * @class TcpSocket
  *
  * @author Raphael Willian da Costa
@@ -122,8 +122,24 @@ var TcpSocket = function(io) {
     })
 
     client.on('log', function(json) {
-      console.log(json);
+      var begin = json.begin || 0,
+          end = json.end || 9;
 
+      DataManager.listCollectors().then(function(collectors) {
+        var obj = {
+          process_ids: collectors.map(function(element) { return element.id }),
+          begin: begin,
+          end: end
+        };
+
+        TcpManager.emit('logData', null, obj);
+      }).catch(function(err) {
+        console.log(err);
+        client.emit('errorResponse', {
+          status: 400,
+          message: err.toString()
+        })
+      })
     })
   });
 };

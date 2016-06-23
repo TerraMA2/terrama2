@@ -37,7 +37,7 @@ TcpManager.prototype.makebuffer = function(signal, object) {
       throw TypeError(signal + " is not a valid signal!");
 
     var totalSize;
-    var jsonMessage;
+    var jsonMessage = "";
 
     var hasMessage = !_.isEmpty(object);
 
@@ -49,14 +49,21 @@ TcpManager.prototype.makebuffer = function(signal, object) {
     } else
       totalSize = 4;
 
+    // creating buffer to store message
+    var bufferMessage = Buffer.from(jsonMessage);
 
-    // Creates the buffer and fills it with zeros
-    var buffer = new Buffer(totalSize + 4);
+    // Creates the buffer to be sent
+    var buffer = new Buffer(bufferMessage.length + 8);
 
     if (hasMessage) {
       // Writes the message (string) in the buffer with UTF-8 encoding
-      buffer.write(jsonMessage, 8, jsonMessage.length);
+      bufferMessage.copy(buffer, 8, 0, bufferMessage.length);
     }
+
+    // checking bufferMessage length. If it is bigger than jsonMessage,
+    // then there are special chars and the message size must be adjusted.
+    if (bufferMessage.length > jsonMessage.length)
+      totalSize = bufferMessage.length + 4;
 
     // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(totalSize, 0);
@@ -114,6 +121,8 @@ TcpManager.prototype.sendData = function(serviceInstance, data) {
     var buffer = self.makebuffer(Signals.ADD_DATA_SIGNAL, data);
 
     console.log(buffer);
+    console.log("BufferToString: ", buffer.toString());
+    console.log("BufferToString size: ", buffer.length);
 
     // getting client and writing in the channel
     var client = _getClient(serviceInstance);
@@ -155,18 +164,30 @@ TcpManager.prototype.removeData = function(serviceInstance, data) {
  @param {ServiceInstance} serviceInstance - a terrama2 service instance
  @param {Object} data - a javascript object message to send
  */
-TcpManager.prototype.logData = function(data) {
+TcpManager.prototype.logData = function(serviceInstance, data) {
   var self = this;
   try {
     var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
 
-    console.log(buffer);
+    // TODO: make a local buffer
+
+    console.log("Buffer: ", buffer);
+    console.log("BufferToString: ", buffer.toString());
+
+
+    if (serviceInstance) {
+      var client = _getClient(serviceInstance);
+
+      client.log(buffer);
+      return;
+    }
 
     for(var key in clients) {
       if (clients.hasOwnProperty(key)) {
         var client = clients[key];
         // if (client.service.service_type_id === ServiceType.COLLECTOR)
         client.log(buffer);
+        break;
       }
     }
 
@@ -294,6 +315,7 @@ TcpManager.prototype.initialize = function(client) {
   });
 
   client.on('log', function(response) {
+    // TODO: make a local buffer
     self.emit('logReceived', client.service, response)
   });
 
