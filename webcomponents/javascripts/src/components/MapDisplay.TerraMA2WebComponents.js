@@ -558,6 +558,19 @@ define(
     };
 
     /**
+     * Removes the layer from the Map.
+     * @param {string} layerId - Layer id
+     *
+     * @function removeLayer
+     * @memberof MapDisplay
+     * @inner
+     */
+    var removeLayer = function(layerId) {
+      var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+      memberOlMap.removeLayer(layer);
+    };
+
+    /**
      * Increases the loading tiles counter of a given layer. If the counter doesn't exist, it's created and the layer loading start function is executed.
      * @param {string} layerId - Layer id
      *
@@ -1329,6 +1342,7 @@ define(
       createTileWMS: createTileWMS,
       addTileWMSLayer: addTileWMSLayer,
       addGeoJSONVectorLayer: addGeoJSONVectorLayer,
+      removeLayer: removeLayer,
       addBaseLayers: addBaseLayers,
       addOSMLayer: addOSMLayer,
       addMapQuestOSMLayer: addMapQuestOSMLayer,
