@@ -16,40 +16,40 @@
 */
 
 /*!
-  \file terrama2/unittest/core/MockDataRetriever.hpp
-  \brief Mock Class DataRetriever
+  \file terrama2/unittest/core/TsDataAccessorDcpToa5.hpp
+  \brief Tests for Class DataAccessorDcpToa5
   \author Evandro Delatin
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_MOCKDATARETRIEVER__
-#define __TERRAMA2_UNITTEST_CORE_MOCKDATARETRIEVER__
+#ifndef __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_DCP_TOA5_HPP__
+#define __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_DCP_TOA5_HPP__
 
-// TerraMA2
-#include <terrama2/core/data-access/DataRetriever.hpp>
 
-// Libcurl
-#include <curl/curl.h>
+#include <terrama2/impl/DataAccessorDcpToa5.hpp>
+#include <QtTest>
 
-// GMock
-#include <gmock/gmock.h>
 
-class MockDataRetriever: public terrama2::core::DataRetriever
+class TsDataAccessorDcpToa5: public QObject
 {
-  public:
+    Q_OBJECT
 
-    MockDataRetriever(terrama2::core::DataProviderPtr dataProvider) :
-      DataRetriever(dataProvider) {};
+  private slots:
 
-    MOCK_METHOD2(retrieveData,std::string(const std::string& query, const terrama2::core::Filter& filter));
+    void initTestCase(){} // Run before all tests
+    void cleanupTestCase(){} // Run after all tests
 
-    MOCK_METHOD0(lastDateTime,te::dt::TimeInstantTZ());
+    void init(){ } //run before each test
+    void cleanup(){ } //run before each test
 
-    MOCK_METHOD0(isRetrivable,bool());
+    //******Test functions********
 
-    static terrama2::core::DataRetriever* makeMockDataRetriever(terrama2::core::DataProviderPtr dataProvider, MockDataRetriever * mock)
-    {
-      return mock;
-    }
+    void TestFailAddNullDataAccessorDcpToa5();
+    void TestFailDataProviderNull();
+    void TestFailDataSeriesNull();
+    void TestFailDataSeriesSemanticsInvalid();
+    void TestOKDataRetrieverValid();
+    void TestFailDataRetrieverInvalid();
+    void TestOK();
 };
 
-#endif //__TERRAMA2_UNITTEST_CORE_MOCKDATARETRIEVER__
+#endif //__TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_DCP_TOA5_HPP__
