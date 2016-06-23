@@ -38,8 +38,13 @@ namespace terrama2
     {
       namespace core
       {
-          class DataManager;
-          typedef std::shared_ptr<terrama2::services::analysis::core::DataManager> DataManagerPtr;
+        class DataManager;
+        typedef std::shared_ptr<terrama2::services::analysis::core::DataManager> DataManagerPtr;
+
+
+        struct Analysis;
+        //! Shared smart pointer for Analysis
+        typedef std::shared_ptr<const terrama2::services::analysis::core::Analysis> AnalysisPtr;
 
       } // end namespace core
     }   // end namespace analysis

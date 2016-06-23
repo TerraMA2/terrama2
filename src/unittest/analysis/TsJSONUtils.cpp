@@ -49,13 +49,13 @@ void TsJSONUtils::testJSON()
                        "x = dcp.standardDeviation(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
                        "add_value(\"standardDeviation\", x)\n";
 
-  Analysis analysis;
-  analysis.id = 1;
-  analysis.name = "Min DCP";
-  analysis.script = script;
-  analysis.scriptLanguage = PYTHON;
-  analysis.type = MONITORED_OBJECT_TYPE;
-  analysis.active = false;
+  AnalysisPtr analysis;
+  analysis->id = 1;
+  analysis->name = "Min DCP";
+  analysis->script = script;
+  analysis->scriptLanguage = PYTHON;
+  analysis->type = MONITORED_OBJECT_TYPE;
+  analysis->active = false;
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;
@@ -73,25 +73,25 @@ void TsJSONUtils::testJSON()
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
+  analysis->analysisDataSeriesList = analysisDataSeriesList;
 
   QJsonObject jsonObj = toJson(analysis);
   Analysis decodedAnalysis = fromAnalysisJson(jsonObj);
 
-  QVERIFY(analysis.id == decodedAnalysis.id);
-  QVERIFY(analysis.name == decodedAnalysis.name);
-  QVERIFY(analysis.script == decodedAnalysis.script);
-  QVERIFY(analysis.scriptLanguage == decodedAnalysis.scriptLanguage);
-  QVERIFY(analysis.type == decodedAnalysis.type);
-  QVERIFY(analysis.active == decodedAnalysis.active);
-  QVERIFY(analysis.analysisDataSeriesList.size() == decodedAnalysis.analysisDataSeriesList.size());
+  QVERIFY(analysis->id == decodedAnalysis.id);
+  QVERIFY(analysis->name == decodedAnalysis.name);
+  QVERIFY(analysis->script == decodedAnalysis.script);
+  QVERIFY(analysis->scriptLanguage == decodedAnalysis.scriptLanguage);
+  QVERIFY(analysis->type == decodedAnalysis.type);
+  QVERIFY(analysis->active == decodedAnalysis.active);
+  QVERIFY(analysis->analysisDataSeriesList.size() == decodedAnalysis.analysisDataSeriesList.size());
 
-  for (int i = 0; i < analysis.analysisDataSeriesList.size(); ++i)
+  for (int i = 0; i < analysis->analysisDataSeriesList.size(); ++i)
   {
-    QVERIFY(analysis.analysisDataSeriesList[i].id == decodedAnalysis.analysisDataSeriesList[i].id);
-    QVERIFY(analysis.analysisDataSeriesList[i].type == decodedAnalysis.analysisDataSeriesList[i].type);
-    QVERIFY(analysis.analysisDataSeriesList[i].dataSeriesId == decodedAnalysis.analysisDataSeriesList[i].dataSeriesId);
-    QVERIFY(analysis.analysisDataSeriesList[i].alias == decodedAnalysis.analysisDataSeriesList[i].alias);
-    QVERIFY(analysis.analysisDataSeriesList[i].metadata == decodedAnalysis.analysisDataSeriesList[i].metadata);
+    QVERIFY(analysis->analysisDataSeriesList[i].id == decodedAnalysis.analysisDataSeriesList[i].id);
+    QVERIFY(analysis->analysisDataSeriesList[i].type == decodedAnalysis.analysisDataSeriesList[i].type);
+    QVERIFY(analysis->analysisDataSeriesList[i].dataSeriesId == decodedAnalysis.analysisDataSeriesList[i].dataSeriesId);
+    QVERIFY(analysis->analysisDataSeriesList[i].alias == decodedAnalysis.analysisDataSeriesList[i].alias);
+    QVERIFY(analysis->analysisDataSeriesList[i].metadata == decodedAnalysis.analysisDataSeriesList[i].metadata);
   }
 }

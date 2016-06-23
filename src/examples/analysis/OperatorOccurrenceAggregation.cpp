@@ -3,6 +3,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
@@ -14,7 +15,7 @@
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/Context.hpp>
-#include <terrama2/services/analysis/Shared.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -97,41 +98,25 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  Analysis analysis;
 
-  analysis.id = 1;
-  analysis.name = "Analysis";
-  analysis.active = false;
+  Analysis* analysis = new Analysis;
+  AnalysisPtr analysisPtr(analysis);
+
+  analysis->id = 1;
+  analysis->name = "Analysis";
+  analysis->active = false;
 
   std::string script = "moBuffer = Buffer()\n"
           "aggregationBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
           "x = occurrence.aggregation.count(\"Occurrence\", moBuffer, \"500d\", aggregationBuffer, \"\")\n"
-          "add_value(\"aggregation_count\", x)\n"
-
-          "x = occurrence.aggregation.max(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer)\n"
-          "add_value(\"aggregation_max\", x)\n"
-
-          "x = occurrence.aggregation.min(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
-          "add_value(\"aggregation_min\", x)\n"
-
-          "x = occurrence.aggregation.mean(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
-          "add_value(\"aggregation_mean\", x)\n"
-
-          "x = occurrence.aggregation.median(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
-          "add_value(\"aggregation_median\", x)\n"
-
-          "x = occurrence.aggregation.standard_deviation(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
-          "add_value(\"aggregation_standard_deviation\", x)\n"
-
-          "x = occurrence.aggregation.sum(\"Occurrence\", moBuffer, \"500d\", \"v\", Statistic.sum, aggregationBuffer, \"\")\n"
-          "add_value(\"aggregation_sum\", x)\n";
+          "add_value(\"aggregation_count\", x)\n";
 
 
-  analysis.script = script;
-  analysis.outputDataSeriesId = 3;
-  analysis.scriptLanguage = ScriptLanguage::PYTHON;
-  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis.serviceInstanceId = 1;
+  analysis->script = script;
+  analysis->outputDataSeriesId = 3;
+  analysis->scriptLanguage = ScriptLanguage::PYTHON;
+  analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis->serviceInstanceId = 1;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
@@ -172,6 +157,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   //DataProvider information
@@ -191,7 +177,10 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr occurrenceDataSeriesPtr(occurrenceDataSeries);
   occurrenceDataSeries->id = 2;
   occurrenceDataSeries->name = "Occurrence";
-  occurrenceDataSeries->semantics.code = "OCCURRENCE-postgis";
+
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+  occurrenceDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
+
   occurrenceDataSeries->dataProviderId = dataProvider2Ptr->id;
 
 
@@ -199,7 +188,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetOccurrence* occurrenceDataSet = new terrama2::core::DataSetOccurrence();
   occurrenceDataSet->active = true;
   occurrenceDataSet->id = 2;
-  occurrenceDataSet->format.emplace("table_name", "queimadas");
+  occurrenceDataSet->format.emplace("table_name", "queimadas_test_table");
   occurrenceDataSet->format.emplace("timestamp_property", "data_pas");
   occurrenceDataSet->format.emplace("geometry_property", "geom");
   occurrenceDataSet->format.emplace("timezone", "UTC-03");
@@ -217,22 +206,20 @@ int main(int argc, char* argv[])
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysisDataSeriesList.push_back(occurrenceADS);
 
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
+  analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
+  analysis->schedule.frequency = 1;
+  analysis->schedule.frequencyUnit = "min";
 
-  dataManager->add(analysis);
+  dataManager->add(analysisPtr);
 
   // Starts the service and adds the analysis
   Context::getInstance().setDataManager(dataManager);
   terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
-
   auto logger = std::make_shared<AnalysisLogger>();
   logger->setConnectionInfo(connInfo);
   service.setLogger(logger);
-  
   service.start();
   service.addAnalysis(1);
 

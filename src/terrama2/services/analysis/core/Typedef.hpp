@@ -30,7 +30,7 @@
 
 #include <cstdint>
 
-#include "../../core/Typedef.hpp"
+#include "../../../core/Typedef.hpp"
 
 typedef uint32_t AnalysisDataSeriesId;
 typedef ProcessId AnalysisId;
