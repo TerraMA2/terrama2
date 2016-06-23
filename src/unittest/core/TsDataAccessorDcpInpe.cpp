@@ -59,7 +59,7 @@ void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(nullptr, nullptr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -83,7 +83,7 @@ void TsDataAccessorDcpInpe::TestFailDataProviderNull()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -107,7 +107,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -134,7 +134,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -267,7 +267,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Expected exception!");
+      QFAIL("Exception expected!");
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");

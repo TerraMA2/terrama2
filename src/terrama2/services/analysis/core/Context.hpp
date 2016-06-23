@@ -31,7 +31,7 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_CONTEXT_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_CONTEXT_HPP__
 
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -179,14 +179,15 @@ namespace terrama2
 
               \param analysisHashCode The analysis hash code.
             */
-            Analysis getAnalysis(AnalysisHashCode analysisHashCode) const;
+            AnalysisPtr getAnalysis(AnalysisHashCode analysisHashCode) const;
 
             /*!
               \brief Adds the analysis configuration to context.
 
+              \param analysisHashCode Anaysis hashcode.
               \param analysis The analysis configuration.
             */
-            void addAnalysis(Analysis analysis);
+            void addAnalysis(AnalysisHashCode analysisHashCode, AnalysisPtr analysis);
 
             /*!
               \brief Returns a smart pointer that contains the TerraLib DataSet for the given DataSetId.
@@ -201,9 +202,9 @@ namespace terrama2
             /*!
               \brief Reads the analysis configuration and adds to the context the monitored object dataset.
 
-              \param analysis The analysis configuration.
+              \param analysisHashCode Hash code of the analysis.
             */
-            void loadMonitoredObject(const Analysis& analysis);
+            void loadMonitoredObject(const AnalysisHashCode analysisHashCode);
 
             /*!
               \brief Returns true if the given dataset has already been loaded into the context.
@@ -283,12 +284,28 @@ namespace terrama2
             */
             std::set<std::string> getErrors(AnalysisHashCode analysisHashCode);
 
+
+            /*!
+              \brief Sets the analysis start time
+              \param analysisHashCode Hash code of the analysis.
+              \param startTime Start time of the analysis.
+            */
+            void setStartTime(AnalysisHashCode analysisHashCode, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
+
+            /*!
+              \brief Returns the start time of the analysis.
+              \param analysisHashCode Hash code of the analysis.
+              \return Start time of the analysis.
+            */
+            std::shared_ptr<te::dt::TimeInstantTZ> getStartTime(AnalysisHashCode analysisHashCode);
+
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_; //!< Weak pointer to the data manager.
             std::map<AnalysisHashCode, std::set<std::string> > attributes_; //!< Set of attributes that compose the result of an analysis.
+            std::map<AnalysisHashCode, std::shared_ptr<te::dt::TimeInstantTZ> > analysisStartTime_; //!< Stores the analysis start time.
             std::map<AnalysisHashCode, std::map<std::string, std::map<std::string, double> > > analysisResult_; //!< Map with analysis result Analysis HashCocde -> GeomId -> Attribute -> Value.
             std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_; //!< Map containing all loaded datasets.
-            std::map<AnalysisHashCode, Analysis> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
+            std::map<AnalysisHashCode, AnalysisPtr> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
             PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
             std::map<AnalysisHashCode, std::set<std::string> > analysisErrorsMap_; //!< Map containing analysis execution errors.
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.

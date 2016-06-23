@@ -198,7 +198,7 @@ namespace terrama2
            \param analysis Analysis configuration.
            \return The influence type.
          */
-          terrama2::services::analysis::core::InfluenceType getInfluenceType(const terrama2::services::analysis::core::Analysis& analysis);
+          terrama2::services::analysis::core::InfluenceType getInfluenceType(const terrama2::services::analysis::core::AnalysisPtr analysis);
 
           /*!
            \brief Creates the influence buffer.
@@ -208,7 +208,7 @@ namespace terrama2
            \param influenceType Influence type of the analysis.
            \return The buffer geometry.
           */
-          std::shared_ptr<te::gm::Geometry> createDCPInfluenceBuffer(const terrama2::services::analysis::core::Analysis& analysis, std::shared_ptr<te::gm::Geometry> position, int monitoredObjectSrid, InfluenceType influenceType);
+          std::shared_ptr<te::gm::Geometry> createDCPInfluenceBuffer(const terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::gm::Geometry> position, int monitoredObjectSrid, InfluenceType influenceType);
 
           /*!
            \brief Verify if the DCP influences the monitored object.
