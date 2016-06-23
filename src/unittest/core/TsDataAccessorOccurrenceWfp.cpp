@@ -59,7 +59,7 @@ void TsDataAccessorOccurrenceWfp::TestFailAddNullDataAccessorOccurrenceWfp()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(nullptr, nullptr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -83,7 +83,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataProviderNull()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -107,7 +107,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesNull()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -134,7 +134,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Expected exception!");
+    QFAIL("Exception expected!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -265,7 +265,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Expected exception!");
+      QFAIL("Exception expected!");
     }
 
     terrama2::core::DataRetrieverFactory::getInstance().remove("OCCURRENCE-wfp");
