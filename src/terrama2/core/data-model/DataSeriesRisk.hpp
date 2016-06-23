@@ -33,6 +33,9 @@
 #include "DataSet.hpp"
 #include "../Shared.hpp"
 
+#include <vector>
+#include <algorithm>
+
 namespace terrama2
 {
   namespace core
@@ -40,7 +43,9 @@ namespace terrama2
     struct RiskLevel
     {
       uint32_t level = 0; //!< Level of the risk, should be unique in a DataSeriesRisk.
+      bool hasLowerBound = false;
       double lowerBound = 0; //!< Lower bound for real values, inclusive.
+      bool hasUpperBound = false;
       double upperBound = 0; //!< Upper bound for real values, exclusive.
       std::string textValue; //!< Text value for this RiskLevel.
 
@@ -65,7 +70,7 @@ namespace terrama2
       */
       uint32_t riskLevel(const std::string& value) const
       {
-        auto pos = std::find(std::begin(riskLevels), std::end(riskLevels), [value](const auto& risk){ return risk.textValue == value;});
+        auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk){ return risk.textValue == value;});
         if(pos != std::end(riskLevels))
           return (*pos).level;
         else
@@ -79,7 +84,7 @@ namespace terrama2
       */
       uint32_t riskLevel(double value) const
       {
-        auto pos = std::find(std::begin(riskLevels), std::end(riskLevels), [value](const auto& risk) { return risk.lowerBound <= value && risk.upperBound > value;});
+        auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk) { return risk.lowerBound <= value && risk.upperBound > value;});
         if(pos != std::end(riskLevels))
           return (*pos).level;
         else

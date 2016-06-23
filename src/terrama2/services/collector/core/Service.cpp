@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/Collector.hpp
+  \file terrama2/services/collector/core/Service.cpp
 
-  \brief Model class for the collector configuration.
+  \brief
 
   \author Jano Simas
 */

@@ -27,6 +27,10 @@
   \author Jano Simas
 */
 
+
+#ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_JSONUTILS_HPP__
+#define __TERRAMA2_SERVICES_COLLECTOR_CORE_JSONUTILS_HPP__
+
 #include "Collector.hpp"
 #include "../Shared.hpp"
 
@@ -71,3 +75,5 @@ namespace terrama2
     }   // end namespace collector
   }     // end namespace services
 }       // end namespace terrama2
+
+#endif  // __TERRAMA2_SERVICES_COLLECTOR_CORE_JSONUTILS_HPP__
