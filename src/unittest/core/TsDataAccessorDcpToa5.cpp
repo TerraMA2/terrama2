@@ -16,8 +16,8 @@
 */
 
 /*!
-  \file terrama2/unittest/core/TsDataAccessorDcpInpe.cpp
-  \brief Tests for Class DataAccessorDcpInpe
+  \file terrama2/unittest/core/TsDataAccessorDcpToa5.cpp
+  \brief Tests for Class DataAccessorDcpToa5
   \author Evandro Delatin
 */
 
@@ -28,12 +28,12 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/impl/DataAccessorDcpToa5.hpp>
 #include <terrama2/Config.hpp>
 #include <terrama2/core/Exception.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
 
-#include "TsDataAccessorDcpInpe.hpp"
+#include "TsDataAccessorDcpToa5.hpp"
 #include "MockDataRetriever.hpp"
 
 // QT
@@ -43,7 +43,6 @@
 // STL
 #include <iostream>
 #include <fstream>
-#include <functional>
 
 // GMock
 #include <gtest/gtest.h>
@@ -52,14 +51,14 @@ using ::testing::Return;
 using ::testing::_;
 
 
-void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
-{  
+void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
+{
   try
   {
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(nullptr, nullptr);
+    terrama2::core::DataAccessorDcpToa5 accessor(nullptr, nullptr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Expected Exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -67,12 +66,12 @@ void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
   }
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected Exception!");
   }
   return;
 }
 
-void TsDataAccessorDcpInpe::TestFailDataProviderNull()
+void TsDataAccessorDcpToa5::TestFailDataProviderNull()
 {
   try
   {
@@ -81,9 +80,9 @@ void TsDataAccessorDcpInpe::TestFailDataProviderNull()
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(nullptr, dataSeriesPtr);
+    terrama2::core::DataAccessorDcpToa5 accessor(nullptr, dataSeriesPtr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Expected Exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -91,12 +90,12 @@ void TsDataAccessorDcpInpe::TestFailDataProviderNull()
   }
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected Exception!");
   }
   return;
 }
 
-void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
+void TsDataAccessorDcpToa5::TestFailDataSeriesNull()
 {
   try
   {
@@ -105,9 +104,9 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, nullptr);
+    terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, nullptr);
 
-    QFAIL("Expected exception!");
+    QFAIL("Expected Exception!");
   }
   catch(terrama2::core::DataAccessorException& e)
   {
@@ -115,12 +114,12 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
   }
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected Exception!");
   }
   return;
 }
 
-void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
+void TsDataAccessorDcpToa5::TestFailDataSeriesSemanticsInvalid()
 {
   try
   {
@@ -134,7 +133,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dataSeries->semantics = semanticsManager.getSemantics("DCP");
 
-    QFAIL("Expected exception!");
+    QFAIL("Expected Exception!");
   }
   catch(terrama2::core::SemanticsException& e)
   {
@@ -142,21 +141,19 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
   }
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected Exception!");
   }
   return;
 }
 
-void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
+void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 {
   try
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/PCD_serrmar_INPE";
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -166,12 +163,13 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
+    dataSeries->semantics = semanticsManager.getSemantics("DCP-toa5");
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "30885.txt");
+    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
     dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("folder", "GRM");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -181,7 +179,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
     std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
@@ -189,7 +187,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-inpe", makeMock);
+    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", makeMock);
 
     try
     {
@@ -197,10 +195,10 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Unexpected exception!");
+      QFAIL("Unexpected Exception!");
     }
 
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
+    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
 
   }
   catch(terrama2::Exception& e)
@@ -210,23 +208,21 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
 
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected Exception!");
   }
 
   return;
 
 }
 
-void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
+void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
 {
   try
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/PCD_serrmar_INPE";
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -236,12 +232,13 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
+    dataSeries->semantics = semanticsManager.getSemantics("DCP-toa5");
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "30885.txt");
+    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
     dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("folder", "GRM");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -251,7 +248,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
     std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
@@ -259,7 +256,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-inpe", makeMock);
+    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", makeMock);
 
     try
     {
@@ -267,10 +264,10 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Expected exception!");
+      QFAIL("Expected Exception!");
     }
 
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
+    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
 
   }
   catch(terrama2::Exception& e)
@@ -280,23 +277,21 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
 
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected Exception!");
   }
 
   return;
 
 }
 
-void TsDataAccessorDcpInpe::TestOK()
+void TsDataAccessorDcpToa5::TestOK()
 {
   try
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/PCD_serrmar_INPE";
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -306,12 +301,14 @@ void TsDataAccessorDcpInpe::TestOK()
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
+    dataSeries->semantics = semanticsManager.getSemantics("DCP-toa5");
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "30885.txt");
+    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
+
     dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("folder", "GRM");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -319,7 +316,7 @@ void TsDataAccessorDcpInpe::TestOK()
     terrama2::core::Filter filter;
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
     assert(dcpSeries->getDcpSeries().size() == 1);
@@ -328,12 +325,21 @@ void TsDataAccessorDcpInpe::TestOK()
 
     std::string uri = dataProvider->uri;
     std::string mask = dataSet->format.at("mask");
+    std::string folder = dataSet->format.at("folder");
 
-    QUrl url((uri+"/"+mask).c_str());
-    QFile file(url.path());
-    file.open(QIODevice::QIODevice::ReadOnly);
+    QUrl url((uri+"/"+folder+"/"+mask).c_str());
+    QFileInfo originalInfo(url.path());
+    QFile file(originalInfo.absoluteFilePath());
+    QString errMsg;
+    QFileDevice::FileError err = QFileDevice::NoError;
+    if (!file.open(QIODevice::ReadOnly))
+    {
+      QFAIL("Unexpected Exception!");
+      errMsg = file.errorString();
+      err = file.error();
+    }
 
-    int numberLinesOriginalFile = -1;
+    int numberLinesOriginalFile = -4; // ignore header lines
     // Get Number Lines Original File.
     while (!file.atEnd())
     {
@@ -343,9 +349,11 @@ void TsDataAccessorDcpInpe::TestOK()
 
     QStringList numberPropertiesOriginalFile;
 
+    // Get number Properties Original File.
     if(file.seek(0))
     {
-      // Get number Properties Original File.
+      //ignore first line
+      file.readLine();
       QTextStream in(&file);
       QString line = in.readLine();
       numberPropertiesOriginalFile = line.split(",");
@@ -365,7 +373,7 @@ void TsDataAccessorDcpInpe::TestOK()
   }
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected Exception!");
   }
 
   return;

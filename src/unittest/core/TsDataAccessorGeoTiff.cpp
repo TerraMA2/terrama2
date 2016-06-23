@@ -16,8 +16,8 @@
 */
 
 /*!
-  \file terrama2/unittest/core/TsDataAccessorDcpInpe.cpp
-  \brief Tests for Class DataAccessorDcpInpe
+  \file terrama2/unittest/core/TsDataAccessorGeoTiff.cpp
+  \brief Tests for Class DataAccessorGeoTiff
   \author Evandro Delatin
 */
 
@@ -27,13 +27,15 @@
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
-#include <terrama2/core/data-model/DataSetDcp.hpp>
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/core/data-model/DataSetGrid.hpp>
+#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+#include <terrama2/core/data-access/GridSeries.hpp>
+#include <terrama2/impl/DataAccessorGeoTiff.hpp>
 #include <terrama2/Config.hpp>
 #include <terrama2/core/Exception.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
 
-#include "TsDataAccessorDcpInpe.hpp"
+#include "TsDataAccessorGeoTiff.hpp"
 #include "MockDataRetriever.hpp"
 
 // QT
@@ -43,7 +45,6 @@
 // STL
 #include <iostream>
 #include <fstream>
-#include <functional>
 
 // GMock
 #include <gtest/gtest.h>
@@ -52,12 +53,12 @@ using ::testing::Return;
 using ::testing::_;
 
 
-void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
-{  
+void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
+{
   try
   {
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(nullptr, nullptr);
+    terrama2::core::DataAccessorGeoTiff accessor(nullptr, nullptr);
 
     QFAIL("Expected exception!");
   }
@@ -72,7 +73,7 @@ void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
   return;
 }
 
-void TsDataAccessorDcpInpe::TestFailDataProviderNull()
+void TsDataAccessorGeoTiff::TestFailDataProviderNull()
 {
   try
   {
@@ -81,7 +82,7 @@ void TsDataAccessorDcpInpe::TestFailDataProviderNull()
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(nullptr, dataSeriesPtr);
+    terrama2::core::DataAccessorGeoTiff accessor(nullptr, dataSeriesPtr);
 
     QFAIL("Expected exception!");
   }
@@ -96,7 +97,7 @@ void TsDataAccessorDcpInpe::TestFailDataProviderNull()
   return;
 }
 
-void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
+void TsDataAccessorGeoTiff::TestFailDataSeriesNull()
 {
   try
   {
@@ -105,7 +106,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, nullptr);
+    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, nullptr);
 
     QFAIL("Expected exception!");
   }
@@ -120,7 +121,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
   return;
 }
 
-void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
+void TsDataAccessorGeoTiff::TestFailDataSeriesSemanticsInvalid()
 {
   try
   {
@@ -147,7 +148,7 @@ void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
   return;
 }
 
-void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
+void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
 {
   try
   {
@@ -155,8 +156,8 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = "file://";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/PCD_serrmar_INPE";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/geotiff";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -165,13 +166,11 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
+    dataSeries->semantics.code = "GRID-geotiff";
 
-    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+    terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "30885.txt");
-    dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -181,7 +180,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
 
     std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
@@ -189,18 +188,18 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-inpe", makeMock);
+    terrama2::core::DataRetrieverFactory::getInstance().add("GRID-geotiff", makeMock);
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
     }
     catch(const terrama2::Exception&)
     {
-      QFAIL("Unexpected exception!");
+      QFAIL("Unexpected Exception!");
     }
 
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
+    terrama2::core::DataRetrieverFactory::getInstance().remove("GRID-geotiff");
 
   }
   catch(terrama2::Exception& e)
@@ -217,7 +216,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
 
 }
 
-void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
+void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
 {
   try
   {
@@ -225,8 +224,8 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = "file://";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/PCD_serrmar_INPE";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/geotiff";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -235,13 +234,11 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
+    dataSeries->semantics.code = "GRID-geotiff";
 
-    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+    terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "30885.txt");
-    dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -251,7 +248,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
 
     std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
@@ -259,18 +256,18 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-inpe", makeMock);
+    terrama2::core::DataRetrieverFactory::getInstance().add("GRID-geotiff", makeMock);
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
     }
     catch(const terrama2::Exception&)
     {
       QFAIL("Expected exception!");
     }
 
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
+    terrama2::core::DataRetrieverFactory::getInstance().remove("GRID-geotiff");
 
   }
   catch(terrama2::Exception& e)
@@ -287,7 +284,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
 
 }
 
-void TsDataAccessorDcpInpe::TestOK()
+void TsDataAccessorGeoTiff::TestOK()
 {
   try
   {
@@ -295,8 +292,8 @@ void TsDataAccessorDcpInpe::TestOK()
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = "file://";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/PCD_serrmar_INPE";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/geotiff";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -305,62 +302,21 @@ void TsDataAccessorDcpInpe::TestOK()
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
+    dataSeries->semantics.code = "GRID-geotiff";
 
-    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+    terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "30885.txt");
-    dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
     terrama2::core::Filter filter;
-
     //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
 
-    assert(dcpSeries->getDcpSeries().size() == 1);
-
-    std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.syncDataSet->dataset();
-
-    std::string uri = dataProvider->uri;
-    std::string mask = dataSet->format.at("mask");
-
-    QUrl url((uri+"/"+mask).c_str());
-    QFile file(url.path());
-    file.open(QIODevice::QIODevice::ReadOnly);
-
-    int numberLinesOriginalFile = -1;
-    // Get Number Lines Original File.
-    while (!file.atEnd())
-    {
-      file.readLine();
-      ++numberLinesOriginalFile;
-    }
-
-    QStringList numberPropertiesOriginalFile;
-
-    if(file.seek(0))
-    {
-      // Get number Properties Original File.
-      QTextStream in(&file);
-      QString line = in.readLine();
-      numberPropertiesOriginalFile = line.split(",");
-    }
-
-    file.close();
-
-    // Get Number Properties New File.
-    int numberPropertiesNewFile = teDataSet->getNumProperties();
-
-    // Get Number Lines New File.
-    int numberLinesNewFile = teDataSet->size();
-
-    QCOMPARE(numberLinesOriginalFile,numberLinesNewFile);
-    QCOMPARE(numberPropertiesOriginalFile.size(),numberPropertiesNewFile);
+    assert(gridSeries->gridList().size() == 1);
 
   }
   catch(...)
@@ -371,3 +327,4 @@ void TsDataAccessorDcpInpe::TestOK()
   return;
 
 }
+
