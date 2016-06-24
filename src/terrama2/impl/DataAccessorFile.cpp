@@ -69,7 +69,7 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
 
 std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet, bool logErrors) const
 {
-  return getProperty(dataSet, "timezone", logErrors);
+  return getProperty(dataSet, dataSeries_, "timezone", logErrors);
 }
 
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const
@@ -249,7 +249,7 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
 
 std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, "folder", false);
+  return getProperty(dataSet, dataSeries_, "folder", false);
 }
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,

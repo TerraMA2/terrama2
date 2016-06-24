@@ -31,6 +31,7 @@
 #include "DataAccessor.hpp"
 #include "../Exception.hpp"
 #include "../utility/Logger.hpp"
+#include "../utility/Utils.hpp"
 #include "../utility/DataRetrieverFactory.hpp"
 
 //terralib
@@ -285,46 +286,12 @@ Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataAccessor::getProperty(DataSetPtr dataSet, std::string tag, bool logErrors) const
-{
-  std::string property;
-  try
-  {
-    auto semantics = dataSeries_->semantics;
-    property = semantics.metadata.at(tag);
-  }
-  catch(...)  //exceptions will be treated later
-  {
-  }
-
-  if(property.empty())
-  {
-    try
-    {
-      property = dataSet->format.at(tag);
-    }
-    catch(...)  //exceptions will be treated later
-    {
-    }
-  }
-
-  if(property.empty())
-  {
-    QString errMsg = QObject::tr("Undefined %2 in dataset: %1.").arg(dataSet->id).arg(QString::fromStdString(tag));
-    if(logErrors)
-      TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-
-  return property;
-}
-
 std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, "timestamp_property");
+  return getProperty(dataSet, dataSeries_, "timestamp_property");
 }
 
-std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const 
 {
-  return getProperty(dataSet, "geometry_property");
+  return getProperty(dataSet, dataSeries_, "geometry_property");
 }

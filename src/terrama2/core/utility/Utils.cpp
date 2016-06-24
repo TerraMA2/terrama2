@@ -345,3 +345,38 @@ bool terrama2::core::isValidColumn(size_t value)
 {
    return value != std::numeric_limits<size_t>::max();
 }
+
+
+std::string terrama2::core::getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors)
+{
+  std::string property;
+  try
+  {
+    auto semantics = dataSeries->semantics;
+    property = semantics.metadata.at(tag);
+  }
+  catch(...)  //exceptions will be treated later
+  {
+  }
+
+  if(property.empty())
+  {
+    try
+    {
+      property = dataSet->format.at(tag);
+    }
+    catch(...)  //exceptions will be treated later
+    {
+    }
+  }
+
+  if(property.empty())
+  {
+    QString errMsg = QObject::tr("Undefined %2 in dataset: %1.").arg(dataSet->id).arg(QString::fromStdString(tag));
+    if(logErrors)
+      TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+
+  return property;
+}
