@@ -120,7 +120,7 @@ var Service = module.exports = function(serviceInstance) {
       self.answered = false;
       self.socket.write(buffer);
 
-      self.socket.setTimeout(2000, function() {
+      self.socket.setTimeout(4000, function() {
         if (!self.answered)
           self.emit("error", new Error("Status Timeout exceeded."));
       })

@@ -176,7 +176,7 @@
                   <div class="form-group" ng-class="{'has-error': generalDataForm.name.$dirty && generalDataForm.name.$error.required,
                                                      'has-success': generalDataForm.name.$dirty && generalDataForm.name.$valid}">
                     <label>{[ __("Name") ]}:</label>
-                    <input class="form-control" name="name" ng-disabled="isUpdating" ng-model="analysis.name" placeholder="{[ __('Analysis Name') ]}" type="text" required>
+                    <input class="form-control" name="name" ng-model="analysis.name" placeholder="{[ __('Analysis Name') ]}" type="text" required>
 
                     <span class="help-block" ng-show="generalDataForm.name.$dirty && generalDataForm.name.$invalid" ng-class="{'has-error': generalDataForm.name.$invalid}">{[ __('Analysis name is required') ]}</span>
                   </div>
@@ -204,7 +204,7 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label>{[ __("Description") ]}:</label>
-                    <textarea class="form-control" name="description" ng-disabled="isUpdating" ng-model="analysis.description" rows="3" placeholder="{[ __('Analysis Description') ]}"></textarea>
+                    <textarea class="form-control" name="description" ng-model="analysis.description" rows="3" placeholder="{[ __('Analysis Description') ]}"></textarea>
                   </div>
                   <!-- /.form-group -->
                 </div>
@@ -213,7 +213,7 @@
                   <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.instance.$dirty && generalDataForm.instance.$error.required,
                                                      'has-success': generalDataForm.instance.$dirty && generalDataForm.instance.$valid}">
                     <label>{[ __("Instance") ]}:</label>
-                    <select class="form-control" name="instance" ng-disabled="isUpdating" ng-model="analysis.instance_id" required>
+                    <select class="form-control" name="instance" ng-model="analysis.instance_id" required>
                       <option ng-repeat="instance in instances" value="{{ instance.id }}">{{ instance.name }}</option>
                       <option ng-if="instances.length == 0" value="">{[ __('No analysis instance found') ]}</option>
                     </select>
@@ -398,7 +398,7 @@
           <div style="display: block;" class="box-body">
             <div class="row">
               <div class="col-md-12">
-                <button type="button" class="btn btn-default pull-right" ng-disabled="isUpdating" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
+                <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
                   <i class="fa fa-plus"></i>
                 </button>
                 <!-- metadata form handler -->
@@ -415,13 +415,13 @@
                       <td>{{ dataSeries.name }}</td>
                       <td>{{ dataSeries.data_series_semantics.name }}</td>
                       <td>
-                        <input type="text" class="form-control" name="name" ng-disabled="isUpdating" ng-model="metadata[dataSeries.name].alias" required>
+                        <input type="text" class="form-control" name="name" ng-model="metadata[dataSeries.name].alias" required>
                       </td>
                       <!-- <td>
                         <button type="button" class="btn btn-primary" data-ng-click="onDataSeriesClick(dataSeries);"><i class="fa fa-gear"></i></button>
                       </td> -->
                       <td class="pull-cell-left">
-                        <button type="button" class="btn btn-danger btn-small" ng-disabled="isUpdating" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
+                        <button type="button" class="btn btn-danger btn-small" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
                       </td>
                     </tr>
                     <tr ng-if="selectedDataSeriesList.length == 0">
@@ -574,7 +574,7 @@
                     <div id="scriptCheckResult"></div>
                     <div id="systemError" style="display: none;"></div>
                     <div id="script"></div>
-                    <textarea name="script" ng-disabled="isUpdating" ng-model="analysis.script" required></textarea>
+                    <textarea name="script" ng-model="analysis.script" required></textarea>
 
                     <!-- required -->
                     <span class="help-block"
@@ -615,7 +615,7 @@
     <!-- /.box body -->
 
     <div class="box-footer">
-      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton" ng-disabled="isUpdating">{[ __('OK') ]}</button>
+      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton">{[ __('OK') ]}</button>
       <a href="/configuration/analyses/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
   </div>

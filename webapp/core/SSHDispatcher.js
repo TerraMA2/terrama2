@@ -3,7 +3,6 @@ var Promise = require("bluebird");
 var fs = require('fs');
 var util = require('util');
 var Utils = require("./Utils");
-var ServiceType = require("./Enums");
 
 
 /**
@@ -70,7 +69,7 @@ SSHDispatcher.prototype.disconnect = function() {
     self.client.end();
     resolve();
   });
-}
+};
 
 SSHDispatcher.prototype.execute = function(command) {
   var self = this;
@@ -88,9 +87,6 @@ SSHDispatcher.prototype.execute = function(command) {
 
       stream.on('close', function(code, signal) {
         console.log('code: ' + code + ', signal: ' + signal);
-
-        self.client.end();
-        self.connected = false;
 
         if (code == 0) {
           resolve(code);
@@ -116,6 +112,7 @@ SSHDispatcher.prototype.startService = function() {
       var executable = self.serviceInstance.pathToBinary;
       var port = self.serviceInstance.port.toString();
       var serviceTypeString = Utils.getServiceTypeName(self.serviceInstance.service_type_id);
+      var enviromentVars = self.serviceInstance.runEnviroment;
 
       var command;
       if (process.plataform == 'win32') {
@@ -135,11 +132,28 @@ SSHDispatcher.prototype.startService = function() {
 
       console.log(command);
 
-      self.execute(command).then(function(code) {
-        resolve(code);
-      }).catch(function(err, code) {
-        reject(err, code)
-      })
+      var _executeCommand = function() {
+        self.execute(command).then(function(code) {
+          resolve(code);
+        }).catch(function(err, code) {
+          reject(err, code)
+        });
+      }
+
+      // TODO: Should the user configure 'EXPORT PATH=....', 'SET PATH='%PATH%...'
+      // checking if there enviromentVars to be exported
+      if (enviromentVars) {
+        self.execute(enviromentVars).then(function(code) {
+          console.log("Success setting enviroment vars")
+          console.log(code);
+          _executeCommand();
+        }).catch(function(err, code) {
+          console.log("**Could not export enviroment vars**");
+          reject(err, code);
+        })
+      } else {
+        _executeCommand();
+      }
     } catch (e) {
       reject(e);
     }

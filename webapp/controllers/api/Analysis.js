@@ -89,6 +89,37 @@ module.exports = function(app) {
       }
     }],
 
+    put: [passport.isCommonUser, function(request, response) {
+      var analysisId = request.params.id;
+
+      if (analysisId) {
+        var analysisObject = request.body.analysis;
+        var scheduleObject = request.body.schedule;
+
+        DataManager.updateAnalysis(analysisId, analysisObject, scheduleObject).then(function() {
+          DataManager.getAnalysis({id: analysisId}).then(function(analysisInstance) {
+
+            Utils.sendDataToServices(DataManager, TcpManager, {
+              "DataSeries": [analysisInstance.dataSeries.toObject()],
+              "Analysis": [analysisInstance.toObject()]
+            })
+
+            // generating token
+            var token = Utils.generateToken(app, TokenCode.UPDATE, analysisInstance.name);
+            response.json({status: 200, result: analysisInstance.toObject(), token: token})
+          }).catch(function(err) {
+            console.log("Error while retrieving updated analysis");
+            console.log(err);
+            Utils.handleRequestError(response, err, 400);
+          })
+        }).catch(function(err) {
+          Utils.handleRequestError(response, err, 400);
+        })
+      } else {
+        Utils.handleRequestError(response, new AnalysisError("Missing analysis id"), 400);
+      }
+    }],
+
     delete: [passport.isCommonUser, function(request, response) {
       var id = request.params.id;
       if(id) {

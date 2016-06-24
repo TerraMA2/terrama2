@@ -5,5 +5,6 @@ module.exports = function (app) {
 
   app.get('/api/Analysis/', passport.isAuthenticated, controller.get);
   app.post('/api/Analysis/', passport.isAuthenticated, controller.post);
+  app.put('/api/Analysis/:id', passport.isAuthenticated, controller.put);
   app.delete('/api/Analysis/:id/delete', passport.isAuthenticated, controller.delete);
 };

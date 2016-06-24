@@ -942,7 +942,8 @@ var DataManager = {
   /**
    * It updates a DataProvider instance from object.
    *
-   * @param {Object} dataProviderObject - An object containing DataProvider identifier to get it.
+   * @param {int} dataProviderId - A DataProvider identifier to get it.
+   * @param {Object} dataProviderObject - An object containing DataProvider to update.
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
   updateDataProvider: function(dataProviderId, dataProviderObject) {
@@ -971,8 +972,9 @@ var DataManager = {
           self.listServiceInstances().then(function(services) {
             services.forEach(function(service) {
               try {
+                console.log("Sending Add_signal to update");
                 TcpManager.emit('sendData', service, {
-                  "DataProviders": [dataProviderObject.toObject()]
+                  "DataProviders": [dataProvider.toObject()]
                 })
               } catch (e) {
 
@@ -1764,6 +1766,23 @@ var DataManager = {
     });
   },
 
+  updateSchedule: function(scheduleId, scheduleObject) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db['Schedule'].update(scheduleObject, {
+        fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency'],
+        where: {
+          id: scheduleId
+        }
+      }).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(new exceptions.ScheduleError("Could not update schedule " + err.toString()));
+      })
+    });
+  },
+
   removeSchedule: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -2151,6 +2170,52 @@ var DataManager = {
         reject(err);
       });
     });
+  },
+
+  updateAnalysis: function(analysisId, analysisObject, scheduleObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.getAnalysis({id: analysisId}).then(function(analysisInstance) {
+        models.db['Analysis'].update(analysisObject, {
+          fields: ['name', 'description', 'instance_id', 'script'],
+          where: {
+            id: analysisId
+          }
+        }).then(function() {
+          // updating analysis dataSeries
+          var promises = [];
+
+          analysisInstance.analysis_dataseries_list.forEach(function(analysisDS) {
+            promises.push(models.db['AnalysisDataSeries'].update(
+              {alias: analysisDS.alias},
+              {
+                fields: ['alias'],
+                where: {
+                  id: analysisDS.id
+                }
+              }
+            ));
+          })
+
+          Promise.all(promises).then(function() {
+            // updating schedule
+            self.updateSchedule(analysisInstance.schedule.id, scheduleObject).then(function() {
+              resolve();
+            }).catch(function(err) {
+              reject(err);
+            });
+
+          }).catch(function(err) {
+            reject(new exceptions.AnalysisError("Could not update analysis data series " + err.toString()));
+          });
+
+        }).catch(function(err) {
+          reject(new exceptions.AnalysisError("Could not update analysis. " + err.toString()));
+        })
+      }).catch(function(err) {
+        reject(err);
+      })
+    })
   },
 
   listAnalyses: function(restriction) {

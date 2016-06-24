@@ -234,11 +234,13 @@ TcpManager.prototype.startService = function(serviceInstance) {
       self.emit("serviceStarted", serviceInstance);
     }).catch(function(err, errCode) {
       self.emit('error', serviceInstance, err);
+    }).finally(function() {
+      ssh.disconnect();
     });
 
   }).catch(function(err) {
     console.log('ssh startservice error')
-    this.emit("error", serviceInstance, rr);
+    this.emit("error", serviceInstance, err);
   });
 }
 

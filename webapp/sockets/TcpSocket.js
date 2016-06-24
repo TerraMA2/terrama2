@@ -62,32 +62,30 @@ var TcpSocket = function(io) {
       })
     });
 
+    TcpManager.on('serviceStarted', function(service) {
+      setTimeout(function() {
+        TcpManager.emit('connect', service);
+      }, 1000);
+    });
+
+    TcpManager.on('serviceConnected', function(service) {
+      TcpManager.emit('updateService', service);
+
+      setTimeout(function() {
+        TcpManager.emit('statusService', service);
+      }, 2000);
+    });
+
+    TcpManager.on('statusReceived', function(service, result) {
+      Utils.prepareAddSignalMessage(DataManager).then(function(data) {
+        TcpManager.emit('sendData', service, data);
+      });
+    });
+
     // client listeners
     client.on('start', function(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
         TcpManager.emit('startService', instance);
-
-        TcpManager.once('serviceStarted', function(service) {
-
-          setTimeout(function() {
-            TcpManager.emit('connect', service);
-          }, 1000);
-
-          TcpManager.once('serviceConnected', function() {
-
-            TcpManager.emit('updateService', service);
-
-            setTimeout(function() {
-              TcpManager.emit('statusService', service);
-
-              TcpManager.once('statusReceived', function(result) {
-                Utils.prepareAddSignalMessage(DataManager).then(function(data) {
-                  TcpManager.emit('sendData', service, data);
-                });
-              })
-            }, 2000)
-          })
-        })
       }).catch(function(err) {
         console.log(err);
       })

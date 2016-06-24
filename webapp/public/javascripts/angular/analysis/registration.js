@@ -44,7 +44,7 @@ angular.module('terrama2.analysis.registration', [
     $scope.isFrequency = false;
     $scope.isSchedule = false;
     $scope.scheduleOptions = {
-      disabled: $scope.isUpdating
+
     }
 
     // define dataseries selected in modal
@@ -249,12 +249,12 @@ angular.module('terrama2.analysis.registration', [
 
           // TODO: change it to angular ui-ace.
           editor.setValue($scope.analysis.script);
-          editor.setOptions({
-            readOnly: true,
-            highlightActiveLine: false,
-            highlightGutterLine: false
-          })
-          editor.renderer.$cursorLayer.element.style.opacity=0
+          // editor.setOptions({
+          //   readOnly: true,
+          //   highlightActiveLine: false,
+          //   highlightGutterLine: false
+          // })
+          // editor.renderer.$cursorLayer.element.style.opacity=0
 
         }
 
@@ -530,12 +530,20 @@ angular.module('terrama2.analysis.registration', [
       }
 
       // sending post operation
-      AnalysisFactory.post({
+      var objectToSend = {
         analysis: analysisToSend,
         storager: storager,
         schedule: scheduleValues
-      }).success(function(data) {
+      };
 
+      var request;
+
+      if ($scope.isUpdating)
+        request = AnalysisFactory.put(configuration.analysis.id, objectToSend);
+      else
+        request = AnalysisFactory.post(objectToSend);
+
+      request.success(function(data) {
         window.location = "/configuration/analyses?token=" + data.token;
       }).error(function(err) {
         console.log(err);
