@@ -23,8 +23,36 @@ var TcpSocket = function(io) {
   // DataManager
   var DataManager = require('./../core/DataManager');
 
+  // A bool value to avoid add extra listeners
+  var isRegistred = false;
+
   // Socket connection event
   iosocket.on('connection', function(client) {
+
+    if (!isRegistred) {
+      TcpManager.on('serviceStarted', function(service) {
+        setTimeout(function() {
+          TcpManager.emit('connect', service);
+        }, 1000);
+      });
+
+      TcpManager.on('serviceConnected', function(service) {
+        TcpManager.emit('updateService', service);
+
+        setTimeout(function() {
+          TcpManager.emit('statusService', service);
+        }, 2000);
+      });
+
+      TcpManager.on('statusReceived', function(service, result) {
+        Utils.prepareAddSignalMessage(DataManager).then(function(data) {
+          TcpManager.emit('sendData', service, data);
+        });
+      });
+
+      isRegistred = true;
+    }
+
     // tcp listeners
     TcpManager.on('statusReceived', function(service, response) {
       client.emit('statusResponse', {
@@ -41,12 +69,13 @@ var TcpSocket = function(io) {
     TcpManager.on('stop', function(service, response) {
       client.emit('stopResponse', {
         status: 200,
-        onlien: false,
+        online: false,
         service: service.id
       })
     });
 
     TcpManager.on('close', function(service, response) {
+      console.log(response);
       client.emit('closeResponse', {
         status: 400,
         service: service.id,
@@ -60,26 +89,6 @@ var TcpSocket = function(io) {
         message: err.toString(),
         service: service.id
       })
-    });
-
-    TcpManager.on('serviceStarted', function(service) {
-      setTimeout(function() {
-        TcpManager.emit('connect', service);
-      }, 1000);
-    });
-
-    TcpManager.on('serviceConnected', function(service) {
-      TcpManager.emit('updateService', service);
-
-      setTimeout(function() {
-        TcpManager.emit('statusService', service);
-      }, 2000);
-    });
-
-    TcpManager.on('statusReceived', function(service, result) {
-      Utils.prepareAddSignalMessage(DataManager).then(function(data) {
-        TcpManager.emit('sendData', service, data);
-      });
     });
 
     // client listeners
@@ -103,7 +112,7 @@ var TcpSocket = function(io) {
           service: json.service
         })
       });
-    })
+    });
     // end client status listener
 
     client.on('stop', function(json) {
@@ -117,11 +126,11 @@ var TcpSocket = function(io) {
           service: service.id
         })
       });
-    })
+    });
 
     client.on('log', function(json) {
       var begin = json.begin || 0,
-          end = json.end || 9;
+        end = json.end || 9;
 
       DataManager.listCollectors().then(function(collectors) {
         var obj = {
@@ -138,7 +147,7 @@ var TcpSocket = function(io) {
           message: err.toString()
         })
       })
-    })
+    });
   });
 };
 

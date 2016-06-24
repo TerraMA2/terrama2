@@ -41,6 +41,7 @@ var Service = module.exports = function(serviceInstance) {
 
   var self = this;
   self.answered = false;
+  self.logs = [];
 
   self.socket = new net.Socket();
 
