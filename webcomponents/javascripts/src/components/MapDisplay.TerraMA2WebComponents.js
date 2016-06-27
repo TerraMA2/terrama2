@@ -560,14 +560,29 @@ define(
     /**
      * Removes the layer from the Map.
      * @param {string} layerId - Layer id
+     * @param {string|undefined} parentGroupId - Parent group id
      *
      * @function removeLayer
      * @memberof MapDisplay
      * @inner
      */
-    var removeLayer = function(layerId) {
-      var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
-      memberOlMap.removeLayer(layer);
+    var removeLayer = function(layerId, parentGroupId) {
+      if(parentGroupId !== "undefined" && parentGroupId !== 'undefined' && parentGroupId !== undefined && parentGroupId !== null) {
+        var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroupId);
+        var layers = layerGroup.getLayers();
+
+        layers.forEach(function(layer, i, array) {
+          if(layerId === layer.get('id')) {
+            layers.remove(layer);
+            return false;
+          }
+        });
+
+        layerGroup.setLayers(layers);
+      } else {
+        var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+        memberOlMap.removeLayer(layer);
+      }
     };
 
     /**
