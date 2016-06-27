@@ -203,6 +203,12 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
 
     self.initialize(client);
 
+    // checking first attempt when there is no active socket (listing services)
+    if (!client.isOpen()) {
+      self.emit('error', client.service, new Error("There is no active connection"));
+      return;
+    }
+
     var begin = data.begin;
     var end = data.end;
 

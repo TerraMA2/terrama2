@@ -2255,8 +2255,6 @@ var DataManager = {
         console.log(err);
         reject(err);
       };
-
-      // TODO: building analysis from a factory. (AnalysisGrid, AnalysisDataseries...)
       models.db['Analysis'].findAll({
         include: [
           {
@@ -2275,17 +2273,41 @@ var DataManager = {
         ]
       }).then(function(analysesResult) {
         var output = [];
+        var promises = [];
 
         analysesResult.forEach(function(analysis) {
-          var analysisObject = new DataModel.Analysis(analysis.get());
+          promises.push(self.getDataSet({id: analysis.dataset_output}));
+        });
 
-          analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
-            analysisObject.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
+        Promise.all(promises).then(function(dataSets) {
+          promises = [];
+
+          dataSets.forEach(function(dataSet) {
+            promises.push(self.getDataSeries({id: dataSet.data_series_id}));
           });
 
-          output.push(analysisObject);
-        });
-        resolve(output);
+          Promise.all(promises).then(function(dataSeriesList) {
+            analysesResult.forEach(function(analysis) {
+              var analysisObject = new DataModel.Analysis(analysis.get());
+              dataSets.some(function(dataSet) {
+                return dataSeriesList.some(function(dataSeries) {
+                  if (dataSet.data_series_id === dataSeries.id) {
+                    analysisObject.setDataSeries(dataSeries);
+                    return true;
+                  }
+                })
+              })
+
+              analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
+                analysisObject.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
+              });
+
+              output.push(analysisObject);
+            });
+
+            resolve(output);
+          }).catch(_reject);
+        }).catch(_reject);
       }).catch(_reject);
     });
   },

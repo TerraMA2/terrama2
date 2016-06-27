@@ -171,20 +171,22 @@ var TcpSocket = function(io) {
       DataManager.listServiceInstances().then(function(services) {
         DataManager.listAnalyses().then(function(analysisList) {
           var obj = {
-            process_ids: analysisList.map(function(element) { return element.id }),
             begin: begin,
             end: end
           };
 
           DataManager.listCollectors().then(function(collectors) {
+            var analysisIds = analysisList.map(function(element) { return element.id });
+            var collectorsIds = collectors.map(function(elm) { return elm.id });
             services.forEach(function(service) {
               switch(service.service_type_id) {
                 case ServiceType.ANALYSIS:
+                obj.process_ids = analysisIds;
                   // requesting for analysis log
                   TcpManager.emit('logData', service, obj);
                   break;
                 case ServiceType.COLLECTOR:
-                  obj.process_ids = collectors.map(function(elm) { return elm.id });
+                  obj.process_ids = collectorsIds,
 
                   // requesting for collector log
                   TcpManager.emit('logData', service, obj);
