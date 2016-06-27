@@ -1927,11 +1927,31 @@ var DataManager = {
         ]
       }).then(function(collectorsResult) {
         var output = [];
+
+        var promises = [];
         collectorsResult.forEach(function(collector) {
-          output.push(new DataModel.Collector(collector.get()));
+          promises.push(self.getDataSeries({id: collector.data_series_output}));
+          // output.push(new DataModel.Collector(collector.get()));
         });
 
-        resolve(output);
+        Promise.all(promises).then(function(dataSeriesArray) {
+          dataSeriesArray.forEach(function(dataSeries) {
+            collectorsResult.some(function(collector) {
+              if (collector.data_series_output === dataSeries.id) {
+                var collectorInstance = new DataModel.Collector(collector.get());
+                collectorInstance.dataSeriesOutput = dataSeries;
+                output.push(collectorInstance);
+
+                return true;
+              }
+            })
+          })
+
+          resolve(output);
+        }).catch(function(err) {
+          console.log(err);
+          reject(new exceptions.CollectorError("Could not retrieve collector data series output: " + err.toString()));
+        })
 
       }).catch(function(err) {
         console.log(err);
@@ -1973,7 +1993,15 @@ var DataManager = {
         ]
       }).then(function(collectorResult) {
         if (collectorResult) {
-          resolve(new DataModel.Collector(collectorResult.get()));
+          var collectorInstance = new DataModel.Collector(collectorResult.get());
+
+          self.getDataSeries({id: collectorResult.data_series_output}).then(function(dataSeries) {
+            collectorInstance.dataSeriesOutput = dataSeries;
+            resolve(collectorInstance);
+          }).catch(function(err) {
+            console.log("Retrieved null while getting collector");
+            reject(new exceptions.CollectorError("Could not find collector. "));
+          })
         } else {
           console.log("Retrieved null while getting collector");
           reject(new exceptions.CollectorError("Could not find collector. "));

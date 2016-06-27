@@ -12,7 +12,7 @@ module.exports = function(app) {
 
         var outputCollectors = [];
         collectors.forEach(function(collector) {
-          outputCollectors.push(collector.toObject());
+          outputCollectors.push(collector.rawObject());
         })
 
         return response.render("configuration/status", {

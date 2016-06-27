@@ -1,11 +1,13 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
-var TcpManager = require("../../core/TcpManager");
+var TcpManagerClass = require("../../core/TcpManager");
 var passport = require('./../../config/Passport');
 
 
 module.exports = function(app) {
+  var TcpManager = new TcpManagerClass();
+
   return {
     get: function(request, response) {
       var analysisId = request.params.id;

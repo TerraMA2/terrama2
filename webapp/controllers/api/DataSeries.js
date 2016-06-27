@@ -1,5 +1,5 @@
 var DataManager = require("../../core/DataManager");
-var TcpManager = require('../../core/TcpManager');
+var TcpManagerClass = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var DataSeriesType = require('./../../core/Enums').DataSeriesType;
@@ -8,6 +8,8 @@ var isEmpty = require('lodash').isEmpty;
 var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
+  var TcpManager = new TcpManagerClass();
+
   return {
     post: [passport.isCommonUser, function(request, response) {
       var dataSeriesObject = request.body.dataSeries;

@@ -141,5 +141,14 @@ module.exports = {
     START: 2,
     DOWNLOADED: 3,
     DONE: 4
+  },
+
+  /**
+  Possible status of logged messages.
+  */
+  MessageType: {
+    ERROR_MESSAGE: 1,
+    INFO_MESSAGE: 2,
+    WARNING_MESSAGE: 3
   }
 };
