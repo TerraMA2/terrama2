@@ -12,19 +12,28 @@ var ServiceType = require('./Enums').ServiceType;
 var TcpManager = function() {
   EventEmitter.call(this);
 
-  var self = this;
+  this.on('startService', this.startService);
+  this.on('stopService', this.stopService);
+  this.on('sendData', this.sendData);
+  this.on('removeData', this.removeData);
+  this.on('logData', this.logData);
+  this.on('statusService', this.statusService);
+  this.on('updateService', this.updateService);
+  this.on('connect', this.connect);
 
-  self.on('startService', self.startService);
-  self.on('stopService', self.stopService);
-  self.on('sendData', self.sendData);
-  self.on('removeData', self.removeData);
-  self.on('logData', self.logData);
-  self.on('statusService', self.statusService);
-  self.on('updateService', self.updateService);
-  self.on('connect', self.connect);
+  this.registered = false;
 }
 
 NodeUtils.inherits(TcpManager, EventEmitter);
+
+
+/**
+ This method prepares a bytearray to send in tcp socket.
+ */
+TcpManager.prototype.isRegistered = function() {
+  return this.registered;
+};
+
 
 /**
  This method prepares a bytearray to send in tcp socket.
@@ -110,6 +119,14 @@ function _getClient(connection) {
 }
 
 /**
+  It will store c++ log application.
+*/
+var logs = {
+  collectors: [],
+  analysis: []
+}
+
+/**
  This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
  @param {ServiceInstance} serviceInstance - a terrama2 service instance
  @param {Object} data - a javascript object message to send
@@ -126,6 +143,8 @@ TcpManager.prototype.sendData = function(serviceInstance, data) {
 
     // getting client and writing in the channel
     var client = _getClient(serviceInstance);
+
+    self.initialize(client);
 
     client.send(buffer);
 
@@ -150,6 +169,8 @@ TcpManager.prototype.removeData = function(serviceInstance, data) {
     // getting client and writing in the channel
     var client = _getClient(serviceInstance);
 
+    self.initialize(client);
+
     client.send(buffer);
 
   } catch (e) {
@@ -162,38 +183,67 @@ TcpManager.prototype.removeData = function(serviceInstance, data) {
 /**
  This method sends a LOG_SIGNAL with bytearray to tcp socket. It is async
  @param {ServiceInstance} serviceInstance - a terrama2 service instance
+ @param {ServiceType} serviceType - a terrama2 service type
  @param {Object} data - a javascript object message to send
  */
 TcpManager.prototype.logData = function(serviceInstance, data) {
   var self = this;
   try {
-    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
 
-    // TODO: make a local buffer
+    // checking if there are active connections
+    if (Object.keys(clients).length === 0)
+      throw new Error("There is no client to log request. Start services in Admin Dashboard");
+
+    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
 
     console.log("Buffer: ", buffer);
     console.log("BufferToString: ", buffer.toString());
 
+    var client = _getClient(serviceInstance);
 
-    if (serviceInstance) {
-      var client = _getClient(serviceInstance);
+    self.initialize(client);
 
-      client.log(buffer);
+    var begin = data.begin;
+    var end = data.end;
+
+    var array = [];
+    switch (client.service.service_type_id) {
+      case ServiceType.COLLECTOR:
+        array = logs.collectors;
+        break;
+      case ServiceType.ANALYSIS:
+        array = logs.analysis;
+        break;
+      default:
+        this.emit("error", null, new Error("Invalid service type id"));
+        return;
+    }
+
+    // checking server cache
+    if (end <= array.length) {
+
+      self.emit('logReceived', client.service, array.slice(begin, end));
+
       return;
     }
 
-    for(var key in clients) {
-      if (clients.hasOwnProperty(key)) {
-        var client = clients[key];
-        // if (client.service.service_type_id === ServiceType.COLLECTOR)
-        client.log(buffer);
-        break;
-      }
-    }
+    // requesting for log
+    client.log(buffer);
+
+    // for(var key in clients) {
+    //   if (clients.hasOwnProperty(key)) {
+    //     var client = clients[key];
+    //
+    //     self.initialize(client);
+    //
+    //     if (client.service.service_type_id === serviceType)
+    //       client.log(buffer);
+    //   }
+    // }
 
   } catch (e) {
     console.log(e);
-    this.emit("error", new Error("Could not send data LOG_SIGNAL to service", e));
+    this.emit("error", serviceInstance, new Error("Could not send data LOG_SIGNAL to service", e));
   }
 };
 
@@ -209,6 +259,8 @@ TcpManager.prototype.updateService = function(serviceInstance) {
 
     console.log(buffer.toString());
     var client = _getClient(serviceInstance);
+
+    self.initialize(client);
 
     client.update(buffer)
 
@@ -242,7 +294,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
     console.log('ssh startservice error')
     this.emit("error", serviceInstance, err);
   });
-}
+};
 
 /**
  This method sends STATUS_SIGNAL and waits for tcp client response.
@@ -257,16 +309,20 @@ TcpManager.prototype.statusService = function(serviceInstance) {
 
     var client = _getClient(serviceInstance);
 
-    client.once('error', function(err) {
-      self.emit('error', serviceInstance, err);
-    })
+    // checking first attempt when there is no active socket (listing services)
+    if (!client.isOpen()) {
+      self.emit('error', client.service, new Error("There is no active connection"));
+      return;
+    }
+
+    self.initialize(client);
 
     client.status(buffer);
 
   } catch (e) {
     this.emit("error", serviceInstance, e)
   }
-}
+};
 
 TcpManager.prototype.connect = function(serviceInstance) {
   var self = this;
@@ -285,7 +341,7 @@ TcpManager.prototype.connect = function(serviceInstance) {
   } catch (e) {
     this.emit("error", serviceInstance, e);
   }
-}
+};
 
 TcpManager.prototype.getService = function(serviceInstance) {
   return _getClient(serviceInstance);
@@ -299,6 +355,8 @@ TcpManager.prototype.stopService = function(serviceInstance) {
 
     var client = _getClient(serviceInstance);
 
+    self.initialize(client);
+
     client.stop(buffer);
 
   } catch(e) {
@@ -309,41 +367,83 @@ TcpManager.prototype.stopService = function(serviceInstance) {
 
 TcpManager.prototype.initialize = function(client) {
   var self = this;
-  if (!client.isOpen())
+  if (!client.isOpen() || client.isRegistered())
     return;
 
-  client.on('status', function(response) {
-    self.emit('statusReceived', client.service, response)
-  });
+  console.log("Registering listeners " + client.service.name);
+  this.registered = true;
 
-  client.on('log', function(response) {
+  var onStatus = function(response) {
+    self.emit('statusReceived', client.service, response)
+  };
+
+  var onLog = function(response) {
     // TODO: make a local buffer
+    var target = [];
+    switch(client.service.service_type_id) {
+      case ServiceType.COLLECTOR:
+        target = logs.collectors;
+        break;
+      case ServiceType.ANALYSIS:
+        target = logs.analysis;
+        break;
+    }
+
+    if (target.length === 0) {
+      target.push(response);
+    } else {
+      target.forEach(function(cachedLog) {
+        // cachedLog.process_id
+        response.some(function(logRetrieved) {
+          if (cachedLog.process_id === logRetrieved.process_id) {
+            cachedLog.log.push.apply(logRetrieved.log);
+            return true;
+          }
+        })
+      });
+    }
+
     self.emit('logReceived', client.service, response)
-  });
+  };
+
+  var onStop = function(response) {
+    self.emit('stop', client.service, response);
+  };
+
+  var onClose = function(response) {
+    self.emit('close', client.service, response);
+  };
+
+  var onError = function(response) {
+    self.emit('error', client.service, response)
+  };
+
+  client.on('status', onStatus);
+
+  client.on('log', onLog);
 
   // terminate signal
-  client.on('stop', function(response) {
-    self.emit('stop', client.service, response);
-  });
+  client.on('stop', onStop);
 
   // socket closed
-  client.on('close', function(response) {
-    self.emit('close', client.service, response);
-  });
+  client.on('close', onClose);
 
-  client.on('error', function(response) {
-    self.emit('error', client.service, response)
+  client.on('error', onError)
+
+  // remove listener
+  self.on('removeListeners', function() {
+    console.log("Removing listener from " + client.service.name);
+
+    client.removeListener('status', onStatus);
+    client.removeListener('log', onLog);
+    client.removeListener('stop', onStop);
+    client.removeListener('close', onClose);
+    client.removeListener('error', onError);
   })
-}
+};
 
 TcpManager.prototype.disconnect = function() {
-  return new Promise(function(resolve, reject) {
-    ssh.disconnect().then(function() {
-      resolve();
-    }).catch(function(err) {
-      reject(err);
-    });
-  })
-}
+  // disabling listeners
+};
 
-module.exports = new TcpManager();
+module.exports = TcpManager;

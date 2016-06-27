@@ -33,7 +33,7 @@ var fs = require('fs');
 var path = require('path');
 
 // Tcp
-var TcpManager = require('./TcpManager');
+var TcpManagerClass = require('./TcpManager');
 
 // data model
 var DataModel = require('./data-model');
@@ -55,6 +55,8 @@ function getItemByParam(array, object) {
 
 
 var models = null;
+
+var TcpManager = new TcpManagerClass();
 
 /**
  * Controller of the system index.

@@ -48,18 +48,26 @@ var Service = module.exports = function(serviceInstance) {
   var callbackSuccess = null;
   var callbackError = null;
 
+  self.isRegistered = function() {
+    // TODO: better implementation
+    // checking a event
+    return self.listenerCount('status') > 0 ||
+           self.listenerCount('log') > 0 ||
+           self.listenerCount('stop') > 0 ||
+           self.listenerCount('close') > 0 ||
+           self.listenerCount('error') > 0;
+  };
+
   self.socket.on('data', function(byteArray) {
     self.answered = true;
     console.log("client received: ", byteArray);
-    console.log("client received: ", byteArray.toString());
+    console.log("client " + self.service.name +" received: ", byteArray.toString());
 
     try  {
       var parsed = parseByteArray(byteArray);
 
       switch(parsed.signal) {
         case Signals.LOG_SIGNAL:
-
-          self.logs.push(parsed.message);
           self.emit("log", parsed.message);
           break;
         case Signals.STATUS_SIGNAL:
@@ -171,15 +179,16 @@ var Service = module.exports = function(serviceInstance) {
   };
 
   self.log = function(buffer) {
-    return new Promise(function(resolve, reject) {
-      if (!self.isOpen()) {
-        return reject(new Error("Could not apply log request from a no existent connection"));
-      }
+    if (!self.isOpen()) {
+      self.emit('error', (new Error("Could not apply log request from a no existent connection")));
+    }
 
-      callbackSuccess = resolve;
-      callbackError = reject;
+    self.answered = false;
+    self.socket.write(buffer);
 
-      self.socket.write(buffer);
+    self.socket.setTimeout(60000, function() {
+      if (!self.answered)
+        self.emit("error", new Error("Log Timeout exceeded."));
     })
   }
 };

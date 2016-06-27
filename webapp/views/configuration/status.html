@@ -2,40 +2,44 @@
 
 {% set tabActive = "status" %}
 
-{% block ngApp %}ng-app="terrama2.projects.status"{% endblock %}
+{% block ngApp %}ng-app="terrama2.status"{% endblock %}
 
 {% block title %} TerraMA² {{ __('Project Status')}} {% endblock %}
 
 {% block javascripts %}
+<script type="text/javascript">
+  var globals = {
+    enums: {
+      StatusLog: {[ Enums.StatusLog|json|safe ]}
+    }
+  }
+  var configuration = {
+    collectors: {[ collectors|json|safe ]} || {},
+    analysis: {[ analysis|json|safe ]} || {}
+  }
+</script>
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
+<!-- Moment JS -->
+<script type="text/javascript" src="/externals/moment/moment.js"></script>
+
+<!-- AngularJS -->
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
+
+<!-- TerraMA2 -->
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
-<script>
-  angular.module('terrama2.projects.status', ['terrama2.table'])
-    .controller("ListController", ['$scope', function($scope) {
-      $scope.model = [];
-
-      $scope.fields = ['name', 'message', 'date'];
-
-      $scope.link = function(object) {
-        return "";
-      };
-
-      $scope.iconFn = null;
-
-      $scope.iconProperties = {
-        type: "icon"
-      };
-    }]);
-</script>
+<script src="/javascripts/angular/services.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
+<script src="/javascripts/angular/status/status.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="ListController">
+<div class="col-md-12" ng-controller="StatusController">
   <div class="box">
     <div class="box-header with-border">
       <h3 class="box-title">{[ __("Status") ]}</h3>
@@ -44,10 +48,18 @@
     <div class="box-body">
 
       <div class="col-md-12">
+        <div class="col-md-12">
+          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+        </div>
+
         <terrama2-table fields="fields" model="model" link="link" icon="iconFn" icon-properties="iconProperties"></terrama2-table>
       </div>
 
     </div><!-- /.box-body -->
+
+    <div class="overlay" ng-show="loading">
+      <i class="fa fa-refresh fa-spin"></i>
+    </div>
 
   </div><!-- /.box -->
 
