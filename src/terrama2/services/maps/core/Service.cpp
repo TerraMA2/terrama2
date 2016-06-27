@@ -58,14 +58,14 @@ bool terrama2::services::maps::core::Service::hasDataOnQueue() noexcept
 
 bool terrama2::services::maps::core::Service::processNextData()
 {
-  // check if there is data to collect
+  // check if there is Map to build
   if(mapsQueue_.empty())
     return false;
 
   // get first data
   const auto& mapId = mapsQueue_.front();
 
-  // prepare task for collecting
+  // prepare task for Map building
   prepareTask(mapId);
 
   // remove from queue
@@ -129,22 +129,22 @@ void terrama2::services::maps::core::Service::makeMap(MapsId mapId, std::shared_
   }
   catch(const terrama2::Exception&)
   {
-    TERRAMA2_LOG_INFO() << tr("Collection for map %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Build of map %1 finished with error(s).").arg(mapId);
   }
   catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Collection for map %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Build of %1 finished with error(s).").arg(mapId);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Collection for map %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Build of map %1 finished with error(s).").arg(mapId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unkown error.");
-    TERRAMA2_LOG_INFO() << tr("Collection for map %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Build of map %1 finished with error(s).").arg(mapId);
   }
 }
 

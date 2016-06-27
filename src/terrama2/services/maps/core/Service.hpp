@@ -70,7 +70,7 @@ namespace terrama2
           /*!
             \brief Add a Map to the service
 
-            Check if this is the instance where the colelctor should run.
+            Check if this is the instance where the Maps should run.
           */
           void addMap(MapsPtr map) noexcept;
 

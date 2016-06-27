@@ -80,7 +80,7 @@ namespace terrama2
             /*!
               \brief Add a Collector to the service
 
-              Check if this is the instance where the colelctor should run.
+              Check if this is the instance where the collector should run.
             */
             void addCollector(CollectorPtr) noexcept;
 
