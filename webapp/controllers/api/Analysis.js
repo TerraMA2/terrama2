@@ -1,11 +1,13 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
-var TcpManager = require("../../core/TcpManager");
+var TcpManagerClass = require("../../core/TcpManager");
 var passport = require('./../../config/Passport');
 
 
 module.exports = function(app) {
+  var TcpManager = new TcpManagerClass();
+
   return {
     get: function(request, response) {
       var analysisId = request.params.id;
@@ -58,7 +60,7 @@ module.exports = function(app) {
           DataManager.listServiceInstances().then(function(services) {
             services.forEach(function(service) {
               try {
-                TcpManager.sendData(service, {
+                TcpManager.emit('sendData', service, {
                   "DataSeries": [analysisResult.dataSeries.toObject()],
                   "Analysis": [analysisResult.toObject()]
                 });
@@ -89,6 +91,37 @@ module.exports = function(app) {
       }
     }],
 
+    put: [passport.isCommonUser, function(request, response) {
+      var analysisId = request.params.id;
+
+      if (analysisId) {
+        var analysisObject = request.body.analysis;
+        var scheduleObject = request.body.schedule;
+
+        DataManager.updateAnalysis(analysisId, analysisObject, scheduleObject).then(function() {
+          DataManager.getAnalysis({id: analysisId}).then(function(analysisInstance) {
+
+            Utils.sendDataToServices(DataManager, TcpManager, {
+              "DataSeries": [analysisInstance.dataSeries.toObject()],
+              "Analysis": [analysisInstance.toObject()]
+            })
+
+            // generating token
+            var token = Utils.generateToken(app, TokenCode.UPDATE, analysisInstance.name);
+            response.json({status: 200, result: analysisInstance.toObject(), token: token})
+          }).catch(function(err) {
+            console.log("Error while retrieving updated analysis");
+            console.log(err);
+            Utils.handleRequestError(response, err, 400);
+          })
+        }).catch(function(err) {
+          Utils.handleRequestError(response, err, 400);
+        })
+      } else {
+        Utils.handleRequestError(response, new AnalysisError("Missing analysis id"), 400);
+      }
+    }],
+
     delete: [passport.isCommonUser, function(request, response) {
       var id = request.params.id;
       if(id) {
@@ -102,7 +135,7 @@ module.exports = function(app) {
             DataManager.listServiceInstances().then(function(servicesInstance) {
               servicesInstance.forEach(function (service) {
                 try {
-                  TcpManager.removeData(service, objectToSend);
+                  TcpManager.emit('removeData', service, objectToSend);
                 } catch (e) {
                   console.log(e);
                 }

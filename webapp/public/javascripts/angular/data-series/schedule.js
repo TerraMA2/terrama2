@@ -32,7 +32,26 @@ angular.module("terrama2.schedule", ['terrama2'])
           if (scheduleObject.schedule_unit) {
             $scope.model.scheduleHandler = scheduleObject.schedule_unit;
             $scope.model.schedule = scheduleObject.schedule;
-            $scope.model.schedule_time = scheduleObject.schedule_time;
+
+            // initializing with current date and s
+
+            try {
+              var date = new Date();
+              var time = scheduleObject.schedule_time;
+              var splitDate = time.split(":");
+
+              var hours = splitDate[0];
+              var minutes = splitDate[1];
+              var seconds = splitDate[2];
+
+              date.setMinutes(minutes);
+              date.setHours(hours);
+              date.setSeconds(seconds);
+
+              $scope.model.schedule_time = date;
+            } catch (e) {
+
+            }
           }else if (scheduleObject.frequency_unit) {
             $scope.model.frequency = scheduleObject.frequency;
             $scope.model.frequency_unit = scheduleObject.frequency_unit;

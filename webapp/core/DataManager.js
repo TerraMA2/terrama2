@@ -33,7 +33,7 @@ var fs = require('fs');
 var path = require('path');
 
 // Tcp
-var TcpManager = require('./TcpManager');
+var TcpManagerClass = require('./TcpManager');
 
 // data model
 var DataModel = require('./data-model');
@@ -55,6 +55,8 @@ function getItemByParam(array, object) {
 
 
 var models = null;
+
+var TcpManager = new TcpManagerClass();
 
 /**
  * Controller of the system index.
@@ -871,7 +873,7 @@ var DataManager = {
             var dataToSend = {"DataProviders": [d.toObject()]};
 
             servicesInstance.forEach(function(service) {
-              TcpManager.sendData(service, dataToSend);
+              TcpManager.emit('sendData', service, dataToSend);
             });
 
           }).catch(function(err) {
@@ -942,13 +944,14 @@ var DataManager = {
   /**
    * It updates a DataProvider instance from object.
    *
-   * @param {Object} dataProviderObject - An object containing DataProvider identifier to get it.
+   * @param {int} dataProviderId - A DataProvider identifier to get it.
+   * @param {Object} dataProviderObject - An object containing DataProvider to update.
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
-  updateDataProvider: function(dataProviderObject) {
+  updateDataProvider: function(dataProviderId, dataProviderObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataProvider = getItemByParam(self.data.dataProviders, dataProviderObject);
+      var dataProvider = getItemByParam(self.data.dataProviders, {id: dataProviderId});
 
       if (dataProvider) {
         models.db.DataProvider.update(dataProviderObject, {
@@ -967,6 +970,19 @@ var DataManager = {
             dataProvider.uri = dataProviderObject.uri;
 
           dataProvider.active = dataProviderObject.active;
+
+          self.listServiceInstances().then(function(services) {
+            services.forEach(function(service) {
+              try {
+                console.log("Sending Add_signal to update");
+                TcpManager.emit('sendData', service, {
+                  "DataProviders": [dataProvider.toObject()]
+                })
+              } catch (e) {
+
+              }
+            })
+          }).catch(function(err) { });
 
           resolve(new DataModel.DataProvider(dataProvider));
         }).catch(function(err) {
@@ -1019,7 +1035,7 @@ var DataManager = {
               // sending Remove signal
               services.forEach(function(service) {
                 try {
-                  TcpManager.removeData(service, objectToSend);
+                  TcpManager.emit('removeData', service, objectToSend);
                 } catch (e) {
                   console.log(e);
                 }
@@ -1752,6 +1768,23 @@ var DataManager = {
     });
   },
 
+  updateSchedule: function(scheduleId, scheduleObject) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      models.db['Schedule'].update(scheduleObject, {
+        fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency'],
+        where: {
+          id: scheduleId
+        }
+      }).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(new exceptions.ScheduleError("Could not update schedule " + err.toString()));
+      })
+    });
+  },
+
   removeSchedule: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -1894,11 +1927,31 @@ var DataManager = {
         ]
       }).then(function(collectorsResult) {
         var output = [];
+
+        var promises = [];
         collectorsResult.forEach(function(collector) {
-          output.push(new DataModel.Collector(collector.get()));
+          promises.push(self.getDataSeries({id: collector.data_series_output}));
+          // output.push(new DataModel.Collector(collector.get()));
         });
 
-        resolve(output);
+        Promise.all(promises).then(function(dataSeriesArray) {
+          dataSeriesArray.forEach(function(dataSeries) {
+            collectorsResult.some(function(collector) {
+              if (collector.data_series_output === dataSeries.id) {
+                var collectorInstance = new DataModel.Collector(collector.get());
+                collectorInstance.dataSeriesOutput = dataSeries;
+                output.push(collectorInstance);
+
+                return true;
+              }
+            })
+          })
+
+          resolve(output);
+        }).catch(function(err) {
+          console.log(err);
+          reject(new exceptions.CollectorError("Could not retrieve collector data series output: " + err.toString()));
+        })
 
       }).catch(function(err) {
         console.log(err);
@@ -1940,7 +1993,15 @@ var DataManager = {
         ]
       }).then(function(collectorResult) {
         if (collectorResult) {
-          resolve(new DataModel.Collector(collectorResult.get()));
+          var collectorInstance = new DataModel.Collector(collectorResult.get());
+
+          self.getDataSeries({id: collectorResult.data_series_output}).then(function(dataSeries) {
+            collectorInstance.dataSeriesOutput = dataSeries;
+            resolve(collectorInstance);
+          }).catch(function(err) {
+            console.log("Retrieved null while getting collector");
+            reject(new exceptions.CollectorError("Could not find collector. "));
+          })
         } else {
           console.log("Retrieved null while getting collector");
           reject(new exceptions.CollectorError("Could not find collector. "));
@@ -2141,6 +2202,52 @@ var DataManager = {
     });
   },
 
+  updateAnalysis: function(analysisId, analysisObject, scheduleObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.getAnalysis({id: analysisId}).then(function(analysisInstance) {
+        models.db['Analysis'].update(analysisObject, {
+          fields: ['name', 'description', 'instance_id', 'script'],
+          where: {
+            id: analysisId
+          }
+        }).then(function() {
+          // updating analysis dataSeries
+          var promises = [];
+
+          analysisInstance.analysis_dataseries_list.forEach(function(analysisDS) {
+            promises.push(models.db['AnalysisDataSeries'].update(
+              {alias: analysisDS.alias},
+              {
+                fields: ['alias'],
+                where: {
+                  id: analysisDS.id
+                }
+              }
+            ));
+          })
+
+          Promise.all(promises).then(function() {
+            // updating schedule
+            self.updateSchedule(analysisInstance.schedule.id, scheduleObject).then(function() {
+              resolve();
+            }).catch(function(err) {
+              reject(err);
+            });
+
+          }).catch(function(err) {
+            reject(new exceptions.AnalysisError("Could not update analysis data series " + err.toString()));
+          });
+
+        }).catch(function(err) {
+          reject(new exceptions.AnalysisError("Could not update analysis. " + err.toString()));
+        })
+      }).catch(function(err) {
+        reject(err);
+      })
+    })
+  },
+
   listAnalyses: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -2148,8 +2255,6 @@ var DataManager = {
         console.log(err);
         reject(err);
       };
-
-      // TODO: building analysis from a factory. (AnalysisGrid, AnalysisDataseries...)
       models.db['Analysis'].findAll({
         include: [
           {
@@ -2168,17 +2273,41 @@ var DataManager = {
         ]
       }).then(function(analysesResult) {
         var output = [];
+        var promises = [];
 
         analysesResult.forEach(function(analysis) {
-          var analysisObject = new DataModel.Analysis(analysis.get());
+          promises.push(self.getDataSet({id: analysis.dataset_output}));
+        });
 
-          analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
-            analysisObject.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
+        Promise.all(promises).then(function(dataSets) {
+          promises = [];
+
+          dataSets.forEach(function(dataSet) {
+            promises.push(self.getDataSeries({id: dataSet.data_series_id}));
           });
 
-          output.push(analysisObject);
-        });
-        resolve(output);
+          Promise.all(promises).then(function(dataSeriesList) {
+            analysesResult.forEach(function(analysis) {
+              var analysisObject = new DataModel.Analysis(analysis.get());
+              dataSets.some(function(dataSet) {
+                return dataSeriesList.some(function(dataSeries) {
+                  if (dataSet.data_series_id === dataSeries.id) {
+                    analysisObject.setDataSeries(dataSeries);
+                    return true;
+                  }
+                })
+              })
+
+              analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
+                analysisObject.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
+              });
+
+              output.push(analysisObject);
+            });
+
+            resolve(output);
+          }).catch(_reject);
+        }).catch(_reject);
       }).catch(_reject);
     });
   },

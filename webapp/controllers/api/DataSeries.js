@@ -1,5 +1,5 @@
 var DataManager = require("../../core/DataManager");
-var TcpManager = require('../../core/TcpManager');
+var TcpManagerClass = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var DataSeriesType = require('./../../core/Enums').DataSeriesType;
@@ -8,6 +8,8 @@ var isEmpty = require('lodash').isEmpty;
 var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
+  var TcpManager = new TcpManagerClass();
+
   return {
     post: [passport.isCommonUser, function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
@@ -40,7 +42,7 @@ module.exports = function(app) {
             DataManager.listServiceInstances().then(function(servicesInstance) {
               servicesInstance.forEach(function (service) {
                 try {
-                  TcpManager.sendData(service, output);
+                  TcpManager.emit('sendData', service, output);
                 } catch (e) {
                   console.log("Error during send data each service: ", e);
                 }
@@ -68,7 +70,7 @@ module.exports = function(app) {
           DataManager.listServiceInstances().then(function(servicesInstance) {
             servicesInstance.forEach(function (service) {
               try {
-                TcpManager.sendData(service, output);
+                TcpManager.emit('sendData', service, output);
               } catch (e) {
                 console.log("Error during send data each service: ", e);
               }
@@ -171,7 +173,7 @@ module.exports = function(app) {
                   DataManager.listServiceInstances().then(function(services) {
                     services.forEach(function (service) {
                       try {
-                        TcpManager.removeData(service, objectToSend);
+                        TcpManager.emit('removeData', service, objectToSend);
                       } catch (e) {
                         console.log(e);
                       }
@@ -201,7 +203,7 @@ module.exports = function(app) {
               DataManager.listServiceInstances().then(function(services) {
                 services.forEach(function (service) {
                   try {
-                    TcpManager.removeData(service, objectToSend);
+                    TcpManager.emit('removeData', service, objectToSend);
                   } catch (e) {
                     console.log(e);
                   }

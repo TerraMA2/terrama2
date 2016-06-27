@@ -22,7 +22,7 @@ angular.module("terrama2.components.messagebox", [])
         alertLevel: '=alertLevel',
         title: "=title",
         message: "=message",
-        close: "&",
+        close: "&?close",
         display: "=displayHandler",
         extra: '=?extra'
       },
@@ -33,6 +33,13 @@ angular.module("terrama2.components.messagebox", [])
           DANGER: 'danger',
           SUCCESS: 'success'
         };
+
+        // setting default close function
+        if (!$scope.close) {
+          $scope.close = function() {
+            $scope.display = false;
+          }
+        }
 
         $scope.$watch("display", function(val) {
           console.log(val);
