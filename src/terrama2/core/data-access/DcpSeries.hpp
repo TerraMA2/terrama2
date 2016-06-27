@@ -51,7 +51,7 @@ namespace terrama2
         //! Add a group of DataSet data to the DcpSeries.
         void addDcpSeries(std::map<DataSetPtr,DataSetSeries> seriesMap);
         //! Returns a map of DataSetDcp data.
-        const std::map<DataSetDcpPtr,DataSetSeries >& getDcpSeries();
+        const std::map<DataSetDcpPtr,DataSetSeries >& dcpSeriesMap();
 
       private:
         std::map<DataSetDcpPtr,DataSetSeries > dcpMap_;//!< Map of DataSetDcp data.

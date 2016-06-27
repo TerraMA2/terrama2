@@ -131,12 +131,12 @@ void terrama2::core::DataAccessorOccurrenceWfp::addColumns(std::shared_ptr<te::d
 
 std::string terrama2::core::DataAccessorOccurrenceWfp::getLatitudePropertyName(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, "latitude_property");
+  return getProperty(dataSet, dataSeries_, "latitude_property");
 }
 
 std::string terrama2::core::DataAccessorOccurrenceWfp::getLongitudePropertyName(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, "longitude_property");
+  return getProperty(dataSet, dataSeries_, "longitude_property");
 }
 
 te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes,

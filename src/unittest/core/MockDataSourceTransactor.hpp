@@ -47,6 +47,10 @@
 // TerraMA2
 #include "MockDataSet.hpp"
 
+// pragma to silence auto_ptr warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 namespace te
 {
   namespace da
@@ -367,5 +371,8 @@ namespace te
 
   }  // namespace da
 }  // namespace te
+
+// closing "-Wdeprecated-declarations" pragma
+#pragma GCC diagnostic pop
 
 #endif // __TERRAMA2_UNITTEST_CORE_MOCKDATASOURCETRANSACTOR_HPP__

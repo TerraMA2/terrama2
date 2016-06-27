@@ -31,6 +31,7 @@
 #include "DataAccessor.hpp"
 #include "../Exception.hpp"
 #include "../utility/Logger.hpp"
+#include "../utility/Utils.hpp"
 #include "../utility/DataRetrieverFactory.hpp"
 
 //terralib
@@ -153,7 +154,6 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
 }
 
 
-
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter(DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
@@ -241,19 +241,20 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
   }
   catch(const terrama2::Exception&)
   {
-
+    throw;
   }
   catch(const boost::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
+    throw DataAccessorException() << ErrorDescription(boost::diagnostic_information(e).c_str());
   }
   catch(const std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    throw DataAccessorException() << ErrorDescription(e.what());
   }
   catch(...)
   {
-    //TODO: catch cannot open DataProvider, log here
+    QString errMsg = QObject::tr("Unknown exception occurred");
+    throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
   return series;
@@ -285,46 +286,12 @@ Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataAccessor::getProperty(DataSetPtr dataSet, std::string tag, bool logErrors) const
-{
-  std::string property;
-  try
-  {
-    auto semantics = dataSeries_->semantics;
-    property = semantics.metadata.at(tag);
-  }
-  catch(...)  //exceptions will be treated later
-  {
-  }
-
-  if(property.empty())
-  {
-    try
-    {
-      property = dataSet->format.at(tag);
-    }
-    catch(...)  //exceptions will be treated later
-    {
-    }
-  }
-
-  if(property.empty())
-  {
-    QString errMsg = QObject::tr("Undefined %2 in dataset: %1.").arg(dataSet->id).arg(QString::fromStdString(tag));
-    if(logErrors)
-      TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-
-  return property;
-}
-
 std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, "timestamp_property");
+  return getProperty(dataSet, dataSeries_, "timestamp_property");
 }
 
-std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const 
 {
-  return getProperty(dataSet, "geometry_property");
+  return getProperty(dataSet, dataSeries_, "geometry_property");
 }

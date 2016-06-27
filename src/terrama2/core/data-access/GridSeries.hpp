@@ -55,7 +55,7 @@ namespace terrama2
         //! Add a group of DataSet data to the GridSeries.
         void addGridSeries(std::map<DataSetPtr,DataSetSeries> seriesMap);
         //! Returns a map of DataSetGrid data.
-        const std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridList();
+        const std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridMap();
 
       private:
         std::map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap_;//!< Map of DataSetGrid data.

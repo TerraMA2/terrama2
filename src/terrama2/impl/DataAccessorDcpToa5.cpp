@@ -31,6 +31,7 @@
 #include "DataAccessorDcpToa5.hpp"
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/utility/Raii.hpp"
+#include "../core/utility/Utils.hpp"
 #include "../core/utility/FilterUtils.hpp"
 
 //Terralib
@@ -69,12 +70,12 @@ terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataPro
 
 std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getRecordPropertyName(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, "record_property");
+  return getProperty(dataSet, dataSeries_, "record_property");
 }
 
 std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::getStationPropertyName(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, "station_property");
+  return getProperty(dataSet, dataSeries_, "station_property");
 }
 
 std::string terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5::dataSourceType() const

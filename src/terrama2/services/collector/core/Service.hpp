@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/services/collector/core/Collector.hpp
+  \file terrama2/services/collector/core/Service.hpp
 
-  \brief Model class for the collector configuration.
+  \brief
 
   \author Jano Simas
 */
@@ -33,8 +33,8 @@
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
-#include "Shared.hpp"
-#include "Typedef.hpp"
+#include "../core/Shared.hpp"
+#include "../core/Typedef.hpp"
 #include "DataManager.hpp"
 #include "CollectorLogger.hpp"
 
