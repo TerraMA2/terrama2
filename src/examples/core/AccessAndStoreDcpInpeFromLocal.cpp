@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
   //DataSeries information
   terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-  dataSeries->semantics.code = "DCP-postgis";
+  outputDataSeries->semantics.code = "DCP-postgis";
 
   terrama2::core::DataSetDcp* dataSetOutput = new terrama2::core::DataSetDcp();
   terrama2::core::DataSetPtr dataSetOutputPtr(dataSetOutput);

@@ -91,7 +91,12 @@ namespace terrama2
       */
       uint32_t riskLevel(double value) const
       {
-        auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk) { return risk.lowerBound <= value && risk.upperBound > value;});
+        auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk)
+                                                                                      {
+                                                                                        bool graterThanLower = risk.hasLowerBound ? risk.lowerBound <= value : true;
+                                                                                        bool lesserThanUpper = risk.hasUpperBound ? risk.upperBound > value : true;
+                                                                                        return graterThanLower && lesserThanUpper;
+                                                                                      });
         if(pos != std::end(riskLevels))
           return (*pos).level;
         else
