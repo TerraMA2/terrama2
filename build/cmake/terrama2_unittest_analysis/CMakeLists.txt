@@ -41,6 +41,7 @@ include_directories ( SYSTEM
   ${PYTHON_INCLUDE_DIRS}
   ${GTEST_INCLUDE_DIRS}
   ${GMOCK_INCLUDE_DIRS}
+  ${Qt5Core_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)

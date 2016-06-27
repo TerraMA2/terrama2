@@ -370,8 +370,9 @@ void terrama2::core::TcpManager::readReadySlot() noexcept
         case TcpSignal::LOG_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "LOG_SIGNAL";
+          QByteArray bytearray = tcpSocket_->read(blockSize_);
 
-          // removeData(bytearray);
+          sendLog(bytearray);
           break;
         }
         default:

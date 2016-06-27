@@ -52,6 +52,10 @@
 
 #include <math.h>
 
+// pragma to silence python macros warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+
 using namespace boost::python;
 
 
@@ -579,13 +583,5 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
   cache.analysisHashCode = PyInt_AsLong(analysisPy);
 }
 
-
-
-
-
-
-
-
-
-
-
+// closing "-Wunused-local-typedef" pragma
+#pragma GCC diagnostic pop

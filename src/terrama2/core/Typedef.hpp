@@ -41,6 +41,8 @@ typedef uint32_t ScheduleId;
 typedef uint32_t DataSetId;
 //! Unique identifier for DataSeries
 typedef uint32_t DataSeriesId;
+//! Unique identifier for DataSeriesRisk
+typedef uint32_t DataSeriesRiskId;
 //! Unique identifier for DataProvider
 typedef uint32_t DataProviderId;
 //! Unique identifier for Processes (Collector, Analysis,...)

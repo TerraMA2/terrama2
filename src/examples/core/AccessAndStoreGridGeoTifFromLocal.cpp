@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
 
-    assert(gridSeries->gridList().size() == 1);
+    assert(gridSeries->gridMap().size() == 1);
 
     //DataProvider information
     terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();

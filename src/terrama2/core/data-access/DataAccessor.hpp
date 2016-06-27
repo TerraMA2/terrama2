@@ -155,14 +155,6 @@ namespace terrama2
         */
         virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
 
-        /*!
-          \brief Get value of a property
-
-          The name of the property may come from the semantics metadata or the dataset format,
-          the semantics has priority.
-        */
-        virtual std::string getProperty(DataSetPtr dataSet, std::string tag, bool logErrors = true) const;
-
       protected:
 
         /*!

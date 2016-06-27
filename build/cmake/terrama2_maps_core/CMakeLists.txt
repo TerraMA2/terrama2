@@ -36,7 +36,9 @@ source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
 include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
-  ${terralib_DIR})
+  ${terralib_DIR}
+  ${Qt5Core_INCLUDE_DIRS}
+)
 
 set(CMAKE_AUTOMOC ON)
 

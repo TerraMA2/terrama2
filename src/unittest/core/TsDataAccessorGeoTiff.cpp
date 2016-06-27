@@ -316,7 +316,7 @@ void TsDataAccessorGeoTiff::TestOK()
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
 
-    assert(gridSeries->gridList().size() == 1);
+    assert(gridSeries->gridMap().size() == 1);
 
   }
   catch(...)
@@ -327,4 +327,3 @@ void TsDataAccessorGeoTiff::TestOK()
   return;
 
 }
-
