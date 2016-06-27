@@ -102,7 +102,7 @@ define(
     };
 
     /**
-     * Removes the layer from the LayerExplorer and calls the removeLayer method of the MapDisplay.
+     * Removes a layer with a given id from the LayerExplorer and calls the removeLayer method of the MapDisplay.
      * @param {string} layerId - Layer id
      * @param {string|undefined} parentGroupId - Parent group id
      *
