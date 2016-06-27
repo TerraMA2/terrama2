@@ -558,7 +558,7 @@ define(
     };
 
     /**
-     * Removes the layer from the Map.
+     * Removes a layer with a given id from the Map.
      * @param {string} layerId - Layer id
      * @param {string|undefined} parentGroupId - Parent group id
      *
