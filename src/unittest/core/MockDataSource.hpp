@@ -42,6 +42,10 @@
 // TerraMA2
 #include "MockDataSourceTransactor.hpp"
 
+// pragma to silence auto_ptr warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 
 typedef std::map<std::string, std::string> stringMapReturn;
 
@@ -342,5 +346,8 @@ namespace te
 
   }  // namespace da
 }  // namespace te
+
+// closing "-Wdeprecated-declarations" pragma
+#pragma GCC diagnostic pop
 
 #endif // __TERRAMA2_UNITTEST_CORE_MOCKDATASOURCE_HPP__

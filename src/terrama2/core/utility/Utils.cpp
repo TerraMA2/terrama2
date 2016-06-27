@@ -129,7 +129,8 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 void terrama2::core::initializeTerralib()
 {
   // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
+  auto& terralib = TerraLib::getInstance();
+  terralib.initialize();
 
   te::plugin::PluginInfo* info;
   std::string plugins_path = te::core::FindInTerraLibPath("share/terralib/plugins");
@@ -343,4 +344,39 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
 bool terrama2::core::isValidColumn(size_t value)
 {
    return value != std::numeric_limits<size_t>::max();
+}
+
+
+std::string terrama2::core::getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors)
+{
+  std::string property;
+  try
+  {
+    auto semantics = dataSeries->semantics;
+    property = semantics.metadata.at(tag);
+  }
+  catch(...)  //exceptions will be treated later
+  {
+  }
+
+  if(property.empty())
+  {
+    try
+    {
+      property = dataSet->format.at(tag);
+    }
+    catch(...)  //exceptions will be treated later
+    {
+    }
+  }
+
+  if(property.empty())
+  {
+    QString errMsg = QObject::tr("Undefined %2 in dataset: %1.").arg(dataSet->id).arg(QString::fromStdString(tag));
+    if(logErrors)
+      TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+
+  return property;
 }
