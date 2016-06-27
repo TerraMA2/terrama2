@@ -21,7 +21,6 @@
 #include <QTimer>
 #include <QCoreApplication>
 #include <QUrl>
-#include <terralib/common/Singleton.h>
 
 
 using namespace terrama2::services::analysis::core;
@@ -103,19 +102,22 @@ int main(int argc, char* argv[])
           "x = dcp.standard_deviation(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
           "add_value(\"standardDeviation\", x)\n";
 
-  Analysis analysis;
-  analysis.id = 1;
-  analysis.name = "Min DCP";
-  analysis.script = script;
-  analysis.scriptLanguage = ScriptLanguage::PYTHON;
-  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis.active = false;
-  analysis.outputDataSeriesId = 3;
-  analysis.serviceInstanceId = 1;
 
-  analysis.metadata["INFLUENCE_TYPE"] = "1";
-  analysis.metadata["INFLUENCE_RADIUS"] = "50";
-  analysis.metadata["INFLUENCE_RADIUS_UNIT"] = "km";
+  Analysis* analysis = new Analysis;
+  AnalysisPtr analysisPtr(analysis);
+
+  analysis->id = 1;
+  analysis->name = "Min DCP";
+  analysis->script = script;
+  analysis->scriptLanguage = ScriptLanguage::PYTHON;
+  analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis->active = false;
+  analysis->outputDataSeriesId = 3;
+  analysis->serviceInstanceId = 1;
+
+  analysis->metadata["INFLUENCE_TYPE"] = "1";
+  analysis->metadata["INFLUENCE_RADIUS"] = "50";
+  analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -144,7 +146,6 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
   dataSet->format.emplace("mask", "municipios_afetados.shp");
-  dataSet->format.emplace("identifier", "objet_id_5");
   dataSet->id = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
@@ -168,12 +169,14 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "objet_id_5";
 
 
   //DataSeries information
   terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
+
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
   dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
   dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
@@ -213,12 +216,13 @@ int main(int argc, char* argv[])
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
+  analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
-  dataManager->add(analysis);
+  analysis->schedule.frequency = 1;
+  analysis->schedule.frequencyUnit = "min";
+
+  dataManager->add(analysisPtr);
 
   // Starts the service and adds the analysis
   Service service(dataManager);
@@ -231,6 +235,9 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(30000);
 
   app.exec();
 

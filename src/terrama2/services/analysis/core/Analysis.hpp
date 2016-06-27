@@ -34,7 +34,7 @@
 #include "Exception.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 
 // QT
 #include <QObject>
@@ -132,13 +132,12 @@ namespace terrama2
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
-          std::shared_ptr<te::dt::TimeInstantTZ> startDate; //!< Execution start date.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the analysis.
 
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.
           */
-          AnalysisHashCode hashCode() const
+          AnalysisHashCode hashCode2(std::shared_ptr<te::dt::TimeInstantTZ> startDate) const
           {
             if(!startDate)
               throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));

@@ -92,7 +92,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
   return it->second;
 }
 
-void terrama2::services::analysis::core::Context::loadMonitoredObject(const terrama2::services::analysis::core::Analysis &analysis)
+void terrama2::services::analysis::core::Context::loadMonitoredObject(AnalysisHashCode analysisHashCode)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -103,7 +103,9 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
     throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
   }
 
-  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  auto analysis = getAnalysis(analysisHashCode);
+
+  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
   {
     auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
     auto datasets = dataSeriesPtr->datasetList;
@@ -144,7 +146,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
 
       ContextKey key;
       key.datasetId_ = dataset->id;
-      key.analysisHashCode_ = analysis.hashCode();
+      key.analysisHashCode_ = analysisHashCode;
       datasetMap_[key] = dataSeriesContext;
     }
     else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
@@ -171,7 +173,7 @@ void terrama2::services::analysis::core::Context::loadMonitoredObject(const terr
 
         ContextKey key;
         key.datasetId_ = dataset->id;
-        key.analysisHashCode_ = analysis.hashCode();
+        key.analysisHashCode_ = analysisHashCode;
         datasetMap_[key] = dataSeriesContext;
       }
     }
@@ -219,7 +221,7 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const Analysi
   auto dataProvider = dataManagerPtr->findDataProvider(dataSeries->dataProviderId);
   terrama2::core::Filter filter;
   filter.lastValue = lastValue;
-  filter.discardAfter = analysis.startDate;
+  filter.discardAfter = analysisStartTime_[analysisHashCode];
 
   if(!dateFilter.empty())
   {
@@ -299,7 +301,7 @@ bool terrama2::services::analysis::core::Context::exists(const AnalysisHashCode 
   return it != datasetMap_.end();
 }
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::Context::getAnalysis(AnalysisHashCode analysisHashCode) const
+terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::core::Context::getAnalysis(AnalysisHashCode analysisHashCode) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -356,7 +358,7 @@ void terrama2::services::analysis::core::Context::addDataSeries(const AnalysisHa
 
   terrama2::core::Filter filter;
 
-  filter.discardAfter = analysis.startDate;
+  filter.discardAfter = analysisStartTime_[analysisHashCode];
 
   if(!dateFilter.empty())
   {
@@ -458,10 +460,10 @@ void terrama2::services::analysis::core::Context::clearAnalysisContext(AnalysisH
   }
 }
 
-void terrama2::services::analysis::core::Context::addAnalysis(Analysis analysis)
+void terrama2::services::analysis::core::Context::addAnalysis(AnalysisHashCode analysisHashCode, AnalysisPtr analysis)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  analysisMap_[analysis.hashCode()] = analysis;
+  analysisMap_[analysisHashCode] = analysis;
 }
 
 void terrama2::services::analysis::core::Context::setMainThreadState(PyThreadState* state)
@@ -487,6 +489,22 @@ std::set<std::string> terrama2::services::analysis::core::Context::getErrors(Ana
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return analysisErrorsMap_[analysisHashCode];
 }
+
+void terrama2::services::analysis::core::Context::setStartTime(AnalysisHashCode analysisHashCode, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  analysisStartTime_[analysisHashCode] = startTime;
+}
+
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::Context::getStartTime(AnalysisHashCode analysisHashCode)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  return analysisStartTime_[analysisHashCode];
+}
+
+
+
+
 
 
 

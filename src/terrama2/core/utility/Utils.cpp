@@ -289,9 +289,18 @@ int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
   }
 
   // Creates a Proj4 description and returns the SRID.
-  std::string p4txt = "+proj=utm +zone=" + std::to_string(zoneNumber) + " +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs";
-  return te::srs::SpatialReferenceSystemManager::getInstance().getIdFromP4Txt(p4txt).second;
+  std::string p4txt = "+proj=utm +zone=" + std::to_string(zoneNumber) + " +datum=WGS84 +units=m +no_defs ";
 
+  try
+  {
+    auto srsPair = te::srs::SpatialReferenceSystemManager::getInstance().getIdFromP4Txt(p4txt);
+    return srsPair.second;
+  }
+  catch(std::exception& e)
+  {
+    QString msg(QObject::tr("Could not determine the SRID for a UTM projection"));
+    throw InvalidSRIDException() << terrama2::ErrorDescription(msg);
+  }
 }
 
 double terrama2::core::convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit)
