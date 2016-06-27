@@ -104,14 +104,15 @@ define(
     /**
      * Removes the layer from the LayerExplorer and calls the removeLayer method of the MapDisplay.
      * @param {string} layerId - Layer id
+     * @param {string|undefined} parentGroupId - Parent group id
      *
      * @function removeLayer
      * @memberof LayerExplorer
      * @inner
      */
-    var removeLayer = function(layerId) {
+    var removeLayer = function(layerId, parentGroupId) {
       $('#' + layerId.replace(':', '')).remove();
-      memberMapDisplay.removeLayer(layerId);
+      memberMapDisplay.removeLayer(layerId, parentGroupId);
     };
 
     /**
