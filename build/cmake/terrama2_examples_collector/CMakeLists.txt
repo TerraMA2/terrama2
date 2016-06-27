@@ -42,6 +42,7 @@ include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${PYTHON_INCLUDE_DIRS}
+  ${Qt5Core_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
