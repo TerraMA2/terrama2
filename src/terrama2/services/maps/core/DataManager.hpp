@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/MAPS/core/Collector.hpp
+  \file terrama2/services/maps/core/DataManager.hpp
 
   \brief Model class for the maps configuration.
 
@@ -120,7 +120,7 @@ namespace terrama2
           */
           virtual MapsPtr findMap(MapsId id) const;
 
-          //! Verify if the Collector already exists in the DataManager
+          //! Verify if the Map already exists in the DataManager
           virtual bool hasMap(MapsId id) const;
 
           /*!
@@ -144,15 +144,15 @@ namespace terrama2
           virtual void removeJSon(const QJsonObject& obj) override;
 
         signals:
-          //! Signal to notify that a Collector has been added.
+          //! Signal to notify that a Map has been added.
           void mapAdded(MapsPtr);
-          //! Signal to notify that a Collector has been updated.
+          //! Signal to notify that a Map has been updated.
           void mapUpdated(MapsPtr);
-          //! Signal to notify that a Collector has been removed.
+          //! Signal to notify that a Map has been removed.
           void mapRemoved(MapsId);
 
         protected:
-          std::map<MapsId, MapsPtr> maps_;//!< A map from MapsId to Collector.
+          std::map<MapsId, MapsPtr> maps_;//!< A map from MapsId to Map.
 
         };
       } // end namespace core

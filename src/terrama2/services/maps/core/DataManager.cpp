@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/MAPS/core/Collector.hpp
+  \file terrama2/services/maps/core/DataManager.cpp
 
   \brief Model class for the maps configuration.
 
@@ -49,7 +49,7 @@ terrama2::services::maps::core::MapsPtr terrama2::services::maps::core::DataMana
   const auto& it = maps_.find(id);
   if(it == maps_.cend())
   {
-    QString errMsg = QObject::tr("Collector not registered.");
+    QString errMsg = QObject::tr("Map not registered.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
@@ -78,7 +78,7 @@ void terrama2::services::maps::core::DataManager::add(terrama2::services::maps::
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    TERRAMA2_LOG_DEBUG() << tr("Collector added");
+    TERRAMA2_LOG_DEBUG() << tr("Map added");
     maps_[map->id] = map;
   }
 

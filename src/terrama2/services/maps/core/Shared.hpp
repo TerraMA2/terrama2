@@ -39,7 +39,7 @@ namespace terrama2
       namespace core
       {
         struct Maps;
-        //! Shared smart pointer for Collector
+        //! Shared smart pointer for Maps
         typedef std::shared_ptr<const terrama2::services::maps::core::Maps> MapsPtr;
 
         class DataManager;

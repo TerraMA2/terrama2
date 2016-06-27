@@ -54,17 +54,17 @@ namespace terrama2
         */
         struct Maps
         {
-          MapsId id = 0;//!< Collector unique identification.
-          ProjectId projectId = 0;//!< Identification of the project owner of the colletor.
-          ServiceInstanceId serviceInstanceId = 0;//!< Collector service instace where the colletor should be executed.
+          MapsId id = 0;//!< Map unique identification.
+          ProjectId projectId = 0;//!< Identification of the project owner of the map.
+          ServiceInstanceId serviceInstanceId = 0;//!< Map service instace where the map should be executed.
 
-          bool active = true;//!< Flag if the colletor is active.
+          bool active = true;//!< Flag if the map is active.
 
           DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
           DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
 
           std::map<DataSetId, DataSetId> inputOutputMap;//!< Map of source DataSet to destiny DataSet.
-          terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the collector.
+          terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the map.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
         };
 

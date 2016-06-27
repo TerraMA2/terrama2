@@ -34,7 +34,7 @@
 
 #include "../../../core/Typedef.hpp"
 
-//! Unique identifier of a Collector
+//! Unique identifier of a Map
 typedef ProcessId MapsId;
 
 #endif // __TERRAMA2_SERVICES_MAPS_TYPEDEF_HPP__

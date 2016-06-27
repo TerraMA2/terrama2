@@ -129,22 +129,22 @@ void terrama2::services::maps::core::Service::makeMap(MapsId mapId, std::shared_
   }
   catch(const terrama2::Exception&)
   {
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Collection for map %1 finished with error(s).").arg(mapId);
   }
   catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Collection for map %1 finished with error(s).").arg(mapId);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Collection for map %1 finished with error(s).").arg(mapId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unkown error.");
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Collection for map %1 finished with error(s).").arg(mapId);
   }
 }
 
@@ -239,12 +239,12 @@ void terrama2::services::maps::core::Service::removeMap(MapsId mapId) noexcept
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Could not remove map: %1.").arg(mapId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unknown error");
-    TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Could not remove map: %1.").arg(mapId);
   }
 }
 

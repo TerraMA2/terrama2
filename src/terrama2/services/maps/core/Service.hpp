@@ -68,21 +68,21 @@ namespace terrama2
           virtual void addToQueue(MapsId mapsId) noexcept override;
 
           /*!
-            \brief Add a Collector to the service
+            \brief Add a Map to the service
 
             Check if this is the instance where the colelctor should run.
           */
           void addMap(MapsPtr map) noexcept;
 
           /*!
-            \brief Updates the Collector.
+            \brief Updates the Map.
 
             calls addMap()
           */
           void updateMap(MapsPtr map) noexcept;
 
           /*!
-            \brief Removes the Collector.
+            \brief Removes the Map.
 
             Rennuning processes will continue until finished.
           */
