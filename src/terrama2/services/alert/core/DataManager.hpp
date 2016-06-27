@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/alert/core/Alert.hpp
+  \file terrama2/services/alert/core/DataManager.hpp
 
   \brief Model class for the alert configuration.
 

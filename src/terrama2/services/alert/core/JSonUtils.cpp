@@ -44,6 +44,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
+  //TODO: alert from json
 
   return nullptr;
 }
@@ -51,6 +52,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
 QJsonObject terrama2::services::alert::core::toJson(AlertPtr alert)
 {
   QJsonObject obj;
+  //TODO: alert to json
 
   return obj;
 }

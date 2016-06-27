@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/core/Shared.hpp
+  \file terrama2/services/alert/core/Service.hpp
 
   \author Jano Simas
 */

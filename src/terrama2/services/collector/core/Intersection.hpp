@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTION_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_INTERSECTION_HPP__
 
-#include "../Typedef.hpp"
+#include "../core/Typedef.hpp"
 
 // STL
 #include <vector>

@@ -34,8 +34,8 @@
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/Typedef.hpp"
-#include "../Typedef.hpp"
-#include "../Shared.hpp"
+#include "../core/Typedef.hpp"
+#include "../core/Shared.hpp"
 
 // STL
 #include <string>

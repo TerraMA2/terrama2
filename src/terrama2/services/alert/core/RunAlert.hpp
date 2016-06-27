@@ -36,17 +36,23 @@
 #include "AlertLogger.hpp"
 #include "DataManager.hpp"
 
-namespace te {
-  namespace da {
+namespace te
+{
+  namespace da
+  {
     //! Terralib DataSet forward declaration
     class DataSet;
   } /* da */
 } /* te */
 
-namespace terrama2 {
-  namespace services {
-    namespace alert {
-      namespace core {
+namespace terrama2
+{
+  namespace services
+  {
+    namespace alert
+    {
+      namespace core
+      {
 
         /*!
           \brief Callback method to execute the alert.

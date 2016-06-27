@@ -30,7 +30,7 @@
 
 #include <cstdint>
 
-#include "../../core/Typedef.hpp"
+#include "../../../core/Typedef.hpp"
 
 //! Unique identifier of a Collector
 typedef ProcessId CollectorId;

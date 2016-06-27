@@ -229,17 +229,19 @@ std::function<int(size_t pos)> terrama2::services::alert::core::createGetRiskFun
 {
   if(risk.riskType == terrama2::core::RiskType::NUMERIC)
   {
-    return [risk, teDataSet](size_t pos){
-                                          const auto& value = teDataSet->getDouble(pos);
-                                          return risk.riskLevel(value);
-                                        };
+    return [risk, teDataSet](size_t pos)
+    {
+      const auto& value = teDataSet->getDouble(pos);
+      return risk.riskLevel(value);
+    };
   }
   else
   {
-    return [risk, teDataSet](size_t pos){
-                                          const auto& value = teDataSet->getString(pos);
-                                          return risk.riskLevel(value);
-                                        };
+    return [risk, teDataSet](size_t pos)
+    {
+      const auto& value = teDataSet->getString(pos);
+      return risk.riskLevel(value);
+    };
   }
 }
 

@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 
-#include "../Typedef.hpp"
+#include "../core/Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
