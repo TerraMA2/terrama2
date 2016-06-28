@@ -45,7 +45,7 @@ namespace terrama2
         public:
           MapsLogger();
 
-          virtual ~MapsLogger();
+          virtual ~MapsLogger() = default;
 
           virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept override;
         };
