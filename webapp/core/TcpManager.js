@@ -236,17 +236,6 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
     // requesting for log
     client.log(buffer);
 
-    // for(var key in clients) {
-    //   if (clients.hasOwnProperty(key)) {
-    //     var client = clients[key];
-    //
-    //     self.initialize(client);
-    //
-    //     if (client.service.service_type_id === serviceType)
-    //       client.log(buffer);
-    //   }
-    // }
-
   } catch (e) {
     console.log(e);
     this.emit("error", serviceInstance, new Error("Could not send data LOG_SIGNAL to service", e));
