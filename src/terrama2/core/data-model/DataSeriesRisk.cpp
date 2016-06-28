@@ -28,6 +28,11 @@
 */
 
 #include "DataSeriesRisk.hpp"
+#include "../utility/Logger.hpp"
+#include "../Exception.hpp"
+
+#include <QString>
+#include <QObject>
 
 uint32_t terrama2::core::DataSeriesRisk::riskLevel(const std::string& value) const
 {
@@ -36,7 +41,9 @@ uint32_t terrama2::core::DataSeriesRisk::riskLevel(const std::string& value) con
     return (*pos).level;
   else
   {
-    throw; //TODO: review risk exception
+    QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(QString::fromStdString(value));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataSeriesRiskException() << ErrorDescription(errMsg);
   }
 }
 
@@ -52,6 +59,8 @@ uint32_t terrama2::core::DataSeriesRisk::riskLevel(double value) const
     return (*pos).level;
   else
   {
-    throw; //TODO: review risk exception
+    QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(value);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataSeriesRiskException() << ErrorDescription(errMsg);
   }
 }
