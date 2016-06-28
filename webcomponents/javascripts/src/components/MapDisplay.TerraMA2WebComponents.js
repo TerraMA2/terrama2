@@ -14,7 +14,6 @@
  * @property {int} memberDoubleClickEventKey - Double click event key.
  * @property {int} memberSingleClickEventKey - Single click event key.
  * @property {object} memberSocket - Socket object.
- * @property {function} memberCapabilitiesCallbackFunction - 'addCapabilitiesLayers' callback function.
  * @property {function} memberLayersStartLoadingFunction - Function triggered when a layer starts to load
  * @property {function} memberLayersEndLoadingFunction - Function triggered when a layer is loaded
  * @property {function} memberLoading - Loading layers counters
@@ -43,8 +42,6 @@ define(
     var memberSingleClickEventKey = null;
     // Socket object
     var memberSocket = null;
-    // 'addCapabilitiesLayers' callback function
-    var memberCapabilitiesCallbackFunction = null;
     // Function triggered when a layer starts to load
     var memberLayersStartLoadingFunction = null;
     // Function triggered when a layer is loaded
@@ -821,24 +818,6 @@ define(
     };
 
     /**
-     * Adds the layers of a given capabilities to the map.
-     * @param {string} capabilitiesUrl - Capabilities URL
-     * @param {string} serverUrl - Server URL
-     * @param {string} serverType - Server type
-     * @param {string} serverId - Server id
-     * @param {string} serverName - Server name
-     * @param {function} callbackFunction - Callback function
-     *
-     * @function addCapabilitiesLayers
-     * @memberof MapDisplay
-     * @inner
-     */
-    var addCapabilitiesLayers = function(capabilitiesUrl, serverUrl, serverType, serverId, serverName, callbackFunction) {
-      memberCapabilitiesCallbackFunction = callbackFunction;
-      memberSocket.emit('proxyRequest', { url: capabilitiesUrl, additionalParameters: { serverUrl: serverUrl, serverType: serverType, serverId: serverId, serverName: serverName } });
-    };
-
-    /**
      * Sets the layers start loading function.
      * @param {function} startLoadingFunction - Layers start loading function
      *
@@ -905,14 +884,9 @@ define(
       if(parentLayerGroup !== null) {
         var parentSubLayers = parentLayerGroup.getLayers();
 
-        parentSubLayers.push(
-          layerGroup
-        );
+        parentSubLayers.push(layerGroup);
 
         parentLayerGroup.setLayers(parentSubLayers);
-
-        memberCapabilitiesCallbackFunction();
-        memberCapabilitiesCallbackFunction = null;
       }
     };
 
@@ -1278,20 +1252,6 @@ define(
     };
 
     /**
-     * Loads the sockets listeners.
-     *
-     * @private
-     * @function loadSocketsListeners
-     * @memberof MapDisplay
-     * @inner
-     */
-    /*var loadSocketsListeners = function() {
-      memberSocket.on('proxyResponse', function(response) {
-        createCapabilitiesLayers(response.msg, response.additionalParameters.serverUrl, response.additionalParameters.serverType, response.additionalParameters.serverId, response.additionalParameters.serverName);
-      });
-    };*/
-
-    /**
      * Alters the index of a layer.
      * @param {string} parent - Parent id
      * @param {int} indexFrom - Current index of the layer
@@ -1316,15 +1276,6 @@ define(
      */
     var init = function() {
       memberParser = new ol.format.WMSCapabilities();
-
-      /*$.ajax({
-        url: TerraMA2WebComponents.getTerrama2Url() + "/socket.io/socket.io.js",
-        dataType: "script",
-        success: function() {
-          memberSocket = io(TerraMA2WebComponents.getTerrama2Url());
-          loadSocketsListeners();
-        }
-      });*/
 
       memberOlMap.getLayerGroup().set('id', 'terrama2-layerexplorer');
       memberOlMap.getLayerGroup().set('name', 'terrama2-layerexplorer');
@@ -1362,7 +1313,6 @@ define(
       addOSMLayer: addOSMLayer,
       addMapQuestOSMLayer: addMapQuestOSMLayer,
       addMapQuestSatelliteLayer: addMapQuestSatelliteLayer,
-      addCapabilitiesLayers: addCapabilitiesLayers,
       setLayersStartLoadingFunction: setLayersStartLoadingFunction,
       setLayersEndLoadingFunction: setLayersEndLoadingFunction,
       setLayerVisibility: setLayerVisibility,
