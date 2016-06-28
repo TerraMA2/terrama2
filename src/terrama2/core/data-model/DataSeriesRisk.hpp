@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file terrama2/core/data-model/DataSeries.hpp
+  \file terrama2/core/data-model/DataSeriesRisk.hpp
 
-  \brief Models the information of a DataSeries.
+  \brief Models the information of a DataSeriesRisk.
 
-  \author Evandro Delatin
+  \author Jano Simas
 */
 
 #ifndef __TERRAMA2_CORE_DATA_MODEL_DATA_SERIES_RISK_HPP__
@@ -75,35 +75,11 @@ namespace terrama2
       /*!
         \brief Compute risk level for the valeu
       */
-      uint32_t riskLevel(const std::string& value) const
-      {
-        auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk){ return risk.textValue == value;});
-        if(pos != std::end(riskLevels))
-          return (*pos).level;
-        else
-        {
-          throw; //TODO: review risk exception
-        }
-      }
-
+      uint32_t riskLevel(const std::string& value) const;
       /*!
         \brief Compute risk level for the valeu
       */
-      uint32_t riskLevel(double value) const
-      {
-        auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk)
-                                                                                      {
-                                                                                        bool graterThanLower = risk.hasLowerBound ? risk.lowerBound <= value : true;
-                                                                                        bool lesserThanUpper = risk.hasUpperBound ? risk.upperBound > value : true;
-                                                                                        return graterThanLower && lesserThanUpper;
-                                                                                      });
-        if(pos != std::end(riskLevels))
-          return (*pos).level;
-        else
-        {
-          throw; //TODO: review risk exception
-        }
-      }
+      uint32_t riskLevel(double value) const;
 
       std::vector<RiskLevel> riskLevels;//!< List of risk levels of the DataSeriesRisk.
     };
