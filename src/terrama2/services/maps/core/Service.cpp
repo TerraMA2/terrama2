@@ -27,8 +27,10 @@
   \author Vinicius Campanha
 */
 
+// TerraMA2
 #include "Service.hpp"
 #include "Maps.hpp"
+#include "MemoryDataSetLayer.hpp"
 
 #include "../../../core/Shared.hpp"
 
@@ -114,39 +116,7 @@ void terrama2::services::maps::core::Service::addToQueue(MapsId mapId) noexcept
   }
 }
 
-void terrama2::services::maps::core::Service::makeMap(MapsId mapId, std::shared_ptr< terrama2::services::maps::core::MapsLogger > logger, std::weak_ptr<DataManager> weakDataManager)
-{
-  auto dataManager = weakDataManager.lock();
-  if(!dataManager.get())
-  {
-    TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
-    return;
-  }
 
-  try
-  {
-
-  }
-  catch(const terrama2::Exception&)
-  {
-    TERRAMA2_LOG_INFO() << tr("Build of map %1 finished with error(s).").arg(mapId);
-  }
-  catch(const boost::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Build of %1 finished with error(s).").arg(mapId);
-  }
-  catch(const std::exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Build of map %1 finished with error(s).").arg(mapId);
-  }
-  catch(...)
-  {
-    TERRAMA2_LOG_ERROR() << tr("Unkown error.");
-    TERRAMA2_LOG_INFO() << tr("Build of map %1 finished with error(s).").arg(mapId);
-  }
-}
 
 void terrama2::services::maps::core::Service::connectDataManager()
 {

@@ -99,8 +99,6 @@ namespace terrama2
           //*! Create a process task and add to taskQueue_
           virtual void prepareTask(MapsId mapId);
 
-          static void makeMap(MapsId mapId, std::shared_ptr< terrama2::services::maps::core::MapsLogger > logger, std::weak_ptr<DataManager> weakDataManager);
-
           //! Connects signals from DataManager
           void connectDataManager();
 

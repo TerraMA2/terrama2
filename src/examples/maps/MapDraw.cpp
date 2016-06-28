@@ -3,8 +3,6 @@
 #include <terralib/geometry.h>
 #include <terralib/dataaccess.h>
 #include <terralib/raster/RasterProperty.h>
-//#include <terralib/maptools.h>
-//#include <terralib/maptools/RasterLayer.h>
 #include <terralib/qt/widgets/canvas/MapDisplay.h>
 #include <terralib/qt/widgets/canvas/MultiThreadMapDisplay.h>
 #include <terralib/se.h>
@@ -32,6 +30,7 @@
 #include <terrama2/core/data-access/GridSeries.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/services/maps/core/MemoryDataSetLayer.hpp>
+#include <terrama2/services/maps/core/Maps.hpp>
 
 
 std::string GenerateRandomColor()
@@ -298,7 +297,6 @@ std::shared_ptr<te::map::MemoryDataSetLayer> CreateRasterLayer(std::shared_ptr<t
     dataSet->moveFirst();
 
     std::size_t rpos = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
-//    std::shared_ptr<te::rst::Raster> raster(dataSet->getRaster(rpos));
 
     auto raster(dataSet->getRaster(rpos));
 
@@ -350,19 +348,6 @@ void Draw(std::shared_ptr<te::map::MemoryDataSetLayer> RasterLayer, std::shared_
 
   RasterLayer->draw(canvas.get(), extent, srid, 0, &cancel);
   GeometryLayer->draw(canvas.get(), extent, srid, 0, &cancel);
-
-//  std::list<te::map::AbstractLayerPtr> layerList;
-//  layerList.push_back(GeometryLayer.get());
-//  layerList.push_back(RasterLayer.get());
-
-//  std::auto_ptr<te::qt::widgets::MapDisplay> mapDisplay(new te::qt::widgets::MultiThreadMapDisplay(QSize(700, 500)));
-//  mapDisplay->setMinimumSize(QSize(60, 60));
-//  mapDisplay->setResizePolicy(te::qt::widgets::MapDisplay::Center);
-//  mapDisplay->setLayerList(layerList);
-//  mapDisplay->show();
-//  mapDisplay->setExtent(extent);
-
-//  QApplication::exec();
 
   canvas->save("GeneretadImage", te::map::PNG);
 
@@ -441,14 +426,21 @@ int main(int argc, char** argv)
 
       std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesGeometry = accessorGeometry.getSeries(filterGeometry);
 
+/*
       std::shared_ptr<te::da::DataSet> dsGeometry = seriesGeometry.begin()->second.syncDataSet->dataset();
       std::shared_ptr<te::da::DataSetType> teDataSetTypeGeometry = seriesGeometry.begin()->second.teDataSetType;
 
       std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer = CreateRasterLayer(dsRaster, teDataSetTypeRaster);
       std::shared_ptr<te::map::MemoryDataSetLayer> GeometryLayer =CreateGeometryLayer(dsGeometry, teDataSetTypeGeometry);
 
-
       Draw(rasterLayer,GeometryLayer);
+*/
+
+      std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
+      seriesList.push_back(seriesRaster);
+
+      terrama2::services::maps::core::drawSeriesList(seriesList);
+
     }
   }
   catch(const std::exception& e)
