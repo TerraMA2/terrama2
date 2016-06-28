@@ -44,7 +44,51 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
-  //TODO: alert from json
+
+  if(!(json.contains("id")
+       && json.contains("project_id")
+       && json.contains("active")
+       && json.contains("name")
+       && json.contains("description")
+       && json.contains("service_instance_id")
+       && json.contains("risk")
+       && json.contains("schedule")
+       && json.contains("filter")
+       && json.contains("additional_data")))
+  {
+    QString errMsg = QObject::tr("Invalid Alert JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+
+  terrama2::services::alert::core::Alert* alert = new terrama2::services::alert::core::Alert();
+  terrama2::services::alert::core::AlertPtr alertPtr(alert);
+
+  alert->id = static_cast<uint32_t>(json["id"].toInt());
+  alert->projectId = static_cast<uint32_t>(json["project_id"].toInt());
+  alert->active = json["active"].toBool();
+  alert->name = json["name"].toString().toStdString();
+  alert->description = json["description"].toString().toStdString();
+  alert->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
+ 
+  alert->risk = terrama2::core::fromDataSeriesRiskJson(json["risk"].toObject());
+  alert->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+  alert->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
+
+  auto addDataArray = json["additional_data"].toArray();
+  for(const auto& value : addDataArray)
+  {
+    auto obj = value.toObject();
+    auto id = static_cast<uint32_t>(obj["dataseries_id"].toInt());
+
+    std::vector<std::string> attributes;
+    auto attributesArray = obj["attributes"].toArray();
+    for(const auto& tempAttribute : attributesArray)
+      attributes.push_back(tempAttribute.toString().toStdString());
+
+    alert->additionalDataMap.emplace(id, attributes);
+  }
 
   return nullptr;
 }
