@@ -50,6 +50,26 @@
 using ::testing::Return;
 using ::testing::_;
 
+class RaiiTsDataAccessorDcpToa5
+{
+  public:
+
+    RaiiTsDataAccessorDcpToa5(const std::string& dataProviderType,
+                              const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
+      : dataProviderType_(dataProviderType), f_(f)
+    {
+      terrama2::core::DataRetrieverFactory::getInstance().add(dataProviderType_, f_);
+    }
+
+    ~RaiiTsDataAccessorDcpToa5()
+    {
+      terrama2::core::DataRetrieverFactory::getInstance().remove(dataProviderType_);
+    }
+
+  private:
+    std::string dataProviderType_;
+    terrama2::core::DataRetrieverFactory::FactoryFnctType f_;
+};
 
 void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
 {
@@ -187,7 +207,8 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", makeMock);
+
+    RaiiTsDataAccessorDcpToa5("DCP-toa5",makeMock);
 
     try
     {
@@ -197,9 +218,6 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     {
       QFAIL("Unexpected Exception!");
     }
-
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
-
   }
   catch(terrama2::Exception& e)
   {
@@ -256,7 +274,8 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-toa5", makeMock);
+
+    RaiiTsDataAccessorDcpToa5("DCP-toa5",makeMock);
 
     try
     {
@@ -266,9 +285,6 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     {
       QFAIL("Exception expected!");
     }
-
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-toa5");
-
   }
   catch(terrama2::Exception& e)
   {

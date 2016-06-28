@@ -26,6 +26,7 @@
 
 
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/core/utility/DataRetrieverFactory.hpp>
 #include <QtTest>
 
 
