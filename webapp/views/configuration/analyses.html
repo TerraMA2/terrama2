@@ -36,12 +36,12 @@
         return "/configuration/analyses/" + object.id + "/edit";
       };
 
-      $scope.display = false;
       $scope.alertLevel = "alert-success";
       $scope.alertBox = {
         title: "Data Provider",
         message: "{[ message ]}"
       };
+      $scope.display = $scope.alertBox.message !== "";
 
       $scope.extra = {
         removeOperationCallback: function(err, data) {

@@ -40,6 +40,7 @@ include_directories ( SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${CURL_INCLUDE_DIRS}
+  ${Qt5Core_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -55,6 +56,7 @@ target_link_libraries(terrama2_collector_core terrama2_core
                                               terralib_mod_memory
                                               terralib_mod_vp_core
                                               terralib_mod_rp
+                                              terralib_mod_sa_core
                                               ${Boost_FILESYSTEM_LIBRARY}
                                               ${Boost_SYSTEM_LIBRARY}
                                               ${Boost_REGEX_LIBRARY}

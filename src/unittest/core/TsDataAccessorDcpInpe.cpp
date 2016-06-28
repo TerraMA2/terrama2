@@ -73,7 +73,7 @@ class RaiiTsDataAccessorDcpInpe
 };
 
 void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
-{  
+{
   try
   {
     //accessing data
@@ -339,9 +339,9 @@ void TsDataAccessorDcpInpe::TestOK()
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
 
-    assert(dcpSeries->getDcpSeries().size() == 1);
+    assert(dcpSeries->dcpSeriesMap().size() == 1);
 
-    std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->getDcpSeries().begin()).second.syncDataSet->dataset();
+    std::shared_ptr<te::da::DataSet> teDataSet = (*dcpSeries->dcpSeriesMap().begin()).second.syncDataSet->dataset();
 
     std::string uri = dataProvider->uri;
     std::string mask = dataSet->format.at("mask");

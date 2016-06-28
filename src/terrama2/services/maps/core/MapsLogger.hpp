@@ -20,20 +20,38 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Typedef.hpp
+  \file terrama2/services/maps/core/MapsLogger.hpp
 
-  \author Jano Simas
+  \brief Process logger for Maps Server.
+
+  \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
+#ifndef __TERRAMA2_SERVICES_MAPS_CORE_MAPSLOGGER_HPP__
+#define __TERRAMA2_SERVICES_MAPS_CORE_MAPSLOGGER_HPP__
 
-#include <cstdint>
+#include "../../../core/utility/ProcessLogger.hpp"
 
-#include "../../core/Typedef.hpp"
+namespace terrama2
+{
+  namespace services
+  {
+    namespace maps
+    {
+      namespace core
+      {
+        class MapsLogger : public terrama2::core::ProcessLogger
+        {
+        public:
+          MapsLogger();
 
-typedef uint32_t AnalysisDataSeriesId;
-typedef ProcessId AnalysisId;
-typedef size_t AnalysisHashCode;
+          virtual ~MapsLogger() = default;
 
-#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__
+          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept override;
+        };
+      }
+    }
+  }
+}
+
+#endif // __TERRAMA2_SERVICES_MAPS_CORE_MAPSLOGGER_HPP__

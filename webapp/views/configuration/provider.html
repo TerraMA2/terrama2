@@ -50,7 +50,11 @@
             <div class="col-md-7">
               <div class="form-group has-feedback" ng-class="{'has-error': dataProviderForm.name.$touched && dataProviderForm.name.$invalid, 'has-success': dataProviderForm.name.$touched && dataProviderForm.name.$valid}">
                 <label>{[ __("Name") ]}:</label>
-                <input class="form-control" name="name" ng-model="dataProvider.name" placeholder="{[ __('Data Provider Name') ]}" type="text" ng-disabled="isEditing" required>
+                <input class="form-control"
+                       name="name"
+                       ng-model="dataProvider.name"
+                       placeholder="{[ __('Data Provider Name') ]}"
+                       type="text" required>
 
                 <span class="form-control-feedback glyphicon" ng-show="dataProviderForm.name.$touched" ng-class="{'glyphicon-ok': dataProviderForm.name.$valid, 'glyphicon-remove': dataProviderForm.name.$invalid }"></span>
 
@@ -84,7 +88,7 @@
             <div class="col-md-12">
               <div class="form-group">
                 <label>{[ __("Description") ]}:</label>
-                <textarea class="form-control" ng-model="dataProvider.description" rows="3" placeholder="{[ __('Data Provider Description') ]}" ng-disabled="isEditing"></textarea>
+                <textarea class="form-control" ng-model="dataProvider.description" rows="3" placeholder="{[ __('Data Provider Description') ]}"></textarea>
               </div>
               <!-- /.form-group -->
             </div>

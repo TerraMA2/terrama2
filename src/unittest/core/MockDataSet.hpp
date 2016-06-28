@@ -36,6 +36,10 @@
 // GMock
 #include <gmock/gmock.h>
 
+// pragma to silence auto_ptr warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 
 namespace te
 {
@@ -247,5 +251,8 @@ namespace te
 
   }  // namespace da
 }  // namespace te
+
+// closing "-Wdeprecated-declarations" pragma
+#pragma GCC diagnostic pop
 
 #endif // __TERRAMA2_UNITTEST_CORE_MOCKDATASET_HPP__

@@ -52,6 +52,10 @@
 
 #include <math.h>
 
+// pragma to silence python macros warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+
 using namespace boost::python;
 
 
@@ -83,7 +87,7 @@ std::string terrama2::services::analysis::core::extractException()
 void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode,
                                                                           std::vector<uint64_t> indexes)
 {
-  Analysis analysis = Context::getInstance().getAnalysis(analysisHashCode);
+  AnalysisPtr analysis = Context::getInstance().getAnalysis(analysisHashCode);
 
   for(uint64_t index : indexes)
   {
@@ -108,7 +112,7 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
       object main_namespace = main_module.attr("__dict__");
 
       handle<> ignored((PyRun_String("from terrama2 import *", Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
-      ignored = handle<>((PyRun_String(analysis.script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+      ignored = handle<>((PyRun_String(analysis->script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
 
     }
     catch(error_already_set)
@@ -125,7 +129,7 @@ void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThre
 void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode)
 {
 
-  Analysis analysis = Context::getInstance().getAnalysis(analysisHashCode);
+  AnalysisPtr analysis = Context::getInstance().getAnalysis(analysisHashCode);
 
   // grab the global interpreter lock
   PyEval_AcquireLock();
@@ -145,7 +149,7 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
     object main_namespace = main_module.attr("__dict__");
 
     handle<> ignored((PyRun_String("from terrama2 import *", Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
-    ignored = handle<>((PyRun_String(analysis.script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+    ignored = handle<>((PyRun_String(analysis->script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
 
   }
   catch(error_already_set)
@@ -172,15 +176,15 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
     return;
   }
 
-  Analysis analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
-  if(analysis.type == AnalysisType::MONITORED_OBJECT_TYPE)
+  AnalysisPtr analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
+  if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
   {
     std::shared_ptr<ContextDataSeries> moDsContext;
     terrama2::core::DataSetPtr datasetMO;
 
     // Reads the object monitored
     bool found = false;
-    auto analysisDataSeriesList = analysis.analysisDataSeriesList;
+    auto analysisDataSeriesList = analysis->analysisDataSeriesList;
     for(auto analysisDataSeries : analysisDataSeriesList)
     {
       if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
@@ -190,14 +194,14 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         assert(dataSeries->datasetList.size() == 1);
         datasetMO = dataSeries->datasetList[0];
 
-        if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
+        if(!Context::getInstance().exists(cache.analysisHashCode, datasetMO->id))
         {
           QString errMsg(QObject::tr("Could not recover monitored object dataset."));
           Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
           return;
         }
 
-        moDsContext = Context::getInstance().getContextDataset(analysis.hashCode(), datasetMO->id);
+        moDsContext = Context::getInstance().getContextDataset(cache.analysisHashCode, datasetMO->id);
 
         if(moDsContext->identifier.empty())
         {
@@ -210,8 +214,8 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
         assert(!geomId.empty());
 
-        Context::getInstance().addAttribute(analysis.hashCode(), attribute);
-        Context::getInstance().setAnalysisResult(analysis.hashCode(), geomId, attribute, value);
+        Context::getInstance().addAttribute(cache.analysisHashCode, attribute);
+        Context::getInstance().setAnalysisResult(cache.analysisHashCode, geomId, attribute, value);
       }
     }
 
@@ -252,11 +256,13 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
 
 
 std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::getMonitoredObjectContextDataSeries(
-        const Analysis& analysis, std::shared_ptr<DataManager>& dataManagerPtr)
+        AnalysisHashCode analysisHashCode, std::shared_ptr<DataManager>& dataManagerPtr)
 {
   std::shared_ptr<ContextDataSeries> contextDataSeries;
 
-  for(const AnalysisDataSeries& analysisDataSeries : analysis.analysisDataSeriesList)
+  auto analysis = Context::getInstance().getAnalysis(analysisHashCode);
+
+  for(const AnalysisDataSeries& analysisDataSeries : analysis->analysisDataSeriesList)
   {
     terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
 
@@ -265,15 +271,15 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
 
-      if(!Context::getInstance().exists(analysis.hashCode(), datasetMO->id))
+      if(!Context::getInstance().exists(analysisHashCode, datasetMO->id))
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
 
-        Context::getInstance().addError(analysis.hashCode(), errMsg.toStdString());
+        Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
         return contextDataSeries;
       }
 
-      return Context::getInstance().getContextDataset(analysis.hashCode(), datasetMO->id);
+      return Context::getInstance().getContextDataset(analysisHashCode, datasetMO->id);
     }
   }
 
@@ -577,13 +583,5 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
   cache.analysisHashCode = PyInt_AsLong(analysisPy);
 }
 
-
-
-
-
-
-
-
-
-
-
+// closing "-Wunused-local-typedef" pragma
+#pragma GCC diagnostic pop

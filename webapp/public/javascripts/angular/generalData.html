@@ -22,7 +22,7 @@
 
   <div class="col-md-7">
     <div class="form-group" ng-class="{'has-error': generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$error.required, 'has-success': generalDataForm.data_provider_id.$dirty && generalDataForm.data_provider_id.$valid}">
-      <label>{{ i18n.__('Provider') }}:</label>
+      <label>{{ i18n.__('Data Provider') }}:</label>
       <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()" ng-disabled="isUpdating" required>
         <option ng-repeat="provider in dataProviders" value="{{ provider.id }}">{{ provider.name }}</option>
       </select>

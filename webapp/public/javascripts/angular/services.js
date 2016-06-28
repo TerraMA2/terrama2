@@ -76,6 +76,10 @@ angular.module("terrama2.services", ['terrama2'])
 
       post: function(serviceObject) {
         return $http.post(url, serviceObject);
+      },
+
+      put: function(analysisId, serviceObject) {
+        return $http.put(url + "/" + analysisId, serviceObject);
       }
     }
   }]).

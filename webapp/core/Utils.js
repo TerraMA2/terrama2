@@ -351,5 +351,13 @@ module.exports = {
     })
 
     return metadata;
+  },
+
+  sendDataToServices: function(DataManager, TcpManager, data) {
+    DataManager.listServiceInstances().then(function(services) {
+      services.forEach(function(service) {
+        TcpManager.emit('sendData', service, data);
+      })
+    })
   }
 };

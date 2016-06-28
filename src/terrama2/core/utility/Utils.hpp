@@ -119,6 +119,8 @@ namespace terrama2
     DataSeriesType dataSeriesTypeFromString(const std::string& type);
 
     bool isValidColumn(size_t value);
+
+    std::string getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors = true);
   } // end namespace core
 }   // end namespace terrama2
 

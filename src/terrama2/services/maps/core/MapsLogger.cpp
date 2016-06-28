@@ -20,30 +20,27 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/Shared.hpp
+  \file terrama2/services/maps/core/MapsLogger.cpp
 
-  \author Paulo R. M. Oliveira
+  \brief Process logger for Maps Server.
+
+  \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__
+#include "MapsLogger.hpp"
+#include "../../../core/utility/ServiceManager.hpp"
 
-#include <memory>
 
-namespace terrama2
+terrama2::services::maps::core::MapsLogger::MapsLogger()
+  : ProcessLogger()
 {
-  namespace services
-  {
-    namespace analysis
-    {
-      namespace core
-      {
-          class DataManager;
-          typedef std::shared_ptr<terrama2::services::analysis::core::DataManager> DataManagerPtr;
 
-      } // end namespace core
-    }   // end namespace analysis
-  }     // end namespace services
-}       // end namespace terrama2
+}
 
-#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_SHARED_HPP__
+void terrama2::services::maps::core::MapsLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo) noexcept
+{
+  terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
+
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  setTableName("maps_log_"+std::to_string(serviceManager.instanceId()));
+}

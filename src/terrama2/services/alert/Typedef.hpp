@@ -20,12 +20,19 @@
 */
 
 /*!
-  \file terrama2/services/alert/main.cpp
+  \file terrama2/services/alert/Typedef.hpp
 
-  \brief Alert service main file.
+  \brief
 
-  \author 
+  \author Jano Simas
  */
 
-// TerraMA2
-#include "../core/"
+ #ifndef __TERRAMA2_SERVICES_ALERT_TYPEDEF_HPP__
+ #define __TERRAMA2_SERVICES_ALERT_TYPEDEF_HPP__
+
+ #include "../../core/Typedef.hpp"
+
+ //! Unique identifier of a Alert
+ typedef ProcessId AlertId;
+
+ #endif // __TERRAMA2_SERVICES_ALERT_TYPEDEF_HPP__

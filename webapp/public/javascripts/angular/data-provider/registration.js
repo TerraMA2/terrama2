@@ -14,7 +14,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       required: configuration.fields.required
     };
 
-    $scope.options = {formDefaults: {readonly: true}};
+    $scope.options = {};
   } else
     $scope.schema = {};
 

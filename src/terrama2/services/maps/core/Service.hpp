@@ -30,7 +30,12 @@
 #ifndef __TERRAMA2_SERVICES_MAPS_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_MAPS_SERVICE_HPP__
 
+// TerraMA2
 #include "../../../core/utility/Service.hpp"
+#include "Typedef.hpp"
+#include "Shared.hpp"
+#include "DataManager.hpp"
+#include "MapsLogger.hpp"
 
 namespace terrama2
 {
@@ -46,35 +51,69 @@ namespace terrama2
 
         public:
 
-          Service();
+          Service(std::weak_ptr<DataManager> dataManager);
 
-          virtual ~Service() = default;
+          ~Service() = default;
+          Service(const Service& other) = delete;
+          Service(Service&& other) = default;
+          Service& operator=(const Service& other) = delete;
+          Service& operator=(Service&& other) = default;
+
+          //! Set ProcessLogger
+          void setLogger(std::shared_ptr<MapsLogger> logger) noexcept;
+
+        public slots:
+
+          //! Slot to be called when a DataSetTimer times out.
+          virtual void addToQueue(MapsId mapsId) noexcept override;
+
+          /*!
+            \brief Add a Map to the service
+
+            Check if this is the instance where the Maps should run.
+          */
+          void addMap(MapsPtr map) noexcept;
+
+          /*!
+            \brief Updates the Map.
+
+            calls addMap()
+          */
+          void updateMap(MapsPtr map) noexcept;
+
+          /*!
+            \brief Removes the Map.
+
+            Rennuning processes will continue until finished.
+          */
+          void removeMap(MapsId mapId) noexcept;
 
         protected:
 
-          /*!
-             \brief Returns true if the main loop should continue.
-             \return True if there is data to be tasked OR is stop is true.
-           */
-          virtual bool hasDataOnQueue() override;
+          // comments on base class
+          virtual bool hasDataOnQueue() noexcept override;
 
-
-          /*!
-             \brief Check if there is data to be processed.
-             \return True if there is more data to be processed.
-           */
+          // comments on base class
           virtual bool processNextData() override;
 
+          //*! Create a process task and add to taskQueue_
+          virtual void prepareTask(MapsId mapId);
 
-          /*!
-           * \brief makeMap
-           */
-          static void buildMap();
+          static void makeMap(MapsId mapId, std::shared_ptr< terrama2::services::maps::core::MapsLogger > logger, std::weak_ptr<DataManager> weakDataManager);
+
+          //! Connects signals from DataManager
+          void connectDataManager();
+
+          std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
+
+          std::map<MapsId, terrama2::core::TimerPtr> timers_;//!< List of running Maps timers
+          std::deque<MapsId> mapsQueue_;//!< Maps queue
+          std::shared_ptr< MapsLogger > logger_;//!< process logger
         };
-      }
-    }
-  }
 
-}
+      } // end namespace core
+    }   // end namespace maps
+  }     // end namespace services
+} // end namespace terrama2
 
 #endif // __TERRAMA2_SERVICES_MAPS_SERVICE_HPP__

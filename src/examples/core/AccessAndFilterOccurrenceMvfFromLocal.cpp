@@ -56,9 +56,9 @@ int main(int argc, char* argv[])
 
     std::cout << "Last data timestamp: " << accessor.lastDateTime()->toString() << std::endl;
 
-    assert(occurrenceSeries->getOccurrences().size() == 1);
+    assert(occurrenceSeries->occurrencesMap().size() == 1);
 
-    std::shared_ptr<te::da::DataSet> teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.syncDataSet->dataset();
+    std::shared_ptr<te::da::DataSet> teDataSet = (*occurrenceSeries->occurrencesMap().begin()).second.syncDataSet->dataset();
 
     //Print column names and types (DateTime/Double)
     int dateColumn = -1;

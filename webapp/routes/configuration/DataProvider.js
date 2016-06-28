@@ -5,5 +5,5 @@ module.exports = function (app) {
 
   app.get('/configuration/providers', passport.isCommonUser, controller.get);
   app.get('/configuration/providers/new', passport.isCommonUser, controller.new);
-  app.get('/configuration/providers/edit/:name', passport.isCommonUser, controller.edit);
+  app.get('/configuration/providers/edit/:id', passport.isCommonUser, controller.edit);
 };
