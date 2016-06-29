@@ -18,7 +18,6 @@
 #include "TsDataAccessorGeoTiff.hpp"
 #include "TsDataAccessorOccurrenceWfp.hpp"
 
-
 int main(int argc, char** argv)
 {
   int ret = 0;
