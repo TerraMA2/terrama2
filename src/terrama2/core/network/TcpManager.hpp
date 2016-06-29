@@ -86,7 +86,7 @@ namespace terrama2
         TcpManager& operator=(TcpManager&& other) = delete;
 
         //! Send log information to the TerraMA² application.
-        bool sendLog(const QByteArray& bytearray);
+        bool sendLog(const QByteArray& bytearray, std::shared_ptr<QTcpSocket> tcpSocket);
         /*!
           \brief Listens to TCP socket connections.
 
@@ -108,7 +108,7 @@ namespace terrama2
         //! Slot called when a new conenction arrives.
         void receiveConnection() noexcept;
         //! Slot called when finished receiving a tcp message.
-        void readReadySlot() noexcept;
+        void readReadySlot(std::shared_ptr<QTcpSocket> tcpSocket) noexcept;
 
       private:
         uint32_t blockSize_; //!< Size of the message received.
@@ -118,10 +118,8 @@ namespace terrama2
         void removeData(const QByteArray& bytearray);
         void updateService(const QByteArray& bytearray);
         QJsonObject logToJson(const terrama2::core::ProcessLogger::Log& log);
-        void sendTerminateSignal();
+        void sendTerminateSignal(std::shared_ptr<QTcpSocket> tcpSocket);
 
-
-        std::unique_ptr<QTcpSocket> tcpSocket_ = nullptr;//!< Current socket for tcp communication.
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.
         std::weak_ptr<terrama2::core::ProcessLogger> logger_;
 
