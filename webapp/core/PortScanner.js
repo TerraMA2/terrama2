@@ -26,8 +26,12 @@ PortScanner.checkPortState = function(portNumber, address, callback) {
   socket.on('connect', function() {
     // reject
     callback(new Error("Port number busy"));
-    socket.destroy();
+    socket.end();
   });
+
+  socket.setTimeout(400, function() {
+    socket.end();
+  })
 
   socket.on('error', function(err) {
     if (err.code === "ECONNREFUSED")

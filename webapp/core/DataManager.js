@@ -663,6 +663,31 @@ var DataManager = {
     });
   },
 
+  updateServiceInstance: function(serviceId, serviceObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
+        models.db['ServiceInstance'].update({
+          name: serviceObject.name,
+          description: serviceObject.description,
+          port: serviceObject.port,
+          numberOfThreads: serviceObject.numberOfThreads
+        }, {
+          fields: ['name', 'description', 'port', 'numberOfThreads'],
+          where: {
+            id: serviceId
+          }
+        }).then(function() {
+          resolve();
+        }).catch(function(err) {
+          reject(err);
+        })
+      }).catch(function(err) {
+        reject(err);
+      })
+    });
+  },
+
   /**
    * It saves DataProviderType in database.
    * @todo Load it in memory

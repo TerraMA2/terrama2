@@ -1,13 +1,15 @@
-angular.module('terrama2.administration.services.registration', ['terrama2.services', 'terrama2.components.messagebox'])
-
-  .controller('RegistrationController', ['$scope', '$window', 'ServiceInstanceFactory', 'Socket',
-  function($scope, $window, ServiceInstanceFactory, Socket) {
+angular.module('terrama2.administration.services.registration',
+  ['terrama2.services',
+  'terrama2.components.messagebox']
+).controller('RegistrationController', ['$scope', '$window', 'ServiceInstanceFactory', 'Socket', 'i18n',
+  function($scope, $window, ServiceInstanceFactory, Socket, i18n) {
     var socket = Socket;
 
     $scope.isCheckingConnection = false;
     $scope.services = [];
+    $scope.i18n = i18n;
 
-    $scope.service = configuration.service || {sshPort: 22};
+    $scope.service = angular.equals({}, configuration.service) ? {sshPort: 22} : configuration.service;
     if ($scope.service.service_type_id) {
       $scope.service.service_type_id = $scope.service.service_type_id.toString();
     }
@@ -33,6 +35,8 @@ angular.module('terrama2.administration.services.registration', ['terrama2.servi
       $scope.alertBox.message = "";
     };
 
+    $scope.extraProperties = {};
+
     // Getting all service instance to suggest database names
     ServiceInstanceFactory.get().success(function(services) {
       $scope.services = services;
@@ -52,7 +56,7 @@ angular.module('terrama2.administration.services.registration', ['terrama2.servi
     });
 
     // adding service port check listener
-    socket.on('testPortNumberResponse', function(response) {
+    socket.on('suggestPortNumberResponse', function(response) {
       console.log(response);
       if (response.error) {
         console.log("ERROR");
@@ -127,6 +131,70 @@ angular.module('terrama2.administration.services.registration', ['terrama2.servi
       }, 1000);
     };
 
+    $scope._save = function() {
+      $scope.isChecking = true;
+      $scope.display = false;
+      $scope.alertBox.title = "Service Registration";
+      var request;
+
+      if ($scope.update) {
+        request = ServiceInstanceFactory.put($scope.service.id, {
+          service: $scope.service,
+          log: $scope.log
+        });
+      }
+      else {
+        request = ServiceInstanceFactory.post({
+          service: $scope.service,
+          log: $scope.log
+        });
+      }
+
+      request({
+        service: $scope.service,
+        log: $scope.log
+      }).success(function(data) {
+        $window.location.href = "/administration/services?token=" + data.token;
+      }).error(function(err) {
+        console.log(err);
+        $scope.display = true;
+        $scope.alertLevel = "alert-danger";
+        $scope.alertBox.message = err.message;
+      }).finally(function() {
+        $scope.isChecking = false;
+      })
+    };
+
+    socket.on('testPortNumberResponse', function(response) {
+      if (response.error) {
+        if (configuration.service.port !== $scope.service.port) {
+          $scope.alertLevel = "alert-danger";
+          $scope.alertBox.message = response.message;
+          $scope.display = true;
+          return;
+        }
+      }
+
+      // continue save process
+
+      // checking port number with a registered service
+      for(var i = 0; i < $scope.services.length; ++i) {
+        var service = $scope.services[i];
+
+        if (service.port === $scope.service.port) {
+          $scope.alertLevel = "alert-warning";
+          $scope.alertBox.title = i18n.__("Service Registration");
+          $scope.alertBox.message = i18n.__("There is already a service registered in same port ") + service.port + " (" + service.name + ")";
+          $scope.display = true;
+          $scope.extraProperties.confirmButtonFn = $scope._save;
+          $scope.extraProperties.object = {}
+          return;
+        }
+      }
+
+      $scope._save();
+    });
+
     $scope.save = function() {
       if ($scope.serviceForm.$invalid || $scope.logForm.$invalid) {
         angular.forEach($scope.serviceForm.$error, function (field) {
@@ -147,22 +215,7 @@ angular.module('terrama2.administration.services.registration', ['terrama2.servi
       if ($scope.service.runEnviroment)
         $scope.service.runEnviroment = $scope.service.runEnviroment.split("\n").join(" ");
 
-      $scope.isChecking = true;
-      $scope.display = false;
-      $scope.alertBox.title = "Service Registration";
-
-      ServiceInstanceFactory.post({
-        service: $scope.service,
-        log: $scope.log
-      }).success(function(data) {
-        $window.location.href = "/administration/services?token=" + data.token;
-      }).error(function(err) {
-        console.log(err);
-        $scope.display = true;
-        $scope.alertLevel = "alert-danger";
-        $scope.alertBox.message = err.message;
-      }).finally(function() {
-        $scope.isChecking = false;
-      })
+      // testing port number
+      socket.emit('testPortNumber', {port: $scope.service.port});
     }
   }])

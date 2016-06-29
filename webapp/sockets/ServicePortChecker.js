@@ -21,7 +21,6 @@ var ServicePortChecker = function(io) {
   // Socket connection event
   iosocket.on('connection', function(client) {
 
-    // Postgis connection request event
     client.on('testPortNumber', function(json) {
       var returnObject = {
         error: false,
@@ -38,7 +37,7 @@ var ServicePortChecker = function(io) {
       }).catch(function(err) {
         returnObject.status = 400;
         returnObject.error = true;
-        returnObject.error = err.toString();
+        returnObject.message = err.toString();
       }).finally(function() {
         client.emit('testPortNumberResponse', returnObject);
       })
@@ -76,9 +75,13 @@ var ServicePortChecker = function(io) {
         returnObject.error = true;
         returnObject.error = err.toString();
       }).finally(function() {
-        client.emit('testPortNumberResponse', returnObject);
+        client.emit('suggestPortNumberResponse', returnObject);
       })
     });
+
+    client.on('disconnect', function() {
+      console.log("ServicePortChecker disconnected");
+    })
   });
 };
 
