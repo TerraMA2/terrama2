@@ -150,10 +150,7 @@ angular.module('terrama2.administration.services.registration',
         });
       }
 
-      request({
-        service: $scope.service,
-        log: $scope.log
-      }).success(function(data) {
+      request.success(function(data) {
         $window.location.href = "/administration/services?token=" + data.token;
       }).error(function(err) {
         console.log(err);
