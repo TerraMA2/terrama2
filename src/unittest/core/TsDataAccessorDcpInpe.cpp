@@ -51,6 +51,26 @@
 using ::testing::Return;
 using ::testing::_;
 
+class RaiiTsDataAccessorDcpInpe
+{
+  public:
+
+    RaiiTsDataAccessorDcpInpe(const std::string& dataProviderType,
+                              const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
+      : dataProviderType_(dataProviderType), f_(f)
+    {
+      terrama2::core::DataRetrieverFactory::getInstance().add(dataProviderType_, f_);
+    }
+
+    ~RaiiTsDataAccessorDcpInpe()
+    {
+      terrama2::core::DataRetrieverFactory::getInstance().remove(dataProviderType_);
+    }
+
+  private:
+    std::string dataProviderType_;
+    terrama2::core::DataRetrieverFactory::FactoryFnctType f_;
+};
 
 void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
 {
@@ -189,7 +209,8 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-inpe", makeMock);
+
+    RaiiTsDataAccessorDcpInpe("DCP-inpe",makeMock);
 
     try
     {
@@ -199,8 +220,6 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     {
       QFAIL("Unexpected exception!");
     }
-
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
 
   }
   catch(terrama2::Exception& e)
@@ -218,7 +237,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
 }
 
 void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
-{
+{  
   try
   {
     //DataProvider information
@@ -259,7 +278,8 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
-    terrama2::core::DataRetrieverFactory::getInstance().add("DCP-inpe", makeMock);
+
+    RaiiTsDataAccessorDcpInpe("DCP-inpe",makeMock);
 
     try
     {
@@ -269,9 +289,6 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     {
       QFAIL("Exception expected!");
     }
-
-    terrama2::core::DataRetrieverFactory::getInstance().remove("DCP-inpe");
-
   }
   catch(terrama2::Exception& e)
   {
@@ -369,5 +386,4 @@ void TsDataAccessorDcpInpe::TestOK()
   }
 
   return;
-
 }
