@@ -292,6 +292,54 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
   return filter;
 }
 
+terrama2::core::DataSeriesRisk terrama2::core::fromDataSeriesRiskJson(QJsonObject json)
+{
+  if(json["class"].toString() != "DataSeriesRisk")
+  {
+    QString errMsg = QObject::tr("Invalid DataSeriesRisk JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!(json.contains("id")
+       && json.contains("dataSeries_id")
+       && json.contains("name")
+       && json.contains("description")
+       && json.contains("risk_type")
+       && json.contains("attribute")
+       && json.contains("risk_levels")))
+  {
+    QString errMsg = QObject::tr("Invalid DataSeriesRisk JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  terrama2::core::DataSeriesRisk risk;
+  risk.id = static_cast<uint32_t>(json["id"].toInt());
+  risk.name = json["name"].toString().toStdString();
+  risk.description = json["description"].toString().toStdString();
+  risk.riskType = static_cast<terrama2::core::RiskType>(json["risk_type"].toInt());
+  risk.attribute = json["attribute"].toString().toStdString();
+
+  auto riskLevelsArray = json["risk_levels"].toArray();
+  for(const auto& value : riskLevelsArray)
+  {
+    auto obj = value.toObject();
+    terrama2::core::RiskLevel riskLevel;
+    riskLevel.level = static_cast<uint32_t>(obj["level"].toInt());
+    riskLevel.hasLowerBound = obj["has_lower_bound"].toBool();
+    riskLevel.lowerBound = obj["lower_bound"].toDouble();
+    riskLevel.hasUpperBound = obj["has_upper_bound"].toBool();
+    riskLevel.upperBound = obj["upper_bound"].toDouble();
+    riskLevel.textValue = obj["text_value"].toString().toStdString();
+
+    risk.riskLevels.push_back(riskLevel);
+  }
+  std::sort(std::begin(risk.riskLevels), std::end(risk.riskLevels));
+
+  return risk;
+}
+
 QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
 {
   //TODO: implement filter to json

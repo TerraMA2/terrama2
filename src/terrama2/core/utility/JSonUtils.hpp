@@ -27,6 +27,7 @@
   \author Jano Simas
 */
 #include "../Shared.hpp"
+#include "../data-model/DataSeriesRisk.hpp"
 #include "../data-model/Schedule.hpp"
 #include "../data-model/Filter.hpp"
 
@@ -99,6 +100,9 @@ namespace terrama2
       \see [Filter at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Filter) for more information.
       */
     Filter fromFilterJson(QJsonObject json);
+
+    DataSeriesRisk fromDataSeriesRiskJson(QJsonObject json);
+
     QJsonObject toJson(const Filter& filter);
 
     /*!

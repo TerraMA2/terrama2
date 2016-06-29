@@ -76,6 +76,8 @@ namespace terrama2
     struct DataModelException: virtual Exception{ };
     //! Base Exception for DataManager
     struct DataManagerException: virtual DataModelException{ };
+    //Base Exception for DataSeriesRisk
+    struct DataSeriesRiskException: virtual DataModelException{ };
 
     //#################################
 
