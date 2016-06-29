@@ -59,7 +59,7 @@ TcpManager.prototype.makebuffer = function(signal, object) {
       totalSize = 4;
 
     // creating buffer to store message
-    var bufferMessage = Buffer.from(jsonMessage);
+    var bufferMessage = new Buffer(jsonMessage);
 
     // Creates the buffer to be sent
     var buffer = new Buffer(bufferMessage.length + 8);
@@ -287,7 +287,8 @@ TcpManager.prototype.startService = function(serviceInstance) {
 
   }).catch(function(err) {
     console.log('ssh startservice error')
-    this.emit("error", serviceInstance, err);
+    console.log(err);
+    self.emit("error", serviceInstance, err);
   });
 };
 
