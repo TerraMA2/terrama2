@@ -41,7 +41,7 @@ terrama2::core::DataRetriever::DataRetriever(DataProviderPtr dataProvider)
   if(!dataProvider_.get())
   {
     QString errMsg = QObject::tr("Mandatory parameters not provided.");
-    TERRAMA2_LOG_ERROR() << errMsg; 
+    TERRAMA2_LOG_ERROR() << errMsg;
     throw DataRetrieverException() << ErrorDescription(errMsg);
   }
 }
@@ -58,7 +58,7 @@ te::dt::TimeInstantTZ terrama2::core::DataRetriever::lastDateTime() const
   throw NotRetrivableException() << ErrorDescription(errMsg);
 }
 
-bool terrama2::core::DataRetriever::isRetrivable() const
+bool terrama2::core::DataRetriever::isRetrivable() const noexcept
 {
   return false;
 }

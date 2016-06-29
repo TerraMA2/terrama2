@@ -109,7 +109,7 @@ namespace terrama2
           \exception NotRetrivableException Raised when this DataRetriever doesn't allow the download of the data.
           This will happen based on the DataProviderType
         */
-        virtual bool isRetrivable() const;
+        virtual bool isRetrivable() const noexcept;
 
       protected:
         DataProviderPtr dataProvider_;//!< Information of the remote server.
