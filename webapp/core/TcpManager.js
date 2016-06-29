@@ -437,8 +437,19 @@ TcpManager.prototype.initialize = function(client) {
   })
 };
 
+TcpManager.prototype.isServiceConnected = function(serviceInstance) {
+  var client = _getClient(serviceInstance);
+  return client.isOpen();
+}
+
 TcpManager.prototype.disconnect = function() {
   // disabling listeners
+  for(var k in clients) {
+    if (clients.hasOwnProperty(k)) {
+      clients[k].socket.destroy();
+      console.log(clients[k].service.name + " socket destroyed");
+    }
+  }
 };
 
 module.exports = TcpManager;
