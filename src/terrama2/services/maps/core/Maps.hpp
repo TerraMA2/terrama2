@@ -30,12 +30,16 @@
 #ifndef __TERRAMA2_SERVICES_MAPS_CORE_MAPS_HPP__
 #define __TERRAMA2_SERVICES_MAPS_CORE_MAPS_HPP__
 
+// TerraMA2
 #include "../../../core/data-model/DataSeries.hpp"
+#include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
+#include "MapsLogger.hpp"
 
 // STL
 #include <string>
@@ -67,6 +71,10 @@ namespace terrama2
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the map.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
         };
+
+        void makeMap(MapsId mapId, std::shared_ptr< terrama2::services::maps::core::MapsLogger > logger, std::weak_ptr<DataManager> weakDataManager);
+
+        void drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList);
 
       } // end namespace core
     }   // end namespace maps

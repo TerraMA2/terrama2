@@ -12,7 +12,7 @@ var load = require('express-load');
 var portNumber = '36000';
 var PluginLoader = require("../core/PluginLoader");
 var DataManager = require("../core/DataManager");
-var TcpManager = require("../core/TcpManager");
+var TcpManagerClass = require("../core/TcpManager");
 
 /**
  * Get port from environment and store in Express.
@@ -71,6 +71,9 @@ PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
           for (var key in connections)
             connections[key].destroy();
         };
+
+        var TcpManager = new TcpManagerClass();
+        TcpManager.disconnect();
 
         _closeServer();
       });

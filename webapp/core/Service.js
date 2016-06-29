@@ -115,7 +115,7 @@ var Service = module.exports = function(serviceInstance) {
           resolve();
         })
       } else
-        reject(new Error("Could not connect. There is a opened connection"));
+        reject(new Error("Could not connect. There is a open connection"));
     })
   };
 

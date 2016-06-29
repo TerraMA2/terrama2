@@ -7,158 +7,25 @@
 {% block ngApp %} ng-app="terrama2.administration.services.registration" {% endblock %}
 
 {% block javascripts %}
-<script type="text/javascript" src="/externals/angular/angular.min.js"></script>
-<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
-<script type="text/javascript" src="/javascripts/angular/app.js"></script>
-<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
-<script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<script type="text/javascript">
+  var configuration = {
+    service: {[ service|json|safe ]} || {}
+  }
+</script>
 
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-<script>
-  angular.module('terrama2.administration.services.registration', ['terrama2', 'terrama2.services', 'terrama2.components.messagebox'])
-    .controller('ServiceRegistration', ['$scope', '$window', 'ServiceInstanceFactory', 'Socket', function($scope, $window, ServiceInstanceFactory, Socket) {
-      var socket = Socket;
+<!-- Angular JS -->
+<script type="text/javascript" src="/externals/angular/angular.min.js"></script>
+<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
+<!-- <script type="text/javascript" src="/externals/angular-bootstrap-ui/ui-bootstrap-tpls-1.3.3.min.js"></script> -->
 
-      $scope.isCheckingConnection = false;
-
-      $scope.service = {[ service|json|safe ]} || {sshPort: 22};
-      if ($scope.service.service_type_id) {
-        $scope.service.service_type_id = $scope.service.service_type_id.toString();
-      }
-
-      if (!$scope.service.numberOfThreads) {
-        $scope.service.numberOfThreads = 0;
-      }
-
-      $scope.log = $scope.service.log || {};
-
-      $scope.update = false;
-      if ($scope.service.name)
-        $scope.update = true;
-
-      $scope.alertBox = {};
-      $scope.display = false;
-      $scope.alertLevel = null;
-      $scope.isChecking = false;
-      $scope.resetState = function() {
-        $scope.display = false;
-        $scope.alertBox.message = "";
-      };
-
-      // watching service type changed
-      $scope.$watch('service.service_type_id', function(value) {
-        switch(value) {
-          case "1": // collect
-          case "2": // analysis
-            $scope.service.pathToBinary = $scope.service.pathToBinary || "terrama2_service";
-            break;
-          default: // none
-            $scope.service.pathToBinary = $scope.service.pathToBinary;
-            break;
-        }
-      });
-
-      $scope.checkConnection = function() {
-        if (!socket) {
-          // TODO: error message
-          return;
-        }
-
-        $scope.isCheckingConnection = true;
-
-        $scope.ssh = {
-          isLoading: true
-        }
-
-        $scope.db = {
-          isLoading: true
-        }
-
-        setTimeout(function() {
-
-          // SSH
-          socket.emit('testSSHConnectionRequest',
-            {
-              host: $scope.service.host,
-              port: $scope.service.sshPort,
-              username: $scope.service.sshUser
-            }
-          )
-
-          socket.on('testSSHConnectionResponse', function(result) {
-            $scope.ssh.isLoading = false;
-            if (result.error) {
-              $scope.modalType = "modal-danger";
-              $scope.ssh.isValid = false;
-              $scope.ssh.message = result.message;
-            } else {
-              $scope.modalType = "modal-success";
-              $scope.ssh.isValid = true;
-            }
-          });
-
-          socket.emit('testDbConnection', $scope.log);
-
-          socket.on('testDbConnectionResponse', function(result) {
-            $scope.db.isLoading = false;
-            if (result.error) {
-              $scope.modalType = "modal-danger";
-              $scope.db.isValid = false;
-              $scope.db.message = result.message;
-            } else {
-              $scope.modalType = "modal-success";
-              $scope.db.isValid = true;
-              $scope.db.message = "";
-            }
-          })
-        }, 1000);
-
-
-        // Log DB
-      };
-
-      $scope.save = function() {
-        if ($scope.serviceForm.$invalid || $scope.logForm.$invalid) {
-          angular.forEach($scope.serviceForm.$error, function (field) {
-            angular.forEach(field, function(errorField){
-              errorField.$setDirty();
-            })
-          });
-
-          angular.forEach($scope.logForm.$error, function (field) {
-            angular.forEach(field, function(errorField){
-              errorField.$setDirty();
-            })
-          });
-          return;
-        }
-
-        // validating enviroment
-        if ($scope.service.runEnviroment)
-          $scope.service.runEnviroment = $scope.service.runEnviroment.split("\n").join(" ");
-
-        $scope.isChecking = true;
-        $scope.display = false;
-        $scope.alertBox.title = "Service Registration";
-
-        ServiceInstanceFactory.post({
-          service: $scope.service,
-          log: $scope.log
-        }).success(function(data) {
-          $window.location.href = "/administration/services?token=" + data.token;
-        }).error(function(err) {
-          console.log(err);
-          $scope.display = true;
-          $scope.alertLevel = "alert-danger";
-          $scope.alertBox.message = err.message;
-        }).finally(function() {
-          $scope.isChecking = false;
-        })
-      }
-    }])
-</script>
+<!-- TerraMA2 -->
+<script type="text/javascript" src="/javascripts/angular/app.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+<script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/services/registration.js"></script>
 
 {% endblock %}
 
@@ -183,7 +50,7 @@
   </div>
 </div>
 <div class="col-md-12">
-  <div class="col-md-12" ng-controller="ServiceRegistration">
+  <div class="col-md-12" ng-controller="RegistrationController">
     <div class="box box-default">
       <div class="box-header with-border">
         <h3 class="box-title">{[ __("Service Registration") ]}</h3>
@@ -192,7 +59,7 @@
       <div style="display: block;" class="box-body">
         <div class="row">
           <div class="col-md-12">
-            <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+            <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display" extra="extraProperties"></terrama2-alert-box>
 
             <terrama2-modal-box ng-show="isCheckingConnection" title="'{[ __("Connection") ]}'" modal-id="'modalConnection'">
               <div class="panel-group">
@@ -234,163 +101,183 @@
             </terrama2-modal-box>
           </div>
 
-          <div class="col-md-12">
-            <div class="box box-default box-solid">
-              <div class="box-header with-border">
-                <h3 class="box-title">{[ __('Service Data') ]}</h3>
-                <div class="box-tools pull-right">
-                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                  </button>
-                </div>
-              </div>
-              <!-- /.box-header -->
-              <div style="display: block;" class="box-body">
-                <form name="serviceForm">
-                  <div class="col-md-12">
-                    <div class="col-md-8">
-                      <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.name.$dirty && serviceForm.name.$invalid, 'has-success': serviceForm.name.$dirty && serviceForm.name.$valid}">
-                        <label>{[ __("Name") ]}:</label>
-                        <input class="form-control" name="name" ng-disabled="update" ng-model="service.name" placeholder="{[ __('Service  Name') ]}" type="text" required>
-
-                        <span class="form-control-feedback glyphicon" ng-show="serviceForm.name.$dirty" ng-class="{'glyphicon-ok': serviceForm.name.$valid, 'glyphicon-remove': serviceForm.name.$invalid }"></span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.name.$dirty && serviceForm.name.$invalid">{[ __('Service name is required') ]}</span>
-                      </div>
-                    </div>
-                    <!-- /.col -->
-                    <div class="col-md-4">
-                      <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.type.$dirty && serviceForm.type.$invalid, 'has-success': serviceForm.type.$dirty && serviceForm.type.$valid}">
-                        <label>{[ __("Type") ]}:</label>
-                        <select class="form-control" name="type" ng-disabled="update" ng-model="service.service_type_id" required>
-                          <option value="1">Collector</option>
-                          <option value="2">Analysis</option>
-                        </select>
-
-                        <span class="form-control-feedback glyphicon terrama2-combobox-feedback" ng-show="serviceForm.type.$dirty" ng-class="{'glyphicon-ok': serviceForm.type.$valid, 'glyphicon-remove': serviceForm.type.$invalid }"></span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.type.$dirty && serviceForm.type.$invalid">{[ __('Service type is required') ]}</span>
-
-                      </div>
-                      <!-- /.form-group -->
-                    </div>
+          <form name="serviceForm">
+            <div class="col-md-12">
+              <div class="box box-default box-solid">
+                <div class="box-header with-border">
+                  <h3 class="box-title">{[ __('Information') ]}</h3>
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
                   </div>
-
-                  <div class="col-md-12">
+                </div>
+                <!-- /.box-header -->
+                <div style="display: block;" class="box-body">
+                  <div class="row">
                     <div class="col-md-12">
-                      <div class="form-group">
-                        <label>{[ __("Description") ]}:</label>
-                        <textarea class="form-control" ng-disabled="update" ng-model="service.description" rows="3" placeholder="{[ __('Service Description') ]}"></textarea>
+                      <div class="col-md-8">
+                        <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.name.$dirty && serviceForm.name.$invalid, 'has-success': serviceForm.name.$dirty && serviceForm.name.$valid}">
+                          <label>{[ __("Name") ]}:</label>
+                          <input class="form-control" name="name" ng-model="service.name" placeholder="{[ __('Service  Name') ]}" type="text" required>
+
+                          <span class="form-control-feedback glyphicon" ng-show="serviceForm.name.$dirty" ng-class="{'glyphicon-ok': serviceForm.name.$valid, 'glyphicon-remove': serviceForm.name.$invalid }"></span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.name.$dirty && serviceForm.name.$invalid">{[ __('Service name is required') ]}</span>
+                        </div>
+                      </div>
+                      <!-- /.col -->
+                      <div class="col-md-4">
+                        <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.type.$dirty && serviceForm.type.$invalid, 'has-success': serviceForm.type.$dirty && serviceForm.type.$valid}">
+                          <label>{[ __("Type") ]}:</label>
+                          <select class="form-control" name="type" ng-disabled="update" ng-model="service.service_type_id" required>
+                            <option value="1">Collector</option>
+                            <option value="2">Analysis</option>
+                          </select>
+
+                          <span class="form-control-feedback glyphicon terrama2-combobox-feedback" ng-show="serviceForm.type.$dirty" ng-class="{'glyphicon-ok': serviceForm.type.$valid, 'glyphicon-remove': serviceForm.type.$invalid }"></span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.type.$dirty && serviceForm.type.$invalid">{[ __('Service type is required') ]}</span>
+
+                        </div>
+                        <!-- /.form-group -->
+                      </div>
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label>{[ __("Description") ]}:</label>
+                          <textarea class="form-control" ng-model="service.description" rows="3" placeholder="{[ __('Service Description') ]}"></textarea>
+                        </div>
                       </div>
                     </div>
                   </div>
-
-                  <div class="col-md-12">
-                    <div class="col-md-6">
-                      <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.host.$dirty && serviceForm.host.$invalid, 'has-success': serviceForm.host.$dirty && serviceForm.host.$valid}">
-                        <label>{[ __("Host") ]}:</label>
-                        <input class="form-control" name="host" ng-disabled="update" ng-model="service.host" placeholder="{[ __('Ssh Hostname') ]}" type="text" required>
-
-                        <span class="form-control-feedback glyphicon" ng-show="serviceForm.host.$dirty" ng-class="{'glyphicon-ok': serviceForm.host.$valid, 'glyphicon-remove': serviceForm.host.$invalid }"></span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.host.$dirty && serviceForm.host.$invalid">{[ __('Ssh host is required') ]}</span>
-                      </div>
-                    </div>
-
-                    <div class="col-md-6">
-                      <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.sshPort.$dirty && serviceForm.sshPort.$invalid, 'has-success': serviceForm.sshPort.$dirty && serviceForm.sshPort.$valid}">
-                        <label>{[ __("Port") ]}:</label>
-                        <input class="form-control" name="sshPort" ng-disabled="update" ng-model="service.sshPort" placeholder="{[ __('Ssh Port') ]}" type="number" min="1" max="65535" required>
-                        <span class="form-control-feedback glyphicon" ng-show="serviceForm.sshPort.$dirty" ng-class="{'glyphicon-ok': serviceForm.sshPort.$valid, 'glyphicon-remove': serviceForm.sshPort.$invalid }"></span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.required">{[ __('Ssh port is required') ]}</span>
-
-                        <!-- invalid number: min/max -->
-                        <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && (serviceForm.sshPort.$error.min || serviceForm.sshPort.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.number">{[ __('Ssh port is invalid') ]}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-md-12">
-                    <div class="col-md-6">
-                      <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.user.$dirty && serviceForm.user.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
-                        <label>{[ __("User") ]}:</label>
-                        <input class="form-control" name="user" ng-disabled="update" ng-model="service.sshUser" placeholder="{[ __('Ssh username') ]}" type="text" required>
-
-                        <span class="form-control-feedback glyphicon" ng-show="serviceForm.user.$dirty" ng-class="{'glyphicon-ok': serviceForm.user.$valid, 'glyphicon-remove': serviceForm.user.$invalid }"></span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.user.$dirty && serviceForm.user.$error.required">{[ __('Ssh user is required') ]}</span>
-                      </div>
-                    </div>
-
-                    <div class="col-md-4">
-                      <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.path.$dirty && serviceForm.path.$invalid, 'has-success': serviceForm.path.$dirty && serviceForm.path.$valid}">
-                        <label>{[ __("Path") ]}:</label>
-                        <input class="form-control" name="path" ng-disabled="update" ng-model="service.pathToBinary" placeholder="{[ __('Script path to run') ]}" type="text" required>
-
-                        <span class="form-control-feedback glyphicon" ng-show="serviceForm.path.$dirty" ng-class="{'glyphicon-ok': serviceForm.path.$valid, 'glyphicon-remove': serviceForm.path.$invalid }"></span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.path.$dirty && serviceForm.path.$error.required">{[ __('Service path is required') ]}</span>
-                      </div>
-                    </div>
-
-                    <div class="col-md-2">
-                      <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.port.$dirty && serviceForm.port.$invalid, 'has-success': serviceForm.port.$dirty && serviceForm.port.$valid}">
-                        <label>{[ __("Service Port") ]}:</label>
-                        <input class="form-control" name="port" ng-disabled="update" ng-model="service.port" placeholder="{[ __('Service Port') ]}" type="number" min="1" max="65535" required>
-
-                        <span class="form-control-feedback glyphicon" ng-show="serviceForm.port.$dirty" ng-class="{'glyphicon-ok': serviceForm.port.$valid, 'glyphicon-remove': serviceForm.port.$invalid }"></span>
-
-                        <!-- invalid number: min/max -->
-                        <span class="help-block has-error" ng-show="serviceForm.port.$dirty && (serviceForm.port.$error.min || serviceForm.port.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.port.$dirty && serviceForm.port.$error.required">{[ __('Service port is required') ]}</span>
-
-                        <span class="help-block has-error" ng-show="serviceForm.port.$dirty && serviceForm.port.$error.number">{[ __('Service port is invalid') ]}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- ./col-md-12 -->
-
-                  <div class="col-md-12">
-                    <div class="col-md-6">
-                      <div class="form-group has-feedback"
-                        ng-class="{'has-error': serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
-                        <label>{[ __("Number of Threads") ]}:</label>
-                        <input class="form-control"
-                               data-toggle="tooltip"
-                               data-placement="top"
-                               title="{[ __('When the value is 0, it will use thread number supported by the server') ]}"
-                               name="numberOfThreads"
-                               ng-disabled="update"
-                               ng-model="service.numberOfThreads"
-                               placeholder="Number of thread to run"
-                               required=""
-                               type="number" min="0">
-
-                        <span class="form-control-feedback glyphicon ng-hide glyphicon-remove" ng-show="serviceForm.numberOfThreads.$dirty" ng-class="{'glyphicon-ok': serviceForm.numberOfThreads.$valid, 'glyphicon-remove': serviceForm.numberOfThreads.$invalid }"></span>
-                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">Number of threads is required</span>
-                        <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && (serviceForm.numberOfThreads.$error.number || serviceForm.numberOfThreads.$error.min)">Number of threads is invalid</span>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label>{[ __("Enviroment") ]}:</label>
-                        <textarea class="form-control" style="max-width: 100%; max-height: 200px;" ng-disabled="update" ng-model="service.runEnviroment" rows="6" placeholder="Enviroment Variables"></textarea>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-                <!-- ./form serviceForm -->
+                </div>
               </div>
             </div>
-          </div>
+
+            <div class="col-md-12">
+              <div class="box box-default box-solid">
+                <div class="box-header with-border">
+                  <h3 class="box-title">{[ __('Host') ]}</h3>
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- /.box-header -->
+                <div style="display: block;" class="box-body">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.host.$dirty && serviceForm.host.$invalid, 'has-success': serviceForm.host.$dirty && serviceForm.host.$valid}">
+                          <label>{[ __("Address") ]}:</label>
+                          <input class="form-control" name="host" ng-disabled="update" ng-model="service.host" placeholder="{[ __('Ssh Hostname') ]}" type="text" required>
+
+                          <span class="form-control-feedback glyphicon" ng-show="serviceForm.host.$dirty" ng-class="{'glyphicon-ok': serviceForm.host.$valid, 'glyphicon-remove': serviceForm.host.$invalid }"></span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.host.$dirty && serviceForm.host.$invalid">{[ __('Ssh host is required') ]}</span>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.sshPort.$dirty && serviceForm.sshPort.$invalid, 'has-success': serviceForm.sshPort.$dirty && serviceForm.sshPort.$valid}">
+                          <label>{[ __("Port") ]}:</label>
+                          <input class="form-control" name="sshPort" ng-disabled="update" ng-model="service.sshPort" placeholder="{[ __('Ssh Port') ]}" type="number" min="1" max="65535" required>
+                          <span class="form-control-feedback glyphicon" ng-show="serviceForm.sshPort.$dirty" ng-class="{'glyphicon-ok': serviceForm.sshPort.$valid, 'glyphicon-remove': serviceForm.sshPort.$invalid }"></span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.required">{[ __('Ssh port is required') ]}</span>
+
+                          <!-- invalid number: min/max -->
+                          <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && (serviceForm.sshPort.$error.min || serviceForm.sshPort.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.number">{[ __('Ssh port is invalid') ]}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="col-md-12">
+                        <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.path.$dirty && serviceForm.path.$invalid, 'has-success': serviceForm.path.$dirty && serviceForm.path.$valid}">
+                          <label>{[ __("Service Executable Path") ]}:</label>
+                          <input class="form-control" name="path" ng-disabled="update" ng-model="service.pathToBinary" placeholder="{[ __('Script path to run') ]}" type="text" required>
+
+                          <span class="form-control-feedback glyphicon" ng-show="serviceForm.path.$dirty" ng-class="{'glyphicon-ok': serviceForm.path.$valid, 'glyphicon-remove': serviceForm.path.$invalid }"></span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.path.$dirty && serviceForm.path.$error.required">{[ __('Service path is required') ]}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.user.$dirty && serviceForm.user.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
+                          <label>{[ __("User") ]}:</label>
+                          <input class="form-control" name="user" ng-disabled="update" ng-model="service.sshUser" placeholder="{[ __('Ssh username') ]}" type="text" required>
+
+                          <span class="form-control-feedback glyphicon" ng-show="serviceForm.user.$dirty" ng-class="{'glyphicon-ok': serviceForm.user.$valid, 'glyphicon-remove': serviceForm.user.$invalid }"></span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.user.$dirty && serviceForm.user.$error.required">{[ __('Ssh user is required') ]}</span>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.port.$dirty && serviceForm.port.$invalid, 'has-success': serviceForm.port.$dirty && serviceForm.port.$valid}">
+                          <label>{[ __("Service Port") ]}:</label>
+                          <input class="form-control" name="port" ng-model="service.port" placeholder="{[ __('Service Port') ]}" type="number" min="1" max="65535" service-validation required>
+
+                          <span class="form-control-feedback glyphicon" ng-show="serviceForm.port.$dirty" ng-class="{'glyphicon-ok': serviceForm.port.$valid, 'glyphicon-remove': serviceForm.port.$invalid }"></span>
+
+                          <!-- invalid number: min/max -->
+                          <span class="help-block has-error" ng-show="serviceForm.port.$dirty && (serviceForm.port.$error.min || serviceForm.port.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.port.$dirty && serviceForm.port.$error.required">{[ __('Service port is required') ]}</span>
+
+                          <span class="help-block has-error" ng-show="serviceForm.port.$dirty && serviceForm.port.$error.number">{[ __('Service port is invalid') ]}</span>
+                          <span class="help-block has-error" ng-show="serviceForm.port.$dirty && serviceForm.port.$error.service">{[ __('Service port is already used by other process') ]}</span>
+                        </div>
+                      </div>
+                      <!-- ./col-md-6 -->
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback"
+                          ng-class="{'has-error': serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
+                          <label>{[ __("Number of Threads") ]}:</label>
+                          <input class="form-control"
+                                 data-toggle="tooltip"
+                                 data-placement="top"
+                                 title="{[ __('When the value is 0, it will use thread number supported by the server') ]}"
+                                 name="numberOfThreads"
+                                 ng-model="service.numberOfThreads"
+                                 placeholder="Number of thread to run"
+                                 required=""
+                                 type="number" min="0">
+
+                          <span class="form-control-feedback glyphicon ng-hide glyphicon-remove" ng-show="serviceForm.numberOfThreads.$dirty" ng-class="{'glyphicon-ok': serviceForm.numberOfThreads.$valid, 'glyphicon-remove': serviceForm.numberOfThreads.$invalid }"></span>
+                          <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$error.required">Number of threads is required</span>
+                          <span class="help-block" ng-show="serviceForm.numberOfThreads.$dirty && (serviceForm.numberOfThreads.$error.number || serviceForm.numberOfThreads.$error.min)">Number of threads is invalid</span>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>{[ __("Enviroment") ]}:</label>
+                          <textarea class="form-control" style="max-width: 100%; max-height: 200px;" ng-disabled="update" ng-model="service.runEnviroment" rows="6" placeholder="Enviroment Variables"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <!-- ./form serviceForm -->
 
           <div class="col-md-12">
             <div class="box box-default box-solid">
               <div class="box-header with-border">
-                <h3 class="box-title">{[ __('Log Configuration') ]}</h3>
+                <h3 class="box-title">{[ __('Log') ]}</h3>
                 <div class="box-tools pull-right">
                   <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                   </button>
@@ -398,72 +285,80 @@
               </div>
               <!-- /.box-header -->
               <div style="display: block;" class="box-body">
-                <form name="logForm">
-                  <div class="col-md-12">
-                    <div class="col-md-4">
-                      <div class="form-group has-feedback" ng-class="{'has-error': logForm.database.$dirty && logForm.database.$invalid, 'has-success': logForm.database.$dirty && logForm.database.$valid}">
-                        <label>{[ __("Database Name") ]}:</label>
-                        <input class="form-control" name="database" ng-disabled="update" ng-model="log.database" placeholder="{[ __('Log database name') ]}" type="text" required>
+                <div class="row">
+                  <form name="logForm">
+                    <div class="col-md-12">
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': logForm.host.$dirty && logForm.host.$invalid, 'has-success': logForm.host.$dirty && logForm.host.$valid}">
+                          <label>{[ __("Host") ]}:</label>
+                          <input class="form-control" name="host" ng-disabled="update" ng-model="log.host" placeholder="{[ __('Log hostname') ]}" type="text" required>
 
-                        <span class="form-control-feedback glyphicon" ng-show="logForm.database.$dirty" ng-class="{'glyphicon-ok': logForm.database.$valid, 'glyphicon-remove': logForm.database.$invalid }"></span>
+                          <span class="form-control-feedback glyphicon" ng-show="logForm.host.$dirty" ng-class="{'glyphicon-ok': logForm.host.$valid, 'glyphicon-remove': logForm.host.$invalid }"></span>
 
-                        <span class="help-block has-error" ng-show="logForm.database.$dirty && logForm.database.$error.required">{[ __('Database name is required') ]}</span>
+                          <span class="help-block has-error" ng-show="logForm.host.$dirty && logForm.host.$error.required">{[ __('Log host is required') ]}</span>
+                        </div>
                       </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group has-feedback" ng-class="{'has-error': logForm.host.$dirty && logForm.host.$invalid, 'has-success': logForm.host.$dirty && logForm.host.$valid}">
-                        <label>{[ __("Host") ]}:</label>
-                        <input class="form-control" name="host" ng-disabled="update" ng-model="log.host" placeholder="{[ __('Log hostname') ]}" type="text" required>
 
-                        <span class="form-control-feedback glyphicon" ng-show="logForm.host.$dirty" ng-class="{'glyphicon-ok': logForm.host.$valid, 'glyphicon-remove': logForm.host.$invalid }"></span>
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': logForm.port.$dirty && logForm.port.$invalid, 'has-success': logForm.port.$dirty && logForm.port.$valid}">
+                          <label>{[ __("Port") ]}:</label>
+                          <input class="form-control" name="port" ng-disabled="update" ng-model="log.port" placeholder="{[ __('Log port number') ]}" type="number" min="1" max="65535" required>
 
-                        <span class="help-block has-error" ng-show="logForm.host.$dirty && logForm.host.$error.required">{[ __('Log host is required') ]}</span>
-                      </div>
-                    </div>
+                          <span class="form-control-feedback glyphicon" ng-show="logForm.port.$dirty" ng-class="{'glyphicon-ok': logForm.port.$valid, 'glyphicon-remove': logForm.port.$invalid }"></span>
 
-                    <div class="col-md-4">
-                      <div class="form-group has-feedback" ng-class="{'has-error': logForm.port.$dirty && logForm.port.$invalid, 'has-success': logForm.port.$dirty && logForm.port.$valid}">
-                        <label>{[ __("Port") ]}:</label>
-                        <input class="form-control" name="port" ng-disabled="update" ng-model="log.port" placeholder="{[ __('Log port number') ]}" type="number" min="1" max="65535" required>
+                          <!-- invalid number: min/max -->
+                          <span class="help-block has-error" ng-show="logForm.port.$dirty && (logForm.port.$error.min || logForm.port.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
 
-                        <span class="form-control-feedback glyphicon" ng-show="logForm.port.$dirty" ng-class="{'glyphicon-ok': logForm.port.$valid, 'glyphicon-remove': logForm.port.$invalid }"></span>
-
-                        <!-- invalid number: min/max -->
-                        <span class="help-block has-error" ng-show="logForm.port.$dirty && (logForm.port.$error.min || logForm.port.$error.max)">{[ __('Invalid range of ports. A valid port is from 1 to 65535') ]}</span>
-
-                        <span class="help-block has-error" ng-show="logForm.port.$dirty && logForm.port.$error.required">{[ __('Port is required') ]}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- ./col-md-12 -->
-
-                  <div class="col-md-12">
-                    <div class="col-md-6">
-                      <div class="form-group has-feedback" ng-class="{'has-error': logForm.user.$dirty && logForm.user.$invalid, 'has-success': logForm.user.$dirty && logForm.user.$valid}">
-                        <label>{[ __("User") ]}:</label>
-                        <input class="form-control" name="user" ng-disabled="update" ng-model="log.user" placeholder="{[ __('Log username') ]}" type="text" required>
-
-                        <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
-
-                        <span class="help-block has-error" ng-show="logForm.user.$dirty && logForm.user.$error.required">{[ __('User is required') ]}</span>
+                          <span class="help-block has-error" ng-show="logForm.port.$dirty && logForm.port.$error.required">{[ __('Port is required') ]}</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div class="col-md-6">
-                      <div class="form-group has-feedback" ng-class="{'has-error': logForm.password.$dirty && logForm.password.$invalid, 'has-success': logForm.password.$dirty && logForm.password.$valid}">
-                        <label>{[ __("Password") ]}:</label>
-                        <input class="form-control" name="password" ng-disabled="update" ng-model="log.password" placeholder="{[ __('Log password') ]}" type="password">
+                    <div class="col-md-12">
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': logForm.user.$dirty && logForm.user.$invalid, 'has-success': logForm.user.$dirty && logForm.user.$valid}">
+                          <label>{[ __("User") ]}:</label>
+                          <input class="form-control" name="user" ng-disabled="update" ng-model="log.user" placeholder="{[ __('Log username') ]}" type="text" required>
 
-                        <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
+                          <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
+
+                          <span class="help-block has-error" ng-show="logForm.user.$dirty && logForm.user.$error.required">{[ __('User is required') ]}</span>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group has-feedback" ng-class="{'has-error': logForm.password.$dirty && logForm.password.$invalid, 'has-success': logForm.password.$dirty && logForm.password.$valid}">
+                          <label>{[ __("Password") ]}:</label>
+                          <input class="form-control" name="password" ng-disabled="update" ng-model="log.password" placeholder="{[ __('Log password') ]}" type="password">
+
+                          <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <!-- ./col-md-12 -->
-                </form>
+
+                    <div class="col-md-12">
+                      <div class="col-md-12">
+                        <div class="form-group has-feedback" ng-class="{'has-error': logForm.database.$dirty && logForm.database.$invalid, 'has-success': logForm.database.$dirty && logForm.database.$valid}">
+                          <label>{[ __("Database Name") ]}:</label>
+
+                          <input class="form-control"
+                                 name="database"
+                                 ng-disabled="update"
+                                 ng-model="log.database"
+                                 placeholder="{[ __('Log database name') ]}"
+                                 type="text"
+                                 required>
+
+                          <span class="form-control-feedback glyphicon" ng-show="logForm.database.$dirty" ng-class="{'glyphicon-ok': logForm.database.$valid, 'glyphicon-remove': logForm.database.$invalid }"></span>
+
+                          <span class="help-block has-error" ng-show="logForm.database.$dirty && logForm.database.$error.required">{[ __('Database name is required') ]}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
               </div>
-
             </div>
-
           </div>
         </div>
         <!-- /.row -->
@@ -475,7 +370,7 @@
           <span class="loading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
           <span class="text">Check Connection</span>
         </button>
-        <button type="submit" class="btn btn-primary pull-right" id="serviceSaveButton" ng-disabled="update" data-ng-click="save()" style="margin-left: 10px;">{[ __("OK") ]}</button>
+        <button type="submit" class="btn btn-primary pull-right" id="serviceSaveButton" data-ng-click="save()" style="margin-left: 10px;">{[ __("OK") ]}</button>
         <a ng-href="/administration/services" class="btn btn-primary pull-right" id="serviceCancelButton" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
       </div>
 

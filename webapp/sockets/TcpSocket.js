@@ -30,7 +30,7 @@ var TcpSocket = function(io) {
   iosocket.on('connection', function(client) {
 
     var TcpManager = new TcpManagerClass();
-    console.log("NEW CONNECTION");
+    console.log("NEW socket.io CONNECTION");
 
     var onServiceStarted = function(service) {
       setTimeout(function() {
