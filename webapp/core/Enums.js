@@ -150,5 +150,10 @@ module.exports = {
     ERROR_MESSAGE: 1,
     INFO_MESSAGE: 2,
     WARNING_MESSAGE: 3
+  },
+
+  SSH: {
+    COMMON: 1,
+    SCREEN: 2
   }
 };

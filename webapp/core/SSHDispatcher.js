@@ -3,6 +3,7 @@ var Promise = require("bluebird");
 var fs = require('fs');
 var util = require('util');
 var Utils = require("./Utils");
+var Enums = require('./Enums');
 
 
 /**
@@ -102,17 +103,18 @@ SSHDispatcher.prototype.execute = function(command) {
   });
 };
 
-SSHDispatcher.prototype.startService = function() {
+SSHDispatcher.prototype.startService = function(commandType) {
   var self = this;
   return new Promise(function(resolve, reject) {
     if (!self.connected)
       return reject(new Error("Could not start service. There is no such active connection"));
 
     try {
-      var executable = self.serviceInstance.pathToBinary;
-      var port = self.serviceInstance.port.toString();
-      var serviceTypeString = Utils.getServiceTypeName(self.serviceInstance.service_type_id);
-      var enviromentVars = self.serviceInstance.runEnviroment;
+      var serviceInstance = self.serviceInstance;
+      var executable = serviceInstance.pathToBinary;
+      var port = serviceInstance.port.toString();
+      var serviceTypeString = Utils.getServiceTypeName(serviceInstance.service_type_id);
+      var enviromentVars = serviceInstance.runEnviroment;
 
       var command;
       if (process.plataform == 'win32') {
@@ -122,12 +124,17 @@ SSHDispatcher.prototype.startService = function() {
           port);
       } else {
         // avoiding nohup lock ssh session
-        command = "nohup " + util.format(
-          "%s %s %s  > terrama2.out 2> terrama2.err < /dev/null %s",
-          executable,
-          serviceTypeString,
-          port,
-          (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : ""));
+        // command = "nohup " + util.format(
+        //   "%s %s %s  > terrama2.out 2> terrama2.err < /dev/null %s",
+        //   executable,
+        //   serviceTypeString,
+        //   port,
+        //   (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : ""));
+        command = util.format("screen -dmS %s_%s %s %s %s", serviceInstance.id,
+                                                            serviceInstance.port,
+                                                            executable,
+                                                            serviceTypeString,
+                                                            port)
       }
 
       console.log(command);
