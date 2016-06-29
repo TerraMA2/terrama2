@@ -50,7 +50,8 @@ add_library(terrama2_maps_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES
 qt5_use_modules(terrama2_maps_core Core)
 
 target_link_libraries(terrama2_maps_core terrama2_core
-                                        terralib_mod_maptools)
+                                        terralib_mod_maptools
+                                        terralib_mod_qt_widgets)
 
 set_target_properties(terrama2_maps_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
