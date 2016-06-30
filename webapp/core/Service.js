@@ -127,7 +127,9 @@ var Service = module.exports = function(serviceInstance) {
       }
 
       self.answered = false;
-      self.socket.write(buffer);
+      self.socket.write(buffer, function() {
+        console.log("status sent");
+      });
 
       self.socket.setTimeout(4000, function() {
         if (!self.answered)
