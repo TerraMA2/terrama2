@@ -58,7 +58,7 @@ te::dt::TimeInstantTZ terrama2::core::DataRetriever::lastDateTime() const
   throw NotRetrivableException() << ErrorDescription(errMsg);
 }
 
-bool terrama2::core::DataRetriever::isRetrivable() const noexcept
+bool terrama2::core::DataRetriever::isRetrivable() const
 {
   return false;
 }
