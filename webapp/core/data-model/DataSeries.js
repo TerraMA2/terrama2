@@ -43,7 +43,7 @@ DataSeries.prototype.setDataSets = function(dataSets) {
       output.push(DataSetFactory.build(ob));
     }
   });
-  
+
   this.dataSets = output;
 };
 

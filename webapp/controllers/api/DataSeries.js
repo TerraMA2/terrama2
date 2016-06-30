@@ -150,7 +150,41 @@ module.exports = function(app) {
     },
 
     put: function(request, response) {
+      var dataSeriesId = request.params.id;
+      var dataSeriesObject = request.body.dataSeries;
+      var scheduleObject = request.body.schedule;
+      var filterObject = request.body.filter;
+      var serviceId = request.body.service;
+      var intersection = request.body.intersection;
+      var active = request.body.active;
 
+      var _handleError = function(err) {
+        return Utils.handleRequestError(response, err, 400);
+      }
+
+      if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+        DataManager.getCollector({data_series_input: dataSeriesId}).then(function(collector) {
+          collector.service_instance_id = serviceId;
+          DataManager.updateCollector(collector.id, collector).then(function() {
+            // input
+            DataManager.updateDataSeries(dataSeriesId, dataSeriesObject.input).then(function() {
+              DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
+                DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
+                  var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
+                  return response.json({status: 200, result: collector.toObject(), token: token});
+                })
+              }).catch(_handleError);
+            }).catch(_handleError);
+          }).catch(_handleError);
+        }).catch(_handleError)
+      } else {
+        DataManager.updateDataSeries(dataSeriesId, dataSeriesObject).then(function() {
+          DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
+            var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeries.name);
+            return response.json({status: 200, result: dataSeries.toObject(), token: token});
+          }).catch(_handleError)
+        }).catch(_handleError)
+      }
     },
 
     delete: [passport.isCommonUser, function(request, response) {

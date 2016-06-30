@@ -1336,25 +1336,28 @@ var DataManager = {
    * @param {Object} dataSeriesObject - An object containing DataSeries identifier to get it.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  updateDataSerie: function(dataSeriesObject) {
+  updateDataSeries: function(dataSeriesId, dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataSeries = getItemByParam(self.data.dataSeries, {id: dataSeriesObject.id});
+      var dataSeries = getItemByParam(self.data.dataSeries, {id: dataSeriesId});
 
       if (dataSeries) {
         models.db.DataSeries.update(dataSeriesObject, {
-          fields: ['name', 'description'],
+          fields: ['name', 'description', 'data_provider_id'],
           where: {
-            $or: [
-              {id: dataSeriesObject.id},
-              {name: dataSeriesObject.name}
-            ]
+            id: dataSeriesId
           }
         }).then(function() {
-          dataSeries.name = dataSeriesObject.name;
-          dataSeries.description = dataSeriesObject.description;
+          self.getDataProvider({id: dataSeriesObject.data_provider_id}).then(function(dataProvider) {
+            dataSeries.name = dataSeriesObject.name;
+            dataSeries.description = dataSeriesObject.description;
+            dataSeries.data_provider_id = dataProvider.id;
 
-          resolve(new DataModel.DataSeries(dataSeries));
+            resolve(new DataModel.DataSeries(dataSeries));
+          }).catch(function(err) {
+            console.log(err);
+            reject(err);
+          })
         }).catch(function(err) {
           reject(new exceptions.DataSeriesError("Could not update data series ", err));
         });
@@ -1903,7 +1906,7 @@ var DataManager = {
     });
   },
 
-  updateCollector: function(collectorObject) {
+  updateCollector: function(collectorId, collectorObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var fields = [
@@ -1915,7 +1918,7 @@ var DataManager = {
         'collector_type'
       ]
 
-      self.updateCollectors({id: collectorObject.id}, collectorObject, {fields: fields}).then(function() {
+      self.updateCollectors({id: collectorId}, collectorObject, {fields: fields}).then(function() {
         resolve();
       }).catch(function(err) {
         reject(err);

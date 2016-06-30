@@ -19,7 +19,7 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" ng-disabled="isUpdating" wz-finish>{{ i18n.__('Save') }}</button>
+          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('Save') }}</button>
         </div>
       </div>
 
@@ -28,14 +28,16 @@
     <wz-step wz-title="Parameters Data" canexit="isSecondStepValid" wz-data="{'required': true}">
       <div class="col-md-12">
 
-        <!-- schema form -->
-        <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+        <div class="col-md-12">
+          <!-- schema form -->
+          <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
-        <div class="col-md-2 terrama2-top-field">
-          <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-disabled="isUpdating" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+          <div class="col-md-2 terrama2-top-field">
+            <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-disabled="isUpdating" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+          </div>
+
+          <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
         </div>
-
-        <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
 
       </div>
 
@@ -43,7 +45,7 @@
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" ng-disabled="isUpdating" wz-finish>{{ i18n.__('Save') }}</button>
+          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('Save') }}</button>
         </div>
       </div>
 
@@ -57,7 +59,7 @@
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" ng-disabled="isUpdating" wz-finish>{{ i18n.__('Save') }}</button>
+          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('Save') }}</button>
         </div>
       </div>
     </wz-step>
@@ -72,7 +74,7 @@
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" ng-disabled="isUpdating" wz-finish>{{ i18n.__('Save') }}</button>
+          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('Save') }}</button>
         </div>
       </div>
     </wz-step>
@@ -86,7 +88,7 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" ng-disabled="isUpdating" wz-finish>{{ i18n.__('Save') }}</button>
+          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('Save') }}</button>
         </div>
       </div>
     </wz-step>

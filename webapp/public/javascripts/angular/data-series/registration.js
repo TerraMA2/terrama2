@@ -584,9 +584,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
       $scope.hasCollector = Object.keys(outputDataseries).length > 0;
 
-      $scope.scheduleOptions = {
-        disabled: $scope.isUpdating
-      }
+      $scope.scheduleOptions = { };
 
       var inputName = "";
 
@@ -604,6 +602,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.dataSeries = {
         data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
         name: inputName,
+        description: inputDataSeries.description,
         access: $scope.hasCollector ? "COLLECT" : "PROCESSING",
         semantics: inputSemantics.code || "",
         active: inputDataSeries.active
@@ -879,9 +878,6 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.save = function() {
-        if ($scope.isUpdating)
-          return;
-
         var generalDataForm = angular.element('form[name="generalDataForm"]').scope().generalDataForm;
         if(generalDataForm.$invalid) {
           FormHelper(generalDataForm);
@@ -974,19 +970,15 @@ angular.module('terrama2.dataseries.registration', [
 
             case "OCCURRENCE":
               var format = $scope.model;
-
               var dataSet = {
                 semantics: semantics,
                 active: $scope.dataSeries.active,
                 format: format
               };
-
               dataToSend.dataSets.push(dataSet);
               break;
-
             case "GRID":
               break;
-
             case "STATIC_DATA":
               var format = $scope.model;
 
@@ -1008,14 +1000,6 @@ angular.module('terrama2.dataseries.registration', [
             filterValues.area.afterDate = new Date(filterValues.area.afterDate.getTime() - filterValues.area.afterDate.getTimezoneOffset()).toString();
             filterValues.area.beforeDate = new Date(filterValues.area.beforeDate.getTime() - filterValues.area.beforeDate.getTimezoneOffset()).toString();
           }
-
-          // checking date
-          // if (filterValues.date.beforeDate) {
-          //   filterValues.date.beforeDate = filterValues.date.beforeDate.toDate();
-          // }
-          // if (filterValues.date.afterDate) {
-          //   filterValues.date.afterDate = filterValues.date.afterDate.toDate();
-          // }
 
           var scheduleValues = Object.assign({}, $scope.schedule);
           switch(scheduleValues.scheduleHandler) {
@@ -1049,17 +1033,24 @@ angular.module('terrama2.dataseries.registration', [
 
         // it dispatches post operation to nodejs
         var _sendRequest = function(object) {
-
-          DataSeriesFactory.post({
+          var request = null;
+          var data = {
             dataSeries: object.dataToSend,
             schedule: object.scheduleValues,
             filter: object.filterValues,
             service: object.serviceOutput,
             intersection: object.intersection,
             active: object.active
-          }).then(function(data) {
+          };
+          if ($scope.isUpdating) {
+            request = DataSeriesFactory.put(configuration.dataSeries.input.id, data);
+          } else {
+            request = DataSeriesFactory.post(data);
+          }
+
+          request.then(function(data) {
             console.log(data);
-            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries";
+            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + data.token;
           }).catch(function(err) {
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.message = err.message;
