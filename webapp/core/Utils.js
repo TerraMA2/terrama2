@@ -359,5 +359,6 @@ module.exports = {
         TcpManager.emit('sendData', service, data);
       })
     })
+    TcpManager.emit('removeListeners');
   }
 };

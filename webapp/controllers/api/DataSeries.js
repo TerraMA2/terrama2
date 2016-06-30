@@ -47,6 +47,7 @@ module.exports = function(app) {
                   console.log("Error during send data each service: ", e);
                 }
               });
+              TcpManager.emit('removeListeners');
 
               var token = Utils.generateToken(app, TokenCode.SAVE, collectorResult.output.name);
               return response.json({status: 200, output: output, token: token});
@@ -75,6 +76,7 @@ module.exports = function(app) {
                 console.log("Error during send data each service: ", e);
               }
             });
+            TcpManager.emit('removeListeners');
 
             var token = Utils.generateToken(app, TokenCode.SAVE, dataSeriesResult.name);
             return response.json({status: 200, output: output, token: token});
@@ -178,6 +180,7 @@ module.exports = function(app) {
                         console.log(e);
                       }
                     });
+                    TcpManager.emit('removeListeners');
 
                     return response.json({status: 200, name: dataSeriesResult.name});
                   }).catch(function(err) {
@@ -208,6 +211,7 @@ module.exports = function(app) {
                     console.log(e);
                   }
                 });
+                TcpManager.emit('removeListeners');
 
                 response.json({status: 200, name: dataSeriesResult.name});
               }).catch(function(err) {
