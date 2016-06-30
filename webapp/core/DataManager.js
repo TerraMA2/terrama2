@@ -901,6 +901,8 @@ var DataManager = {
               TcpManager.emit('sendData', service, dataToSend);
             });
 
+            TcpManager.emit('removeListeners');
+
           }).catch(function(err) {
             reject(err);
           });
@@ -1007,6 +1009,8 @@ var DataManager = {
 
               }
             })
+
+            TcpManager.emit('removeListeners');
           }).catch(function(err) { });
 
           resolve(new DataModel.DataProvider(dataProvider));
@@ -1061,6 +1065,7 @@ var DataManager = {
               services.forEach(function(service) {
                 try {
                   TcpManager.emit('removeData', service, objectToSend);
+                  TcpManager.emit('removeListeners');
                 } catch (e) {
                   console.log(e);
                 }

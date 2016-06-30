@@ -69,6 +69,8 @@ module.exports = function(app) {
               }
             });
 
+            TcpManager.emit('removeListeners');
+
             console.log(JSON.stringify({
               "DataSeries": [analysisResult.dataSeries.toObject()],
               "Analysis": [analysisResult.toObject()]
@@ -136,6 +138,8 @@ module.exports = function(app) {
               servicesInstance.forEach(function (service) {
                 try {
                   TcpManager.emit('removeData', service, objectToSend);
+
+                  TcpManager.emit('removeListeners');
                 } catch (e) {
                   console.log(e);
                 }

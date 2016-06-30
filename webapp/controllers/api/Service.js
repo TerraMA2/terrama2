@@ -72,6 +72,8 @@ module.exports = function(app) {
               setTimeout(function() {
                 // shutdown
                 TcpManager.emit('stopService', serviceInstance);
+
+                TcpManager.emit('removeListeners');
               }, 2000)
             } catch(e) {
               console.log(e);

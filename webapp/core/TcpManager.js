@@ -1,6 +1,5 @@
 var Signals = require('./Signals.js');
 var SSH = require("./SSHDispatcher");
-var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
 var Service = require('./Service');
@@ -84,7 +83,7 @@ TcpManager.prototype.makebuffer = function(signal, object) {
   }
 
   return buffer;
-}
+};
 
 /**
  The structure looks like:
