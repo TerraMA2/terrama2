@@ -50,6 +50,8 @@ class TsDataAccessorDcpInpe: public QObject
     void TestFailDataSeriesSemanticsInvalid();
     void TestOKDataRetrieverValid();
     void TestFailDataRetrieverInvalid();
+    void TestDataSourceValid();
+    void TestDataSourceInvalid();
     void TestOK();
 };
 
