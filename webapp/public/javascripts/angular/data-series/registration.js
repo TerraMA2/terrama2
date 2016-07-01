@@ -209,6 +209,21 @@ angular.module('terrama2.dataseries.registration', [
             $scope.filter.date.beforeDate = filter.discard_before;
           if (filter.discard_after)
             $scope.filter.date.afterDate = filter.discard_after;
+
+          // filter geometry field
+          if (filter.region) {
+            $scope.$emit('updateFilterArea', "2");
+            var coordinates = filter.region.coordinates;
+            var len = coordinates.length;
+            var lenCoordinateChildren = coordinates[0].length;
+            $scope.filter.area = {};
+
+            $scope.filter.area.minX = coordinates[0][0][0];
+            $scope.filter.area.minY = coordinates[0][0][1];
+
+            $scope.filter.area.maxX = coordinates[len-1][lenCoordinateChildren-3][0];
+            $scope.filter.area.maxY = coordinates[len-1][lenCoordinateChildren-3][1];
+          }
         }
 
         if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -278,6 +293,11 @@ angular.module('terrama2.dataseries.registration', [
       $scope.service = {};
 
       $scope.alertLevel = "";
+
+      $scope.filterArea = '1';
+      $scope.$on('updateFilterArea', function(event, filterValue) {
+        $scope.filterArea = filterValue;
+      })
 
       // terrama2 messagebox
       $scope.errorFound = false;
@@ -425,6 +445,10 @@ angular.module('terrama2.dataseries.registration', [
                 dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GRID)
       }
 
+      $scope.onFilterRegion = function() {
+        $scope.filter.area={};
+      }
+
       // storager
       $scope.showStoragerForm = false;
       $scope.storager = {};
@@ -466,55 +490,6 @@ angular.module('terrama2.dataseries.registration', [
         console.log(err);
       });
 
-
-      $scope.onScheduleChange = function(value) {
-        var resetHelper = function(i) {
-          if (i == 1) {
-            delete $scope.schedule.schedule;
-            delete $scope.schedule.schedule_retry;
-            delete $scope.schedule.schedule_retry_unit;
-            delete $scope.schedule.schedule_timeout;
-            delete $scope.schedule.schedule_timeout_unit;
-            $scope.isFrequency = true;
-            $scope.isSchedule = false;
-          } else if (i == 2) {
-            delete $scope.frequency;
-            delete $scope.frequency_unit;
-            $scope.isFrequency = false;
-            $scope.isSchedule = true;
-          }
-        };
-
-        switch(value) {
-          case "seconds":
-          case "minutes":
-          case "hours":
-            resetHelper(1);
-            $scope.minSchedule = 0;
-            $scope.maxSchedule = 2147483648; // setting max value to schedule (int32)
-            break;
-          case "weeks":
-            resetHelper(2);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 7;
-            break;
-          case "monthly":
-            resetHelper(2);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 31;
-            break;
-          case "yearly":
-            resetHelper(2);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 366;
-            break;
-          default:
-            $scope.minSchedule = 0;
-            $scope.maxSchedule = 0;
-            break;
-        }
-      };
-
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
         this["wzData"].error = !isWizardStepValid("generalDataForm");
@@ -540,6 +515,7 @@ angular.module('terrama2.dataseries.registration', [
         this["wzData"].error = !isWizardStepValid("storagerForm");
         return true;
       };
+      //. end wizard validations
 
       $scope.semantics = "";
       $scope.dcps = [];
@@ -553,6 +529,7 @@ angular.module('terrama2.dataseries.registration', [
         $scope.filter.pre_analysis = {};
         $scope.radioPreAnalysis = selected;
       };
+      // filter helpers
       $scope.beforeRenderStartDate = function($view, $dates, $leftDate, $upDate, $rightDate) {
         if ($scope.filter.date.afterDate) {
           var activeDate = moment($scope.filter.date.afterDate);
@@ -695,28 +672,20 @@ angular.module('terrama2.dataseries.registration', [
         } else {
           if (val && Object.keys(val).length == 0) {
             $scope.dataSeries.access = 'PROCESSING';
-            // $scope.alertLevel = "alert-warning";
-            // $scope.alertBox.title = "Data Series";
-            // $scope.alertBox.message = "Note: No storager configuration, this data will be accessed when needed.";
-            // $scope.display = true;
           } else {
             $scope.dataSeries.access = 'COLLECT';
-
-            // $scope.display = false;
           }
         }
       });
 
       // function to fill out parameters data and storager data
       var _processParameters = function() {
-
         $scope.dataSeriesSemantics.forEach(function(dSemantic) {
           if (dSemantic.name == outputDataseries.data_series_semantic_name) {
             $scope.storager.format = dSemantic;
             $scope.onStoragerFormatChange();
           }
         });
-
       }
 
       // it defines when data change combobox has changed and it will adapt the interface
@@ -947,7 +916,6 @@ angular.module('terrama2.dataseries.registration', [
                     if (key !== "latitude" && key !== "longitude" && key !== "active")
                       format[key] = dcp[key];
                 }
-
                 var dataSetStructure = {
                   active: $scope.dataSeries.active,
                   format: format,
@@ -967,7 +935,6 @@ angular.module('terrama2.dataseries.registration', [
               });
 
               break;
-
             case "OCCURRENCE":
               var format = $scope.model;
               var dataSet = {
@@ -1008,7 +975,6 @@ angular.module('terrama2.dataseries.registration', [
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
               break;
-
             case "weeks":
             case "monthly":
             case "yearly":

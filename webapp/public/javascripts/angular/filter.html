@@ -17,15 +17,15 @@
                 <div class="dropdown dropup">
                   <a class="dropdown-toggle" id="dropdownBeforeDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2" ng-disabled="isUpdating">
                     <div class="input-group">
-                      <input type="text" class="form-control" ng-disabled="isUpdating" data-date-time-input="YYYY-MM-DD HH:mm" data-ng-model="filter.date.beforeDate">
+                      <input type="text" class="form-control" data-date-time-input="YYYY-MM-DD HH:mm" data-ng-model="filter.date.beforeDate">
 
-                      <span class="input-group-addon" style="cursor: {{ isUpdating ? 'not-allowed' : 'default' }}">
+                      <span class="input-group-addon">
                         <i class="glyphicon glyphicon-calendar"></i>
                       </span>
                     </div>
                   </a>
-                  <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel" ng-if="!isUpdating">
-                    <datetimepicker data-ng-model="filter.date.beforeDate" ng-disabled="isUpdating" data-datetimepicker-config="{ dropdownSelector: '#dropdownBeforeDate' }" data-before-render="beforeRenderStartDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
+                  <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel">
+                    <datetimepicker data-ng-model="filter.date.beforeDate" data-datetimepicker-config="{ dropdownSelector: '#dropdownBeforeDate' }" data-before-render="beforeRenderStartDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
                   </ul>
                 </div>
               </div>
@@ -36,15 +36,15 @@
                 <div class="dropdown dropup">
                   <a class="dropdown-toggle" id="dropdownAfterDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2">
                     <div class="input-group">
-                      <input type="text" class="form-control" ng-disabled="isUpdating" data-date-time-input="YYYY-MM-DD hh:mm" data-ng-model="filter.date.afterDate">
+                      <input type="text" class="form-control" data-date-time-input="YYYY-MM-DD hh:mm" data-ng-model="filter.date.afterDate">
 
-                      <span class="input-group-addon" style="cursor: {{ isUpdating ? 'not-allowed' : 'default' }}">
+                      <span class="input-group-addon">
                         <i class="glyphicon glyphicon-calendar"></i>
                       </span>
                     </div>
                   </a>
-                  <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel" ng-if="!isUpdating">
-                    <datetimepicker data-ng-model="filter.date.afterDate" ng-disabled="isUpdating" data-datetimepicker-config="{ dropdownSelector: '#dropdownAfterDate' }" data-before-render="beforeRenderEndDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
+                  <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel" >
+                    <datetimepicker data-ng-model="filter.date.afterDate" data-datetimepicker-config="{ dropdownSelector: '#dropdownAfterDate' }" data-before-render="beforeRenderEndDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
                   </ul>
                 </div>
               </div>
@@ -59,39 +59,39 @@
             <div class='col-md-12'>
               <div class="form-group">
                 <label>{{ i18n.__('Select the filter area type') }}:</label>
-                <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-disabled="isUpdating" ng-model="filterArea" ng-change="filter.area={};" ng-init="filterArea='1';">
+                <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-model="filterArea" ng-change="onFilterRegion();">
                   <option value="1">Do not filter</option>
                   <option value="2">Filter by limits</option>
                 </select>
               </div>
             </div>
 
-            <div class="col-md-12 terrama2-nopadding-box" ng-if="filterArea == '2'">
+            <div class="col-md-12 terrama2-nopadding-box"><!--ng-if="filterArea == '2'"-->
               <div class="col-md-6">
                 <div class="form-group">
                   <label>X min:</label>
-                  <input class="form-control" id="minX" name="filterMinX" ng-disabled="isUpdating" ng-model="filter.area.minX" placeholder="" type="text">
+                  <input class="form-control" id="minX" name="filterMinX" ng-model="filter.area.minX" placeholder="" type="text">
                 </div>
               </div>
 
               <div class="col-md-6">
                 <div class="form-group">
                   <label>X max:</label>
-                  <input class="form-control" id="maxX" name="filterMaxX" ng-disabled="isUpdating" ng-model="filter.area.maxX" placeholder="" type="text">
+                  <input class="form-control" id="maxX" name="filterMaxX" ng-model="filter.area.maxX" placeholder="" type="text">
                 </div>
               </div>
 
               <div class="col-md-6">
                 <div class="form-group">
                   <label>Y min:</label>
-                  <input class="form-control" id="minY" name="filterMinY" ng-disabled="isUpdating" ng-model="filter.area.minY" placeholder="" type="text">
+                  <input class="form-control" id="minY" name="filterMinY" ng-model="filter.area.minY" placeholder="" type="text">
                 </div>
               </div>
 
               <div class="col-md-6">
                 <div class="form-group">
                   <label>Y max:</label>
-                  <input class="form-control" id="maxY" name="filterMaxY" ng-disabled="isUpdating" ng-model="filter.area.maxY" placeholder="" type="text">
+                  <input class="form-control" id="maxY" name="filterMaxY" ng-model="filter.area.maxY" placeholder="" type="text">
                 </div>
               </div>
             </div>
