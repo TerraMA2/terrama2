@@ -69,7 +69,7 @@ Collector.prototype.setInputOutputMap = function (inputOutputModel) {
 Collector.prototype.rawObject = function () {
   var obj = this.toObject();
   obj.schedule = this.schedule.toObject();
-  obj.filter = this.filter instanceof BaseClass ? this.filter.toObject() : this.filter;
+  obj.filter = this.filter instanceof BaseClass ? this.filter.rawObject() : this.filter;
   obj.dataSeriesOutput = this.dataSeriesOutput instanceof BaseClass ? this.dataSeriesOutput.toObject() : this.dataSeriesOutput;
 
   var intersectionArray = [];

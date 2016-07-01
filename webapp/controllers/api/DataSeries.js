@@ -12,7 +12,7 @@ module.exports = function(app) {
   var TcpManager = new TcpManagerClass();
 
   return {
-    post: [passport.isCommonUser, function(request, response) {
+    post: function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
       var scheduleObject = request.body.schedule;
       var filterObject = request.body.filter;
@@ -88,7 +88,7 @@ module.exports = function(app) {
           return Utils.handleRequestError(response, err, 400);
         });
       }
-    }],
+    },
 
     get: function(request, response) {
       var dataSeriesId = request.params.id;
@@ -210,7 +210,7 @@ module.exports = function(app) {
       }
     },
 
-    delete: [passport.isCommonUser, function(request, response) {
+    delete: function(request, response) {
       var id = request.params.id;
 
       if (id) {
@@ -285,6 +285,6 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }
-    }]
+    }
   };
 };

@@ -973,8 +973,10 @@ angular.module('terrama2.dataseries.registration', [
           // adjusting time without timezone
           var filterValues = Object.assign({}, $scope.filter);
           if (filterValues.date) {
-            filterValues.date.afterDate = new Date(filterValues.date.afterDate.getTime() - filterValues.date.afterDate.getTimezoneOffset()).toString();
-            filterValues.date.beforeDate = new Date(filterValues.date.beforeDate.getTime() - filterValues.date.beforeDate.getTimezoneOffset()).toString();
+            if (filterValues.date.afterDate)
+              filterValues.date.afterDate = new Date(filterValues.date.afterDate.getTime() - filterValues.date.afterDate.getTimezoneOffset()).toString();
+            if (filterValues.date.beforeDate)
+              filterValues.date.beforeDate = new Date(filterValues.date.beforeDate.getTime() - filterValues.date.beforeDate.getTimezoneOffset()).toString();
           }
 
           var scheduleValues = Object.assign({}, $scope.schedule);

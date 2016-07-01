@@ -53,6 +53,40 @@ function getItemByParam(array, object) {
   });
 }
 
+function _processFilter(filterObject) {
+  var filterValues = {};
+  // checking filter by date
+  if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
+    if (filterObject.date.beforeDate)
+      filterValues.discard_before = new Date(filterObject.date.beforeDate);
+    if (filterObject.date.afterDate)
+      filterValues.discard_after = new Date(filterObject.date.afterDate);
+  }
+
+  // checking filter by area
+  if (filterObject.hasOwnProperty('area') && !_.isEmpty(filterObject.area)) {
+    filterValues.region = {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [filterObject.area["minX"], filterObject.area["minY"]],
+          [filterObject.area["maxX"], filterObject.area["minY"]],
+          [filterObject.area["maxX"], filterObject.area["maxY"]],
+          [filterObject.area["minX"], filterObject.area["maxY"]],
+          [filterObject.area["minX"], filterObject.area["minY"]]
+        ]
+      ],
+      "crs": {
+        "type": "name",
+        "properties": {
+          "name": "EPSG:4326"
+        }
+      }
+    };
+  }
+  return filterValues;
+}
+
 
 var models = null;
 
@@ -1951,7 +1985,8 @@ var DataManager = {
           models.db['CollectorInputOutput'],
           {
             model: models.db['Filter'],
-            required: false
+            required: false,
+            attributes: { include: [[connection.fn('ST_AsText', connection.col('region')), 'region_wkt']] }
           },
           {
             model: models.db['Intersection'],
@@ -1964,7 +1999,6 @@ var DataManager = {
         var promises = [];
         collectorsResult.forEach(function(collector) {
           promises.push(self.getDataSeries({id: collector.data_series_output}));
-          // output.push(new DataModel.Collector(collector.get()));
         });
 
         Promise.all(promises).then(function(dataSeriesArray) {
@@ -2017,7 +2051,8 @@ var DataManager = {
           },
           {
             model: models.db['Filter'],
-            required: false
+            required: false,
+            attributes: { include: [[connection.fn('ST_AsText', connection.col('region')), 'region_wkt']] }
           },
           {
             model: models.db['Intersection'],
@@ -2046,48 +2081,58 @@ var DataManager = {
     });
   },
 
+  addIntersection: function(intersectionArray) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      // models.db.Intersection.bulkCreate()
+      resolve();
+    });
+  },
+
   addFilter: function(filterObject) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
       var filterValues = {collector_id: filterObject.collector_id};
-      // checking filter by date
-      if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
-        if (filterObject.date.beforeDate)
-          filterValues.discard_before = new Date(filterObject.date.beforeDate);
-        if (filterObject.date.afterDate)
-          filterValues.discard_after = new Date(filterObject.date.afterDate);
-      }
 
-      // checking filter by area
-      if (filterObject.hasOwnProperty('area') && !_.isEmpty(filterObject.area)) {
-        filterValues.region = {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [filterObject.area["minX"], filterObject.area["minY"]],
-              [filterObject.area["maxX"], filterObject.area["minY"]],
-              [filterObject.area["maxX"], filterObject.area["maxY"]],
-              [filterObject.area["minX"], filterObject.area["maxY"]],
-              [filterObject.area["minX"], filterObject.area["minY"]]
-            ]
-          ],
-          "crs": {
-            "type": "name",
-            "properties": {
-              "name": "EPSG:4326"
-            }
-          }
-        };
-      }
+      Object.assign(filterValues, _processFilter(filterObject));
 
       // checking filter
       models.db.Filter.create(filterValues).then(function(filter) {
-        resolve(new DataModel.Filter(filter.get()));
+        if (filter.region) {
+          self.getWKT(filter.region).then(function(geom) {
+            var filter = new DataModel.Filter(filter.get());
+            filter.region_wkt = geom;
+            resolve(filter);
+          }).catch(function(err) {
+            reject(err);
+          })
+        } else {
+          resolve(new DataModel.Filter(filter.get()));
+        }
       }).catch(function(err) {
         // todo: improve error message
         reject(new Error("Could not save filter. ", err));
       });
+    });
+  },
+
+  updateFilter: function(filterId, filterObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var filterValues = _processFilter(filterObject);
+      models.db.Filter.update(filterValues, {
+        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value'],
+        where: {
+          id: filterId
+        }
+      }).then(function() {
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(new Error("Could not update filter " + err.toString()))
+      })
     });
   },
 

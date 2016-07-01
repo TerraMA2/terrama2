@@ -25,7 +25,7 @@ module.exports = function(app) {
       })
     },
 
-    post: [passport.isCommonUser, function(request, response) {
+    post: function(request, response) {
       var analysisObject = request.body.analysis;
       var storager = request.body.storager;
       var scheduleObject = request.body.schedule;
@@ -91,9 +91,9 @@ module.exports = function(app) {
       } catch (err) {
         Utils.handleRequestError(response, err, 400);
       }
-    }],
+    },
 
-    put: [passport.isCommonUser, function(request, response) {
+    put: function(request, response) {
       var analysisId = request.params.id;
 
       if (analysisId) {
@@ -122,9 +122,9 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new AnalysisError("Missing analysis id"), 400);
       }
-    }],
+    },
 
-    delete: [passport.isCommonUser, function(request, response) {
+    delete: function(request, response) {
       var id = request.params.id;
       if(id) {
         DataManager.getAnalysis({id: id}).then(function(analysis) {
@@ -158,6 +158,6 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new AnalysisError("Missing analysis id"), 400);
       }
-    }]
+    }
   };
 };
