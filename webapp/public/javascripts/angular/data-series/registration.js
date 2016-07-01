@@ -205,10 +205,19 @@ angular.module('terrama2.dataseries.registration', [
 
           // fill filter
           var filter = collector.filter || {};
+
+          var _processDate = function(stringDate) {
+            var minus = stringDate.lastIndexOf('-');
+            var plus = stringDate.lastIndexOf('+');
+            var timezone = parseInt(minus > -1 ? stringDate.substring(minus+1, minus+3) : stringDate.substring(plus+1, plus+3));
+
+            return moment(stringDate).utc((minus > -1 ? timezone : -timezone)).toDate();
+          };
+
           if (filter.discard_before)
-            $scope.filter.date.beforeDate = filter.discard_before;
+            $scope.filter.date.beforeDate = _processDate(filter.discard_before);
           if (filter.discard_after)
-            $scope.filter.date.afterDate = filter.discard_after;
+            $scope.filter.date.afterDate = _processDate(filter.discard_after);
 
           // filter geometry field
           if (filter.region) {
@@ -963,9 +972,9 @@ angular.module('terrama2.dataseries.registration', [
 
           // adjusting time without timezone
           var filterValues = Object.assign({}, $scope.filter);
-          if (filterValues.area) {
-            filterValues.area.afterDate = new Date(filterValues.area.afterDate.getTime() - filterValues.area.afterDate.getTimezoneOffset()).toString();
-            filterValues.area.beforeDate = new Date(filterValues.area.beforeDate.getTime() - filterValues.area.beforeDate.getTimezoneOffset()).toString();
+          if (filterValues.date) {
+            filterValues.date.afterDate = new Date(filterValues.date.afterDate.getTime() - filterValues.date.afterDate.getTimezoneOffset()).toString();
+            filterValues.date.beforeDate = new Date(filterValues.date.beforeDate.getTime() - filterValues.date.beforeDate.getTimezoneOffset()).toString();
           }
 
           var scheduleValues = Object.assign({}, $scope.schedule);

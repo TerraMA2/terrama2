@@ -20,7 +20,7 @@ module.exports = function(app) {
           administrator: true
         }).then(function() {
           if(request.isAuthenticated() && request.user.dataValues.administrator) {
-            return response.redirect("/administration/services");
+            return response.redirect("/configuration/projects");
           } else if(request.isAuthenticated()) {
             return response.redirect("/configuration/projects");
           } else {
@@ -32,7 +32,7 @@ module.exports = function(app) {
         });
       } else {
         if(request.isAuthenticated() && request.user.dataValues.administrator) {
-          return response.redirect("/administration/services");
+          return response.redirect("/configuration/projects");
         } else if(request.isAuthenticated()) {
           return response.redirect("/configuration/projects");
         } else {

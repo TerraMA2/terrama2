@@ -1,22 +1,13 @@
 {% set MENU_URLS = {} %}
 
-{% if (currentUser !== null && currentUser.administrator) %}
-
-{% set MENU_URLS = {} %}
-{% set MENU_URLS["services"] = {name: __('Services'), url: "/administration/services", icon: "fa-laptop"} %}
-{% set MENU_URLS["users"] = {name: __('Users'), url: "/administration/users", icon: "fa-users"} %}
-
-{% else %}
-
 {% set MENU_URLS = {"projects": {name: __('Projects'), url: "/configuration/projects", icon: "fa-book"}} %}
 {% set MENU_URLS["data-provider"] = {name: __('Data Provider'), url: "/configuration/providers", icon: "fa-cubes"} %}
 {% set MENU_URLS["static-data"] = {name: __('Static Data'), url: "/configuration/static/dataseries", icon: "fa-folder-o"} %}
 {% set MENU_URLS["dynamic-data"] = {name: __('Dynamic Data'), url: "/configuration/dynamic/dataseries", icon: "fa-exchange"} %}
 {% set MENU_URLS["analyses"] = {name: __('Analyses'), url: "/configuration/analyses", icon: "fa-tasks"} %}
 {% set MENU_URLS["alerts"] = {name: __('Alerts'), url: "/configuration/alerts", icon: "fa-bell"} %}
-{% set MENU_URLS["map-display"] = {name: __('Map Display'), url: "/configuration/mapdisplay", icon: "fa-map"} %}
+{% set MENU_URLS["views"] = {name: __('Views'), url: "/configuration/views", icon: "fa-map"} %}
 {% set MENU_URLS["status"] = {name: __('Status'), url: "/configuration/status", icon: "fa-feed"} %}
-{% endif %}
 
 <!DOCTYPE html>
 <html {% block ngApp %}{% endblock %} i18n-locale="{[ i18n.getLocale() ]}">
@@ -58,7 +49,7 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="hold-transition skin-blue sidebar-mini {% if (collapsed) %} sidebar-collapse {% endif %} {% block bodyClass %}{% endblock %}">
+<body class="hold-transition skin-blue sidebar-mini {% if (!activeProject.name) %} {% if (collapsed) %} sidebar-collapse {% endif %}{% endif %} {% block bodyClass %}{% endblock %}">
   <div class="wrapper">
 
     <header class="main-header">
@@ -110,18 +101,6 @@
         <!-- /.search form -->
         {% endif %}
 
-        {% if (currentUser !== null && currentUser.administrator) %}
-          <ul class="sidebar-menu">
-          {% for tab in MENU_URLS %}
-            <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
-              <a href="{[ tab.url ]}">
-                <i class="fa {[ tab.icon ]}"></i><span>{[ tab.name ]}</span>
-              </a>
-            </li>
-          {% endfor %}
-          </ul>
-        {% else %}
-
           {% if (activeProject.name) %}
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
@@ -135,11 +114,31 @@
               </li>
               {% endfor %}
 
+              {% if currentUser !== null && currentUser.administrator %}
+              <li class="header"></li>
+              <li class="treeview">
+                <a href="#">
+                  <i class="fa fa-cogs"></i> <span>{[ __('Administration') ]}</span>
+                  <i class="fa fa-angle-left pull-right"></i>
+                </a>
+                <ul class="treeview-menu" style="display: {% if (tabActive === 'services' || tabActive === 'users') %} block; {% else %} none;{% endif %}">
+                  <li class="treeview {% if (tabActive === 'services') %} active {% endif %}">
+                    <a href="/administration/services">
+                      <i class="fa fa-laptop"></i> {[ __('Services') ]}
+                    </a>
+                  </li>
+                  <li class="treeview {% if (tabActive === 'users') %} active {% endif %}">
+                    <a href="/administration/users">
+                      <i class="fa fa-users"></i> {[ __('Users') ]}
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              {% endif %}
+
             </ul>
             <!-- /.ul sidebar -->
           {% endif %}
-
-        {% endif %}
       </section>
       <!-- /.sidebar -->
     </aside>
@@ -176,7 +175,7 @@
 
   <script type="text/javascript">
     $(document).ready(function(){
-      var collapsed = {[ collapsed || false ]};
+      var collapsed = {[ collapsed ]};
 
       $("#collapseButton").click(function(event) {
         var self = this;

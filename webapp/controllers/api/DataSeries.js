@@ -6,6 +6,7 @@ var DataSeriesType = require('./../../core/Enums').DataSeriesType;
 var TokenCode = require('./../../core/Enums').TokenCode;
 var isEmpty = require('lodash').isEmpty;
 var passport = require('./../../config/Passport');
+var _ = require('lodash');
 
 module.exports = function(app) {
   var TcpManager = new TcpManagerClass();
@@ -129,7 +130,6 @@ module.exports = function(app) {
       }
 
       if (dataSeriesId) {
-
         DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
           return response.json(dataSeries.toObject());
         }).catch(function(err) {
@@ -169,10 +169,33 @@ module.exports = function(app) {
             // input
             DataManager.updateDataSeries(dataSeriesId, dataSeriesObject.input).then(function() {
               DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
-                DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
-                  var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
-                  return response.json({status: 200, result: collector.toObject(), token: token});
-                })
+                if (collector.filter.id) {
+                  DataManager.updateFilter(collector.filter.id, filterObject).then(function() {
+                    DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
+                      var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
+                      return response.json({status: 200, result: collector.toObject(), token: token});
+                    })
+                  }).catch(_handleError);
+                } else {
+                  var _processIntersection = function() {
+                    DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
+                      var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
+                      return response.json({status: 200, result: collector.toObject(), token: token});
+                    })
+                  }
+
+                  if (_.isEmpty(filterObject.date)) {
+                    _processIntersection();
+                  } else {
+                    filterObject.collector_id = collector.id;
+
+                    DataManager.addFilter(filterObject).then(function(filter) {
+                      collector.filter = filter;
+
+                      _processIntersection();
+                    }).catch(_handleError);
+                  }
+                }
               }).catch(_handleError);
             }).catch(_handleError);
           }).catch(_handleError);
