@@ -241,7 +241,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
   }
   catch(const terrama2::Exception&)
   {
-    throw;
+    throw;//re-throw
   }
   catch(const boost::exception& e)
   {
@@ -291,7 +291,7 @@ std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr da
   return getProperty(dataSet, dataSeries_, "timestamp_property");
 }
 
-std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const 
+std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "geometry_property");
 }

@@ -210,8 +210,8 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
   }
   catch(const terrama2::Exception& e )
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    throw;
+    TERRAMA2_LOG_DEBUG() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    throw;//re-throw
   }
   catch(boost::exception& e)
   {
