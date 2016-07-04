@@ -5,4 +5,4 @@ module.exports = function (app) {
 
   app.get('/configuration/users', passport.isCommonUser, controller.index);
   app.get('/configuration/user', passport.isCommonUser, controller["new"]);
-}
+};

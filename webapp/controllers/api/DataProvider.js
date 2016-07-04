@@ -7,7 +7,7 @@ var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
   return {
-    post: [passport.isCommonUser, function(request, response) {
+    post: function(request, response) {
       var dataProviderReceived = request.body;
 
       var uriObject = dataProviderReceived.uriObject;
@@ -66,7 +66,7 @@ module.exports = function(app) {
         _makeProvider();
       });
 
-    }],
+    },
 
     get: function(request, response) {
       var name = request.query.name;
@@ -87,7 +87,7 @@ module.exports = function(app) {
       }
     },
 
-    put: [passport.isCommonUser, function(request, response) {
+    put: function(request, response) {
       var dataProviderId = request.params.id;
       var uriObject = request.body.uriObject;
 
@@ -120,9 +120,9 @@ module.exports = function(app) {
         response.status(400);
         response.json({status: 400, message: "DataProvider not identified"});
       }
-    }],
+    },
 
-    delete: [passport.isCommonUser, function(request, response) {
+    delete: function(request, response) {
       var id = request.params.id;
       if (id) {
         DataManager.getDataProvider({id: id}).then(function(dProvider) {
@@ -138,7 +138,6 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataProviderError("Missing data provider id"), 400);
       }
-    }]
-
+    }
   };
 };

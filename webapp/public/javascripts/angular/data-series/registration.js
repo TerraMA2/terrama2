@@ -205,10 +205,34 @@ angular.module('terrama2.dataseries.registration', [
 
           // fill filter
           var filter = collector.filter || {};
+
+          var _processDate = function(stringDate) {
+            var minus = stringDate.lastIndexOf('-');
+            var plus = stringDate.lastIndexOf('+');
+            var timezone = parseInt(minus > -1 ? stringDate.substring(minus+1, minus+3) : stringDate.substring(plus+1, plus+3));
+
+            return moment(stringDate).utc((minus > -1 ? timezone : -timezone)).toDate();
+          };
+
           if (filter.discard_before)
-            $scope.filter.date.beforeDate = filter.discard_before;
+            $scope.filter.date.beforeDate = _processDate(filter.discard_before);
           if (filter.discard_after)
-            $scope.filter.date.afterDate = filter.discard_after;
+            $scope.filter.date.afterDate = _processDate(filter.discard_after);
+
+          // filter geometry field
+          if (filter.region) {
+            $scope.$emit('updateFilterArea', "2");
+            var coordinates = filter.region.coordinates;
+            var len = coordinates.length;
+            var lenCoordinateChildren = coordinates[0].length;
+            $scope.filter.area = {};
+
+            $scope.filter.area.minX = coordinates[0][0][0];
+            $scope.filter.area.minY = coordinates[0][0][1];
+
+            $scope.filter.area.maxX = coordinates[len-1][lenCoordinateChildren-3][0];
+            $scope.filter.area.maxY = coordinates[len-1][lenCoordinateChildren-3][1];
+          }
         }
 
         if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -278,6 +302,11 @@ angular.module('terrama2.dataseries.registration', [
       $scope.service = {};
 
       $scope.alertLevel = "";
+
+      $scope.filterArea = '1';
+      $scope.$on('updateFilterArea', function(event, filterValue) {
+        $scope.filterArea = filterValue;
+      })
 
       // terrama2 messagebox
       $scope.errorFound = false;
@@ -425,6 +454,10 @@ angular.module('terrama2.dataseries.registration', [
                 dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GRID)
       }
 
+      $scope.onFilterRegion = function() {
+        $scope.filter.area={};
+      }
+
       // storager
       $scope.showStoragerForm = false;
       $scope.storager = {};
@@ -466,55 +499,6 @@ angular.module('terrama2.dataseries.registration', [
         console.log(err);
       });
 
-
-      $scope.onScheduleChange = function(value) {
-        var resetHelper = function(i) {
-          if (i == 1) {
-            delete $scope.schedule.schedule;
-            delete $scope.schedule.schedule_retry;
-            delete $scope.schedule.schedule_retry_unit;
-            delete $scope.schedule.schedule_timeout;
-            delete $scope.schedule.schedule_timeout_unit;
-            $scope.isFrequency = true;
-            $scope.isSchedule = false;
-          } else if (i == 2) {
-            delete $scope.frequency;
-            delete $scope.frequency_unit;
-            $scope.isFrequency = false;
-            $scope.isSchedule = true;
-          }
-        };
-
-        switch(value) {
-          case "seconds":
-          case "minutes":
-          case "hours":
-            resetHelper(1);
-            $scope.minSchedule = 0;
-            $scope.maxSchedule = 2147483648; // setting max value to schedule (int32)
-            break;
-          case "weeks":
-            resetHelper(2);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 7;
-            break;
-          case "monthly":
-            resetHelper(2);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 31;
-            break;
-          case "yearly":
-            resetHelper(2);
-            $scope.minSchedule = 1;
-            $scope.maxSchedule = 366;
-            break;
-          default:
-            $scope.minSchedule = 0;
-            $scope.maxSchedule = 0;
-            break;
-        }
-      };
-
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
         this["wzData"].error = !isWizardStepValid("generalDataForm");
@@ -540,6 +524,7 @@ angular.module('terrama2.dataseries.registration', [
         this["wzData"].error = !isWizardStepValid("storagerForm");
         return true;
       };
+      //. end wizard validations
 
       $scope.semantics = "";
       $scope.dcps = [];
@@ -553,6 +538,7 @@ angular.module('terrama2.dataseries.registration', [
         $scope.filter.pre_analysis = {};
         $scope.radioPreAnalysis = selected;
       };
+      // filter helpers
       $scope.beforeRenderStartDate = function($view, $dates, $leftDate, $upDate, $rightDate) {
         if ($scope.filter.date.afterDate) {
           var activeDate = moment($scope.filter.date.afterDate);
@@ -584,9 +570,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
       $scope.hasCollector = Object.keys(outputDataseries).length > 0;
 
-      $scope.scheduleOptions = {
-        disabled: $scope.isUpdating
-      }
+      $scope.scheduleOptions = { };
 
       var inputName = "";
 
@@ -604,6 +588,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.dataSeries = {
         data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
         name: inputName,
+        description: inputDataSeries.description,
         access: $scope.hasCollector ? "COLLECT" : "PROCESSING",
         semantics: inputSemantics.code || "",
         active: inputDataSeries.active
@@ -696,28 +681,20 @@ angular.module('terrama2.dataseries.registration', [
         } else {
           if (val && Object.keys(val).length == 0) {
             $scope.dataSeries.access = 'PROCESSING';
-            // $scope.alertLevel = "alert-warning";
-            // $scope.alertBox.title = "Data Series";
-            // $scope.alertBox.message = "Note: No storager configuration, this data will be accessed when needed.";
-            // $scope.display = true;
           } else {
             $scope.dataSeries.access = 'COLLECT';
-
-            // $scope.display = false;
           }
         }
       });
 
       // function to fill out parameters data and storager data
       var _processParameters = function() {
-
         $scope.dataSeriesSemantics.forEach(function(dSemantic) {
           if (dSemantic.name == outputDataseries.data_series_semantic_name) {
             $scope.storager.format = dSemantic;
             $scope.onStoragerFormatChange();
           }
         });
-
       }
 
       // it defines when data change combobox has changed and it will adapt the interface
@@ -879,9 +856,6 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.save = function() {
-        if ($scope.isUpdating)
-          return;
-
         var generalDataForm = angular.element('form[name="generalDataForm"]').scope().generalDataForm;
         if(generalDataForm.$invalid) {
           FormHelper(generalDataForm);
@@ -951,7 +925,6 @@ angular.module('terrama2.dataseries.registration', [
                     if (key !== "latitude" && key !== "longitude" && key !== "active")
                       format[key] = dcp[key];
                 }
-
                 var dataSetStructure = {
                   active: $scope.dataSeries.active,
                   format: format,
@@ -971,22 +944,17 @@ angular.module('terrama2.dataseries.registration', [
               });
 
               break;
-
             case "OCCURRENCE":
               var format = $scope.model;
-
               var dataSet = {
                 semantics: semantics,
                 active: $scope.dataSeries.active,
                 format: format
               };
-
               dataToSend.dataSets.push(dataSet);
               break;
-
             case "GRID":
               break;
-
             case "STATIC_DATA":
               var format = $scope.model;
 
@@ -1004,18 +972,12 @@ angular.module('terrama2.dataseries.registration', [
 
           // adjusting time without timezone
           var filterValues = Object.assign({}, $scope.filter);
-          if (filterValues.area) {
-            filterValues.area.afterDate = new Date(filterValues.area.afterDate.getTime() - filterValues.area.afterDate.getTimezoneOffset()).toString();
-            filterValues.area.beforeDate = new Date(filterValues.area.beforeDate.getTime() - filterValues.area.beforeDate.getTimezoneOffset()).toString();
+          if (filterValues.date) {
+            if (filterValues.date.afterDate)
+              filterValues.date.afterDate = new Date(filterValues.date.afterDate.getTime() - filterValues.date.afterDate.getTimezoneOffset()).toString();
+            if (filterValues.date.beforeDate)
+              filterValues.date.beforeDate = new Date(filterValues.date.beforeDate.getTime() - filterValues.date.beforeDate.getTimezoneOffset()).toString();
           }
-
-          // checking date
-          // if (filterValues.date.beforeDate) {
-          //   filterValues.date.beforeDate = filterValues.date.beforeDate.toDate();
-          // }
-          // if (filterValues.date.afterDate) {
-          //   filterValues.date.afterDate = filterValues.date.afterDate.toDate();
-          // }
 
           var scheduleValues = Object.assign({}, $scope.schedule);
           switch(scheduleValues.scheduleHandler) {
@@ -1024,7 +986,6 @@ angular.module('terrama2.dataseries.registration', [
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
               break;
-
             case "weeks":
             case "monthly":
             case "yearly":
@@ -1049,17 +1010,24 @@ angular.module('terrama2.dataseries.registration', [
 
         // it dispatches post operation to nodejs
         var _sendRequest = function(object) {
-
-          DataSeriesFactory.post({
+          var request = null;
+          var data = {
             dataSeries: object.dataToSend,
             schedule: object.scheduleValues,
             filter: object.filterValues,
             service: object.serviceOutput,
             intersection: object.intersection,
             active: object.active
-          }).then(function(data) {
+          };
+          if ($scope.isUpdating) {
+            request = DataSeriesFactory.put(configuration.dataSeries.input.id, data);
+          } else {
+            request = DataSeriesFactory.post(data);
+          }
+
+          request.then(function(data) {
             console.log(data);
-            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries";
+            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + data.token;
           }).catch(function(err) {
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.message = err.message;

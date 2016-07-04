@@ -1,97 +1,99 @@
 <div class="row">
-  <form name="intersectionForm" novalidate>
+  <div class="col-dm-12">
     <div class="col-md-12">
-      <table class="table table-bordered table-hover terrama2-table">
-        <tbody class="terrama2-table-tbody">
-          <th>{{ i18n.__('Name') }}</th>
-          <th>{{ i18n.__('Type') }}</th>
-          <th>{{ i18n.__('Selected') }}</th>
+      <form name="intersectionForm" novalidate>
+        <div class="col-md-12">
+          <table class="table table-bordered table-hover terrama2-table">
+            <tbody class="terrama2-table-tbody">
+              <th>{{ i18n.__('Name') }}</th>
+              <th>{{ i18n.__('Type') }}</th>
+              <th>{{ i18n.__('Selected') }}</th>
 
-          <tr class="terrama2-table-tr"
-              ng-repeat="ds in dataSeriesList | filter:intersectionDataSeries"
-              ng-click="onIntersectionDataSeriesClick(ds)"
-              style="cursor:pointer;"
-              ng-class="{'active': selectedIntersection && selectedIntersection.id === ds.id}">
-            <td>{{ ds.name }}</td>
-            <td>{{ ds.data_series_semantics.name }}</td>
-            <td>
-              <input type="checkbox"
-                     ng-model="intersection[ds.id].selected"
-                     ng-change="onIntersectionCheck(ds, intersection[ds.id].selected)"
-                     ng-checked="intersection[ds.id].attributes.length > 0"
-                     ng-disabled="isUpdating">
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              <tr class="terrama2-table-tr"
+                  ng-repeat="ds in dataSeriesList | filter:intersectionDataSeries"
+                  ng-click="onIntersectionDataSeriesClick(ds)"
+                  style="cursor:pointer;"
+                  ng-class="{'active': selectedIntersection && selectedIntersection.id === ds.id}">
+                <td>{{ ds.name }}</td>
+                <td>{{ ds.data_series_semantics.name }}</td>
+                <td>
+                  <input type="checkbox"
+                         ng-model="intersection[ds.id].selected"
+                         ng-change="onIntersectionCheck(ds, intersection[ds.id].selected)"
+                         ng-checked="intersection[ds.id].attributes.length > 0">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-    <div class="col-md-12">
-      <div class="col-md-12 terrama2-nopadding-box">
-        <div class="box box-default box-solid">
-          <div class="box-header with-border">
-            <h3 class="box-title">{{ i18n.__('Attributes') }}</h3>
-          </div>
-
-          <div style="display: block;" class="box-body">
-            <div class="col-md-10">
-              <div class="form-group" ng-class="{'has-error': intersectionForm.attribute.$dirty && intersectionForm.attribute.$invalid, 'has-success': intersectionForm.attribute.$dirty && intersectionForm.attribute.$valid}">
-                <label>{{ i18n.__('Attribute Name') }}:</label>
-                <input type="text"
-                       class="form-control"
-                       name="attribute"
-                       ng-model="attribute"
-                       ng-disabled="!selectedIntersection || isUpdating"
-                       ng-required="selectedIntersection">
-
-                <label class="help-block text-danger"
-                       ng-show="intersectionForm.attribute.$dirty && intersectionForm.attribute.$error.required">
-                  {{ i18n.__("Attribute name is required") }}
-                </label>
-
-                <label class="help-block text-danger"
-                       ng-show="intersectionForm.attribute.$dirty && intersectionForm.attribute.$error.sameValue">
-                  {{ i18n.__("Attribute name cannot be same") }}
-                </label>
+        <div class="col-md-12">
+          <div class="col-md-12 terrama2-nopadding-box">
+            <div class="box box-default box-solid">
+              <div class="box-header with-border">
+                <h3 class="box-title">{{ i18n.__('Attributes') }}</h3>
               </div>
-            </div>
 
-            <div class="col-md-2">
-              <div class="col-md-2 terrama2-nopadding-box">
-                <div class="form-group">
-                  <button class="btn btn-default pull-right"
-                          style="margin-top: 24px;"
-                          ng-click="addAttribute(intersectionForm, selectedIntersection, attribute); attribute='';"
-                          ng-disabled="!selectedIntersection">
-                    <i class="fa fa-plus"></i>
-                  </button>
+              <div style="display: block;" class="box-body">
+                <div class="col-md-10">
+                  <div class="form-group" ng-class="{'has-error': intersectionForm.attribute.$dirty && intersectionForm.attribute.$invalid, 'has-success': intersectionForm.attribute.$dirty && intersectionForm.attribute.$valid}">
+                    <label>{{ i18n.__('Attribute Name') }}:</label>
+                    <input type="text"
+                           class="form-control"
+                           name="attribute"
+                           ng-model="attribute"
+                           ng-disabled="!selectedIntersection"
+                           ng-required="selectedIntersection">
+
+                    <label class="help-block text-danger"
+                           ng-show="intersectionForm.attribute.$dirty && intersectionForm.attribute.$error.required">
+                      {{ i18n.__("Attribute name is required") }}
+                    </label>
+
+                    <label class="help-block text-danger"
+                           ng-show="intersectionForm.attribute.$dirty && intersectionForm.attribute.$error.sameValue">
+                      {{ i18n.__("Attribute name cannot be same") }}
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-2">
+                  <div class="col-md-2 terrama2-nopadding-box">
+                    <div class="form-group">
+                      <button class="btn btn-default pull-right"
+                              style="margin-top: 24px;"
+                              ng-click="addAttribute(intersectionForm, selectedIntersection, attribute); attribute='';"
+                              ng-disabled="!selectedIntersection">
+                        <i class="fa fa-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-12">
+                  <table class="table table-bordered terrama2-table">
+                    <tbody class="terrama2-tbody">
+                      <th>{{ i18n.__('Attribute') }}</th>
+                      <th></th>
+
+                      <tr class="terrama2-tr"ng-repeat="att in intersection[selectedIntersection.id].attributes">
+                        <td>{{ att }}</td>
+                        <td>
+                          <button class="btn btn-sm btn-danger pull-right"
+                                  ng-click="removeAttribute(selectedIntersection, att)">
+                            {{ i18n.__('Remove') }}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
-
-            <div class="col-md-12">
-              <table class="table table-bordered terrama2-table">
-                <tbody class="terrama2-tbody">
-                  <th>{{ i18n.__('Attribute') }}</th>
-                  <th></th>
-
-                  <tr class="terrama2-tr"ng-repeat="att in intersection[selectedIntersection.id].attributes">
-                    <td>{{ att }}</td>
-                    <td>
-                      <button class="btn btn-sm btn-danger pull-right"
-                              ng-click="removeAttribute(selectedIntersection, att)"
-                              ng-disabled="isUpdating">
-                        {{ i18n.__('Remove') }}
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
-  </form>
+  </div>
 </div>
 <!-- /.row -->

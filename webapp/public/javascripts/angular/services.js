@@ -42,6 +42,10 @@ angular.module("terrama2.services", ['terrama2'])
 
       post: function(dataSeriesObject) {
         return $HttpSync.post(url, dataSeriesObject);
+      },
+
+      put: function(dataSeriesId, dataSeriesObject) {
+        return $HttpSync.put(url + "/" + dataSeriesId, dataSeriesObject);
       }
     }
   }])
