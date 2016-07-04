@@ -62,20 +62,6 @@ namespace terrama2
             */
           virtual ~AlertLogger() {}
 
-          /*!
-           * \brief This method will log a file input for a determinated process log.
-           * \param value The input file to add in logger
-           * \param registerID The table id to update with the input file.
-           */
-          void addInput(std::string value, RegisterId registerID);
-
-          /*!
-           * \brief This method will log a file output for a determinated process log.
-           * \param value The output file to add in logger
-           * \param registerID The table id to update with the output file.
-           */
-          void addOutput(std::string value, RegisterId registerID);
-
           virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept override;
 
         };
