@@ -53,9 +53,8 @@ namespace terrama2
     {
       namespace core
       {
-
         /*!
-          \brief Callback method to execute the alert.
+          \brief Method to execute the alert.
         */
         void runAlert(std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> > alertInfo,
                       std::shared_ptr< AlertLogger > logger,
@@ -63,8 +62,7 @@ namespace terrama2
 
         std::string getIdentifierPropertyName(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries);
 
-        std::function<int(size_t pos)> createGetRiskFunction(terrama2::core::DataSeriesRisk risk, std::shared_ptr<te::da::DataSet> teDataSet);
-
+        std::function<std::tuple<int, std::string>(size_t pos)> createGetRiskFunction(terrama2::core::DataSeriesRisk risk, std::shared_ptr<te::da::DataSet> teDataSet);
       } /* core */
     } /* alert */
   } /* services */

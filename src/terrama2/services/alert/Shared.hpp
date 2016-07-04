@@ -40,9 +40,12 @@ namespace terrama2
       {
 
         struct Alert;
-        //! Shared smart pointer for Collector
+        //! Shared smart pointer for Alert
         typedef std::shared_ptr<const terrama2::services::alert::core::Alert> AlertPtr;
 
+        class Report;
+        //! Shared smart pointer for Report
+        typedef std::shared_ptr<terrama2::services::alert::core::Report> ReportPtr;
       } /* core */
     }   /* alert */
   }

@@ -396,6 +396,7 @@ endif()
 
 if(TERRAMA2_ALERT_ENABLED)
   add_subdirectory(terrama2_alert_core)
+  add_subdirectory(terrama2_alert_impl)
 endif()
 
 if(TERRAMA2_MAPS_ENABLED)
