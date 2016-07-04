@@ -1,7 +1,13 @@
 angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
-  .controller('ListController', ['$scope', 'ServiceInstanceFactory', '$HttpTimeout', 'Socket',
-    function($scope, ServiceInstanceFactory, $HttpTimeout, Socket) {
+  .controller('ListController', ['$scope', 'ServiceInstanceFactory', '$HttpTimeout', 'Socket', 'i18n',
+    function($scope, ServiceInstanceFactory, $HttpTimeout, Socket, i18n) {
       $scope.socket = Socket;
+
+      $scope.title = i18n.__('Services');
+      $scope.helperMessage = "This page shows availables services in TerraMA2 application";
+
+      // terrama2 box
+      $scope.boxCss = {};
 
       $scope.link = function(object) {
           return "/administration/services/" + object.id;
@@ -123,6 +129,48 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
         },
 
         service: {
+          starting: false,
+          stoping: false,
+          startAll: function() {
+            $scope.extra.service.starting = true;
+            $scope.model.forEach(function(modelInstance) {
+              if (!modelInstance.online) {
+                if (!modelInstance.loading) {
+                  modelInstance.loading = true;
+                  $scope.socket.emit('start', {service: modelInstance.id});
+                }
+              }
+            });
+
+            $scope.socket.once('statusResponse', function(response) {
+              $scope.extra.service.starting = false;
+            });
+          },
+
+          stopAll: function() {
+            $scope.extra.service.stoping = true;
+            $scope.model.forEach(function(modelInstance) {
+              if (modelInstance.online) {
+                if (!modelInstance.loading) {
+                  modelInstance.loading = true;
+                  $scope.socket.emit('stop', {service: modelInstance.id});
+                }
+              }
+            });
+
+            $scope.socket.once('closeResponse', function(response) {
+              $scope.extra.service.stoping = false;
+            });
+          },
+
+          hasServiceOffline: function() {
+            return $scope.model.some(function(instance) {
+              if (!instance.online) {
+                return true;
+              }
+            })
+          },
+
           handler: function(serviceInstance) {
             serviceInstance.loading = true;
             if (!serviceInstance.online) {
