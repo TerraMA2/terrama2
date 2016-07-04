@@ -42,6 +42,7 @@ namespace terrama2
   {
     struct RiskLevel
     {
+      std::string name;
       uint32_t level = 0; //!< Level of the risk, should be unique in a DataSeriesRisk.
       bool hasLowerBound = false;
       double lowerBound = 0; //!< Lower bound for real values, inclusive.
@@ -75,11 +76,11 @@ namespace terrama2
       /*!
         \brief Compute risk level for the valeu
       */
-      uint32_t riskLevel(const std::string& value) const;
+      std::tuple<int, std::string>  riskLevel(const std::string& value) const;
       /*!
         \brief Compute risk level for the valeu
       */
-      uint32_t riskLevel(double value) const;
+      std::tuple<int, std::string>  riskLevel(double value) const;
 
       std::vector<RiskLevel> riskLevels;//!< List of risk levels of the DataSeriesRisk.
     };

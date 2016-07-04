@@ -9,6 +9,8 @@
 #include <terrama2/services/alert/Shared.hpp>
 #include <terrama2/services/alert/core/DataManager.hpp>
 #include <terrama2/services/alert/core/Alert.hpp>
+#include <terrama2/services/alert/impl/ReportTxt.hpp>
+#include <terrama2/services/alert/impl/Utils.hpp>
 #include <terrama2/services/alert/core/RunAlert.hpp>
 
 
@@ -83,6 +85,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
   level1.level = 1;
   level1.hasUpperBound = true;
   level1.upperBound = 2;
+  level1.name = "low";
   risk.riskLevels.push_back(level1);
 
   terrama2::core::RiskLevel level2;
@@ -91,15 +94,32 @@ terrama2::services::alert::core::AlertPtr newAlert()
   level2.lowerBound = 2;
   level2.hasUpperBound = true;
   level2.upperBound = 4;
+  level2.name = "medium";
   risk.riskLevels.push_back(level2);
 
   terrama2::core::RiskLevel level3;
   level3.level = 3;
   level3.hasLowerBound = true;
   level3.lowerBound = 4;
+  level3.name = "high";
   risk.riskLevels.push_back(level3);
 
   alert->risk = risk;
+
+  std::unordered_map<std::string, std::string> reportMetadata;
+  reportMetadata[terrama2::services::alert::core::ReportTags::TYPE] = "TXT";
+
+  reportMetadata[terrama2::services::alert::core::ReportTags::TITLE] = "NUMERIC RISK EXAMPLE REPORT";
+  reportMetadata[terrama2::services::alert::core::ReportTags::SUBTITLE] = "NumericRisk.cpp";
+  reportMetadata[terrama2::services::alert::core::ReportTags::AUTHOR] = "Jano Simas";
+  reportMetadata[terrama2::services::alert::core::ReportTags::CONTACT] = "jano.simas@funcate.org.br";
+  reportMetadata[terrama2::services::alert::core::ReportTags::COPYRIGHT] = "copyright information...";
+  reportMetadata[terrama2::services::alert::core::ReportTags::DESCRIPTION] = "Example generated report...";
+
+  reportMetadata[terrama2::services::alert::core::ReportTags::DESTINATION_FOLDER] = TERRAMA2_DATA_DIR;
+  reportMetadata[terrama2::services::alert::core::ReportTags::FILE_NAME] = "report.txt";
+
+  alert->reportMetadata = reportMetadata;
 
   return alertPtr;
 }
@@ -109,6 +129,7 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerraMA();
   terrama2::core::registerFactories();
+  terrama2::services::alert::core::registerFactories();
 
   {
     auto dataManager = std::make_shared<terrama2::services::alert::core::DataManager>();

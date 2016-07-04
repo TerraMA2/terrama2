@@ -58,6 +58,7 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
 
    target_link_libraries(${EXAMPLE} terrama2_core
                                     terrama2_alert_core
+                                    terrama2_alert_impl
                                     terrama2_impl
                                     terralib_mod_common)
 endforeach()
