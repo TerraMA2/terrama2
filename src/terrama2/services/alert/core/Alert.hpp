@@ -47,6 +47,13 @@ namespace terrama2
       namespace core
       {
 
+        struct AdditionalData
+        {
+          DataSeriesId id;
+          std::string identifier;
+          std::vector<std::string> attributes;
+        };
+
         /*!
          \brief Struct with information for an Alert
         */
@@ -63,7 +70,9 @@ namespace terrama2
           terrama2::core::Schedule schedule; //!< Time schedule for the alert execution.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before the alert is created.
 
-          std::unordered_map<DataSeriesId, std::vector<std::string> /*attributes*/> additionalDataMap;//!< Map of additional DataSeries and attributes that should be included in the result.
+          std::vector<AdditionalData> additionalDataVector;//!< Vector of additional DataSeries and attributes that should be included in the result.
+
+          std::unordered_map<std::string, std::string> reportMetadata;//!< Metadata used to create a report.
         };
       } /* core */
     } /* alert */

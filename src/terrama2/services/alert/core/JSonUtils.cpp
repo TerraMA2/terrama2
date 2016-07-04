@@ -71,7 +71,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   alert->name = json["name"].toString().toStdString();
   alert->description = json["description"].toString().toStdString();
   alert->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
- 
+
   alert->risk = terrama2::core::fromDataSeriesRiskJson(json["risk"].toObject());
   alert->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
   alert->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
@@ -81,13 +81,14 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   {
     auto obj = value.toObject();
     auto id = static_cast<uint32_t>(obj["dataseries_id"].toInt());
+    auto identifier = obj["identifier_attribute"].toString().toStdString();
 
     std::vector<std::string> attributes;
     auto attributesArray = obj["attributes"].toArray();
     for(const auto& tempAttribute : attributesArray)
       attributes.push_back(tempAttribute.toString().toStdString());
 
-    alert->additionalDataMap.emplace(id, attributes);
+    alert->additionalDataVector.push_back({id, identifier, attributes});
   }
 
   return nullptr;
