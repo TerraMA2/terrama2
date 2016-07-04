@@ -133,11 +133,11 @@ var DataManager = {
         var inserts = [];
 
         // default users
-        var salt = models.db.User.generateSalt();
-        inserts.push(models.db.User.create({
+        var salt = models.db['User'].generateSalt();
+        inserts.push(models.db['User'].create({
           name: "TerraMA2 User",
           username: "terrama2",
-          password: models.db.User.generateHash("terrama2", salt),
+          password: models.db['User'].generateHash("terrama2", salt),
           salt: salt,
           cellphone: '14578942362',
           email: 'terrama2@terrama2.inpe.br',
@@ -301,7 +301,7 @@ var DataManager = {
               console.log(err);
               releaseCallback();
             });
-          }).catch(function(err) {
+          }).catch(function() {
             releaseCallback();
           });
         };
@@ -1092,7 +1092,7 @@ var DataManager = {
                   });
                   dataSerieArr.splice(dataSerieIndex, 1);
                 }
-              })
+              });
               self.data.dataProviders.splice(index, 1);
 
               // sending Remove signal
@@ -1539,8 +1539,7 @@ var DataManager = {
               onSuccess(dataSet);
               break;
             case DataSeriesType.GRID:
-              //  todo: implement it
-              rollback(dataSet);
+              models.db.DataSetGrid.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
 
               break;
             case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
@@ -2085,8 +2084,71 @@ var DataManager = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      // models.db.Intersection.bulkCreate()
-      resolve();
+      models.db.Intersection.bulkCreate(intersectionArray, {returning: true}).then(function(intesectionList) {
+        var output = [];
+        intesectionList.forEach(function(element) {
+          output.push(new DataModel.Intersection(element.get()));
+        })
+        resolve(output);
+      }).catch(function(err) {
+        reject(new Error("Could not save intersection. " + err.toString()));
+      })
+    });
+  },
+
+  updateIntersection: function(intersectionId, intersectionObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Intersection.update(intersectionObject, {
+        fields: ['attribute'],
+        where: {
+          id: intersectionId
+        }
+      }).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(new Error("Could not update intersection " + err.toString()));
+      })
+    });
+  },
+
+  updateIntersections: function(intersectionIds, intersectionList) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var promises = [];
+      intersectionList.forEach(function(element, index) {
+        promises.push(self.updateIntersection(intersectionsIds[index], element));
+      })
+      Promise.all(promises).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(err);
+      })
+    })
+  },
+
+  listIntersections: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Intersection.findAll(restriction).then(function(intersectionResult) {
+        var output = [];
+        intersectionResult.forEach(function(element) {
+          output.push(element.get());
+        })
+        resolve(output);
+      }).catch(function(err) {
+        reject(new Error("Could not retrieve intersection " + err.toString()));
+      })
+    });
+  },
+
+  removeIntersection: function(restriction) {
+    return new Promise(function(resolve, reject) {
+      models.db.Intersection.destroy({where: restriction}).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(new Error("Could not remove intersection " + err.toString()));
+      })
     });
   },
 

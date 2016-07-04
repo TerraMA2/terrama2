@@ -58,6 +58,13 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
+          DataSet.hasOne(models.DataSetGrid, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              allowNull: false
+            }
+          });
+
           DataSet.hasOne(models.DataSetMonitored, {
             onDelete: "CASCADE",
             foreignKey: {
