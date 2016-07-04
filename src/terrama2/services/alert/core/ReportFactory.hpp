@@ -31,7 +31,7 @@
 #define __TERRAMA2_SERVICES_ALERT_CORE_REPORT_FACTORY_HPP__
 
 #include "Report.hpp"
-#include "../Shared.hpp"
+#include "Shared.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>

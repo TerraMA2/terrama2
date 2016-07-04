@@ -33,7 +33,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../Shared.hpp"
+#include "Shared.hpp"
 #include "../../../core/Shared.hpp"
 
 namespace te {

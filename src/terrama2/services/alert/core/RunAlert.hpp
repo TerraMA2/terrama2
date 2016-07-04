@@ -32,7 +32,7 @@
 
 #include "../../../core/Shared.hpp"
 #include "../../../core/data-model/DataSeriesRisk.hpp"
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 #include "AlertLogger.hpp"
 #include "DataManager.hpp"
 

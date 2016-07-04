@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_ALERT_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_ALERT_HPP__
 
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 #include "../../../core/data-model/DataSeriesRisk.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"

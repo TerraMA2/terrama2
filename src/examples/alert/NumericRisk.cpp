@@ -6,7 +6,7 @@
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
-#include <terrama2/services/alert/Shared.hpp>
+#include <terrama2/services/alert/core/Shared.hpp>
 #include <terrama2/services/alert/core/DataManager.hpp>
 #include <terrama2/services/alert/core/Alert.hpp>
 #include <terrama2/services/alert/impl/ReportTxt.hpp>

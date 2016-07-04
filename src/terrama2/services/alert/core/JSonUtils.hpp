@@ -31,7 +31,7 @@
 #define __TERRAMA2_SERVICES_ALERT_CORE_JSONUTILS_HPP__
 
 #include "Alert.hpp"
-#include "../Shared.hpp"
+#include "Shared.hpp"
 
 // Qt
 #include <QJsonObject>

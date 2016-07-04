@@ -30,7 +30,7 @@
  #ifndef __TERRAMA2_SERVICES_ALERT_TYPEDEF_HPP__
  #define __TERRAMA2_SERVICES_ALERT_TYPEDEF_HPP__
 
- #include "../../core/Typedef.hpp"
+ #include "../../../core/Typedef.hpp"
 
  //! Unique identifier of a Alert
  typedef ProcessId AlertId;

@@ -28,7 +28,7 @@
  */
 
 #include "ReportTxt.hpp"
-#include "../Shared.hpp"
+#include "../core/Shared.hpp"
 
 #include <fstream>
 
