@@ -34,7 +34,7 @@
 
 #include "../../../core/Typedef.hpp"
 
-//! Unique identifier of a Map
+//! Unique identifier of a View
 typedef ProcessId ViewId;
 
 #endif // __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__

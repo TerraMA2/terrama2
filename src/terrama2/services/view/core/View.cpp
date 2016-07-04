@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file src/terrama2/services/view/core/Map.cpp
+  \file src/terrama2/services/view/core/View.cpp
 
-  \brief Map service functions
+  \brief View service functions
 
   \author Vinicius Campanha
 */
@@ -52,7 +52,7 @@
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 
-void terrama2::services::view::core::makeMap(ViewId mapId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager)
+void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager)
 {
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
@@ -67,22 +67,22 @@ void terrama2::services::view::core::makeMap(ViewId mapId, std::shared_ptr< terr
   }
   catch(const terrama2::Exception&)
   {
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of map %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of %1 finished with error(s).").arg(viewId);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of map %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Unkown error.");
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of map %1 finished with error(s).").arg(mapId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
 }
 
@@ -183,7 +183,7 @@ void terrama2::services::view::core::drawSeriesList(std::vector<std::map<terrama
     layer->draw(canvas.get(), extent, srid, 0, &cancel);
   }
 
-  // Save map
+  // Save view
 
   canvas->save("GeneretadImage", te::map::PNG);
 

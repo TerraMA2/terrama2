@@ -58,8 +58,8 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  terrama2::services::view::core::View* map = new terrama2::services::view::core::View();
-  terrama2::services::view::core::ViewPtr viewPtr(map);
+  terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
+  terrama2::services::view::core::ViewPtr viewPtr(view);
 
   return viewPtr;
 }

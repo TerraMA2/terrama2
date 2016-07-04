@@ -105,10 +105,10 @@ namespace terrama2
 
             \note Thread-safe.
           */
-          virtual void removeMap(ViewId mapId);
+          virtual void removeView(ViewId viewId);
 
           /*!
-            \brief Retrieves the Map with the given ViewId.
+            \brief Retrieves the View with the given ViewId.
 
             \param id The map ViewId.
 
@@ -118,10 +118,10 @@ namespace terrama2
 
             \note Thread-safe.
           */
-          virtual ViewPtr findMap(ViewId id) const;
+          virtual ViewPtr findView(ViewId id) const;
 
-          //! Verify if the Map already exists in the DataManager
-          virtual bool hasMap(ViewId id) const;
+          //! Verify if the View already exists in the DataManager
+          virtual bool hasView(ViewId id) const;
 
           /*!
             \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and View to be added.
@@ -144,15 +144,15 @@ namespace terrama2
           virtual void removeJSon(const QJsonObject& obj) override;
 
         signals:
-          //! Signal to notify that a Map has been added.
-          void mapAdded(ViewPtr);
-          //! Signal to notify that a Map has been updated.
-          void mapUpdated(ViewPtr);
-          //! Signal to notify that a Map has been removed.
-          void mapRemoved(ViewId);
+          //! Signal to notify that a View has been added.
+          void viewAdded(ViewPtr);
+          //! Signal to notify that a View has been updated.
+          void viewUpdated(ViewPtr);
+          //! Signal to notify that a View has been removed.
+          void viewRemoved(ViewId);
 
         protected:
-          std::map<ViewId, ViewPtr> view_;//!< A map from ViewId to Map.
+          std::map<ViewId, ViewPtr> view_;//!< A map from ViewId to View.
 
         };
       } // end namespace core

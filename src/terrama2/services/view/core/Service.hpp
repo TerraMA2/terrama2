@@ -68,25 +68,25 @@ namespace terrama2
           virtual void addToQueue(ViewId viewId) noexcept override;
 
           /*!
-            \brief Add a Map to the service
+            \brief Add a View to the service
 
             Check if this is the instance where the View should run.
           */
-          void addMap(ViewPtr map) noexcept;
+          void addView(ViewPtr view) noexcept;
 
           /*!
-            \brief Updates the Map.
+            \brief Updates the View.
 
             calls addMap()
           */
-          void updateMap(ViewPtr map) noexcept;
+          void updateView(ViewPtr view) noexcept;
 
           /*!
-            \brief Removes the Map.
+            \brief Removes the View.
 
             Rennuning processes will continue until finished.
           */
-          void removeMap(ViewId mapId) noexcept;
+          void removeView(ViewId viewId) noexcept;
 
         protected:
 
@@ -97,7 +97,7 @@ namespace terrama2
           virtual bool processNextData() override;
 
           //*! Create a process task and add to taskQueue_
-          virtual void prepareTask(ViewId mapId);
+          virtual void prepareTask(ViewId viewId);
 
           //! Connects signals from DataManager
           void connectDataManager();

@@ -58,21 +58,21 @@ namespace terrama2
         */
         struct View
         {
-          ViewId id = 0;//!< Map unique identification.
+          ViewId id = 0;//!< View unique identification.
           ProjectId projectId = 0;//!< Identification of the project owner of the map.
-          ServiceInstanceId serviceInstanceId = 0;//!< Map service instace where the map should be executed.
+          ServiceInstanceId serviceInstanceId = 0;//!< View service instace where the map should be executed.
 
           bool active = true;//!< Flag if the map is active.
 
           DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
           DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
 
-          std::map<DataSetId, DataSetId> inputOutputMap;//!< Map of source DataSet to destiny DataSet.
+          std::map<DataSetId, DataSetId> inputOutputMap;//!< View of source DataSet to destiny DataSet.
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the map.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
         };
 
-        void makeMap(ViewId mapId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
+        void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
         void drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList);
 
