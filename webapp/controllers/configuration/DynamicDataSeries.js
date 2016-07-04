@@ -1,12 +1,14 @@
 var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
+var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
 
 module.exports = function(app) {
 
   return {
     get: function(request, response) {
-      response.render('configuration/dynamicDataSeries', {"Enums": Enums});
+      var parameters = makeTokenParameters(request.query.token, app);
+      response.render('configuration/dynamicDataSeries', Object.assign({}, parameters, {"Enums": Enums}));
     },
 
     new: function(request, response) {

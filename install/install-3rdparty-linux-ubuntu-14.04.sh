@@ -128,6 +128,22 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip5.so" ]; then
  cd ..
 fi
 
+
+#
+# Screen
+#
+screen_test=`dpkg -s screen | grep Status`
+
+if [ "$screen_test" != "Status: install ok installed" ]; then
+  sudo apt-get install -y screen
+  valid $? "Error: could not install Screen! Please, install screen: sudo apt-get -y install screen"
+
+  echo "Screen installed!"
+else
+  echo "Screen already installed!"
+fi
+
+
 #
 # Node.js
 #

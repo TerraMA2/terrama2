@@ -6,12 +6,13 @@ var DataSeriesType = require('./../../core/Enums').DataSeriesType;
 var TokenCode = require('./../../core/Enums').TokenCode;
 var isEmpty = require('lodash').isEmpty;
 var passport = require('./../../config/Passport');
+var _ = require('lodash');
 
 module.exports = function(app) {
   var TcpManager = new TcpManagerClass();
 
   return {
-    post: [passport.isCommonUser, function(request, response) {
+    post: function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
       var scheduleObject = request.body.schedule;
       var filterObject = request.body.filter;
@@ -87,7 +88,7 @@ module.exports = function(app) {
           return Utils.handleRequestError(response, err, 400);
         });
       }
-    }],
+    },
 
     get: function(request, response) {
       var dataSeriesId = request.params.id;
@@ -129,7 +130,6 @@ module.exports = function(app) {
       }
 
       if (dataSeriesId) {
-
         DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
           return response.json(dataSeries.toObject());
         }).catch(function(err) {
@@ -150,10 +150,69 @@ module.exports = function(app) {
     },
 
     put: function(request, response) {
+      var dataSeriesId = request.params.id;
+      var dataSeriesObject = request.body.dataSeries;
+      var scheduleObject = request.body.schedule;
+      var filterObject = request.body.filter;
+      var serviceId = request.body.service;
+      var intersection = request.body.intersection;
+      var active = request.body.active;
 
+      var _handleError = function(err) {
+        return Utils.handleRequestError(response, err, 400);
+      }
+
+      if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+        DataManager.getCollector({data_series_input: dataSeriesId}).then(function(collector) {
+          collector.service_instance_id = serviceId;
+          DataManager.updateCollector(collector.id, collector).then(function() {
+            // input
+            DataManager.updateDataSeries(dataSeriesId, dataSeriesObject.input).then(function() {
+              DataManager.updateDataSeries(collector.output_data_series, dataSeriesObject.output).then(function() {
+                DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
+                  if (collector.filter.id) {
+                    DataManager.updateFilter(collector.filter.id, filterObject).then(function() {
+                      DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
+                        var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
+                        return response.json({status: 200, result: collector.toObject(), token: token});
+                      })
+                    }).catch(_handleError);
+                  } else {
+                    var _processIntersection = function() {
+                      DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
+                        var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
+                        return response.json({status: 200, result: collector.toObject(), token: token});
+                      })
+                    }
+
+                    if (_.isEmpty(filterObject.date)) {
+                      _processIntersection();
+                    } else {
+                      filterObject.collector_id = collector.id;
+
+                      DataManager.addFilter(filterObject).then(function(filter) {
+                        collector.filter = filter;
+
+                        _processIntersection();
+                      }).catch(_handleError);
+                    }
+                  }
+                }).catch(_handleError);
+              }).catch(_handleError);
+            }).catch(_handleError);
+          }).catch(_handleError);
+        }).catch(_handleError)
+      } else {
+        DataManager.updateDataSeries(dataSeriesId, dataSeriesObject).then(function() {
+          DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
+            var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeries.name);
+            return response.json({status: 200, result: dataSeries.toObject(), token: token});
+          }).catch(_handleError)
+        }).catch(_handleError)
+      }
     },
 
-    delete: [passport.isCommonUser, function(request, response) {
+    delete: function(request, response) {
       var id = request.params.id;
 
       if (id) {
@@ -228,6 +287,6 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }
-    }]
+    }
   };
 };

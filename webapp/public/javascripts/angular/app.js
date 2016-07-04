@@ -83,6 +83,9 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
       },
       post: function $httpOnce(url, options) {
         return _wrap(cache.get(url) || cache.put(url, $http.post(url, options)));
+      },
+      put: function $httpOnce(url, options) {
+        return _wrap(cache.get(url) || cache.put(url, $http.put(url, options)));
       }
     }
   }

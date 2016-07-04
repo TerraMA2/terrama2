@@ -45,7 +45,7 @@ module.exports = function(app) {
       }
     },
 
-    post: [passport.isAdministrator, function(request, response) {
+    post: function(request, response) {
       var serviceObject = request.body.service;
       serviceObject.log = request.body.log;
       DataManager.addServiceInstance(serviceObject).then(function(service) {
@@ -55,9 +55,9 @@ module.exports = function(app) {
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       });
-    }],
+    },
 
-    put: [passport.isAdministrator, function(request, response) {
+    put: function(request, response) {
       var serviceId = request.params.id;
       var serviceObject = request.body.service;
       serviceObject.log = request.body.log;
@@ -88,9 +88,9 @@ module.exports = function(app) {
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       });
-    }],
+    },
 
-    delete: [passport.isAdministrator, function(request, response) {
+    delete: function(request, response) {
       var serviceId = request.params.id;
       DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
         DataManager.removeServiceInstance({id: serviceId}).then(function() {
@@ -101,6 +101,6 @@ module.exports = function(app) {
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       })
-    }]
+    }
   };
 };

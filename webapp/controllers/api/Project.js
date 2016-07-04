@@ -7,7 +7,7 @@ var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
   return {
-    "post": [passport.isCommonUser, function(request, response) {
+    "post": function(request, response) {
       var projectObject = request.body;
 
       DataManager.addProject(projectObject).then(function(project) {
@@ -16,7 +16,7 @@ module.exports = function(app) {
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
       });
-    }],
+    },
 
     "get": function(request, response) {
       var id = request.params.id;
@@ -32,7 +32,7 @@ module.exports = function(app) {
       }
     },
 
-    "put": [passport.isCommonUser, function(request, response) {
+    "put": function(request, response) {
       var id = request.params.id;
 
       if (id) {
@@ -48,9 +48,9 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new ProjectError("Project name not identified"), 400);
       }
-    }],
+    },
 
-    delete: [passport.isCommonUser, function(request, response) {
+    delete: function(request, response) {
       var id = request.params.id;
       if (id) {
         DataManager.getProject({id: id}).then(function(project) {
@@ -65,7 +65,7 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new ProjectError("Project id not typed"), 400);
       }
-    }]
+    }
 
   };
 };
