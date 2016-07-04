@@ -20,32 +20,38 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/Exception.hpp
+  \file terrama2/services/view/core/ViewsLogger.hpp
 
-  \brief Exception classes for Maps service.
+  \brief Process logger for View Server.
 
   \author Vinicius Campanha
- */
+*/
 
-#ifndef __TERRAMA2_SERVICES_MAPS_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_MAPS_CORE_EXCEPTION_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEWLOGGER_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_VIEWLOGGER_HPP__
 
-// TerraMA2
-#include "../../../core/Exception.hpp"
+#include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
 {
   namespace services
   {
-    namespace maps
+    namespace view
     {
-      //! Base exception class for TerraMA2 maps service.
-      struct Exception : virtual terrama2::core::Exception
+      namespace core
       {
-      };
+        class ViewLogger : public terrama2::core::ProcessLogger
+        {
+        public:
+          ViewLogger();
 
-    } /* maps */
-  }   /* services */
-} // end namespace terrama2
+          virtual ~ViewLogger() = default;
 
-#endif // __TERRAMA2_SERVICES_MAPS_CORE_EXCEPTION_HPP__
+          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept override;
+        };
+      }
+    }
+  }
+}
+
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_VIEWLOGGER_HPP__

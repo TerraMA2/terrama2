@@ -20,14 +20,15 @@
 */
 
 /*!
-  \file src/terrama2/services/maps/core/JSonUtils.hpp
+  \file src/terrama2/services/view/core/JSonUtils.hpp
 
-  \brief Methods to convertion between a Maps and JSon object
+  \brief Methods to convertion between a View and JSon object
 
   \author Vinicius Campanha
 */
 
-#include "Maps.hpp"
+// TerraMa2
+#include "View.hpp"
 #include "Shared.hpp"
 
 // Qt
@@ -37,23 +38,23 @@ namespace terrama2
 {
   namespace services
   {
-    namespace maps
+    namespace view
     {
       namespace core
       {
         /*!
-          \brief Creates a Maps from a QJsonObject.
-          \see Maps for json structure
+          \brief Creates a View from a QJsonObject.
+          \see View for json structure
           */
-        MapsPtr fromMapsJson(QJsonObject json);
+        ViewPtr fromViewJson(QJsonObject json);
 
         /*!
-          \brief Creates a Json object from a Maps
+          \brief Creates a Json object from a View
           \attention This is a function created for debug and tests
         */
-        QJsonObject toJson(MapsPtr maps);
+        QJsonObject toJson(ViewPtr view);
 
       } // end namespace core
-    }   // end namespace maps
+    }   // end namespace view
   }     // end namespace services
 }       // end namespace terrama2

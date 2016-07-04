@@ -20,35 +20,21 @@
 */
 
 /*!
-  \file terrama2/services/maps/Shared.hpp
+  \file terrama2/services/view/Typedef.hpp
+
+  \brief Type definitions for View Service.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_MAPS_SHARED_HPP__
-#define __TERRAMA2_SERVICES_MAPS_SHARED_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
+#define __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
 
-#include <memory>
+#include <cstdint>
 
-namespace terrama2
-{
-  namespace services
-  {
-    namespace maps
-    {
-      namespace core
-      {
-        struct Maps;
-        //! Shared smart pointer for Maps
-        typedef std::shared_ptr<const terrama2::services::maps::core::Maps> MapsPtr;
+#include "../../../core/Typedef.hpp"
 
-        class DataManager;
-        //! Shared smart pointer for DataManager
-        typedef std::shared_ptr<terrama2::services::maps::core::DataManager> DataManagerPtr;
-      }
-    }
-  }
-}
+//! Unique identifier of a Map
+typedef ProcessId ViewId;
 
-
-#endif // __TERRAMA2_SERVICES_MAPS_SHARED_HPP__
+#endif // __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__

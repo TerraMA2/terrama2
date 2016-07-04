@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/DataManager.hpp
+  \file terrama2/services/view/core/DataManager.hpp
 
-  \brief Model class for the maps configuration.
+  \brief Model class for the view configuration.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_MAPS_CORE_DATAMANAGER_HPP__
-#define __TERRAMA2_SERVICES_MAPS_CORE_DATAMANAGER_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_DATAMANAGER_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_DATAMANAGER_HPP__
 
 #include "../../../core/data-model/DataManager.hpp"
 #include "Typedef.hpp"
@@ -38,7 +38,7 @@ namespace terrama2
 {
   namespace services
   {
-    namespace maps
+    namespace view
     {
       namespace core
       {
@@ -64,7 +64,7 @@ namespace terrama2
           /*!
             \brief Register a map in the manager.
 
-            At end it will emit MapAdded(MapsPtr) signal.
+            At end it will emit MapAdded(ViewPtr) signal.
 
             \param map The map to be registered into the manager.
 
@@ -75,7 +75,7 @@ namespace terrama2
 
             \note Thread-safe.
           */
-          virtual void add(MapsPtr map);
+          virtual void add(ViewPtr map);
 
           /*!
             \brief Update a given map.
@@ -92,7 +92,7 @@ namespace terrama2
 
             \note Thread-safe.
           */
-          virtual void update(MapsPtr map);
+          virtual void update(ViewPtr map);
 
           /*!
             \brief Removes the map with the given id.
@@ -105,12 +105,12 @@ namespace terrama2
 
             \note Thread-safe.
           */
-          virtual void removeMap(MapsId mapId);
+          virtual void removeMap(ViewId mapId);
 
           /*!
-            \brief Retrieves the Map with the given MapsId.
+            \brief Retrieves the Map with the given ViewId.
 
-            \param id The map MapsId.
+            \param id The map ViewId.
 
             \return DataProviderPtr A smart pointer to the map
 
@@ -118,46 +118,46 @@ namespace terrama2
 
             \note Thread-safe.
           */
-          virtual MapsPtr findMap(MapsId id) const;
+          virtual ViewPtr findMap(ViewId id) const;
 
           //! Verify if the Map already exists in the DataManager
-          virtual bool hasMap(MapsId id) const;
+          virtual bool hasMap(ViewId id) const;
 
           /*!
-            \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and Maps to be added.
+            \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and View to be added.
 
             The valid tags are:
               - "dataproviders"
               - "dataseries"
-              - "maps"
+              - "view"
           */
           virtual void addJSon(const QJsonObject& obj) override;
 
           /*!
-            \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and Maps to be removed.
+            \brief Parsers the QJsonObject for terrama2::core::DataProvider, terrama2::core::DataSeries and View to be removed.
 
             The valid tags are:
               - "dataproviders"
               - "dataseries"
-              - "maps"
+              - "view"
           */
           virtual void removeJSon(const QJsonObject& obj) override;
 
         signals:
           //! Signal to notify that a Map has been added.
-          void mapAdded(MapsPtr);
+          void mapAdded(ViewPtr);
           //! Signal to notify that a Map has been updated.
-          void mapUpdated(MapsPtr);
+          void mapUpdated(ViewPtr);
           //! Signal to notify that a Map has been removed.
-          void mapRemoved(MapsId);
+          void mapRemoved(ViewId);
 
         protected:
-          std::map<MapsId, MapsPtr> maps_;//!< A map from MapsId to Map.
+          std::map<ViewId, ViewPtr> view_;//!< A map from ViewId to Map.
 
         };
       } // end namespace core
-    }   // end namespace maps
+    }   // end namespace view
   }     // end namespace services
 } // end namespace terrama2
 
-#endif //__TERRAMA2_SERVICES_MAPS_CORE_DATAMANAGER_HPP__
+#endif //__TERRAMA2_SERVICES_VIEW_CORE_DATAMANAGER_HPP__

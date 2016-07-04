@@ -20,21 +20,27 @@
 */
 
 /*!
-  \file terrama2/services/maps/Typedef.hpp
+  \file terrama2/services/view/core/ViewsLogger.cpp
 
-  \brief Type definitions for Maps Service.
+  \brief Process logger for View Server.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_MAPS_TYPEDEF_HPP__
-#define __TERRAMA2_SERVICES_MAPS_TYPEDEF_HPP__
+#include "ViewLogger.hpp"
+#include "../../../core/utility/ServiceManager.hpp"
 
-#include <cstdint>
 
-#include "../../../core/Typedef.hpp"
+terrama2::services::view::core::ViewLogger::ViewLogger()
+  : ProcessLogger()
+{
 
-//! Unique identifier of a Map
-typedef ProcessId MapsId;
+}
 
-#endif // __TERRAMA2_SERVICES_MAPS_TYPEDEF_HPP__
+void terrama2::services::view::core::ViewLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo) noexcept
+{
+  terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
+
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  setTableName("view_log_"+std::to_string(serviceManager.instanceId()));
+}

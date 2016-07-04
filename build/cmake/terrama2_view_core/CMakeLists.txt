@@ -19,7 +19,7 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for the TerraMA2 Maps Core.
+#  Description: CMake script for the TerraMA2 View Core.
 #
 #  Author: Vinicius Campanha
 #
@@ -28,8 +28,8 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-file(GLOB_RECURSE TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/maps/core/*.cpp)
-file(GLOB_RECURSE TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/maps/core/*.hpp)
+file(GLOB_RECURSE TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/view/core/*.cpp)
+file(GLOB_RECURSE TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/view/core/*.hpp)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
@@ -45,26 +45,26 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_library(terrama2_maps_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+add_library(terrama2_view_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
 
-qt5_use_modules(terrama2_maps_core Core)
+qt5_use_modules(terrama2_view_core Core)
 
-target_link_libraries(terrama2_maps_core terrama2_core
+target_link_libraries(terrama2_view_core terrama2_core
                                         terralib_mod_maptools
                                         terralib_mod_qt_widgets)
 
-set_target_properties(terrama2_maps_core
+set_target_properties(terrama2_view_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  SOVERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
                                  INSTALL_NAME_DIR "@executable_path/../lib")
 
-install(TARGETS terrama2_maps_core
+install(TARGETS terrama2_view_core
         EXPORT terrama2-targets
         RUNTIME DESTINATION ${TERRAMA2_DESTINATION_RUNTIME} COMPONENT runtime
         LIBRARY DESTINATION ${TERRAMA2_DESTINATION_LIBRARY} COMPONENT runtime
         ARCHIVE DESTINATION ${TERRAMA2_DESTINATION_ARCHIVE} COMPONENT runtime)
 
 install(FILES ${TERRAMA2_HDR_FILES}
-        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/maps COMPONENT devel)
+        DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/view COMPONENT devel)
 
-export(TARGETS terrama2_maps_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
+export(TARGETS terrama2_view_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)

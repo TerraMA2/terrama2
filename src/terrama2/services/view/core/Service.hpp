@@ -20,28 +20,28 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/Service.hpp
+  \file terrama2/services/view/core/Service.hpp
 
-  \brief Class for the maps configuration.
+  \brief Class for the view configuration.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_MAPS_SERVICE_HPP__
-#define __TERRAMA2_SERVICES_MAPS_SERVICE_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_SERVICE_HPP__
+#define __TERRAMA2_SERVICES_VIEW_SERVICE_HPP__
 
 // TerraMA2
 #include "../../../core/utility/Service.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "DataManager.hpp"
-#include "MapsLogger.hpp"
+#include "ViewLogger.hpp"
 
 namespace terrama2
 {
   namespace services
   {
-    namespace maps
+    namespace view
     {
       namespace core
       {
@@ -60,33 +60,33 @@ namespace terrama2
           Service& operator=(Service&& other) = default;
 
           //! Set ProcessLogger
-          void setLogger(std::shared_ptr<MapsLogger> logger) noexcept;
+          void setLogger(std::shared_ptr<ViewLogger> logger) noexcept;
 
         public slots:
 
           //! Slot to be called when a DataSetTimer times out.
-          virtual void addToQueue(MapsId mapsId) noexcept override;
+          virtual void addToQueue(ViewId viewId) noexcept override;
 
           /*!
             \brief Add a Map to the service
 
-            Check if this is the instance where the Maps should run.
+            Check if this is the instance where the View should run.
           */
-          void addMap(MapsPtr map) noexcept;
+          void addMap(ViewPtr map) noexcept;
 
           /*!
             \brief Updates the Map.
 
             calls addMap()
           */
-          void updateMap(MapsPtr map) noexcept;
+          void updateMap(ViewPtr map) noexcept;
 
           /*!
             \brief Removes the Map.
 
             Rennuning processes will continue until finished.
           */
-          void removeMap(MapsId mapId) noexcept;
+          void removeMap(ViewId mapId) noexcept;
 
         protected:
 
@@ -97,21 +97,21 @@ namespace terrama2
           virtual bool processNextData() override;
 
           //*! Create a process task and add to taskQueue_
-          virtual void prepareTask(MapsId mapId);
+          virtual void prepareTask(ViewId mapId);
 
           //! Connects signals from DataManager
           void connectDataManager();
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 
-          std::map<MapsId, terrama2::core::TimerPtr> timers_;//!< List of running Maps timers
-          std::deque<MapsId> mapsQueue_;//!< Maps queue
-          std::shared_ptr< MapsLogger > logger_;//!< process logger
+          std::map<ViewId, terrama2::core::TimerPtr> timers_;//!< List of running View timers
+          std::deque<ViewId> viewQueue_;//!< View queue
+          std::shared_ptr< ViewLogger > logger_;//!< process logger
         };
 
       } // end namespace core
-    }   // end namespace maps
+    }   // end namespace view
   }     // end namespace services
 } // end namespace terrama2
 
-#endif // __TERRAMA2_SERVICES_MAPS_SERVICE_HPP__
+#endif // __TERRAMA2_SERVICES_VIEW_SERVICE_HPP__

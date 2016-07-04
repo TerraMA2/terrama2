@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file src/terrama2/services/maps/core/JSonUtils.cpp
+  \file src/terrama2/services/view/core/JSonUtils.cpp
 
-  \brief Methods to convertion between a Maps and JSon object
+  \brief Methods to convertion between a View and JSon object
 
   \author Vinicius Campanha
 */
@@ -41,11 +41,11 @@
 #include <QJsonArray>
 #include <QObject>
 
-terrama2::services::maps::core::MapsPtr terrama2::services::maps::core::fromMapsJson(QJsonObject json)
+terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromViewJson(QJsonObject json)
 {
-  if(json["class"].toString() != "Maps")
+  if(json["class"].toString() != "View")
   {
-    QString errMsg = QObject::tr("Invalid Maps JSON object.");
+    QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
@@ -53,23 +53,23 @@ terrama2::services::maps::core::MapsPtr terrama2::services::maps::core::fromMaps
   // VINICIUS:
   if(!json.contains("id"))
   {
-    QString errMsg = QObject::tr("Invalid Maps JSON object.");
+    QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  terrama2::services::maps::core::Maps* map = new terrama2::services::maps::core::Maps();
-  terrama2::services::maps::core::MapsPtr mapsPtr(map);
+  terrama2::services::view::core::View* map = new terrama2::services::view::core::View();
+  terrama2::services::view::core::ViewPtr viewPtr(map);
 
-  return mapsPtr;
+  return viewPtr;
 }
 
 
-QJsonObject terrama2::services::maps::core::toJson(MapsPtr maps)
+QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 {
   // VINICIUS:
   QJsonObject obj;
-  obj.insert("class", QString("Maps"));
+  obj.insert("class", QString("View"));
 
 
   return obj;
