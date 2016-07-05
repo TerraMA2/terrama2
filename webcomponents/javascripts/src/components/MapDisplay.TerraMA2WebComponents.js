@@ -396,13 +396,14 @@ define(
      * @param {float} maxResolution - Layer maximum resolution
      * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
      * @returns {ol.layer.Tile} tile - New tiled wms layer
      *
      * @function createTileWMS
      * @memberof MapDisplay
      * @inner
      */
-    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled) {
+    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer) {
       var params = {
         'LAYERS': layerId,
         'TILED': true
@@ -410,6 +411,9 @@ define(
 
       if(time !== null && time !== undefined && time !== '')
         params['TIME'] = time;
+
+      if(buffer !== null && buffer !== undefined && buffer !== '')
+        params['BUFFER'] = buffer;
 
       var layerSource = new ol.source.TileWMS({
         preload: Infinity,
@@ -453,13 +457,14 @@ define(
      * @param {string} parentGroup - Parent group id
      * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addTileWMSLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled) {
+    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled, buffer) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -467,7 +472,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled)
+          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer)
         );
 
         layerGroup.setLayers(layers);
