@@ -19,27 +19,29 @@
 #  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 #
 #
-#  Description: CMake script for TerraMA2's unit test - maps module.
+#  Description: CMake script for the TerraMA2 View example.
 #
 #  Author: Vinicius Campanha
 #
 
-# Compiler options: pthread for gtest
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER MATCHES ".*clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-endif()
+#if(WIN32)
+#  add_definitions(-DTMA_CORE_DLL)
+#endif()
 
+SET(TERRAMA2_EXAMPLE_COLLECTOR_DIR "${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/view/")
 
-file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/maps/*.cpp)
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/maps/*.hpp)
+file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.cpp)
+file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_EXAMPLE_COLLECTOR_DIR}*.hpp)
 
 include_directories (
-  ${Boost_INCLUDE_DIR}
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
+  ${CMAKE_BINARY_DIR}
+)
+
+include_directories ( SYSTEM
+  ${Boost_INCLUDE_DIR}
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
-  ${GTEST_INCLUDE_DIRS}
-  ${GMOCK_INCLUDE_DIRS}
   ${Qt5Core_INCLUDE_DIRS}
 )
 
@@ -49,16 +51,18 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
 
-add_executable(terrama2_unittest_maps ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES})
+foreach(FILE ${TERRAMA2_SRC_FILES})
+   STRING(REGEX REPLACE ".cpp" "" EXAMPLE "${FILE}")
+   STRING(REGEX REPLACE "${TERRAMA2_EXAMPLE_COLLECTOR_DIR}" "" EXAMPLE "${EXAMPLE}")
 
-target_link_libraries(terrama2_unittest_maps terrama2_maps_core
-                                                  terrama2_collector_core
-                                                  terralib_mod_plugin
-                                                  terralib_mod_common
-                                                  terralib_mod_rp
-                                                  ${GTEST_BOTH_LIBRARIES}
-                                                  ${GMOCK_BOTH_LIBRARIES})
 
-qt5_use_modules(terrama2_unittest_maps Test)
+   add_executable(${EXAMPLE} ${FILE})
 
-add_test(NAME terrama2_unittest_maps COMMAND terrama2_unittest_maps)
+   qt5_use_modules(${EXAMPLE} Core )
+
+   target_link_libraries(${EXAMPLE} terrama2_view_core
+                                    terrama2_impl
+                                    terralib_mod_common
+                                    terralib_mod_qt_widgets
+                                    terralib_mod_maptools)
+endforeach()

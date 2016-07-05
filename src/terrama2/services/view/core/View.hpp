@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/Maps.hpp
+  \file terrama2/services/view/core/View.hpp
 
-  \brief Model class for the maps configuration.
+  \brief Model class for the view configuration.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_MAPS_CORE_MAPS_HPP__
-#define __TERRAMA2_SERVICES_MAPS_CORE_MAPS_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 
 // TerraMA2
 #include "../../../core/data-model/DataSeries.hpp"
@@ -39,7 +39,7 @@
 #include "../../../core/Typedef.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
-#include "MapsLogger.hpp"
+#include "ViewLogger.hpp"
 
 // STL
 #include <string>
@@ -49,36 +49,36 @@ namespace terrama2
 {
   namespace services
   {
-    namespace maps
+    namespace view
     {
       namespace core
       {
         /*!
-          \brief The Maps groups the information to draw maps.
+          \brief The View groups the information to draw view.
         */
-        struct Maps
+        struct View
         {
-          MapsId id = 0;//!< Map unique identification.
+          ViewId id = 0;//!< View unique identification.
           ProjectId projectId = 0;//!< Identification of the project owner of the map.
-          ServiceInstanceId serviceInstanceId = 0;//!< Map service instace where the map should be executed.
+          ServiceInstanceId serviceInstanceId = 0;//!< View service instace where the map should be executed.
 
           bool active = true;//!< Flag if the map is active.
 
           DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
           DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
 
-          std::map<DataSetId, DataSetId> inputOutputMap;//!< Map of source DataSet to destiny DataSet.
+          std::map<DataSetId, DataSetId> inputOutputMap;//!< View of source DataSet to destiny DataSet.
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the map.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
         };
 
-        void makeMap(MapsId mapId, std::shared_ptr< terrama2::services::maps::core::MapsLogger > logger, std::weak_ptr<DataManager> weakDataManager);
+        void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
         void drawSeriesList(std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList);
 
       } // end namespace core
-    }   // end namespace maps
+    }   // end namespace view
   }     // end namespace services
 } // end namespace terrama2
 
-#endif //__TERRAMA2_SERVICES_MAPS_CORE_MAPS_HPP__
+#endif //__TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__

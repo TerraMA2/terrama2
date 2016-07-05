@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/MemoryDataSetLayer.hpp
+  \file terrama2/services/view/core/MemoryDataSetLayer.hpp
 
   \brief DataSet layer to deal with an dataSet in memory(without a dataSource).
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_MAPS_CORE_MEMORYDATASETLAYER_HPP__
-#define __TERRAMA2_SERVICES_MAPS_CORE_MEMORYDATASETLAYER_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_MEMORYDATASETLAYER_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_MEMORYDATASETLAYER_HPP__
 
 // TerraLib
 #include <terralib/maptools.h>
@@ -158,4 +158,4 @@ namespace te
   }
 }
 
-#endif // __TERRAMA2_SERVICES_MAPS_CORE_MEMORYDATASETLAYER_HPP__
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_MEMORYDATASETLAYER_HPP__

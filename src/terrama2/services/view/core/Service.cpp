@@ -20,16 +20,16 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/Service.hpp
+  \file terrama2/services/view/core/Service.hpp
 
-  \brief Class for the maps configuration.
+  \brief Class for the view configuration.
 
   \author Vinicius Campanha
 */
 
 // TerraMA2
 #include "Service.hpp"
-#include "Maps.hpp"
+#include "View.hpp"
 #include "MemoryDataSetLayer.hpp"
 
 #include "../../../core/Shared.hpp"
@@ -47,41 +47,41 @@
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 
-terrama2::services::maps::core::Service::Service(std::weak_ptr<terrama2::services::maps::core::DataManager> dataManager)
+terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::services::view::core::DataManager> dataManager)
   : dataManager_(dataManager)
 {
   connectDataManager();
 }
 
-bool terrama2::services::maps::core::Service::hasDataOnQueue() noexcept
+bool terrama2::services::view::core::Service::hasDataOnQueue() noexcept
 {
-  return !mapsQueue_.empty();
+  return !viewQueue_.empty();
 }
 
-bool terrama2::services::maps::core::Service::processNextData()
+bool terrama2::services::view::core::Service::processNextData()
 {
-  // check if there is Map to build
-  if(mapsQueue_.empty())
+  // check if there is View to build
+  if(viewQueue_.empty())
     return false;
 
   // get first data
-  const auto& mapId = mapsQueue_.front();
+  const auto& viewId = viewQueue_.front();
 
-  // prepare task for Map building
-  prepareTask(mapId);
+  // prepare task for View building
+  prepareTask(viewId);
 
   // remove from queue
-  mapsQueue_.pop_front();
+  viewQueue_.pop_front();
 
   // is there more data to process?
-  return !mapsQueue_.empty();
+  return !viewQueue_.empty();
 }
 
-void terrama2::services::maps::core::Service::prepareTask(MapsId mapId)
+void terrama2::services::view::core::Service::prepareTask(ViewId viewId)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&makeMap, mapId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&makeView, viewId, logger_, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -89,24 +89,24 @@ void terrama2::services::maps::core::Service::prepareTask(MapsId mapId)
   }
 }
 
-void terrama2::services::maps::core::Service::addToQueue(MapsId mapId) noexcept
+void terrama2::services::view::core::Service::addToQueue(ViewId viewId) noexcept
 {
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    TERRAMA2_LOG_DEBUG() << tr("Map added to queue.");
+    TERRAMA2_LOG_DEBUG() << tr("View added to queue.");
 
     auto datamanager = dataManager_.lock();
-    auto map = datamanager->findMap(mapId);
+    auto view = datamanager->findView(viewId);
 
     const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     auto serviceInstanceId = serviceManager.instanceId();
 
-    // Check if this map should be executed in this instance
-    if(map->serviceInstanceId != serviceInstanceId)
+    // Check if this view should be executed in this instance
+    if(view->serviceInstanceId != serviceInstanceId)
       return;
 
-    mapsQueue_.push_back(mapId);
+    viewQueue_.push_back(viewId);
     mainLoopCondition_.notify_one();
   }
   catch(...)
@@ -118,45 +118,45 @@ void terrama2::services::maps::core::Service::addToQueue(MapsId mapId) noexcept
 
 
 
-void terrama2::services::maps::core::Service::connectDataManager()
+void terrama2::services::view::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
-  connect(dataManager.get(), &terrama2::services::maps::core::DataManager::mapAdded, this,
-          &terrama2::services::maps::core::Service::addMap);
-  connect(dataManager.get(), &terrama2::services::maps::core::DataManager::mapRemoved, this,
-          &terrama2::services::maps::core::Service::removeMap);
-  connect(dataManager.get(), &terrama2::services::maps::core::DataManager::mapUpdated, this,
-          &terrama2::services::maps::core::Service::updateMap);
+  connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewAdded, this,
+          &terrama2::services::view::core::Service::addView);
+  connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewRemoved, this,
+          &terrama2::services::view::core::Service::removeView);
+  connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewUpdated, this,
+          &terrama2::services::view::core::Service::updateView);
 }
 
-void terrama2::services::maps::core::Service::setLogger(std::shared_ptr<MapsLogger> logger) noexcept
+void terrama2::services::view::core::Service::setLogger(std::shared_ptr<ViewLogger> logger) noexcept
 {
   logger_ = logger;
 }
 
-void terrama2::services::maps::core::Service::addMap(MapsPtr map) noexcept
+void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
 {
   try
   {
     const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     auto serviceInstanceId = serviceManager.instanceId();
 
-    // Check if this map should be executed in this instance
-    if(map->serviceInstanceId != serviceInstanceId)
+    // Check if this view should be executed in this instance
+    if(view->serviceInstanceId != serviceInstanceId)
       return;
 
     try
     {
-      if(map->active)
+      if(view->active)
       {
         std::lock_guard<std::mutex> lock(mutex_);
 
         std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
         if(logger_.get())
-          lastProcess = logger_->getLastProcessTimestamp(map->id);
+          lastProcess = logger_->getLastProcessTimestamp(view->id);
 
-        terrama2::core::TimerPtr timer = createTimer(map->schedule, map->id, lastProcess);
-        timers_.emplace(map->id, timer);
+        terrama2::core::TimerPtr timer = createTimer(view->schedule, view->id, lastProcess);
+        timers_.emplace(view->id, timer);
       }
     }
     catch(terrama2::core::InvalidFrequencyException&)
@@ -168,7 +168,7 @@ void terrama2::services::maps::core::Service::addMap(MapsPtr map) noexcept
       TERRAMA2_LOG_ERROR() << e.what();
     }
 
-    addToQueue(map->id);
+    addToQueue(view->id);
   }
   catch(...)
   {
@@ -178,48 +178,48 @@ void terrama2::services::maps::core::Service::addMap(MapsPtr map) noexcept
 
 }
 
-void terrama2::services::maps::core::Service::removeMap(MapsId mapId) noexcept
+void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
 {
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
 
-    TERRAMA2_LOG_INFO() << tr("Removing map %1.").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Removing view %1.").arg(viewId);
 
-    auto it = timers_.find(mapId);
+    auto it = timers_.find(viewId);
     if(it != timers_.end())
     {
-      auto timer = timers_.at(mapId);
+      auto timer = timers_.at(viewId);
       timer->disconnect();
-      timers_.erase(mapId);
+      timers_.erase(viewId);
     }
 
     // remove from queue
-    mapsQueue_.erase(std::remove(mapsQueue_.begin(), mapsQueue_.end(), mapId), mapsQueue_.end());
+    viewQueue_.erase(std::remove(viewQueue_.begin(), viewQueue_.end(), viewId), viewQueue_.end());
 
 
-    TERRAMA2_LOG_INFO() << tr("Map %1 removed successfully.").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("View %1 removed successfully.").arg(viewId);
   }
   catch(std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
-    TERRAMA2_LOG_INFO() << tr("Could not remove map: %1.").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
   }
   catch(boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << tr("Could not remove map: %1.").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
   }
   catch(...)
   {
     TERRAMA2_LOG_ERROR() << tr("Unknown error");
-    TERRAMA2_LOG_INFO() << tr("Could not remove map: %1.").arg(mapId);
+    TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
   }
 }
 
-void terrama2::services::maps::core::Service::updateMap(MapsPtr map) noexcept
+void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
   //TODO: adds to queue, is this expected? remove and then add?
-  addMap(map);
+  addView(view);
 }

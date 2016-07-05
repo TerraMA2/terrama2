@@ -20,27 +20,35 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/MapsLogger.cpp
-
-  \brief Process logger for Maps Server.
+  \file terrama2/services/view/Shared.hpp
 
   \author Vinicius Campanha
 */
 
-#include "MapsLogger.hpp"
-#include "../../../core/utility/ServiceManager.hpp"
+#ifndef __TERRAMA2_SERVICES_VIEW_SHARED_HPP__
+#define __TERRAMA2_SERVICES_VIEW_SHARED_HPP__
 
+#include <memory>
 
-terrama2::services::maps::core::MapsLogger::MapsLogger()
-  : ProcessLogger()
+namespace terrama2
 {
+  namespace services
+  {
+    namespace view
+    {
+      namespace core
+      {
+        struct View;
+        //! Shared smart pointer for View
+        typedef std::shared_ptr<const terrama2::services::view::core::View> ViewPtr;
 
+        class DataManager;
+        //! Shared smart pointer for DataManager
+        typedef std::shared_ptr<terrama2::services::view::core::DataManager> DataManagerPtr;
+      }
+    }
+  }
 }
 
-void terrama2::services::maps::core::MapsLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo) noexcept
-{
-  terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
 
-  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  setTableName("maps_log_"+std::to_string(serviceManager.instanceId()));
-}
+#endif // __TERRAMA2_SERVICES_VIEW_SHARED_HPP__

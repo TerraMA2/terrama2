@@ -20,16 +20,16 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/DataManager.cpp
+  \file terrama2/services/view/core/DataManager.cpp
 
-  \brief Model class for the maps configuration.
+  \brief Model class for the view configuration.
 
   \author Vinicius Campanha
 */
 
 // TerraMA2
 #include "DataManager.hpp"
-#include "Maps.hpp"
+#include "View.hpp"
 #include "Exception.hpp"
 #include "JSonUtils.hpp"
 #include "../../../core/Exception.hpp"
@@ -42,14 +42,14 @@
 #include <QJsonValue>
 #include <QJsonArray>
 
-terrama2::services::maps::core::MapsPtr terrama2::services::maps::core::DataManager::findMap(MapsId id) const
+terrama2::services::view::core::ViewPtr terrama2::services::view::core::DataManager::findView(ViewId id) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = maps_.find(id);
-  if(it == maps_.cend())
+  const auto& it = view_.find(id);
+  if(it == view_.cend())
   {
-    QString errMsg = QObject::tr("Map not registered.");
+    QString errMsg = QObject::tr("View not registered.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
@@ -57,66 +57,66 @@ terrama2::services::maps::core::MapsPtr terrama2::services::maps::core::DataMana
   return it->second;
 }
 
-bool terrama2::services::maps::core::DataManager::hasMap(MapsId id) const
+bool terrama2::services::view::core::DataManager::hasView(ViewId id) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-  const auto& it = maps_.find(id);
-  return it != maps_.cend();
+  const auto& it = view_.find(id);
+  return it != view_.cend();
 }
 
-void terrama2::services::maps::core::DataManager::add(terrama2::services::maps::core::MapsPtr map)
+void terrama2::services::view::core::DataManager::add(terrama2::services::view::core::ViewPtr view)
 {
   // Inside a block so the lock is released before emitting the signal
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-    if(map->id == terrama2::core::InvalidId())
+    if(view->id == terrama2::core::InvalidId())
     {
       QString errMsg = QObject::tr("Can not add a data provider with an invalid id.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    TERRAMA2_LOG_DEBUG() << tr("Map added");
-    maps_[map->id] = map;
+    TERRAMA2_LOG_DEBUG() << tr("View added");
+    view_[view->id] = view;
   }
 
-  emit mapAdded(map);
+  emit viewAdded(view);
 }
 
-void terrama2::services::maps::core::DataManager::update(terrama2::services::maps::core::MapsPtr map)
+void terrama2::services::view::core::DataManager::update(terrama2::services::view::core::ViewPtr view)
 {
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
     blockSignals(true);
-    removeMap(map->id);
-    add(map);
+    removeView(view->id);
+    add(view);
     blockSignals(false);
   }
 
-  emit mapUpdated(map);
+  emit viewUpdated(view);
 }
 
-void terrama2::services::maps::core::DataManager::removeMap(MapsId mapId)
+void terrama2::services::view::core::DataManager::removeView(ViewId viewId)
 {
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
-    auto itPr = maps_.find(mapId);
-    if(itPr == maps_.end())
+    auto itPr = view_.find(viewId);
+    if(itPr == view_.end())
     {
       QString errMsg = QObject::tr("DataProvider not registered.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    maps_.erase(itPr);
+    view_.erase(itPr);
   }
 
-  emit mapRemoved(mapId);
+  emit viewRemoved(viewId);
 }
 
-void terrama2::services::maps::core::DataManager::addJSon(const QJsonObject& obj)
+void terrama2::services::view::core::DataManager::addJSon(const QJsonObject& obj)
 {
   try
   {
@@ -124,11 +124,11 @@ void terrama2::services::maps::core::DataManager::addJSon(const QJsonObject& obj
 
     terrama2::core::DataManager::DataManager::addJSon(obj);
 
-    auto maps = obj["Maps"].toArray();
-    for(auto json : maps)
+    auto view = obj["View"].toArray();
+    for(auto json : view)
     {
-      auto dataPtr = terrama2::services::maps::core::fromMapsJson(json.toObject());
-      if(hasMap(dataPtr->id))
+      auto dataPtr = terrama2::services::view::core::fromViewJson(json.toObject());
+      if(hasView(dataPtr->id))
         update(dataPtr);
       else
         add(dataPtr);
@@ -152,16 +152,16 @@ void terrama2::services::maps::core::DataManager::addJSon(const QJsonObject& obj
   }
 }
 
-void terrama2::services::maps::core::DataManager::removeJSon(const QJsonObject& obj)
+void terrama2::services::view::core::DataManager::removeJSon(const QJsonObject& obj)
 {
   try
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
-    auto maps = obj["Maps"].toArray();
-    for(auto json : maps)
+    auto view = obj["View"].toArray();
+    for(auto json : view)
     {
       auto dataId = json.toInt();
-      removeMap(dataId);
+      removeView(dataId);
     }
 
     terrama2::core::DataManager::DataManager::removeJSon(obj);

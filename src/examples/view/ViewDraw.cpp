@@ -29,8 +29,8 @@
 #include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
 #include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/services/maps/core/MemoryDataSetLayer.hpp>
-#include <terrama2/services/maps/core/Maps.hpp>
+#include <terrama2/services/view/core/MemoryDataSetLayer.hpp>
+#include <terrama2/services/view/core/View.hpp>
 
 
 std::string GenerateRandomColor()
@@ -438,8 +438,9 @@ int main(int argc, char** argv)
 
       std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
       seriesList.push_back(seriesRaster);
+      seriesList.push_back(seriesGeometry);
 
-      terrama2::services::maps::core::drawSeriesList(seriesList);
+      terrama2::services::view::core::drawSeriesList(seriesList);
 
     }
   }
