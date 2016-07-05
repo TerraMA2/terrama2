@@ -316,6 +316,7 @@ terrama2::core::DataSeriesRisk terrama2::core::fromDataSeriesRiskJson(QJsonObjec
 
   terrama2::core::DataSeriesRisk risk;
   risk.id = static_cast<uint32_t>(json["id"].toInt());
+  risk.dataSeriesId = static_cast<uint32_t>(json["dataSeries_id"].toInt());
   risk.name = json["name"].toString().toStdString();
   risk.description = json["description"].toString().toStdString();
   risk.riskType = static_cast<terrama2::core::RiskType>(json["risk_type"].toInt());
@@ -326,6 +327,7 @@ terrama2::core::DataSeriesRisk terrama2::core::fromDataSeriesRiskJson(QJsonObjec
   {
     auto obj = value.toObject();
     terrama2::core::RiskLevel riskLevel;
+    riskLevel.name = obj["name"].toString().toStdString();
     riskLevel.level = static_cast<uint32_t>(obj["level"].toInt());
     riskLevel.hasLowerBound = obj["has_lower_bound"].toBool();
     riskLevel.lowerBound = obj["lower_bound"].toDouble();

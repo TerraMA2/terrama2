@@ -47,7 +47,7 @@
 #include <QObject>
 
 
-void terrama2::core::GridSeries::addGridSeries(std::map<DataSetPtr,DataSetSeries> seriesMap)
+void terrama2::core::GridSeries::addGridSeries(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap)
 {
   dataSeriesMap_ = seriesMap;
   for(const auto& item : seriesMap)
@@ -73,7 +73,7 @@ void terrama2::core::GridSeries::addGridSeries(std::map<DataSetPtr,DataSetSeries
   }
 }
 
-const std::map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& terrama2::core::GridSeries::gridMap()
+const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& terrama2::core::GridSeries::gridMap()
 {
   return rasterMap_;
 }

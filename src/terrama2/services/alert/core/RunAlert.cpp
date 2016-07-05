@@ -29,16 +29,14 @@
 
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
-#include "../../../core/data-model/DataSeries.hpp"
-#include "../../../core/data-access/DataAccessor.hpp"
-#include "../../../core/data-access/DataStorager.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
-#include "../../../core/utility/DataStoragerFactory.hpp"
+#include "../../../core/data-access/DataAccessor.hpp"
 
 #include "RunAlert.hpp"
 #include "Alert.hpp"
 #include "Report.hpp"
 #include "ReportFactory.hpp"
+#include "AdditionalDataHelper.hpp"
 
 #include <QObject>
 
@@ -81,26 +79,11 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     auto inputDataSeries = dataManager->findDataSeries(alertPtr->risk.dataSeriesId);
     auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
-    //temp struct for additional data
-    struct TempAdditionalData
-    {
-      terrama2::core::DataSeriesPtr dataSeries;
-      terrama2::core::DataProviderPtr dataProvider;
-
-      AdditionalData additionalData;
-      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> dataMap;
-    };
     //retrieve additional data
-    std::vector<TempAdditionalData> additionalDataVector;
+    std::vector<AdditionalDataHelper> additionalDataVector;
     for(auto additionalData : alertPtr->additionalDataVector)
     {
-      TempAdditionalData tempData;
-      tempData.additionalData = additionalData;
-
-      tempData.dataSeries = dataManager->findDataSeries(additionalData.id);
-      tempData.dataProvider = dataManager->findDataProvider(tempData.dataSeries->dataProviderId);
-
-      additionalDataVector.push_back(tempData);
+      additionalDataVector.emplace_back(additionalData, dataManager);
     }
 
     // dataManager no longer in use
@@ -121,26 +104,6 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
       TERRAMA2_LOG_WARNING() << QObject::tr("No data to available.");
       return;
     }
-
-    for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end();)
-    {
-      auto additionalData = *iter;
-
-      auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(additionalData.dataProvider, additionalData.dataSeries);
-      additionalData.dataMap = dataAccessor->getSeries(filter);
-      if(additionalData.dataMap.empty())
-      {
-        TERRAMA2_LOG_WARNING() << QObject::tr("No data to available in dataseries %1.").arg(additionalData.additionalData.id);
-        //erase returns the next valid position
-        iter = additionalDataVector.erase(iter);
-        continue;
-      }
-
-      ++iter;
-
-
-    }
-
 
     for(const auto& data : dataMap)
     {
@@ -166,14 +129,18 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
       fkProperty->setName(idProperty->getName()+"_fk");
       alertDataSetType->add(fkProperty);
 
+      for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
+      {
+        iter->prepareData(filter);
+        iter->addAdditionalAttributesColumns(alertDataSetType);
+      }
+
       auto alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
-
-
 
       auto pos = dataSetType->getPropertyPosition(risk.attribute);
       if(pos == std::numeric_limits<decltype(pos)>::max())
       {
-        //TODO: warning
+        TERRAMA2_LOG_ERROR() << QObject::tr("Risk attribute %1 doesn't exist in dataset %2").arg(QString::fromStdString(risk.attribute)).arg(dataset->id);
         continue;
       }
 
@@ -188,7 +155,8 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
 
         te::mem::DataSetItem* item = new te::mem::DataSetItem(alertDataSet.get());
         //fk value
-        item->setValue(fkProperty->getName(), teDataset->getValue(idProperty->getName())->clone());
+        auto fkValue = teDataset->getValue(idProperty->getName());
+        item->setValue(fkProperty->getName(), fkValue->clone());
 
         // risk level
         int riskLevel = 0;
@@ -196,6 +164,11 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
         std::tie(riskLevel, riskName) = getRisk(pos);
         item->setInt32(riskLevelProperty, riskLevel);
         item->setString(riskNameProperty, riskName);
+
+        for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
+        {
+          iter->addAdditionalValues(item, fkValue->toString());
+        }
 
         alertDataSet->add(item);
       }
@@ -208,7 +181,7 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     if(logger.get())
       logger->done(alertInfo.second, logId);
   }
-  catch(const terrama2::Exception& e )
+  catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_DEBUG() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     throw;//re-throw

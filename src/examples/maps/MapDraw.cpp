@@ -391,7 +391,7 @@ int main(int argc, char** argv)
       //accessing data
       terrama2::core::DataAccessorGeoTiff accessorRaster(dataProviderRasterPtr, dataSeriesRasterPtr);
 
-      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesRaster = accessorRaster.getSeries(filterRaster);
+      std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesRaster = accessorRaster.getSeries(filterRaster);
 
       std::shared_ptr<te::da::DataSet> dsRaster = seriesRaster.begin()->second.syncDataSet->dataset();
       std::shared_ptr<te::da::DataSetType> teDataSetTypeRaster = seriesRaster.begin()->second.teDataSetType;
@@ -424,7 +424,7 @@ int main(int argc, char** argv)
       //accessing data
       terrama2::core::DataAccessorStaticDataOGR accessorGeometry(dataProviderGeometryPtr, dataSeriesGeometryPtr);
 
-      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesGeometry = accessorGeometry.getSeries(filterGeometry);
+      std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesGeometry = accessorGeometry.getSeries(filterGeometry);
 
 /*
       std::shared_ptr<te::da::DataSet> dsGeometry = seriesGeometry.begin()->second.syncDataSet->dataset();
@@ -436,7 +436,7 @@ int main(int argc, char** argv)
       Draw(rasterLayer,GeometryLayer);
 */
 
-      std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
+      std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
       seriesList.push_back(seriesRaster);
 
       terrama2::services::maps::core::drawSeriesList(seriesList);

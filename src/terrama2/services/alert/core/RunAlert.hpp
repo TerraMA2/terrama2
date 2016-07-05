@@ -59,6 +59,7 @@ namespace terrama2
         void runAlert(std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> > alertInfo,
                       std::shared_ptr< AlertLogger > logger,
                       std::weak_ptr<DataManager> weakDataManager);
+
         //! Get the name of the property used as unique key of the DataSet
         std::string getIdentifierPropertyName(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries);
         //! Get the propper function to evaluate the risk level of a value.

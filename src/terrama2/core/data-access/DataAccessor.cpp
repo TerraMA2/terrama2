@@ -173,7 +173,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
+std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
 {
 
   //if data provider is not active, nothing to do
@@ -194,7 +194,7 @@ std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::c
     throw DataProviderException() << ErrorDescription(errMsg);
   }
 
-  std::map<DataSetPtr,DataSetSeries> series;
+  std::unordered_map<DataSetPtr,DataSetSeries> series;
 
   try
   {

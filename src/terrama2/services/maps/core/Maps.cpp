@@ -57,7 +57,7 @@ void terrama2::services::maps::core::makeMap(MapsId mapId, std::shared_ptr< terr
 
 
 
-void terrama2::services::maps::core::drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList)
+void terrama2::services::maps::core::drawSeriesList(std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList)
 {
   std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
 
@@ -130,5 +130,3 @@ void terrama2::services::maps::core::drawSeriesList(std::vector<std::map<terrama
 
   canvas->clear();
 }
-
-
