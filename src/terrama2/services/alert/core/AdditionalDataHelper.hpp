@@ -75,6 +75,7 @@ namespace terrama2
             void addAdditionalValues(te::mem::DataSetItem* item, const std::string& fkValue) const;
 
           private:
+            bool isDataReady_ = false;
             AdditionalData additionalData_;
             terrama2::core::DataSeriesPtr dataSeries_;
             terrama2::core::DataProviderPtr dataProvider_;
