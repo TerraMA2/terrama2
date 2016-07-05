@@ -27,10 +27,10 @@
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_SERVICES_ALERT_IMPL_REPORTER_HPP__
-#define __TERRAMA2_SERVICES_ALERT_IMPL_REPORTER_HPP__
+#ifndef __TERRAMA2_SERVICES_ALERT_IMPL_REPORT_TXT_HPP__
+#define __TERRAMA2_SERVICES_ALERT_IMPL_REPORT_TXT_HPP__
 
-#include "../core/Report.hpp"
+#include "ReportText.hpp"
 
 namespace terrama2
 {
@@ -46,7 +46,7 @@ namespace terrama2
           const std::string DESTINATION_FOLDER = "destination_folder";
         } /* ReportTags */
 
-        class ReportTxt : public Report
+        class ReportTxt : public ReportText
         {
           public:
             ReportTxt(std::unordered_map<std::string, std::string> reportMetadata);
@@ -62,7 +62,10 @@ namespace terrama2
                                  std::shared_ptr<te::dt::TimeInstantTZ> alertTime,
                                  std::shared_ptr<te::da::DataSet> alertDataSet) override;
 
-            std::string refactorMask(const std::string& filePath, AlertPtr , std::shared_ptr<te::dt::TimeInstantTZ> alertTime) const;
+            std::string refactorMask(const std::string& filePath,
+                                     AlertPtr alert,
+                                     terrama2::core::DataSetPtr dataset,
+                                     std::shared_ptr<te::dt::TimeInstantTZ> alertTime) const;
 
             static ReportPtr make(std::unordered_map<std::string, std::string> reportMetadata);
             static ReportType reportType() { return "TXT"; }
@@ -72,4 +75,4 @@ namespace terrama2
   } /* services */
 }
 
-#endif // __TERRAMA2_SERVICES_ALERT_IMPL_REPORTER_HPP__
+#endif // __TERRAMA2_SERVICES_ALERT_IMPL_REPORT_TXT_HPP__
