@@ -91,7 +91,16 @@ namespace terrama2
           \param analysisHashCode Analysis hash code.
           \param indexes Vector of geometries indexes.
         */
-        void runScriptMonitoredObjectAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> indexes);
+        void runMonitoredObjectScript(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> indexes);
+
+
+        /*!
+          \brief Run Python script for a grid analysis.
+          \param state Python thread state.
+          \param analysisHashCode Analysis hash code.
+          \param indexes Vector of row indexes to process.
+        */
+        void runScriptGridAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> rows);
 
         /*!
           \brief Run Python script for a monitored object analysis.
@@ -140,6 +149,11 @@ namespace terrama2
         void calculateStatistics(std::vector<double>& values, OperatorCache& cache);
 
         /*!
+         \brief Registers all grid functions in the Python interpreter.
+        */
+        void registerGridFunctions();
+
+        /*!
           \brief Registers all DCP functions in the Python interpreter.
         */
         void registerDCPFunctions();
@@ -149,6 +163,9 @@ namespace terrama2
         */
         void registerOccurrenceFunctions();
 
+        /*!
+          \brief Extracts the error message from Python interpreter.
+        */
         std::string extractException();
 
 

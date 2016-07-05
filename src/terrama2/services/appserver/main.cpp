@@ -195,6 +195,7 @@ int main(int argc, char* argv[])
 
     try
     {
+      terrama2::services::analysis::core::finalizeInterpreter();
       terrama2::core::finalizeTerraMA();
 
       //Service closed by load error

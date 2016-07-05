@@ -183,7 +183,7 @@ void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysi
   try
   {
     auto analysisPtr = dataManager_->findAnalysis(analysisId);
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, logger_, startTime, analysisPtr, processingThreadPool_.size()));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, logger_, startTime, analysisPtr, threadPool_));
   }
   catch(std::exception& e)
   {
@@ -230,3 +230,11 @@ void terrama2::services::analysis::core::Service::connectDataManager()
   connect(dataManager_.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
   connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
 }
+
+void terrama2::services::analysis::core::Service::start(uint threadNumber)
+{
+  terrama2::core::Service::start(threadNumber);
+  threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
+}
+
+

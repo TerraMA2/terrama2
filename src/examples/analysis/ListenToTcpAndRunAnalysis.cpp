@@ -290,6 +290,7 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
+  terrama2::services::analysis::core::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

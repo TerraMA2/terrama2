@@ -31,7 +31,12 @@
 #define __TERRAMA2_ANALYSIS_CORE_UTILS_HPP__
 
 // TerraMA2
+
 #include "Analysis.hpp"
+#include "../../../core/Shared.hpp"
+
+// TerraLib
+#include <terralib/raster/Raster.h>
 
 namespace terrama2
 {
@@ -49,7 +54,7 @@ namespace terrama2
 
           \return Enum with the type of the Analysis.
          */
-        AnalysisType ToType(uint64_t type);
+        AnalysisType ToAnalysisType(uint32_t type);
 
         /*!
           \brief Returns a enum with the type of use of the DataSeries in the analysis based on the given parameter.
@@ -58,7 +63,7 @@ namespace terrama2
 
           \return Enum with the type of use of the DataSeries in the Analysis.
          */
-        AnalysisDataSeriesType ToAnalysisDataSeriesType(uint64_t type);
+        AnalysisDataSeriesType ToAnalysisDataSeriesType(uint32_t type);
 
 
         /*!
@@ -68,7 +73,36 @@ namespace terrama2
 
           \return Enum with the script language of the Analysis.
          */
-        ScriptLanguage ToScriptLanguage(uint64_t scriptLanguage);
+        ScriptLanguage ToScriptLanguage(uint32_t scriptLanguage);
+
+        /*!
+          \brief Returns a enum with the interpolation method used for the output grid.
+
+          \param interpolationMethod Integer containing the interpolation method.
+
+          \return The interpolation method used for the output grid.
+         */
+        InterpolationMethod ToInterpolationMethod(uint32_t interpolationMethod);
+
+        /*!
+          \brief Returns a enum with the strategy used to determine the resolution of the output grid.
+
+          \param resolutionType Integer containing the strategy used to determine the resolution of the output grid.
+
+          \return The strategy used to determine the resolution of the output grid.
+         */
+        ResolutionType ToResolutionType(uint32_t resolutionType);
+
+        /*!
+          \brief Returns a enum with the interest area strategy for the box of the output grid.
+
+          \param resolutionType Integer containing the interest area strategy for the box of the output grid.
+
+          \return The interest area strategy for the box of the output grid.
+         */
+        InterestAreaType ToInterestAreaType(uint32_t interestAreaType);
+
+        const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId);
 
       } // end namespace core
     }   // end namespace analysis

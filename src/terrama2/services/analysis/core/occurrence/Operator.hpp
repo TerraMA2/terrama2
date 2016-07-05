@@ -28,8 +28,8 @@
 */
 
 
-#ifndef ANALYSIS_CORE_OCCURRENCE_OPERATOR_HPP
-#define ANALYSIS_CORE_OCCURRENCE_OPERATOR_HPP
+#ifndef __TERRAMA2_SERVINCES_ANALYSIS_CORE_OCCURRENCE_OPERATOR_HPP__
+#define __TERRAMA2_SERVINCES_ANALYSIS_CORE_OCCURRENCE_OPERATOR_HPP__
 
 // TerraMA2
 #include "../PythonInterpreter.hpp"
@@ -174,4 +174,4 @@ namespace terrama2
   }         // end namespace services
 }           // end namespace terrama2
 
-#endif //ANALYSIS_CORE_OCCURRENCE_OPERATOR_HPP
+#endif //__TERRAMA2_SERVINCES_ANALYSIS_CORE_OCCURRENCE_OPERATOR_HPP__

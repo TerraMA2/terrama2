@@ -33,6 +33,7 @@
 #include "../../../core/Typedef.hpp"
 
 typedef uint32_t AnalysisDataSeriesId;
+typedef uint32_t InterpolationMethodId;
 typedef ProcessId AnalysisId;
 typedef size_t AnalysisHashCode;
 

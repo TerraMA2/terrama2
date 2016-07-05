@@ -242,6 +242,7 @@ int main(int argc, char* argv[])
   app.exec();
 
 
+  terrama2::services::analysis::core::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

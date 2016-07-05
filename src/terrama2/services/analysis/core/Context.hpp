@@ -299,13 +299,27 @@ namespace terrama2
             */
             std::shared_ptr<te::dt::TimeInstantTZ> getStartTime(AnalysisHashCode analysisHashCode);
 
+            /*!
+              \brief Reads output grid configuration and adds the output grid to context.
+              \param analysisHashCode Hash code of the analysis.
+            */
+            void createOutputRaster(AnalysisHashCode analysisHashCode);
+
+            /*!
+              \brief Returns the output raster of the analysis.
+              \param analysisHashCode Hash code of the analysis.
+              \return Output raster of the analysis.
+            */
+            std::shared_ptr<te::rst::Raster> getOutputRaster(AnalysisHashCode analysisHashCode);
+
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_; //!< Weak pointer to the data manager.
-            std::map<AnalysisHashCode, std::set<std::string> > attributes_; //!< Set of attributes that compose the result of an analysis.
+            std::map<AnalysisHashCode, std::set<std::string> > attributesMap_; //!< Set of attributes that compose the result of an analysis.
             std::map<AnalysisHashCode, std::shared_ptr<te::dt::TimeInstantTZ> > analysisStartTime_; //!< Stores the analysis start time.
             std::map<AnalysisHashCode, std::map<std::string, std::map<std::string, double> > > analysisResult_; //!< Map with analysis result Analysis HashCocde -> GeomId -> Attribute -> Value.
             std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_; //!< Map containing all loaded datasets.
             std::map<AnalysisHashCode, AnalysisPtr> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
+            std::map<AnalysisHashCode, std::shared_ptr<te::rst::Raster> > outputRasterMap_; //!< Map containing all output raster for grid analysis.
             PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
             std::map<AnalysisHashCode, std::set<std::string> > analysisErrorsMap_; //!< Map containing analysis execution errors.
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.

@@ -40,6 +40,11 @@
 #include "../../../core/data-model/Filter.hpp"
 #include "dcp/Operator.hpp"
 #include "dcp/history/Operator.hpp"
+#include "grid/Operator.hpp"
+#include "grid/history/Operator.hpp"
+#include "grid/history/interval/Operator.hpp"
+#include "grid/forecast/Operator.hpp"
+#include "grid/forecast/interval/Operator.hpp"
 #include "occurrence/Operator.hpp"
 #include "occurrence/aggregation/Operator.hpp"
 
@@ -84,8 +89,8 @@ std::string terrama2::services::analysis::core::extractException()
   }
 }
 
-void terrama2::services::analysis::core::runScriptMonitoredObjectAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode,
-                                                                          std::vector<uint64_t> indexes)
+void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState* state, AnalysisHashCode analysisHashCode,
+                                                                  std::vector<uint64_t> indexes)
 {
   AnalysisPtr analysis = Context::getInstance().getAnalysis(analysisHashCode);
 
@@ -356,6 +361,21 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
 }
 
 
+void terrama2::services::analysis::core::registerGridFunctions()
+{
+  // map the dcp namespace to a sub-module
+  // make "from terrama2.dcp import <function>" work
+  object gridModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid"))));
+  // make "from terrama2 import dcp" work
+  scope().attr("grid") = gridModule;
+
+  // export functions inside grid namespace
+  def("sample", terrama2::services::analysis::core::grid::sample);
+
+
+
+}
+
 // Declaration needed for default parameter ids
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMin_overloads, terrama2::services::analysis::core::dcp::min, 3, 4);
 
@@ -378,8 +398,6 @@ void terrama2::services::analysis::core::registerDCPFunctions()
   object dcpModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp"))));
   // make "from terrama2 import dcp" work
   scope().attr("dcp") = dcpModule;
-  // set the current scope to the new sub-module
-  scope dcpScope = dcpModule;
   // export functions inside dcp namespace
   def("min", terrama2::services::analysis::core::dcp::min,
       dcpMin_overloads(args("dataSeriesName", "attribute", "buffer", "ids"), "Minimum operator for DCP"));
@@ -538,6 +556,7 @@ BOOST_PYTHON_MODULE (terrama2)
           .value("standard_deviation", terrama2::services::analysis::core::StatisticOperation::STANDARD_DEVIATION)
           .value("count", terrama2::services::analysis::core::StatisticOperation::COUNT);
 
+  terrama2::services::analysis::core::registerGridFunctions();
   terrama2::services::analysis::core::registerDCPFunctions();
   terrama2::services::analysis::core::registerOccurrenceFunctions();
 
@@ -564,7 +583,7 @@ void terrama2::services::analysis::core::finalizeInterpreter()
 {
   // shut down the interpreter
   PyEval_AcquireLock();
-  Py_Finalize();
+   Py_Finalize();
 }
 
 void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
@@ -582,6 +601,68 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
   PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
   cache.analysisHashCode = PyInt_AsLong(analysisPy);
 }
+
+void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> rows)
+{
+  AnalysisPtr analysis = Context::getInstance().getAnalysis(analysisHashCode);
+
+  auto outputRaster = Context::getInstance().getOutputRaster(analysisHashCode);
+  if(!outputRaster)
+  {
+    QString errMsg(QObject::tr("Invalid output raster."));
+    Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
+    return;
+  }
+
+  int nCols = outputRaster->getNumberOfColumns();
+
+// grab the global interpreter lock
+  PyEval_AcquireLock();
+
+  // swap in my thread state
+  PyThreadState_Swap(state);
+  PyThreadState_Clear(state);
+
+  for(uint64_t row : rows)
+  {
+    for(int col = 0; col < nCols; ++col)
+    {
+
+
+      // Adds the monitored object row and analysis hashcode to the python state
+      PyObject* rowValue = PyInt_FromLong(row);
+      PyObject* colValue = PyInt_FromLong(col);
+      PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
+
+      PyObject* poDict = PyDict_New();
+      PyDict_SetItemString(poDict, "row", rowValue);
+      PyDict_SetItemString(poDict, "col", colValue);
+      PyDict_SetItemString(poDict, "analysis", analysisValue);
+      state->dict = poDict;
+
+      try
+      {
+        object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
+        object main_namespace = main_module.attr("__dict__");
+
+        handle<> ignored((PyRun_String("from terrama2 import *", Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+        ignored = handle<>((PyRun_String(analysis->script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+
+      }
+      catch(error_already_set)
+      {
+        std::string errMsg = extractException();
+        Context::getInstance().addError(analysisHashCode, errMsg);
+      }
+    }
+  }
+
+
+  // release our hold on the global interpreter
+  PyEval_ReleaseLock();
+}
+
+
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
