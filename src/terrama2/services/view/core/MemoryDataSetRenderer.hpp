@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/MemoryDataSetRenderer.hpp
+  \file terrama2/services/view/core/MemoryDataSetRenderer.hpp
 
   \brief DataSet Renderer to deal with an dataSet in memory(without a dataSource).
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_SERVICES_MAPS_CORE_MEMORYDATASETRENDERER_HPP__
-#define __TERRAMA2_SERVICES_MAPS_CORE_MEMORYDATASETRENDERER_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_MEMORYDATASETRENDERER_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_MEMORYDATASETRENDERER_HPP__
 
 // TerraLib
 #include <terralib/se/FeatureTypeStyle.h>
@@ -297,4 +297,4 @@ namespace te
   }
 }
 
-#endif // __TERRAMA2_SERVICES_MAPS_CORE_MEMORYDATASETRENDERER_HPP__
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_MEMORYDATASETRENDERER_HPP__

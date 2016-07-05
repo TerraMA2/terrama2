@@ -20,15 +20,15 @@
 */
 
 /*!
-  \file terrama2/services/maps/core/MapStyle.hpp
+  \file terrama2/services/view/core/ViewStyle.hpp
 
-  \brief Maps style.
+  \brief View style.
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_MAPS_CORE_MAPSTYLE_HPP__
-#define __TERRAMA2_SERVICES_MAPS_CORE_MAPSTYLE_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEWTYLE_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_VIEWTYLE_HPP__
 
 // TerraLib
 #include <terralib/se.h>
@@ -41,7 +41,7 @@ namespace terrama2
 {
   namespace services
   {
-    namespace maps
+    namespace view
     {
       namespace core
       {
@@ -268,8 +268,8 @@ namespace terrama2
         }
 
       } // end namespace core
-    }   // end namespace maps
+    }   // end namespace view
   }     // end namespace services
 } // end namespace terrama2
 
-#endif // __TERRAMA2_SERVICES_MAPS_CORE_MAPSTYLE_HPP__
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_VIEWTYLE_HPP__
