@@ -92,9 +92,6 @@ namespace te
             continue;
           }
 
-          // Gets the rule filter
-          const te::fe::Filter* filter = rule->getFilter();
-
           if(dataSet_.get() == 0)
             throw Exception((boost::format(TE_TR("Could not retrieve the data set from the layer %1%.")) % layer->getTitle()).str());
 
