@@ -40,7 +40,8 @@ namespace te
   {
     class DataSetType;
   } /* da */
-  namespace mem {
+  namespace mem
+  {
     class DataSetItem;
   } /* mem */
 } /* te */
@@ -58,30 +59,44 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief Helper class to access Alert AdditionalData.
+
+          This class is used to add attributes and values to the output alertDataSet
+        */
         class AdditionalDataHelper
         {
           public:
+            /*!
+              \brief Contructor, stores AdditionalData and DataManagerPtr.
+
+              \warning Must call prepareData() after
+            */
             AdditionalDataHelper(AdditionalData additionalData, DataManagerPtr dataManager);
 
+            //! Default destructor
             ~AdditionalDataHelper() = default;
             AdditionalDataHelper(const AdditionalDataHelper& other) = default;
             AdditionalDataHelper(AdditionalDataHelper&& other) = default;
             AdditionalDataHelper& operator=(const AdditionalDataHelper& other) = default;
             AdditionalDataHelper& operator=(AdditionalDataHelper&& other) = default;
 
+            //! Access the data and initialize the additional data te::da::DataSet.
             bool prepareData(terrama2::core::Filter filter);
 
+            //! Add the additional attributes to the te::da::DataSetType of the alert output dataset.
             void addAdditionalAttributesColumns(std::shared_ptr<te::da::DataSetType> alertDataSetType) const;
+            //! Add the value of the additional attributes to the te::mem::DataSetItem of the alert output dataset.
             void addAdditionalValues(te::mem::DataSetItem* item, const std::string& fkValue) const;
 
           private:
-            bool isDataReady_ = false;
-            AdditionalData additionalData_;
-            terrama2::core::DataSeriesPtr dataSeries_;
-            terrama2::core::DataProviderPtr dataProvider_;
+            bool isDataReady_ = false;//!< Flag that mark as true if prepareData() was called and data was loaded.
+            AdditionalData additionalData_;//!< AdditionalData to be included in the Alert Report.
+            terrama2::core::DataSeriesPtr dataSeries_;//!< DataSeries of the AdditionalData
+            terrama2::core::DataProviderPtr dataProvider_;//!< DataProvider of the AdditionalData
 
-            std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> dataMap_;
-            std::unordered_map<terrama2::core::DataSetPtr, std::shared_ptr<terrama2::core::DataSetMapper> > mapperMap_;
+            std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> dataMap_;//!< DataSetSeries map of the AdditionalData
+            std::unordered_map<terrama2::core::DataSetPtr, std::shared_ptr<terrama2::core::DataSetMapper> > mapperMap_;//!< DataSetMapper map of the AdditionalData
         };
       }
     }

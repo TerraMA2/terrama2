@@ -40,24 +40,37 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Class to map a unique key of a te::da::DataSet
+
+      The DataSetMapper is a helper classe to access data indexed by a key attribute.
+    */
     class DataSetMapper
     {
       public:
+        //! Constructor, generates a key-line map
         DataSetMapper(std::shared_ptr<te::da::DataSet> dataSet, std::string pkProperty);
 
+        //! Default destructor
         ~DataSetMapper() = default;
         DataSetMapper(const DataSetMapper& other) = delete;
         DataSetMapper(DataSetMapper&& other) = delete;
         DataSetMapper& operator=(const DataSetMapper& other) = delete;
         DataSetMapper& operator=(DataSetMapper&& other) = delete;
 
+        /*!
+          \brief Return the value of an attribute where the unique key equals the key parameter.
+
+          \note Any te::dt::AbstractData can be converted to an string to be used as key.
+        */
         std::unique_ptr< te::dt::AbstractData > getValue(const std::string& key, const std::string& attribute) const;
 
       private:
+        //! Generates a key-line map
         std::unordered_map<std::string, size_t> generateStringPkToLineMap(std::shared_ptr<te::da::DataSet> dataSet, std::string pkProperty) const;
 
-        std::shared_ptr<te::da::DataSet> dataSet_;
-        std::unordered_map<std::string, size_t> lineMap_;
+        std::shared_ptr<te::da::DataSet> dataSet_;//!< Mapped dataset
+        std::unordered_map<std::string, size_t> lineMap_;//!< Key to line map
     };
   } /* core */
 } /* terrama2 */
