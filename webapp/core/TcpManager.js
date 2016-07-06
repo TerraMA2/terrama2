@@ -143,8 +143,6 @@ TcpManager.prototype.sendData = function(serviceInstance, data) {
     // getting client and writing in the channel
     var client = _getClient(serviceInstance);
 
-    self.initialize(client);
-
     client.send(buffer);
 
   } catch (e) {
@@ -167,8 +165,6 @@ TcpManager.prototype.removeData = function(serviceInstance, data) {
 
     // getting client and writing in the channel
     var client = _getClient(serviceInstance);
-
-    self.initialize(client);
 
     client.send(buffer);
 
@@ -200,8 +196,6 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
 
     var client = _getClient(serviceInstance);
 
-    self.initialize(client);
-
     // checking first attempt when there is no active socket (listing services)
     if (!client.isOpen()) {
       self.emit('error', client.service, new Error("There is no active connection"));
@@ -226,9 +220,7 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
 
     // checking server cache
     if (end <= array.length) {
-
       self.emit('logReceived', client.service, array.slice(begin, end));
-
       return;
     }
 
@@ -253,8 +245,6 @@ TcpManager.prototype.updateService = function(serviceInstance) {
 
     console.log(buffer.toString());
     var client = _getClient(serviceInstance);
-
-    self.initialize(client);
 
     client.update(buffer)
 
@@ -310,8 +300,6 @@ TcpManager.prototype.statusService = function(serviceInstance) {
       return;
     }
 
-    self.initialize(client);
-
     client.status(buffer);
 
   } catch (e) {
@@ -358,6 +346,20 @@ TcpManager.prototype.stopService = function(serviceInstance) {
     this.emit("error", e);
   }
 
+};
+
+TcpManager.prototype.registerListeners = function (serviceInstance) {
+  var self = this;
+  if (serviceInstance) {
+    var client = _getClient(serviceInstance);
+
+    self.initialize(client);
+    return;
+  }
+
+  Object.keys(clients).forEach(function(key) {
+    self.initialize(client);
+  })
 };
 
 TcpManager.prototype.initialize = function(client) {
@@ -434,6 +436,8 @@ TcpManager.prototype.initialize = function(client) {
     client.removeListener('stop', onStop);
     client.removeListener('close', onClose);
     client.removeListener('error', onError);
+
+    self.registered = false;
   })
 };
 

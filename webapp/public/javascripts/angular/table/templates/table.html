@@ -32,6 +32,28 @@
 
   <div class="col-md-2 terrama2-nopadding-box" ng-show="linkToAdd">
     <div class="form-group">
+      <button ng-show="extra.service && extra.service.hasServiceOffline()"
+              class="btn btn-primary"
+              ng-disabled="extra.service.starting"
+              ng-click="extra.service.startAll()"
+              style="margin-top: 24px;"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="{{ i18n.__('Start all services') }}">
+              <i class="fa fa-magic" style="margin-right: 5px;"></i>
+              {{ i18n.__('Start all') }}
+      </button>
+      <button ng-show="extra.service && !extra.service.hasServiceOffline()"
+              class="btn btn-danger"
+              ng-disabled="extra.service.stoping"
+              ng-click="extra.service.stopAll()"
+              style="margin-top: 24px;"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="{{ i18n.__('Stop all services') }}">
+              <i class="fa fa-power-off" style="margin-right: 5px;"></i>
+              {{ i18n.__('Stop all') }}
+      </button>
       <a ng-href="{{ linkToAdd }}" class="btn btn-default pull-right" style="margin-top: 24px;"><i class="fa fa-plus"></i></a>
     </div>
   </div>
@@ -45,6 +67,7 @@
         <td ng-show="isFunction(icon()) && model.length > 0"></td>
         <td ng-repeat="field in displayFields">{{ field }}</td>
         <td ng-if="extra.service">Status</td>
+        <td ng-if="isFunction(remove)">
       </tr>
       <tr ng-repeat="element in model | filter:searchInput track by $index">
         <td ng-show="isFunction(icon())" style="width: 50px;">

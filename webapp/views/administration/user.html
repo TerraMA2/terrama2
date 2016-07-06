@@ -2,6 +2,8 @@
 
 {% set tabActive = "users" %}
 
+{% block ngApp %}ng-app="terrama2.user.registration"{% endblock %}
+
 {% block title %}
 
 {% if user !== undefined %}
@@ -33,11 +35,11 @@
         });
     });
 </script>
-
 <script src="/externals/angular/angular.min.js"></script>
+<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
 <script type="text/javascript">
-  angular.module("terrama2.user.registration", [])
+  angular.module("terrama2.user.registration", ['terrama2'])
     .controller("UserRegistration", function($scope, $http) {
       $scope.isSubmiting = false;
       $scope.errorFound = "";
@@ -46,12 +48,18 @@
       $scope.user.version = 4;
 
       $scope.save = function() {
-        if (!$scope.form.$valid) {
-          angular.forEach($scope.form.$error, function (field) {
+        var form = angular.element('form[name="form"]').scope()['form'];
+        if (!form.$valid) {
+          angular.forEach(form.$error, function (field) {
             angular.forEach(field, function(errorField){
-              errorField.$setTouched();
+              errorField.$setDirty();
             })
           });
+          return;
+        }
+
+        if ($scope.user.password !== $scope.user.passwordConfirm) {
+          form.passwordConfirm.$invalid = true;
           return;
         }
 
@@ -61,14 +69,13 @@
           url: "{[ url ]}",
           data: $scope.user
         }).success(function(user) {
-//          alert("User saved");
           $scope.errorFound = "";
           window.location = "/administration/users?token=" + user.token;
         }).error(function(err) {
           alert(err.message);
           $scope.errorFound = err.message;
           console.log(err);
-          $scope.form.name.$invalid = true;
+          form.name.$invalid = true;
         }).finally(function(){
           $scope.isSubmiting = false;
         });
@@ -80,97 +87,103 @@
 
 {% block content %}
 
-<div class="col-md-12" ng-app="terrama2.user.registration">
-  <div class="col-md-12" ng-controller="UserRegistration">
-      <div class="box box-default">
-          <div class="box-header with-border">
-              {% if user !== undefined %}
-                <h3 class="box-title">{[ __('User Update') ]}</h3>
-              {% else %}
-                <h3 class="box-title">{[ __('User Registration') ]}</h3>
-              {% endif %}
-          </div>
-          <!-- /.box-header -->
-          <div style="display: block;" class="box-body">
-              <div class="col-md-12">
-                  <div class="box box-default box-solid">
-                      <div class="box-header with-border">
-                          <h3 class="box-title">{[ __('General Data') ]}</h3>
-                          <div class="box-tools pull-right">
-                              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                              </button>
-                          </div>
-                      </div>
-                      <!-- /.box-header -->
-                      <div style="display: block;" class="box-body">
-                          <div class="row">
-                            <form name="form">
-
-                              <div class="col-md-12">
-                                  <div class="form-group">
-                                      <label>{[ __("Name") ]}:</label>
-                                      <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{[ __('User Name') ]}" type="text" value="{[ user.name ]}">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-4">
-                                  <div class="form-group">
-                                      <label>{[ __("Username") ]}:</label>
-                                      <input class="form-control" name="username" ng-model="user.username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-4">
-                                  <div class="form-group">
-                                      <label>{[ __("Password") ]}:</label>
-                                      <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{[ __('User Password credential') ]}" type="password">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-4">
-                                  <div class="form-group">
-                                      <label>{[ __("Confirm Password") ]}:</label>
-                                      <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{[ __('Confirm password') ]}" type="password">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <label>{[ __("Cell phone") ]}:</label>
-                                      <input class="form-control" runat="server" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{[ __('User cell phone number') ]}" type="tel" value="{[ user.cellphone ]}">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <label>{[ __("E-mail") ]}:</label>
-                                      <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{[ __('User e-mail') ]}" type="email" value="{[ user.email ]}">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <label>{[ __("Administrator") ]}:</label>
-                                      <input name="administrator" ng-model="user.administrator" id="administrator" type="checkbox"{% if user.administrator %} checked{% endif %}>
-                                  </div>
-                              </div>
-                            </form>
-                          </div>
-                          <!-- /.row -->
-                      </div>
-                      <!-- /.box body -->
+<div ng-controller="UserRegistration">
+  <terrama2-box title="'{% if user !== undefined %}{[ __('User Update') ]}{% else %}{[ __('User Registration') ]}{% endif %}'">
+    <div class="row">
+      <div class="col-md-12">
+          <div class="box box-default box-solid">
+              <div class="box-header with-border">
+                  <h3 class="box-title">{[ __('General Data') ]}</h3>
+                  <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                      </button>
                   </div>
               </div>
+              <!-- /.box-header -->
+              <div style="display: block;" class="box-body">
+                  <div class="row">
+                    <form name="form">
 
-          </div>
-          <!-- /.box body -->
+                      <div class="col-md-12">
+                          <div class="form-group"
+                               ng-class="{'has-error': form.name.$dirty && form.name.$invalid, 'has-success': form.name.$dirty && form.name.$valid}">
+                              <label>{[ __("Name") ]}:</label>
+                              <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{[ __('User Name') ]}" type="text" value="{[ user.name ]}" required>
 
-          <div class="box-footer">
-              <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __('OK') ]}</button>
-              <a href="/administration/users" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
+                              <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$invalid">{[ __('Name is required') ]}</span>
+                          </div>
+                      </div>
+
+                      <div class="col-md-4">
+                          <div class="form-group"
+                               ng-class="{'has-error': form.username.$dirty && form.username.$invalid, 'has-success': form.username.$dirty && form.username.$valid}">
+                              <label>{[ __("Username") ]}:</label>
+                              <input class="form-control" name="username" ng-model="user.username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}" required>
+
+                              <span class="help-block has-error" ng-show="form.username.$dirty && form.username.$invalid">{[ __('Username is required') ]}</span>
+                          </div>
+                      </div>
+
+                      <div class="col-md-4">
+                          <div class="form-group"
+                               ng-class="{'has-error': form.password.$dirty && form.password.$invalid, 'has-success': form.password.$dirty && form.password.$valid}">
+                              <label>{[ __("Password") ]}:</label>
+                              <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{[ __('User Password credential') ]}" type="password" required>
+
+                              <span class="help-block has-error" ng-show="form.password.$dirty && form.password.$invalid">{[ __('Password is required') ]}</span>
+                          </div>
+                      </div>
+
+                      <div class="col-md-4">
+                          <div class="form-group"
+                               ng-class="{'has-error': form.passwordConfirm.$dirty && form.passwordConfirm.$invalid, 'has-success': form.passwordConfirm.$dirty && form.passwordConfirm.$valid}">
+                              <label>{[ __("Confirm Password") ]}:</label>
+                              <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{[ __('Confirm password') ]}" type="password" terrama2-compare-to="user.password" required>
+
+                              <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.required">{[ __('Confirm password is required') ]}</span>
+                              <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{[ __('Confirm password must be same password') ]}</span>
+                          </div>
+                      </div>
+
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              <label>{[ __("Cell phone") ]}:</label>
+                              <input class="form-control" runat="server" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{[ __('User cell phone number') ]}" type="tel" value="{[ user.cellphone ]}">
+                          </div>
+                      </div>
+
+                      <div class="col-md-6">
+                          <div class="form-group"
+                               ng-class="{'has-error': form.email.$dirty && form.email.$invalid, 'has-success': form.email.$dirty && form.email.$valid}">
+                              <label>{[ __("E-mail") ]}:</label>
+                              <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{[ __('User e-mail') ]}" type="email" value="{[ user.email ]}" required>
+                              <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{[ __('Email is required') ]}</span>
+                          </div>
+                      </div>
+
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              <label>{[ __("Administrator") ]}:</label>
+                              <input name="administrator" ng-model="user.administrator" id="administrator" type="checkbox"{% if user.administrator %} checked{% endif %}>
+                          </div>
+                      </div>
+                    </form>
+                  </div>
+                  <!-- /.row -->
+              </div>
+              <!-- /.box body -->
           </div>
+          <!-- ./box -->
       </div>
-  </div>
+      <!-- ./col-md-12 -->
+    </div>
+    <!-- ./row -->
+
+    <div class="box-footer">
+        <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __('OK') ]}</button>
+        <a href="/administration/users" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
+    </div>
+  </terrama2-box>
 </div>
 
 {% endblock %}

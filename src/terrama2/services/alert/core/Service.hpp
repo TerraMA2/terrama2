@@ -33,8 +33,8 @@
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Typedef.hpp"
 #include "../../../core/Shared.hpp"
-#include "../Shared.hpp"
-#include "../Typedef.hpp"
+#include "Shared.hpp"
+#include "Typedef.hpp"
 #include "DataManager.hpp"
 #include "AlertLogger.hpp"
 

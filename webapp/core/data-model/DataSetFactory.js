@@ -1,6 +1,7 @@
 var DataSetError = require('./../Exceptions').DataSetError;
 var DataSetDcp = require('./DataSetDcp');
 var DataSetOccurrence = require('./DataSetOccurrence');
+var DataSetGrid = require('./DataSetGrid');
 var DataSetMonitored = require('./DataSetMonitored');
 var DataSet = require("./DataSet");
 
@@ -23,7 +24,7 @@ function build(params) {
   if (params.hasOwnProperty('id') && params.id > 0) {
     return new DataSetOccurrence(params);
   }
-  
+
   throw new DataSetError("Invalid data set specified");
 }
 

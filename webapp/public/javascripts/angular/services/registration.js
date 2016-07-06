@@ -5,6 +5,11 @@ angular.module('terrama2.administration.services.registration',
   function($scope, $window, ServiceInstanceFactory, Socket, i18n) {
     var socket = Socket;
 
+    // setting defaults
+    $scope.boxCss = {
+      'boxType': 'box-solid'
+    }
+
     $scope.isCheckingConnection = false;
     $scope.services = [];
     $scope.i18n = i18n;
@@ -192,19 +197,12 @@ angular.module('terrama2.administration.services.registration',
       $scope._save();
     });
 
-    $scope.save = function() {
-      if ($scope.serviceForm.$invalid || $scope.logForm.$invalid) {
-        angular.forEach($scope.serviceForm.$error, function (field) {
-          angular.forEach(field, function(errorField){
-            errorField.$setDirty();
-          })
-        });
+    $scope.save = function(serviceForm, logForm) {
+      $scope.$broadcast('formFieldValidation');
 
-        angular.forEach($scope.logForm.$error, function (field) {
-          angular.forEach(field, function(errorField){
-            errorField.$setDirty();
-          })
-        });
+      var serviceForm = angular.element('form[name="serviceForm"]').scope()['serviceForm'];
+      var logForm = angular.element('form[name="logForm"]').scope()['logForm'];
+      if (serviceForm.$invalid || logForm.$invalid) {
         return;
       }
 

@@ -32,7 +32,7 @@
 
 #include "../../../core/Shared.hpp"
 #include "../../../core/data-model/DataSeriesRisk.hpp"
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 #include "AlertLogger.hpp"
 #include "DataManager.hpp"
 
@@ -60,8 +60,9 @@ namespace terrama2
                       std::shared_ptr< AlertLogger > logger,
                       std::weak_ptr<DataManager> weakDataManager);
 
+        //! Get the name of the property used as unique key of the DataSet
         std::string getIdentifierPropertyName(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries);
-
+        //! Get the propper function to evaluate the risk level of a value.
         std::function<std::tuple<int, std::string>(size_t pos)> createGetRiskFunction(terrama2::core::DataSeriesRisk risk, std::shared_ptr<te::da::DataSet> teDataSet);
       } /* core */
     } /* alert */

@@ -356,9 +356,13 @@ module.exports = {
   sendDataToServices: function(DataManager, TcpManager, data) {
     DataManager.listServiceInstances().then(function(services) {
       services.forEach(function(service) {
-        TcpManager.emit('sendData', service, data);
-      })
-    })
-    TcpManager.emit('removeListeners');
+        try {
+          TcpManager.emit('sendData', service, data);
+        } catch (e) {
+          console.log(e);
+        }
+      });
+      TcpManager.emit('removeListeners');
+    });
   }
 };
