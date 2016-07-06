@@ -59,17 +59,24 @@ namespace terrama2
         struct View
         {
           ViewId id = 0;//!< View unique identification.
-          ProjectId projectId = 0;//!< Identification of the project owner of the map.
-          ServiceInstanceId serviceInstanceId = 0;//!< View service instace where the map should be executed.
+          ProjectId projectId = 0;//!< Identification of the project owner of the view.
+          ServiceInstanceId serviceInstanceId = 0;//!< View service instace where the view should be executed.
 
-          bool active = true;//!< Flag if the map is active.
+          bool active = true;//!< Flag if the view is active.
 
-          DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
-          DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
+          std::vector<uint32_t> dataSetSeriesList; //!< List of DataSetSeries that compose this view
 
-          std::map<DataSetId, DataSetId> inputOutputMap;//!< View of source DataSet to destiny DataSet.
-          terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the map.
+//          DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
+//          DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
+
+//          std::map<DataSetId, DataSetId> inputOutputMap;//!< View of source DataSet to destiny DataSet.
+          terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
+
+          uint32_t resolutionWidth; //!< Width resolution of view
+          uint32_t resolutionHeight; //!< Height resolution of view
+
+          // VINICIUS: add styles
         };
 
         void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);

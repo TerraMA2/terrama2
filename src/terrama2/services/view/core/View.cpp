@@ -63,6 +63,9 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
   try
   {
+    // query json view
+    // load all dataseries that compose view and add to a list
+    // call drawSeriesList
 
   }
   catch(const terrama2::Exception&)
@@ -85,7 +88,6 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
 }
-
 
 
 void terrama2::services::view::core::drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList)
