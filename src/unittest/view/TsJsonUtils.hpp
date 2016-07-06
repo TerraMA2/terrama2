@@ -20,46 +20,26 @@
 */
 
 /*!
-  \file unittest/core/TsLogger.cpp
+  \file unittest/view/TsJsonUtils.hpp
 
-  \brief Tests for Core Logger class
+  \brief Tests for View JsonUtils class
 
   \author Vinicius Campanha
 */
 
 //TerraMA2
-#include <terrama2/core/Typedef.hpp>
-#include <terrama2/core/utility/TimeUtils.hpp>
-#include <terrama2/Exception.hpp>
-
-#include "TsLogger.hpp"
-#include "TestLogger.hpp"
 
 
+//QT
+#include <QtTest/QTest>
 
-void TsLogger::testProcessLogger()
+
+class TsJsonUtils : public QObject
 {
-  try
-  {
-  TestLogger log;
+  Q_OBJECT
 
-  RegisterId registerID = log.start(1);
+public:
 
-  log.logValue("tag1", "value1", registerID);
-  log.logValue("tag2", "value2", registerID);
-  log.logValue("tag1", "value3", registerID);
-  log.logValue("tag2", "value4", registerID);
-  log.error("Unit Test Error", registerID);
-  log.error("Unit Test second Error", registerID);
-  log.info("Unit Test Info", registerID);
-  log.info("Unit Test seconde Info", registerID);
 
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
 
-  log.done(dataTime, registerID);
-  }
-  catch(terrama2::Exception& e)
-  {
-    QFAIL(e.what());
-  }
-}
+};
