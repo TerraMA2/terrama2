@@ -288,6 +288,7 @@ std::shared_ptr< te::map::MemoryDataSetLayer > CreateGeometryLayer(std::shared_p
   {
     std::cout << std::endl << "An unexpected exception has occurred in DrawLayer example!" << std::endl;
   }
+  return std::shared_ptr< te::map::MemoryDataSetLayer >();
 }
 
 std::shared_ptr<te::map::MemoryDataSetLayer> CreateRasterLayer(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> teDataSetType)
@@ -324,6 +325,8 @@ std::shared_ptr<te::map::MemoryDataSetLayer> CreateRasterLayer(std::shared_ptr<t
   {
     std::cout << std::endl << "An unexpected exception has occurred in Styling example!" << std::endl;
   }
+
+  return std::shared_ptr<te::map::MemoryDataSetLayer>();
 }
 
 void Draw(std::shared_ptr<te::map::MemoryDataSetLayer> RasterLayer, std::shared_ptr<te::map::MemoryDataSetLayer> GeometryLayer)
@@ -440,7 +443,7 @@ int main(int argc, char** argv)
       seriesList.push_back(seriesRaster);
       seriesList.push_back(seriesGeometry);
 
-      terrama2::services::view::core::drawSeriesList(seriesList);
+      terrama2::services::view::core::drawSeriesList(seriesList, 800, 600);
 
     }
   }
