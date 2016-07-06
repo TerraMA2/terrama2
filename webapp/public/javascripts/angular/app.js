@@ -91,6 +91,25 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
   }
 ]);
 
+terrama2Application.directive('terrama2CompareTo', function() {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    scope: {
+      compare: '=terrama2CompareTo'
+    },
+    link: function(scope, element, attrs, ngModel) {
+      ngModel.$validators.compareTo = function(modelValue) {
+        return modelValue == scope.compare;
+      };
+
+      scope.$watch("compare", function() {
+        ngModel.$validate();
+      });
+    }
+  }
+})
+
 terrama2Application.directive('terrama2Box', function() {
   return {
     restrict: 'E',
@@ -111,11 +130,6 @@ terrama2Application.directive('terrama2Box', function() {
     },
     link: function(scope, element, attrs, ctrl) {
       console.log(attrs);
-
-      // $scope.$watch('extra.collapsed', function(value) {
-      //   if (value !== null && value !== undefined)
-      //     $scope.collapsed = value;
-      // });
     }
   }
 });
