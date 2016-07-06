@@ -29,4 +29,72 @@
 
 //TerraMA2
 #include "TsJsonUtils.hpp"
+
 #include <terrama2/services/view/core/JSonUtils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
+
+
+void TsJsonUtils::testGoNBackJSon()
+{
+  try
+  {
+    terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
+    terrama2::services::view::core::ViewPtr viewPtr(view);
+
+    view->id = 1;
+    view->projectId = 1;
+    view->serviceInstanceId = 1;
+    view->active = true;
+    view->resolutionWidth = 800;
+    view->resolutionHeight = 600;
+
+    terrama2::core::Schedule schedule;
+    schedule.id = 1;
+    schedule.frequency = 2;
+    schedule.frequencyUnit = "min";
+
+    view->schedule = schedule;
+
+    terrama2::core::Filter filter;
+    filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:39:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
+    filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:45:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
+
+    view->filter = filter;
+
+    view->dataSetSeriesList.push_back(1);
+    view->dataSetSeriesList.push_back(2);
+    view->dataSetSeriesList.push_back(3);
+    view->dataSetSeriesList.push_back(4);
+
+    QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
+
+    terrama2::services::view::core::ViewPtr viewBackPtr = terrama2::services::view::core::fromViewJson(obj);
+
+    QCOMPARE(viewBackPtr->id, viewPtr->id);
+    QCOMPARE(viewBackPtr->projectId, viewPtr->projectId);
+    QCOMPARE(viewBackPtr->serviceInstanceId, viewPtr->serviceInstanceId);
+    QCOMPARE(viewBackPtr->active, viewPtr->active);
+    QCOMPARE(viewBackPtr->resolutionWidth, viewPtr->resolutionWidth);
+    QCOMPARE(viewBackPtr->resolutionHeight, viewPtr->resolutionHeight);
+
+    QCOMPARE(viewBackPtr->schedule.id, viewPtr->schedule.id);
+    QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);
+    QCOMPARE(viewBackPtr->schedule.frequencyUnit, viewPtr->schedule.frequencyUnit);
+
+    // TODO: enable tests when filter to JSon in utils is implemented
+//    QCOMPARE(viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
+//    QCOMPARE(viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
+
+    QCOMPARE(viewBackPtr->dataSetSeriesList.size(), viewPtr->dataSetSeriesList.size());
+
+    for(int i = 0; i < viewPtr->dataSetSeriesList.size(); i++)
+    {
+      QCOMPARE(viewBackPtr->dataSetSeriesList[i], viewPtr->dataSetSeriesList[i]);
+    }
+
+  }
+  catch(...)
+  {
+    QFAIL("Unknow exception!");
+  }
+}
