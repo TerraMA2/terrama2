@@ -110,6 +110,34 @@ terrama2Application.directive('terrama2CompareTo', function() {
   }
 })
 
+terrama2Application.directive('terrama2ShowErrors', function() {
+  return {
+    restrict: 'A',
+    require: '^form',
+    link: function(scope, el, attrs, formCtrl) {
+      // find the text box element, which has the 'name' attribute
+      var inputEl   = el[0].querySelector("[name]");
+      // convert the native text box element to an angular element
+      var inputNgEl = angular.element(inputEl);
+      // get the name on the text box so we know the property to check
+      // on the form controller
+      var inputName = inputNgEl.attr('name');
+
+      // only apply the has-error class after the user leaves the text box
+      inputNgEl.bind('blur', function() {
+        el.toggleClass('has-success', formCtrl[inputName].$valid);
+        el.toggleClass('has-error', formCtrl[inputName].$invalid);
+      });
+
+      scope.$on('formFieldValidation', function() {
+        var target = formCtrl[inputName];
+        el.toggleClass('has-error', target.$invalid);
+        target.$setDirty();
+      });
+    }
+  }
+})
+
 terrama2Application.directive('terrama2Box', function() {
   return {
     restrict: 'E',
@@ -128,7 +156,15 @@ terrama2Application.directive('terrama2Box', function() {
       if ($scope.css.boxType)
         $scope.boxType = $scope.css.boxType;
     },
-    link: function(scope, element, attrs, ctrl) {
+    link: function(scope, element, attrs, ctrl, transclude) {
+      // create new child scope, then append the controller functions
+      var self = scope.$parent.$new();
+
+      // element.find('#targetTransclude').append(transclude(self, function(clone, scope) {
+			// 	element.append(clone);
+			// });
+      element.find('#targetTransclude').append(transclude(self));
+
       console.log(attrs);
     }
   }
@@ -138,14 +174,17 @@ terrama2Application.directive('terrama2BoxFooter', function() {
   return {
     // require: '^terrama2Box',
     transclude: true,
-    template: '<div class="box-footer" ng-transclude></div>',
+    template: '<div class="box-footer"></div>',
     scope: {
       onSubmit: '&'
     },
     link: function(scope, element, attrs, ctrl, transclude) {
-      scope.submit = function() {
-        scope.onSubmit();
-      }
+      // create new child scope, then append the controller functions
+      var self = scope.$parent.$new();
+
+      transclude(self, function(clone, scope) {
+        element.append(clone);
+      });
     }
   }
 })

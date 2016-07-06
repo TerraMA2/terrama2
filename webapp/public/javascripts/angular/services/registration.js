@@ -198,20 +198,11 @@ angular.module('terrama2.administration.services.registration',
     });
 
     $scope.save = function(serviceForm, logForm) {
+      $scope.$broadcast('formFieldValidation');
+
       var serviceForm = angular.element('form[name="serviceForm"]').scope()['serviceForm'];
       var logForm = angular.element('form[name="logForm"]').scope()['logForm'];
       if (serviceForm.$invalid || logForm.$invalid) {
-        angular.forEach(serviceForm.$error, function (field) {
-          angular.forEach(field, function(errorField){
-            errorField.$setDirty();
-          })
-        });
-
-        angular.forEach(logForm.$error, function (field) {
-          angular.forEach(field, function(errorField){
-            errorField.$setDirty();
-          })
-        });
         return;
       }
 

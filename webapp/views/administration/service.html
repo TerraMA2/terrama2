@@ -109,7 +109,7 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="col-md-8">
-                    <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.name.$dirty && serviceForm.name.$invalid, 'has-success': serviceForm.name.$dirty && serviceForm.name.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Name") ]}:</label>
                       <input class="form-control" name="name" ng-model="service.name" placeholder="{[ __('Service  Name') ]}" type="text" required>
 
@@ -120,7 +120,7 @@
                   </div>
                   <!-- /.col -->
                   <div class="col-md-4">
-                    <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.type.$dirty && serviceForm.type.$invalid, 'has-success': serviceForm.type.$dirty && serviceForm.type.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Type") ]}:</label>
                       <select class="form-control" name="type" ng-disabled="update" ng-model="service.service_type_id" required>
                         <option value="1">Collector</option>
@@ -163,7 +163,7 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="col-md-6">
-                    <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.host.$dirty && serviceForm.host.$invalid, 'has-success': serviceForm.host.$dirty && serviceForm.host.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Address") ]}:</label>
                       <input class="form-control" name="host" ng-disabled="update" ng-model="service.host" placeholder="{[ __('Ssh Hostname') ]}" type="text" required>
 
@@ -174,7 +174,7 @@
                   </div>
 
                   <div class="col-md-6">
-                    <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.sshPort.$dirty && serviceForm.sshPort.$invalid, 'has-success': serviceForm.sshPort.$dirty && serviceForm.sshPort.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Port") ]}:</label>
                       <input class="form-control" name="sshPort" ng-disabled="update" ng-model="service.sshPort" placeholder="{[ __('Ssh Port') ]}" type="number" min="1" max="65535" required>
                       <span class="form-control-feedback glyphicon" ng-show="serviceForm.sshPort.$dirty" ng-class="{'glyphicon-ok': serviceForm.sshPort.$valid, 'glyphicon-remove': serviceForm.sshPort.$invalid }"></span>
@@ -191,7 +191,7 @@
 
                 <div class="col-md-12">
                   <div class="col-md-12">
-                    <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.path.$dirty && serviceForm.path.$invalid, 'has-success': serviceForm.path.$dirty && serviceForm.path.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Service Executable Path") ]}:</label>
                       <input class="form-control" name="path" ng-disabled="update" ng-model="service.pathToBinary" placeholder="{[ __('Script path to run') ]}" type="text" required>
 
@@ -204,7 +204,7 @@
 
                 <div class="col-md-12">
                   <div class="col-md-6">
-                    <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.user.$dirty && serviceForm.user.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("User") ]}:</label>
                       <input class="form-control" name="user" ng-disabled="update" ng-model="service.sshUser" placeholder="{[ __('Ssh username') ]}" type="text" required>
 
@@ -215,7 +215,7 @@
                   </div>
 
                   <div class="col-md-6">
-                    <div class="form-group has-feedback" ng-class="{'has-error': serviceForm.port.$dirty && serviceForm.port.$invalid, 'has-success': serviceForm.port.$dirty && serviceForm.port.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Service Port") ]}:</label>
                       <input class="form-control" name="port" ng-model="service.port" placeholder="{[ __('Service Port') ]}" type="number" min="1" max="65535" service-validation required>
 
@@ -235,8 +235,7 @@
 
                 <div class="col-md-12">
                   <div class="col-md-6">
-                    <div class="form-group has-feedback"
-                      ng-class="{'has-error': serviceForm.numberOfThreads.$dirty && serviceForm.numberOfThreads.$invalid, 'has-success': serviceForm.user.$dirty && serviceForm.user.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Number of Threads") ]}:</label>
                       <input class="form-control"
                              data-toggle="tooltip"
@@ -282,7 +281,7 @@
               <form name="logForm">
                 <div class="col-md-12">
                   <div class="col-md-6">
-                    <div class="form-group has-feedback" ng-class="{'has-error': logForm.host.$dirty && logForm.host.$invalid, 'has-success': logForm.host.$dirty && logForm.host.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Host") ]}:</label>
                       <input class="form-control" name="host" ng-disabled="update" ng-model="log.host" placeholder="{[ __('Log hostname') ]}" type="text" required>
 
@@ -293,7 +292,7 @@
                   </div>
 
                   <div class="col-md-6">
-                    <div class="form-group has-feedback" ng-class="{'has-error': logForm.port.$dirty && logForm.port.$invalid, 'has-success': logForm.port.$dirty && logForm.port.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Port") ]}:</label>
                       <input class="form-control" name="port" ng-disabled="update" ng-model="log.port" placeholder="{[ __('Log port number') ]}" type="number" min="1" max="65535" required>
 
@@ -309,7 +308,7 @@
 
                 <div class="col-md-12">
                   <div class="col-md-6">
-                    <div class="form-group has-feedback" ng-class="{'has-error': logForm.user.$dirty && logForm.user.$invalid, 'has-success': logForm.user.$dirty && logForm.user.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("User") ]}:</label>
                       <input class="form-control" name="user" ng-disabled="update" ng-model="log.user" placeholder="{[ __('Log username') ]}" type="text" required>
 
@@ -320,7 +319,7 @@
                   </div>
 
                   <div class="col-md-6">
-                    <div class="form-group has-feedback" ng-class="{'has-error': logForm.password.$dirty && logForm.password.$invalid, 'has-success': logForm.password.$dirty && logForm.password.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Password") ]}:</label>
                       <input class="form-control" name="password" ng-disabled="update" ng-model="log.password" placeholder="{[ __('Log password') ]}" type="password">
 
@@ -331,7 +330,7 @@
 
                 <div class="col-md-12">
                   <div class="col-md-12">
-                    <div class="form-group has-feedback" ng-class="{'has-error': logForm.database.$dirty && logForm.database.$invalid, 'has-success': logForm.database.$dirty && logForm.database.$valid}">
+                    <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Database Name") ]}:</label>
 
                       <input class="form-control"
