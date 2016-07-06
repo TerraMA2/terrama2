@@ -132,6 +132,7 @@ terrama2Application.directive('terrama2ShowErrors', function() {
       scope.$on('formFieldValidation', function() {
         var target = formCtrl[inputName];
         el.toggleClass('has-error', target.$invalid);
+        el.toggleClass('has-success', target.$valid);
         target.$setDirty();
       });
     }
