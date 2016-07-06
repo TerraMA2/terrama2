@@ -181,7 +181,7 @@ namespace te
         }
         else if(layer->getSRID() != srid)
         {
-          throw Exception(TE_TR("The layer or map don't have a valid SRID!"));
+          throw Exception(TE_TR("The layer or view don't have a valid SRID!"));
         }
 
         if(!reprojectedBBOX.intersects(layer->getExtent()))
