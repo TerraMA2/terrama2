@@ -114,6 +114,15 @@ angular.module("terrama2.services", ['terrama2'])
             }
           });
         })
+      },
+
+      once: function(eventName, callback) {
+        socket.once(eventName, function() {
+          var args = arguments;
+          $rootScope.$apply(function() {
+            callback.apply(socket, args);
+          })
+        })
       }
     }
   });

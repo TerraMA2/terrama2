@@ -2,11 +2,9 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
-
-<style type="text/css">
-
-</style>
 {% endblock %}
+
+{% block ngApp %} ng-app="terrama2.projects" {% endblock %}
 
 {% block title %} TerraMA² {[ __('Projects') ]} {% endblock %}
 
@@ -76,14 +74,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-md-12" ng-app="terrama2.projects">
-  <div class="box box-default" ng-controller="ProjectController">
-    <div class="box-header with-border">
-      <h3 class="box-title">{[ __('Projects') ]}</h3>
-    </div>
-    <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
-
+<div ng-controller="ProjectController">
+  <terrama2-box title="'{[ __('Projects') ]}'">
+    <div class="row">
       <div class="col-md-12">
 
         <div class="col-md-12">
@@ -92,14 +85,14 @@
 
         <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'project'" remove="remove(object)" extra="extra"></terrama2-table>
       </div>
-
+      <!-- ./col-md-12 -->
     </div>
-    <!-- /.box body -->
+    <!-- ./row -->
 
     <div class="overlay" ng-show="loading">
       <i class="fa fa-refresh fa-spin"></i>
     </div>
-  </div>
-</div> <!-- end col md 12 -->
+  </terrama2-box>
+</div>
 
 {% endblock %}
