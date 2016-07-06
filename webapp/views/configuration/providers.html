@@ -6,6 +6,8 @@
 
 {% block title %} TerraMA² {[ __('Data Providers') ]}{% endblock %}
 
+{% block ngApp %} ng-app="terrama2.providers" {% endblock %}
+
 {% block javascripts %}
 
 <script src="/externals/angular/angular.min.js"></script>
@@ -70,14 +72,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-md-12" ng-app="terrama2.providers">
-  <div class="box box-default" ng-controller="DataProviderController">
-    <div class="box-header with-border">
-      <h3 class="box-title">{[ __('Data Providers') ]}</h3>
-    </div>
-    <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
-
+<div ng-controller="DataProviderController">
+  <terrama2-box title="'{[ __('Data Providers') ]}'">
+    <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
           <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
@@ -85,14 +82,12 @@
 
         <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" context="'data provider'" remove="remove(object);" extra="extra"></terrama2-table>
       </div>
-
     </div>
-    <!-- /.box body -->
 
     <div class="overlay" ng-show="loading">
       <i class="fa fa-refresh fa-spin"></i>
     </div>
-  </div>
+  </terrama2-box>
 </div> <!-- end col md 12 -->
 
 {% endblock %}

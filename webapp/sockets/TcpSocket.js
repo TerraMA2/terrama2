@@ -46,14 +46,17 @@ var TcpSocket = function(io) {
       }, 2000);
     };
 
-    var onStatusReceivedData = function(service, response) {
+    var onStatusReceivedData = function(service, response){
       var flagObject = dataSentFlags[service.id];
       if (flagObject && !flagObject.isDataSent) {
+        console.log("sendind data");
         Utils.prepareAddSignalMessage(DataManager).then(function(data) {
           TcpManager.emit('sendData', service, data);
         });
 
         flagObject.isDataSent = true;
+      } else {
+        console.log("not sending");
       }
     };
 
@@ -100,6 +103,13 @@ var TcpSocket = function(io) {
     };
 
     var dataSentFlags = {};
+
+    // register listeners
+    DataManager.listServiceInstances().then(function(instances) {
+      instances.forEach(function(instance) {
+        TcpManager.registerListeners(instance);
+      })
+    });
 
     // tcp listeners
     TcpManager.on('serviceStarted', onServiceStarted);

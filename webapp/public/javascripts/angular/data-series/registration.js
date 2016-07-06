@@ -19,31 +19,21 @@ angular.module('terrama2.dataseries.registration', [
         "i18nData": ["i18n", function (i18n) {
           return i18n.ensureLocaleIsLoaded();
         }]
-      }
+      },
+      controller: 'RegisterDataSeries'
     });
 
-    $urlRouterProvider.otherwise(function ($injector, $location) {
-      var $state = $injector.get('$state');
-
-      // It prevents wrong state in user request.
-      if ($location.$$hash.indexOf("/wizard" == -1) || $location.$$hash.indexOf("/advanced") == -1)
-        if ($state.current.name) // go to current state
-          $state.go($state.current.name);
-        else // go to default state
-          $state.go('advanced');
-    });
+    $urlRouterProvider.otherwise('wizard');
 
     $stateProvider
       .state('wizard', {
         parent: 'main',
         url: "/wizard",
-        templateUrl: '/javascripts/angular/wizard.html',
-        controller: 'RegisterDataSeries'
+        templateUrl: '/javascripts/angular/wizard.html'
       }).state('advanced', {
         parent: 'main',
         url: "/advanced",
-        templateUrl: '/javascripts/angular/advanced.html',
-        controller: 'RegisterDataSeries'
+        templateUrl: '/javascripts/angular/advanced.html'
       }
     );
   }])

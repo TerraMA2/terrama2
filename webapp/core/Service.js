@@ -48,6 +48,15 @@ var Service = module.exports = function(serviceInstance) {
   var callbackSuccess = null;
   var callbackError = null;
 
+  self.writeData = function(buffer, timeout, timeoutCallback) {
+    self.socket.write(buffer);
+
+    if (timeout) {
+      timeoutCallback = timeoutCallback || function() { };
+      self.socket.setTimeout(timeout, timeoutCallback);
+    }
+  }
+
   self.isRegistered = function() {
     // TODO: better implementation
     // checking a event
@@ -127,14 +136,10 @@ var Service = module.exports = function(serviceInstance) {
       }
 
       self.answered = false;
-      self.socket.write(buffer, function() {
-        console.log("status sent");
-      });
-
-      self.socket.setTimeout(4000, function() {
+      self.writeData(buffer, 4000, function() {
         if (!self.answered)
           self.emit("error", new Error("Status Timeout exceeded."));
-      })
+      });
     });
   };
 
@@ -146,7 +151,7 @@ var Service = module.exports = function(serviceInstance) {
       }
 
       callbackError = reject;
-      self.socket.write(buffer);
+      self.writeData(buffer);
 
       resolve();
     });
@@ -158,7 +163,7 @@ var Service = module.exports = function(serviceInstance) {
       return;
     }
 
-    self.socket.write(buffer);
+    self.writeData(buffer);
   };
 
   self.stop = function(buffer) {
@@ -171,12 +176,10 @@ var Service = module.exports = function(serviceInstance) {
       callbackSuccess = resolve;
       callbackError = reject;
       self.answered = false;
-      self.socket.write(buffer);
-
-      self.socket.setTimeout(5000, function() {
+      self.writeData(buffer, 5000, function() {
         if (!self.answered)
           self.emit("error", new Error("Stop Timeout exceeded."));
-      })
+      });
     });
   };
 
@@ -186,12 +189,10 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.answered = false;
-    self.socket.write(buffer);
-
-    self.socket.setTimeout(3000, function() {
+    self.writeData(buffer, 3000, function() {
       if (!self.answered)
         self.emit("error", new Error("Log Timeout exceeded."));
-    })
+    });
   }
 };
 

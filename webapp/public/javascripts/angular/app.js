@@ -90,3 +90,125 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
     }
   }
 ]);
+
+terrama2Application.directive('terrama2CompareTo', function() {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    scope: {
+      compare: '=terrama2CompareTo'
+    },
+    link: function(scope, element, attrs, ngModel) {
+      ngModel.$validators.compareTo = function(modelValue) {
+        return modelValue == scope.compare;
+      };
+
+      scope.$watch("compare", function() {
+        ngModel.$validate();
+      });
+    }
+  }
+})
+
+terrama2Application.directive('terrama2ShowErrors', function() {
+  return {
+    restrict: 'A',
+    require: '^form',
+    link: function(scope, el, attrs, formCtrl) {
+      // find the text box element, which has the 'name' attribute
+      var inputEl   = el[0].querySelector("[name]");
+      // convert the native text box element to an angular element
+      var inputNgEl = angular.element(inputEl);
+      // get the name on the text box so we know the property to check
+      // on the form controller
+      var inputName = inputNgEl.attr('name');
+
+      // only apply the has-error class after the user leaves the text box
+      inputNgEl.bind('blur', function() {
+        el.toggleClass('has-success', formCtrl[inputName].$valid);
+        el.toggleClass('has-error', formCtrl[inputName].$invalid);
+      });
+
+      scope.$on('formFieldValidation', function() {
+        var target = formCtrl[inputName];
+        el.toggleClass('has-error', target.$invalid);
+        el.toggleClass('has-success', target.$valid);
+        target.$setDirty();
+      });
+    }
+  }
+})
+
+terrama2Application.directive('terrama2Box', function() {
+  return {
+    restrict: 'E',
+    transclude: true,
+    templateUrl: '/javascripts/angular/templates/box.html',
+    scope: {
+      title: '=title',
+      helper: '=?helper',
+      extra: '=?extra',
+      'css': '=?css',
+    },
+    controller: function($scope) {
+      $scope.css = $scope.css || {};
+
+      $scope.boxType = "";
+      if ($scope.css.boxType)
+        $scope.boxType = $scope.css.boxType;
+    },
+    link: function(scope, element, attrs, ctrl, transclude) {
+      // create new child scope, then append the controller functions
+      var self = scope.$parent.$new();
+
+      // element.find('#targetTransclude').append(transclude(self, function(clone, scope) {
+			// 	element.append(clone);
+			// });
+      element.find('#targetTransclude').append(transclude(self));
+
+      console.log(attrs);
+    }
+  }
+});
+
+terrama2Application.directive('terrama2BoxFooter', function() {
+  return {
+    // require: '^terrama2Box',
+    transclude: true,
+    template: '<div class="box-footer"></div>',
+    scope: {
+      onSubmit: '&'
+    },
+    link: function(scope, element, attrs, ctrl, transclude) {
+      // create new child scope, then append the controller functions
+      var self = scope.$parent.$new();
+
+      transclude(self, function(clone, scope) {
+        element.append(clone);
+      });
+    }
+  }
+})
+
+terrama2Application.directive('terrama2Form', function() {
+  return {
+    restrict: 'E',
+    template: '<div><form name="{{ formName }}" ng-submit="callSubmit()"><div ng-transclude></div></form></div>',
+    scope: {
+      formName: '=formName',
+      onSubmit: '&'
+    },
+    link: function(scope, element, attributes){
+      scope.callSubmit = function(){
+        scope.onSubmit();
+      }
+    }
+  }
+});
+
+terrama2Application.directive('terrama2BoxOverlay', function() {
+  return {
+    transclude: true,
+    template: '<div class="overlay" ng-show="isChecking"><i class="fa fa-refresh fa-spin"></i></div>'
+  }
+})

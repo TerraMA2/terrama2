@@ -155,5 +155,12 @@ module.exports = {
   SSH: {
     COMMON: 1,
     SCREEN: 2
+  },
+
+  OS: {
+    WIN: 'Windows',
+    LINUX: 'Linux',
+    MACOSX: 'Darwin',
+    UNKNOWN: ''
   }
 };

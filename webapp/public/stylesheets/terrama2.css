@@ -184,3 +184,10 @@
   width: 100% !important;
   position: absolute !important;
 }
+
+.terrama2-btn-circle {
+  text-align: center !important;
+  padding: 6px 0 !important;
+  font-size: 12px !important;
+  line-height: 1.428571429 !important;
+}

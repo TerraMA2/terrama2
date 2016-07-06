@@ -156,11 +156,28 @@ module.exports = function(app) {
       var filterObject = request.body.filter;
       var serviceId = request.body.service;
       var intersection = request.body.intersection;
-      var active = request.body.active;
 
       var _handleError = function(err) {
         return Utils.handleRequestError(response, err, 400);
-      }
+      };
+
+      var _continue = function(collector) {
+        // output
+        DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
+          DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesInput) {
+            var output = {
+              "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
+              "Collectors": [collector.toObject()]
+            };
+            
+            // tcp sending
+            Utils.sendDataToServices(DataManager, TcpManager, output);
+
+            var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
+            return response.json({status: 200, result: collector.toObject(), token: token});
+          });
+        });
+      };
 
       if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
         DataManager.getCollector({data_series_input: dataSeriesId}).then(function(collector) {
@@ -170,23 +187,44 @@ module.exports = function(app) {
             DataManager.updateDataSeries(dataSeriesId, dataSeriesObject.input).then(function() {
               DataManager.updateDataSeries(collector.output_data_series, dataSeriesObject.output).then(function() {
                 DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
+                  var _processIntersection = function() {
+                    if (_.isEmpty(intersection)) {
+                      DataManager.removeIntersection({collector_id: collector.id}).then(function() {
+                        collector.setIntersection([]);
+                        _continue(collector);
+                      }).catch(_handleError);
+                    } else {
+                      intersection.forEach(function(intersect) {
+                        intersect.collector_id = collector.id;
+                      });
+
+                      DataManager.addIntersection(intersection).then(function(intersectionResult) {
+                        collector.setIntersection(intersectionResult);
+                        _continue(collector);
+                      }).catch(_handleError);
+                    }
+                  };
+
                   if (collector.filter.id) {
                     DataManager.updateFilter(collector.filter.id, filterObject).then(function() {
-                      DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
-                        var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
-                        return response.json({status: 200, result: collector.toObject(), token: token});
-                      })
+                      _processIntersection();
                     }).catch(_handleError);
                   } else {
-                    var _processIntersection = function() {
-                      DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
-                        var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
-                        return response.json({status: 200, result: collector.toObject(), token: token});
-                      })
-                    }
 
                     if (_.isEmpty(filterObject.date)) {
-                      _processIntersection();
+
+                      // checking to update intersection
+                      if (collector.intersection.length > 0) {
+                        // TODO: implement and call _continue(collector)
+                        DataManager.updateIntersections(
+                          collector.intersection.map(function(elm){ return elm.id }),
+                          collector.intersection)
+                        .then(function() {
+                          _continue(collector);
+                        }).catch(_handleError);
+                      } else {
+                        _processIntersection();
+                      }
                     } else {
                       filterObject.collector_id = collector.id;
 
@@ -260,7 +298,7 @@ module.exports = function(app) {
 
               var objectToSend = {
                 "DataSeries": [dataSeriesResult.id]
-              }
+              };
 
               DataManager.listServiceInstances().then(function(services) {
                 services.forEach(function (service) {
