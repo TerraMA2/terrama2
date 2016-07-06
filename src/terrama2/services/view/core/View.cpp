@@ -88,7 +88,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
 
 
-void terrama2::services::view::core::drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList)
+void terrama2::services::view::core::drawSeriesList(std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList)
 {
   std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
   uint32_t layerID = 0;
@@ -189,5 +189,3 @@ void terrama2::services::view::core::drawSeriesList(std::vector<std::map<terrama
 
   canvas->clear();
 }
-
-

@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_ALERT_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_ALERT_HPP__
 
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 #include "../../../core/data-model/DataSeriesRisk.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
@@ -46,12 +46,12 @@ namespace terrama2
     {
       namespace core
       {
-
+        //! Additional dataseries for alert process.
         struct AdditionalData
         {
-          DataSeriesId id;
-          std::string identifier;
-          std::vector<std::string> attributes;
+          DataSeriesId id;//!< Identifier of the additional dataseries
+          std::string identifier;//!< Unique key adentifier attribute
+          std::vector<std::string> attributes;//!< attributes that will be copied to the alert
         };
 
         /*!
@@ -61,7 +61,7 @@ namespace terrama2
         {
           AlertId id = 0; //!< Alert identifier
           ProjectId projectId = 0; //!< Project identifier.
-          bool active = true;
+          bool active = true;//!< Flag if the alert is active.
           std::string name; //!< Name of the alert.
           std::string description; //!< Short description of the purpose of the alert.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the alert.

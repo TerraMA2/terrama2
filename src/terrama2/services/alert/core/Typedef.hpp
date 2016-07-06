@@ -20,35 +20,19 @@
 */
 
 /*!
-  \file terrama2/services/alert/core/Service.hpp
+  \file terrama2/services/alert/Typedef.hpp
+
+  \brief
 
   \author Jano Simas
-*/
+ */
 
-#ifndef __TERRAMA2_SERVICES_ALERT_SHARED_HPP__
-#define __TERRAMA2_SERVICES_ALERT_SHARED_HPP__
+ #ifndef __TERRAMA2_SERVICES_ALERT_TYPEDEF_HPP__
+ #define __TERRAMA2_SERVICES_ALERT_TYPEDEF_HPP__
 
-#include <memory>
+ #include "../../../core/Typedef.hpp"
 
-namespace terrama2
-{
-  namespace services
-  {
-    namespace alert
-    {
-      namespace core
-      {
+ //! Unique identifier of a Alert
+ typedef ProcessId AlertId;
 
-        struct Alert;
-        //! Shared smart pointer for Alert
-        typedef std::shared_ptr<const terrama2::services::alert::core::Alert> AlertPtr;
-
-        class Report;
-        //! Shared smart pointer for Report
-        typedef std::shared_ptr<terrama2::services::alert::core::Report> ReportPtr;
-      } /* core */
-    }   /* alert */
-  }
-}
-
-#endif // __TERRAMA2_SERVICES_ALERT_SHARED_HPP__
+ #endif // __TERRAMA2_SERVICES_ALERT_TYPEDEF_HPP__

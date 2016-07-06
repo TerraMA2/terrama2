@@ -31,7 +31,7 @@
 #define __TERRAMA2_SERVICES_ALERT_CORE_REPORT_FACTORY_HPP__
 
 #include "Report.hpp"
-#include "../Shared.hpp"
+#include "Shared.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -51,14 +51,21 @@ namespace terrama2
         class ReportFactory : public te::common::Singleton<ReportFactory>
         {
           public:
+            //! Report constructor function.
             typedef std::function<ReportPtr (std::unordered_map<std::string, std::string>)> FactoryFnctType;
-
+            //! Register a new Report constructor associated with the ReportType.
             bool add(terrama2::services::alert::core::ReportType reportType, FactoryFnctType f);
-
+            //! Remove the Report constructor associated with the ReportType.
             void remove(terrama2::services::alert::core::ReportType reportType);
-
+            //! Check if there is a Report constructor associated with the ReportType.
             bool find(terrama2::services::alert::core::ReportType reportType);
+            /*!
+              \brief Creates a Report
 
+              The Report is constructed based on the ReportType.
+
+              \param reportMetadata Params to generate the report.
+            */
             terrama2::services::alert::core::ReportPtr make(terrama2::services::alert::core::ReportType reportType, std::unordered_map<std::string, std::string> reportMetadata);
 
           protected:

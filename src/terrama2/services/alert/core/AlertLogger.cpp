@@ -37,16 +37,6 @@ terrama2::services::alert::core::AlertLogger::AlertLogger()
 {
 }
 
-void terrama2::services::alert::core::AlertLogger::addInput(std::string value, RegisterId registerID)
-{
-  addValue("input", value, registerID);
-}
-
-void terrama2::services::alert::core::AlertLogger::addOutput(std::string value, RegisterId registerID)
-{
-  addValue("output", value, registerID);
-}
-
 void terrama2::services::alert::core::AlertLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo) noexcept
 {
   terrama2::core::ProcessLogger::setConnectionInfo(connInfo);

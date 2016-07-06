@@ -31,8 +31,8 @@
 #define __TERRAMA2_SERVICES_ALERT_CORE_DATAMANAGER_HPP__
 
 #include "../../../core/data-model/DataManager.hpp"
-#include "../Typedef.hpp"
-#include "../Shared.hpp"
+#include "Typedef.hpp"
+#include "Shared.hpp"
 
 namespace terrama2
 {

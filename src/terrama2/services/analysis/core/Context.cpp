@@ -235,7 +235,7 @@ void terrama2::services::analysis::core::Context::addDCPDataSeries(const Analysi
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
-  std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
+  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
 
   if(seriesMap.empty())
   {
@@ -372,7 +372,7 @@ void terrama2::services::analysis::core::Context::addDataSeries(const AnalysisHa
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
-  std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
+  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
 
 
   if(seriesMap.empty())
@@ -501,15 +501,3 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::Conte
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   return analysisStartTime_[analysisHashCode];
 }
-
-
-
-
-
-
-
-
-
-
-
-

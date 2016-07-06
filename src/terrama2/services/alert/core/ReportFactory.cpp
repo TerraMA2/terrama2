@@ -28,6 +28,7 @@
  */
 
 #include "ReportFactory.hpp"
+#include "Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 #include <QObject>
@@ -61,9 +62,9 @@ terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::Repo
   if(it == factoriesMap_.end())
   {
     QString errMsg = QObject::tr("A report factory with this type doesn't exists: %1!").arg(QString::fromStdString(reportType));
-    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    //TODO: Throw no report of this type
-    throw;
+    TERRAMA2_LOG_ERROR() << errMsg;
+
+    throw ReportException() << ErrorDescription(errMsg);
   }
   else
   {
@@ -78,8 +79,8 @@ void terrama2::services::alert::core::ReportFactory::remove(terrama2::services::
   {
     QString errMsg = QObject::tr("There is no registered report factory with type : %1!").arg(QString::fromStdString(reportType));
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    //TODO: Throw no report of this type
-    throw;
+    
+    throw ReportException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_.erase(it);

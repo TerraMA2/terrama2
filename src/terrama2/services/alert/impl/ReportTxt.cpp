@@ -28,7 +28,9 @@
  */
 
 #include "ReportTxt.hpp"
-#include "../Shared.hpp"
+#include "../core/Shared.hpp"
+#include "../core/Exception.hpp"
+#include "../../../core/utility/Logger.hpp"
 
 #include <fstream>
 
@@ -101,7 +103,9 @@ void terrama2::services::alert::core::ReportTxt::process(AlertPtr alertPtr,
   }
   else
   {
-    throw;//TODO: throw cant open destination report file
+    QString errMsg = QObject::tr("Unable to open file: %1").arg(QString::fromStdString(filePath));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ReportException() << ErrorDescription(errMsg);
   }
 }
 

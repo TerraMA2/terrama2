@@ -27,20 +27,23 @@
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_SERVICES_ALERT_CORE_REPORTER_HPP__
-#define __TERRAMA2_SERVICES_ALERT_CORE_REPORTER_HPP__
+#ifndef __TERRAMA2_SERVICES_ALERT_CORE_REPORT_HPP__
+#define __TERRAMA2_SERVICES_ALERT_CORE_REPORT_HPP__
 
 #include <string>
 #include <unordered_map>
 
-#include "../Shared.hpp"
+#include "Shared.hpp"
 #include "../../../core/Shared.hpp"
 
-namespace te {
-  namespace dt {
+namespace te
+{
+  namespace dt
+  {
     class TimeInstantTZ;
   } /* dt */
-  namespace da {
+  namespace da
+  {
     class DataSet;
   } /* da */
 } /* te */
@@ -93,4 +96,4 @@ namespace terrama2
   } /* services */
 }
 
-#endif // __TERRAMA2_SERVICES_ALERT_CORE_REPORTER_HPP__
+#endif // __TERRAMA2_SERVICES_ALERT_CORE_REPORT_HPP__

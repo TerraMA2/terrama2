@@ -63,7 +63,7 @@ namespace terrama2
         bool add(const std::string& semanticsCode, FactoryFnctType f);
         //! Remove the DataAccessor constructor associated with the DataSeriesSemantics.
         void remove(const std::string& semanticsCode);
-        //PAULO: documentar!
+        //! Check if there is a DataAccessor constructor associated with the DataSeriesSemantics.
         bool find(const std::string& semanticsCode);
         /*!
           \brief Creates a DataAccessor
