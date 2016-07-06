@@ -165,6 +165,9 @@ std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieve
 void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
     std::vector<te::da::Expression*>& where) const
 {
+  if(!(filter.discardBefore.get() || filter.discardAfter.get()))
+    return;
+
   te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
   if(filter.discardBefore.get())
   {
@@ -186,9 +189,9 @@ void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::Data
 void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
     std::vector<te::da::Expression*>& where) const
 {
-  te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryPropertyName(dataSet));
   if(filter.region.get())
   {
+    te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryPropertyName(dataSet));
     te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.region->clone()));
     te::da::Expression* intersectExpression = new te::da::ST_Intersects(geometryProperty, geometryVal);
 

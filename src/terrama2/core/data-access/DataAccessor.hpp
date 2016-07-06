@@ -117,7 +117,7 @@ namespace terrama2
           \exception DataProviderException Raised if internal DataProvider isn't active.
           \exception DataProviderException Raised if the Filter date result in an empty time range.
         */
-        virtual std::map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter) const;
+        virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter) const;
 
         //! Utility function for converting string to double in the te::da::DataSet contruction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;

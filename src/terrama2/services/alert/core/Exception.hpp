@@ -41,6 +41,9 @@ namespace terrama2
     {
       //! Base exception class for Alert Module exceptions.
       struct Exception: virtual terrama2::core::Exception{};
+
+      //! Base exception class for Report exceptions.
+      struct ReportException: virtual Exception{};
     }
   } /* services */
 }  // end namespace terrama2

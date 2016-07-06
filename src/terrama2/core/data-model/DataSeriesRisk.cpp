@@ -34,11 +34,11 @@
 #include <QString>
 #include <QObject>
 
-uint32_t terrama2::core::DataSeriesRisk::riskLevel(const std::string& value) const
+std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(const std::string& value) const
 {
   auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk) { return risk.textValue == value;});
   if(pos != std::end(riskLevels))
-    return (*pos).level;
+    return std::make_tuple((*pos).level, (*pos).name);
   else
   {
     QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(QString::fromStdString(value));
@@ -47,7 +47,7 @@ uint32_t terrama2::core::DataSeriesRisk::riskLevel(const std::string& value) con
   }
 }
 
-uint32_t terrama2::core::DataSeriesRisk::riskLevel(double value) const
+std::tuple<int, std::string> terrama2::core::DataSeriesRisk::riskLevel(double value) const
 {
   auto pos = std::find_if(std::begin(riskLevels), std::end(riskLevels), [value](const RiskLevel& risk)
                                                                                 {
@@ -56,7 +56,7 @@ uint32_t terrama2::core::DataSeriesRisk::riskLevel(double value) const
                                                                                   return graterThanLower && lesserThanUpper;
                                                                                 });
   if(pos != std::end(riskLevels))
-    return (*pos).level;
+    return std::make_tuple((*pos).level, (*pos).name);
   else
   {
     QString errMsg = QObject::tr("Risk level not defined for value: %1").arg(value);
