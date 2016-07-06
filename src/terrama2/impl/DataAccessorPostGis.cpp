@@ -95,36 +95,26 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
   // get a transactor to interact to the data source
   std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-  te::da::FromItem* t1 = new te::da::DataSetName(tableName);
-  te::da::From* from = new te::da::From;
-  from->push_back(t1);
+  std::string query = "SELECT ";
+  query+="* ";
+  query+= "FROM "+tableName+" ";
 
-  te::da::Fields* fields = new te::da::Fields;
-  te::da::PropertyName* pName = new te::da::PropertyName("*");
-  te::da::Field* propertyName = new te::da::Field(pName);
-  fields->push_back(propertyName);
+  std::vector<std::string> whereConditions;
+  addDateTimeFilter(dataSet, filter, whereConditions);
+  addGeometryFilter(dataSet, filter, whereConditions);
 
-  std::vector<te::da::Expression*> where;
-
-  addDateTimeFilter(dataSet, filter, where);
-  addGeometryFilter(dataSet, filter, where);
-
-  te::da::Where* whereCondition = nullptr;
-  if(!where.empty())
+  std::string where_;
+  if(!whereConditions.empty())
   {
-
-    te::da::Expression* expr = where.front();
-    for(size_t i = 1; i < where.size(); ++i)
-      expr = new te::da::And(expr, where.at(i));
-
-
-    whereCondition = new te::da::Where(expr);
+    where_ = "WHERE ";
+    where_ += whereConditions.front();
+    for(size_t i = 1; i < whereConditions.size(); ++i)
+      where_ += " AND " + whereConditions.at(i);
   }
 
-  whereCondition = addLastValueFilter(dataSet, filter, whereCondition);
+  where_ = addLastValueFilter(dataSet, filter, where_);
+  std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
-  te::da::Select select(fields, from, whereCondition);
-  std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(select);
   if(tempDataSet->isEmpty())
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
@@ -162,72 +152,40 @@ std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieve
   throw NoDataException() << ErrorDescription(errMsg);
 }
 
-void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-    std::vector<te::da::Expression*>& where) const
+void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet,
+    const terrama2::core::Filter& filter,
+    std::vector<std::string>& whereConditions) const
 {
   if(!(filter.discardBefore.get() || filter.discardAfter.get()))
     return;
 
-  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
   if(filter.discardBefore.get())
-  {
-    te::da::Expression* discardBeforeVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardBefore->clone()));
-    te::da::Expression* discardBeforeExpression = new te::da::GreaterThan(dateTimeProperty->clone(), discardBeforeVal);
-
-    where.push_back(discardBeforeExpression);
-  }
+    whereConditions.push_back(getTimestampPropertyName(dataSet)+" > "+filter.discardBefore->toString());
 
   if(filter.discardAfter.get())
-  {
-    te::da::Expression* discardAfterVal = new te::da::LiteralDateTime(dynamic_cast<te::dt::DateTime*>(filter.discardAfter->clone()));
-    te::da::Expression* discardAfterExpression = new te::da::LessThan(dateTimeProperty->clone(), discardAfterVal);
-
-    where.push_back(discardAfterExpression);
-  }
+    whereConditions.push_back(getTimestampPropertyName(dataSet)+" < "+filter.discardAfter->toString());
 }
 
-void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter,
-    std::vector<te::da::Expression*>& where) const
+void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet,
+    const terrama2::core::Filter& filter,
+    std::vector<std::string>& whereConditions) const
 {
   if(filter.region.get())
-  {
-    te::da::PropertyName* geometryProperty = new te::da::PropertyName(getGeometryPropertyName(dataSet));
-    te::da::Expression* geometryVal = new te::da::LiteralGeom(dynamic_cast<te::gm::Geometry*>(filter.region->clone()));
-    te::da::Expression* intersectExpression = new te::da::ST_Intersects(geometryProperty, geometryVal);
-
-    where.push_back(intersectExpression);
-  }
+    whereConditions.push_back(getGeometryPropertyName(dataSet)+".ST_INTERSECTS("+filter.region->asText()+")");
 }
 
-te::da::Where* terrama2::core::DataAccessorPostGis::addLastValueFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, te::da::Where* whereCondition) const
+std::string terrama2::core::DataAccessorPostGis::addLastValueFilter(terrama2::core::DataSetPtr dataSet,
+                                                                       const terrama2::core::Filter& filter,
+                                                                       std::string whereCondition) const
 {
   if(filter.lastValue)
   {
-    std::string tableName = getDataSetTableName(dataSet);
-    te::da::FromItem* t1 = new te::da::DataSetName(tableName);
-    te::da::From* from = new te::da::From;
-    from->push_back(t1);
+    std::string maxSelect = "SELECT ";
+    maxSelect += "MAX("+getTimestampPropertyName(dataSet)+") ";
+    maxSelect += "FROM " + getDataSetTableName(dataSet)+" ";
+    maxSelect += whereCondition;
 
-    te::da::Fields* maxTimestamp = new te::da::Fields;
-    te::da::PropertyName* timestampProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
-    auto max = new te::da::Max(*timestampProperty);
-    te::da::Field* propertyName = new te::da::Field(max);
-    maxTimestamp->push_back(propertyName);
-
-    auto oldwhere = whereCondition ? new te::da::Where(*whereCondition) : nullptr;
-    te::da::Select* selectMaxTimestamp = new te::da::Select(maxTimestamp, from, oldwhere);
-    te::da::SelectExpression* selectMaxTimestampExpression = new te::da::SelectExpression(selectMaxTimestamp);
-
-    te::da::EqualTo* equals = new te::da::EqualTo(timestampProperty, selectMaxTimestampExpression);
-
-    te::da::Expression* expr = equals;
-    if(whereCondition)
-    {
-      auto whereExpression = whereCondition->getExp();
-      expr = new te::da::And(equals, whereExpression);
-    }
-
-    whereCondition = new te::da::Where(expr);
+    return "getTimestampPropertyName(dataSet) = ("+maxSelect+") AND "+whereCondition;
   }
 
   return whereCondition;
