@@ -84,7 +84,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   for(; it != datasetSeriesArray.end(); ++it)
   {
     auto obj = (*it).toObject();
-    view->dataSetSeriesList.push_back(static_cast<uint32_t>(obj["dataset_series_id"].toInt()));
+    view->dataSeriesList.push_back(static_cast<uint32_t>(obj["dataset_series_id"].toInt()));
   }
 
   return viewPtr;
@@ -105,7 +105,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("filter", terrama2::core::toJson(view->filter));
 
   QJsonArray array;
-  for(auto it : view->dataSetSeriesList)
+  for(auto it : view->dataSeriesList)
   {
     QJsonObject datasetSeries;
     datasetSeries.insert("dataset_series_id", static_cast<qint64>(it));

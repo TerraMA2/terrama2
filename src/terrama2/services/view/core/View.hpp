@@ -64,12 +64,8 @@ namespace terrama2
 
           bool active = true;//!< Flag if the view is active.
 
-          std::vector<uint32_t> dataSetSeriesList; //!< List of DataSetSeries that compose this view
+          std::vector<uint32_t> dataSeriesList; //!< List of DataSeries that compose this view
 
-//          DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
-//          DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
-
-//          std::map<DataSetId, DataSetId> inputOutputMap;//!< View of source DataSet to destiny DataSet.
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
 
@@ -81,7 +77,7 @@ namespace terrama2
 
         void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
-        void drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList);
+        void drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList , uint32_t resolutionWidth, uint32_t resolutionHeigth);
 
       } // end namespace core
     }   // end namespace view

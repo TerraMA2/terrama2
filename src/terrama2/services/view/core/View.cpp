@@ -38,6 +38,7 @@
 #include "View.hpp"
 #include "ViewStyle.hpp"
 #include "MemoryDataSetLayer.hpp"
+#include "DataManager.hpp"
 
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/DataSet.hpp"
@@ -47,6 +48,7 @@
 #include "../../../core/data-access/DataStorager.hpp"
 
 #include "../../../core/utility/Timer.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
@@ -63,10 +65,49 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
   try
   {
-    // query json view
-    // load all dataseries that compose view and add to a list
-    // call drawSeriesList
+    RegisterId logId = 0;
+    if(logger.get())
+      logId = logger->start(viewId);
 
+    TERRAMA2_LOG_DEBUG() << QObject::tr("Starting view %1 generation.").arg(viewId);
+
+    auto lock = dataManager->getLock();
+
+    auto viewPtr = dataManager->findView(viewId);
+
+    // VINICIUS: filter for each dataSeries
+    std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > inputDataSeriesList;
+
+    for(uint32_t dataSeriesId : viewPtr->dataSeriesList)
+    {
+      terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
+      terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
+      inputDataSeriesList.emplace(inputDataSeries, inputDataProvider);
+    }
+
+    lock.unlock();
+
+    std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
+
+    for(auto inputDataSeries : inputDataSeriesList)
+    {
+      auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataSeries.second, inputDataSeries.first);
+
+      // VINICIUS: filter, date?
+      terrama2::core::Filter filter;
+
+      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = dataAccessor->getSeries(filter);
+
+      seriesList.push_back(series);
+    }
+
+    drawSeriesList(seriesList, viewPtr->resolutionWidth, viewPtr->resolutionHeight);
+
+    TERRAMA2_LOG_INFO() << QObject::tr("View %1 generated successfully.").arg(viewId);
+
+    if(logger.get())
+      logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
   }
   catch(const terrama2::Exception&)
   {
@@ -90,7 +131,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 }
 
 
-void terrama2::services::view::core::drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList)
+void terrama2::services::view::core::drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth)
 {
   std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
   uint32_t layerID = 0;
@@ -170,10 +211,7 @@ void terrama2::services::view::core::drawSeriesList(std::vector<std::map<terrama
   double urx = extent.m_urx;
   double ury = extent.m_ury;
 
-  // VINICIUS: check the canvas resolution, receive as parameter?
-  double resW(800.0),resH(600.0);
-
-  std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(resW, resH));
+  std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(resolutionWidth, resolutionHeigth));
   canvas->calcAspectRatio(llx, lly, urx, ury);
   canvas->setWindow(llx, lly, urx, ury);
   canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
