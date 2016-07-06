@@ -61,10 +61,10 @@ void TsJsonUtils::testGoNBackJSon()
 
     view->filter = filter;
 
-    view->dataSetSeriesList.push_back(1);
-    view->dataSetSeriesList.push_back(2);
-    view->dataSetSeriesList.push_back(3);
-    view->dataSetSeriesList.push_back(4);
+    view->dataSeriesList.push_back(1);
+    view->dataSeriesList.push_back(2);
+    view->dataSeriesList.push_back(3);
+    view->dataSeriesList.push_back(4);
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
@@ -85,11 +85,11 @@ void TsJsonUtils::testGoNBackJSon()
 //    QCOMPARE(viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
 //    QCOMPARE(viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
 
-    QCOMPARE(viewBackPtr->dataSetSeriesList.size(), viewPtr->dataSetSeriesList.size());
+    QCOMPARE(viewBackPtr->dataSeriesList.size(), viewPtr->dataSeriesList.size());
 
-    for(int i = 0; i < viewPtr->dataSetSeriesList.size(); i++)
+    for(uint32_t i = 0; i < viewPtr->dataSeriesList.size(); i++)
     {
-      QCOMPARE(viewBackPtr->dataSetSeriesList[i], viewPtr->dataSetSeriesList[i]);
+      QCOMPARE(viewBackPtr->dataSeriesList[i], viewPtr->dataSeriesList[i]);
     }
 
   }
