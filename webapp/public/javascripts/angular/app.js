@@ -90,3 +90,71 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
     }
   }
 ]);
+
+terrama2Application.directive('terrama2Box', function() {
+  return {
+    restrict: 'E',
+    transclude: true,
+    templateUrl: '/javascripts/angular/templates/box.html',
+    scope: {
+      title: '=title',
+      helper: '=?helper',
+      extra: '=?extra',
+      'css': '=?css',
+    },
+    controller: function($scope) {
+      $scope.css = $scope.css || {};
+
+      $scope.boxType = "";
+      if ($scope.css.boxType)
+        $scope.boxType = $scope.css.boxType;
+    },
+    link: function(scope, element, attrs, ctrl) {
+      console.log(attrs);
+
+      // $scope.$watch('extra.collapsed', function(value) {
+      //   if (value !== null && value !== undefined)
+      //     $scope.collapsed = value;
+      // });
+    }
+  }
+});
+
+terrama2Application.directive('terrama2BoxFooter', function() {
+  return {
+    // require: '^terrama2Box',
+    transclude: true,
+    template: '<div class="box-footer" ng-transclude></div>',
+    scope: {
+      onSubmit: '&'
+    },
+    link: function(scope, element, attrs, ctrl, transclude) {
+      scope.submit = function() {
+        scope.onSubmit();
+      }
+    }
+  }
+})
+
+terrama2Application.directive('terrama2Form', function() {
+  return {
+    restrict: 'E',
+    template: '<div><form name="{{ formName }}" ng-submit="callSubmit()"><div ng-transclude></div></form></div>',
+    scope: {
+      formName: '=formName',
+      onSubmit: '&'
+    },
+    link: function(scope, element, attributes){
+      scope.callSubmit = function(){
+        scope.onSubmit();
+      }
+    }
+  }
+});
+
+terrama2Application.directive('terrama2BoxOverlay', function() {
+  return {
+    transclude: true,
+    template: '<div class="overlay" ng-show="isChecking"><i class="fa fa-refresh fa-spin"></i></div>'
+  }
+})
