@@ -275,7 +275,7 @@ Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
 {
   try
   {
-    Srid srid = std::stoi(dataSet->format.at("srid"));
+    Srid srid = std::stoi(getProperty(dataSet, dataSeries_, "srid"));
     return srid;
   }
   catch(...)

@@ -41,8 +41,6 @@ int main(int argc, char* argv[])
     dataSet->active = true;
     dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
     dataSet->format.emplace("folder", "fire_system");
-    dataSet->format.emplace("timezone", "+00");
-    dataSet->format.emplace("srid", "4326");
     dataSeries->datasetList.emplace_back(dataSet);
 
     terrama2::core::Filter filter;

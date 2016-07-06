@@ -306,5 +306,6 @@
 	"DB connection": "DB connection",
 	"When value is 0, the default will be supported threads by server": "When value is 0, the default will be supported threads by server",
 	"When the value is 0, it will use thread number supported by the server": "When the value is 0, it will use thread number supported by the server",
-	"User Update": "User Update"
+	"User Update": "User Update",
+	"Views": "Views"
 }
