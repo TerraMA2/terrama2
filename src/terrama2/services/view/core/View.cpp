@@ -88,7 +88,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
     lock.unlock();
 
-    std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
+    std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
 
     for(auto inputDataSeries : inputDataSeriesList)
     {
@@ -97,7 +97,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
       // VINICIUS: filter, date?
       terrama2::core::Filter filter;
 
-      std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = dataAccessor->getSeries(filter);
+      std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = dataAccessor->getSeries(filter);
 
       seriesList.push_back(series);
     }
@@ -131,7 +131,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 }
 
 
-void terrama2::services::view::core::drawSeriesList(std::vector<std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth)
+void terrama2::services::view::core::drawSeriesList(std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth)
 {
   std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
   uint32_t layerID = 0;
