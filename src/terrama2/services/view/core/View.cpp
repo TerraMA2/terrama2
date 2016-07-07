@@ -63,12 +63,12 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
     return;
   }
 
-  RegisterId logId = 0;
-  if(logger.get())
-    logId = logger->start(viewId);
-
   try
   {
+    RegisterId logId = 0;
+    if(logger.get())
+      logId = logger->start(viewId);
+
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting view %1 generation.").arg(viewId);
 
     auto lock = dataManager->getLock();
