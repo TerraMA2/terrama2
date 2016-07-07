@@ -45,6 +45,8 @@ std::string terrama2::services::alert::core::ReportText::processInternal(AlertPt
     std::shared_ptr<te::dt::TimeInstantTZ> alertTime,
     std::shared_ptr<te::da::DataSet> alertDataSet)
 {
+  const int columnWidth = 20;
+
   std::stringstream stream;
   stream << reportMetadata_[ReportTags::TITLE] << "\n" << reportMetadata_[ReportTags::SUBTITLE] << "\n" << std::endl;
   stream << reportMetadata_[ReportTags::DESCRIPTION] << "\n" << reportMetadata_[ReportTags::AUTHOR] << "\t" << reportMetadata_[ReportTags::CONTACT] << "\n" << std::endl;
@@ -56,7 +58,7 @@ std::string terrama2::services::alert::core::ReportText::processInternal(AlertPt
   auto columns = alertDataSet->getNumProperties();
   for(size_t i = 0; i < columns; ++i)
   {
-    stream << std::setw(15) << alertDataSet->getPropertyName(i) << "\t";
+    stream << std::setw(columnWidth) << alertDataSet->getPropertyName(i) << "\t";
   }
   stream << "\n" << std::endl;
 
@@ -69,15 +71,15 @@ std::string terrama2::services::alert::core::ReportText::processInternal(AlertPt
       try
       {
         if(alertDataSet->isNull(i))
-          stream << std::setw(15) << "NULL" << "\t";
+          stream << std::setw(columnWidth) << "NULL" << "\t";
         else
         {
-          stream << std::setw(15) << alertDataSet->getAsString(i) << "\t";
+          stream << std::setw(columnWidth) << alertDataSet->getAsString(i) << "\t";
         }
       }
       catch(...)
       {
-        stream << std::setw(15) << "NULL" << "\t";
+        stream << std::setw(columnWidth) << "NULL" << "\t";
       }
     }
 
