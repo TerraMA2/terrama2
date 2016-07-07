@@ -22,19 +22,19 @@
 /*!
   \file unittest/core/TsLogger.hpp
 
-  \brief Tests for Core Logger class
+  \brief Tests for Core Process Logger class
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_TSLOGGER_HPP__
-#define __TERRAMA2_UNITTEST_CORE_TSLOGGER_HPP__
+#ifndef __TERRAMA2_UNITTEST_CORE_TSPROCESSLOGGER_HPP__
+#define __TERRAMA2_UNITTEST_CORE_TSPROCESSLOGGER_HPP__
 
 
 //QT
 #include <QtTest/QTest>
 
-class TsLogger : public QObject
+class TsProcessLogger : public QObject
 {
   Q_OBJECT
 
@@ -44,4 +44,4 @@ private slots:
 
 };
 
-#endif // __TERRAMA2_UNITTEST_CORE_TSLOGGER_HPP__
+#endif // __TERRAMA2_UNITTEST_CORE_TSPROCESSLOGGER_HPP__

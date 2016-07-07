@@ -38,6 +38,7 @@
 #include "View.hpp"
 #include "ViewStyle.hpp"
 #include "MemoryDataSetLayer.hpp"
+#include "DataManager.hpp"
 
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/DataSet.hpp"
@@ -47,6 +48,7 @@
 #include "../../../core/data-access/DataStorager.hpp"
 
 #include "../../../core/utility/Timer.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
@@ -61,9 +63,60 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
     return;
   }
 
+  RegisterId logId = 0;
+  if(logger.get())
+    logId = logger->start(viewId);
+
   try
   {
+    TERRAMA2_LOG_DEBUG() << QObject::tr("Starting view %1 generation.").arg(viewId);
 
+    auto lock = dataManager->getLock();
+
+    auto viewPtr = dataManager->findView(viewId);
+
+    // VINICIUS: filter for each dataSeries
+    std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > inputDataSeriesList;
+
+    for(uint32_t dataSeriesId : viewPtr->dataSeriesList)
+    {
+      terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
+      terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
+      inputDataSeriesList.emplace(inputDataSeries, inputDataProvider);
+    }
+
+    lock.unlock();
+
+    if(inputDataSeriesList.size() > 0)
+    {
+      std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
+
+      for(auto inputDataSeries : inputDataSeriesList)
+      {
+        auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataSeries.second, inputDataSeries.first);
+
+        // VINICIUS: filter, date?
+        terrama2::core::Filter filter;
+
+        std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = dataAccessor->getSeries(filter);
+
+        seriesList.push_back(series);
+      }
+
+      drawSeriesList(viewId, logger, seriesList, viewPtr->resolutionWidth, viewPtr->resolutionHeight);
+
+      TERRAMA2_LOG_INFO() << QObject::tr("View %1 generated successfully.").arg(viewId);
+    }
+    else
+    {
+      QString message = QObject::tr("View %1 has no associated data to be generated.").arg(viewId);
+      logger->error(message.toStdString(), viewId);
+      TERRAMA2_LOG_INFO() << message;
+    }
+
+    if(logger.get())
+      logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
   }
   catch(const terrama2::Exception&)
   {
@@ -72,7 +125,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
   catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of %1 finished with error(s).").arg(viewId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(const std::exception& e)
   {
@@ -87,11 +140,17 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 }
 
 
-
-void terrama2::services::view::core::drawSeriesList(std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList)
+void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth)
 {
   std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
   uint32_t layerID = 0;
+
+  if(resolutionWidth == 0 ||  resolutionHeigth == 0)
+  {
+    QString message = QObject::tr("Invalid resolution for View %1.").arg(viewId);
+    logger->error(message.toStdString(), viewId);
+    throw Exception() << ErrorDescription(message);
+  }
 
   // Create layers from series
   for(auto& serie : seriesList)
@@ -99,93 +158,122 @@ void terrama2::services::view::core::drawSeriesList(std::vector<std::unordered_m
     std::shared_ptr<te::da::DataSet> dataSet = serie.begin()->second.syncDataSet->dataset();
     std::shared_ptr<te::da::DataSetType> teDataSetType = serie.begin()->second.teDataSetType;
 
+    if(!teDataSetType->hasRaster() && !teDataSetType->hasGeom())
+    {
+      QString message = QObject::tr("DataSet %1 has no drawable data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+      logger->error(message.toStdString(), viewId);
+    }
+
     // TODO: A terralib dataset can have a geom and raster at same time?
     if(teDataSetType->hasRaster())
     {
+      // TODO: A terralib dataset can have more than one raster field in it?
       std::size_t rpos = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
 
-      dataSet->moveFirst();
-      auto raster(dataSet->getRaster(rpos));
+      if(!dataSet->moveFirst())
+      {
+        QString message = QObject::tr("Can not access DataSet %1 raster data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+        logger->error(message.toStdString(), viewId);
+      }
+      else
+      {
+        auto raster(dataSet->getRaster(rpos));
 
-      te::gm::Envelope* extent = raster->getExtent();
+        te::gm::Envelope* extent = raster->getExtent();
 
-      // Creates a DataSetLayer of raster
-      std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), raster->getName(), dataSet, teDataSetType));
-      rasterLayer->setDataSetName(teDataSetType->getDatasetName());
-      rasterLayer->setExtent(*extent);
-      rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
-      rasterLayer->setSRID(raster->getSRID());
+        // Creates a DataSetLayer of raster
+        std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), raster->getName(), dataSet, teDataSetType));
+        rasterLayer->setDataSetName(teDataSetType->getDatasetName());
+        rasterLayer->setExtent(*extent);
+        rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
+        rasterLayer->setSRID(raster->getSRID());
 
-      // VINICIUS: Set Style
-      MONO_0_Style(rasterLayer);
+        // VINICIUS: Set Style
+        MONO_0_Style(rasterLayer);
 
-      layersList.push_back(rasterLayer);
+        layersList.push_back(rasterLayer);
+      }
     }
 
     if(teDataSetType->hasGeom())
     {
+      // TODO: A terralib dataset can have more than one geometry field in it?
       auto geomProperty = te::da::GetFirstGeomProperty(teDataSetType.get());
 
-      dataSet->moveFirst();
+      if(!dataSet->moveFirst())
+      {
+        QString message = QObject::tr("Can not access DataSet %1 geometry data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+        logger->error(message.toStdString(), viewId);
+      }
+      else
+      {
+        std::shared_ptr< te::gm::Envelope > extent(dataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
 
-      std::shared_ptr< te::gm::Envelope > extent(dataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
+        // Creates a Layer
+        std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), geomProperty->getName(), dataSet, teDataSetType));
+        geomLayer->setDataSetName(teDataSetType->getName());
+        geomLayer->setVisibility(te::map::VISIBLE);
+        geomLayer->setExtent(*extent);
+        geomLayer->setStyle(CreateFeatureTypeStyle(geomProperty->getGeometryType()));
+        geomLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
+        geomLayer->setSRID(geomProperty->getSRID());
 
-      // Creates a Layer
-      std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), geomProperty->getName(), dataSet, teDataSetType));
-      geomLayer->setDataSetName(teDataSetType->getName());
-      geomLayer->setVisibility(te::map::VISIBLE);
-      geomLayer->setExtent(*extent);
-      geomLayer->setStyle(CreateFeatureTypeStyle(geomProperty->getGeometryType()));
-      geomLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
-      geomLayer->setSRID(geomProperty->getSRID());
+        // VINICIUS: set style
 
-      // VINICIUS: set style
-
-      layersList.push_back(geomLayer);
+        layersList.push_back(geomLayer);
+      }
     }
   }
 
   // Draw layers
 
-  te::gm::Envelope extent;
-  int srid = 0;
-
-  for(auto& layer : layersList)
+  if(layersList.size() > 0)
   {
-    if(!extent.isValid())
-      extent = layer->getExtent();
-    else
-      extent.Union(layer->getExtent());
+    te::gm::Envelope extent;
+    int srid = 0;
 
-    // VINICIUS: which SRID use? using from the first layer for now
-    if(srid == 0)
-      srid = layer->getSRID();
+    for(auto& layer : layersList)
+    {
+      if(!extent.isValid())
+        extent = layer->getExtent();
+      else
+        extent.Union(layer->getExtent());
+
+      // VINICIUS: which SRID use? using from the first layer for now
+      if(srid == 0)
+        srid = layer->getSRID();
+    }
+
+    // Creates a canvas
+    double llx = extent.m_llx;
+    double lly = extent.m_lly;
+    double urx = extent.m_urx;
+    double ury = extent.m_ury;
+
+    std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(resolutionWidth, resolutionHeigth));
+    canvas->calcAspectRatio(llx, lly, urx, ury);
+    canvas->setWindow(llx, lly, urx, ury);
+    canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
+
+    bool cancel = false;
+
+    for(auto& layer : layersList)
+    {
+      layer->draw(canvas.get(), extent, srid, 0, &cancel);
+    }
+
+    // Save view
+
+    canvas->save("GeneretadImage", te::map::PNG);
+
+    canvas->clear();
   }
-
-  // Creates a canvas
-  double llx = extent.m_llx;
-  double lly = extent.m_lly;
-  double urx = extent.m_urx;
-  double ury = extent.m_ury;
-
-  // VINICIUS: check the canvas resolution, receive as parameter?
-  double resW(800.0),resH(600.0);
-
-  std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(resW, resH));
-  canvas->calcAspectRatio(llx, lly, urx, ury);
-  canvas->setWindow(llx, lly, urx, ury);
-  canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
-
-  bool cancel = false;
-
-  for(auto& layer : layersList)
+  else
   {
-    layer->draw(canvas.get(), extent, srid, 0, &cancel);
+    QString message = QObject::tr("View %1 could not find any data.").arg(viewId);
+    logger->error(message.toStdString(), viewId);
+    throw Exception() << ErrorDescription(message);
   }
-
-  // Save view
-
-  canvas->save("GeneretadImage", te::map::PNG);
-
-  canvas->clear();
 }
+
+

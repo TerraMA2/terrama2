@@ -92,9 +92,6 @@ namespace te
             continue;
           }
 
-          // Gets the rule filter
-          const te::fe::Filter* filter = rule->getFilter();
-
           if(dataSet_.get() == 0)
             throw Exception((boost::format(TE_TR("Could not retrieve the data set from the layer %1%.")) % layer->getTitle()).str());
 
@@ -181,7 +178,7 @@ namespace te
         }
         else if(layer->getSRID() != srid)
         {
-          throw Exception(TE_TR("The layer or map don't have a valid SRID!"));
+          throw Exception(TE_TR("The layer or view don't have a valid SRID!"));
         }
 
         if(!reprojectedBBOX.intersects(layer->getExtent()))

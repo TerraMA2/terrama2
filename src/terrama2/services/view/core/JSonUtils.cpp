@@ -51,7 +51,15 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   }
 
   // VINICIUS:
-  if(!json.contains("id"))
+  if(!json.contains("id")
+     || !json.contains("project_id")
+     || !json.contains("service_instance_id")
+     || !json.contains("active")
+     || !json.contains("resolutionWidth")
+     || !json.contains("resolutionHeight")
+     || !json.contains("schedule")
+     || !json.contains("filter")
+     || !json.contains("dataset_series_list"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -61,16 +69,49 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
   terrama2::services::view::core::ViewPtr viewPtr(view);
 
+  view->id = static_cast<uint32_t>(json["id"].toInt());
+  view->projectId = static_cast<uint32_t>(json["project_id"].toInt());
+  view->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
+  view->active = json["active"].toBool();
+  view->resolutionWidth = static_cast<uint32_t>(json["resolutionWidth"].toInt());
+  view->resolutionHeight = static_cast<uint32_t>(json["resolutionHeight"].toInt());
+
+  view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+  view->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
+
+  auto datasetSeriesArray = json["dataset_series_list"].toArray();
+  auto it = datasetSeriesArray.begin();
+  for(; it != datasetSeriesArray.end(); ++it)
+  {
+    auto obj = (*it).toObject();
+    view->dataSeriesList.push_back(static_cast<uint32_t>(obj["dataset_series_id"].toInt()));
+  }
+
   return viewPtr;
 }
 
 
 QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 {
-  // VINICIUS:
   QJsonObject obj;
   obj.insert("class", QString("View"));
+  obj.insert("id", static_cast<qint64>(view->id));
+  obj.insert("project_id", static_cast<qint64>(view->projectId));
+  obj.insert("service_instance_id", static_cast<qint64>(view->serviceInstanceId));
+  obj.insert("active", view->active);
+  obj.insert("resolutionWidth", static_cast<qint64>(view->resolutionWidth));
+  obj.insert("resolutionHeight", static_cast<qint64>(view->resolutionHeight));
+  obj.insert("schedule", terrama2::core::toJson(view->schedule));
+  obj.insert("filter", terrama2::core::toJson(view->filter));
 
+  QJsonArray array;
+  for(auto it : view->dataSeriesList)
+  {
+    QJsonObject datasetSeries;
+    datasetSeries.insert("dataset_series_id", static_cast<qint64>(it));
+    array.push_back(datasetSeries);
+  }
+  obj.insert("dataset_series_list", array);
 
   return obj;
 }

@@ -62,46 +62,46 @@ namespace terrama2
           using terrama2::core::DataManager::update;
 
           /*!
-            \brief Register a map in the manager.
+            \brief Register a view in the manager.
 
             At end it will emit MapAdded(ViewPtr) signal.
 
-            \param map The map to be registered into the manager.
+            \param view The view to be registered into the manager.
 
-            \pre The map must not have a terrama2::core::InvalidId.
-            \pre A map with the same name must not be already in the manager.
+            \pre The view must not have a terrama2::core::InvalidId.
+            \pre A view with the same name must not be already in the manager.
 
-            \exception terrama2::InvalidArgumentException If it is not possible to add the map.
+            \exception terrama2::InvalidArgumentException If it is not possible to add the view.
 
             \note Thread-safe.
           */
-          virtual void add(ViewPtr map);
+          virtual void add(ViewPtr view);
 
           /*!
-            \brief Update a given map.
+            \brief Update a given view.
 
-            Emits MapUpdated() signal if the map is updated successfully.
+            Emits MapUpdated() signal if the view is updated successfully.
 
-            \param dataseries     map to update.
+            \param dataseries     view to update.
             \param shallowSave If true it will update only the dataseries attributes.
 
-            \pre The map must not have a terrama2::core::InvalidId.
-            \pre The map must exist in the DataManager.
+            \pre The view must not have a terrama2::core::InvalidId.
+            \pre The view must exist in the DataManager.
 
-            \exception terrama2::InvalidArgumentException If it is not possible to update the map.
+            \exception terrama2::InvalidArgumentException If it is not possible to update the view.
 
             \note Thread-safe.
           */
-          virtual void update(ViewPtr map);
+          virtual void update(ViewPtr view);
 
           /*!
-            \brief Removes the map with the given id.
+            \brief Removes the view with the given id.
 
             Emits MapRemoved() signal if the DataSeries is removed successfully.
 
-            \param id ID of the map to remove.
+            \param id ID of the view to remove.
 
-            \exception terrama2::InvalidArgumentException If it is not possible to remove the map.
+            \exception terrama2::InvalidArgumentException If it is not possible to remove the view.
 
             \note Thread-safe.
           */
@@ -110,11 +110,11 @@ namespace terrama2
           /*!
             \brief Retrieves the View with the given ViewId.
 
-            \param id The map ViewId.
+            \param id The view ViewId.
 
-            \return DataProviderPtr A smart pointer to the map
+            \return DataProviderPtr A smart pointer to the view
 
-            \exception terrama2::InvalidArgumentException If some error occur when trying to find the map.
+            \exception terrama2::InvalidArgumentException If some error occur when trying to find the view.
 
             \note Thread-safe.
           */
@@ -152,7 +152,7 @@ namespace terrama2
           void viewRemoved(ViewId);
 
         protected:
-          std::map<ViewId, ViewPtr> view_;//!< A map from ViewId to View.
+          std::map<ViewId, ViewPtr> view_;//!< A view from ViewId to View.
 
         };
       } // end namespace core
