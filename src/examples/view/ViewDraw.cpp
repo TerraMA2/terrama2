@@ -1,35 +1,46 @@
-// TerraLib
-#include <terralib/common.h>
-#include <terralib/geometry.h>
-#include <terralib/dataaccess.h>
-#include <terralib/raster/RasterProperty.h>
-#include <terralib/qt/widgets/canvas/MapDisplay.h>
-#include <terralib/qt/widgets/canvas/MultiThreadMapDisplay.h>
-#include <terralib/se.h>
-#include <terralib/qt/widgets/canvas/Canvas.h>
-#include <terralib/memory/DataSource.h>
-#include <terralib/color/ColorTransform.h>
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
 
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
 
-// STL
-#include <cassert>
-#include <iostream>
-#include <list>
-#include <memory>
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
+
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
+/*!
+  \file examples/view/ViewDraw.cpp
+
+  \brief
+
+  \author Vinicius Campanha
+ */
 
 // Qt
 #include <QApplication>
-#include <QDialog>
-#include <QLabel>
+#include <QTimer>
 
 // TerraMA2
-#include <terrama2/core/data-model/DataSeries.hpp>
+//#include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-#include <terrama2/core/data-access/GridSeries.hpp>
+//#include <terrama2/impl/DataAccessorGeoTiff.hpp>
+//#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
+//#include <terrama2/core/data-access/GridSeries.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/services/view/core/Service.hpp>
 #include <terrama2/services/view/core/DataManager.hpp>
 #include <terrama2/services/view/core/MemoryDataSetLayer.hpp>
 #include <terrama2/services/view/core/View.hpp>
@@ -122,6 +133,9 @@ int main(int argc, char** argv)
 
     prepareExample(dataManager);
 
+    terrama2::services::view::core::Service service(dataManager);
+    service.start();
+
     terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
     terrama2::services::view::core::ViewPtr viewPtr(view);
 
@@ -132,7 +146,12 @@ int main(int argc, char** argv)
     view->resolutionWidth = 800;
     view->resolutionHeight = 600;
 
-//    view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+    terrama2::core::Schedule schedule;
+    schedule.id = 1;
+    schedule.frequency = 2;
+    schedule.frequencyUnit = "min";
+
+    view->schedule = schedule;
 //    view->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
 
     view->dataSeriesList.push_back(1);
@@ -140,10 +159,12 @@ int main(int argc, char** argv)
 
     dataManager->add(viewPtr);
 
-    std::shared_ptr<terrama2::services::view::core::ViewLogger> logger;
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+    timer.start(30000);
+    app.exec();
 
-    //    terrama2::services::view::core::drawSeriesList(1, logger,seriesList, 1024, 768);
-
+    service.stopService();
   }
   catch(const std::exception& e)
   {
