@@ -158,15 +158,11 @@ terrama2Application.directive('terrama2Box', function() {
         $scope.boxType = $scope.css.boxType;
     },
     link: function(scope, element, attrs, ctrl, transclude) {
-      // create new child scope, then append the controller functions
-      var self = scope.$parent.$new();
+      var target = element.find('#targetTransclude');
 
-      // element.find('#targetTransclude').append(transclude(self, function(clone, scope) {
-			// 	element.append(clone);
-			// });
-      element.find('#targetTransclude').append(transclude(self));
-
-      console.log(attrs);
+      transclude(scope.$parent, function(clone, iterScope) {
+        target.append(clone);
+      });
     }
   }
 });
@@ -193,15 +189,17 @@ terrama2Application.directive('terrama2BoxFooter', function() {
 terrama2Application.directive('terrama2Form', function() {
   return {
     restrict: 'E',
-    template: '<div><form name="{{ formName }}" ng-submit="callSubmit()"><div ng-transclude></div></form></div>',
+    transclude: true,
     scope: {
-      formName: '=formName',
-      onSubmit: '&'
+      formName: '=formName'
     },
-    link: function(scope, element, attributes){
-      scope.callSubmit = function(){
-        scope.onSubmit();
-      }
+    template: '<form name="{{ formName }}" novalidate><ng-transclude></ng-transclude></form>',
+    link: function(scope, element, attributes, ctrl, transclude){
+      scope.$on('formValidation', function() {
+        console.log(scope);
+
+        scope.$emit('formStatus', scope.formName, scope[scope.formName].$valid);
+      })
     }
   }
 });
