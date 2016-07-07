@@ -77,7 +77,7 @@ namespace terrama2
 
         void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
-        void drawSeriesList(std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList , uint32_t resolutionWidth, uint32_t resolutionHeigth);
+        void drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth);
 
       } // end namespace core
     }   // end namespace view

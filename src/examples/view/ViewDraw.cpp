@@ -429,22 +429,13 @@ int main(int argc, char** argv)
 
       std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesGeometry = accessorGeometry.getSeries(filterGeometry);
 
-/*
-      std::shared_ptr<te::da::DataSet> dsGeometry = seriesGeometry.begin()->second.syncDataSet->dataset();
-      std::shared_ptr<te::da::DataSetType> teDataSetTypeGeometry = seriesGeometry.begin()->second.teDataSetType;
-
-      std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer = CreateRasterLayer(dsRaster, teDataSetTypeRaster);
-      std::shared_ptr<te::map::MemoryDataSetLayer> GeometryLayer =CreateGeometryLayer(dsGeometry, teDataSetTypeGeometry);
-
-      Draw(rasterLayer,GeometryLayer);
-*/
-
       std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
       seriesList.push_back(seriesRaster);
       seriesList.push_back(seriesGeometry);
 
-      terrama2::services::view::core::drawSeriesList(seriesList, 800, 600);
+      std::shared_ptr<terrama2::services::view::core::ViewLogger> logger;
 
+      terrama2::services::view::core::drawSeriesList(1, logger,seriesList, 1024, 768);
     }
   }
   catch(const std::exception& e)

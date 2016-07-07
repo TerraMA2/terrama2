@@ -63,12 +63,12 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
     return;
   }
 
+  RegisterId logId = 0;
+  if(logger.get())
+    logId = logger->start(viewId);
+
   try
   {
-    RegisterId logId = 0;
-    if(logger.get())
-      logId = logger->start(viewId);
-
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting view %1 generation.").arg(viewId);
 
     auto lock = dataManager->getLock();
@@ -104,14 +104,14 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
         seriesList.push_back(series);
       }
 
-      drawSeriesList(seriesList, viewPtr->resolutionWidth, viewPtr->resolutionHeight);
+      drawSeriesList(viewId, logger, seriesList, viewPtr->resolutionWidth, viewPtr->resolutionHeight);
 
       TERRAMA2_LOG_INFO() << QObject::tr("View %1 generated successfully.").arg(viewId);
     }
     else
     {
-      std::string message = QObject::tr("View %1 has no associated data to be generated.").arg(viewId);
-      logger->error(message, viewId);
+      QString message = QObject::tr("View %1 has no associated data to be generated.").arg(viewId);
+      logger->error(message.toStdString(), viewId);
       TERRAMA2_LOG_INFO() << message;
     }
 
@@ -125,7 +125,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
   catch(const boost::exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
-    TERRAMA2_LOG_INFO() << QObject::tr("Build of %1 finished with error(s).").arg(viewId);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(const std::exception& e)
   {
@@ -147,9 +147,9 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
 
   if(resolutionWidth == 0 ||  resolutionHeigth == 0)
   {
-    std::string message = QObject::tr("Invalid resolution for View " + std::to_string(viewId));
-    logger->error(message, viewId);
-    throw message;
+    QString message = QObject::tr("Invalid resolution for View %1.").arg(viewId);
+    logger->error(message.toStdString(), viewId);
+    throw Exception() << ErrorDescription(message);
   }
 
   // Create layers from series
@@ -160,8 +160,8 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
 
     if(!teDataSetType->hasRaster() && !teDataSetType->hasGeom())
     {
-      std::string message = QObject::tr("DataSet " + teDataSetType->getDatasetName() + " has no drawable data.");
-      logger->error(message, viewId);
+      QString message = QObject::tr("DataSet %1 has no drawable data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+      logger->error(message.toStdString(), viewId);
     }
 
     // TODO: A terralib dataset can have a geom and raster at same time?
@@ -172,8 +172,8 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
 
       if(!dataSet->moveFirst())
       {
-        std::string message = QObject::tr("Can not access DataSet " + teDataSetType->getDatasetName() + " raster data.");
-        logger->error(message, viewId);
+        QString message = QObject::tr("Can not access DataSet %1 raster data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+        logger->error(message.toStdString(), viewId);
       }
       else
       {
@@ -202,8 +202,8 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
 
       if(!dataSet->moveFirst())
       {
-        std::string message = QObject::tr("Can not access DataSet " + teDataSetType->getDatasetName() + " geometry data.");
-        logger->error(message, viewId);
+        QString message = QObject::tr("Can not access DataSet %1 geometry data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+        logger->error(message.toStdString(), viewId);
       }
       else
       {
@@ -227,44 +227,53 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
 
   // Draw layers
 
-  te::gm::Envelope extent;
-  int srid = 0;
-
-  for(auto& layer : layersList)
+  if(layersList.size() > 0)
   {
-    if(!extent.isValid())
-      extent = layer->getExtent();
-    else
-      extent.Union(layer->getExtent());
+    te::gm::Envelope extent;
+    int srid = 0;
 
-    // VINICIUS: which SRID use? using from the first layer for now
-    if(srid == 0)
-      srid = layer->getSRID();
+    for(auto& layer : layersList)
+    {
+      if(!extent.isValid())
+        extent = layer->getExtent();
+      else
+        extent.Union(layer->getExtent());
+
+      // VINICIUS: which SRID use? using from the first layer for now
+      if(srid == 0)
+        srid = layer->getSRID();
+    }
+
+    // Creates a canvas
+    double llx = extent.m_llx;
+    double lly = extent.m_lly;
+    double urx = extent.m_urx;
+    double ury = extent.m_ury;
+
+    std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(resolutionWidth, resolutionHeigth));
+    canvas->calcAspectRatio(llx, lly, urx, ury);
+    canvas->setWindow(llx, lly, urx, ury);
+    canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
+
+    bool cancel = false;
+
+    for(auto& layer : layersList)
+    {
+      layer->draw(canvas.get(), extent, srid, 0, &cancel);
+    }
+
+    // Save view
+
+    canvas->save("GeneretadImage", te::map::PNG);
+
+    canvas->clear();
   }
-
-  // Creates a canvas
-  double llx = extent.m_llx;
-  double lly = extent.m_lly;
-  double urx = extent.m_urx;
-  double ury = extent.m_ury;
-
-  std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(resolutionWidth, resolutionHeigth));
-  canvas->calcAspectRatio(llx, lly, urx, ury);
-  canvas->setWindow(llx, lly, urx, ury);
-  canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
-
-  bool cancel = false;
-
-  for(auto& layer : layersList)
+  else
   {
-    layer->draw(canvas.get(), extent, srid, 0, &cancel);
+    QString message = QObject::tr("View %1 could not find any data.").arg(viewId);
+    logger->error(message.toStdString(), viewId);
+    throw Exception() << ErrorDescription(message);
   }
-
-  // Save view
-
-  canvas->save("GeneretadImage", te::map::PNG);
-
-  canvas->clear();
 }
 
 

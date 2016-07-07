@@ -40,9 +40,7 @@ namespace terrama2
     namespace view
     {
       //! Base exception class for TerraMA2 view service.
-      struct Exception : virtual terrama2::core::Exception
-      {
-      };
+      struct Exception : virtual terrama2::core::Exception{ };
 
     } /* view */
   }   /* services */
