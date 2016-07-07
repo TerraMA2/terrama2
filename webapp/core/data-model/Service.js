@@ -40,6 +40,7 @@ Service.prototype.rawObject = function() {
     port: this.port,
     pathToBinary: this.pathToBinary,
     runEnviroment: this.runEnviroment,
+    numberOfThreads: this.numberOfThreads,
     description: this.description,
     service_type_id: this.service_type_id,
     log: this.log instanceof AbstractClass ? this.log.rawObject() : this.log

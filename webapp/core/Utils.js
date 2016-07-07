@@ -7,6 +7,7 @@ var exceptions = require('./Exceptions');
 var Signals = require('./Signals');
 var Promise = require("bluebird");
 var util = require('util');
+var isEqual = require('lodash').isEqual;
 
 // nodejs
 var glob = require('glob');
@@ -364,5 +365,9 @@ module.exports = {
       });
       TcpManager.emit('removeListeners');
     });
+  },
+
+  equal: function(origin, target) {
+    return isEqual(origin, target);
   }
 };

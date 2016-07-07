@@ -707,7 +707,7 @@ var DataManager = {
           port: serviceObject.port,
           numberOfThreads: serviceObject.numberOfThreads
         }, {
-          fields: ['name', 'description', 'port', 'numberOfThreads'],
+          fields: ['name', 'description', 'port', 'numberOfThreads', 'runEnviroment'],
           where: {
             id: serviceId
           }
@@ -720,6 +720,21 @@ var DataManager = {
         reject(err);
       })
     });
+  },
+
+  updateLog: function(logId, logObject) {
+    return new Promise(function(resolve, reject) {
+      models.db.Log.update(logObject, {
+        fields: ['host', 'port', 'user', 'path'],
+        where: {
+          id: logId
+        }
+      }).then(function() {
+        resolve();
+      }).catch(function(err) {
+        reject(new Error("Could not update log " + err.toString()));
+      })
+    })
   },
 
   /**

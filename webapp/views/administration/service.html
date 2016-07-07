@@ -255,7 +255,7 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label>{[ __("Enviroment") ]}:</label>
-                      <textarea class="form-control" style="max-width: 100%; max-height: 200px;" ng-disabled="update" ng-model="service.runEnviroment" rows="6" placeholder="Enviroment Variables"></textarea>
+                      <textarea class="form-control" style="max-width: 100%; max-height: 200px;" ng-model="service.runEnviroment" rows="6" placeholder="Enviroment Variables"></textarea>
                     </div>
                   </div>
                 </div>
@@ -283,7 +283,7 @@
                   <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Host") ]}:</label>
-                      <input class="form-control" name="host" ng-disabled="update" ng-model="log.host" placeholder="{[ __('Log hostname') ]}" type="text" required>
+                      <input class="form-control" name="host" ng-model="log.host" placeholder="{[ __('Log hostname') ]}" type="text" required>
 
                       <span class="form-control-feedback glyphicon" ng-show="logForm.host.$dirty" ng-class="{'glyphicon-ok': logForm.host.$valid, 'glyphicon-remove': logForm.host.$invalid }"></span>
 
@@ -294,7 +294,7 @@
                   <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Port") ]}:</label>
-                      <input class="form-control" name="port" ng-disabled="update" ng-model="log.port" placeholder="{[ __('Log port number') ]}" type="number" min="1" max="65535" required>
+                      <input class="form-control" name="port" ng-model="log.port" placeholder="{[ __('Log port number') ]}" type="number" min="1" max="65535" required>
 
                       <span class="form-control-feedback glyphicon" ng-show="logForm.port.$dirty" ng-class="{'glyphicon-ok': logForm.port.$valid, 'glyphicon-remove': logForm.port.$invalid }"></span>
 
@@ -310,7 +310,7 @@
                   <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("User") ]}:</label>
-                      <input class="form-control" name="user" ng-disabled="update" ng-model="log.user" placeholder="{[ __('Log username') ]}" type="text" required>
+                      <input class="form-control" name="user" ng-model="log.user" placeholder="{[ __('Log username') ]}" type="text" required>
 
                       <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
 
@@ -321,7 +321,7 @@
                   <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
                       <label>{[ __("Password") ]}:</label>
-                      <input class="form-control" name="password" ng-disabled="update" ng-model="log.password" placeholder="{[ __('Log password') ]}" type="password">
+                      <input class="form-control" name="password" ng-model="log.password" placeholder="{[ __('Log password') ]}" type="password">
 
                       <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
                     </div>
@@ -335,7 +335,6 @@
 
                       <input class="form-control"
                              name="database"
-                             ng-disabled="update"
                              ng-model="log.database"
                              placeholder="{[ __('Log database name') ]}"
                              type="text"
