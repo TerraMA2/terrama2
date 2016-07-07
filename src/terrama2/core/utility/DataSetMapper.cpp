@@ -65,7 +65,7 @@ std::unordered_map<std::string, size_t> terrama2::core::DataSetMapper::generateS
   for(size_t i = 0; i < dataSet->size(); ++i)
   {
     dataSet->move(i);
-    pkMap.emplace(dataSet->getString(pkPropertyPosition), i);
+    pkMap.emplace(dataSet->getValue(pkPropertyPosition)->toString(), i);
   }
 
   return pkMap;
