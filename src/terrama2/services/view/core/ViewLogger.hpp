@@ -43,6 +43,7 @@ namespace terrama2
         class ViewLogger : public terrama2::core::ProcessLogger
         {
         public:
+
           ViewLogger();
 
           virtual ~ViewLogger() = default;
