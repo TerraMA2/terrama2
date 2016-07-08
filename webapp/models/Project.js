@@ -10,7 +10,8 @@ module.exports = function(sequelize, DataTypes)
       version: DataTypes.INTEGER,
       name: {
         type: DataTypes.STRING,
-        unique: true
+        unique: true,
+        allowNull: false,
       },
       description: DataTypes.TEXT
     },
