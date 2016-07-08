@@ -121,7 +121,7 @@ namespace terrama2
 
         virtual std::string getFolder(DataSetPtr dataSet) const;
 
-        std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const;
+        std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const;
     };
   }
 }
