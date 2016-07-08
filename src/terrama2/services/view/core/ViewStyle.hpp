@@ -125,7 +125,7 @@ namespace terrama2
             case te::gm::MultiSurfaceZType:
             case te::gm::MultiSurfaceZMType:
             {
-              te::se::Fill* fill = CreateFill(color, "100.0");
+              te::se::Fill* fill = CreateFill(color, "200.0");
               te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
               te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
               symbolizer->setFill(fill);
