@@ -77,6 +77,23 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
 
   dataManager->add(dataSeriesRasterPtr);
 
+  //DataSeries information
+//  terrama2::core::DataSeries* dataSeriesRaster2 = new terrama2::core::DataSeries();
+//  terrama2::core::DataSeriesPtr dataSeriesRaster2Ptr(dataSeriesRaster2);
+//  dataSeriesRaster2->id = 2;
+//  dataSeriesRaster2->name = "dataSeriesRaster2";
+//  dataSeriesRaster2->dataProviderId = 1;
+//  dataSeriesRaster2->semantics.code = "GRID-geotiff";
+
+//  terrama2::core::DataSetGrid* dataSetRaster2 = new terrama2::core::DataSetGrid();
+//  dataSetRaster2->active = true;
+//  dataSetRaster2->format.emplace("mask", "Spot_Vegetacao_Jul2001_SP.tif");
+//  dataSetRaster2->format.emplace("timezone", "-03");
+
+//  dataSeriesRaster2->datasetList.emplace_back(dataSetRaster2);
+
+//  dataManager->add(dataSeriesRaster2Ptr);
+
   //DataProvider information
   terrama2::core::DataProvider* dataProviderGeometry = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderGeometryPtr(dataProviderGeometry);
@@ -95,7 +112,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   //DataSeries information
   terrama2::core::DataSeries* dataSeriesGeometry = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesGeometryPtr(dataSeriesGeometry);
-  dataSeriesGeometry->id = 2;
+  dataSeriesGeometry->id = 3;
   dataSeriesGeometry->name = "dataSeriesGeometry";
   dataSeriesGeometry->dataProviderId = 2;
   dataSeriesGeometry->semantics.code = "STATIC_DATA-ogr";
@@ -157,8 +174,9 @@ int main(int argc, char** argv)
     // TODO: enable when filter from JSon in utils is implemented
 //    view->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
 
-    view->dataSeriesList.push_back(2);
+//    view->dataSeriesList.push_back(2);
     view->dataSeriesList.push_back(1);
+    view->dataSeriesList.push_back(3);
 
     dataManager->add(viewPtr);
 

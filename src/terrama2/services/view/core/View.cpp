@@ -158,73 +158,76 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
   }
 
   // Create layers from series
-  for(auto& serie : seriesList)
+  for(auto& series : seriesList)
   {
-    std::shared_ptr<te::da::DataSet> dataSet = serie.begin()->second.syncDataSet->dataset();
-    std::shared_ptr<te::da::DataSetType> teDataSetType = serie.begin()->second.teDataSetType;
-
-    if(!teDataSetType->hasRaster() && !teDataSetType->hasGeom())
+    for(auto& serie : series)
     {
-      QString message = QObject::tr("DataSet %1 has no drawable data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
-      logger->error(message.toStdString(), viewId);
-    }
+      std::shared_ptr<te::da::DataSet> dataSet = serie.second.syncDataSet->dataset();
+      std::shared_ptr<te::da::DataSetType> teDataSetType = serie.second.teDataSetType;
 
-    if(teDataSetType->hasRaster())
-    {
-      // TODO: A terralib dataset can have more than one raster field in it?
-      std::size_t rpos = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
-
-      if(!dataSet->moveFirst())
+      if(!teDataSetType->hasRaster() && !teDataSetType->hasGeom())
       {
-        QString message = QObject::tr("Can not access DataSet %1 raster data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+        QString message = QObject::tr("DataSet %1 has no drawable data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
         logger->error(message.toStdString(), viewId);
       }
-      else
+
+      if(teDataSetType->hasRaster())
       {
-        auto raster(dataSet->getRaster(rpos));
+        // TODO: A terralib dataset can have more than one raster field in it?
+        std::size_t rpos = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
 
-        te::gm::Envelope* extent = raster->getExtent();
+        if(!dataSet->moveFirst())
+        {
+          QString message = QObject::tr("Can not access DataSet %1 raster data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+          logger->error(message.toStdString(), viewId);
+        }
+        else
+        {
+          auto raster(dataSet->getRaster(rpos));
 
-        // Creates a DataSetLayer of raster
-        std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), raster->getName(), dataSet, teDataSetType));
-        rasterLayer->setDataSetName(teDataSetType->getDatasetName());
-        rasterLayer->setExtent(*extent);
-        rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
-        rasterLayer->setSRID(raster->getSRID());
+          te::gm::Envelope* extent = raster->getExtent();
 
-        // VINICIUS: Set Style
-        MONO_0_Style(rasterLayer);
+          // Creates a DataSetLayer of raster
+          std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), raster->getName(), dataSet, teDataSetType));
+          rasterLayer->setDataSetName(teDataSetType->getDatasetName());
+          rasterLayer->setExtent(*extent);
+          rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
+          rasterLayer->setSRID(raster->getSRID());
 
-        layersList.push_back(rasterLayer);
+          // VINICIUS: Set Style
+          MONO_0_Style(rasterLayer);
+
+          layersList.push_back(rasterLayer);
+        }
       }
-    }
 
-    if(teDataSetType->hasGeom())
-    {
-      // TODO: A terralib dataset can have more than one geometry field in it?
-      auto geomProperty = te::da::GetFirstGeomProperty(teDataSetType.get());
-
-      if(!dataSet->moveFirst())
+      if(teDataSetType->hasGeom())
       {
-        QString message = QObject::tr("Can not access DataSet %1 geometry data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
-        logger->error(message.toStdString(), viewId);
-      }
-      else
-      {
-        std::shared_ptr< te::gm::Envelope > extent(dataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
+        // TODO: A terralib dataset can have more than one geometry field in it?
+        auto geomProperty = te::da::GetFirstGeomProperty(teDataSetType.get());
 
-        // Creates a Layer
-        std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), geomProperty->getName(), dataSet, teDataSetType));
-        geomLayer->setDataSetName(teDataSetType->getName());
-        geomLayer->setVisibility(te::map::VISIBLE);
-        geomLayer->setExtent(*extent);
-        geomLayer->setStyle(CreateFeatureTypeStyle(geomProperty->getGeometryType()));
-        geomLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
-        geomLayer->setSRID(geomProperty->getSRID());
+        if(!dataSet->moveFirst())
+        {
+          QString message = QObject::tr("Can not access DataSet %1 geometry data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
+          logger->error(message.toStdString(), viewId);
+        }
+        else
+        {
+          std::shared_ptr< te::gm::Envelope > extent(dataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
 
-        // VINICIUS: set style
+          // Creates a Layer
+          std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), geomProperty->getName(), dataSet, teDataSetType));
+          geomLayer->setDataSetName(teDataSetType->getName());
+          geomLayer->setVisibility(te::map::VISIBLE);
+          geomLayer->setExtent(*extent);
+          geomLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
+          geomLayer->setSRID(geomProperty->getSRID());
 
-        layersList.push_back(geomLayer);
+          // VINICIUS: set style
+          geomLayer->setStyle(CreateFeatureTypeStyle(geomProperty->getGeometryType()));
+
+          layersList.push_back(geomLayer);
+        }
       }
     }
   }
