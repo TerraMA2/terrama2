@@ -69,8 +69,8 @@ namespace terrama2
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
 
-          uint32_t resolutionWidth; //!< Width resolution of view
-          uint32_t resolutionHeight; //!< Height resolution of view
+          uint32_t resolutionWidth; //!< Width resolution of view in pixels
+          uint32_t resolutionHeight; //!< Height resolution of view in pixels
 
           // VINICIUS: add styles
         };

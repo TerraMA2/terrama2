@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/impl/Utils.hpp
+  \file terrama2/impl/Utils.hpp
 
   \brief Utility funtions for impl classes.
 
