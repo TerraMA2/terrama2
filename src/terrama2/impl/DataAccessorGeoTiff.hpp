@@ -60,10 +60,11 @@ namespace terrama2
       //! Default assignment operator
       DataAccessorGeoTiff& operator=(DataAccessorGeoTiff&& other) = default;
 
-      inline static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      inline static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
-        return new DataAccessorGeoTiff(dataProvider, dataSeries, filter);
+        return std::make_shared<DataAccessorGeoTiff>(dataProvider, dataSeries, filter);
       }
+      static DataAccessorType dataAccessorType(){ return "GRID-geotiff"; }
 
       virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
 

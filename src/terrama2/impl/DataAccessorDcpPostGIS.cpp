@@ -56,3 +56,8 @@ std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceType() const
 {
   return "POSTGIS";
 }
+
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpPostGIS::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+{
+  return std::make_shared<DataAccessorDcpPostGIS>(dataProvider, dataSeries, filter);
+}

@@ -130,9 +130,9 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
   scopedTransaction.commit();
 }
 
-terrama2::core::DataStorager* terrama2::core::DataStoragerPostGis::make(DataProviderPtr dataProvider)
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGis::make(DataProviderPtr dataProvider)
 {
-  return new DataStoragerPostGis(dataProvider);
+  return std::make_shared<DataStoragerPostGis>(dataProvider);
 }
 
 std::string terrama2::core::DataStoragerPostGis::getDataSetTableName(DataSetPtr dataSet) const

@@ -42,6 +42,7 @@ namespace terrama2
 {
   namespace core
   {
+    typedef std::string DataRetrieverType;
     /*!
     \brief DataRetriever provides an interface to download files from, usualy, remote servers.
 
