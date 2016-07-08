@@ -222,7 +222,6 @@ std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > t
       else
         uri = dataProvider_->uri;
 
-      //TODO: Set last date collected in filter
       DataSetSeries tempSeries = getSeries(uri, filter, dataset);
       series.emplace(dataset, tempSeries);
 
