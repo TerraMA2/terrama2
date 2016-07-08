@@ -61,8 +61,6 @@ namespace terrama2
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
         //! Recover file mask
         virtual std::string getMask(DataSetPtr dataset) const;
-        //! Recover timezone information from dataset
-        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
 
       protected:
         virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;

@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     std::transform(serviceType.begin(), serviceType.end(), serviceType.begin(), ::tolower);
 
     if(!checkServiceType(serviceType))
-      return -1;//FIXME: invalid service type return code
+      return UNKNOWN_SERVICE_TYPE;
 
     int listeningPort = std::stoi(argv[2]);
 

@@ -54,7 +54,7 @@ bool terrama2::core::TcpManager::updateListeningPort(uint32_t port) noexcept
     if(isListening())
       close();
 
-    return listen(serverAddress(), port);
+    return listen(serverAddress(), static_cast<quint16>(port));
   }
   catch(...)
   {

@@ -229,11 +229,10 @@ void terrama2::core::DataAccessorPostGis::updateLastTimestamp(DataSetPtr dataSet
     auto date = boostLocalTimeWithoutTimeZone.date();
     auto time = boostLocalTimeWithoutTimeZone.utc_time().time_of_day();
     boost::posix_time::ptime ptime(date, time);
-    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC+00"));
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(getTimeZone(dataSet)));
 
     boost::local_time::local_date_time boostLocalTime(ptime, zone);
     lastDateTimeTz = std::make_shared<te::dt::TimeInstantTZ>(boostLocalTime);
-    //FIXME: add terrama2::DataSet timezone
   }
   else if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT_TZ)
   {
