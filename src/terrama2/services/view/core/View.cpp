@@ -29,6 +29,7 @@
 
 // STL
 #include <cmath>
+#include <algorithm>
 
 // TerraLib
 #include <terralib/common/StringUtils.h>
@@ -78,7 +79,11 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
     // VINICIUS: filter for each dataSeries
     std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > inputDataSeriesList;
 
-    for(uint32_t dataSeriesId : viewPtr->dataSeriesList)
+    // Invert Series list order to keep it the future declared vector seriesList in wanted order and draw it
+    std::vector<uint32_t> invertedDataSeriesList(viewPtr->dataSeriesList.size(), 0);
+    std::reverse_copy(viewPtr->dataSeriesList.begin(), viewPtr->dataSeriesList.end(), invertedDataSeriesList.begin());
+
+    for(uint32_t dataSeriesId : invertedDataSeriesList)
     {
       terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
       terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
