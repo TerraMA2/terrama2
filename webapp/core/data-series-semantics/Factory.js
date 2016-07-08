@@ -54,7 +54,7 @@ function availablePlugins() {
 
 
 // loading semantics json
-var semanticsJsonPath = path.join(__dirname, "../../../src/terrama2/core/semantics.json");
+var semanticsJsonPath = path.join(__dirname, "../../../share/terrama2/semantics.json");
 var semanticsObject = JSON.parse(fs.readFileSync(semanticsJsonPath, 'utf-8'));
 
 // list of all instances of semantics type
