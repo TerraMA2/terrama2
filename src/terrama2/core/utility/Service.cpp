@@ -53,7 +53,6 @@ void terrama2::core::Service::start(size_t threadNumber)
     throw ServiceException() << ErrorDescription(errMsg);
   }
 
-
   try
   {
     stop_ = false;
@@ -214,6 +213,14 @@ void terrama2::core::Service::processingTaskThread() noexcept
 
 void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noexcept
 {
+  // if service already running, throws
+  if(mainLoopThread_.valid())
+  {
+    QString errMsg = tr("Service not running.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return;
+  }
+
   std::unique_lock<std::mutex> lock(mutex_);
   TERRAMA2_LOG_DEBUG() << tr("Old number of threads: %1").arg(processingThreadPool_.size());
 
