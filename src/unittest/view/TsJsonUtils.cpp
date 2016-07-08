@@ -81,7 +81,7 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);
     QCOMPARE(viewBackPtr->schedule.frequencyUnit, viewPtr->schedule.frequencyUnit);
 
-    // TODO: enable tests when filter to JSon in utils is implemented
+    // TODO: enable tests when filter from JSon in utils is implemented
 //    QCOMPARE(viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
 //    QCOMPARE(viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
 

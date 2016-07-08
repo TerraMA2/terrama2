@@ -164,7 +164,6 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
       logger->error(message.toStdString(), viewId);
     }
 
-    // TODO: A terralib dataset can have a geom and raster at same time?
     if(teDataSetType->hasRaster())
     {
       // TODO: A terralib dataset can have more than one raster field in it?

@@ -32,12 +32,9 @@
 #include <QTimer>
 
 // TerraMA2
-//#include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
-//#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-//#include <terrama2/impl/DataAccessorStaticDataOGR.hpp>
-//#include <terrama2/core/data-access/GridSeries.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/impl/Utils.hpp>
 
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/services/view/core/Service.hpp>
@@ -52,6 +49,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   terrama2::core::DataProvider* dataProviderRaster = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderRasterPtr(dataProviderRaster);
   dataProviderRaster->id = 1;
+  dataProviderRaster->name = "dataProviderRaster";
   dataProviderRaster->uri = "file://";
   dataProviderRaster->uri += TERRAMA2_DATA_DIR;
   dataProviderRaster->uri += "/geotiff";
@@ -66,6 +64,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   terrama2::core::DataSeries* dataSeriesRaster = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesRasterPtr(dataSeriesRaster);
   dataSeriesRaster->id = 1;
+  dataSeriesRaster->name = "dataSeriesRaster";
   dataSeriesRaster->dataProviderId = 1;
   dataSeriesRaster->semantics.code = "GRID-geotiff";
 
@@ -82,6 +81,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   terrama2::core::DataProvider* dataProviderGeometry = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderGeometryPtr(dataProviderGeometry);
   dataProviderGeometry->id = 2;
+  dataProviderGeometry->name = "dataProviderGeometry";
   dataProviderGeometry->uri = "file://";
   dataProviderGeometry->uri += TERRAMA2_DATA_DIR;
   dataProviderGeometry->uri += "/shapefile";
@@ -96,6 +96,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   terrama2::core::DataSeries* dataSeriesGeometry = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesGeometryPtr(dataSeriesGeometry);
   dataSeriesGeometry->id = 2;
+  dataSeriesGeometry->name = "dataSeriesGeometry";
   dataSeriesGeometry->dataProviderId = 2;
   dataSeriesGeometry->semantics.code = "STATIC_DATA-ogr";
 
@@ -112,6 +113,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
 int main(int argc, char** argv)
 {
   terrama2::core::initializeTerraMA();
+  terrama2::core::registerFactories();
 
   QApplication app(argc, argv);
 
@@ -152,10 +154,11 @@ int main(int argc, char** argv)
     schedule.frequencyUnit = "min";
 
     view->schedule = schedule;
+    // TODO: enable when filter from JSon in utils is implemented
 //    view->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
 
-    view->dataSeriesList.push_back(1);
     view->dataSeriesList.push_back(2);
+    view->dataSeriesList.push_back(1);
 
     dataManager->add(viewPtr);
 
