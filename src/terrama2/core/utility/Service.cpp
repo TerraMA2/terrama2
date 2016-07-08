@@ -213,11 +213,10 @@ void terrama2::core::Service::processingTaskThread() noexcept
 
 void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noexcept
 {
-  // if service already running, throws
-  if(mainLoopThread_.valid())
+  //service not runnig, start service with numberOfThreads threads
+  if(!mainLoopThread_.valid())
   {
-    QString errMsg = tr("Service not running.");
-    TERRAMA2_LOG_ERROR() << errMsg;
+    start(numberOfThreads);
     return;
   }
 
