@@ -147,8 +147,8 @@ terrama2Application.directive('terrama2Box', function() {
     scope: {
       title: '=title',
       helper: '=?helper',
-      extra: '=?extra',
-      'css': '=?css',
+      extra: '=?',
+      css: '=?'
     },
     controller: function($scope) {
       $scope.css = $scope.css || {};
@@ -158,11 +158,9 @@ terrama2Application.directive('terrama2Box', function() {
         $scope.boxType = $scope.css.boxType;
     },
     link: function(scope, element, attrs, ctrl, transclude) {
-      var target = element.find('#targetTransclude');
+      var self = scope.$parent.$new();
 
-      transclude(scope.$parent, function(clone, iterScope) {
-        target.append(clone);
-      });
+      element.find('#targetTransclude').append(transclude(self));
     }
   }
 });
@@ -193,8 +191,14 @@ terrama2Application.directive('terrama2Form', function() {
     scope: {
       formName: '=formName'
     },
-    template: '<form name="{{ formName }}" novalidate><ng-transclude></ng-transclude></form>',
+    template: '<form name="{{ formName }}" novalidate><div id="targetTransclude"></div></form>',
     link: function(scope, element, attributes, ctrl, transclude){
+      var target = element.find('#targetTransclude');
+
+      transclude(scope, function(clone, scope) {
+        target.append(clone);
+      });
+
       scope.$on('formValidation', function() {
         console.log(scope);
 

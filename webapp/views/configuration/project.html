@@ -24,13 +24,13 @@
 
 <div ng-controller="Registration">
   <terrama2-box title="'{[ __("Project Registration") ]}'">
-    <terrama2-form form-name="formName">
+    <form name="forms.projectForm">
       <div class="row">
         <div class="col-md-12">
           <div class="form-group" terrama2-show-errors>
             <label>{[ __("Name") ]}:</label>
             <input class="form-control" name="name" ng-model="project.name" placeholder="{[ __('Project Name') ]}" type="text" required>
-            <span class="help-block has-error" ng-show="form.name.$touched && form.name.$error.required && form.name.$invalid">{[ __('Project name is required') ]}</span>
+            <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$error.required && form.name.$invalid">{[ __('Project name is required') ]}</span>
 
             <span class="help-block has-error" ng-show="errorFound">{{ errorFound }}</span>
           </div>
@@ -56,7 +56,7 @@
         <i class="fa fa-refresh fa-spin"></i>
       </div>
       <!-- /.row -->
-    </terrama2-form>
+    </form>
   </terrama2-box>
 </div> <!-- ./div -->
 
