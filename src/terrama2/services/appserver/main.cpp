@@ -38,6 +38,7 @@
 
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/ErrorCodes.hpp>
@@ -116,7 +117,7 @@ int main(int argc, char* argv[])
     std::transform(serviceType.begin(), serviceType.end(), serviceType.begin(), ::tolower);
 
     if(!checkServiceType(serviceType))
-      return -1;//FIXME: invalid service type return code
+      return UNKNOWN_SERVICE_TYPE;
 
     int listeningPort = std::stoi(argv[2]);
 
@@ -184,19 +185,17 @@ int main(int argc, char* argv[])
       return TERRAMA2_FINALIZATION_ERROR;
     }
   }
-  //TODO: should be using logger?
   catch(boost::exception& e)
   {
-    std::cout << boost::diagnostic_information(e) << std::endl;
+    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(std::exception& e)
   {
-    std::cout << e.what() << std::endl;
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(...)
   {
-    // TODO: o que fazer com uncaught exception
-    std::cout << "\n\nException...\n" << std::endl;
+    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnkown Exception...\n");
   }
 
   return 0;

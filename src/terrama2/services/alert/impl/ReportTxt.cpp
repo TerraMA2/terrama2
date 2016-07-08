@@ -40,7 +40,7 @@
 #include <QObject>
 
 terrama2::services::alert::core::ReportTxt::ReportTxt(std::unordered_map<std::string, std::string> reportMetadata)
- : Report(reportMetadata)
+ : ReportText(reportMetadata)
 {
 
 }
@@ -54,52 +54,14 @@ void terrama2::services::alert::core::ReportTxt::process(AlertPtr alertPtr,
   std::string filePath = reportMetadata_[ReportTags::DESTINATION_FOLDER]+"/"+reportMetadata_[ReportTags::FILE_NAME];
 
   //replace wilcards for values
-  filePath = refactorMask(filePath, alertPtr, alertTime);
+  filePath = refactorMask(filePath, alertPtr, dataset, alertTime);
 
   //open file
   std::fstream fileStream;
   fileStream.open(filePath, std::ios::out);
   if(fileStream.is_open())
   {
-    fileStream << reportMetadata_[ReportTags::TITLE] << "\n" << reportMetadata_[ReportTags::SUBTITLE] << "\n" << std::endl;
-    fileStream << reportMetadata_[ReportTags::DESCRIPTION] << "\n" << reportMetadata_[ReportTags::AUTHOR] << "\t" << reportMetadata_[ReportTags::CONTACT] << "\n" << std::endl;
-
-    //TODO: format alertTime >> reportMetadata_[ReportTags::TIMESTAMP_FORMAT]
-    fileStream << QObject::tr("Execution date: %1").arg(QString::fromStdString(alertTime->toString())).toStdString() << "\n" << std::endl;
-
-    //add table headers
-    auto columns = alertDataSet->getNumProperties();
-    for (size_t i = 0; i < columns; ++i)
-    {
-      fileStream << std::setw(15) << alertDataSet->getPropertyName(i) << "\t";
-    }
-    fileStream << "\n" << std::endl;
-
-    //add table headers content
-    alertDataSet->moveBeforeFirst();
-    while(alertDataSet->moveNext())
-    {
-      for (size_t i = 0; i < columns; ++i)
-      {
-        try
-        {
-          if(alertDataSet->isNull(i))
-            fileStream << std::setw(15) << "NULL" << "\t";
-          else
-          {
-            fileStream << std::setw(15) << alertDataSet->getAsString(i) << "\t";
-          }
-        }
-        catch (...)
-        {
-          fileStream << std::setw(15) << "NULL" << "\t";
-        }
-      }
-
-      fileStream << std::endl;
-    }
-
-    fileStream << "\n" << reportMetadata_[ReportTags::COPYRIGHT] << std::endl;
+    fileStream << processInternal(alertPtr, dataset, alertTime, alertDataSet);
   }
   else
   {
@@ -114,7 +76,10 @@ terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::Repo
   return std::make_shared<ReportTxt>(reportMetadata);
 }
 
-std::string terrama2::services::alert::core::ReportTxt::refactorMask(const std::string& filePath, AlertPtr , std::shared_ptr<te::dt::TimeInstantTZ> alertTime) const
+std::string terrama2::services::alert::core::ReportTxt::refactorMask(const std::string& filePath,
+                                                                     AlertPtr alert,
+                                                                     terrama2::core::DataSetPtr dataset,
+                                                                     std::shared_ptr<te::dt::TimeInstantTZ> alertTime) const
 {
   //TODO: implement ReportTxt::refactorMask
   return filePath;

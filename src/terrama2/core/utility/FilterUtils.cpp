@@ -92,8 +92,7 @@ bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& f
     {
       int year = std::stoi(match["YEAR2DIGITS"].str());
 
-      //TODO: review year with 2 digits
-      if(year < 50)
+      if(year < 80)
         ts = "20" + match["YEAR2DIGITS"].str();
       else
         ts = "19" + match["YEAR2DIGITS"].str();

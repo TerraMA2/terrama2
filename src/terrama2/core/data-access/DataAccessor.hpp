@@ -155,6 +155,9 @@ namespace terrama2
         */
         virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
 
+        //! Recover timezone information from dataset
+        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
+
       protected:
 
         /*!

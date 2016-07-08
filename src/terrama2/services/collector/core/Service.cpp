@@ -94,7 +94,6 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
 
     auto datamanager = dataManager_.lock();
     auto collector = datamanager->findCollector(collectorId);
@@ -107,6 +106,8 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
       return;
 
     collectorQueue_.push_back(collectorId);
+    TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
+
     mainLoopCondition_.notify_one();
   }
   catch(...)

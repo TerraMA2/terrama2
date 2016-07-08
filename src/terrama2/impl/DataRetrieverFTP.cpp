@@ -40,6 +40,7 @@
 #include "../core/utility/Logger.hpp"
 #include "../core/data-model/Filter.hpp"
 #include "../core/utility/FilterUtils.hpp"
+#include "../core/utility/Utils.hpp"
 
 // Libcurl
 #include <curl/curl.h>

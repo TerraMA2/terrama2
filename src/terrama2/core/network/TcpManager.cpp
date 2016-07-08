@@ -54,7 +54,7 @@ bool terrama2::core::TcpManager::updateListeningPort(uint32_t port) noexcept
     if(isListening())
       close();
 
-    return listen(serverAddress(), port);
+    return listen(serverAddress(), static_cast<quint16>(port));
   }
   catch(...)
   {
@@ -254,13 +254,9 @@ void terrama2::core::TcpManager::readReadySlot(std::shared_ptr<QTcpSocket> tcpSo
   try
   {
     {
-      //Raii block
-      RaiiBlock block(blockSize_);
-
       QDataStream in(tcpSocket.get());
       TERRAMA2_LOG_DEBUG() << "bytes available: " << tcpSocket->bytesAvailable();
 
-      Q_UNUSED(block)
       if(blockSize_ == 0)
       {
         if(tcpSocket->bytesAvailable() < static_cast<int>(sizeof(uint32_t)))
@@ -276,11 +272,12 @@ void terrama2::core::TcpManager::readReadySlot(std::shared_ptr<QTcpSocket> tcpSo
 
       if(tcpSocket->bytesAvailable() < blockSize_)
       {
-        auto bytearray = tcpSocket->readAll();
-        TERRAMA2_LOG_DEBUG() << bytearray.right(bytearray.size()-4).data();
-        TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nWrong message size.");
+        //The message isn't complete, wait for next readReady signal
         return;
       }
+      //Raii block
+      RaiiBlock block(blockSize_);
+      Q_UNUSED(block)
 
       int sigInt = -1;
       in >> sigInt;

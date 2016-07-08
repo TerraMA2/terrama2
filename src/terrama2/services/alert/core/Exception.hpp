@@ -44,6 +44,8 @@ namespace terrama2
 
       //! Base exception class for Report exceptions.
       struct ReportException: virtual Exception{};
+      //! Base exception class for AdditionalDataException exceptions.
+      struct AdditionalDataException: virtual Exception{};
     }
   } /* services */
 }  // end namespace terrama2

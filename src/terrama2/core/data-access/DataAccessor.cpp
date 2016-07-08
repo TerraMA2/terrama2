@@ -275,7 +275,7 @@ Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
 {
   try
   {
-    Srid srid = std::stoi(dataSet->format.at("srid"));
+    Srid srid = std::stoi(getProperty(dataSet, dataSeries_, "srid"));
     return srid;
   }
   catch(...)
@@ -294,4 +294,9 @@ std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr da
 std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "geometry_property");
+}
+
+std::string terrama2::core::DataAccessor::getTimeZone(DataSetPtr dataSet, bool logErrors) const
+{
+  return getProperty(dataSet, dataSeries_, "timezone", logErrors);
 }

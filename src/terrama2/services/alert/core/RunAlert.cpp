@@ -93,6 +93,7 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     // analysing data
 
     auto filter = alertPtr->filter;
+    filter.lastValue = true;
     auto risk = alertPtr->risk;
 
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
@@ -113,14 +114,6 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
       const std::string dataSetAlertName = "alert_"+std::to_string(alertPtr->id)+"_"+std::to_string(dataset->id);
       auto alertDataSetType = std::make_shared<te::da::DataSetType>(dataSetAlertName);
 
-      const std::string riskLevelProperty = "risk_level";
-      te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::INT32_TYPE);
-      alertDataSetType->add(riskLevelProp);
-
-      const std::string riskNameProperty = "risk_name";
-      te::dt::SimpleProperty* riskNameProp = new te::dt::SimpleProperty(riskNameProperty, te::dt::STRING_TYPE);
-      alertDataSetType->add(riskNameProp);
-
       auto teDataset = dataSeries.syncDataSet->dataset();
       auto dataSetType = dataSeries.teDataSetType;
 
@@ -131,9 +124,16 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
 
       for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
       {
-        iter->prepareData(filter);
+        iter->prepareData(alertPtr->filter);
         iter->addAdditionalAttributesColumns(alertDataSetType);
       }
+
+      te::dt::SimpleProperty* riskAttributeProp = new te::dt::SimpleProperty(risk.attribute, te::dt::STRING_TYPE);
+      alertDataSetType->add(riskAttributeProp);
+
+      const std::string riskLevelProperty = "risk_level";
+      te::dt::SimpleProperty* riskLevelProp = new te::dt::SimpleProperty(riskLevelProperty, te::dt::STRING_TYPE);
+      alertDataSetType->add(riskLevelProp);
 
       auto alertDataSet = std::make_shared<te::mem::DataSet>(alertDataSetType.get());
 
@@ -147,7 +147,7 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
       teDataset->moveBeforeFirst();
       alertDataSet->moveBeforeFirst();
 
-      std::function<std::tuple<int, std::string>(size_t pos)> getRisk = terrama2::services::alert::core::createGetRiskFunction(risk, teDataset);
+      std::function<std::tuple<int, std::string, std::string>(size_t pos)> getRisk = terrama2::services::alert::core::createGetRiskFunction(risk, teDataset);
 
       while(teDataset->moveNext())
       {
@@ -161,9 +161,10 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
         // risk level
         int riskLevel = 0;
         std::string riskName;
-        std::tie(riskLevel, riskName) = getRisk(pos);
-        item->setInt32(riskLevelProperty, riskLevel);
-        item->setString(riskNameProperty, riskName);
+        std::string attributeValue;
+        std::tie(riskLevel, riskName, attributeValue) = getRisk(pos);
+        item->setString(riskLevelProperty, std::to_string(riskLevel)+"("+riskName+")");
+        item->setString(risk.attribute, attributeValue);
 
         for(auto iter = additionalDataVector.begin(); iter != additionalDataVector.end(); ++iter)
         {
@@ -201,14 +202,15 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
   }
 }
 
-std::function<std::tuple<int, std::string>(size_t pos)> terrama2::services::alert::core::createGetRiskFunction(terrama2::core::DataSeriesRisk risk, std::shared_ptr<te::da::DataSet> teDataSet)
+std::function<std::tuple<int, std::string, std::string>(size_t pos)> terrama2::services::alert::core::createGetRiskFunction(terrama2::core::DataSeriesRisk risk, std::shared_ptr<te::da::DataSet> teDataSet)
 {
   if(risk.riskType == terrama2::core::RiskType::NUMERIC)
   {
     return [risk, teDataSet](size_t pos)
     {
       const auto& value = teDataSet->getDouble(pos);
-      return risk.riskLevel(value);
+      auto level = risk.riskLevel(value);
+      return std::make_tuple(std::get<0>(level), std::get<1>(level), teDataSet->getValue(pos)->toString());
     };
   }
   else
@@ -216,7 +218,8 @@ std::function<std::tuple<int, std::string>(size_t pos)> terrama2::services::aler
     return [risk, teDataSet](size_t pos)
     {
       const auto& value = teDataSet->getString(pos);
-      return risk.riskLevel(value);
+      auto level = risk.riskLevel(value);
+      return std::make_tuple(std::get<0>(level), std::get<1>(level), teDataSet->getValue(pos)->toString());
     };
   }
 }

@@ -43,8 +43,10 @@
 //Qt
 #include <QObject>
 
-namespace te {
-  namespace dt {
+namespace te
+{
+  namespace dt
+  {
     class TimeInstantTZ;
   } /* dt */
 } /* te */
@@ -80,88 +82,88 @@ namespace terrama2
     */
     class Service : public QObject
     {
-      Q_OBJECT
+        Q_OBJECT
 
-    public:
-      //! Default constructor
-      Service();
-      /*!
-        \brief Destructor
+      public:
+        //! Default constructor
+        Service();
+        /*!
+          \brief Destructor
 
-        Stop the Service and destroys it.
-      */
-      virtual ~Service();
+          Stop the Service and destroys it.
+        */
+        virtual ~Service();
 
-      /*!
-         \brief Starts the server.
-         \param threadNumber Number of threads to process tasks.
+        /*!
+           \brief Starts the server.
+           \param threadNumber Number of threads to process tasks.
 
-         Starts the server, starts to process waiting tasks.
+           Starts the server, starts to process waiting tasks.
 
-         If the number of threads is 0 (default), this method will try to identify the number of processors,
-         if it's not possible, only one thread will be created.
+           If the number of threads is 0 (default), this method will try to identify the number of processors,
+           if it's not possible, only one thread will be created.
 
-       */
-      virtual void start(uint threadNumber = 0);
+         */
+        virtual void start(size_t threadNumber = 0);
 
-    signals:
-      void serviceFinishedSignal();
+      signals:
+        void serviceFinishedSignal();
 
-    public slots:
+      public slots:
 
-      virtual void addToQueue(ProcessId processId) noexcept = 0;
+        virtual void addToQueue(ProcessId processId) noexcept = 0;
 
-      /*!
-         \brief  Stops the service.
+        /*!
+           \brief  Stops the service.
 
-         \note Incomplete tasks might be lost and will be restarted when the service is started again.
+           \note Incomplete tasks might be lost and will be restarted when the service is started again.
 
-       */
-      void stopService() noexcept;
-      void stop(bool holdStopSignal) noexcept;
+         */
+        void stopService() noexcept;
+        void stop(bool holdStopSignal) noexcept;
 
-      /*!
-        \brief Updates the number of process threads in the threa dpool
+        /*!
+          \brief Updates the number of process threads in the threa dpool
 
-        May wait for threads to finish current processing befor changes.
+          May wait for threads to finish current processing befor changes.
 
-        \param numberOfThreads Number of threads desired, if 0 the maximum number of threads allowed by the system the will be used.
-      */
-      virtual void updateNumberOfThreads(int numberOfThreads = 0) noexcept final;
+          \param numberOfThreads Number of threads desired, if 0 the maximum number of threads allowed by the system the will be used.
+        */
+        virtual void updateNumberOfThreads(size_t numberOfThreads = 0) noexcept final;
 
-    protected:
+      protected:
 
-      TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
-      /*!
-         \brief Returns true if the main loop should continue.
-         \return True if there is data to be tasked.
-       */
-      virtual bool hasDataOnQueue() = 0;
+        TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
+        /*!
+           \brief Returns true if the main loop should continue.
+           \return True if there is data to be tasked.
+         */
+        virtual bool hasDataOnQueue() = 0;
 
-      /*!
-         \brief Watches for data that needs to be processed.
-       */
-      void mainLoopThread() noexcept;
-      /*!
-        \brief Add next task to the processing queue.
-        \return True if there is more data to be processed.
-       */
-      virtual bool processNextData() = 0;
+        /*!
+           \brief Watches for data that needs to be processed.
+         */
+        void mainLoopThread() noexcept;
+        /*!
+          \brief Add next task to the processing queue.
+          \return True if there is more data to be processed.
+         */
+        virtual bool processNextData() = 0;
 
-      //! Process a queued task.
-      void processingTaskThread() noexcept;
+        //! Process a queued task.
+        void processingTaskThread() noexcept;
 
-      //! Verifys if the number of threads is greater than 0.
-      int verifyNumberOfThreads(int numberOfThreads) const;
+        //! Verifys if the number of threads is greater than 0.
+        size_t verifyNumberOfThreads(size_t numberOfThreads) const;
 
-      bool stop_;
-      std::mutex  mutex_;                                       //!< Mutex for thread safety
-      std::future<void> mainLoopThread_;                            //!< Thread that holds the loop of processing queued dataset.
-      std::condition_variable mainLoopCondition_;                  //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
+        bool stop_;
+        std::mutex  mutex_;                                       //!< Mutex for thread safety
+        std::future<void> mainLoopThread_;                            //!< Thread that holds the loop of processing queued dataset.
+        std::condition_variable mainLoopCondition_;                  //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
 
-      std::queue<std::packaged_task<void()> > taskQueue_;       //!< Queue for tasks.
-      std::vector<std::future<void> > processingThreadPool_;              //!< Pool of processing threads
-      std::condition_variable processingThreadCondition_;                //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.
+        std::queue<std::packaged_task<void()> > taskQueue_;       //!< Queue for tasks.
+        std::vector<std::future<void> > processingThreadPool_;              //!< Pool of processing threads
+        std::condition_variable processingThreadCondition_;                //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.
 
     };
   }
