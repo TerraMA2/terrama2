@@ -259,8 +259,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
-    terrama2::core::Filter filter;
-    std::string uri = "";
+    terrama2::core::Filter filter;    
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
@@ -268,8 +267,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
 
     std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));    
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
 
@@ -328,8 +326,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
-    terrama2::core::Filter filter;
-    std::string uri = "";
+    terrama2::core::Filter filter;    
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
@@ -337,8 +334,7 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
 
     std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));    
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
 
