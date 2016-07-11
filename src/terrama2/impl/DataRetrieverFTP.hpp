@@ -114,7 +114,8 @@ namespace terrama2
        */
       static size_t write_vector(void *ptr, size_t size, size_t nmemb, void *data);
 
-      static DataRetriever* make(DataProviderPtr dataProvider);
+      static DataRetrieverPtr make(DataProviderPtr dataProvider);
+      static DataRetrieverType dataRetrieverType(){ return "FTP"; }
 
     private:
       std::vector<std::string> vectorNames_; //! vector filtered names.
@@ -128,4 +129,3 @@ namespace terrama2
 }
 
 #endif //__TERRAMA2_IMPL_DATARETRIEVERFTP_HPP__
-

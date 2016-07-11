@@ -482,7 +482,7 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   {
     //NOTE: Depends on te::dt::TimeInstant toString implementation, it's doc is wrong
     std::string dateString = lastDateTime->toString();
-    boost::local_time::local_date_time boostLocalTimeWithoutTimeZone = TimeUtils::stringToBoostLocalTime(dateString, "%Y-%b-%d %H:%M:%S");
+    boost::local_time::local_date_time boostLocalTimeWithoutTimeZone = TimeUtils::stringToBoostLocalTime(dateString, "%Y-%b-%d %H:%M:%S%F %ZP");
     auto date = boostLocalTimeWithoutTimeZone.date();
     auto time = boostLocalTimeWithoutTimeZone.utc_time().time_of_day();
     boost::posix_time::ptime ptime(date, time);

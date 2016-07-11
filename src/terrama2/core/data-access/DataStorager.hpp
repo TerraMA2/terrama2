@@ -47,6 +47,7 @@ namespace terrama2
 {
   namespace core
   {
+    typedef std::string DataStoragetType;
     /*!
       \brief DataStorager provides an interface to store a DataSetSeries.
     */
@@ -60,7 +61,7 @@ namespace terrama2
         DataStorager(DataProviderPtr outputDataProvider);
         //! Default destructor.
         virtual ~DataStorager() = default;
-        
+
         DataStorager(const DataStorager& other) = delete;
         DataStorager(DataStorager&& other) = delete;
         DataStorager& operator=(const DataStorager& other) = delete;
