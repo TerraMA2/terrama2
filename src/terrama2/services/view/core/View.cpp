@@ -76,47 +76,34 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
     auto viewPtr = dataManager->findView(viewId);
 
-    // VINICIUS: filter for each dataSeries
-    std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > inputDataSeriesList;
+    std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
 
-    // Invert Series list order to keep it the future declared vector seriesList in wanted order and draw it
-    std::vector<uint32_t> invertedDataSeriesList(viewPtr->dataSeriesList.size(), 0);
-    std::reverse_copy(viewPtr->dataSeriesList.begin(), viewPtr->dataSeriesList.end(), invertedDataSeriesList.begin());
-
-    for(uint32_t dataSeriesId : invertedDataSeriesList)
+    for(auto dataSeriesId : viewPtr->dataSeriesList)
     {
       terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
       terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
-      inputDataSeriesList.emplace(inputDataSeries, inputDataProvider);
+      auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
+
+      terrama2::core::Filter filter(viewPtr->filtersPerDataSeries.at(dataSeriesId));
+      std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = dataAccessor->getSeries(filter);
+
+      seriesList.push_back(series);
     }
 
     lock.unlock();
 
-    if(inputDataSeriesList.size() > 0)
+    if(seriesList.size() > 0)
     {
-      std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
-
-      for(auto inputDataSeries : inputDataSeriesList)
-      {
-        auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataSeries.second, inputDataSeries.first);
-
-        // VINICIUS: filter, date?
-        terrama2::core::Filter filter;
-
-        std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = dataAccessor->getSeries(filter);
-
-        seriesList.push_back(series);
-      }
-
-      drawSeriesList(viewId, logger, seriesList, viewPtr->resolutionWidth, viewPtr->resolutionHeight);
+      drawSeriesList(viewId, logger, seriesList, viewPtr->resolutionWidth, viewPtr->resolutionHeight, viewPtr->srid);
 
       TERRAMA2_LOG_INFO() << QObject::tr("View %1 generated successfully.").arg(viewId);
     }
     else
     {
       QString message = QObject::tr("View %1 has no associated data to be generated.").arg(viewId);
-      logger->error(message.toStdString(), viewId);
+      if(logger.get())
+        logger->error(message.toStdString(), viewId);
       TERRAMA2_LOG_INFO() << message;
     }
 
@@ -145,7 +132,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 }
 
 
-void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth)
+void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth, uint32_t srid)
 {
   std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
   uint32_t layerID = 0;
@@ -237,7 +224,6 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
   if(layersList.size() > 0)
   {
     te::gm::Envelope extent;
-    int srid = 0;
 
     for(auto& layer : layersList)
     {
@@ -246,7 +232,7 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
       else
         extent.Union(layer->getExtent());
 
-      // VINICIUS: which SRID use? using from the first layer for now
+      // If the SRID was not setted, use the SRID from the first layer
       if(srid == 0)
         srid = layer->getSRID();
     }
