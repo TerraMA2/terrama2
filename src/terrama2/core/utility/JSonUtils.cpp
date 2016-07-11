@@ -258,7 +258,7 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%f%ZP";
+  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
   terrama2::core::Filter filter;
   if(json.contains("discard_before") && !json.value("discard_before").isNull())
   {
@@ -374,7 +374,7 @@ QJsonObject terrama2::core::toJson(const terrama2::core::DataSeriesRisk& risk)
 
 QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
 {
-  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%f%ZP";
+  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
   QJsonObject obj;
   obj.insert("class", QString("Filter"));
   if(filter.discardBefore.get())

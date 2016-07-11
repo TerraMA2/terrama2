@@ -45,13 +45,12 @@
 
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::stringToTimestamp(const std::string& dateTime, const std::string& mask)
 {
-  boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
-  return std::make_shared<te::dt::TimeInstantTZ>(ldt);
-}
+    boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
+    return std::make_shared<te::dt::TimeInstantTZ>(ldt);
+  }
 
 boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocalTime(const std::string& dateTime, const std::string& mask)
 {
-  boost::posix_time::ptime boostDate;
   std::istringstream ss(dateTime);
   ss.exceptions(std::ios_base::failbit);
   boost::local_time::local_time_input_facet* facet = new boost::local_time::local_time_input_facet(mask);
@@ -65,15 +64,15 @@ boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocal
 
  std::string terrama2::core::TimeUtils::boostLocalTimeToString(const boost::local_time::local_date_time& dateTime, const std::string& mask)
 {
-  std::string stringTimestamp;
-  std::stringstream ss(stringTimestamp);
+  std::stringstream ss;
   ss.exceptions(std::ios_base::failbit);
-  boost::local_time::local_time_input_facet* facet = new boost::local_time::local_time_input_facet(mask);
+  boost::local_time::local_time_facet* facet = new boost::local_time::local_time_facet();
+  facet->format(mask.c_str());
   ss.imbue(std::locale(ss.getloc(), facet));
 
   ss << dateTime; // do the parse
 
-  return stringTimestamp;
+  return ss.str();
 }
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::nowUTC()
