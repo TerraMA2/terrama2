@@ -287,6 +287,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.form = [];
       $scope.model = {};
 
+      $scope.forms = {};
       $scope.isDynamic = configuration.dataSeriesType === "dynamic";
 
       $scope.service = {};
@@ -348,10 +349,8 @@ angular.module('terrama2.dataseries.registration', [
 
 
       // wizard helper
-      var isWizardStepValid = function(formName, isSchemaForm) {
-        // todo: temp code. It is a "trick" for getting undefined form in scope. It must be changed
-        var form = angular.element('form[name="'+ formName + '"]').scope()[formName];
-
+      var isWizardStepValid = function(form, isSchemaForm) {
+        $scope.$broadcast('formFieldValidation');
         if (isSchemaForm == true) {
           $scope.$broadcast('schemaFormValidate');
         }
@@ -359,7 +358,6 @@ angular.module('terrama2.dataseries.registration', [
         if (form.$valid)
           return true;
 
-        FormHelper(form);
         return false;
       };
 
@@ -491,7 +489,7 @@ angular.module('terrama2.dataseries.registration', [
 
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
-        this["wzData"].error = !isWizardStepValid("generalDataForm");
+        this["wzData"].error = !isWizardStepValid($scope.forms.generalDataForm);
         return true;
       };
 
@@ -500,18 +498,20 @@ angular.module('terrama2.dataseries.registration', [
           if ($scope.dcps.length === 0) {
             // todo: display alert box
             console.log("it should have at least one dcp");
+            $scope.alertBox.message = i18n.__("It should have at least one dcp");
+            $scope.display = true;
             this["wzData"].error = true;
             return true;
           } else {
             this["wzData"].error = false;
             return true;
           }
-        this["wzData"].error = !isWizardStepValid("parametersForm", true);
+        this["wzData"].error = !isWizardStepValid($scope.forms.parametersForm, true);
         return true;
       };
 
       $scope.isThirdStepValid = function(obj) {
-        this["wzData"].error = !isWizardStepValid("storagerForm");
+        this["wzData"].error = !isWizardStepValid($scope.forms.storagerForm);
         return true;
       };
       //. end wizard validations
@@ -846,22 +846,18 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.save = function() {
-        var generalDataForm = angular.element('form[name="generalDataForm"]').scope().generalDataForm;
-        if(generalDataForm.$invalid) {
-          FormHelper(generalDataForm);
+        $scope.$broadcast('formFieldValidation');1
+        if($scope.forms.generalDataForm.$invalid) {
           return;
         }
         // checking parameters form (semantics) is invalid
-        var parametersForm = angular.element('form[name="parametersForm"]').scope().parametersForm;
-        if ($scope.dcps.length === 0 && !isValidParametersForm(parametersForm)) {
-          FormHelper(parametersForm);
+        if ($scope.dcps.length === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
           return;
         }
 
         if ($scope.isDynamic) {
-          var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
+          var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
           if (scheduleForm.$invalid) {
-            FormHelper(scheduleForm);
             return;
           }
         }
@@ -1089,7 +1085,6 @@ angular.module('terrama2.dataseries.registration', [
                 })
               }
             }
-
 
             var outputDataSeries = {
               name: dSeriesName,

@@ -111,6 +111,10 @@ var DataManager = {
   },
   isLoaded: false,
 
+  Promise: Promise,
+  TcpManager: TcpManager,
+  DataModel: DataModel,
+
   /**
    * It initializes DataManager, loading models and database synchronization
    * @param {function} callback - A callback function for waiting async operation
@@ -127,6 +131,15 @@ var DataManager = {
 
       models = modelsFn();
       models.load(connection);
+
+      // for(var k in dao) {
+      //   if (dao.hasOwnProperty(k)) {
+      //     var klass = dao[k](self);
+      //     self[k] = new klass();
+      //
+      //     break;
+      //   }
+      // }
 
       var fn = function() {
         // todo: insert default values in database
@@ -2470,8 +2483,14 @@ var DataManager = {
   getAnalysis: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      var restrict = Object.assign({}, restriction || {});
+      var dataSeriesRestriction = {};
+      if (restrict && restrict.dataSeries) {
+        dataSeriesRestriction = restrict.dataSeries;
+        delete restrict.dataSeries;
+      }
       models.db['Analysis'].findOne({
-        where: restriction || {},
+        where: restrict,
         include: [
           {
             model: models.db['AnalysisDataSeries'],
@@ -2485,7 +2504,16 @@ var DataManager = {
           models.db['AnalysisMetadata'],
           models.db['ScriptLanguage'],
           models.db['AnalysisType'],
-          models.db['Schedule']
+          models.db['Schedule'],
+          {
+            model: models.db['DataSet'],
+            include: [
+              {
+                model: models.db['DataSeries'],
+                where: dataSeriesRestriction
+              }
+            ]
+          }
         ]
       }).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());

@@ -26,6 +26,8 @@ angular.module('terrama2.table', ['terrama2'])
         // fields identifiers
         $scope.identityFields = [];
 
+        var cacheLinks = {};
+
         $scope.extra = $scope.extra ? $scope.extra : {};
 
         $scope.objectToRemove = null;
@@ -76,6 +78,15 @@ angular.module('terrama2.table', ['terrama2'])
 
         if (!$scope.iconProperties)
           $scope.iconProperties = {type: 'img'};
+
+        $scope.makeLink = function(element) {
+          var link = cacheLinks[element.id];
+          if (!link) {
+            var link = $scope.link()(element);
+            cacheLinks[element.id] = link;
+          }
+          return link;
+        }
 
         $scope.processField = function(key, obj) {
           if (key.indexOf('.') > 0) {
