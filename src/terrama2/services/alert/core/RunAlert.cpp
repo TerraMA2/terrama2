@@ -144,11 +144,11 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
         continue;
       }
 
+      // create a getRisk function
+      auto getRisk = terrama2::services::alert::core::createGetRiskFunction(risk, teDataset);
+
       teDataset->moveBeforeFirst();
       alertDataSet->moveBeforeFirst();
-
-      std::function<std::tuple<int, std::string, std::string>(size_t pos)> getRisk = terrama2::services::alert::core::createGetRiskFunction(risk, teDataset);
-
       while(teDataset->moveNext())
       {
         alertDataSet->moveNext();

@@ -60,6 +60,7 @@ namespace terrama2
 {
   namespace core
   {
+    typedef std::string DataAccessorType;
     /*!
     \class DataAccessor
     \brief DataAccessor provides an interface for accesing the data from a DataSeries.

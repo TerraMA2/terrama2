@@ -51,10 +51,12 @@ namespace terrama2
         DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
         virtual ~DataAccessorOccurrenceWfp() {}
 
-        static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
         {
-          return new DataAccessorOccurrenceWfp(dataProvider, dataSeries, filter);
+          return std::make_shared<DataAccessorOccurrenceWfp>(dataProvider, dataSeries, filter);
         }
+
+        static DataAccessorType dataAccessorType(){ return "OCCURRENCE-wfp"; }
 
       protected:
         virtual std::string dataSourceType() const override;

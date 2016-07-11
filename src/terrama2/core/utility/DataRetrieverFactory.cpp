@@ -81,7 +81,5 @@ terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFactory::make(terr
     return DataRetrieverPtr(terrama2::core::DataRetriever::make(dataProvider));
   }
 
-  DataRetrieverPtr dataRetriever(it->second(dataProvider));
-
-  return dataRetriever;
+  return it->second(dataProvider);
 }

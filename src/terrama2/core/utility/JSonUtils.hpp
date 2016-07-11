@@ -100,10 +100,10 @@ namespace terrama2
       \see [Filter at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/core/Filter) for more information.
       */
     Filter fromFilterJson(QJsonObject json);
+    QJsonObject toJson(const Filter& filter);
 
     DataSeriesRisk fromDataSeriesRiskJson(QJsonObject json);
-
-    QJsonObject toJson(const Filter& filter);
+    QJsonObject toJson(const terrama2::core::DataSeriesRisk& risk);
 
     /*!
       \brief Creates a QJsonObject from a DataProvider.

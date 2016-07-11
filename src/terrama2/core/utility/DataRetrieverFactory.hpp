@@ -48,7 +48,7 @@ namespace terrama2
     {
       public:
         //! DataRetriever constructor function.
-        typedef std::function<DataRetriever* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
+        typedef std::function<DataRetrieverPtr (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
         //! Register a new DataRetriever constructor associated with the DataProviderType.
         void add(const DataProviderType& dataProviderType, FactoryFnctType f);
         //! Remove the DataRetriever constructor associated with the DataProviderType.

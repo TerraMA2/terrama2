@@ -97,7 +97,32 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
 QJsonObject terrama2::services::alert::core::toJson(AlertPtr alert)
 {
   QJsonObject obj;
-  //TODO: alert to json
+  obj.insert("class", QString("Alert"));
+  obj.insert("id", static_cast<int>(alert->id));
+  obj.insert("project_id", static_cast<int>(alert->projectId));
+  obj.insert("service_instance_id", static_cast<int>(alert->serviceInstanceId));
+  obj.insert("active", alert->active);
+  obj.insert("name", QString::fromStdString(alert->name));
+  obj.insert("description", QString::fromStdString(alert->description));
+
+  obj.insert("risk", toJson(alert->risk));
+  obj.insert("schedule", toJson(alert->schedule));
+  obj.insert("filter", toJson(alert->filter));
+
+  QJsonArray additionalDataArray;
+  for(const auto& data : alert->additionalDataVector)
+  {
+    QJsonObject tempObj;
+    tempObj.insert("dataseries_id", static_cast<int>(data.id));
+    obj.insert("identifier_attribute", QString::fromStdString(data.identifier));
+    QJsonArray attributesArray;
+    for(const auto& attribute : data.attributes)
+      attributesArray.append(QString::fromStdString(attribute));
+    obj.insert("attributes", attributesArray);
+
+    additionalDataArray.append(obj);
+  }
+  obj.insert("additional_data",additionalDataArray);
 
   return obj;
 }
