@@ -258,17 +258,19 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
-    terrama2::core::Filter filter;    
+    terrama2::core::Filter filter;
+    std::string uri = "";
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));    
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
     RaiiTsDataAccessorDcpToa5 raiiDataRetriever("DCP-toa5",makeMock);
 
@@ -323,17 +325,19 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
-    terrama2::core::Filter filter;    
+    terrama2::core::Filter filter;
+    std::string uri = "";
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));    
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
     RaiiTsDataAccessorDcpToa5 raiiDataRetriever("DCP-toa5",makeMock);
 

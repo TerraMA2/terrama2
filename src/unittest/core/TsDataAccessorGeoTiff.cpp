@@ -195,17 +195,19 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
-    terrama2::core::Filter filter;    
+    terrama2::core::Filter filter;
+    std::string uri = "";
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));    
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
     RaiiTsDataAccessorGeoTiff raiiDataRetriever("GRID-geotiff",makeMock);
 
@@ -259,17 +261,19 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
-    terrama2::core::Filter filter;    
+    terrama2::core::Filter filter;
+    std::string uri = "";
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));    
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
     RaiiTsDataAccessorGeoTiff raiiDataRetriever("GRID-geotiff",makeMock);
 

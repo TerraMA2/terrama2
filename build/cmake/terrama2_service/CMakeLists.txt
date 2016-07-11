@@ -58,6 +58,7 @@ qt5_use_modules(terrama2_service Core)
 target_link_libraries(terrama2_service terrama2_core
                                        terrama2_collector_core
                                        terrama2_analysis_core
+                                       terrama2_view_core
                                        terrama2_alert_core
                                        terrama2_impl
                                        ${PYTHON_LIBRARIES}

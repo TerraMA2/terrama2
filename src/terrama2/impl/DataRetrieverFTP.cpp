@@ -40,6 +40,7 @@
 #include "../core/utility/Logger.hpp"
 #include "../core/data-model/Filter.hpp"
 #include "../core/utility/FilterUtils.hpp"
+#include "../core/utility/Utils.hpp"
 
 // Libcurl
 #include <curl/curl.h>
@@ -55,7 +56,7 @@
 terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper)
   : DataRetriever(dataprovider),
     curlwrapper_(std::move(curlwrapper))
-{  
+{
   temporaryFolder_ = "/tmp/terrama2-download/";
   scheme_ = "file://";
 
@@ -206,8 +207,8 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   return scheme_+temporaryFolder_;
 }
 
-terrama2::core::DataRetriever* terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
+terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
 {
   CurlPtr curlwrapper;
-  return new DataRetrieverFTP(dataProvider, std::move(curlwrapper));
+  return std::make_shared<DataRetrieverFTP>(dataProvider, std::move(curlwrapper));
 }

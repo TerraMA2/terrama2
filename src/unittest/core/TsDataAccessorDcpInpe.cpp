@@ -265,11 +265,11 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));    
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
     RaiiTsDataAccessorDcpInpe raiiDataRetriever("DCP-inpe",makeMock);
 
@@ -298,7 +298,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
 }
 
 void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
-{  
+{
   try
   {
     //DataProvider information
@@ -332,11 +332,11 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));    
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
     RaiiTsDataAccessorDcpInpe raiiDataRetriever("DCP-inpe",makeMock);
 
@@ -580,4 +580,3 @@ void TsDataAccessorDcpInpe::TestOK()
 
   return;
 }
-

@@ -107,7 +107,5 @@ terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terram
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  std::shared_ptr<DataAccessor> dataAccessor(factoriesMap_[dataSeries->semantics](dataProvider, dataSeries, filter));
-
-  return dataAccessor;
+  return factoriesMap_[dataSeries->semantics](dataProvider, dataSeries, filter);
 }

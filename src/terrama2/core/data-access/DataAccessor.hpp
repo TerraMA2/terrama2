@@ -60,6 +60,7 @@ namespace terrama2
 {
   namespace core
   {
+    typedef std::string DataAccessorType;
     /*!
     \class DataAccessor
     \brief DataAccessor provides an interface for accesing the data from a DataSeries.
@@ -154,6 +155,9 @@ namespace terrama2
           the semantics has priority.
         */
         virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
+
+        //! Recover timezone information from dataset
+        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
 
       protected:
 

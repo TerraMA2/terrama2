@@ -50,7 +50,6 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  // VINICIUS:
   if(!json.contains("id")
      || !json.contains("project_id")
      || !json.contains("service_instance_id")

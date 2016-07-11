@@ -38,6 +38,7 @@
 #include "../../../core/utility/DataSetMapper.hpp"
 #include "AdditionalDataHelper.hpp"
 #include "DataManager.hpp"
+#include "Exception.hpp"
 
 #include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/memory/DataSetItem.h>
@@ -66,11 +67,17 @@ bool terrama2::services::alert::core::AdditionalDataHelper::prepareData(terrama2
     mapperMap_.emplace(data.first, mapper);
   }
 
+  isDataReady_ = true;
   return true;
 }
 
 void terrama2::services::alert::core::AdditionalDataHelper::addAdditionalAttributesColumns(std::shared_ptr<te::da::DataSetType> alertDataSetType) const
 {
+  if(!isDataReady_)
+  {
+    throw AdditionalDataException() << ErrorDescription(QObject::tr("Data not loaded.\nCall AdditionalDataHelper::prepareData."));
+  }
+
   for(const auto& data : dataMap_)
   {
     const auto& dataSet = data.first;
@@ -97,6 +104,11 @@ void terrama2::services::alert::core::AdditionalDataHelper::addAdditionalAttribu
 
 void terrama2::services::alert::core::AdditionalDataHelper::addAdditionalValues(te::mem::DataSetItem* item, const std::string& fkValue) const
 {
+  if(!isDataReady_)
+  {
+    throw AdditionalDataException() << ErrorDescription(QObject::tr("Data not loaded.\nCall AdditionalDataHelper::prepareData."));
+  }
+
   for(auto data : dataMap_)
   {
     const auto& dataSet = data.first;

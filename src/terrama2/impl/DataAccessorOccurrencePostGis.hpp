@@ -46,10 +46,11 @@ namespace terrama2
       DataAccessorOccurrencePostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorOccurrencePostGis() {}
 
-      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
-        return new DataAccessorOccurrencePostGis(dataProvider, dataSeries, filter);
+        return std::make_shared<DataAccessorOccurrencePostGis>(dataProvider, dataSeries, filter);
       }
+      static DataAccessorType dataAccessorType(){ return "OCCURRENCE-postgis"; }
 
     protected:
       virtual std::string dataSourceType() const override;

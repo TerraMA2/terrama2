@@ -48,7 +48,7 @@ namespace terrama2
     {
       public:
         //! DataStorager constructor function.
-        typedef std::function<DataStorager* (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
+        typedef std::function<DataStoragerPtr (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
         //! Register a new DataStorager constructor associated with the DataProviderType.
         void add(const DataProviderType& dataProviderType, FactoryFnctType f);
         //! Remove the DataStorager constructor associated with the DataProviderType.

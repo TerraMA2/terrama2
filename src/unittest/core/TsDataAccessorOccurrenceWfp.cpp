@@ -258,17 +258,19 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
-    terrama2::core::Filter filter;    
+    terrama2::core::Filter filter;
+    std::string uri = "";
     std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));    
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
     RaiiTsDataAccessorOccurrenceWfp raiiDataRetriever("OCCURRENCE-wfp",makeMock);
 
@@ -330,11 +332,12 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<MockDataRetriever> mock_(new MockDataRetriever(dataProviderPtr));
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));    
+    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
+    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_.get());    
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
     RaiiTsDataAccessorOccurrenceWfp raiiDataRetriever("OCCURRENCE-wfp",makeMock);
 

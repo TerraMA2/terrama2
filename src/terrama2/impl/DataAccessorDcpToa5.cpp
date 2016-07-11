@@ -234,7 +234,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   return dataSeries;
 }
 
-terrama2::core::DataAccessor* terrama2::core::DataAccessorDcpToa5::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpToa5::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
 {
-  return new DataAccessorDcpToa5(dataProvider, dataSeries, filter);
+  return std::make_shared<DataAccessorDcpToa5>(dataProvider, dataSeries, filter);
 }

@@ -46,7 +46,7 @@ class MockDataRetriever: public terrama2::core::DataRetriever
 
     MOCK_CONST_METHOD0(isRetrivable,bool());
 
-    static terrama2::core::DataRetriever* makeMockDataRetriever(terrama2::core::DataProviderPtr dataProvider, MockDataRetriever * mock)
+    static terrama2::core::DataRetrieverPtr makeMockDataRetriever(terrama2::core::DataProviderPtr dataProvider, std::shared_ptr<MockDataRetriever> mock)
     {
       return mock;
     }

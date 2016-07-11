@@ -118,7 +118,7 @@ namespace terrama2
       signals:
         //! Signal emited when the listening is changed
         void listeningPortUpdated(int);
-        void numberOfThreadsUpdated(int);
+        void numberOfThreadsUpdated(size_t);
         void logConnectionInfoUpdated(const std::map<std::string, std::string>&);
 
       protected:

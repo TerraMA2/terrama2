@@ -25,6 +25,7 @@
   \brief Collector service main.
 
   \author Jano Simas
+  \author Vinicius Campanha
  */
 
 // TerraMA2
@@ -36,8 +37,13 @@
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 
+#include <terrama2/services/view/core/Service.hpp>
+#include <terrama2/services/view/core/DataManager.hpp>
+#include <terrama2/services/view/core/ViewLogger.hpp>
+
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/ErrorCodes.hpp>
@@ -56,11 +62,13 @@
 
 const std::string analysisType = "analysis";
 const std::string collectorType = "collector";
+const std::string viewType = "view";
 
 bool checkServiceType(const std::string& serviceType)
 {
   if(serviceType == collectorType
-      || serviceType == analysisType)
+     || serviceType == analysisType
+     || serviceType == viewType)
     return true;
 
   return false;
@@ -92,12 +100,26 @@ createAnalysis()
 }
 
 std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
+createView()
+{
+  auto dataManager = std::make_shared<terrama2::services::view::core::DataManager>();
+  auto service = std::make_shared<terrama2::services::view::core::Service>(dataManager);
+  auto logger = std::make_shared<terrama2::services::view::core::ViewLogger>();
+
+  service->setLogger(logger);
+
+  return std::make_tuple(dataManager, service, logger);
+}
+
+std::tuple<std::shared_ptr<terrama2::core::DataManager>, std::shared_ptr<terrama2::core::Service>, std::shared_ptr<terrama2::core::ProcessLogger> >
 createService(const std::string& serviceType)
 {
   if(serviceType == collectorType)
     return createCollector();
   if(serviceType == analysisType)
     return createAnalysis();
+  if(serviceType == viewType)
+    return createView();
 
   exit(SERVICE_LOAD_ERROR);
 }
@@ -116,7 +138,7 @@ int main(int argc, char* argv[])
     std::transform(serviceType.begin(), serviceType.end(), serviceType.begin(), ::tolower);
 
     if(!checkServiceType(serviceType))
-      return -1;//FIXME: invalid service type return code
+      return UNKNOWN_SERVICE_TYPE;
 
     int listeningPort = std::stoi(argv[2]);
 
@@ -184,19 +206,17 @@ int main(int argc, char* argv[])
       return TERRAMA2_FINALIZATION_ERROR;
     }
   }
-  //TODO: should be using logger?
   catch(boost::exception& e)
   {
-    std::cout << boost::diagnostic_information(e) << std::endl;
+    TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(std::exception& e)
   {
-    std::cout << e.what() << std::endl;
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(...)
   {
-    // TODO: o que fazer com uncaught exception
-    std::cout << "\n\nException...\n" << std::endl;
+    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnkown Exception...\n");
   }
 
   return 0;

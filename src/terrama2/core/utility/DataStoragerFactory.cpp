@@ -81,7 +81,5 @@ terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(terram
     throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  DataStoragerPtr dataStorager(it->second(dataProvider));
-
-  return dataStorager;
+  return it->second(dataProvider);
 }

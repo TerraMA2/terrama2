@@ -51,16 +51,14 @@ namespace terrama2
       DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorDcpPostGIS() {}
 
-      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
-      {
-        return new DataAccessorDcpPostGIS(dataProvider, dataSeries, filter);
-      }
+      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      static DataAccessorType dataAccessorType(){ return "DCP-postgis"; }
 
     protected:
       virtual std::string dataSourceType() const override;
 
       //no geometry column to filter
-      virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<te::da::Expression*>& where) const override{}
+      virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter, std::vector<std::string>& where) const override{}
     };
   }
 }

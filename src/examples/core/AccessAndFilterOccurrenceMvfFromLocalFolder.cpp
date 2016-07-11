@@ -25,7 +25,6 @@ int main(int argc, char* argv[])
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
     dataProvider->uri = "file://";
     dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/fire_system";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -41,6 +40,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
     dataSet->active = true;
     dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
+    dataSet->format.emplace("folder", "fire_system");
     dataSeries->datasetList.emplace_back(dataSet);
 
     terrama2::core::Filter filter;
