@@ -47,6 +47,7 @@ void TsJsonUtils::testGoNBackJSon()
     view->active = true;
     view->resolutionWidth = 800;
     view->resolutionHeight = 600;
+    view->srid = 4326;
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -59,7 +60,10 @@ void TsJsonUtils::testGoNBackJSon()
     filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:39:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
     filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:45:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
 
-    view->filter = filter;
+    view->filtersPerDataSeries.emplace(1, filter);
+    view->filtersPerDataSeries.emplace(2, filter);
+    view->filtersPerDataSeries.emplace(3, filter);
+    view->filtersPerDataSeries.emplace(4, filter);
 
     view->dataSeriesList.push_back(1);
     view->dataSeriesList.push_back(2);
@@ -81,15 +85,20 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);
     QCOMPARE(viewBackPtr->schedule.frequencyUnit, viewPtr->schedule.frequencyUnit);
 
-    // TODO: enable tests when filter from JSon in utils is implemented
-//    QCOMPARE(viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
-//    QCOMPARE(viewBackPtr->filter.discardBefore, viewPtr->filter.discardBefore);
-
     QCOMPARE(viewBackPtr->dataSeriesList.size(), viewPtr->dataSeriesList.size());
 
     for(uint32_t i = 0; i < viewPtr->dataSeriesList.size(); i++)
     {
-      QCOMPARE(viewBackPtr->dataSeriesList[i], viewPtr->dataSeriesList[i]);
+      QCOMPARE(viewBackPtr->dataSeriesList.at(i), viewPtr->dataSeriesList.at(i));
+    }
+
+    QCOMPARE(viewBackPtr->filtersPerDataSeries.size(), viewPtr->filtersPerDataSeries.size());
+
+    for(auto& it : viewPtr->filtersPerDataSeries)
+    {
+      // TODO: enable when convert filter/json is implemented
+//      QCOMPARE(*viewBackPtr->filtersPerDataSeries.at(it.first).discardBefore, *it.second.discardBefore);
+//      QCOMPARE(*viewBackPtr->filtersPerDataSeries.at(it.first).discardAfter, *it.second.discardAfter);
     }
 
   }
