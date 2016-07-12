@@ -86,5 +86,10 @@ int main(int argc, char** argv)
     return 1;
   }
 
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(10000);
+  app.exec();
+
   return ret;
 }
