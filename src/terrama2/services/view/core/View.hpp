@@ -40,6 +40,7 @@
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
+#include "ViewStyle.hpp"
 
 // STL
 #include <string>
@@ -65,7 +66,8 @@ namespace terrama2
           bool active = false;//!< Flag if the view is active.
 
           std::vector< DataSeriesId > dataSeriesList; // Ordened list of DataSeries ID that compose this view
-          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of DataSeries ID that compose this view and their filters
+          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
+          std::unordered_map< DataSeriesId, ViewStyle > stylesPerDataSeries; //!< List of styles by DataSeries ID.
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
 
@@ -84,7 +86,7 @@ namespace terrama2
 
         void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
-        void drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth, uint32_t srid);
+        void drawLayersList(ViewPtr view, std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger);
 
       } // end namespace core
     }   // end namespace view
