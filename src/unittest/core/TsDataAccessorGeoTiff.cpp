@@ -209,7 +209,7 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorGeoTiff raii("GRID-geotiff", makeMock);
+    RaiiTsDataAccessorGeoTiff raiiDataRetriever("GRID-geotiff",makeMock);
 
     try
     {
@@ -275,7 +275,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorGeoTiff raii("GRID-geotiff",makeMock);
+    RaiiTsDataAccessorGeoTiff raiiDataRetriever("GRID-geotiff",makeMock);
 
     try
     {

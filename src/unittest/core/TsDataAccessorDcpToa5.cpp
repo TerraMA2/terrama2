@@ -21,6 +21,17 @@
   \author Evandro Delatin
 */
 
+//terralib
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
+#include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/memory/DataSetItem.h>
+#include <terralib/ogr/Config.h>
+#include <terralib/ogr/DataSource.h>
+
 // TerraMA2
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
@@ -35,6 +46,9 @@
 
 #include "TsDataAccessorDcpToa5.hpp"
 #include "MockDataRetriever.hpp"
+#include "MockDataSource.hpp"
+#include "MockDataSourceTransactor.hpp"
+#include "MockDataSet.hpp"
 
 // QT
 #include <QObject>
@@ -70,6 +84,56 @@ class RaiiTsDataAccessorDcpToa5
     std::string dataProviderType_;
     terrama2::core::DataRetrieverFactory::FactoryFnctType f_;
 };
+
+class RaiiDataSourceTsDataAccessorDcpToa5
+{
+  public:
+    RaiiDataSourceTsDataAccessorDcpToa5(const std::string& type,
+                                        const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
+    {
+      if(te::da::DataSourceFactory::find(type_))
+      {
+        te::da::DataSourceFactory::remove(type_);
+        te::da::DataSourceFactory::add(type_,ft_);
+      }
+      else te::da::DataSourceFactory::add(type_,ft_);
+    }
+
+    ~RaiiDataSourceTsDataAccessorDcpToa5()
+    {
+      te::da::DataSourceFactory::remove(type_);
+    }
+
+  private:
+    std::string type_;
+    te::da::DataSourceFactory::FactoryFnctType ft_;
+};
+
+
+te::da::MockDataSet* create_MockDataSetDcpToa5()
+{
+  te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
+
+  ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(false));
+
+  return mockDataSet;
+}
+
+te::da::MockDataSourceTransactor* create_MockDataSourceTransactorDcpToa5()
+{
+  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
+
+  std::vector<std::string> dataSetNames;
+  dataSetNames.push_back("GRM_slow_2014_01_02_1713");
+  std::string name = "GRM_slow_2014_01_02_1713";
+
+  EXPECT_CALL(*mockDataSourceTransactor, getDataSetNames()).WillOnce(::testing::Return(dataSetNames));
+  EXPECT_CALL(*mockDataSourceTransactor, DataSetTypePtrReturn()).WillOnce(::testing::Return(new te::da::DataSetType(name)));
+  ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&create_MockDataSetDcpToa5));
+
+  return mockDataSourceTransactor;
+}
+
 
 void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
 {
@@ -208,7 +272,7 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorDcpToa5 raii("DCP-toa5",makeMock);
+    RaiiTsDataAccessorDcpToa5 raiiDataRetriever("DCP-toa5",makeMock);
 
     try
     {
@@ -275,7 +339,7 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorDcpToa5 raii("DCP-toa5",makeMock);
+    RaiiTsDataAccessorDcpToa5 raiiDataRetriever("DCP-toa5",makeMock);
 
     try
     {
@@ -300,10 +364,146 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
 
 }
 
+void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
+{
+  try
+  {
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
+
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FILE";
+    dataProvider->active = true;
+
+    //DataSeries information
+    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    dataSeries->semantics = semanticsManager.getSemantics("DCP-toa5");
+
+    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+    dataSet->active = true;
+    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
+
+    dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("folder", "GRM");
+
+    dataSeries->datasetList.emplace_back(dataSet);
+
+    //empty filter
+    terrama2::core::Filter filter;
+    std::string uri = ""; //dataProvider->uri;
+    std::string mask = dataSet->format.at("mask");
+    std::string folder = dataSet->format.at("folder");
+
+    //accessing data
+    terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
+
+    std::unique_ptr<te::da::MockDataSource> mock_(new te::da::MockDataSource());
+
+    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
+
+    auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
+
+    RaiiDataSourceTsDataAccessorDcpToa5 raiiDataSource("OGR",makeMock);
+
+    try
+    {
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      QFAIL("Exception expected!");
+    }
+    catch(const terrama2::core::NoDataException&)
+    {
+
+    }
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+
+  return;
+
+}
+
+void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
+{
+  try
+  {
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
+
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FILE";
+    dataProvider->active = true;
+
+    //DataSeries information
+    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    dataSeries->semantics = semanticsManager.getSemantics("DCP-toa5");
+
+    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
+    dataSet->active = true;
+    dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
+
+    dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("folder", "GRM");
+
+    dataSeries->datasetList.emplace_back(dataSet);
+
+    //empty filter
+    terrama2::core::Filter filter;
+    std::string uri = ""; //dataProvider->uri;
+    std::string mask = dataSet->format.at("mask");
+    std::string folder = dataSet->format.at("folder");
+
+    //accessing data
+    terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
+
+    std::unique_ptr<te::da::MockDataSource> mock_(new te::da::MockDataSource());
+
+    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mock_, DataSourceTransactoPtrReturn()).WillRepeatedly(::testing::Invoke(&create_MockDataSourceTransactorDcpToa5));
+    EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
+
+    auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
+
+    RaiiDataSourceTsDataAccessorDcpToa5 raiiDataSource("OGR",makeMock);
+
+    try
+    {
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      QFAIL("Exception expected!");
+    }
+    catch(const terrama2::core::NoDataException&)
+    {
+
+    }
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+
+  return;
+
+}
+
 void TsDataAccessorDcpToa5::TestOK()
 {
   try
   {
+    te::da::DataSourceFactory::add(OGR_DRIVER_IDENTIFIER, te::ogr::Build);
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
