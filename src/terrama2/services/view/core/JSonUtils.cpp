@@ -59,7 +59,8 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("schedule")
      || !json.contains("srid")
      || !json.contains("data_series_list")
-     || !json.contains("filters_per_data_series"))
+     || !json.contains("filters_per_data_series")
+     || !json.contains("styles_per_data_series"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -96,6 +97,16 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
     {
       auto obj = (*it).toObject();
       view->filtersPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), terrama2::core::fromFilterJson(json["dataset_series_filter"].toObject()));
+    }
+  }
+
+  {
+    auto datasetSeriesArray = json["styles_per_data_series"].toArray();
+    auto it = datasetSeriesArray.begin();
+    for(; it != datasetSeriesArray.end(); ++it)
+    {
+      auto obj = (*it).toObject();
+      view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), fromViewStyleJson(json["dataset_series_view_style"].toObject()));
     }
   }
 
@@ -138,6 +149,74 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
     }
     obj.insert("filters_per_data_series", array);
   }
+
+  {
+    QJsonArray array;
+    for(auto it : view->stylesPerDataSeries)
+    {
+      QJsonObject datasetSeriesAndStyle;
+      datasetSeriesAndStyle.insert("dataset_series_id", static_cast<int32_t>(it.first));
+      datasetSeriesAndStyle.insert("dataset_series_view_style", toJson(it.second));
+
+      array.push_back(datasetSeriesAndStyle);
+    }
+    obj.insert("view_style_per_data_series", array);
+  }
+
   return obj;
 }
 
+
+QJsonObject terrama2::services::view::core::toJson(ViewStyle viewStyle)
+{
+  QJsonObject obj;
+  obj.insert("class", QString("ViewStyle"));
+
+  obj.insert("view_style_color", QString::fromStdString(viewStyle.color));
+  obj.insert("view_style_opacity", QString::fromStdString(viewStyle.opacity));
+  obj.insert("view_style_width", QString::fromStdString(viewStyle.width));
+  obj.insert("view_style_dasharray",QString::fromStdString(viewStyle.dasharray));
+  obj.insert("view_style_linecap", QString::fromStdString(viewStyle.linecap));
+  obj.insert("view_style_linejoin",QString::fromStdString(viewStyle.linejoin));
+  obj.insert("view_style_size", QString::fromStdString(viewStyle.size));
+  obj.insert("view_style_rotation", QString::fromStdString(viewStyle.rotation));
+
+  return obj;
+}
+
+terrama2::services::view::core::ViewStyle terrama2::services::view::core::fromViewStyleJson(QJsonObject json)
+{
+  if(json["class"].toString() != "ViewStyle")
+  {
+    QString errMsg = QObject::tr("Invalid View JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!json.contains("view_style_color")
+     || !json.contains("view_style_opacity")
+     || !json.contains("view_style_width")
+     || !json.contains("view_style_dasharray")
+     || !json.contains("view_style_linecap")
+     || !json.contains("view_style_linejoin")
+     || !json.contains("view_style_size")
+     || !json.contains("view_style_rotation"))
+  {
+    QString errMsg = QObject::tr("Invalid View Style JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  ViewStyle viewStyle;
+
+  viewStyle.color = json["view_style_color"].toString().toStdString();
+  viewStyle.opacity = json["view_style_opacity"].toString().toStdString();
+  viewStyle.width = json["view_style_width"].toString().toStdString();
+  viewStyle.dasharray = json["view_style_dasharray"].toString().toStdString();
+  viewStyle.linecap = json["view_style_dasharray"].toString().toStdString();
+  viewStyle.linejoin = json["view_style_linejoin"].toString().toStdString();
+  viewStyle.size = json["view_style_size"].toString().toStdString();
+  viewStyle.rotation = json["view_style_rotation"].toString().toStdString();
+
+  return viewStyle;
+}

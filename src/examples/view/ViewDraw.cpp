@@ -163,8 +163,8 @@ int main(int argc, char** argv)
     view->projectId = 1;
     view->serviceInstanceId = 1;
     view->active = true;
-    view->resolutionWidth = 800;
-    view->resolutionHeight = 600;
+    view->resolutionWidth = 1024;
+    view->resolutionHeight = 768;
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -182,6 +182,24 @@ int main(int argc, char** argv)
     view->filtersPerDataSeries.emplace(1, filter);
     view->filtersPerDataSeries.emplace(2, filter);
     view->filtersPerDataSeries.emplace(3, filter);
+
+    terrama2::services::view::core::ViewStyle geomStyle1;
+    geomStyle1.color = "#5e5eeb";
+    geomStyle1.width = "1";
+    geomStyle1.opacity = "100.0";
+
+    view->stylesPerDataSeries.emplace(2, geomStyle1);
+
+    terrama2::services::view::core::ViewStyle geomStyle2;
+    geomStyle2.color = "#000000";
+    geomStyle2.width = "1";
+    geomStyle2.opacity = "1.0";
+
+    view->stylesPerDataSeries.emplace(3, geomStyle2);
+
+    terrama2::services::view::core::ViewStyle rasterStyle;
+
+    view->stylesPerDataSeries.emplace(1, rasterStyle);
 
     dataManager->add(viewPtr);
 

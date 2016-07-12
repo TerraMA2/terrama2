@@ -50,9 +50,21 @@ namespace terrama2
 
         /*!
           \brief Creates a Json object from a View
-          \attention This is a function created for debug and tests
         */
         QJsonObject toJson(ViewPtr view);
+
+        /*!
+          \brief Creates a View Style from a QJsonObject.
+          \see View Style for json structure
+          */
+        terrama2::services::view::core::ViewStyle fromViewStyleJson(QJsonObject json);
+
+        /*!
+          \brief Creates a Json object from a View Style
+        */
+        QJsonObject toJson(ViewStyle viewStyle);
+
+
 
       } // end namespace core
     }   // end namespace view
