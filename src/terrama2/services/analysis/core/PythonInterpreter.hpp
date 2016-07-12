@@ -67,6 +67,32 @@ namespace terrama2
         };
 
         /*!
+          \brief Lock to the Python GIL.
+        */
+        struct GILLock
+        {
+          public:
+            /*!
+              \brief Constructor
+            */
+            GILLock()
+            {
+              state_ = PyGILState_Ensure();
+            }
+
+            /*!
+              \brief Destructor
+            */
+            ~GILLock()
+            {
+              PyGILState_Release(state_);
+            }
+
+          private:
+            PyGILState_STATE state_; //!< Python GIL state.
+        };
+
+        /*!
           \brief Add a value to the result table for the given attribute.
           \param attribute The name of the attribute.
           \param value The result value.
@@ -168,6 +194,10 @@ namespace terrama2
         */
         std::string extractException();
 
+        /*!
+          \brief Insert the analysis script in a function.
+        */
+        std::string prepareScript(const std::string& script);
 
       } // end namespace core
     }   // end namespace analysis

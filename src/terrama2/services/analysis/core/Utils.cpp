@@ -28,6 +28,7 @@
 */
 
 #include "DataManager.hpp"
+#include "Context.hpp"
 #include "Utils.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/data-model/Filter.hpp"
@@ -35,6 +36,11 @@
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-access/DataAccessorGrid.hpp"
 #include "../../../core/data-access/GridSeries.hpp"
+
+
+// TerraLib
+#include <terralib/common/StringUtils.h>
+#include <terralib/raster/Reprojection.h>
 
 // QT
 #include <QObject>
@@ -165,5 +171,290 @@ const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst
   return gridSeries->gridMap();
 }
 
+std::map<std::string, std::string> terrama2::services::analysis::core::getOutputRasterInfo(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode)
+{
+  auto analysis = Context::getInstance().getAnalysis(analysisHashCode);
 
+  if(!analysis->outputGridPtr)
+  {
+    QString errMsg(QObject::tr("Invalid analysis output grid configuration."));
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
+  }
+
+  if(!dataManager)
+  {
+    QString errMsg(QObject::tr("Invalid data manager."));
+    throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
+  }
+
+  double resX = 0;
+  double resY = 0;
+  unsigned int nRows = 0;
+  unsigned int nCols = 0;
+  Srid srid = 0;
+  std::shared_ptr<te::gm::Envelope> box(new te::gm::Envelope());
+
+
+  switch(analysis->outputGridPtr->interestAreaType)
+  {
+    case InterestAreaType::UNION:
+    {
+      for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+      {
+        try
+        {
+          auto gridMap = getGridMap(dataManager, analysisDataSeries.dataSeriesId);
+
+          if(gridMap.empty())
+          {
+            QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis->outputGridPtr->resolutionDataSeriesId);
+            throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+          }
+
+          auto raster = gridMap.begin()->second;
+          if(!raster)
+          {
+            QString errMsg = QObject::tr("Could not recover raster for dataset: %1.").arg(gridMap.begin()->first->id);
+            throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+          }
+
+          if(srid == 0)
+          {
+            box->Union(*raster->getExtent());
+            srid = raster->getSRID();
+            continue;
+          }
+
+          std::shared_ptr<te::gm::Geometry> geomBox(te::gm::GetGeomFromEnvelope(raster->getExtent(), raster->getSRID()));
+          if(raster->getSRID() != srid)
+          {
+            geomBox->transform(srid);
+          }
+
+          box->Union(*geomBox->getMBR());
+        }
+        catch(terrama2::core::NoDataException e)
+        {
+          continue;
+        }
+      }
+      break;
+    }
+    case InterestAreaType::SAME_FROM_DATASERIES:
+    {
+      try
+      {
+        auto gridMap = getGridMap(dataManager, analysis->outputGridPtr->interestAreaDataSeriesId);
+        if(gridMap.empty())
+        {
+          QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis->outputGridPtr->resolutionDataSeriesId);
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+        }
+
+        auto raster = gridMap.begin()->second;
+        if(!raster)
+        {
+          QString errMsg = QObject::tr("Could not recover raster for dataset: %1.").arg(gridMap.begin()->first->id);
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+        }
+
+        box->Union(*raster->getExtent());
+        srid = raster->getSRID();
+      }
+      catch(terrama2::core::NoDataException e)
+      {
+      }
+
+      break;
+    }
+    case InterestAreaType::CUSTOM:
+    {
+      box->Union(*analysis->outputGridPtr->interestAreaBox->getMBR());
+      srid = analysis->outputGridPtr->interestAreaBox->getSRID();
+      break;
+    }
+  }
+
+  switch(analysis->outputGridPtr->resolutionType)
+  {
+    case ResolutionType::SAME_FROM_DATASERIES:
+    {
+      try
+      {
+        auto gridMap = getGridMap(dataManager, analysis->outputGridPtr->resolutionDataSeriesId);
+        if(gridMap.empty())
+        {
+          QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis->outputGridPtr->resolutionDataSeriesId);
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+        }
+
+        auto raster = gridMap.begin()->second;
+        if(!raster)
+        {
+          QString errMsg = QObject::tr("Could not recover raster for dataset: %1.").arg(gridMap.begin()->first->id);
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+        }
+
+        resX = raster->getResolutionX();
+        resY = raster->getResolutionY();
+      }
+      catch(terrama2::core::NoDataException e)
+      {
+      }
+
+      break;
+    }
+    case ResolutionType::BIGGEST_GRID:
+    {
+
+      double  pixelArea = 0;
+      for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+      {
+        try
+        {
+          auto gridMap = getGridMap(dataManager, analysisDataSeries.dataSeriesId);
+
+          if(gridMap.empty())
+          {
+            QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis->outputGridPtr->resolutionDataSeriesId);
+            throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+          }
+
+          auto raster = gridMap.begin()->second;
+          if(!raster)
+          {
+            QString errMsg = QObject::tr("Could not recover raster for dataset: %1.").arg(gridMap.begin()->first->id);
+            throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+          }
+
+          // Calculates the area of the pixel
+          double area = raster->getResolutionX() * raster->getResolutionY();
+          if(area >= pixelArea)
+          {
+            // In case the area is the same, gives priority to the greater in X.
+            if(area == pixelArea)
+            {
+              if(raster->getResolutionX() > resX)
+              {
+                resX = raster->getResolutionX();
+                resY = raster->getResolutionY();
+                pixelArea = area;
+              }
+            }
+            else
+            {
+              resX = raster->getResolutionX();
+              resY = raster->getResolutionY();
+              pixelArea = area;
+            }
+          }
+        }
+        catch(terrama2::core::NoDataException e)
+        {
+          continue;
+        }
+      }
+      break;
+    }
+    case ResolutionType::SMALLEST_GRID:
+    {
+
+      double  pixelArea = std::numeric_limits<double>::max();
+      for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+      {
+        try
+        {
+          auto gridMap = getGridMap(dataManager, analysisDataSeries.dataSeriesId);
+
+          if(gridMap.empty())
+          {
+            QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis->outputGridPtr->resolutionDataSeriesId);
+            throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+          }
+
+          auto raster = gridMap.begin()->second;
+          if(!raster)
+          {
+            QString errMsg = QObject::tr("Could not recover raster for dataset: %1.").arg(gridMap.begin()->first->id);
+            throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+          }
+
+          // Calculates the area of the pixel
+          double area = raster->getResolutionX() * raster->getResolutionY();
+          if(area <= pixelArea)
+          {
+            // In case the area is the same, gives priority to the greater in X.
+            if(area == pixelArea)
+            {
+              if(raster->getResolutionX() > resX)
+              {
+                resX = raster->getResolutionX();
+                resY = raster->getResolutionY();
+                pixelArea = area;
+              }
+            }
+            else
+            {
+              resX = raster->getResolutionX();
+              resY = raster->getResolutionY();
+              pixelArea = area;
+            }
+          }
+        }
+        catch(terrama2::core::NoDataException e)
+        {
+          continue;
+        }
+
+      }
+      break;
+    }
+    case ResolutionType::CUSTOM:
+    {
+      resX = analysis->outputGridPtr->resolutionX;
+      resY = analysis->outputGridPtr->resolutionY;
+      break;
+    }
+  }
+
+  nRows = (unsigned int)std::abs(std::ceil((box->getUpperRightY() - box->getLowerLeftY()) / resY));
+  nCols = (unsigned int)std::abs(std::ceil((box->getUpperRightX() - box->getLowerLeftX()) / resX));
+
+
+  std::map<std::string, std::string> rinfo;
+
+  rinfo["MEM_SRC_RASTER_DRIVER_TYPE"] = "GDAL";
+  rinfo["MEM_RASTER_NROWS"] = std::to_string(nRows);
+  rinfo["MEM_RASTER_NCOLS"] = std::to_string(nCols);
+  rinfo["MEM_RASTER_RES_X"] = std::to_string(resX);
+  rinfo["MEM_RASTER_RES_Y"] = std::to_string(resY);
+  rinfo["MEM_RASTER_DATATYPE"] = te::common::Convert2String(te::dt::DOUBLE_TYPE);
+  rinfo["MEM_RASTER_NBANDS"] = "1";
+  rinfo["MEM_RASTER_SRID"] = std::to_string(srid);
+  rinfo["MEM_RASTER_MIN_X"] = std::to_string(box->getLowerLeftX());
+  rinfo["MEM_RASTER_MIN_Y"] = std::to_string(box->getLowerLeftY());
+  rinfo["MEM_RASTER_MAX_X"] = std::to_string(box->getUpperRightX());
+  rinfo["MEM_RASTER_MAX_Y"] = std::to_string(box->getUpperRightY());
+
+  return rinfo;
+}
+
+std::shared_ptr<te::rst::Raster>
+terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Raster> inputRaster,
+                                                    std::map<std::string, std::string> outputRasterInfo,
+                                                    InterpolationMethod method)
+{
+  int resX = std::atoi(outputRasterInfo["MEM_RASTER_RES_X"].c_str());
+  int resY = std::atoi(outputRasterInfo["MEM_RASTER_RES_Y"].c_str());
+  int srid = std::atoi(outputRasterInfo["MEM_RASTER_SRID"].c_str());
+  double llx = std::atof(outputRasterInfo["MEM_RASTER_MIN_X"].c_str());
+  double lly = std::atof(outputRasterInfo["MEM_RASTER_MIN_Y"].c_str());
+  double urx = std::atof(outputRasterInfo["MEM_RASTER_MAX_X"].c_str());
+  double ury = std::atof(outputRasterInfo["MEM_RASTER_MAX_Y"].c_str());
+
+  std::shared_ptr<te::rst::Raster> reprojectedRaster(te::rst::Reproject(inputRaster.get(), srid, llx, lly, urx, ury,
+                                                                        resX, resY, outputRasterInfo, (int)method));
+
+  return reprojectedRaster;
+}
 

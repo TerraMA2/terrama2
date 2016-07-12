@@ -53,6 +53,8 @@ namespace terrama2
         {
           int64_t index = -1; //!< Geometry index of the monitored object.
           AnalysisHashCode analysisHashCode = 0; //!< Hashcode of current analysis.
+          int64_t row = -1; //!< Output raster row.
+          int64_t column = -1; //!< Output raster column.
           double sum = 0; //!< Result of the sum.
           double max = std::numeric_limits<double>::min(); //!< Maximum value.
           double min = std::numeric_limits<double>::max(); //!< Minimum value.

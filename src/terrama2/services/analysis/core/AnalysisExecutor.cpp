@@ -62,6 +62,7 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Raster.h>
+#include <terralib/raster/Grid.h>
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 

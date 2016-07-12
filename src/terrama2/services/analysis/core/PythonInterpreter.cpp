@@ -55,7 +55,11 @@
 #include <terralib/common/UnitOfMeasure.h>
 #include <terralib/common/UnitsOfMeasureManager.h>
 
+// STL
 #include <math.h>
+
+// Boost Python
+#include <boost/python/call.hpp>
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
@@ -368,6 +372,8 @@ void terrama2::services::analysis::core::registerGridFunctions()
   object gridModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid"))));
   // make "from terrama2 import dcp" work
   scope().attr("grid") = gridModule;
+  // set the current scope to the new sub-module
+  scope gridScope = gridModule;
 
   // export functions inside grid namespace
   def("sample", terrama2::services::analysis::core::grid::sample);
@@ -583,7 +589,7 @@ void terrama2::services::analysis::core::finalizeInterpreter()
 {
   // shut down the interpreter
   PyEval_AcquireLock();
-   Py_Finalize();
+  Py_Finalize();
 }
 
 void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
@@ -591,20 +597,77 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
 
-  // Geom index
-  PyObject* geomKey = PyString_FromString("index");
-  PyObject* geomIdPy = PyDict_GetItem(pDict, geomKey);
-  cache.index = PyInt_AsLong(geomIdPy);
 
   // Analysis ID
   PyObject* analysisKey = PyString_FromString("analysis");
   PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
-  cache.analysisHashCode = PyInt_AsLong(analysisPy);
+  if(analysisPy != NULL)
+  {
+    cache.analysisHashCode = PyInt_AsLong(analysisPy);
+    Py_DECREF(analysisPy);
+  }
+  Py_DECREF(analysisKey);
+
+  auto analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
+
+  if(!analysis)
+  {
+    QString errMsg(QObject::tr("Could not recover analysis configuration."));
+    Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+    return;
+  }
+
+  switch(analysis->type)
+  {
+    case AnalysisType::PCD_TYPE:
+    case AnalysisType::MONITORED_OBJECT_TYPE:
+    {
+      // Geom index
+      PyObject* geomKey = PyString_FromString("index");
+      PyObject* geomIdPy = PyDict_GetItem(pDict, geomKey);
+      if(geomKey != NULL)
+      {
+        cache.index = PyInt_AsLong(geomIdPy);
+        Py_DECREF(geomIdPy);
+      }
+
+      Py_DECREF(geomKey);
+    }
+    case AnalysisType::GRID_TYPE:
+    {
+      // Ouput raster row
+      PyObject* rowKey = PyString_FromString("row");
+      PyObject* rowValue = PyDict_GetItem(pDict, rowKey);
+      if(rowValue != NULL)
+      {
+        cache.row = PyInt_AsLong(rowValue);
+        Py_DECREF(rowValue);
+      }
+      Py_DECREF(rowKey);
+
+      // Ouput raster column
+      PyObject* columnKey = PyString_FromString("column");
+      PyObject* columnValue = PyDict_GetItem(pDict, columnKey);
+      if(columnValue != NULL)
+      {
+        cache.column = PyInt_AsLong(columnValue);
+        Py_DECREF(columnValue);
+      }
+      Py_DECREF(columnKey);
+    }
+
+  }
+
+
+
+
 }
 
 void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> rows)
 {
   AnalysisPtr analysis = Context::getInstance().getAnalysis(analysisHashCode);
+
+  std::string script = prepareScript(analysis->script);
 
   auto outputRaster = Context::getInstance().getOutputRaster(analysisHashCode);
   if(!outputRaster)
@@ -614,52 +677,85 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
     return;
   }
 
+  // grab the global interpreter lock
+  GILLock gilLock;
+  // swap in my thread state
+  auto previousState = PyThreadState_Swap(state);
+
   int nCols = outputRaster->getNumberOfColumns();
 
-// grab the global interpreter lock
-  PyEval_AcquireLock();
 
-  // swap in my thread state
-  PyThreadState_Swap(state);
-  PyThreadState_Clear(state);
+  PyObject* pCompiledFn = Py_CompileString( script.c_str() , "" , Py_file_input ) ;
+  assert( pCompiledFn != NULL ) ;
 
-  for(uint64_t row : rows)
+  Py_INCREF(pCompiledFn);
+
+  // create a module
+  PyObject* pModule = PyImport_ExecCodeModule( (char*)"analysis" , pCompiledFn ) ;
+  assert( pModule != NULL ) ;
+
+  Py_INCREF(pModule);
+
+  try
   {
-    for(int col = 0; col < nCols; ++col)
+    boost::python::object analysisModule = boost::python::import("analysis");
+    boost::python::object analysisFunction = analysisModule.attr("analysis");
+
+    for(int row : rows)
     {
-
-
-      // Adds the monitored object row and analysis hashcode to the python state
-      PyObject* rowValue = PyInt_FromLong(row);
-      PyObject* colValue = PyInt_FromLong(col);
-      PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
-
-      PyObject* poDict = PyDict_New();
-      PyDict_SetItemString(poDict, "row", rowValue);
-      PyDict_SetItemString(poDict, "col", colValue);
-      PyDict_SetItemString(poDict, "analysis", analysisValue);
-      state->dict = poDict;
-
-      try
+      for(int col = 0; col < nCols; ++col)
       {
-        object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
-        object main_namespace = main_module.attr("__dict__");
+        auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
+        auto pValueRow = PyInt_FromLong(row);
+        auto pValueColumn = PyInt_FromLong(col);
 
-        handle<> ignored((PyRun_String("from terrama2 import *", Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
-        ignored = handle<>((PyRun_String(analysis->script.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr())));
+        PyObject* poDict = PyDict_New();
 
-      }
-      catch(error_already_set)
-      {
-        std::string errMsg = extractException();
-        Context::getInstance().addError(analysisHashCode, errMsg);
+        PyDict_SetItemString(poDict, "analysis", pValueAnalysis);
+        PyDict_SetItemString(poDict, "row", pValueRow);
+        PyDict_SetItemString(poDict, "column", pValueColumn);
+        state->dict = poDict;
+
+
+        boost::python::object result = analysisFunction(analysisHashCode, row, col);
+        double value = boost::python::extract<double>(result);
+        if(std::isnan(value))
+          outputRaster->setValue(col, row, analysis->outputGridPtr->interpolationDummy);
+        else
+          outputRaster->setValue(col, row, value);
       }
     }
+
+
+  }
+  catch(error_already_set)
+  {
+    std::string errMsg = extractException();
+    Context::getInstance().addError(analysisHashCode, errMsg);
   }
 
 
-  // release our hold on the global interpreter
-  PyEval_ReleaseLock();
+  state = PyThreadState_Swap(previousState);
+}
+
+std::string terrama2::services::analysis::core::prepareScript(const std::string& script)
+{
+  std::string formatedScript = script;
+
+  //
+  size_t pos = 0;
+  std::string lineBreak = "\n";
+  std::string formatedLineBreak = "\n    ";
+  while ((pos = formatedScript.find(lineBreak, pos)) != std::string::npos)
+  {
+    formatedScript.replace(pos, lineBreak.length(), formatedLineBreak);
+    pos += formatedLineBreak.length();
+  }
+
+  formatedScript = "    "  + formatedScript;
+  formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, row, col):\n" + formatedScript;
+
+  return formatedScript;
 }
 
 

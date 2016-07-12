@@ -102,7 +102,29 @@ namespace terrama2
          */
         InterestAreaType ToInterestAreaType(uint32_t interestAreaType);
 
+
+
+        /*!
+          \brief Returns a map with the raster for each dataset from the given data series.
+
+          \param dataManager Smart pointer to the data manager.
+          \param dataSeriesId Identifier of the data series.
+
+          \return The interest area strategy for the box of the output grid.
+         */
         const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId);
+
+
+        /*
+          \brief Returns a map with the parameters to create the output raster.
+
+          \param analysisHashCode Analysis hashcode.
+
+          \return The map with the parameters to create the output raster.
+         */
+        std::map<std::string, std::string> getOutputRasterInfo(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode);
+
+        std::shared_ptr<te::rst::Raster> reprojectRaster(std::shared_ptr<te::rst::Raster> inputRaster, std::map<std::string, std::string> outputRasterInfo, InterpolationMethod method);
 
       } // end namespace core
     }   // end namespace analysis

@@ -55,6 +55,15 @@
 // Python
 #include <Python.h>
 
+// Forward declaration
+namespace te
+{
+  namespace rst
+  {
+    class Raster;
+  }
+}
+
 
 namespace terrama2
 {
@@ -218,6 +227,25 @@ namespace terrama2
                         const std::string& dateFilter = "") const;
 
             /*!
+              \brief Returns the raster for the given dataset id.
+
+              \param analysisHashCode Hash code of the analysis.
+              \param datasetId The DataSet identifier.
+              \return A smart pointer to the raster.
+            */
+            std::shared_ptr<te::rst::Raster> getRaster(const AnalysisHashCode analysisHashCode, const DataSetId datasetId) const;
+
+            /*!
+              \brief Adds the given raster to the context map.
+
+              \param analysisHashCode Hash code of the analysis.
+              \param datasetId The DataSet identifier.
+              \param raster The raster to be added to the context.
+
+            */
+            void addRaster(const AnalysisHashCode analysisHashCode, const DataSetId datasetId, std::shared_ptr<te::rst::Raster> raster);
+
+            /*!
               \brief Reads the DataSeries that fits the date filter and adds it to the context.
 
               \param analysisHashCode Hash code of the analysis.
@@ -318,6 +346,7 @@ namespace terrama2
             std::map<AnalysisHashCode, std::shared_ptr<te::dt::TimeInstantTZ> > analysisStartTime_; //!< Stores the analysis start time.
             std::map<AnalysisHashCode, std::map<std::string, std::map<std::string, double> > > analysisResult_; //!< Map with analysis result Analysis HashCocde -> GeomId -> Attribute -> Value.
             std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_; //!< Map containing all loaded datasets.
+            std::map<ContextKey, std::shared_ptr<te::rst::Raster>, ContextKeyComparator> rasterMap_; //!< Map containing all loaded raster.
             std::map<AnalysisHashCode, AnalysisPtr> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
             std::map<AnalysisHashCode, std::shared_ptr<te::rst::Raster> > outputRasterMap_; //!< Map containing all output raster for grid analysis.
             PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.

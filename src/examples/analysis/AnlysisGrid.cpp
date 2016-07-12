@@ -94,6 +94,7 @@ int main(int argc, char* argv[])
   dataManager->add(dataProviderPtr);
 
 
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Data Series 1
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,7 +160,7 @@ int main(int argc, char* argv[])
 
   terrama2::core::DataSetGrid* dataSet3 = new terrama2::core::DataSetGrid();
   dataSet3->active = true;
-  dataSet3->format.emplace("mask", "L71218076_07620060814_r3g2b1.tif");
+  dataSet3->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
   dataSeries3->datasetList.emplace_back(dataSet3);
 
@@ -170,7 +171,6 @@ int main(int argc, char* argv[])
 
 
   dataManager->add(dataSeries3Ptr);
-
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,21 +199,16 @@ int main(int argc, char* argv[])
   dataManager->add(dataSeries4Ptr);
 
 
-
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Analysis
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  std::string script = "x = grid.sample(\"geotiff 1\")\n"
-          "add_value(\"min\", x)\n";
-
 
   Analysis* analysis = new Analysis;
   AnalysisPtr analysisPtr(analysis);
 
   analysis->id = 1;
   analysis->name = "Grid Sample";
-  analysis->script = script;
+  analysis->script = "return grid.sample(\"geotiff 3\")";
   analysis->scriptLanguage = ScriptLanguage::PYTHON;
   analysis->type = AnalysisType::GRID_TYPE;
   analysis->active = false;
@@ -223,8 +218,8 @@ int main(int argc, char* argv[])
 
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
-  analysisDataSeriesList.push_back(gridADS1);
-  analysisDataSeriesList.push_back(gridADS2);
+  //analysisDataSeriesList.push_back(gridADS1);
+  //analysisDataSeriesList.push_back(gridADS2);
   analysisDataSeriesList.push_back(gridADS3);
   analysisDataSeriesList.push_back(gridADS4);
   analysis->analysisDataSeriesList = analysisDataSeriesList;
@@ -238,8 +233,9 @@ int main(int argc, char* argv[])
   OutputGridPtr outputGridPtr(outputGrid);
 
   outputGrid->analysisId = 1;
-  outputGrid->interpolationMethod = InterpolationMethod::NEARESTNEIGHBOR;
-  outputGrid->interestAreaType = InterestAreaType::UNION;
+  outputGrid->interpolationMethod = InterpolationMethod::BICUBIC;
+  outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
+  outputGrid->interestAreaDataSeriesId = 3;
   outputGrid->resolutionType = ResolutionType::BIGGEST_GRID;
 
   analysis->outputGridPtr = outputGridPtr;
