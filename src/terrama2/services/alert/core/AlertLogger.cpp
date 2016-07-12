@@ -37,10 +37,11 @@ terrama2::services::alert::core::AlertLogger::AlertLogger()
 {
 }
 
-void terrama2::services::alert::core::AlertLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo) noexcept
+void terrama2::services::alert::core::AlertLogger::setConnectionInfo(const std::map<std::string, std::string>& connInfo) noexcept
 {
   terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  setTableName("alert_"+std::to_string(serviceManager.instanceId()));
+  std::string tableName = "alert_"+std::to_string(serviceManager.instanceId());
+  setTableName(tableName);
 }

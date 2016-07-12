@@ -62,7 +62,7 @@ namespace terrama2
             */
           virtual ~AlertLogger() {}
 
-          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept override;
+          virtual void setConnectionInfo(const std::map < std::string, std::string >& connInfo) noexcept override;
 
         };
       }

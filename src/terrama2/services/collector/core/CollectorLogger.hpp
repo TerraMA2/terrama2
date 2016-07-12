@@ -77,7 +77,7 @@ namespace terrama2
            */
           void addOutput(std::string value, RegisterId registerID);
 
-          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept override;
+          virtual void setConnectionInfo(const std::map < std::string, std::string >& connInfo) noexcept override;
 
         };
       }
