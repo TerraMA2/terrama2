@@ -70,7 +70,7 @@ class RaiiTsDataAccessorOccurrenceWfp
   public:
 
     RaiiTsDataAccessorOccurrenceWfp(const std::string& dataProviderType,
-                              const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
+                                    const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
       : dataProviderType_(dataProviderType), f_(f)
     {
       terrama2::core::DataRetrieverFactory::getInstance().add(dataProviderType_, f_);
@@ -90,7 +90,7 @@ class RaiiDataSourceTsDataAccessorOccurrenceWfp
 {
   public:
     RaiiDataSourceTsDataAccessorOccurrenceWfp(const std::string& type,
-                                        const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
+                                              const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
     {
       if(te::da::DataSourceFactory::find(type_))
       {
@@ -112,7 +112,7 @@ class RaiiDataSourceTsDataAccessorOccurrenceWfp
 
 te::da::MockDataSet* create_MockDataSetOccurrenceWfp()
 {
-  te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
+  te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
 
   ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(false));
 
@@ -121,7 +121,7 @@ te::da::MockDataSet* create_MockDataSetOccurrenceWfp()
 
 te::da::MockDataSourceTransactor* create_MockDataSourceTransactorOccurrenceWfp()
 {
-  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
+  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
 
   std::vector<std::string> dataSetNames;
   dataSetNames.push_back("exporta_20160501_0230");
@@ -259,8 +259,6 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
@@ -268,7 +266,6 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
@@ -327,7 +324,6 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
     //empty filter
     terrama2::core::Filter filter;
     std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
@@ -393,13 +389,11 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSourceInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<te::da::MockDataSource> mock_(new te::da::MockDataSource());
+    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
     EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
     EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
@@ -458,13 +452,11 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSetInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<te::da::MockDataSource> mock_(new te::da::MockDataSource());
+    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
     EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
     EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());

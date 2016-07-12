@@ -112,7 +112,7 @@ class RaiiDataSourceTsDataAccessorDcpToa5
 
 te::da::MockDataSet* create_MockDataSetDcpToa5()
 {
-  te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
+  te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
 
   ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(false));
 
@@ -121,7 +121,7 @@ te::da::MockDataSet* create_MockDataSetDcpToa5()
 
 te::da::MockDataSourceTransactor* create_MockDataSourceTransactorDcpToa5()
 {
-  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
+  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
 
   std::vector<std::string> dataSetNames;
   dataSetNames.push_back("GRM_slow_2014_01_02_1713");
@@ -259,8 +259,6 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
@@ -268,7 +266,6 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
@@ -327,7 +324,6 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     //empty filter
     terrama2::core::Filter filter;
     std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
@@ -394,14 +390,11 @@ void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = ""; //dataProvider->uri;
-    std::string mask = dataSet->format.at("mask");
-    std::string folder = dataSet->format.at("folder");
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<te::da::MockDataSource> mock_(new te::da::MockDataSource());
+    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
     EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
     EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
@@ -461,14 +454,11 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = ""; //dataProvider->uri;
-    std::string mask = dataSet->format.at("mask");
-    std::string folder = dataSet->format.at("folder");
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<te::da::MockDataSource> mock_(new te::da::MockDataSource());
+    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
     EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
     EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());

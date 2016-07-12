@@ -196,8 +196,6 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
@@ -205,7 +203,6 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
@@ -263,7 +260,6 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     //empty filter
     terrama2::core::Filter filter;
     std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
