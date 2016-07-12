@@ -40,6 +40,7 @@
 #include "ViewStyle.hpp"
 #include "MemoryDataSetLayer.hpp"
 #include "DataManager.hpp"
+#include "Exception.hpp"
 
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/DataSet.hpp"
@@ -76,6 +77,15 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
     auto viewPtr = dataManager->findView(viewId);
 
+    if(viewPtr->dataSeriesList.size() != viewPtr->filtersPerDataSeries.size())
+    {
+      QString message = QObject::tr("View %1 do not have the right number of filters for data.").arg(viewId);
+      if(logger.get())
+        logger->error(message.toStdString(), viewId);
+      TERRAMA2_LOG_ERROR() << message;
+      throw Exception() << ErrorDescription(message);
+    }
+
     std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
 
     for(auto dataSeriesId : viewPtr->dataSeriesList)
@@ -103,15 +113,16 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
     {
       QString message = QObject::tr("View %1 has no associated data to be generated.").arg(viewId);
       if(logger.get())
-        logger->error(message.toStdString(), viewId);
+        logger->info(message.toStdString(), viewId);
       TERRAMA2_LOG_INFO() << message;
     }
 
     if(logger.get())
       logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(const boost::exception& e)
