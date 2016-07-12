@@ -33,6 +33,7 @@
 
 // Qt
 #include <QCoreApplication>
+#include <QTimer>
 
 // TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
