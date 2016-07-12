@@ -108,6 +108,24 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   dataSeriesGeometry->datasetList.emplace_back(dataSetGeometry);
 
   dataManager->add(dataSeriesGeometryPtr);
+
+  //DataSeries information
+  terrama2::core::DataSeries* dataSeriesGeometry2 = new terrama2::core::DataSeries();
+  terrama2::core::DataSeriesPtr dataSeriesGeometry2Ptr(dataSeriesGeometry2);
+  dataSeriesGeometry2->id = 3;
+  dataSeriesGeometry2->name = "dataSeriesGeometry2";
+  dataSeriesGeometry2->dataProviderId = 2;
+  dataSeriesGeometry2->semantics.code = "STATIC_DATA-ogr";
+
+  terrama2::core::DataSetGrid* dataSetGeometry2 = new terrama2::core::DataSetGrid();
+  dataSetGeometry2->active = true;
+  dataSetGeometry2->format.emplace("mask", "Rod_Principais_SP_lin.shp");
+  dataSetGeometry2->format.emplace("timezone", "-03");
+  dataSetGeometry2->format.emplace("srid", "4326");
+
+  dataSeriesGeometry2->datasetList.emplace_back(dataSetGeometry2);
+
+  dataManager->add(dataSeriesGeometry2Ptr);
 }
 
 int main(int argc, char** argv)
@@ -157,11 +175,13 @@ int main(int argc, char** argv)
 
     view->dataSeriesList.push_back(1);
     view->dataSeriesList.push_back(2);
+    view->dataSeriesList.push_back(3);
 
     terrama2::core::Filter filter;
 
     view->filtersPerDataSeries.emplace(1, filter);
     view->filtersPerDataSeries.emplace(2, filter);
+    view->filtersPerDataSeries.emplace(3, filter);
 
     dataManager->add(viewPtr);
 

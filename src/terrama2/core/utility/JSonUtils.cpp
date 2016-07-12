@@ -448,8 +448,8 @@ QJsonObject terrama2::core::toJson(DataProviderPtr dataProviderPtr)
 {
   QJsonObject obj;
   obj.insert("class", QString("DataProvider"));
-  obj.insert("id", static_cast<qint64>(dataProviderPtr->id));
-  obj.insert("project_id", static_cast<qint64>(dataProviderPtr->projectId));
+  obj.insert("id", static_cast<int32_t>(dataProviderPtr->id));
+  obj.insert("project_id", static_cast<int32_t>(dataProviderPtr->projectId));
   obj.insert("name", QString::fromStdString(dataProviderPtr->name));
   obj.insert("description", QString::fromStdString(dataProviderPtr->description));
   obj.insert("intent", static_cast<int>(dataProviderPtr->intent));
@@ -464,8 +464,8 @@ QJsonObject terrama2::core::toJson(DataSeriesPtr dataSeriesPtr)
 {
   QJsonObject obj;
   obj.insert("class", QString("DataSeries"));
-  obj.insert("id", static_cast<qint64>(dataSeriesPtr->id));
-  obj.insert("data_provider_id", static_cast<qint64>(dataSeriesPtr->dataProviderId));
+  obj.insert("id", static_cast<int32_t>(dataSeriesPtr->id));
+  obj.insert("data_provider_id", static_cast<int32_t>(dataSeriesPtr->dataProviderId));
   obj.insert("semantics", QString::fromStdString(dataSeriesPtr->semantics.code));
   obj.insert("name", QString::fromStdString(dataSeriesPtr->name));
   obj.insert("description", QString::fromStdString(dataSeriesPtr->description));
@@ -482,9 +482,9 @@ QJsonObject terrama2::core::toJson(DataSetPtr dataSetPtr, DataSeriesSemantics se
 {
   QJsonObject obj;
   obj.insert("class", QString("DataSet"));
-  obj.insert("id", static_cast<qint64>(dataSetPtr->id));
-  obj.insert("data_series_id", static_cast<qint64>(dataSetPtr->dataSeriesId));
-  obj.insert("data_series_id", static_cast<qint64>(dataSetPtr->dataSeriesId));
+  obj.insert("id", static_cast<int32_t>(dataSetPtr->id));
+  obj.insert("data_series_id", static_cast<int32_t>(dataSetPtr->dataSeriesId));
+  obj.insert("data_series_id", static_cast<int32_t>(dataSetPtr->dataSeriesId));
   obj.insert("active", dataSetPtr->active);
   QJsonObject format;
   for(auto it = dataSetPtr->format.cbegin(); it != dataSetPtr->format.cend(); ++it)
@@ -539,16 +539,16 @@ QJsonObject terrama2::core::toJson(Schedule schedule)
 {
   QJsonObject obj;
   obj.insert("class", QString("Schedule"));
-  obj.insert("id", static_cast<qint64>(schedule.id));
-  obj.insert("frequency",static_cast<qint64>(schedule.frequency));
+  obj.insert("id", static_cast<int32_t>(schedule.id));
+  obj.insert("frequency",static_cast<int32_t>(schedule.frequency));
   obj.insert("frequency_unit", QString::fromStdString(schedule.frequencyUnit));
 
-  obj.insert("schedule",static_cast<qint64>(schedule.schedule));
+  obj.insert("schedule",static_cast<int32_t>(schedule.schedule));
   obj.insert("schedule_time",QString::fromStdString(schedule.scheduleTime));
   obj.insert("schedule_unit",QString::fromStdString(schedule.scheduleUnit));
-  obj.insert("schedule_retry",static_cast<qint64>(schedule.scheduleRetry));
+  obj.insert("schedule_retry",static_cast<int32_t>(schedule.scheduleRetry));
   obj.insert("schedule_retry_unit", QString::fromStdString(schedule.scheduleRetryUnit));
-  obj.insert("schedule_timeout",static_cast<qint64>(schedule.scheduleTimeout));
+  obj.insert("schedule_timeout",static_cast<int32_t>(schedule.scheduleTimeout));
   obj.insert("schedule_timeout_unit", QString::fromStdString(schedule.scheduleTimeoutUnit));
 
   return obj;

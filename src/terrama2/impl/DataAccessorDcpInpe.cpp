@@ -57,7 +57,7 @@ terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(DataProviderPtr dataPro
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
   }
 }
 

@@ -47,7 +47,7 @@ terrama2::core::DataAccessorAnalysisPostGis::DataAccessorAnalysisPostGis(DataPro
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
   }
 }
 
