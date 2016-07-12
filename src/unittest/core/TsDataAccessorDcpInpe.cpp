@@ -113,7 +113,7 @@ class RaiiDataSourceTsDataAccessorDcpInpe
 
 te::da::MockDataSet* create_MockDataSet()
 {
-  te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
+  te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
 
   ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(false));
 
@@ -122,7 +122,7 @@ te::da::MockDataSet* create_MockDataSet()
 
 te::da::MockDataSourceTransactor* create_MockDataSourceTransactor()
 {
-  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
+  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
 
   std::vector<std::string> dataSetNames;
   dataSetNames.push_back("30885");
@@ -260,8 +260,6 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
@@ -269,7 +267,6 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
@@ -330,7 +327,6 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
     //empty filter
     terrama2::core::Filter filter;
     std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
@@ -397,13 +393,11 @@ void TsDataAccessorDcpInpe::TestFailDataSourceInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<te::da::MockDataSource> mock_(new te::da::MockDataSource());
+    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
     EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
     EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
@@ -463,13 +457,11 @@ void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
 
-    std::unique_ptr<te::da::MockDataSource> mock_(new te::da::MockDataSource());
+    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
     EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
     EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
