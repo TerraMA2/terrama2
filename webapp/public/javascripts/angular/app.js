@@ -129,7 +129,8 @@ terrama2Application.directive('terrama2ShowErrors', function() {
         el.toggleClass('has-error', formCtrl[inputName].$invalid);
       });
 
-      scope.$on('formFieldValidation', function() {
+      scope.$on('formFieldValidation', function(formName) {
+        var s = formCtrl;
         var target = formCtrl[inputName];
         el.toggleClass('has-error', target.$invalid);
         el.toggleClass('has-success', target.$valid);
@@ -158,9 +159,11 @@ terrama2Application.directive('terrama2Box', function() {
         $scope.boxType = $scope.css.boxType;
     },
     link: function(scope, element, attrs, ctrl, transclude) {
-      var self = scope.$parent.$new();
+      var elm = element.find('#targetTransclude');
 
-      element.find('#targetTransclude').append(transclude(self));
+      transclude(scope.$parent, function(clone, scope) {
+        elm.append(clone);
+      })
     }
   }
 });
@@ -189,19 +192,21 @@ terrama2Application.directive('terrama2Form', function() {
     restrict: 'E',
     transclude: true,
     scope: {
-      formName: '=formName'
+      formName: '=formName',
+      register: '&'
     },
     template: '<form name="{{ formName }}" novalidate><div id="targetTransclude"></div></form>',
     link: function(scope, element, attributes, ctrl, transclude){
       var target = element.find('#targetTransclude');
 
+      scope.register({form: scope[scope.formName], id: scope.$id});
+
       transclude(scope, function(clone, scope) {
         target.append(clone);
       });
+      // scope.formName = attributes['formName'];
 
       scope.$on('formValidation', function() {
-        console.log(scope);
-
         scope.$emit('formStatus', scope.formName, scope[scope.formName].$valid);
       })
     }
@@ -213,4 +218,4 @@ terrama2Application.directive('terrama2BoxOverlay', function() {
     transclude: true,
     template: '<div class="overlay" ng-show="isChecking"><i class="fa fa-refresh fa-spin"></i></div>'
   }
-})
+});

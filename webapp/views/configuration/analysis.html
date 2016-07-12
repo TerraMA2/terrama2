@@ -85,39 +85,51 @@
 <script type="text/javascript" src="/externals/angular-datatimepicker/js/dateTimeInput.js"></script>
 
 <script type="text/javascript">
-  ace.require("ace/ext/language_tools");
+  // ace.require("ace/ext/language_tools");
+  //
+  // var editor = ace.edit("script");
+  // editor.setTheme("ace/theme/chrome");
+  // editor.getSession().setMode("ace/mode/python");
+  //
+  // editor.setOptions({
+  //   fontSize: "12pt",
+  //   enableBasicAutocompletion: true,
+  //   enableSnippets: true,
+  //   enableLiveAutocompletion: false,
+  //
+  //   readOnly: false,
+  //   highlightActiveLine: true,
+  //   highlightGutterLine: true
+  // });
 
-  var editor = ace.edit("script");
-  editor.setTheme("ace/theme/chrome");
-  editor.getSession().setMode("ace/mode/python");
+  // editor.setOptions({
+  //   readOnly: true,
+  //   highlightActiveLine: false,
+  //   highlightGutterLine: false
+  // })
+  // editor.renderer.$cursorLayer.element.style.opacity=0
 
-  editor.setOptions({
-    fontSize: "12pt",
-    enableBasicAutocompletion: true,
-    enableSnippets: true,
-    enableLiveAutocompletion: false
-  });
-
-  var textarea = $('textarea[name="script"]').hide();
-  editor.getSession().setValue(textarea.val());
-  editor.getSession().on('change', function() {
-    textarea.val(editor.getSession().getValue());
-    // notify angular
-    $(textarea).trigger('input');
-  });
+  // var textarea = $('textarea[name="script"]').hide();
+  // editor.getSession().setValue(textarea.val());
+  // editor.getSession().on('change', function() {
+  //   textarea.val(editor.getSession().getValue());
+  //   // notify angular
+  //   $(textarea).trigger('input');
+  // });
 </script>
 
 <script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
 
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+<script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
 <script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="AnalysisRegistration">
+<div ng-controller="AnalysisRegistration as Ctrl">
 
   <!-- DataSeries Modal -->
   <div class="modal fade" id="dataSeriesModal" tabindex="-1" role="dialog" aria-labelledby="dataSeriesModalLabel">
@@ -147,478 +159,401 @@
     </div>
   </div>
 
+  <terrama2-box title="'{[ __('Analysis Registration') ]}'">
+    <terrama2-box title="'{[ __('General Data') ]}'" css="css">
+      <div class="row">
+        <div class="col-md-12">
+          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
+        </div>
 
-  <div class="box box-default">
-    <div class="box-header with-border">
-      <h3 class="box-title">{[ __('Analysis Registration') ]}</h3>
-    </div>
-    <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
+        <form name="generalDataForm">
+          <div class="col-md-8">
+            <div class="form-group" ng-class="{'has-error': generalDataForm.name.$dirty && generalDataForm.name.$error.required,
+                                               'has-success': generalDataForm.name.$dirty && generalDataForm.name.$valid}">
+              <label>{[ __("Name") ]}:</label>
+              <input class="form-control" name="name" ng-model="analysis.name" placeholder="{[ __('Analysis Name') ]}" type="text" required>
 
-      <div class="col-md-12">
-        <div class="box box-default box-solid">
-          <div class="box-header with-border">
-            <h3 class="box-title">{[ __('General Data') ]}</h3>
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
+              <span class="help-block" ng-show="generalDataForm.name.$dirty && generalDataForm.name.$invalid" ng-class="{'has-error': generalDataForm.name.$invalid}">{[ __('Analysis name is required') ]}</span>
             </div>
           </div>
-          <!-- /.box-header -->
-          <div style="display: block;" class="box-body">
-            <div class="row">
-              <div class="col-md-12">
-                <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
+          <!-- /.col -->
+
+          <div class="col-md-4">
+            <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.type.$dirty && generalDataForm.type.$error.required,
+                                               'has-success': generalDataForm.type.$dirty && generalDataForm.type.$valid}">
+              <label>{[ __("Type") ]}:</label>
+              <select class="form-control" name="type" ng-model="analysis.type_id" ng-disabled="isUpdating" required>
+                <option value="{[ Enums.AnalysisType.DCP ]}">DCP</option>
+                <option value="{[ Enums.AnalysisType.GRID ]}">Grid</option>
+                <option value="{[ Enums.AnalysisType.MONITORED ]}">Monitored Object</option>
+              </select>
+
+              <span class="help-block" ng-show="generalDataForm.type.$dirty && generalDataForm.type.$error.required"
+                    ng-class="{'has-error': generalDataForm.type.$invalid}">
+                {[ __('Analysis type is required') ]}
+              </span>
+            </div>
+            <!-- /.form-group -->
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>{[ __("Description") ]}:</label>
+              <textarea class="form-control" name="description" ng-model="analysis.description" rows="3" placeholder="{[ __('Analysis Description') ]}"></textarea>
+            </div>
+            <!-- /.form-group -->
+          </div>
+
+          <div class="col-md-8">
+            <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.instance.$dirty && generalDataForm.instance.$error.required,
+                                               'has-success': generalDataForm.instance.$dirty && generalDataForm.instance.$valid}">
+              <label>{[ __("Instance") ]}:</label>
+              <select class="form-control" name="instance" ng-model="analysis.instance_id" required>
+                <option ng-repeat="instance in instances" value="{{ instance.id }}">{{ instance.name }}</option>
+                <option ng-if="instances.length == 0" value="">{[ __('No analysis instance found') ]}</option>
+              </select>
+
+              <span class="help-block" ng-show="generalDataForm.instance.$dirty && generalDataForm.instance.$error.required"
+                    ng-class="{'has-error': generalDataForm.instance.$invalid}">
+                {[ __('Analysis instance is required') ]}
+              </span>
+            </div>
+            <!-- /.form-group -->
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label style="font-weight: 700; margin-top:19px;">
+                    <input name="active" ng-model="analysis.active" ng-disabled="isUpdating" ng-init="analysis.active = true" type="checkbox"> {[ __("Active") ]}
+                  </label>
+                </div>
               </div>
 
-              <form name="generalDataForm">
-                <div class="col-md-8">
-                  <div class="form-group" ng-class="{'has-error': generalDataForm.name.$dirty && generalDataForm.name.$error.required,
-                                                     'has-success': generalDataForm.name.$dirty && generalDataForm.name.$valid}">
-                    <label>{[ __("Name") ]}:</label>
-                    <input class="form-control" name="name" ng-model="analysis.name" placeholder="{[ __('Analysis Name') ]}" type="text" required>
-
-                    <span class="help-block" ng-show="generalDataForm.name.$dirty && generalDataForm.name.$invalid" ng-class="{'has-error': generalDataForm.name.$invalid}">{[ __('Analysis name is required') ]}</span>
-                  </div>
-                </div>
-                <!-- /.col -->
-
-                <div class="col-md-4">
-                  <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.type.$dirty && generalDataForm.type.$error.required,
-                                                     'has-success': generalDataForm.type.$dirty && generalDataForm.type.$valid}">
-                    <label>{[ __("Type") ]}:</label>
-                    <select class="form-control" name="type" ng-model="analysis.type_id" ng-disabled="isUpdating" required>
-                      <option value="{[ Enums.AnalysisType.DCP ]}">DCP</option>
-                      <option value="{[ Enums.AnalysisType.GRID ]}">Grid</option>
-                      <option value="{[ Enums.AnalysisType.MONITORED ]}">Monitored Object</option>
-                    </select>
-
-                    <span class="help-block" ng-show="generalDataForm.type.$dirty && generalDataForm.type.$error.required"
-                          ng-class="{'has-error': generalDataForm.type.$invalid}">
-                      {[ __('Analysis type is required') ]}
-                    </span>
-                  </div>
-                  <!-- /.form-group -->
-                </div>
-
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>{[ __("Description") ]}:</label>
-                    <textarea class="form-control" name="description" ng-model="analysis.description" rows="3" placeholder="{[ __('Analysis Description') ]}"></textarea>
-                  </div>
-                  <!-- /.form-group -->
-                </div>
-
-                <div class="col-md-8">
-                  <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.instance.$dirty && generalDataForm.instance.$error.required,
-                                                     'has-success': generalDataForm.instance.$dirty && generalDataForm.instance.$valid}">
-                    <label>{[ __("Instance") ]}:</label>
-                    <select class="form-control" name="instance" ng-model="analysis.instance_id" required>
-                      <option ng-repeat="instance in instances" value="{{ instance.id }}">{{ instance.name }}</option>
-                      <option ng-if="instances.length == 0" value="">{[ __('No analysis instance found') ]}</option>
-                    </select>
-
-                    <span class="help-block" ng-show="generalDataForm.instance.$dirty && generalDataForm.instance.$error.required"
-                          ng-class="{'has-error': generalDataForm.instance.$invalid}">
-                      {[ __('Analysis instance is required') ]}
-                    </span>
-                  </div>
-                  <!-- /.form-group -->
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <div class="form-group">
-                      <div class="checkbox">
-                        <label style="font-weight: 700; margin-top:19px;">
-                          <input name="active" ng-model="analysis.active" ng-disabled="isUpdating" ng-init="analysis.active = true" type="checkbox"> {[ __("Active") ]}
-                        </label>
-                      </div>
-                    </div>
-
-                  </div>
-                  <!-- /.form-group -->
-                </div>
-              </form>
-              <!--./ generalDataForm -->
             </div>
-            <!-- /.row -->
+            <!-- /.form-group -->
           </div>
-          <!-- /.box body -->
+        </form>
+        <!--./ generalDataForm -->
+      </div>
+      <!-- /.row -->
+    </terrama2-box>
+
+    <terrama2-box title="'{[ __('Store') ]}'" css="css">
+      <div class="row">
+
+        <form name="storagerDataForm">
+
+          <div class="col-md-4">
+            <div class="form-group" ng-class="{'has-error': storagerDataForm.format.$dirty && storagerDataForm.format.$error.required,
+                            'has-success': storagerDataForm.format.$dirty && storagerDataForm.format.$valid}">
+              <label>{[ __('Output Format') ]}:</label>
+                <select id="storageFormat" class="form-control"
+                        name="format"
+                        ng-disabled="isUpdating"
+                        ng-change="onStoragerFormatChange()"
+                        ng-model="storager.format"
+                        ng-options="format.name for format in storagerFormats" required>
+              </select>
+
+              <label class="help-block text-danger" ng-show="storagerDataForm.format.$dirty && storagerDataForm.format.$error.required">
+                {[ __("Data store is required") ]}
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group" ng-class="{'has-error': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required,
+                            'has-success': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$valid}">
+              <label>{[ __('Data Store') ]}:</label>
+              <select class="form-control"
+                      name="storager_data_provider_id"
+                      ng-disabled="isUpdating"
+                      ng-model="analysis.data_provider_id"
+                      ng-options="provider.id as provider.name for provider in dataProviders"
+                      ng-required="storager.format.name" required>
+                <option></option>
+              </select>
+              <label class="help-block text-danger" ng-show="storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required">
+                {[ __("Data store is required") ]}
+              </label>
+            </div>
+          </div>
+        </form>
+        <div class="col-md-12 terrama2-nopadding-box">
+          <!-- schema form -->
+          <div class="col-md-12" ng-show="showStoragerForm">
+            <form name="storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
+          </div>
+        </div>
+
+        <div class="col-md-12" style="margin-top: 30px;">
+          <div class="col-md-12 terrama2-nopadding-box">
+            <div class="box box-default box-solid">
+              <div class="box-header with-border">
+                <h3 class="box-title">{{ i18n.__('Schedule') }}</h3>
+              </div>
+
+              <div style="display: block;" class="box-body">
+                <terrama2-schedule model="schedule" options="scheduleOptions"></terrama2-schedule>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </terrama2-box>
 
-      <div class="col-md-12">
-        <div class="box box-default box-solid">
-          <div class="box-header with-border">
-            <h3 class="box-title">{[ __('Storager') ]}</h3>
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
+    <terrama2-box title="semanticsSelected + '{[ __('Data Series') ]}'" css="css">
+      <div class="row">
+        <div class="col-md-12">
+          <form name="targetDataSeriesForm">
+            <div class="col-md-6">
+              <div class="form-group has-feedback"
+                ng-class="{'has-error': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required, 'has-success': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$valid}">
+                <label>{[ __("DataSeries") ]}:</label>
+                <select class="form-control"
+                        name="targetDataSeries"
+                        ng-disabled="isUpdating"
+                        ng-model="targetDataSeries"
+                        ng-options="targetDS as targetDS.name for targetDS in filteredDataSeries"
+                        ng-change="onTargetDataSeriesChange()" required>
+                </select>
+
+                <!-- required -->
+                <span class="help-block" ng-show="targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required">
+                  {[ __('Data Series is required') ]}
+                </span>
+              </div>
             </div>
-          </div>
-          <!-- /.box-header -->
-          <div style="display: block;" class="box-body">
-            <div class="row">
+            <!-- ./col-md-6 -->
 
-              <form name="storagerDataForm">
+            <div class="col-md-6" ng-show="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
+              <div class="form-group has-feedback"
+                ng-class="{'has-error': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$error.required, 'has-success': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$valid}">
+                <label>{[ __("Attribute Identifier") ]}:</label>
+                <input type="text" class="form-control"
+                                   name="identifier"
+                                   ng-disabled="isUpdating"
+                                   ng-model="identifier"
+                                   ng-required="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
 
-                <div class="col-md-4">
-                  <div class="form-group" ng-class="{'has-error': storagerDataForm.format.$dirty && storagerDataForm.format.$error.required,
-                                  'has-success': storagerDataForm.format.$dirty && storagerDataForm.format.$valid}">
-                    <label>{[ __('Output Format') ]}:</label>
-                      <select id="storageFormat" class="form-control"
-                              name="format"
-                              ng-disabled="isUpdating"
-                              ng-change="onStoragerFormatChange()"
-                              ng-model="storager.format"
-                              ng-options="format.name for format in storagerFormats" required>
-                    </select>
-                  </div>
+                <!-- required -->
+                <span class="help-block" ng-show="targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$error.required">
+                  {[ __('Attribute Identifier') ]}
+                </span>
+              </div>
+            </div>
+            <!-- ./col-md-6 -->
+          </form>
+        </div>
+      </div>
+    </terrama2-box>
+
+    <terrama2-box title="'{[ __('Additional Data') ]}'" css="css">
+      <div class="row">
+        <div class="col-md-12">
+          <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
+            <i class="fa fa-plus"></i>
+          </button>
+          <!-- metadata form handler -->
+          <form name="metadataForm">
+            <table class="table table-bordered table-hover">
+              <tbody>
+              <tr>
+                <th>{[ __('Name') ]}</th>
+                <th>{[ __('Format') ]}</th>
+                <th>{[ __('Alias') ]}</th>
+                <th></th>
+              </tr>
+              <tr style="cursor:pointer;" ng-repeat="dataSeries in selectedDataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
+                <td>{{ dataSeries.name }}</td>
+                <td>{{ dataSeries.data_series_semantics.name }}</td>
+                <td>
+                  <input type="text" class="form-control" name="name" ng-model="metadata[dataSeries.name].alias" required>
+                </td>
+                <!-- <td>
+                  <button type="button" class="btn btn-primary" data-ng-click="onDataSeriesClick(dataSeries);"><i class="fa fa-gear"></i></button>
+                </td> -->
+                <td class="pull-cell-left">
+                  <button type="button" class="btn btn-danger btn-small" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
+                </td>
+              </tr>
+              <tr ng-if="selectedDataSeriesList.length == 0">
+                <td colspan="2">
+                  {[ __('No data series selected') ]}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <!--./table-->
+          </form>
+          <!--todo: open box-->
+
+        </div><!--./col-md-12-->
+      </div><!--./row-->
+    </terrama2-box>
+
+    <terrama2-box title="'{[ __('Influence Area') ]}'" css="css" ng-show="analysis.type_id == 1">
+      <div class="row">
+        <div class="col-md-12">
+          <form name="influenceForm">
+            <div class="col-md-12 terrama2-nopadding-box">
+              <div class="col-md-12">
+                <div class="form-group has-feedback" ng-class="{'has-error': influenceForm.influence.$dirty && influenceForm.influence.$error.required, 'has-success': influenceForm.influence.$dirty && influenceForm.influence.$valid}">
+                  <label>{[ __("Influence") ]}:</label>
+                  <select class="form-control"
+                          name="influence"
+                          ng-disabled="isUpdating"
+                          ng-model="analysis.metadata.INFLUENCE_TYPE"
+                          ng-required="analysis.type_id == 1">
+                    <option value="{[ Enums.InfluenceTypes.TOUCHES.Value ]}">{[ Enums.InfluenceTypes.TOUCHES.Name ]}</option>
+                    <option value="{[ Enums.InfluenceTypes.CENTER.Value ]}">{[ Enums.InfluenceTypes.CENTER.Name ]}</option>
+                    <option value="{[ Enums.InfluenceTypes.REGION.Value ]}">{[ Enums.InfluenceTypes.REGION.Name ]}</option>
+                  </select>
+
+                  <!-- required -->
+                  <span class="help-block" ng-show="influenceForm.influence.$dirty && influenceForm.influence.$error.required">
+                    {[ __('Influence is required') ]}
+                  </span>
                 </div>
-
-                <div class="col-md-4">
-                  <div class="form-group" ng-class="{'has-error': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required,
-                                  'has-success': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$valid}">
-                    <label>{[ __('Provider Output') ]}:</label>
-                    <select class="form-control"
-                            name="storager_data_provider_id"
-                            ng-disabled="isUpdating"
-                            ng-model="analysis.data_provider_id"
-                            ng-options="provider.id as provider.name for provider in dataProviders"
-                            ng-required="storager.format.name" required>
-                      <option></option>
-                    </select>
-                    <label class="help-block text-danger" ng-show="storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required">
-                      {[ __("Data provider is required") ]}
-                    </label>
-                  </div>
-                </div>
-              </form>
+              </div>
+            </div>
+            <div ng-if="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
               <div class="col-md-12 terrama2-nopadding-box">
-                <!-- schema form -->
-                <div class="col-md-12" ng-show="showStoragerForm">
-                  <form name="storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
-                </div>
-              </div>
 
-              <div class="col-md-12" style="margin-top: 30px;">
-                <div class="col-md-12 terrama2-nopadding-box">
-                  <div class="box box-default box-solid">
-                    <div class="box-header with-border">
-                      <h3 class="box-title">{{ i18n.__('Schedule') }}</h3>
-                    </div>
-
-                    <div style="display: block;" class="box-body">
-                      <terrama2-schedule model="schedule" options="scheduleOptions"></terrama2-schedule>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- ./box-body -->
-        </div>
-      </div>
-
-      <!-- Target DataSeries (monitored/dcp, grid) -->
-      <div class="col-md-12">
-        <div class="box box-default box-solid" id="dataSeriesBox">
-          <div class="box-header with-border">
-            <h3 class="box-title">{{ semanticsSelected }} {[ __('Data Series') ]}</h3>
-
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
-            </div>
-          </div>
-          <!-- /.box-header -->
-
-          <div style="display: block;" class="box-body">
-            <div class="row">
-              <div class="col-md-12">
-                <form name="targetDataSeriesForm">
-                  <div class="col-md-6">
-                    <div class="form-group has-feedback"
-                      ng-class="{'has-error': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required, 'has-success': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$valid}">
-                      <label>{[ __("DataSeries") ]}:</label>
-                      <select class="form-control"
-                              name="targetDataSeries"
-                              ng-disabled="isUpdating"
-                              ng-model="targetDataSeries"
-                              ng-options="targetDS as targetDS.name for targetDS in filteredDataSeries"
-                              ng-change="onTargetDataSeriesChange()" required>
-                      </select>
-
-                      <!-- required -->
-                      <span class="help-block" ng-show="targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required">
-                        {[ __('Data Series is required') ]}
-                      </span>
-                    </div>
-                  </div>
-                  <!-- ./col-md-6 -->
-
-                  <div class="col-md-6" ng-show="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
-                    <div class="form-group has-feedback"
-                      ng-class="{'has-error': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$error.required, 'has-success': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$valid}">
-                      <label>{[ __("Attribute Identifier") ]}:</label>
-                      <input type="text" class="form-control"
-                                         name="identifier"
-                                         ng-disabled="isUpdating"
-                                         ng-model="identifier"
-                                         ng-required="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
-
-                      <!-- required -->
-                      <span class="help-block" ng-show="targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$error.required">
-                        {[ __('Attribute Identifier') ]}
-                      </span>
-                    </div>
-                  </div>
-                  <!-- ./col-md-6 -->
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Additional Data -->
-      <div class="col-md-12">
-        <div class="box box-default box-solid" id="dataSeriesBox">
-          <div class="box-header with-border">
-            <h3 class="box-title">{[ __('Additional Data') ]}</h3>
-
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- /.box-header -->
-          <div style="display: block;" class="box-body">
-            <div class="row">
-              <div class="col-md-12">
-                <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
-                  <i class="fa fa-plus"></i>
-                </button>
-                <!-- metadata form handler -->
-                <form name="metadataForm">
-                  <table class="table table-bordered table-hover">
-                    <tbody>
-                    <tr>
-                      <th>{[ __('Name') ]}</th>
-                      <th>{[ __('Format') ]}</th>
-                      <th>{[ __('Alias') ]}</th>
-                      <th></th>
-                    </tr>
-                    <tr style="cursor:pointer;" ng-repeat="dataSeries in selectedDataSeriesList" data-ng-click="onDataSeriesClick(dataSeries);" ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
-                      <td>{{ dataSeries.name }}</td>
-                      <td>{{ dataSeries.data_series_semantics.name }}</td>
-                      <td>
-                        <input type="text" class="form-control" name="name" ng-model="metadata[dataSeries.name].alias" required>
-                      </td>
-                      <!-- <td>
-                        <button type="button" class="btn btn-primary" data-ng-click="onDataSeriesClick(dataSeries);"><i class="fa fa-gear"></i></button>
-                      </td> -->
-                      <td class="pull-cell-left">
-                        <button type="button" class="btn btn-danger btn-small" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
-                      </td>
-                    </tr>
-                    <tr ng-if="selectedDataSeriesList.length == 0">
-                      <td colspan="2">
-                        {[ __('No data series selected') ]}
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                  <!--./table-->
-                </form>
-                <!--todo: open box-->
-
-              </div><!--./col-md-12-->
-            </div><!--./row-->
-          </div><!--./box-body-->
-        </div><!--./box-->
-      </div>
-
-      <div class="col-md-12" ng-if="analysis.type_id == 1">
-        <div class="box box-default box-solid">
-          <div class="box-header with-border">
-            <h3 class="box-title">{[ __('Influence Area') ]}</h3>
-          </div>
-
-          <div style="display: block;" class="box-body">
-            <div class="row">
-              <div class="col-md-12">
-                <form name="influenceForm">
-                  <div class="col-md-12 terrama2-nopadding-box">
-                    <div class="col-md-12">
-                      <div class="form-group has-feedback" ng-class="{'has-error': influenceForm.influence.$dirty && influenceForm.influence.$error.required, 'has-success': influenceForm.influence.$dirty && influenceForm.influence.$valid}">
-                        <label>{[ __("Influence") ]}:</label>
-                        <select class="form-control"
-                                name="influence"
-                                ng-disabled="isUpdating"
-                                ng-model="analysis.metadata.INFLUENCE_TYPE"
-                                ng-required="analysis.type_id == 1">
-                          <option value="{[ Enums.InfluenceTypes.TOUCHES.Value ]}">{[ Enums.InfluenceTypes.TOUCHES.Name ]}</option>
-                          <option value="{[ Enums.InfluenceTypes.CENTER.Value ]}">{[ Enums.InfluenceTypes.CENTER.Name ]}</option>
-                          <option value="{[ Enums.InfluenceTypes.REGION.Value ]}">{[ Enums.InfluenceTypes.REGION.Name ]}</option>
-                        </select>
-
-                        <!-- required -->
-                        <span class="help-block" ng-show="influenceForm.influence.$dirty && influenceForm.influence.$error.required">
-                          {[ __('Influence is required') ]}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div ng-if="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
-                    <div class="col-md-12 terrama2-nopadding-box">
-
-                      <div class="col-md-6">
-                        <div class="form-group" ng-class="{'has-error': influenceForm.radius.$dirty && influenceForm.radius.$error.required, 'has-success': influenceForm.radius.$dirty && influenceForm.radius.$valid}">
-                          <label>{[ __("Radius") ]}:</label>
-                          <input class="form-control"
-                                 name="radius"
-                                 type="text"
-                                 ng-disabled="isUpdating"
-                                 ng-model="analysis.metadata.INFLUENCE_RADIUS"
-                                 ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
-
-                          <!-- required -->
-                          <span class="help-block" ng-show="influenceForm.radius.$dirty && influenceForm.radius.$error.required">
-                            {[ __('Influence radius is required') ]}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div class="col-md-6">
-
-                        <div class="form-group" ng-class="{'has-error': influenceForm.radiusUnit.$dirty && influenceForm.radiusUnit.$error.required, 'has-success': influenceForm.radiusUnit.$dirty && influenceForm.radiusUnit.$valid}">
-                          <div class="input-group" style="margin-top: 25px;">
-                            <input type="text" name="radiusUnit" ng-disabled="isUpdating" class="form-control" aria-label="..." ng-model="analysis.metadata.INFLUENCE_RADIUS_UNIT" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
-                            <div class="input-group-btn">
-                              <button type="button" ng-disabled="isUpdating" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
-                              </button>
-                              <ul class="dropdown-menu dropdown-menu-right">
-                                <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
-                                <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
-                              </ul>
-                            </div><!-- /btn-group -->
-                          </div><!-- /input-group -->
-                        </div>
-
-                      </div><!-- /.col-md-4 -->
-                    </div><!--/.col-md-12-->
-                  </div>
-
-                  <div ng-if="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
-                    <div class="col-md-12 terrama2-nopadding-box">
-
-                      <div class="col-md-6">
-                        <div class="form-group has-feedback" ng-class="{'has-error': influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$error.required, 'has-success': influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$valid}">
-                          <label>{[ __("Influence Data Series") ]}:</label>
-                          <select class="form-control" name="dataSeriesId" ng-disabled="isUpdating" ng-model="analysis.metadata.INFLUENCE_DATASERIES_ID" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
-                            <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
-                          </select>
-
-                          <!-- required -->
-                          <span class="help-block" ng-show="influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$error.required">
-                            {[ __('Influence data series is required') ]}
-                          </span>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="form-group" ng-class="{'has-error': influenceForm.attribute.$dirty && influenceForm.attribute.$error.required, 'has-success': influenceForm.attribute.$dirty && influenceForm.attribute.$valid}">
-                          <!-- TODO: combobox with data series properties -->
-                          <label>{[ __("Influence Attribute") ]}:</label>
-                          <input class="form-control" name="attribute" ng-disabled="isUpdating" type="text" ng-model="analysis.metadata.INFLUENCE_ATTRIBUTE" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
-
-                          <!-- required -->
-                          <span class="help-block" ng-show="influenceForm.attribute.$dirty && influenceForm.attribute.$error.required">
-                            {[ __('Influence attribute name is required') ]}
-                          </span>
-                        </div>
-                      </div>
-                    </div><!--/.col-md-12-->
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-12">
-        <div class="box box-default box-solid">
-          <div class="box-header with-border">
-            <h3 class="box-title">{[ __('Script') ]}</h3>
-
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- /.box-header -->
-          <div style="display: block;" class="box-body">
-            <div class="row">
-
-              <div class="col-md-12">
-                <form name="scriptForm">
-                  <div class="form-group" ng-class="{'has-error': scriptForm.script.$dirty && scriptForm.script.$error.required || analysis_script_error,
-                                                     'has-success': scriptForm.script.$dirty && scriptForm.script.$valid}">
-
-                    <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
-                    <label>{[ __('Analysis Model') ]}:</label>
-                    <div id="scriptCheckResult"></div>
-                    <div id="systemError" style="display: none;"></div>
-                    <div id="script"></div>
-                    <textarea name="script" ng-model="analysis.script" required></textarea>
+                <div class="col-md-6">
+                  <div class="form-group" ng-class="{'has-error': influenceForm.radius.$dirty && influenceForm.radius.$error.required, 'has-success': influenceForm.radius.$dirty && influenceForm.radius.$valid}">
+                    <label>{[ __("Radius") ]}:</label>
+                    <input class="form-control"
+                           name="radius"
+                           type="text"
+                           ng-disabled="isUpdating"
+                           ng-model="analysis.metadata.INFLUENCE_RADIUS"
+                           ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
 
                     <!-- required -->
-                    <span class="help-block"
-                          ng-show="scriptForm.script.$dirty && scriptForm.script.$error.required">
-                      {[ __('Analysis script is required') ]}
+                    <span class="help-block" ng-show="influenceForm.radius.$dirty && influenceForm.radius.$error.required">
+                      {[ __('Influence radius is required') ]}
                     </span>
-
-                    <!-- todo: syntax error message -->
                   </div>
-                </form>
-
-                <div class="col-md-12">
-                  <div class="btn-group">
-                    <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
-                      {[ __('Functions') ]}
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                      <li><a href="#">max</a></li>
-                      <li><a href="#">min</a></li>
-                      <li><a href="#">abs</a></li>
-                    </ul>
-                  </div>
-
-                  <button class="btn btn-default pull-right" id="checkAnalysisScript" style="width: 75px;">
-                    <span class="loading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
-                    <span class="text">{[ __('Validate') ]}</span>
-                  </button>
                 </div>
-              </div>
-            </div>
-            <!-- /.row -->
-          </div>
-          <!-- /.box body -->
-        </div>
-      </div> <!-- end col md 6 -->
 
-    </div>
-    <!-- /.box body -->
+                <div class="col-md-6">
+
+                  <div class="form-group" ng-class="{'has-error': influenceForm.radiusUnit.$dirty && influenceForm.radiusUnit.$error.required, 'has-success': influenceForm.radiusUnit.$dirty && influenceForm.radiusUnit.$valid}">
+                    <div class="input-group" style="margin-top: 25px;">
+                      <input type="text" name="radiusUnit" ng-disabled="isUpdating" class="form-control" aria-label="..." ng-model="analysis.metadata.INFLUENCE_RADIUS_UNIT" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
+                      <div class="input-group-btn">
+                        <button type="button" ng-disabled="isUpdating" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
+                          <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
+                        </ul>
+                      </div><!-- /btn-group -->
+                    </div><!-- /input-group -->
+                  </div>
+
+                </div><!-- /.col-md-4 -->
+              </div><!--/.col-md-12-->
+            </div>
+
+            <div ng-if="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+              <div class="col-md-12 terrama2-nopadding-box">
+
+                <div class="col-md-6">
+                  <div class="form-group has-feedback" ng-class="{'has-error': influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$error.required, 'has-success': influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$valid}">
+                    <label>{[ __("Influence Data Series") ]}:</label>
+                    <select class="form-control" name="dataSeriesId" ng-disabled="isUpdating" ng-model="analysis.metadata.INFLUENCE_DATASERIES_ID" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+                      <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
+                    </select>
+
+                    <!-- required -->
+                    <span class="help-block" ng-show="influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$error.required">
+                      {[ __('Influence data series is required') ]}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group" ng-class="{'has-error': influenceForm.attribute.$dirty && influenceForm.attribute.$error.required, 'has-success': influenceForm.attribute.$dirty && influenceForm.attribute.$valid}">
+                    <!-- TODO: combobox with data series properties -->
+                    <label>{[ __("Influence Attribute") ]}:</label>
+                    <input class="form-control" name="attribute" ng-disabled="isUpdating" type="text" ng-model="analysis.metadata.INFLUENCE_ATTRIBUTE" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+
+                    <!-- required -->
+                    <span class="help-block" ng-show="influenceForm.attribute.$dirty && influenceForm.attribute.$error.required">
+                      {[ __('Influence attribute name is required') ]}
+                    </span>
+                  </div>
+                </div>
+              </div><!--/.col-md-12-->
+            </div>
+          </form>
+        </div>
+      </div>
+    </terrama2-box>
+
+    <terrama2-box title="'{[ __('Script') ]}'" css="css">
+      <div class="row">
+
+        <div class="col-md-12">
+          <form name="scriptForm">
+            <div class="form-group" ng-class="{'has-error': scriptForm.script.$dirty && scriptForm.script.$error.required || analysis_script_error,
+                                               'has-success': scriptForm.script.$dirty && scriptForm.script.$valid}">
+
+              <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
+              <label>{[ __('Analysis Model') ]}:</label>
+              <div id="scriptCheckResult"></div>
+              <div id="systemError" style="display: none;"></div>
+
+              <div terrama2-ace="{onChange: onScriptChanged}" ng-model="analysis.script">
+
+              </div>
+
+              <textarea name="script" ng-model="analysis.script" ng-show="false" required>
+              </textarea>
+
+              <!-- required -->
+              <span class="help-block"
+                    ng-show="scriptForm.script.$dirty && scriptForm.script.$error.required">
+                {[ __('Analysis script is required') ]}
+              </span>
+
+              <!-- todo: syntax error message -->
+            </div>
+          </form>
+
+          <div class="col-md-12">
+            <div class="btn-group">
+              <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                {[ __('Functions') ]}
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#">max</a></li>
+                <li><a href="#">min</a></li>
+                <li><a href="#">abs</a></li>
+              </ul>
+            </div>
+
+            <button class="btn btn-default pull-right" style="width: 75px;" ng-click="onScriptValidation();">
+              <span class="loading" ng-show="testingScript">
+                <i class="fa fa-refresh fa-spin"></i>
+              </span>
+              <span class="text" ng-show="!testingScript" ng-disabled="testingScript">{[ __('Validate') ]}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- /.row -->
+    </terrama2-box>
 
     <div class="box-footer">
       <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton">{[ __('OK') ]}</button>
       <a href="/configuration/analyses/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
-  </div>
+
+  </terrama2-box>
 </div> <!-- end col md 12 -->
 
 {% endblock %}

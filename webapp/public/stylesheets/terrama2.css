@@ -191,3 +191,5 @@
   font-size: 12px !important;
   line-height: 1.428571429 !important;
 }
+
+.ace_editor { height: 305px !important; }
