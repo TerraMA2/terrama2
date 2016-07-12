@@ -267,12 +267,12 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
         }
       }
-      catch(terrama2::Exception e)
+      catch(const terrama2::Exception& e)
       {
         Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
         exceptionOccurred = true;
       }
-      catch(std::exception e)
+      catch(const std::exception& e)
       {
         Context::getInstance().addError(cache.analysisHashCode, e.what());
         exceptionOccurred = true;
