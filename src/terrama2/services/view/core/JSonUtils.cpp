@@ -57,8 +57,9 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("resolutionWidth")
      || !json.contains("resolutionHeight")
      || !json.contains("schedule")
-     || !json.contains("filter")
-     || !json.contains("dataset_series_list"))
+     || !json.contains("srid")
+     || !json.contains("data_series_list")
+     || !json.contains("filters_per_data_series"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -74,16 +75,28 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   view->active = json["active"].toBool();
   view->resolutionWidth = static_cast<uint32_t>(json["resolutionWidth"].toInt());
   view->resolutionHeight = static_cast<uint32_t>(json["resolutionHeight"].toInt());
+  view->srid = static_cast<uint32_t>(json["srid"].toInt());
 
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-  view->filter = terrama2::core::fromFilterJson(json["filter"].toObject());
 
-  auto datasetSeriesArray = json["dataset_series_list"].toArray();
-  auto it = datasetSeriesArray.begin();
-  for(; it != datasetSeriesArray.end(); ++it)
   {
-    auto obj = (*it).toObject();
-    view->dataSeriesList.push_back(static_cast<uint32_t>(obj["dataset_series_id"].toInt()));
+    auto datasetSeriesArray = json["data_series_list"].toArray();
+    auto it = datasetSeriesArray.begin();
+    for(; it != datasetSeriesArray.end(); ++it)
+    {
+      auto obj = (*it).toObject();
+      view->dataSeriesList.push_back(static_cast<uint32_t>(obj["dataset_series_id"].toInt()));
+    }
+  }
+
+  {
+    auto datasetSeriesArray = json["filters_per_data_series"].toArray();
+    auto it = datasetSeriesArray.begin();
+    for(; it != datasetSeriesArray.end(); ++it)
+    {
+      auto obj = (*it).toObject();
+      view->filtersPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), terrama2::core::fromFilterJson(json["dataset_series_filter"].toObject()));
+    }
   }
 
   return viewPtr;
@@ -94,24 +107,37 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 {
   QJsonObject obj;
   obj.insert("class", QString("View"));
-  obj.insert("id", static_cast<qint64>(view->id));
-  obj.insert("project_id", static_cast<qint64>(view->projectId));
-  obj.insert("service_instance_id", static_cast<qint64>(view->serviceInstanceId));
+  obj.insert("id", static_cast<int32_t>(view->id));
+  obj.insert("project_id", static_cast<int32_t>(view->projectId));
+  obj.insert("service_instance_id", static_cast<int32_t>(view->serviceInstanceId));
   obj.insert("active", view->active);
-  obj.insert("resolutionWidth", static_cast<qint64>(view->resolutionWidth));
-  obj.insert("resolutionHeight", static_cast<qint64>(view->resolutionHeight));
+  obj.insert("resolutionWidth", static_cast<int32_t>(view->resolutionWidth));
+  obj.insert("resolutionHeight", static_cast<int32_t>(view->resolutionHeight));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
-  obj.insert("filter", terrama2::core::toJson(view->filter));
+  obj.insert("srid", static_cast<int32_t>(view->srid));
 
-  QJsonArray array;
-  for(auto it : view->dataSeriesList)
   {
-    QJsonObject datasetSeries;
-    datasetSeries.insert("dataset_series_id", static_cast<qint64>(it));
-    array.push_back(datasetSeries);
+    QJsonArray array;
+    for(auto it : view->dataSeriesList)
+    {
+      QJsonObject datasetSeries;
+      datasetSeries.insert("dataset_series_id", static_cast<int32_t>(it));
+      array.push_back(datasetSeries);
+    }
+    obj.insert("data_series_list", array);
   }
-  obj.insert("dataset_series_list", array);
 
+  {
+    QJsonArray array;
+    for(auto it : view->filtersPerDataSeries)
+    {
+      QJsonObject datasetSeriesAndFilter;
+      datasetSeriesAndFilter.insert("dataset_series_id", static_cast<int32_t>(it.first));
+      datasetSeriesAndFilter.insert("dataset_series_filter", terrama2::core::toJson(it.second));
+      array.push_back(datasetSeriesAndFilter);
+    }
+    obj.insert("filters_per_data_series", array);
+  }
   return obj;
 }
 

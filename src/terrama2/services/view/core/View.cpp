@@ -40,6 +40,7 @@
 #include "ViewStyle.hpp"
 #include "MemoryDataSetLayer.hpp"
 #include "DataManager.hpp"
+#include "Exception.hpp"
 
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/DataSet.hpp"
@@ -76,55 +77,52 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
     auto viewPtr = dataManager->findView(viewId);
 
-    // VINICIUS: filter for each dataSeries
-    std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > inputDataSeriesList;
+    if(viewPtr->dataSeriesList.size() != viewPtr->filtersPerDataSeries.size())
+    {
+      QString message = QObject::tr("View %1 do not have the right number of filters for data.").arg(viewId);
+      if(logger.get())
+        logger->error(message.toStdString(), viewId);
+      TERRAMA2_LOG_ERROR() << message;
+      throw Exception() << ErrorDescription(message);
+    }
 
-    // Invert Series list order to keep it the future declared vector seriesList in wanted order and draw it
-    std::vector<uint32_t> invertedDataSeriesList(viewPtr->dataSeriesList.size(), 0);
-    std::reverse_copy(viewPtr->dataSeriesList.begin(), viewPtr->dataSeriesList.end(), invertedDataSeriesList.begin());
+    std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
 
-    for(uint32_t dataSeriesId : invertedDataSeriesList)
+    for(auto dataSeriesId : viewPtr->dataSeriesList)
     {
       terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
       terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
-      inputDataSeriesList.emplace(inputDataSeries, inputDataProvider);
+      auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
+
+      terrama2::core::Filter filter(viewPtr->filtersPerDataSeries.at(dataSeriesId));
+      std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = dataAccessor->getSeries(filter);
+
+      seriesList.push_back(series);
     }
 
     lock.unlock();
 
-    if(inputDataSeriesList.size() > 0)
+    if(seriesList.size() > 0)
     {
-      std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>> seriesList;
-
-      for(auto inputDataSeries : inputDataSeriesList)
-      {
-        auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataSeries.second, inputDataSeries.first);
-
-        // VINICIUS: filter, date?
-        terrama2::core::Filter filter;
-
-        std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > series = dataAccessor->getSeries(filter);
-
-        seriesList.push_back(series);
-      }
-
-      drawSeriesList(viewId, logger, seriesList, viewPtr->resolutionWidth, viewPtr->resolutionHeight);
+      drawSeriesList(viewId, logger, seriesList, viewPtr->resolutionWidth, viewPtr->resolutionHeight, viewPtr->srid);
 
       TERRAMA2_LOG_INFO() << QObject::tr("View %1 generated successfully.").arg(viewId);
     }
     else
     {
       QString message = QObject::tr("View %1 has no associated data to be generated.").arg(viewId);
-      logger->error(message.toStdString(), viewId);
+      if(logger.get())
+        logger->info(message.toStdString(), viewId);
       TERRAMA2_LOG_INFO() << message;
     }
 
     if(logger.get())
       logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(const boost::exception& e)
@@ -145,7 +143,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 }
 
 
-void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth)
+void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth, uint32_t srid)
 {
   std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
   uint32_t layerID = 0;
@@ -162,7 +160,8 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
   {
     for(auto& serie : series)
     {
-      std::shared_ptr<te::da::DataSet> dataSet = serie.second.syncDataSet->dataset();
+      terrama2::core::DataSetPtr dataset = serie.first;
+      std::shared_ptr<te::da::DataSet> teDataSet = serie.second.syncDataSet->dataset();
       std::shared_ptr<te::da::DataSetType> teDataSetType = serie.second.teDataSetType;
 
       if(!teDataSetType->hasRaster() && !teDataSetType->hasGeom())
@@ -174,25 +173,30 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
       if(teDataSetType->hasRaster())
       {
         // TODO: A terralib dataset can have more than one raster field in it?
-        std::size_t rpos = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
+        std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
 
-        if(!dataSet->moveFirst())
+        if(!teDataSet->moveFirst())
         {
           QString message = QObject::tr("Can not access DataSet %1 raster data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
           logger->error(message.toStdString(), viewId);
         }
         else
         {
-          auto raster(dataSet->getRaster(rpos));
+          auto raster(teDataSet->getRaster(rpos));
 
           te::gm::Envelope* extent = raster->getExtent();
 
           // Creates a DataSetLayer of raster
-          std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), raster->getName(), dataSet, teDataSetType));
+          std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), raster->getName(), teDataSet, teDataSetType));
           rasterLayer->setDataSetName(teDataSetType->getDatasetName());
           rasterLayer->setExtent(*extent);
           rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
-          rasterLayer->setSRID(raster->getSRID());
+
+          // if dataset SRID is not setted, try to use the SRID from layer
+          if(dataset->format.find("srid") == dataset->format.end())
+            rasterLayer->setSRID(raster->getSRID());
+          else
+            rasterLayer->setSRID(std::stoi(dataset->format.at("srid")));
 
           // VINICIUS: Set Style
           MONO_0_Style(rasterLayer);
@@ -206,22 +210,27 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
         // TODO: A terralib dataset can have more than one geometry field in it?
         auto geomProperty = te::da::GetFirstGeomProperty(teDataSetType.get());
 
-        if(!dataSet->moveFirst())
+        if(!teDataSet->moveFirst())
         {
           QString message = QObject::tr("Can not access DataSet %1 geometry data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
           logger->error(message.toStdString(), viewId);
         }
         else
         {
-          std::shared_ptr< te::gm::Envelope > extent(dataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
+          std::shared_ptr< te::gm::Envelope > extent(teDataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
 
           // Creates a Layer
-          std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), geomProperty->getName(), dataSet, teDataSetType));
+          std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), geomProperty->getName(), teDataSet, teDataSetType));
           geomLayer->setDataSetName(teDataSetType->getName());
           geomLayer->setVisibility(te::map::VISIBLE);
           geomLayer->setExtent(*extent);
           geomLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
-          geomLayer->setSRID(geomProperty->getSRID());
+
+          // if dataset SRID is not setted, try to use the SRID from layer
+          if(dataset->format.find("srid") == dataset->format.end())
+            geomLayer->setSRID(geomProperty->getSRID());
+          else
+            geomLayer->setSRID(std::stoi(dataset->format.at("srid")));
 
           // VINICIUS: set style
           geomLayer->setStyle(CreateFeatureTypeStyle(geomProperty->getGeometryType()));
@@ -237,7 +246,6 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
   if(layersList.size() > 0)
   {
     te::gm::Envelope extent;
-    int srid = 0;
 
     for(auto& layer : layersList)
     {
@@ -246,7 +254,7 @@ void terrama2::services::view::core::drawSeriesList(ViewId viewId, std::shared_p
       else
         extent.Union(layer->getExtent());
 
-      // VINICIUS: which SRID use? using from the first layer for now
+      // If the SRID was not setted, use the SRID from the first layer
       if(srid == 0)
         srid = layer->getSRID();
     }
