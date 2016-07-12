@@ -37,10 +37,11 @@ terrama2::services::view::core::ViewLogger::ViewLogger()
 
 }
 
-void terrama2::services::view::core::ViewLogger::setConnectionInfo(const std::map<std::string, std::string> connInfo) noexcept
+void terrama2::services::view::core::ViewLogger::setConnectionInfo(const std::map<std::string, std::string>& connInfo) noexcept
 {
   terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  setTableName("view_log_"+std::to_string(serviceManager.instanceId()));
+  std::string tableName = "view_log_"+std::to_string(serviceManager.instanceId());
+  setTableName(tableName);
 }

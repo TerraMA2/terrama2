@@ -37,7 +37,8 @@ public:
   uint32_t startLog(uint32_t processId)
   {
     // Need to set the wanted log table name
-    setTableName("example_processlogger_6");
+    std::string tableName = "example_processlogger_6";
+    setTableName(tableName);
     return start(processId);
   }
 
@@ -45,7 +46,7 @@ public:
    * \brief The method addValue is protected in ProcessLog, so is needed implement a method
    * to calls it.
    */
-  void logValue(const std::string tag, const std::string value, const RegisterId registerId) const
+  void logValue(const std::string& tag, const std::string& value, const RegisterId registerId) const
   {
     addValue(tag, value, registerId);
   }
