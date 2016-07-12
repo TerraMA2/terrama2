@@ -83,9 +83,9 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
   auto dataSet = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   size_t propertiesNumber = dataSet->getNumProperties();
 
-  size_t dateColumn = std::numeric_limits<size_t>::max();;
-  size_t geomColumn = std::numeric_limits<size_t>::max();;
-  size_t rasterColumn = std::numeric_limits<size_t>::max();;
+  size_t dateColumn = std::numeric_limits<size_t>::max();
+  size_t geomColumn = std::numeric_limits<size_t>::max();
+  size_t rasterColumn = std::numeric_limits<size_t>::max();
   for(size_t i = 0; i < propertiesNumber; ++i)
   {
     if(!isValidColumn(dateColumn) && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
