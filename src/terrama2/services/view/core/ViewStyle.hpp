@@ -83,4 +83,4 @@ namespace terrama2
   }     // end namespace services
 } // end namespace terrama2
 
-#endif // __TERRAMA2_SERVICES_VIEW_CORE_VIEWSTYLE_HPP__
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_VIEWTYLE_HPP__
