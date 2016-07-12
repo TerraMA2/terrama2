@@ -132,7 +132,8 @@ int main(int argc, char* argv[])
 
           "buffer = Buffer(BufferType.distance_zone, 20, \"km\", 5, \"km\")\n"
           "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"distance_zone\", x)\n";
+          "add_value(\"distance_zone\", x)\n"
+          "return";
 
 
   analysis->script = script;
@@ -250,7 +251,7 @@ int main(int argc, char* argv[])
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);
+  //timer.start(10000);
   app.exec();
 
   terrama2::services::analysis::core::finalizeInterpreter();

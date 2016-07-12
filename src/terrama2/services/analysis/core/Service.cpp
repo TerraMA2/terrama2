@@ -231,7 +231,7 @@ void terrama2::services::analysis::core::Service::connectDataManager()
   connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
 }
 
-void terrama2::services::analysis::core::Service::start(uint threadNumber)
+void terrama2::services::analysis::core::Service::start(size_t threadNumber)
 {
   terrama2::core::Service::start(threadNumber);
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));

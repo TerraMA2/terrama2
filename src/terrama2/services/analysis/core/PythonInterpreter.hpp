@@ -196,8 +196,9 @@ namespace terrama2
 
         /*!
           \brief Insert the analysis script in a function.
+          \param analysisHashCode Analysis hashcode.
         */
-        std::string prepareScript(const std::string& script);
+        std::string prepareScript(AnalysisHashCode analysisHashCode);
 
       } // end namespace core
     }   // end namespace analysis

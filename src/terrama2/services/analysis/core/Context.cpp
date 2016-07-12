@@ -455,6 +455,8 @@ void terrama2::services::analysis::core::Context::clearAnalysisContext(AnalysisH
   analysisResult_.erase(analysisHashCode);
   analysisMap_.erase(analysisHashCode);
   analysisErrorsMap_.erase(analysisHashCode);
+  analysisStartTime_.erase(analysisHashCode);
+  outputRasterMap_.erase(analysisHashCode);
 
   // Remove all datasets from context
   auto it = datasetMap_.begin();
@@ -467,6 +469,20 @@ void terrama2::services::analysis::core::Context::clearAnalysisContext(AnalysisH
     else
     {
       ++it;
+    }
+  }
+
+  // Remove all raster from context
+  auto itRaster = rasterMap_.begin();
+  while(itRaster != rasterMap_.end())
+  {
+    if(itRaster->first.analysisHashCode_ ==  analysisHashCode)
+    {
+      rasterMap_.erase(itRaster++);
+    }
+    else
+    {
+      ++itRaster;
     }
   }
 }

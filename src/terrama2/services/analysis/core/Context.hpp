@@ -349,8 +349,8 @@ namespace terrama2
             std::map<ContextKey, std::shared_ptr<te::rst::Raster>, ContextKeyComparator> rasterMap_; //!< Map containing all loaded raster.
             std::map<AnalysisHashCode, AnalysisPtr> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
             std::map<AnalysisHashCode, std::shared_ptr<te::rst::Raster> > outputRasterMap_; //!< Map containing all output raster for grid analysis.
-            PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
             std::map<AnalysisHashCode, std::set<std::string> > analysisErrorsMap_; //!< Map containing analysis execution errors.
+            PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
         };
       } // end namespace core

@@ -104,7 +104,7 @@ namespace terrama2
                Initializes the thread pool for analysis execution.
 
              */
-            virtual void start(uint threadNumber = 0) override;
+            virtual void start(size_t threadNumber = 0) override;
 
           protected:
 

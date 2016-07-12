@@ -117,6 +117,12 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
 
       raster = Context::getInstance().getRaster(cache.analysisHashCode, dataset->id);
 
+      if(!raster)
+      {
+        QString errMsg(QObject::tr("Invalid raster for dataset: %1").arg(dataset->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+
       auto dsGrid = raster->getGrid();
 
       if(!dsGrid)

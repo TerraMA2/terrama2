@@ -55,31 +55,42 @@ namespace terrama2
         class ThreadPool
         {
           public:
-            // the constructor just launches some amount of workers
+
+            /*!
+              \brief The constructor launches the given amount of worker threads.
+              \param size_t Number of threads.
+            */
             ThreadPool(size_t);
 
 
-            // add new work item to the pool
+            /*!
+             \brief Add new work item to the pool
+             \param f The function to be executed.
+             \param args Parameters to the given function.
+           */
             template<class F, class... Args>
             auto enqueue(F&& f, Args&& ... args)
                     -> std::future<typename std::result_of<F(Args...)>::type>;
 
 
-            // the destructor joins all threads
+            /*!
+              \brief The destructor joins all threads.
+            */
             ~ThreadPool();
 
+            /*!
+              \brief Return the number of threads.
+              \return The number of threads.
+            */
             int numberOfThreads() const;
 
           private:
-            // need to keep track of threads so we can join them
-            std::vector<std::thread> workers;
-            // the task queue
-            std::queue<std::function<void()> > tasks;
 
-            // synchronization
-            std::mutex queue_mutex;
-            std::condition_variable condition;
-            bool stop;
+            std::vector<std::thread> workers; //!< Keep track of threads so we can join them.
+            std::queue<std::function<void()> > tasks; //!< The task queue.
+            std::mutex queue_mutex; //!< Mutex to control access to queue.
+            std::condition_variable condition; //!< Condition variable to notify workers when there is work to be done.
+            bool stop; //!< Flag to indicate that the thread pool must stop the worker thread
         };
 
 
@@ -127,7 +138,10 @@ namespace terrama2
 
             // don't allow enqueueing after stopping the pool
             if(stop)
-              throw std::runtime_error("enqueue on stopped ThreadPool");
+            {
+              QString errMsg = QObject::tr("Enqueue on stopped ThreadPool");
+              throw terrama2::InitializationException() << ErrorDescription(errMsg);
+            }
 
             tasks.emplace([task]()
                           { (*task)(); });
