@@ -4,7 +4,7 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
       $scope.socket = Socket;
 
       $scope.title = i18n.__('Services');
-      $scope.helperMessage = "This page shows availables services in TerraMA2 application";
+      $scope.helperMessage = "This page shows available services in TerraMA2 application";
 
       // terrama2 box
       $scope.boxCss = {};
@@ -92,7 +92,10 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
         services.forEach(function(service) {
           service.loading = true;
 
-          $scope.socket.emit('status', {service: service.id});
+          if (configuration.message && parseInt(configuration.service) === service.id && configuration.restart) {
+            $scope.socket.emit('start', {service: service.id});
+          } else
+            $scope.socket.emit('status', {service: service.id});
         });
 
         // todo: ping each one to check current state

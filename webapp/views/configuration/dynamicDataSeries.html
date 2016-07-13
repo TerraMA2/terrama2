@@ -31,8 +31,8 @@
     dataSeriesType: 'dynamic',
     link: function(object) {
       var typeName = object.data_series_semantics.data_series_type_name;
-      if (typeName === "ANALYSIS_MONITORED_OBJECT")
-        return "/configuration/analyses/" + object.id + "/edit";
+      // if (typeName === "ANALYSIS_MONITORED_OBJECT")
+      //   return "/configuration/analyses/" + object.id + "/edit";
       return "/configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
     },
     iconFn: function(object) {
@@ -70,14 +70,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-md-12" ng-controller="ListController">
-  <div class="box box-default">
-    <div class="box-header with-border">
-      <h3 class="box-title">{[ __('Dynamic Data Series') ]}</h3>
-    </div>
-    <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
-
+<div ng-controller="ListController">
+  <terrama2-box title="'{[ __('Dynamic Data Series') ]}'">
+    <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
           <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
@@ -85,10 +80,8 @@
 
         <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" icon="iconFn" remove="remove(object)" extra="extra"></terrama2-table>
       </div>
-
     </div>
-    <!-- /.box body -->
-  </div>
+  </terrama2-box>
 </div> <!-- end col md 12 -->
 
 {% endblock %}

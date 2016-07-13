@@ -48,13 +48,9 @@
       $scope.user.version = 4;
 
       $scope.save = function() {
+        $scope.$broadcast("formFieldValidation");
         var form = angular.element('form[name="form"]').scope()['form'];
         if (!form.$valid) {
-          angular.forEach(form.$error, function (field) {
-            angular.forEach(field, function(errorField){
-              errorField.$setDirty();
-            })
-          });
           return;
         }
 
@@ -105,8 +101,7 @@
                     <form name="form">
 
                       <div class="col-md-12">
-                          <div class="form-group"
-                               ng-class="{'has-error': form.name.$dirty && form.name.$invalid, 'has-success': form.name.$dirty && form.name.$valid}">
+                          <div class="form-group" terrama2-show-errors>
                               <label>{[ __("Name") ]}:</label>
                               <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{[ __('User Name') ]}" type="text" value="{[ user.name ]}" required>
 
@@ -115,8 +110,7 @@
                       </div>
 
                       <div class="col-md-4">
-                          <div class="form-group"
-                               ng-class="{'has-error': form.username.$dirty && form.username.$invalid, 'has-success': form.username.$dirty && form.username.$valid}">
+                          <div class="form-group" terrama2-show-errors>
                               <label>{[ __("Username") ]}:</label>
                               <input class="form-control" name="username" ng-model="user.username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}" required>
 
@@ -125,8 +119,7 @@
                       </div>
 
                       <div class="col-md-4">
-                          <div class="form-group"
-                               ng-class="{'has-error': form.password.$dirty && form.password.$invalid, 'has-success': form.password.$dirty && form.password.$valid}">
+                          <div class="form-group" terrama2-show-errors>
                               <label>{[ __("Password") ]}:</label>
                               <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{[ __('User Password credential') ]}" type="password" required>
 
@@ -135,8 +128,7 @@
                       </div>
 
                       <div class="col-md-4">
-                          <div class="form-group"
-                               ng-class="{'has-error': form.passwordConfirm.$dirty && form.passwordConfirm.$invalid, 'has-success': form.passwordConfirm.$dirty && form.passwordConfirm.$valid}">
+                          <div class="form-group" terrama2-show-errors>
                               <label>{[ __("Confirm Password") ]}:</label>
                               <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{[ __('Confirm password') ]}" type="password" terrama2-compare-to="user.password" required>
 
@@ -153,8 +145,7 @@
                       </div>
 
                       <div class="col-md-6">
-                          <div class="form-group"
-                               ng-class="{'has-error': form.email.$dirty && form.email.$invalid, 'has-success': form.email.$dirty && form.email.$valid}">
+                          <div class="form-group" terrama2-show-errors>
                               <label>{[ __("E-mail") ]}:</label>
                               <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{[ __('User e-mail') ]}" type="email" value="{[ user.email ]}" required>
                               <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{[ __('Email is required') ]}</span>

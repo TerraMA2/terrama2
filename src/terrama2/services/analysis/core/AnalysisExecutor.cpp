@@ -104,11 +104,11 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       }
     }
   }
-  catch(terrama2::Exception e)
+  catch(const terrama2::Exception& e)
   {
     Context::getInstance().addError(analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
     Context::getInstance().addError(analysisHashCode, e.what());
   }
@@ -149,11 +149,11 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
     // Clears context
     Context::getInstance().clearAnalysisContext(analysisHashCode);
   }
-  catch(terrama2::Exception e)
+  catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
@@ -272,12 +272,12 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
     storeAnalysisResult(dataManager, analysisHashCode);
   }
-  catch(terrama2::Exception e)
+  catch(const terrama2::Exception& e)
   {
     Context::getInstance().addError(analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
     Context::getInstance().addError(analysisHashCode, e.what());
     std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
@@ -435,5 +435,3 @@ void ::terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr shared
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
   throw Exception()  << ErrorDescription(errMsg);
 }
-
-

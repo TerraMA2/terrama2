@@ -5,7 +5,11 @@ module.exports = function(app) {
   return {
     get: function (request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
-      return response.render('administration/services', parameters);
+      var settings = {
+        service: request.query.service,
+        restart: request.query.restart
+      };
+      return response.render('administration/services', Object.assign(settings, parameters));
     },
 
     new: function (request, response) {

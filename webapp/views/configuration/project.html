@@ -2,67 +2,35 @@
 
 {% block title %} TerraMA² {[ __("Project Registration") ]} {% endblock %}
 
-{% block ngApp %}ng-app="terrama2.project.registration" {% endblock %}
+{% block ngApp %}ng-app="terrama2.projects" {% endblock %}
 
 {% block javascripts %}
+<script>
+  var configuration = {
+    project: {[ project|json|safe ]},
+    method: "{[ method ]}",
+    url: "{[ url ]}"
+  }
+</script>
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
-
-<script type="text/javascript">
-  angular.module("terrama2.project.registration", ['terrama2'])
-    .controller("ProjectRegistration", function($scope, $http, $window) {
-      $scope.isSubmiting = false;
-      $scope.errorFound = "";
-
-      $scope.project = {[ (project || {})|json|safe ]};
-      $scope.project.version = 4;
-
-      $scope.save = function() {
-        if (!$scope.form.$valid) {
-          angular.forEach($scope.form.$error, function (field) {
-            angular.forEach(field, function(errorField){
-              errorField.$setTouched();
-            })
-          });
-          return;
-        }
-
-        $scope.isSubmiting = true;
-        $http({
-          method: "{[ method ]}",
-          url: "{[ url ]}",
-          data: $scope.project
-        }).success(function(project) {
-          console.log(project);
-          $scope.errorFound = "";
-          $window.location.href = "/configuration/projects?token=" + project.token;
-        }).error(function(err) {
-          $scope.errorFound = err.message;
-          console.log(err);
-          $scope.form.name.$invalid = true;
-
-        }).finally(function(){
-          $scope.isSubmiting = false;
-        });
-      };
-    });
-
-</script>
+<script src="/javascripts/angular/projects/app.js"></script>
+<script src="/javascripts/angular/projects/controllers.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="ProjectRegistration">
-  <form name="form">
-    <terrama2-box title="'{[ __("Project Registration") ]}'">
+<div ng-controller="Registration">
+  <terrama2-box title="'{[ __("Project Registration") ]}'">
+    <form name="forms.projectForm">
       <div class="row">
         <div class="col-md-12">
-          <div class="form-group" ng-class="{'has-error': form.name.$touched && form.name.$invalid}">
+          <div class="form-group" terrama2-show-errors>
             <label>{[ __("Name") ]}:</label>
             <input class="form-control" name="name" ng-model="project.name" placeholder="{[ __('Project Name') ]}" type="text" required>
-            <span class="help-block has-error" ng-show="form.name.$touched && form.name.$error.required && form.name.$invalid">{[ __('Project name is required') ]}</span>
+            <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$error.required && form.name.$invalid">{[ __('Project name is required') ]}</span>
 
             <span class="help-block has-error" ng-show="errorFound">{{ errorFound }}</span>
           </div>
@@ -80,7 +48,7 @@
       </div>
 
       <div class="box-footer">
-        <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __("OK") ]}</button>
+        <button type="submit" class="btn btn-primary pull-right" ng-click="save(this);" style="margin-left: 10px;">{[ __("OK") ]}</button>
         <a href="/configuration/projects" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
       </div>
 
@@ -88,8 +56,8 @@
         <i class="fa fa-refresh fa-spin"></i>
       </div>
       <!-- /.row -->
-    </terrama2-box>
-  </form>
+    </form>
+  </terrama2-box>
 </div> <!-- ./div -->
 
 {% endblock %}

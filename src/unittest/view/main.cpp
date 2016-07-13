@@ -33,6 +33,7 @@
 
 // Qt
 #include <QCoreApplication>
+#include <QTimer>
 
 // TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
@@ -85,6 +86,11 @@ int main(int argc, char** argv)
     std::cerr << QObject::tr("Unexpected exception...").toStdString() << std::endl;
     return 1;
   }
+
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+  timer.start(10000);
+  app.exec();
 
   return ret;
 }

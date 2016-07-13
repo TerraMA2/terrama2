@@ -221,12 +221,12 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
         cache.count = influenceCount;
 
       }
-      catch(terrama2::Exception e)
+      catch(const terrama2::Exception& e)
       {
         Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
         exceptionOccurred = true;
       }
-      catch(std::exception e)
+      catch(const std::exception& e)
       {
         Context::getInstance().addError(cache.analysisHashCode, e.what());
         exceptionOccurred = true;
@@ -252,12 +252,12 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
     return getOperationResult(cache, statisticOperation);
   }
-  catch(terrama2::Exception e)
+  catch(const terrama2::Exception& e)
   {
     Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return NAN;
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
     Context::getInstance().addError(cache.analysisHashCode, e.what());
     return NAN;
