@@ -17,7 +17,8 @@
       "geometry_property": "position",
       "latitude_property": "lat",
       "longitude_property": "lon",
-      "timezone": "UTM+00"
+      "timezone": "UTM+00",
+      "srid": "4326"
     }
   },
   {

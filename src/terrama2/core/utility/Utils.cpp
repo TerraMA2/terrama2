@@ -215,8 +215,7 @@ void terrama2::core::initializeTerraMA()
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
   //read semantics from json file
-  //TODO: where should the semantics file be placed?
-  std::string semanticsPath = FindInTerraMA2Path("src/terrama2/core/semantics.json");
+  std::string semanticsPath = FindInTerraMA2Path("share/terrama2/semantics.json");
   QFile semantcisFile(QString::fromStdString(semanticsPath));
   semantcisFile.open(QFile::ReadOnly);
   QByteArray bytearray = semantcisFile.readAll();

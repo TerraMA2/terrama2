@@ -57,7 +57,7 @@ terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(DataProviderPtr dataPro
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
   }
 }
 
@@ -156,7 +156,7 @@ void terrama2::core::DataAccessorDcpInpe::addColumns(std::shared_ptr<te::da::Dat
   // the converter will add columns
 }
 
-terrama2::core::DataAccessor* terrama2::core::DataAccessorDcpInpe::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpInpe::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
 {
-  return new DataAccessorDcpInpe(dataProvider, dataSeries, filter);
+  return std::make_shared<DataAccessorDcpInpe>(dataProvider, dataSeries, filter);
 }

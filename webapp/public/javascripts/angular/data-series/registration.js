@@ -95,9 +95,8 @@ angular.module('terrama2.dataseries.registration', [
     $scope.$on("requestStorageValues", function(event) {
       // apply a validation
       $scope.$broadcast('schemaFormValidate');
-      var form = angular.element('form[name="storagerForm"]').scope()['storagerForm'];
-      var dataForm = angular.element('form[name="storagerDataForm"]').scope()['storagerDataForm'];
-      if (form.$valid && dataForm.$valid) {
+
+      if ($scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid) {
         // checking if it is a dcp
         switch ($scope.formatSelected.data_series_type_name) {
           case "DCP":

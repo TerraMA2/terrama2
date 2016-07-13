@@ -46,10 +46,11 @@ namespace terrama2
       DataAccessorAnalysisPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
       virtual ~DataAccessorAnalysisPostGis() {}
 
-      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
-        return new DataAccessorAnalysisPostGis(dataProvider, dataSeries, filter);
+        return std::make_shared<DataAccessorAnalysisPostGis>(dataProvider, dataSeries, filter);
       }
+      static DataAccessorType dataAccessorType(){ return "ANALYSIS_MONITORED_OBJECT-postgis"; }
 
     protected:
       virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const override;

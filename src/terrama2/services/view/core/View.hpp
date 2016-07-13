@@ -59,22 +59,32 @@ namespace terrama2
         struct View
         {
           ViewId id = 0;//!< View unique identification.
-          ProjectId projectId = 0;//!< Identification of the project owner of the map.
-          ServiceInstanceId serviceInstanceId = 0;//!< View service instace where the map should be executed.
+          ProjectId projectId = 0;//!< Identification of the project owner of the view.
+          ServiceInstanceId serviceInstanceId = 0;//!< View service instace where the view should be executed.
 
-          bool active = true;//!< Flag if the map is active.
+          bool active = false;//!< Flag if the view is active.
 
-          DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
-          DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
+          std::vector< DataSeriesId > dataSeriesList; // Ordened list of DataSeries ID that compose this view
+          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of DataSeries ID that compose this view and their filters
 
-          std::map<DataSetId, DataSetId> inputOutputMap;//!< View of source DataSet to destiny DataSet.
-          terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the map.
-          terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.
+          terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
+
+          // TODO: view filter it's only the bounding box?
+
+          uint32_t resolutionWidth = 0; //!< Width resolution of view in pixels
+          uint32_t resolutionHeight = 0; //!< Height resolution of view in pixels
+
+          uint32_t srid = 0; //!< SRID to aplly in view
+
+          // VINICIUS: add styles
+          // map < id dataset, symbolizer > one dataseries could have more than one drawable dataset, then, store style for each one
+
+          //VINICIUS: filter to get only the last if the dataset contains many registers
         };
 
         void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
-        void drawSeriesList(std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList);
+        void drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth, uint32_t srid);
 
       } // end namespace core
     }   // end namespace view

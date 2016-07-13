@@ -20,39 +20,46 @@
 */
 
 /*!
-  \file terrama2/services/view/core/ViewsLogger.hpp
+  \file unittest/core/TsProcessLogger.cpp
 
-  \brief Process logger for View Server.
+  \brief Tests for Core Process Logger class
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEWLOGGER_HPP__
-#define __TERRAMA2_SERVICES_VIEW_CORE_VIEWLOGGER_HPP__
+//TerraMA2
+#include <terrama2/core/Typedef.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
+#include <terrama2/Exception.hpp>
 
-#include "../../../core/utility/ProcessLogger.hpp"
+#include "TsProcessLogger.hpp"
+#include "TestLogger.hpp"
 
-namespace terrama2
+
+
+void TsProcessLogger::testProcessLogger()
 {
-  namespace services
+  try
   {
-    namespace view
-    {
-      namespace core
-      {
-        class ViewLogger : public terrama2::core::ProcessLogger
-        {
-        public:
+  TestLogger log;
 
-          ViewLogger();
+  RegisterId registerID = log.start(1);
 
-          virtual ~ViewLogger() = default;
+  log.logValue("tag1", "value1", registerID);
+  log.logValue("tag2", "value2", registerID);
+  log.logValue("tag1", "value3", registerID);
+  log.logValue("tag2", "value4", registerID);
+  log.error("Unit Test Error", registerID);
+  log.error("Unit Test second Error", registerID);
+  log.info("Unit Test Info", registerID);
+  log.info("Unit Test seconde Info", registerID);
 
-          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept override;
-        };
-      }
-    }
+  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
+
+  log.done(dataTime, registerID);
+  }
+  catch(terrama2::Exception& e)
+  {
+    QFAIL(e.what());
   }
 }
-
-#endif // __TERRAMA2_SERVICES_VIEW_CORE_VIEWLOGGER_HPP__

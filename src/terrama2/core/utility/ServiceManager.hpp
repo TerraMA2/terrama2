@@ -118,7 +118,7 @@ namespace terrama2
       signals:
         //! Signal emited when the listening is changed
         void listeningPortUpdated(int);
-        void numberOfThreadsUpdated(int);
+        void numberOfThreadsUpdated(size_t);
         void logConnectionInfoUpdated(const std::map<std::string, std::string>&);
 
       protected:
@@ -136,8 +136,8 @@ namespace terrama2
         std::string instanceName_;
         ServiceInstanceId instanceId_ = 0;
         std::string serviceType_;
-        int listeningPort_;
-        int numberOfThreads_;
+        int listeningPort_ = 0;
+        int numberOfThreads_ = 0;
         std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
         bool serviceLoaded_ = false;
         std::map<std::string, std::string> connInfo_;

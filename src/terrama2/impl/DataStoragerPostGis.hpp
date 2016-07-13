@@ -49,7 +49,8 @@ namespace terrama2
           : DataStorager(outputDataProvider) {}
         ~DataStoragerPostGis() {}
 
-        static DataStorager* make(DataProviderPtr dataProvider);
+        static DataStoragetType dataStoragerType() { return "POSTGIS"; }
+        static DataStoragerPtr make(DataProviderPtr dataProvider);
 
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
 

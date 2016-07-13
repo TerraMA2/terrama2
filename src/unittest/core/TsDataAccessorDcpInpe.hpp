@@ -50,9 +50,10 @@ class TsDataAccessorDcpInpe: public QObject
     void TestFailDataSeriesSemanticsInvalid();
     void TestOKDataRetrieverValid();
     void TestFailDataRetrieverInvalid();
-    void TestDataSourceValid();
-    void TestDataSourceInvalid();
+    void TestFailDataSourceInvalid();
+    void TestFailDataSetInvalid(); // TestFailDataSetEmpty()
     void TestOK();
+
 };
 
 #endif //__TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_DCP_INPE_HPP__

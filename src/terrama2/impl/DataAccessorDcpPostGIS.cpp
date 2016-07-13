@@ -48,11 +48,16 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr d
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
   }
 }
 
 std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceType() const
 {
   return "POSTGIS";
+}
+
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpPostGIS::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+{
+  return std::make_shared<DataAccessorDcpPostGIS>(dataProvider, dataSeries, filter);
 }

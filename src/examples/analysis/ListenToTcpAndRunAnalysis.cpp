@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
 
     QJsonArray seriesArray;
     seriesArray.push_back(terrama2::core::toJson(dataSeriesPtr));
-    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));;
+    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));
     seriesArray.push_back(terrama2::core::toJson(outputDataSeriesPtr));
     obj.insert("DataSeries", seriesArray);
 
