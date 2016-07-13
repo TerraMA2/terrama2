@@ -275,19 +275,14 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     {
       terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
     }
-    catch(const terrama2::Exception&)
+    catch(...)
     {
-      QFAIL("Unexpected Exception!");
+      QFAIL("Unexpected exception!");
     }
   }
-  catch(terrama2::Exception& e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-
   catch(...)
   {
-    QFAIL("Unexpected Exception!");
+    QFAIL("Unexpected exception not related to the method getDcpSeries!");
   }
 
   return;
@@ -304,7 +299,7 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -323,34 +318,33 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
+
+    QString errMsg = QObject::tr("Non retrievable DataRetriever.");
+    terrama2::core::NotRetrivableException exceptionMock;
+    exceptionMock << terrama2::ErrorDescription(errMsg);
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
+    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorDcpToa5 raiiDataRetriever("DCP-toa5",makeMock);
+    RaiiTsDataAccessorDcpToa5 raiiDataRetriever("MOCK",makeMock);
 
     try
     {
       terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
-    }
-    catch(const terrama2::Exception&)
-    {
       QFAIL("Exception expected!");
     }
-  }
-  catch(terrama2::Exception& e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
+    catch(terrama2::core::NotRetrivableException&)
+    {
 
+    }
+  }
   catch(...)
   {
     QFAIL("Unexpected Exception!");

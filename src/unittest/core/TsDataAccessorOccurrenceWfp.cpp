@@ -54,6 +54,7 @@
 // QT
 #include <QObject>
 #include <QDebug>
+#include <QString>
 
 // STL
 #include <iostream>
@@ -275,19 +276,14 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
     {
       terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
     }
-    catch(const terrama2::Exception&)
+    catch(...)
     {
       QFAIL("Unexpected exception!");
     }
   }
-  catch(terrama2::Exception& e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected exception not related to the method getOccurrenceSeries!");
   }
 
   return;
@@ -306,7 +302,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
     dataProvider->uri += "/fire_system";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -323,34 +319,33 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
+
+    QString errMsg = QObject::tr("Non retrievable DataRetriever.");
+    terrama2::core::NotRetrivableException exceptionMock;
+    exceptionMock << terrama2::ErrorDescription(errMsg);
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
+    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorOccurrenceWfp raiiDataRetriever("OCCURRENCE-wfp",makeMock);
+    RaiiTsDataAccessorOccurrenceWfp raiiDataRetriever("MOCK",makeMock);
 
     try
     {
       terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
-    }
-    catch(const terrama2::Exception&)
-    {
       QFAIL("Exception expected!");
     }
-  }
-  catch(terrama2::Exception& e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
+    catch(terrama2::core::NotRetrivableException&)
+    {
 
+    }
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
