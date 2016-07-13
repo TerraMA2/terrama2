@@ -9,9 +9,9 @@
   </div>
 
   <wizard on-finish="save()" template="/javascripts/angular/templates/terrama2-wizard.html">
-    <wz-step wz-title="General Data" canexit="isFirstStepValid" wz-data="{'required': true}">
+    <wz-step wz-title="General" canexit="isFirstStepValid" wz-data="{'required': true}">
       <div class="col-md-12">
-        <form name="generalDataForm">
+        <form name="forms.generalDataForm">
           <div ng-include="'/javascripts/angular/generalData.html'"></div>
         </form>
       </div>
@@ -25,12 +25,12 @@
 
     </wz-step>
 
-    <wz-step wz-title="Parameters Data" canexit="isSecondStepValid" wz-data="{'required': true}">
+    <wz-step wz-title="Parameters" canexit="isSecondStepValid" wz-data="{'required': true}">
       <div class="col-md-12">
 
         <div class="col-md-12">
           <!-- schema form -->
-          <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+          <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
           <div class="col-md-2 terrama2-top-field">
             <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-disabled="isUpdating" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
@@ -51,7 +51,7 @@
 
     </wz-step>
 
-    <wz-step wz-title="Storager" canexit="isThirdStepValid" wz-data="{}" ng-if="isDynamic">
+    <wz-step wz-title="Store" canexit="isThirdStepValid" wz-data="{}" ng-if="isDynamic">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
       </div>

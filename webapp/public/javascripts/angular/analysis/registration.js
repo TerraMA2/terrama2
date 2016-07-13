@@ -2,6 +2,7 @@ angular.module('terrama2.analysis.registration', [
     'terrama2',
     'terrama2.services',
     'terrama2.components.messagebox',
+    'terrama2.ace',
     'ui.bootstrap.datetimepicker',
     'ui.dateTimeInput',
     'schemaForm',
@@ -19,9 +20,20 @@ angular.module('terrama2.analysis.registration', [
       'AnalysisFactory',
       'DataProviderFactory',
       'TryCaster',
-  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster) {
+      'Socket',
+  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster, Socket) {
+    var socket = Socket;
+
     // injecting i18n module
     $scope.i18n = i18n;
+
+    // TerraMA2 box
+    $scope.css = {
+      boxType: "box-solid"
+    };
+
+    // flag to handling script status
+    $scope.testingScript = false;
 
     // checking if is update mode
     $scope.isUpdating = Object.keys(configuration.analysis).length > 0;
@@ -46,6 +58,35 @@ angular.module('terrama2.analysis.registration', [
     $scope.scheduleOptions = {
 
     }
+
+    $scope.onScriptChanged = function(editor) {
+      $scope.analysis.script = editor.getSession().getDocument().getValue();
+    }
+
+    socket.on('checkPythonScriptResponse', function(result) {
+      $scope.testingScript = false;
+
+      var errorBlock = angular.element('#systemError');
+      var statusBlock = angular.element('#scriptCheckResult');
+
+      if(result.hasError || result.hasPythonError) {
+        if(result.hasError) {
+          errorBlock.text(result.systemError);
+          errorBlock.css('display', '');
+        } else {
+          errorBlock.css('display', 'none');
+        }
+      } else {
+        errorBlock.css('display', 'none');
+      }
+
+      statusBlock.text(result.messages);
+    });
+
+    $scope.onScriptValidation = function() {
+      $scope.testingScript = true;
+      socket.emit('checkPythonScriptRequest', {script: $scope.analysis.script || ""});
+    };
 
     // define dataseries selected in modal
     $scope.nodesDataSeries = [];

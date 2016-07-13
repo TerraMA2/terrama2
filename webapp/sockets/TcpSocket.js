@@ -35,7 +35,7 @@ var TcpSocket = function(io) {
     var onServiceStarted = function(service) {
       setTimeout(function() {
         TcpManager.emit('connect', service);
-      }, 1000);
+      }, 2000);
     };
 
     var onServiceConnected = function(service) {
