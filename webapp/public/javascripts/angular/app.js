@@ -140,7 +140,7 @@ terrama2Application.directive('terrama2ShowErrors', function() {
   }
 })
 
-terrama2Application.directive('terrama2Box', function() {
+terrama2Application.directive('terrama2Box', function($parse) {
   return {
     restrict: 'E',
     transclude: true,
@@ -191,24 +191,22 @@ terrama2Application.directive('terrama2Form', function() {
   return {
     restrict: 'E',
     transclude: true,
-    scope: {
-      formName: '=formName',
-      register: '&'
-    },
     template: '<form name="{{ formName }}" novalidate><div id="targetTransclude"></div></form>',
-    link: function(scope, element, attributes, ctrl, transclude){
-      var target = element.find('#targetTransclude');
+    link: {
+      pre: function preLink(scope, element, attributes, controller, transclude) {
+        scope.formName = attributes.formName;
+      },
+      post: function postLink(scope, element, attributes, ctrl, transclude){
+        var elm = element.find('#targetTransclude');
 
-      scope.register({form: scope[scope.formName], id: scope.$id});
+        transclude(scope, function(clone, scp) {
+          elm.append(clone)
+        });
 
-      transclude(scope, function(clone, scope) {
-        target.append(clone);
-      });
-      // scope.formName = attributes['formName'];
-
-      scope.$on('formValidation', function() {
-        scope.$emit('formStatus', scope.formName, scope[scope.formName].$valid);
-      })
+        scope.$on('formValidation', function() {
+          scope.$emit('formStatus', scope.formName, scope[scope.formName].$valid);
+        })
+      }
     }
   }
 });

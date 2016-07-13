@@ -6,7 +6,7 @@ angular.module('terrama2.administration.services.registration',
     var socket = Socket;
 
     // setting defaults
-    $scope.boxCss = {
+    $scope.css = {
       'boxType': 'box-solid'
     }
 
@@ -41,6 +41,9 @@ angular.module('terrama2.administration.services.registration',
     };
 
     $scope.extraProperties = {};
+    $scope.config = {
+      availableDatabases: []
+    };
 
     // Getting all service instance to suggest database names
     ServiceInstanceFactory.get().success(function(services) {
@@ -52,6 +55,7 @@ angular.module('terrama2.administration.services.registration',
       // process
       var ports = [];
       services.forEach(function(service) {
+        $scope.config.availableDatabases.push(Object.assign({name: service.name}, service.log));
         ports.push(service.port);
       });
 
@@ -200,9 +204,7 @@ angular.module('terrama2.administration.services.registration',
     $scope.save = function(serviceForm, logForm) {
       $scope.$broadcast('formFieldValidation');
 
-      var serviceForm = angular.element('form[name="serviceForm"]').scope()['serviceForm'];
-      var logForm = angular.element('form[name="logForm"]').scope()['logForm'];
-      if (serviceForm.$invalid || logForm.$invalid) {
+      if ($scope.serviceForm.$invalid || $scope.logForm.$invalid) {
         return;
       }
 
