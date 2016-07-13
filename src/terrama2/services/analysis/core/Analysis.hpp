@@ -186,7 +186,8 @@ namespace terrama2
           */
           AnalysisHashCode hashCode2(std::shared_ptr<te::dt::TimeInstantTZ> startDate) const
           {
-            if(!startDate)
+            auto boostDate = startDate->getTimeInstantTZ();
+            if(!startDate || boostDate.is_not_a_date_time())
               throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));
 
             std::string str = std::to_string(id) + startDate->toString();

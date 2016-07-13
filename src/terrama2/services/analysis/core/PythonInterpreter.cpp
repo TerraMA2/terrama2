@@ -102,6 +102,7 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
 
   // grab the global interpreter lock
   GILLock gilLock;
+  assert(state);
   // swap in my thread state
   auto previousState = PyThreadState_Swap(state);
 
@@ -128,14 +129,20 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
 
       PyObject* poDict = PyDict_New();
 
-      PyDict_SetItemString(poDict, "analysisHashCode", pValueAnalysis);
-      PyDict_SetItemString(poDict, "index", pValueIndex);
-      state->dict = poDict;
-      //TODO: read the return value
-       analysisFunction(analysisHashCode, index);
+      auto isHashSet = PyDict_SetItemString(poDict, "analysisHashCode", pValueAnalysis);
+      auto isindexSet = PyDict_SetItemString(poDict, "index", pValueIndex);
+      if(isHashSet == 0 && isindexSet == 0)
+      {
+        state->dict = poDict;
+        //TODO: read the return value
+        analysisFunction(analysisHashCode, index);
+      }
+      else
+      {
+        //TODO: PAULO: how to deal with this error?
+        abort();
+      }
     }
-
-
   }
   catch(error_already_set)
   {
@@ -692,9 +699,9 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
   if(analysisPy != NULL)
   {
     cache.analysisHashCode = PyInt_AsLong(analysisPy);
-    Py_DECREF(analysisPy);
+//    Py_DECREF(analysisPy);
   }
-  Py_DECREF(analysisKey);
+//  Py_DECREF(analysisKey);
 
   auto analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
 
