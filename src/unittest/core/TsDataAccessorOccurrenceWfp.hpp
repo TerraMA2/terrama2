@@ -50,6 +50,8 @@ class TsDataAccessorOccurrenceWfp: public QObject
     void TestFailDataSeriesSemanticsInvalid();
     void TestOKDataRetrieverValid();
     void TestFailDataRetrieverInvalid();
+    void TestFailDataSourceInvalid();
+    void TestFailDataSetInvalid();
     void TestOK();
 };
 

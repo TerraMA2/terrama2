@@ -51,7 +51,7 @@ namespace terrama2
 
         public:
 
-          Service(std::weak_ptr<DataManager> dataManager);
+          explicit Service(std::weak_ptr<DataManager> dataManager);
 
           ~Service() = default;
           Service(const Service& other) = delete;

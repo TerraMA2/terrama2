@@ -51,7 +51,7 @@
 // STL
 #include <utility>
 
-void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept
+void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::string, std::string >& connInfo) noexcept
 {
   try
   {
@@ -143,7 +143,7 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
   return transactor->getLastGeneratedId();
 }
 
-void terrama2::core::ProcessLogger::addValue(const std::string tag, const std::string value, RegisterId registerId) const
+void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::string& value, RegisterId registerId) const
 {
   if(tableName_.empty())
   {
@@ -185,7 +185,7 @@ void terrama2::core::ProcessLogger::addValue(const std::string tag, const std::s
 }
 
 
-void terrama2::core::ProcessLogger::error(const std::string description, RegisterId registerId) const
+void terrama2::core::ProcessLogger::error(const std::string& description, RegisterId registerId) const
 {
   if(tableName_.empty() || messagesTableName_.empty())
   {
@@ -214,7 +214,7 @@ void terrama2::core::ProcessLogger::error(const std::string description, Registe
   transactor->commit();
 }
 
-void terrama2::core::ProcessLogger::info(const std::string description, RegisterId registerId) const
+void terrama2::core::ProcessLogger::info(const std::string& description, RegisterId registerId) const
 {
   if(tableName_.empty() || messagesTableName_.empty())
   {
@@ -238,7 +238,7 @@ void terrama2::core::ProcessLogger::info(const std::string description, Register
 }
 
 
-void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInstantTZ> dataTimestamp, RegisterId registerId) const
+void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInstantTZ>& dataTimestamp, RegisterId registerId) const
 {
   if(tableName_.empty())
   {
@@ -429,7 +429,7 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
   return tempDataSet->getInt32("process_id");
 }
 
-void terrama2::core::ProcessLogger::setTableName(std::string tableName)
+void terrama2::core::ProcessLogger::setTableName(std::string& tableName)
 {
   // Check if schema_ exists in database
   {

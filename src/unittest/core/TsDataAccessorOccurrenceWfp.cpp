@@ -21,6 +21,17 @@
   \author Evandro Delatin
 */
 
+//terralib
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <terralib/dataaccess/dataset/DataSetAdapter.h>
+#include <terralib/dataaccess/utils/Utils.h>
+#include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/memory/DataSetItem.h>
+#include <terralib/ogr/Config.h>
+#include <terralib/ogr/DataSource.h>
+
 // TerraMA2
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
@@ -36,10 +47,14 @@
 
 #include "TsDataAccessorOccurrenceWfp.hpp"
 #include "MockDataRetriever.hpp"
+#include "MockDataSource.hpp"
+#include "MockDataSourceTransactor.hpp"
+#include "MockDataSet.hpp"
 
 // QT
 #include <QObject>
 #include <QDebug>
+#include <QString>
 
 // STL
 #include <iostream>
@@ -56,7 +71,7 @@ class RaiiTsDataAccessorOccurrenceWfp
   public:
 
     RaiiTsDataAccessorOccurrenceWfp(const std::string& dataProviderType,
-                              const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
+                                    const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
       : dataProviderType_(dataProviderType), f_(f)
     {
       terrama2::core::DataRetrieverFactory::getInstance().add(dataProviderType_, f_);
@@ -71,6 +86,55 @@ class RaiiTsDataAccessorOccurrenceWfp
     std::string dataProviderType_;
     terrama2::core::DataRetrieverFactory::FactoryFnctType f_;
 };
+
+class RaiiDataSourceTsDataAccessorOccurrenceWfp
+{
+  public:
+    RaiiDataSourceTsDataAccessorOccurrenceWfp(const std::string& type,
+                                              const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
+    {
+      if(te::da::DataSourceFactory::find(type_))
+      {
+        te::da::DataSourceFactory::remove(type_);
+        te::da::DataSourceFactory::add(type_,ft_);
+      }
+      else te::da::DataSourceFactory::add(type_,ft_);
+    }
+
+    ~RaiiDataSourceTsDataAccessorOccurrenceWfp()
+    {
+      te::da::DataSourceFactory::remove(type_);
+    }
+
+  private:
+    std::string type_;
+    te::da::DataSourceFactory::FactoryFnctType ft_;
+};
+
+te::da::MockDataSet* create_MockDataSetOccurrenceWfp()
+{
+  te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
+
+  ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(false));
+
+  return mockDataSet;
+}
+
+te::da::MockDataSourceTransactor* create_MockDataSourceTransactorOccurrenceWfp()
+{
+  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
+
+  std::vector<std::string> dataSetNames;
+  dataSetNames.push_back("exporta_20160501_0230");
+  std::string name = "exporta_20160501_0230";
+
+  EXPECT_CALL(*mockDataSourceTransactor, getDataSetNames()).WillOnce(::testing::Return(dataSetNames));
+  EXPECT_CALL(*mockDataSourceTransactor, DataSetTypePtrReturn()).WillOnce(::testing::Return(new te::da::DataSetType(name)));
+  ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&create_MockDataSetOccurrenceWfp));
+
+  return mockDataSourceTransactor;
+}
+
 
 void TsDataAccessorOccurrenceWfp::TestFailAddNullDataAccessorOccurrenceWfp()
 {
@@ -179,7 +243,7 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
     dataProvider->uri += "/fire_system";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -196,35 +260,92 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorOccurrenceWfp raii("OCCURRENCE-wfp",makeMock);
+    RaiiTsDataAccessorOccurrenceWfp raiiDataRetriever("MOCK",makeMock);
 
     try
     {
       terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
     }
-    catch(const terrama2::Exception&)
+    catch(...)
     {
       QFAIL("Unexpected exception!");
     }
   }
-  catch(terrama2::Exception& e)
+  catch(...)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL("Unexpected exception not related to the method getOccurrenceSeries!");
   }
 
+  return;
+
+}
+
+void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
+{
+  try
+  {
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = "file://";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/fire_system";
+
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "MOCK";
+    dataProvider->active = true;
+
+    //DataSeries information
+    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
+
+    terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
+    dataSet->active = true;
+    dataSet->format.emplace("mask", "exporta_20160501_0230.csv");
+    dataSet->format.emplace("srid", "4326");
+    dataSeries->datasetList.emplace_back(dataSet);
+
+    //empty filter
+    terrama2::core::Filter filter;
+
+    QString errMsg = QObject::tr("Non retrievable DataRetriever.");
+    terrama2::core::NotRetrivableException exceptionMock;
+    exceptionMock << terrama2::ErrorDescription(errMsg);
+
+    //accessing data
+    terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
+
+    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
+
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
+    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
+
+    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
+
+    RaiiTsDataAccessorOccurrenceWfp raiiDataRetriever("MOCK",makeMock);
+
+    try
+    {
+      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+      QFAIL("Exception expected!");
+    }
+    catch(terrama2::core::NotRetrivableException&)
+    {
+
+    }
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -234,7 +355,7 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
 
 }
 
-void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
+void TsDataAccessorOccurrenceWfp::TestFailDataSourceInvalid()
 {
   try
   {
@@ -263,35 +384,95 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
 
-    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
+    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
 
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
+    auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
 
-    RaiiTsDataAccessorOccurrenceWfp raii("OCCURRENCE-wfp",makeMock);
+    RaiiDataSourceTsDataAccessorOccurrenceWfp raiiDataSource("OGR",makeMock);
 
     try
     {
       terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
-    }
-    catch(const terrama2::Exception&)
-    {
       QFAIL("Exception expected!");
     }
+    catch(const terrama2::core::NoDataException&)
+    {
+
+    }
   }
-  catch(terrama2::Exception& e)
+  catch(...)
   {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
+    QFAIL("Unexpected exception!");
   }
 
+  return;
+
+}
+
+void TsDataAccessorOccurrenceWfp::TestFailDataSetInvalid()
+{
+  try
+  {
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    dataProvider->uri = "file://";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/fire_system";
+
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FILE";
+    dataProvider->active = true;
+
+    //DataSeries information
+    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-wfp");
+
+    terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
+    dataSet->active = true;
+    dataSet->format.emplace("mask", "exporta_20160501_0230.csv");
+    dataSet->format.emplace("srid", "4326");
+    dataSeries->datasetList.emplace_back(dataSet);
+
+    //empty filter
+    terrama2::core::Filter filter;
+
+    //accessing data
+    terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
+
+    std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
+
+    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mock_, DataSourceTransactoPtrReturn()).WillRepeatedly(::testing::Invoke(&create_MockDataSourceTransactorOccurrenceWfp));
+    EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
+
+    auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
+
+    RaiiDataSourceTsDataAccessorOccurrenceWfp raiiDataSource("OGR",makeMock);
+
+    try
+    {
+      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+      QFAIL("Exception expected!");
+    }
+    catch(const terrama2::core::NoDataException&)
+    {
+
+    }
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");
@@ -305,6 +486,7 @@ void TsDataAccessorOccurrenceWfp::TestOK()
 {
   try
   {
+    te::da::DataSourceFactory::add(OGR_DRIVER_IDENTIFIER, te::ogr::Build);
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
