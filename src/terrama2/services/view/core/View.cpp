@@ -150,7 +150,8 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
             te::gm::Envelope* extent = raster->getExtent();
 
             // Creates a DataSetLayer of raster
-            std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), raster->getName(), teDataSet, teDataSetType));
+            ++layerID;
+            std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(layerID), raster->getName(), teDataSet, teDataSetType));
             rasterLayer->setDataSetName(teDataSetType->getDatasetName());
             rasterLayer->setExtent(*extent);
             rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
@@ -183,7 +184,8 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
             std::shared_ptr< te::gm::Envelope > extent(teDataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
 
             // Creates a Layer
-            std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), geomProperty->getName(), teDataSet, teDataSetType));
+            ++layerID;
+            std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(layerID), geomProperty->getName(), teDataSet, teDataSetType));
             geomLayer->setDataSetName(teDataSetType->getName());
             geomLayer->setVisibility(te::map::VISIBLE);
             geomLayer->setExtent(*extent);
