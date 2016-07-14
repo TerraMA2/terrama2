@@ -307,5 +307,17 @@
 	"When value is 0, the default will be supported threads by server": "When value is 0, the default will be supported threads by server",
 	"When the value is 0, it will use thread number supported by the server": "When the value is 0, it will use thread number supported by the server",
 	"User Update": "User Update",
-	"Views": "Views"
+	"Information": "Information",
+	"Log": "Log",
+	"Service Executable Path": "Service Executable Path",
+	"Service port is already used by other process": "Service port is already used by other process",
+	"Views": "Views",
+	"Name is required": "Name is required",
+	"Username is required": "Username is required",
+	"Confirm password is required": "Confirm password is required",
+	"Confirm password must be same password": "Confirm password must be same password",
+	"Email is required": "Email is required",
+	"Store": "Store",
+	"Data Store": "Data Store",
+	"Data store is required": "Data store is required"
 }

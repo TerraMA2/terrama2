@@ -121,6 +121,7 @@ namespace terrama2
         */
         enum class InterpolationMethod
         {
+          //REVIEW: Why is this redefined? should te::rst::InterpolationMethod be used instead?
           UNDEFINTERPMETHOD = 0,  //!< Undefined interpolation method.
           NEARESTNEIGHBOR = 1,    //!< Near neighborhood interpolation method.
           BILINEAR = 2,           //!< Bilinear interpolation method.

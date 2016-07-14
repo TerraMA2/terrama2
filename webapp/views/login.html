@@ -1,3 +1,7 @@
+{% set divDisplay = "none"; %}
+{% if (message) %}
+{% set divDisplay = "block"; %}
+{% endif %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -26,6 +30,12 @@
             </div><!-- /.login-logo -->
             <div class="login-box-body">
                 <p class="login-box-msg">{[ __('Sign in to start your session') ]}</p>
+
+                <div class="alert alert-danger" style="display: {[ divDisplay ]}">
+                  <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
+                  {[ message ]}
+                </div>
+
                 <form action="/login/process" method="post">
                     <div class="form-group has-feedback">
                         <input type="text" class="form-control" placeholder="Username" name="username">

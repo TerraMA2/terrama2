@@ -44,7 +44,24 @@ module.exports = function(app) {
           console.log(err);
         });
       }).catch(function(err) {
-        response.render('base/404');
+        // check if analysis dataseries
+        DataManager.getAnalysis({dataSeries: {id: dataSeriesId}}).then(function(analysis) {
+          response.redirect("/configuration/analyses/"+analysis.id+"/edit");
+        }).catch(function(err) {
+          // check if input dataseries (processed)
+          DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
+            response.render('configuration/dataset', {
+              state: "dynamic",
+              type: "dynamic",
+              "Enums": Enums,
+              dataSeries: {
+                input: dataSeries.rawObject()
+              }
+            })
+          }).catch(function(err) {
+            response.render('base/404');
+          })
+        })
       })
     }
   }

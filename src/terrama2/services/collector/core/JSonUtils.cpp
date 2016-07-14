@@ -132,11 +132,11 @@ QJsonObject terrama2::services::collector::core::toJson(CollectorPtr collector)
 {
   QJsonObject obj;
   obj.insert("class", QString("Collector"));
-  obj.insert("id", static_cast<qint64>(collector->id));
-  obj.insert("project_id", static_cast<qint64>(collector->projectId));
-  obj.insert("service_instance_id", static_cast<qint64>(collector->serviceInstanceId));
-  obj.insert("input_data_series", static_cast<qint64>(collector->inputDataSeries));
-  obj.insert("output_data_series", static_cast<qint64>(collector->outputDataSeries));
+  obj.insert("id", static_cast<int32_t>(collector->id));
+  obj.insert("project_id", static_cast<int32_t>(collector->projectId));
+  obj.insert("service_instance_id", static_cast<int32_t>(collector->serviceInstanceId));
+  obj.insert("input_data_series", static_cast<int32_t>(collector->inputDataSeries));
+  obj.insert("output_data_series", static_cast<int32_t>(collector->outputDataSeries));
   obj.insert("schedule", terrama2::core::toJson(collector->schedule));
   obj.insert("intersection", terrama2::services::collector::core::toJson(collector->intersection));
   obj.insert("active", collector->active);
@@ -145,8 +145,8 @@ QJsonObject terrama2::services::collector::core::toJson(CollectorPtr collector)
   for(auto it : collector->inputOutputMap)
   {
     QJsonObject dataset;
-    dataset.insert("input", static_cast<qint64>(it.first));
-    dataset.insert("output", static_cast<qint64>(it.second));
+    dataset.insert("input", static_cast<int32_t>(it.first));
+    dataset.insert("output", static_cast<int32_t>(it.second));
     array.push_back(dataset);
   }
   obj.insert("input_output_map", array);

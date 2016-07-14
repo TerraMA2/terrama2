@@ -136,8 +136,8 @@ namespace terrama2
         std::string instanceName_;
         ServiceInstanceId instanceId_ = 0;
         std::string serviceType_;
-        int listeningPort_;
-        int numberOfThreads_;
+        int listeningPort_ = 0;
+        int numberOfThreads_ = 0;
         std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
         bool serviceLoaded_ = false;
         std::map<std::string, std::string> connInfo_;

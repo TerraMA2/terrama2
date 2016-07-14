@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-dm-12">
     <div class="col-md-12">
-      <form name="intersectionForm" novalidate>
+      <form name="forms.intersectionForm" novalidate>
         <div class="col-md-12">
           <table class="table table-bordered table-hover terrama2-table">
             <tbody class="terrama2-table-tbody">
@@ -36,7 +36,7 @@
 
               <div style="display: block;" class="box-body">
                 <div class="col-md-10">
-                  <div class="form-group" ng-class="{'has-error': intersectionForm.attribute.$dirty && intersectionForm.attribute.$invalid, 'has-success': intersectionForm.attribute.$dirty && intersectionForm.attribute.$valid}">
+                  <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__('Attribute Name') }}:</label>
                     <input type="text"
                            class="form-control"
@@ -46,12 +46,12 @@
                            ng-required="selectedIntersection">
 
                     <label class="help-block text-danger"
-                           ng-show="intersectionForm.attribute.$dirty && intersectionForm.attribute.$error.required">
+                           ng-show="forms.intersectionForm.attribute.$dirty && forms.intersectionForm.attribute.$error.required">
                       {{ i18n.__("Attribute name is required") }}
                     </label>
 
                     <label class="help-block text-danger"
-                           ng-show="intersectionForm.attribute.$dirty && intersectionForm.attribute.$error.sameValue">
+                           ng-show="forms.intersectionForm.attribute.$dirty && forms.intersectionForm.attribute.$error.sameValue">
                       {{ i18n.__("Attribute name cannot be same") }}
                     </label>
                   </div>

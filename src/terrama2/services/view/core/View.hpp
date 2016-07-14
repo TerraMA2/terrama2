@@ -64,8 +64,8 @@ namespace terrama2
 
           bool active = false;//!< Flag if the view is active.
 
-          std::vector< uint32_t > dataSeriesList; // Ordened list of DataSeries ID that compose this view
-          std::unordered_map<uint32_t, terrama2::core::Filter> filtersPerDataSeries; //!< List of DataSeries ID that compose this view and their filters
+          std::vector< DataSeriesId > dataSeriesList; // Ordened list of DataSeries ID that compose this view
+          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of DataSeries ID that compose this view and their filters
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
 

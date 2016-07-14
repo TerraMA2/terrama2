@@ -180,7 +180,7 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
     dataProvider->uri += "/geotiff";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -196,38 +196,30 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
 
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorGeoTiff raii("GRID-geotiff", makeMock);
+    RaiiTsDataAccessorGeoTiff raiiDataRetriever("MOCK",makeMock);
 
     try
     {
       terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
     }
-    catch(const terrama2::Exception&)
+    catch(...)
     {
-      QFAIL("Unexpected Exception!");
+      QFAIL("Unexpected exception!");
     }
   }
-  catch(terrama2::Exception& e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
-
   catch(...)
   {
-    QFAIL("Unexpected exception!");
+    QFAIL("Unexpected exception not related to the method getGridSeries!");
   }
 
   return;
@@ -246,7 +238,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     dataProvider->uri += "/geotiff";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -262,35 +254,33 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
 
     //empty filter
     terrama2::core::Filter filter;
-    std::string uri = "";
-    std::string mask = dataSet->format.at("mask");
+
+    QString errMsg = QObject::tr("Non retrievable DataRetriever.");
+    terrama2::core::NotRetrivableException exceptionMock;
+    exceptionMock << terrama2::ErrorDescription(errMsg);
 
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(true));
-    ON_CALL(*mock_, retrieveData(_,_)).WillByDefault(Return(uri));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
+    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorGeoTiff raii("GRID-geotiff",makeMock);
+    RaiiTsDataAccessorGeoTiff raiiDataRetriever("MOCK",makeMock);
 
     try
     {
       terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
-    }
-    catch(const terrama2::Exception&)
-    {
       QFAIL("Exception expected!");
     }
-  }
-  catch(terrama2::Exception& e)
-  {
-    QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
-  }
+    catch(terrama2::core::NotRetrivableException&)
+    {
 
+    }
+  }
   catch(...)
   {
     QFAIL("Unexpected exception!");

@@ -340,6 +340,9 @@ namespace terrama2
             */
             std::shared_ptr<te::rst::Raster> getOutputRaster(AnalysisHashCode analysisHashCode);
 
+            std::map<std::string, std::string> getOutputRasterInfo(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode);
+            const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, AnalysisHashCode analysisHashCode);
+
           private:
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_; //!< Weak pointer to the data manager.
             std::map<AnalysisHashCode, std::set<std::string> > attributesMap_; //!< Set of attributes that compose the result of an analysis.
@@ -350,6 +353,8 @@ namespace terrama2
             std::map<AnalysisHashCode, AnalysisPtr> analysisMap_; //!< Map containing all analysis in execution, the key is the analysis hash code.
             std::map<AnalysisHashCode, std::shared_ptr<te::rst::Raster> > outputRasterMap_; //!< Map containing all output raster for grid analysis.
             std::map<AnalysisHashCode, std::set<std::string> > analysisErrorsMap_; //!< Map containing analysis execution errors.
+            std::map<AnalysisHashCode, std::map<std::string, std::string> > analysisOutputRaster_;
+            std::map<AnalysisHashCode, std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > > analysisInputGrid_;
             PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
         };

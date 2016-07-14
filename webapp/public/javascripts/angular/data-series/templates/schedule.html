@@ -16,7 +16,7 @@
     </div>
 
     <div class="col-md-5" ng-if="isFrequency">
-      <div class="form-group" ng-class="{'has-error': scheduleForm.frequency.$dirty && scheduleForm.frequency.$invalid, 'has-success': scheduleForm.frequency.$dirty && scheduleForm.frequency.$valid}">
+      <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Frequency') }}:</label>
         <input class="form-control"
                name="frequency"
@@ -34,7 +34,7 @@
     </div>
 
     <div class="col-md-5" ng-if="isSchedule">
-      <div class="form-group" ng-class="{'has-error': scheduleForm.schedule.$invalid, 'has-success': scheduleForm.schedule.$valid}">
+      <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Schedule') }}:</label>
 
         <!-- weekly -->
@@ -62,7 +62,7 @@
     </div>
 
     <div class="col-md-5 col-md-offset-7" ng-if="model.scheduleHandler == 'weeks'">
-      <div class="form-group" ng-class="{'has-error': scheduleForm.schedule_time.$invalid, 'has-success': scheduleForm.schedule_time.$valid}">
+      <div class="form-group" terrama2-show-errors>
         <label class="ng-binding">{{ i18n.__('Time') }}</label>
         <div class="dropdown">
           <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">

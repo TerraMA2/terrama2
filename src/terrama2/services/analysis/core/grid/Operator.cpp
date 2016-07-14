@@ -73,10 +73,10 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto outputGridConfig = getOutputRasterInfo(dataManagerPtr, cache.analysisHashCode);
+    auto outputGridConfig = Context::getInstance().getOutputRasterInfo(dataManagerPtr, cache.analysisHashCode);
 
     auto grid = outputRaster->getGrid();
-    auto coord = grid->gridToGeo(cache.row, cache.row);
+    auto coord = grid->gridToGeo(cache.column, cache.row);
 
 
     auto datasets = dataSeries->datasetList;
@@ -89,7 +89,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       if(!raster)
       {
         // First call, need to call sample for each dataset raster and store the result in the context.
-        auto gridMap = getGridMap(dataManagerPtr, dataSeries->id);
+        auto gridMap = Context::getInstance().getGridMap(dataManagerPtr, dataSeries->id, cache.analysisHashCode);
 
         if(gridMap.empty())
         {
@@ -140,7 +140,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       }
 
       double value;
-      raster->getValue((unsigned int)column, (unsigned int)row, value);
+      raster->getValue(column, row, value);
 
       return value;
     }

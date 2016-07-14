@@ -41,6 +41,8 @@
 // TerraLib
 #include <terralib/common/StringUtils.h>
 #include <terralib/raster/Reprojection.h>
+#include <terralib/memory/Raster.h>
+#include <terralib/rp/Functions.h>
 
 // QT
 #include <QObject>
@@ -441,20 +443,35 @@ std::map<std::string, std::string> terrama2::services::analysis::core::getOutput
 
 std::shared_ptr<te::rst::Raster>
 terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Raster> inputRaster,
-                                                    std::map<std::string, std::string> outputRasterInfo,
-                                                    InterpolationMethod method)
+    std::map<std::string, std::string> outputRasterInfo,
+    InterpolationMethod method)
 {
-  int resX = std::atoi(outputRasterInfo["MEM_RASTER_RES_X"].c_str());
-  int resY = std::atoi(outputRasterInfo["MEM_RASTER_RES_Y"].c_str());
-  int srid = std::atoi(outputRasterInfo["MEM_RASTER_SRID"].c_str());
-  double llx = std::atof(outputRasterInfo["MEM_RASTER_MIN_X"].c_str());
-  double lly = std::atof(outputRasterInfo["MEM_RASTER_MIN_Y"].c_str());
-  double urx = std::atof(outputRasterInfo["MEM_RASTER_MAX_X"].c_str());
-  double ury = std::atof(outputRasterInfo["MEM_RASTER_MAX_Y"].c_str());
+  int resX = std::stoi(outputRasterInfo["MEM_RASTER_RES_X"]);
+  int resY = std::stoi(outputRasterInfo["MEM_RASTER_RES_Y"]);
+  int srid = std::stoi(outputRasterInfo["MEM_RASTER_SRID"]);
+  double llx = std::stof(outputRasterInfo["MEM_RASTER_MIN_X"]);
+  double lly = std::stof(outputRasterInfo["MEM_RASTER_MIN_Y"]);
+  double urx = std::stof(outputRasterInfo["MEM_RASTER_MAX_X"]);
+  double ury = std::stof(outputRasterInfo["MEM_RASTER_MAX_Y"]);
 
-  std::shared_ptr<te::rst::Raster> reprojectedRaster(te::rst::Reproject(inputRaster.get(), srid, llx, lly, urx, ury,
-                                                                        resX, resY, outputRasterInfo, (int)method));
+  // std::shared_ptr<te::rst::Raster> reprojectedRaster(te::rst::Reproject(inputRaster.get(), srid, llx, lly, urx, ury,
+  //     resX, resY, outputRasterInfo, (int)method));
 
-  return reprojectedRaster;
+  std::shared_ptr<te::gm::Envelope> box(inputRaster->getExtent());
+  auto oldNRows = (unsigned int)std::abs(std::ceil((box->getUpperRightY() - box->getLowerLeftY()) / resY));
+  auto oldNCols = (unsigned int)std::abs(std::ceil((box->getUpperRightX() - box->getLowerLeftX()) / resX));
+
+  int rows = std::stoi(outputRasterInfo["MEM_RASTER_NROWS"]);
+  int cols = std::stoi(outputRasterInfo["MEM_RASTER_NCOLS"]);
+
+  std::vector< unsigned int > inputRasterBands;
+
+
+//  std::auto_ptr< te::rst::Raster > resampledRasterPtr(new te::mem::Raster());
+  std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("MEM", 0, std::vector<te::rst::BandProperty*>(), outputRasterInfo));
+  auto ok = te::rp::RasterResample(*inputRaster, inputRasterBands, (te::rst::Interpolator::Method)method, 0, 0, oldNRows,
+                                   oldNCols, rows, cols, outputRasterInfo,
+                                   "MEM" ,resampledRasterPtr);
+
+  return std::shared_ptr<te::rst::Raster>(resampledRasterPtr.release());
 }
-

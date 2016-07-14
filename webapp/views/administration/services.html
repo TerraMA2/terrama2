@@ -1,6 +1,7 @@
 {% extends "../base/layout.html" %}
 
 {% set tabActive = "services" %}
+{% set reload = restart === true || restart === "true" %}
 
 {% block ngApp %}ng-app="terrama2.administration.services"{% endblock %}
 
@@ -20,6 +21,8 @@
 
 <script type="text/javascript">
   var configuration = {
+    service: "{[ service ]}",
+    restart: {[ reload ]},
     message: "{[ message ]}"
   }
 </script>

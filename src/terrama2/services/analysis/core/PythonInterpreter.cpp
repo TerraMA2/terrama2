@@ -472,9 +472,6 @@ void terrama2::services::analysis::core::registerGridFunctions()
 
   // export functions inside grid namespace
   def("sample", terrama2::services::analysis::core::grid::sample);
-
-
-
 }
 
 // Declaration needed for default parameter ids
@@ -723,10 +720,10 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
       if(geomKey != NULL)
       {
         cache.index = PyInt_AsLong(geomIdPy);
-        Py_DECREF(geomIdPy);
+        // Py_DECREF(geomIdPy);
       }
 
-      Py_DECREF(geomKey);
+      // Py_DECREF(geomKey);
     }
     case AnalysisType::GRID_TYPE:
     {
@@ -736,9 +733,9 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
       if(rowValue != NULL)
       {
         cache.row = PyInt_AsLong(rowValue);
-        Py_DECREF(rowValue);
+        // Py_DECREF(rowValue);
       }
-      Py_DECREF(rowKey);
+      // Py_DECREF(rowKey);
 
       // Ouput raster column
       PyObject* columnKey = PyString_FromString("column");
@@ -746,9 +743,9 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
       if(columnValue != NULL)
       {
         cache.column = PyInt_AsLong(columnValue);
-        Py_DECREF(columnValue);
+        // Py_DECREF(columnValue);
       }
-      Py_DECREF(columnKey);
+      // Py_DECREF(columnKey);
     }
 
   }

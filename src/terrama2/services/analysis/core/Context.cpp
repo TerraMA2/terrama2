@@ -56,6 +56,7 @@
 #include <terralib/srs/SpatialReferenceSystem.h>
 #include <terralib/srs/Converter.h>
 #include <terralib/raster/Raster.h>
+#include <terralib/memory/Raster.h>
 
 #include <ctime>
 #include <iomanip>
@@ -457,6 +458,8 @@ void terrama2::services::analysis::core::Context::clearAnalysisContext(AnalysisH
   analysisErrorsMap_.erase(analysisHashCode);
   analysisStartTime_.erase(analysisHashCode);
   outputRasterMap_.erase(analysisHashCode);
+  analysisOutputRaster_.erase(analysisHashCode);
+  analysisInputGrid_.erase(analysisHashCode);
 
   // Remove all datasets from context
   auto it = datasetMap_.begin();
@@ -575,6 +578,32 @@ std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::Context::ge
   throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(msg);
 }
 
+std::map<std::string, std::string> terrama2::services::analysis::core::Context::getOutputRasterInfo(terrama2::services::analysis::core::DataManagerPtr dataManager, AnalysisHashCode analysisHashCode)
+{
+  auto it = analysisOutputRaster_.find(analysisHashCode);
+  if(it == analysisOutputRaster_.end())
+  {
+    auto outputRaster = terrama2::services::analysis::core::getOutputRasterInfo(dataManager, analysisHashCode);
+    analysisOutputRaster_.emplace(analysisHashCode, outputRaster);
+    return outputRaster;
+  }
+
+  return it->second;
+}
+
+const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::core::Context::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager, DataSeriesId dataSeriesId, AnalysisHashCode analysisHashCode)
+{
+  auto it = analysisInputGrid_.find(analysisHashCode);
+  if(it == analysisInputGrid_.end())
+  {
+    auto inputGrid = terrama2::services::analysis::core::getGridMap(dataManager, dataSeriesId);
+    analysisInputGrid_.emplace(analysisHashCode, inputGrid);
+    return inputGrid;
+  }
+
+  return it->second;
+}
+
 void terrama2::services::analysis::core::Context::addRaster(const AnalysisHashCode analysisHashCode, const DataSetId datasetId, std::shared_ptr<te::rst::Raster> raster)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -600,5 +629,3 @@ std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::Context::ge
 
   return std::shared_ptr<te::rst::Raster>();
 }
-
-
