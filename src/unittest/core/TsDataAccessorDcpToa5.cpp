@@ -240,7 +240,7 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
     dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -265,11 +265,11 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorDcpToa5 raiiDataRetriever("DCP-toa5",makeMock);
+    RaiiTsDataAccessorDcpToa5 raiiDataRetriever("MOCK",makeMock);
 
     try
     {

@@ -180,7 +180,7 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
     dataProvider->uri += "/geotiff";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -202,11 +202,11 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorGeoTiff raiiDataRetriever("GRID-geotiff",makeMock);
+    RaiiTsDataAccessorGeoTiff raiiDataRetriever("MOCK",makeMock);
 
     try
     {

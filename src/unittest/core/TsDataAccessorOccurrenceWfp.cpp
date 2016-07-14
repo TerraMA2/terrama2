@@ -243,7 +243,7 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
     dataProvider->uri += "/fire_system";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -266,11 +266,11 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorOccurrenceWfp raiiDataRetriever("OCCURRENCE-wfp",makeMock);
+    RaiiTsDataAccessorOccurrenceWfp raiiDataRetriever("MOCK",makeMock);
 
     try
     {
@@ -481,7 +481,6 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSetInvalid()
   return;
 
 }
-
 
 void TsDataAccessorOccurrenceWfp::TestOK()
 {

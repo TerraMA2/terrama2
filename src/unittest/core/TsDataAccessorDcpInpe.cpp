@@ -242,7 +242,7 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
     dataProvider->uri+="/PCD_serrmar_INPE";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "FILE";
+    dataProvider->dataProviderType = "MOCK";
     dataProvider->active = true;
 
     //DataSeries information
@@ -266,11 +266,11 @@ void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
 
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
-    ON_CALL(*mock_, isRetrivable()).WillByDefault(Return(false));
+    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorDcpInpe raiiDataRetriever("DCP-inpe",makeMock);
+    RaiiTsDataAccessorDcpInpe raiiDataRetriever("MOCK",makeMock);
 
     try
     {
