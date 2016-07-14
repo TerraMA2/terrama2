@@ -184,22 +184,134 @@ te::se::Fill* CreateFill(const std::string& color, const std::string& opacity)
   return fill;
 }
 
-te::se::Symbolizer* CreatePolygonSymbolizer()
+te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType)
 {
-  te::se::Fill* fill = CreateFill("#5e5eeb", "100");
-  te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
-  te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
-  symbolizer->setFill(fill);
-  symbolizer->setStroke(stroke);
-  return symbolizer;
+  switch(geomType)
+  {
+    case te::gm::PolygonType:
+    case te::gm::PolygonMType:
+    case te::gm::PolygonZType:
+    case te::gm::PolygonZMType:
+    case te::gm::MultiPolygonType:
+    case te::gm::MultiPolygonMType:
+    case te::gm::MultiPolygonZType:
+    case te::gm::MultiPolygonZMType:
+    case te::gm::MultiSurfaceType:
+    case te::gm::MultiSurfaceMType:
+    case te::gm::MultiSurfaceZType:
+    case te::gm::MultiSurfaceZMType:
+    {
+      te::se::Fill* fill = CreateFill("#5e5eeb", "100");
+      te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+      te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
+      symbolizer->setFill(fill);
+      symbolizer->setStroke(stroke);
+      return symbolizer;
+    }
+
+    case te::gm::LineStringType:
+    case te::gm::LineStringMType:
+    case te::gm::LineStringZType:
+    case te::gm::LineStringZMType:
+    case te::gm::MultiLineStringType:
+    case te::gm::MultiLineStringMType:
+    case te::gm::MultiLineStringZType:
+    case te::gm::MultiLineStringZMType:
+    {
+      te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+      te::se::LineSymbolizer* symbolizer = new te::se::LineSymbolizer;
+      symbolizer->setStroke(stroke);
+      return symbolizer;
+    }
+
+    case te::gm::PointType:
+    case te::gm::PointMType:
+    case te::gm::PointZType:
+    case te::gm::PointZMType:
+    case te::gm::MultiPointType:
+    case te::gm::MultiPointMType:
+    case te::gm::MultiPointZType:
+    case te::gm::MultiPointZMType:
+    {
+      te::se::Fill* markFill = CreateFill("#5e5eeb", "1.0");
+      te::se::Stroke* markStroke = CreateStroke("#000000", "1", "", "", "", "");
+      te::se::Mark* mark = CreateMark("circle", markStroke, markFill);
+      te::se::Graphic* graphic = CreateGraphic(mark, "12", "", "");
+      te::se::PointSymbolizer* symbolizer = new te::se::PointSymbolizer;
+      symbolizer->setGraphic(graphic);
+
+      return symbolizer;
+    }
+
+    default:
+      return nullptr;
+  }
 }
 
-te::se::Symbolizer* CreateLineSymbolizer()
+te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType)
 {
-  te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
-  te::se::LineSymbolizer* symbolizer = new te::se::LineSymbolizer;
-  symbolizer->setStroke(stroke);
-  return symbolizer;
+  te::se::Symbolizer* symbolizer = getSymbolizer(geomType);
+
+  te::se::Rule* rule = new te::se::Rule;
+
+  if(symbolizer != 0)
+    rule->push_back(symbolizer);
+
+  te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
+  style->push_back(rule);
+
+  return style;
+}
+
+te::se::Style* RGB_012_RGB_Contrast_Style()
+{
+  //create default raster symbolizer
+  te::se::RasterSymbolizer* rs = new te::se::RasterSymbolizer();
+
+  //set transparency
+  rs->setOpacity(new te::se::ParameterValue("1.0"));
+
+  //set channel selection
+  te::se::ChannelSelection* cs = new te::se::ChannelSelection();
+  cs->setColorCompositionType(te::se::RGB_COMPOSITION);
+
+  //channel R
+  te::se::SelectedChannel* scR = new te::se::SelectedChannel();
+  scR->setSourceChannelName("0");
+
+  te::se::ContrastEnhancement* cR = new te::se::ContrastEnhancement();
+  cR->setGammaValue(0.5);
+  scR->setContrastEnhancement(cR);
+  cs->setRedChannel(scR);
+
+  //channel G
+  te::se::SelectedChannel* scG = new te::se::SelectedChannel();
+  scG->setSourceChannelName("1");
+
+  te::se::ContrastEnhancement* cG = new te::se::ContrastEnhancement();
+  cG->setGammaValue(0.5);
+  scG->setContrastEnhancement(cG);
+  cs->setGreenChannel(scG);
+
+  //channel B
+  te::se::SelectedChannel* scB = new te::se::SelectedChannel();
+  scB->setSourceChannelName("2");
+
+  te::se::ContrastEnhancement* cB = new te::se::ContrastEnhancement();
+  cB->setGammaValue(0.5);
+  scB->setContrastEnhancement(cB);
+  cs->setBlueChannel(scB);
+
+  rs->setChannelSelection(cs);
+
+  //add symbolizer to a layer style
+  te::se::Rule* r = new te::se::Rule();
+  r->push_back(rs);
+
+  te::se::Style* style = new te::se::CoverageStyle();
+  style->push_back(r);
+
+  return style;
 }
 
 int main(int argc, char** argv)
@@ -257,18 +369,11 @@ int main(int argc, char** argv)
     view->filtersPerDataSeries.emplace(2, filter);
     view->filtersPerDataSeries.emplace(3, filter);
 
-    terrama2::services::view::core::ViewStyle rasterStyle;
-    view->stylesPerDataSeries.emplace(1, rasterStyle);
+    view->stylesPerDataSeries.emplace(1, RGB_012_RGB_Contrast_Style());
 
-    terrama2::services::view::core::ViewStyle geomStyle1;
-    geomStyle1.setPolygonSymbolizer(CreatePolygonSymbolizer());
+    view->stylesPerDataSeries.emplace(2, CreateFeatureTypeStyle(te::gm::PolygonType));
 
-    view->stylesPerDataSeries.emplace(2, geomStyle1);
-
-    terrama2::services::view::core::ViewStyle geomStyle2;
-    geomStyle2.setLineSymbolizer(CreateLineSymbolizer());
-
-    view->stylesPerDataSeries.emplace(3, geomStyle2);
+    view->stylesPerDataSeries.emplace(3, CreateFeatureTypeStyle(te::gm::LineStringType));
 
     dataManager->add(viewPtr);
 

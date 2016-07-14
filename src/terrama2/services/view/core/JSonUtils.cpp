@@ -133,7 +133,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 
   {
     QJsonArray array;
-    for(auto it : view->dataSeriesList)
+    for(auto& it : view->dataSeriesList)
     {
       QJsonObject datasetSeries;
       datasetSeries.insert("dataset_series_id", static_cast<int32_t>(it));
@@ -144,7 +144,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 
   {
     QJsonArray array;
-    for(auto it : view->filtersPerDataSeries)
+    for(auto& it : view->filtersPerDataSeries)
     {
       QJsonObject datasetSeriesAndFilter;
       datasetSeriesAndFilter.insert("dataset_series_id", static_cast<int32_t>(it.first));
@@ -156,11 +156,11 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 
   {
     QJsonArray array;
-    for(auto it : view->stylesPerDataSeries)
+    for(auto& it : view->stylesPerDataSeries)
     {
       QJsonObject datasetSeriesAndStyle;
       datasetSeriesAndStyle.insert("dataset_series_id", static_cast<int32_t>(it.first));
-      datasetSeriesAndStyle.insert("dataset_series_view_style", toJson(it.second));
+      //datasetSeriesAndStyle.insert("dataset_series_view_style", toJson(it.second));
 
       array.push_back(datasetSeriesAndStyle);
     }

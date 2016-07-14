@@ -31,6 +31,9 @@
 #include "View.hpp"
 #include "Shared.hpp"
 
+// VINICIUS: remove
+#include "ViewStyle.hpp"
+
 // Qt
 #include <QJsonObject>
 

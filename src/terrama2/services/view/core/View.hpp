@@ -30,6 +30,14 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 
+
+// STL
+#include <string>
+#include <vector>
+
+// TerraLib
+#include <terralib/se/Style.h>
+
 // TerraMA2
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
@@ -37,14 +45,10 @@
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
+#include "MemoryDataSetLayer.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
-#include "ViewStyle.hpp"
-
-// STL
-#include <string>
-#include <vector>
 
 namespace terrama2
 {
@@ -69,7 +73,7 @@ namespace terrama2
           std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
 
           // VINICIUS: dataset in a DataSeries could have more than one drawable object, differents ViewStyle for each one?
-          std::unordered_map< DataSeriesId, ViewStyle > stylesPerDataSeries; //!< List of styles by DataSeries ID.
+          std::unordered_map< DataSeriesId, te::se::Style* > stylesPerDataSeries; //!< List of styles by DataSeries ID.
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
 

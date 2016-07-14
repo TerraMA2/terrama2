@@ -145,7 +145,7 @@ void TsJsonUtils::testGoNBackJSon()
     terrama2::services::view::core::ViewStyle geomStyle;
     geomStyle.setPolygonSymbolizer(CreatePolygonSymbolizer());
 
-    view->stylesPerDataSeries.emplace(2, geomStyle);
+//    view->stylesPerDataSeries.emplace(2, geomStyle);
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 

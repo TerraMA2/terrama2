@@ -27,6 +27,9 @@
   \author Vinicius Campanha
 */
 
+// VINICIUS: remove
+#include "ViewStyle.hpp"
+
 // STL
 #include <cmath>
 #include <algorithm>
@@ -37,7 +40,6 @@
 
 // TerraMA2
 #include "View.hpp"
-#include "MemoryDataSetLayer.hpp"
 #include "DataManager.hpp"
 #include "Exception.hpp"
 
@@ -197,8 +199,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
             else
               geomLayer->setSRID(std::stoi(dataset->format.at("srid")));
 
-            const ViewStyle* viewStyle = &viewPtr->stylesPerDataSeries.at(dataSeriesId);
-            geomLayer->setStyle(viewStyle->CreateFeatureTypeStyle(geomProperty->getGeometryType()));
+            geomLayer->setStyle(viewPtr->stylesPerDataSeries.at(dataSeriesId)->clone());
 
             layersList.push_back(geomLayer);
           }
