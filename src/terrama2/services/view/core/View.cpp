@@ -288,7 +288,7 @@ void terrama2::services::view::core::drawLayersList(ViewPtr viewPtr, std::vector
 
     // Save view
     // VINICIUS: image name
-    canvas->save("GeneretedImage", te::map::PNG);
+    canvas->save("GeneratedImage", te::map::PNG);
 
     canvas->clear();
   }
