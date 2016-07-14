@@ -8,6 +8,7 @@
  *
  * @property {object} memberSockets - Sockets object.
  * @property {object} memberSSHDispatcher - Ssh class.
+ * @property {fs} fs - NodeJS FS module
  */
 var SSHConnectionChecker = function(io) {
 
@@ -15,6 +16,8 @@ var SSHConnectionChecker = function(io) {
   var memberSockets = io.sockets;
   // Ssh class
   var memberSSHDispatcher = require("../core/SSHDispatcher");
+
+  var fs = require('fs');
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
@@ -25,6 +28,39 @@ var SSHConnectionChecker = function(io) {
         error: false,
         message: ""
       };
+
+      var isLocal = json.isLocal;
+      var pathToBinary = json.pathToBinary || "";
+
+      // TODO: local validation (pathToBinary)
+      if (isLocal) {
+
+        try {
+          // Query the entry
+          var stats = fs.lstatSync(pathToBinary);
+
+          // Is it a file?
+          if (stats.isFile())
+            returnObject.message = "Success";
+          else
+            throw new Error("Invalid service executable");
+        }
+        catch (e) {
+          returnObject.error = true;
+          var message = "";
+          switch (e.code) {
+            case "ENOENT":
+              message = "No such file \""+ pathToBinary +"\" in directory";
+              break;
+            default:
+              message = e.toString();
+          }
+          returnObject.message = message;
+        } finally {
+          client.emit('testSSHConnectionResponse', returnObject);
+          return;
+        }
+      }
 
       var serviceInstance = {
         host: json.host,

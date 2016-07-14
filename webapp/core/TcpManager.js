@@ -6,6 +6,8 @@ var Service = require('./Service');
 var NodeUtils = require('util');
 var EventEmitter = require('events').EventEmitter;
 var ServiceType = require('./Enums').ServiceType;
+var Process = require('./Process');
+var Executor = require('./Executor');
 
 
 var TcpManager = function() {
@@ -261,19 +263,21 @@ TcpManager.prototype.updateService = function(serviceInstance) {
 TcpManager.prototype.startService = function(serviceInstance) {
   var self = this;
 
-  // ssh structure
-  var ssh = new SSH();
+  var instance = new Process();
+  if (serviceInstance.host && serviceInstance.host !== "") {
+    instance.setAdapter(new SSH());
+  } else {
+    instance.setAdapter(new Executor());
+  }
 
-  ssh.connect(serviceInstance).then(function() {
-
-    ssh.startService().then(function(code) {
+  instance.connect(serviceInstance).then(function() {
+    instance.startService().then(function(code) {
       self.emit("serviceStarted", serviceInstance);
-    }).catch(function(err, errCode) {
+    }).catch(function(err) {
       self.emit('error', serviceInstance, err);
     }).finally(function() {
-      ssh.disconnect();
-    });
-
+      instance.disconnect();
+    })
   }).catch(function(err) {
     console.log('ssh startservice error')
     console.log(err);

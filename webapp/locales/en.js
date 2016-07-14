@@ -319,5 +319,6 @@
 	"Email is required": "Email is required",
 	"Store": "Store",
 	"Data Store": "Data Store",
-	"Data store is required": "Data store is required"
+	"Data store is required": "Data store is required",
+	"Host connection": "Host connection"
 }

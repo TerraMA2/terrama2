@@ -11,11 +11,11 @@ var ScreenAdapter = require('./ssh/ScreenAdapter');
  * Class responsible for handling ssh connection.
  * @class SSHDispatcher
  */
-var SSHDispatcher = module.exports = function() {
+var SSHDispatcher = module.exports = function(adapter) {
   this.client = new Client();
   this.connected = false;
   this.platform = null;
-  this.adapter = null;
+  this.adapter = adapter;
 };
 
 SSHDispatcher.prototype.connect = function(serviceInstance) {

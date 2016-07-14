@@ -161,6 +161,35 @@ var DataManager = {
         inserts.push(models.db.ServiceType.create({name: "COLLECT"}));
         inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
 
+        // default services
+        var collectorService = {
+          name: "Local Collector",
+          description: "Local service for Collect",
+          host: "127.0.0.1",
+          port: 10000,
+          sshUser: "terrama2",
+          sshPort: 22,
+          pathToBinary: "terrama2_servce",
+          numberOfThreads: 0,
+          service_type_id: Enums.ServiceType.COLLECTOR,
+          log: {
+            host: "127.0.0.1",
+            port: 5432,
+            user: "postgres",
+            password: "postgres",
+            database: "nodejs" // TODO: change it
+          }
+        };
+
+        var analysisService = Object.assign({}, collectorService);
+        analysisService.name = "Local Analysis";
+        analysisService.description = "Local service for Analysis";
+        analysisService.port = 10001;
+        analysisService.service_type_id = Enums.ServiceType.ANALYSIS;
+
+        inserts.push(self.addServiceInstance(collectorService));
+        inserts.push(self.addServiceInstance(analysisService));
+
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
         inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
@@ -720,7 +749,7 @@ var DataManager = {
           port: serviceObject.port,
           numberOfThreads: serviceObject.numberOfThreads
         }, {
-          fields: ['name', 'description', 'port', 'numberOfThreads', 'runEnviroment'],
+          fields: ['name', 'description', 'port', 'numberOfThreads', 'runEnviroment', 'host', 'sshUser', 'sshPort', 'pathToBinary'],
           where: {
             id: serviceId
           }
