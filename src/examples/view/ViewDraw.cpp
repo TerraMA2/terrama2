@@ -31,6 +31,9 @@
 #include <QApplication>
 #include <QTimer>
 
+
+#include <terralib/se.h>
+
 // TerraMA2
 #include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/core/utility/Utils.hpp>
@@ -128,6 +131,77 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   dataManager->add(dataSeriesGeometry2Ptr);
 }
 
+
+te::se::Stroke* CreateStroke(te::se::Graphic* graphicFill,
+                             const std::string& width, const std::string& opacity,
+                             const std::string& dasharray, const std::string& linecap, const std::string& linejoin)
+{
+  te::se::Stroke* stroke = new te::se::Stroke;
+
+  if(graphicFill)
+    stroke->setGraphicFill(graphicFill);
+
+  if(!width.empty())
+    stroke->setWidth(width);
+
+  if(!opacity.empty())
+    stroke->setOpacity(opacity);
+
+  if(!dasharray.empty())
+    stroke->setDashArray(dasharray);
+
+  if(!linecap.empty())
+    stroke->setLineCap(linecap);
+
+  if(!linejoin.empty())
+    stroke->setLineJoin(linecap);
+
+  return stroke;
+}
+
+te::se::Stroke* CreateStroke(const std::string& color, const std::string& width,
+                             const std::string& opacity, const std::string& dasharray,
+                             const std::string& linecap, const std::string& linejoin)
+{
+  te::se::Stroke* stroke = CreateStroke(0, width, opacity, dasharray, linecap, linejoin);
+
+  if(!color.empty())
+    stroke->setColor(color);
+
+  return stroke;
+}
+
+te::se::Fill* CreateFill(const std::string& color, const std::string& opacity)
+{
+  te::se::Fill* fill = new te::se::Fill;
+
+  if(!color.empty())
+    fill->setColor(color);
+
+  if(!opacity.empty())
+    fill->setOpacity(opacity);
+
+  return fill;
+}
+
+te::se::Symbolizer* CreatePolygonSymbolizer()
+{
+  te::se::Fill* fill = CreateFill("#5e5eeb", "100");
+  te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+  te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
+  symbolizer->setFill(fill);
+  symbolizer->setStroke(stroke);
+  return symbolizer;
+}
+
+te::se::Symbolizer* CreateLineSymbolizer()
+{
+  te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+  te::se::LineSymbolizer* symbolizer = new te::se::LineSymbolizer;
+  symbolizer->setStroke(stroke);
+  return symbolizer;
+}
+
 int main(int argc, char** argv)
 {
   terrama2::core::initializeTerraMA();
@@ -183,29 +257,24 @@ int main(int argc, char** argv)
     view->filtersPerDataSeries.emplace(2, filter);
     view->filtersPerDataSeries.emplace(3, filter);
 
+    terrama2::services::view::core::ViewStyle rasterStyle;
+    view->stylesPerDataSeries.emplace(1, rasterStyle);
+
     terrama2::services::view::core::ViewStyle geomStyle1;
-    geomStyle1.color = "#5e5eeb";
-    geomStyle1.width = "1";
-    geomStyle1.opacity = "100.0";
+    geomStyle1.setPolygonSymbolizer(CreatePolygonSymbolizer());
 
     view->stylesPerDataSeries.emplace(2, geomStyle1);
 
     terrama2::services::view::core::ViewStyle geomStyle2;
-    geomStyle2.color = "#000000";
-    geomStyle2.width = "1";
-    geomStyle2.opacity = "1.0";
+    geomStyle2.setLineSymbolizer(CreateLineSymbolizer());
 
     view->stylesPerDataSeries.emplace(3, geomStyle2);
-
-    terrama2::services::view::core::ViewStyle rasterStyle;
-
-    view->stylesPerDataSeries.emplace(1, rasterStyle);
 
     dataManager->add(viewPtr);
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    timer.start(20000);
+    timer.start(10000);
     app.exec();
 
     service.stopService();

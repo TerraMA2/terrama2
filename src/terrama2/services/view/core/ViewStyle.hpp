@@ -30,7 +30,6 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEWSTYLE_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_VIEWSTYLE_HPP__
 
-
 // TerraMA2
 #include "MemoryDataSetLayer.hpp"
 
@@ -43,40 +42,37 @@ namespace terrama2
       namespace core
       {
 
-        struct ViewStyle
+        class ViewStyle
         {
-          std::string color = "";
-          std::string opacity ="";
-          std::string width = "";
-          std::string dasharray = "";
-          std::string linecap = "";
-          std::string linejoin = "";
-          std::string size = "";
-          std::string rotation = "";
+        public:
+
+          ViewStyle() = default;
+
+          // copy constructor
+          ViewStyle(const ViewStyle& rhs);
+
+          ~ViewStyle() = default;
+
+          void setPolygonSymbolizer(te::se::Symbolizer* symbolizer) noexcept;
+
+          void setLineSymbolizer(te::se::Symbolizer* symbolizer) noexcept;
+
+          void setPointSymbolizer(te::se::Symbolizer* symbolizer) noexcept;
+
+          te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType) const noexcept;
+
+          te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType) const noexcept;
+
+        private:
+
+          // Assingment operator
+          ViewStyle& operator=(const ViewStyle&);
+
+        private:
+          std::unique_ptr<te::se::Symbolizer> polygonSymbolizer_;
+          std::unique_ptr<te::se::Symbolizer> lineSymbolizer_;
+          std::unique_ptr<te::se::Symbolizer> pointSymbolizer_;
         };
-
-
-        te::se::Symbolizer* CreateSymbolizer(const te::gm::GeomType& geomType, const ViewStyle& viewStyle);
-
-        te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType, const ViewStyle& viewStyle);
-
-        std::string GenerateRandomColor();
-
-        te::se::Stroke* CreateStroke(te::se::Graphic* graphicFill,
-                                     const std::string& width,
-                                     const std::string& opacity,
-                                     const std::string& dasharray,
-                                     const std::string& linecap,
-                                     const std::string& linejoin);
-
-        te::se::Stroke* CreateStroke(const std::string& color,
-                                     const std::string& width,
-                                     const std::string& opacity,
-                                     const std::string& dasharray,
-                                     const std::string& linecap,
-                                     const std::string& linejoin);
-
-        te::se::Fill* CreateFill(const std::string& color, const std::string& opacity);
 
         void MONO_0_Style(std::shared_ptr<te::map::MemoryDataSetLayer> layer);
 

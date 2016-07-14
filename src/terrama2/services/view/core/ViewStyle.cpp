@@ -29,77 +29,56 @@
 
 
 // TerraLib
-#include <terralib/se.h>
+#include <terralib/se/ChannelSelection.h>
+#include <terralib/se/ContrastEnhancement.h>
+#include <terralib/se/ParameterValue.h>
+#include <terralib/se/RasterSymbolizer.h>
+#include <terralib/se/SelectedChannel.h>
+
 #include <terralib/color/ColorTransform.h>
 
 // TerraMA2
 #include "ViewStyle.hpp"
 
 
-std::string terrama2::services::view::core::GenerateRandomColor()
+terrama2::services::view::core::ViewStyle::ViewStyle(const ViewStyle& rhs)
 {
-  te::color::ColorTransform t;
-  t.setHsv(rand() % 360, 64 + (rand() % 192), 128 + (rand() % 128));
-
-  te::color::RGBAColor color(t.getRgba());
-
-  return color.getColor();
+  polygonSymbolizer_.reset(rhs.getSymbolizer(te::gm::PolygonType));
+  lineSymbolizer_.reset(rhs.getSymbolizer(te::gm::LineStringType));
+  pointSymbolizer_.reset(rhs.getSymbolizer(te::gm::PointType));
 }
 
-te::se::Stroke* terrama2::services::view::core::CreateStroke(te::se::Graphic* graphicFill,
-                                                           const std::string& width, const std::string& opacity,
-                                                           const std::string& dasharray, const std::string& linecap, const std::string& linejoin)
+void terrama2::services::view::core::ViewStyle::setPolygonSymbolizer(te::se::Symbolizer* symbolizer) noexcept
 {
-  te::se::Stroke* stroke = new te::se::Stroke;
-
-  if(graphicFill)
-    stroke->setGraphicFill(graphicFill);
-
-  if(!width.empty())
-    stroke->setWidth(width);
-
-  if(!opacity.empty())
-    stroke->setOpacity(opacity);
-
-  if(!dasharray.empty())
-    stroke->setDashArray(dasharray);
-
-  if(!linecap.empty())
-    stroke->setLineCap(linecap);
-
-  if(!linejoin.empty())
-    stroke->setLineJoin(linecap);
-
-  return stroke;
+  polygonSymbolizer_.reset(symbolizer);
 }
 
-te::se::Stroke* terrama2::services::view::core::CreateStroke(const std::string& color, const std::string& width,
-                                                           const std::string& opacity, const std::string& dasharray,
-                                                           const std::string& linecap, const std::string& linejoin)
+void terrama2::services::view::core::ViewStyle::setLineSymbolizer(te::se::Symbolizer* symbolizer) noexcept
 {
-  te::se::Stroke* stroke = CreateStroke(0, width, opacity, dasharray, linecap, linejoin);
-
-  if(!color.empty())
-    stroke->setColor(color);
-
-  return stroke;
+  lineSymbolizer_.reset(symbolizer);
 }
 
-te::se::Fill* terrama2::services::view::core::CreateFill(const std::string& color, const std::string& opacity)
+void terrama2::services::view::core::ViewStyle::setPointSymbolizer(te::se::Symbolizer* symbolizer) noexcept
 {
-  te::se::Fill* fill = new te::se::Fill;
-
-  if(!color.empty())
-    fill->setColor(color);
-
-  if(!opacity.empty())
-    fill->setOpacity(opacity);
-
-  return fill;
+  pointSymbolizer_.reset(symbolizer);
 }
 
-te::se::Symbolizer* terrama2::services::view::core::CreateSymbolizer(const te::gm::GeomType& geomType,
-                                                                   const ViewStyle& viewStyle)
+te::se::Style* terrama2::services::view::core::ViewStyle::CreateFeatureTypeStyle(const te::gm::GeomType& geomType) const noexcept
+{
+  te::se::Symbolizer* symbolizer = getSymbolizer(geomType);
+
+  te::se::Rule* rule = new te::se::Rule;
+
+  if(symbolizer != 0)
+    rule->push_back(symbolizer);
+
+  te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
+  style->push_back(rule);
+
+  return style;
+}
+
+te::se::Symbolizer* terrama2::services::view::core::ViewStyle::getSymbolizer(const te::gm::GeomType& geomType) const noexcept
 {
   switch(geomType)
   {
@@ -116,12 +95,10 @@ te::se::Symbolizer* terrama2::services::view::core::CreateSymbolizer(const te::g
     case te::gm::MultiSurfaceZType:
     case te::gm::MultiSurfaceZMType:
     {
-      te::se::Fill* fill = CreateFill(viewStyle.color, viewStyle.opacity);
-      te::se::Stroke* stroke = CreateStroke(viewStyle.color, viewStyle.width, viewStyle.opacity, viewStyle.dasharray, viewStyle.linecap, viewStyle.linejoin);
-      te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
-      symbolizer->setFill(fill);
-      symbolizer->setStroke(stroke);
-      return symbolizer;
+      if(polygonSymbolizer_.get())
+        return polygonSymbolizer_->clone();
+
+      return nullptr;
     }
 
     case te::gm::LineStringType:
@@ -133,10 +110,10 @@ te::se::Symbolizer* terrama2::services::view::core::CreateSymbolizer(const te::g
     case te::gm::MultiLineStringZType:
     case te::gm::MultiLineStringZMType:
     {
-      te::se::Stroke* stroke = CreateStroke(viewStyle.color, viewStyle.width, viewStyle.opacity, viewStyle.dasharray, viewStyle.linecap, viewStyle.linejoin);
-      te::se::LineSymbolizer* symbolizer = new te::se::LineSymbolizer;
-      symbolizer->setStroke(stroke);
-      return symbolizer;
+      if(lineSymbolizer_.get())
+        return lineSymbolizer_->clone();
+
+      return nullptr;
     }
 
     case te::gm::PointType:
@@ -148,32 +125,15 @@ te::se::Symbolizer* terrama2::services::view::core::CreateSymbolizer(const te::g
     case te::gm::MultiPointZType:
     case te::gm::MultiPointZMType:
     {
-      te::se::Fill* markFill = CreateFill(viewStyle.color, viewStyle.opacity);
-      te::se::Stroke* markStroke = CreateStroke(viewStyle.color, viewStyle.width, viewStyle.opacity, viewStyle.dasharray, viewStyle.linecap, viewStyle.linejoin);
-      te::se::Mark* mark = te::se::CreateMark("circle", markStroke, markFill);
-      te::se::Graphic* graphic = te::se::CreateGraphic(mark, viewStyle.size, viewStyle.rotation, viewStyle.opacity);
-      return te::se::CreatePointSymbolizer(graphic);
+      if(pointSymbolizer_.get())
+        return pointSymbolizer_->clone();
+
+      return nullptr;
     }
 
     default:
-      return 0;
+      return nullptr;
   }
-}
-
-te::se::Style* terrama2::services::view::core::CreateFeatureTypeStyle(const te::gm::GeomType& geomType,
-                                                                    const ViewStyle& viewStyle)
-{
-  te::se::Symbolizer* symbolizer = CreateSymbolizer(geomType, viewStyle);
-
-  te::se::Rule* rule = new te::se::Rule;
-
-  if(symbolizer != 0)
-    rule->push_back(symbolizer);
-
-  te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
-  style->push_back(rule);
-
-  return style;
 }
 
 
@@ -256,4 +216,3 @@ void terrama2::services::view::core::RGB_012_RGB_Contrast_Style(std::shared_ptr<
 
   layer->setStyle(s);
 }
-

@@ -105,7 +105,6 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
     std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
     uint32_t layerID = 0;
-    std::vector<SeriesMap> seriesList;
 
     for(auto dataSeriesId : viewPtr->dataSeriesList)
     {
@@ -116,8 +115,6 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
       terrama2::core::Filter filter(viewPtr->filtersPerDataSeries.at(dataSeriesId));
       SeriesMap series = dataAccessor->getSeries(filter);
-
-//      seriesList.push_back(series);
 
       for(auto& serie : series)
       {
@@ -198,7 +195,8 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
             else
               geomLayer->setSRID(std::stoi(dataset->format.at("srid")));
 
-            geomLayer->setStyle(CreateFeatureTypeStyle(geomProperty->getGeometryType(), viewPtr->stylesPerDataSeries.at(dataSeriesId)));
+            const ViewStyle* viewStyle = &viewPtr->stylesPerDataSeries.at(dataSeriesId);
+            geomLayer->setStyle(viewStyle->CreateFeatureTypeStyle(geomProperty->getGeometryType()));
 
             layersList.push_back(geomLayer);
           }
@@ -251,108 +249,10 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
 void terrama2::services::view::core::drawLayersList(ViewPtr viewPtr, std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger)
 {
-  /*
-  std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList;
-  uint32_t layerID = 0;
-
-  if(resolutionWidth == 0 ||  resolutionHeigth == 0)
-  {
-    QString message = QObject::tr("Invalid resolution for View %1.").arg(viewId);
-    logger->error(message.toStdString(), viewId);
-    throw Exception() << ErrorDescription(message);
-  }
-
-  // Create layers from series
-  for(auto& series : seriesList)
-  {
-    for(auto& serie : series)
-    {
-      terrama2::core::DataSetPtr dataset = serie.first;
-      std::shared_ptr<te::da::DataSet> teDataSet = serie.second.syncDataSet->dataset();
-      std::shared_ptr<te::da::DataSetType> teDataSetType = serie.second.teDataSetType;
-
-      if(!teDataSetType->hasRaster() && !teDataSetType->hasGeom())
-      {
-        QString message = QObject::tr("DataSet %1 has no drawable data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
-        logger->error(message.toStdString(), viewId);
-      }
-
-      if(teDataSetType->hasRaster())
-      {
-        // TODO: A terralib dataset can have more than one raster field in it?
-        std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
-
-        if(!teDataSet->moveFirst())
-        {
-          QString message = QObject::tr("Can not access DataSet %1 raster data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
-          logger->error(message.toStdString(), viewId);
-        }
-        else
-        {
-          auto raster(teDataSet->getRaster(rpos));
-
-          te::gm::Envelope* extent = raster->getExtent();
-
-          // Creates a DataSetLayer of raster
-          std::shared_ptr<te::map::MemoryDataSetLayer> rasterLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), raster->getName(), teDataSet, teDataSetType));
-          rasterLayer->setDataSetName(teDataSetType->getDatasetName());
-          rasterLayer->setExtent(*extent);
-          rasterLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
-
-          // if dataset SRID is not setted, try to use the SRID from layer
-          if(dataset->format.find("srid") == dataset->format.end())
-            rasterLayer->setSRID(raster->getSRID());
-          else
-            rasterLayer->setSRID(std::stoi(dataset->format.at("srid")));
-
-          // VINICIUS: Set Style
-          MONO_0_Style(rasterLayer);
-
-          layersList.push_back(rasterLayer);
-        }
-      }
-
-      if(teDataSetType->hasGeom())
-      {
-        // TODO: A terralib dataset can have more than one geometry field in it?
-        auto geomProperty = te::da::GetFirstGeomProperty(teDataSetType.get());
-
-        if(!teDataSet->moveFirst())
-        {
-          QString message = QObject::tr("Can not access DataSet %1 geometry data.").arg(QString::fromStdString(teDataSetType->getDatasetName()));
-          logger->error(message.toStdString(), viewId);
-        }
-        else
-        {
-          std::shared_ptr< te::gm::Envelope > extent(teDataSet->getExtent(teDataSetType->getPropertyPosition(geomProperty)));
-
-          // Creates a Layer
-          std::shared_ptr< te::map::MemoryDataSetLayer > geomLayer(new te::map::MemoryDataSetLayer(te::common::Convert2String(++layerID), geomProperty->getName(), teDataSet, teDataSetType));
-          geomLayer->setDataSetName(teDataSetType->getName());
-          geomLayer->setVisibility(te::map::VISIBLE);
-          geomLayer->setExtent(*extent);
-          geomLayer->setRendererType("ABSTRACT_LAYER_RENDERER");
-
-          // if dataset SRID is not setted, try to use the SRID from layer
-          if(dataset->format.find("srid") == dataset->format.end())
-            geomLayer->setSRID(geomProperty->getSRID());
-          else
-            geomLayer->setSRID(std::stoi(dataset->format.at("srid")));
-
-          // VINICIUS: set style
-          ViewStyle viewStyle = CreateFeatureTypeStyle(geomProperty->getGeometryType(), );
-          geomLayer->setStyle(viewStyle);
-
-          layersList.push_back(geomLayer);
-        }
-      }
-    }
-  }
-*/
   // Draw layers
-
   if(layersList.size() > 0)
   {
+    // mount extent and get srid
     te::gm::Envelope extent;
     uint32_t srid = viewPtr->srid;
 
@@ -387,8 +287,8 @@ void terrama2::services::view::core::drawLayersList(ViewPtr viewPtr, std::vector
     }
 
     // Save view
-
-    canvas->save("GeneretadImage", te::map::PNG);
+    // VINICIUS: image name
+    canvas->save("GeneretedImage", te::map::PNG);
 
     canvas->clear();
   }

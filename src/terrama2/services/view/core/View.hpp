@@ -67,20 +67,18 @@ namespace terrama2
 
           std::vector< DataSeriesId > dataSeriesList; // Ordened list of DataSeries ID that compose this view
           std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
+
+          // VINICIUS: dataset in a DataSeries could have more than one drawable object, differents ViewStyle for each one?
           std::unordered_map< DataSeriesId, ViewStyle > stylesPerDataSeries; //!< List of styles by DataSeries ID.
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
-
-          // TODO: view filter it's only the bounding box?
 
           uint32_t resolutionWidth = 0; //!< Width resolution of view in pixels
           uint32_t resolutionHeight = 0; //!< Height resolution of view in pixels
 
           uint32_t srid = 0; //!< SRID to aplly in view
 
-          // VINICIUS: add styles
-          // map < id dataset, symbolizer > one dataseries could have more than one drawable dataset, then, store style for each one
-
+          // TODO: view filter it's only the bounding box?
           //VINICIUS: filter to get only the last if the dataset contains many registers
         };
 
