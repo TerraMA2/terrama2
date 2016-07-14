@@ -164,7 +164,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 
       array.push_back(datasetSeriesAndStyle);
     }
-    obj.insert("view_style_per_data_series", array);
+    obj.insert("styles_per_data_series", array);
   }
 
   return obj;
