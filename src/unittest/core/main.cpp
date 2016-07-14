@@ -26,6 +26,7 @@
 
   \author Jano Simas
   \author Vinicius Campanha
+  \author Evandro Delatin
 */
 
 // Qt
