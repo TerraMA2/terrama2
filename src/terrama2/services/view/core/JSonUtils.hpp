@@ -31,6 +31,9 @@
 #include "View.hpp"
 #include "Shared.hpp"
 
+// VINICIUS: remove
+#include "ViewStyle.hpp"
+
 // Qt
 #include <QJsonObject>
 
@@ -50,9 +53,21 @@ namespace terrama2
 
         /*!
           \brief Creates a Json object from a View
-          \attention This is a function created for debug and tests
         */
         QJsonObject toJson(ViewPtr view);
+
+        /*!
+          \brief Creates a View Style from a QJsonObject.
+          \see View Style for json structure
+          */
+        ViewStyle* fromViewStyleJson(QJsonObject json);
+
+        /*!
+          \brief Creates a Json object from a View Style
+        */
+        QJsonObject toJson(const ViewStyle viewStyle);
+
+
 
       } // end namespace core
     }   // end namespace view

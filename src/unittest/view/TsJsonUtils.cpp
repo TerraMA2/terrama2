@@ -27,12 +27,84 @@
   \author Vinicius Campanha
 */
 
+#include <terralib/se.h>
+
 //TerraMA2
 #include "TsJsonUtils.hpp"
 
 #include <terrama2/services/view/core/JSonUtils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 
+
+te::se::Stroke* CreateStroke(te::se::Graphic* graphicFill,
+                             const std::string& width, const std::string& opacity,
+                             const std::string& dasharray, const std::string& linecap, const std::string& linejoin)
+{
+  te::se::Stroke* stroke = new te::se::Stroke;
+
+  if(graphicFill)
+    stroke->setGraphicFill(graphicFill);
+
+  if(!width.empty())
+    stroke->setWidth(width);
+
+  if(!opacity.empty())
+    stroke->setOpacity(opacity);
+
+  if(!dasharray.empty())
+    stroke->setDashArray(dasharray);
+
+  if(!linecap.empty())
+    stroke->setLineCap(linecap);
+
+  if(!linejoin.empty())
+    stroke->setLineJoin(linecap);
+
+  return stroke;
+}
+
+te::se::Stroke* CreateStroke(const std::string& color, const std::string& width,
+                             const std::string& opacity, const std::string& dasharray,
+                             const std::string& linecap, const std::string& linejoin)
+{
+  te::se::Stroke* stroke = CreateStroke(0, width, opacity, dasharray, linecap, linejoin);
+
+  if(!color.empty())
+    stroke->setColor(color);
+
+  return stroke;
+}
+
+te::se::Fill* CreateFill(const std::string& color, const std::string& opacity)
+{
+  te::se::Fill* fill = new te::se::Fill;
+
+  if(!color.empty())
+    fill->setColor(color);
+
+  if(!opacity.empty())
+    fill->setOpacity(opacity);
+
+  return fill;
+}
+
+te::se::Symbolizer* CreatePolygonSymbolizer()
+{
+  te::se::Fill* fill = CreateFill("#5e5eeb", "100");
+  te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+  te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
+  symbolizer->setFill(fill);
+  symbolizer->setStroke(stroke);
+  return symbolizer;
+}
+
+te::se::Symbolizer* CreateLineSymbolizer()
+{
+  te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+  te::se::LineSymbolizer* symbolizer = new te::se::LineSymbolizer;
+  symbolizer->setStroke(stroke);
+  return symbolizer;
+}
 
 void TsJsonUtils::testGoNBackJSon()
 {
@@ -69,6 +141,11 @@ void TsJsonUtils::testGoNBackJSon()
     view->dataSeriesList.push_back(2);
     view->dataSeriesList.push_back(3);
     view->dataSeriesList.push_back(4);
+
+    terrama2::services::view::core::ViewStyle geomStyle;
+    geomStyle.setPolygonSymbolizer(CreatePolygonSymbolizer());
+
+//    view->stylesPerDataSeries.emplace(2, geomStyle);
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 

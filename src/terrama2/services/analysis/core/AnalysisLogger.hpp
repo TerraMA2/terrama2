@@ -61,7 +61,7 @@ namespace terrama2
            */
           virtual ~AnalysisLogger() = default;
 
-          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept override;
+          virtual void setConnectionInfo(const std::map < std::string, std::string >& connInfo) noexcept override;
 
         };
       }
