@@ -30,11 +30,25 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
 #define __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
 
+// STL
 #include <cstdint>
+#include <unordered_map>
 
+// TerraMA2
 #include "../../../core/Typedef.hpp"
 
 //! Unique identifier of a View
 typedef ProcessId ViewId;
+
+// Forward declaration
+namespace terrama2
+{
+  namespace core
+  {
+    class DataSetSeries;
+  }
+}
+
+typedef std::unordered_map< terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > SeriesMap;
 
 #endif // __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__

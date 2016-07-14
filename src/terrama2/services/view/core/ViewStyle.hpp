@@ -27,12 +27,8 @@
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEWTYLE_HPP__
-#define __TERRAMA2_SERVICES_VIEW_CORE_VIEWTYLE_HPP__
-
-// TerraLib
-#include <terralib/se.h>
-#include <terralib/color/ColorTransform.h>
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEWSTYLE_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_VIEWSTYLE_HPP__
 
 // TerraMA2
 #include "MemoryDataSetLayer.hpp"
@@ -46,226 +42,41 @@ namespace terrama2
       namespace core
       {
 
-        std::string GenerateRandomColor()
+        class ViewStyle
         {
-          te::color::ColorTransform t;
-          t.setHsv(rand() % 360, 64 + (rand() % 192), 128 + (rand() % 128));
+        public:
 
-          te::color::RGBAColor color(t.getRgba());
+          ViewStyle() = default;
 
-          return color.getColor();
-        }
+          // copy constructor
+          ViewStyle(const ViewStyle& rhs);
 
-        te::se::Stroke* CreateStroke(te::se::Graphic* graphicFill,
-                                             const std::string& width, const std::string& opacity,
-                                             const std::string& dasharray, const std::string& linecap, const std::string& linejoin)
-        {
-          te::se::Stroke* stroke = new te::se::Stroke;
+          ~ViewStyle() = default;
 
-          if(graphicFill)
-            stroke->setGraphicFill(graphicFill);
+          void setPolygonSymbolizer(te::se::Symbolizer* symbolizer) noexcept;
 
-          if(!width.empty())
-            stroke->setWidth(width);
+          void setLineSymbolizer(te::se::Symbolizer* symbolizer) noexcept;
 
-          if(!opacity.empty())
-            stroke->setOpacity(opacity);
+          void setPointSymbolizer(te::se::Symbolizer* symbolizer) noexcept;
 
-          if(!dasharray.empty())
-            stroke->setDashArray(dasharray);
+          te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType) const noexcept;
 
-          if(!linecap.empty())
-            stroke->setLineCap(linecap);
+          te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType) const noexcept;
 
-          if(!linejoin.empty())
-            stroke->setLineJoin(linecap);
+        private:
 
-          return stroke;
-        }
+          // Assingment operator
+          ViewStyle& operator=(const ViewStyle&);
 
-        te::se::Stroke* CreateStroke(const std::string& color, const std::string& width,
-                                             const std::string& opacity, const std::string& dasharray,
-                                             const std::string& linecap, const std::string& linejoin)
-        {
-          te::se::Stroke* stroke = CreateStroke(0, width, opacity, dasharray, linecap, linejoin);
+        private:
+          std::unique_ptr<te::se::Symbolizer> polygonSymbolizer_;
+          std::unique_ptr<te::se::Symbolizer> lineSymbolizer_;
+          std::unique_ptr<te::se::Symbolizer> pointSymbolizer_;
+        };
 
-          if(!color.empty())
-            stroke->setColor(color);
+        void MONO_0_Style(std::shared_ptr<te::map::MemoryDataSetLayer> layer);
 
-          return stroke;
-        }
-
-        te::se::Fill* CreateFill(const std::string& color, const std::string& opacity)
-        {
-          te::se::Fill* fill = new te::se::Fill;
-
-          if(!color.empty())
-            fill->setColor(color);
-
-          if(!opacity.empty())
-            fill->setOpacity(opacity);
-
-          return fill;
-        }
-
-        te::se::Symbolizer* CreateSymbolizer(const te::gm::GeomType& geomType, const std::string& color)
-        {
-          switch(geomType)
-          {
-            case te::gm::PolygonType:
-            case te::gm::PolygonMType:
-            case te::gm::PolygonZType:
-            case te::gm::PolygonZMType:
-            case te::gm::MultiPolygonType:
-            case te::gm::MultiPolygonMType:
-            case te::gm::MultiPolygonZType:
-            case te::gm::MultiPolygonZMType:
-            case te::gm::MultiSurfaceType:
-            case te::gm::MultiSurfaceMType:
-            case te::gm::MultiSurfaceZType:
-            case te::gm::MultiSurfaceZMType:
-            {
-              te::se::Fill* fill = CreateFill(color, "200.0");
-              te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
-              te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
-              symbolizer->setFill(fill);
-              symbolizer->setStroke(stroke);
-              return symbolizer;
-            }
-
-            case te::gm::LineStringType:
-            case te::gm::LineStringMType:
-            case te::gm::LineStringZType:
-            case te::gm::LineStringZMType:
-            case te::gm::MultiLineStringType:
-            case te::gm::MultiLineStringMType:
-            case te::gm::MultiLineStringZType:
-            case te::gm::MultiLineStringZMType:
-            {
-              te::se::Stroke* stroke = CreateStroke(color, "1", "", "", "", "");
-              te::se::LineSymbolizer* symbolizer = new te::se::LineSymbolizer;
-              symbolizer->setStroke(stroke);
-              return symbolizer;
-            }
-
-            case te::gm::PointType:
-            case te::gm::PointMType:
-            case te::gm::PointZType:
-            case te::gm::PointZMType:
-            case te::gm::MultiPointType:
-            case te::gm::MultiPointMType:
-            case te::gm::MultiPointZType:
-            case te::gm::MultiPointZMType:
-            {
-              te::se::Fill* markFill = CreateFill(color, "1.0");
-              te::se::Stroke* markStroke = CreateStroke("#000000", "1", "", "", "", "");
-              te::se::Mark* mark = CreateMark("circle", markStroke, markFill);
-              te::se::Graphic* graphic = CreateGraphic(mark, "12", "", "");
-              return te::se::CreatePointSymbolizer(graphic);
-            }
-
-            default:
-              return 0;
-          }
-        }
-
-        te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType)
-        {
-          std::string color = GenerateRandomColor();
-
-          te::se::Symbolizer* symbolizer = CreateSymbolizer(geomType, color);
-
-          te::se::Rule* rule = new te::se::Rule;
-
-          if(symbolizer != 0)
-            rule->push_back(symbolizer);
-
-          te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
-          style->push_back(rule);
-
-          return style;
-        }
-
-
-        void MONO_0_Style(std::shared_ptr<te::map::MemoryDataSetLayer> layer)
-        {
-          //create default raster symbolizer
-          te::se::RasterSymbolizer* rs = new te::se::RasterSymbolizer();
-
-          //set transparency
-          rs->setOpacity(new te::se::ParameterValue("1.0"));
-
-          //set channel selection
-          te::se::ChannelSelection* cs = new te::se::ChannelSelection();
-          cs->setColorCompositionType(te::se::GRAY_COMPOSITION);
-
-          //channel M
-          te::se::SelectedChannel* scM = new te::se::SelectedChannel();
-          scM->setSourceChannelName("0");
-          cs->setGrayChannel(scM);
-
-          rs->setChannelSelection(cs);
-
-          //add symbolizer to a layer style
-          te::se::Rule* r = new te::se::Rule();
-          r->push_back(rs);
-
-          te::se::Style* s = new te::se::CoverageStyle();
-          s->push_back(r);
-
-          layer->setStyle(s);
-        }
-
-        void RGB_012_RGB_Contrast_Style(std::shared_ptr<te::map::MemoryDataSetLayer> layer)
-        {
-          //create default raster symbolizer
-          te::se::RasterSymbolizer* rs = new te::se::RasterSymbolizer();
-
-          //set transparency
-          rs->setOpacity(new te::se::ParameterValue("1.0"));
-
-          //set channel selection
-          te::se::ChannelSelection* cs = new te::se::ChannelSelection();
-          cs->setColorCompositionType(te::se::RGB_COMPOSITION);
-
-          //channel R
-          te::se::SelectedChannel* scR = new te::se::SelectedChannel();
-          scR->setSourceChannelName("0");
-
-          te::se::ContrastEnhancement* cR = new te::se::ContrastEnhancement();
-          cR->setGammaValue(0.5);
-          scR->setContrastEnhancement(cR);
-          cs->setRedChannel(scR);
-
-          //channel G
-          te::se::SelectedChannel* scG = new te::se::SelectedChannel();
-          scG->setSourceChannelName("1");
-
-          te::se::ContrastEnhancement* cG = new te::se::ContrastEnhancement();
-          cG->setGammaValue(0.5);
-          scG->setContrastEnhancement(cG);
-          cs->setGreenChannel(scG);
-
-          //channel B
-          te::se::SelectedChannel* scB = new te::se::SelectedChannel();
-          scB->setSourceChannelName("2");
-
-          te::se::ContrastEnhancement* cB = new te::se::ContrastEnhancement();
-          cB->setGammaValue(0.5);
-          scB->setContrastEnhancement(cB);
-          cs->setBlueChannel(scB);
-
-          rs->setChannelSelection(cs);
-
-          //add symbolizer to a layer style
-          te::se::Rule* r = new te::se::Rule();
-          r->push_back(rs);
-
-          te::se::Style* s = new te::se::CoverageStyle();
-          s->push_back(r);
-
-          layer->setStyle(s);
-        }
+        void RGB_012_RGB_Contrast_Style(std::shared_ptr<te::map::MemoryDataSetLayer> layer);
 
       } // end namespace core
     }   // end namespace view

@@ -30,6 +30,14 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_VIEW_HPP__
 
+
+// STL
+#include <string>
+#include <vector>
+
+// TerraLib
+#include <terralib/se/Style.h>
+
 // TerraMA2
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
@@ -37,13 +45,10 @@
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
+#include "MemoryDataSetLayer.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "ViewLogger.hpp"
-
-// STL
-#include <string>
-#include <vector>
 
 namespace terrama2
 {
@@ -65,26 +70,25 @@ namespace terrama2
           bool active = false;//!< Flag if the view is active.
 
           std::vector< DataSeriesId > dataSeriesList; // Ordened list of DataSeries ID that compose this view
-          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of DataSeries ID that compose this view and their filters
+          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
+
+          // VINICIUS: dataset in a DataSeries could have more than one drawable object, differents ViewStyle for each one?
+          std::unordered_map< DataSeriesId, te::se::Style* > stylesPerDataSeries; //!< List of styles by DataSeries ID.
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
-
-          // TODO: view filter it's only the bounding box?
 
           uint32_t resolutionWidth = 0; //!< Width resolution of view in pixels
           uint32_t resolutionHeight = 0; //!< Height resolution of view in pixels
 
           uint32_t srid = 0; //!< SRID to aplly in view
 
-          // VINICIUS: add styles
-          // map < id dataset, symbolizer > one dataseries could have more than one drawable dataset, then, store style for each one
-
+          // TODO: view filter it's only the bounding box?
           //VINICIUS: filter to get only the last if the dataset contains many registers
         };
 
         void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
-        void drawSeriesList(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::vector<std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>>& seriesList, uint32_t resolutionWidth, uint32_t resolutionHeigth, uint32_t srid);
+        void drawLayersList(ViewPtr view, std::vector< std::shared_ptr<te::map::MemoryDataSetLayer> > layersList, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger);
 
       } // end namespace core
     }   // end namespace view

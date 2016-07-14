@@ -103,7 +103,8 @@ public:
 
 
     setDataSource(mockDataSource.release());
-    setTableName("unittest"+std::to_string(1));
+    std::string tableName = "unittest"+std::to_string(1);
+    setTableName(tableName);
   }
 
   /*!
