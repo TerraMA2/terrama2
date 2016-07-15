@@ -180,7 +180,7 @@
 
 .terrama2-table-tbody tbody {
   overflow-y: scroll !important;
-  height: 200px !important;            //  <-- Select the height of the body
+  height: 200px !important;
   width: 100% !important;
   position: absolute !important;
 }
@@ -193,3 +193,10 @@
 }
 
 .ace_editor { height: 305px !important; }
+
+.terrama2-schema-form {
+}
+
+.terrama2-schema-form > div:last-child {
+  position: absolute !important;
+}

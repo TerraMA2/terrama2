@@ -46,22 +46,22 @@ module.exports = {
     return [{
       key: UriPattern.HOST,
       type: FormField.TEXT,
-      htmlClass: 'col-md-6'
+      htmlClass: 'col-md-6 terrama2-schema-form'
     },
     {
       key: UriPattern.PORT,
       type: FormField.NUMBER,
-      htmlClass: 'col-md-6'
+      htmlClass: 'col-md-6 terrama2-schema-form'
     },
     {
       key: UriPattern.USER,
       type: FormField.TEXT,
-      htmlClass: 'col-md-6'
+      htmlClass: 'col-md-6 terrama2-schema-form'
     },
     {
       key: UriPattern.PASSWORD,
       type: FormField.PASSWORD,
-      htmlClass: 'col-md-6'
+      htmlClass: 'col-md-6 terrama2-schema-form'
     }]
   },
 
