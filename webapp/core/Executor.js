@@ -3,6 +3,9 @@ var execAsync = require('child_process').exec;
 var OS = require('./Enums').OS;
 var ScreenAdapter = require('./ssh/ScreenAdapter');
 
+
+/**
+ * This class allows to run commands like terminal style (local)*/
 var Executor = module.exports = function(adapter) {
   this.platform = null;
   this.adapter = adapter;
