@@ -63,6 +63,7 @@ var TcpSocket = function(io) {
       client.emit('statusResponse', {
         status: 200,
         service: service.id,
+        loading: false,
         online: Object.keys(response).length > 0
       });
     };
@@ -80,6 +81,7 @@ var TcpSocket = function(io) {
       client.emit('stopResponse', {
         status: 200,
         online: false,
+        loading: false,
         service: service.id
       })
     };
@@ -89,6 +91,7 @@ var TcpSocket = function(io) {
       client.emit('closeResponse', {
         status: 400,
         service: service.id,
+        loading: false,
         online: false
       })
     };
@@ -138,6 +141,14 @@ var TcpSocket = function(io) {
           });
         };
         dataSentFlags[instance.id] = { id: instance.id, isDataSent: false };
+
+        // notify every one with loading
+        iosocket.emit('statusResponse', {
+          status: 200,
+          loading: true,
+          service: instance.id
+        });
+
         TcpManager.startService(instance).then(function() {
           setTimeout(function() {
             TcpManager.connect(instance).then(function() {
@@ -157,12 +168,21 @@ var TcpSocket = function(io) {
 
     client.on('status', function(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
+        // notify every one with loading
+        iosocket.emit('statusResponse', {
+          status: 200,
+          loading: true,
+          online: false,
+          service: instance.id
+        });
+
         TcpManager.emit('statusService', instance);
       }).catch(function(err) {
         console.log(err);
         client.emit('statusResponse', {
           status: 400,
           online: false,
+          loading: false,
           service: json.service
         })
       });
@@ -171,6 +191,13 @@ var TcpSocket = function(io) {
 
     client.on('stop', function(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
+        iosocket.emit('stopResponse', {
+          status: 200,
+          loading: true,
+          online: true,
+          service: instance.id
+        });
+
         TcpManager.emit('stopService', instance);
       }).catch(function(err) {
         console.log(err);
@@ -192,7 +219,7 @@ var TcpSocket = function(io) {
           status: 400,
           message: err.toString()
         })
-      }
+      };
 
       DataManager.listServiceInstances().then(function(services) {
         DataManager.listAnalyses().then(function(analysisList) {
