@@ -34,11 +34,9 @@
 #include "../../../core/utility/Logger.hpp"
 
 // Terralib
-#include <terralib/geometry/WKTReader.h>
-
-#include <terralib/se/PolygonSymbolizer.h>
-#include <terralib/se/Fill.h>
-#include <terralib/se/SvgParameter.h>
+#include <terralib/se/Style.h>
+#include <terralib/xml/AbstractWriterFactory.h>
+#include <terralib/se/serialization/xml/Style.h>
 
 // Qt
 #include <QJsonDocument>
@@ -160,6 +158,13 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
     {
       QJsonObject datasetSeriesAndStyle;
       datasetSeriesAndStyle.insert("dataset_series_id", static_cast<int32_t>(it.first));
+      std::auto_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
+      writer->setRootNamespaceURI("/home/vinicius/file.xml");
+      writer->setURI("/home/vinicius/file.xml");
+      te::se::serialize::Style::getInstance().write(it.second->clone(), *writer.get());
+
+      writer->writeToFile();
+
       //datasetSeriesAndStyle.insert("dataset_series_view_style", toJson(it.second));
 
       array.push_back(datasetSeriesAndStyle);
@@ -168,51 +173,4 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   }
 
   return obj;
-}
-
-
-QJsonObject terrama2::services::view::core::toJson(const ViewStyle viewStyle)
-{
-  QJsonObject obj;
-  obj.insert("class", QString("ViewStyle"));
-
-  std::unique_ptr<te::se::PolygonSymbolizer> polygon(dynamic_cast<te::se::PolygonSymbolizer*>(viewStyle.getSymbolizer(te::gm::PolygonType)));
-//  obj.insert("view_style_polygon_fill_color", QString::fromStdString(polygon->getFill()->getColor()->getName()));
-    // TODO: dynamic cast to svgparametervalue
-//  obj.insert("view_style_opacity", QString::fromStdString(viewStyle.fillOpacity));
-//  obj.insert("view_style_width", QString::fromStdString(viewStyle.strokeWidth));
-//  obj.insert("view_style_dasharray",QString::fromStdString(viewStyle.strokeDasharray));
-//  obj.insert("view_style_linecap", QString::fromStdString(viewStyle.strokeLinecap));
-//  obj.insert("view_style_linejoin",QString::fromStdString(viewStyle.strokeLinejoin));
-//  obj.insert("view_style_size", QString::fromStdString(viewStyle.markSize));
-//  obj.insert("view_style_rotation", QString::fromStdString(viewStyle.markRotation));
-
-  return obj;
-}
-
-terrama2::services::view::core::ViewStyle* terrama2::services::view::core::fromViewStyleJson(QJsonObject json)
-{
-  if(json["class"].toString() != "ViewStyle")
-  {
-    QString errMsg = QObject::tr("Invalid View JSON object.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-  }
-/*
-  if(!json.contains("view_style_color")
-     || !json.contains("view_style_opacity")
-     || !json.contains("view_style_width")
-     || !json.contains("view_style_dasharray")
-     || !json.contains("view_style_linecap")
-     || !json.contains("view_style_linejoin")
-     || !json.contains("view_style_size")
-     || !json.contains("view_style_rotation"))
-  {
-    QString errMsg = QObject::tr("Invalid View Style JSON object.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-  }
-*/
-
-  return new ViewStyle();
 }
