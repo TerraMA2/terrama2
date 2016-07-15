@@ -1,11 +1,8 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
 var TokenCode = require('./../../core/Enums').TokenCode;
-var passport = require('./../../config/Passport');
-var TcpManagerClass = require('./../../core/TcpManager');
+var TcpManager = require('./../../core/TcpManager');
 var Log = require('./../../core/data-model/').Log;
-var TcpManager = new TcpManagerClass();
-
 module.exports = function(app) {
   return {
     get: function(request, response) {
@@ -94,7 +91,6 @@ module.exports = function(app) {
                   console.log("Should restart? - " + shouldRestart);
                   if (shouldRestart) {
                     TcpManager.emit('stopService', serviceInstance);
-                    TcpManager.emit('removeListeners');
                   } else
                     TcpManager.emit('updateService', serviceInstance);
                 } catch(e) {

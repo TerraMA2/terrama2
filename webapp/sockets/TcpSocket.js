@@ -15,7 +15,7 @@ var TcpSocket = function(io) {
   var iosocket = io.sockets;
 
   // TcpManager
-  var TcpManagerClass = require('./../core/TcpManager');
+  var TcpManager = require('./../core/TcpManager');
 
   // TerraMA2 Utils
   var Utils = require('./../core/Utils');
@@ -29,7 +29,6 @@ var TcpSocket = function(io) {
   // Socket connection event
   iosocket.on('connection', function(client) {
 
-    var TcpManager = new TcpManagerClass();
     console.log("NEW socket.io CONNECTION");
 
     var onServiceStarted = function(service) {
@@ -131,8 +130,25 @@ var TcpSocket = function(io) {
     // client listeners
     client.on('start', function(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
+        var _handleErr = function(err) {
+          client.emit('errorResponse', {
+            status: 400,
+            message: err.toString(),
+            service: instance ? instance.id : 0
+          });
+        };
         dataSentFlags[instance.id] = { id: instance.id, isDataSent: false };
-        TcpManager.emit('startService', instance);
+        TcpManager.startService(instance).then(function() {
+          setTimeout(function() {
+            TcpManager.connect(instance).then(function() {
+              TcpManager.updateService(instance);
+
+              setTimeout(function() {
+                TcpManager.emit('statusService', instance);
+              }, 2000);
+            }).catch(_handleErr)
+          }, 2000);
+        }).catch(_handleErr);
       }).catch(function(err) {
         console.log(err);
       })
@@ -211,8 +227,8 @@ var TcpSocket = function(io) {
     });
 
     client.on('disconnect', function() {
-      // removing clients listeners of TcpManager instance
-      TcpManager.emit('removeListeners');
+      // // removing clients listeners of TcpManager instance
+      // TcpManager.emit('removeListeners');
 
       // removing tcp listener
       TcpManager.removeListener('statusReceived', onStatusReceived);

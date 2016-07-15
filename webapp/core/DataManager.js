@@ -33,7 +33,7 @@ var fs = require('fs');
 var path = require('path');
 
 // Tcp
-var TcpManagerClass = require('./TcpManager');
+var TcpManager = require('./TcpManager');
 
 // data model
 var DataModel = require('./data-model');
@@ -89,8 +89,6 @@ function _processFilter(filterObject) {
 
 
 var models = null;
-
-var TcpManager = new TcpManagerClass();
 
 /**
  * Controller of the system index.
@@ -996,8 +994,6 @@ var DataManager = {
               }
             });
 
-            TcpManager.emit('removeListeners');
-
           }).catch(function(err) {
             reject(err);
           });
@@ -1104,8 +1100,6 @@ var DataManager = {
 
               }
             })
-
-            TcpManager.emit('removeListeners');
           }).catch(function(err) { });
 
           resolve(new DataModel.DataProvider(dataProvider));
@@ -1160,7 +1154,6 @@ var DataManager = {
               services.forEach(function(service) {
                 try {
                   TcpManager.emit('removeData', service, objectToSend);
-                  TcpManager.emit('removeListeners');
                 } catch (e) {
                   console.log(e);
                 }
