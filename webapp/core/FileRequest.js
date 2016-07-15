@@ -16,18 +16,8 @@ FileRequest.prototype.request = function() {
   var self = this;
   return new Promise(function(resolve, reject) {
     fs.stat(self.params[self.syntax().PATHNAME], function(err, stats) {
-      // if (err && err.code === 'ENOENT') {
-      //   return reject(new TypeError("Directory does not exists"));
-      // } else
-      // if (err) {
-      //   return reject(new TypeError("Error in file request"));
-      // }
-
-      // if (stats.isFile() || stats.isDirectory())
-      //TODO: validate
-        return resolve(true);
-      // else
-      //   return reject(new TypeError("Error in file request"));
+      //TODO: validate (local/remote)
+      return resolve(true);
     });
   });
 };
@@ -43,7 +33,11 @@ FileRequest.fields = function() {
     properties: properties,
     required: [UriPattern.PATHNAME],
     display: [
-      "*"
+      {
+        key: UriPattern.PATHNAME,
+        type: Form.Field.TEXT,
+        htmlClass: 'col-md-12'
+      }
     ]
   }
 };

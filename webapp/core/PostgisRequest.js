@@ -56,16 +56,8 @@ PostgisRequest.prototype.request = function() {
 };
 
 PostgisRequest.fields = function() {
-  return Utils.makeCommonRequestFields("POSTGIS", 5432, "database", [UriPattern.HOST, UriPattern.PORT, UriPattern.USER, "database"], [
-      UriPattern.HOST,
-      UriPattern.PORT,
-      UriPattern.USER,
-      {
-        key: UriPattern.PASSWORD,
-        type: Form.Field.PASSWORD
-      },
-      "database"
-    ]);
-}
+  return Utils.makeCommonRequestFields("POSTGIS", 5432, "database", [UriPattern.HOST, UriPattern.PORT, UriPattern.USER, "database"],
+      Utils.getCommonRequestFields().concat([{key: "database", type: Form.Field.TEXT, htmlClass: 'col-md-12'}]));
+};
 
 module.exports = PostgisRequest;
