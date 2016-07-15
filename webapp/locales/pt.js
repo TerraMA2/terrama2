@@ -133,5 +133,7 @@
 	"Port is required": "Port is required",
 	"Log username": "Log username",
 	"User is required": "User is required",
-	"Log password": "Log password"
+	"Log password": "Log password",
+	"Analysis": "Analysis",
+	"Views": "Views"
 }
