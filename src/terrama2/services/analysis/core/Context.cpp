@@ -552,15 +552,20 @@ void terrama2::services::analysis::core::Context::createOutputRaster(AnalysisHas
   try
   {
     auto rinfo = getOutputRasterInfo(dataManagerPtr, analysisHashCode);
-    //TODO: PAULO: rever se é possível usar o driver "EXPANSIBLE"
-    std::shared_ptr<te::rst::Raster> raster(te::rst::RasterFactory::make("MEM", 0, std::vector<te::rst::BandProperty*>(), rinfo));
+//    std::shared_ptr<te::rst::Raster> raster(te::rst::RasterFactory::make("MEM", 0, std::vector<te::rst::BandProperty*>(), rinfo));
+
+    te::rst::Grid* grid = nullptr;
+    std::vector<te::rst::BandProperty*> bands;
+    std::tie(grid, bands) = terrama2::services::analysis::core::getOutputRasterInfo(rinfo);
+    assert(grid);
+    std::shared_ptr<te::rst::Raster> raster(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
     outputRasterMap_[analysisHashCode] = raster;
   }
-  catch(terrama2::Exception e)
+  catch(const terrama2::Exception&)
   {
     throw;
   }
-  catch(std::exception /*e*/)
+  catch(const std::exception&)
   {
     QString errMsg = QObject::tr("Could not create output raster.");
     throw Exception() << ErrorDescription(errMsg);

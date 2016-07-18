@@ -441,6 +441,42 @@ std::map<std::string, std::string> terrama2::services::analysis::core::getOutput
   return rinfo;
 }
 
+std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> >
+terrama2::services::analysis::core::getOutputRasterInfo(std::map<std::string, std::string> rinfo)
+{
+  auto ncols = static_cast<uint>(std::stoi(rinfo["MEM_RASTER_NCOLS"]));
+  auto nrows = static_cast<uint>(std::stoi(rinfo["MEM_RASTER_NROWS"]));
+  auto srid = std::stoi(rinfo["MEM_RASTER_SRID"]);
+
+  double minx = std::stod(rinfo["MEM_RASTER_MIN_X"]);
+  double miny = std::stod(rinfo["MEM_RASTER_MIN_Y"]);
+  double maxx = std::stod(rinfo["MEM_RASTER_MAX_X"]);
+  double maxy = std::stod(rinfo["MEM_RASTER_MAX_Y"]);
+  double resx = std::stod(rinfo["MEM_RASTER_RES_X"]);
+  double resy = std::stod(rinfo["MEM_RASTER_RES_Y"]);
+
+  te::gm::Envelope* mbr = new te::gm::Envelope(minx, miny, maxx, maxy);
+
+  auto grid = new te::rst::Grid(ncols, nrows, resx, resy, mbr, srid);
+
+  std::vector<te::rst::BandProperty*> bands;
+  auto dt = std::stoi(rinfo["MEM_RASTER_DATATYPE"]);
+  std::size_t nbands = static_cast<std::size_t>(std::stoi(rinfo["MEM_RASTER_NBANDS"]));
+  for(std::size_t b = 0; b < nbands; ++b)
+  {
+    te::rst::BandProperty* ibprop = new te::rst::BandProperty(b, dt);
+
+    ibprop->m_blkh = 1;
+    ibprop->m_blkw = ncols;
+    ibprop->m_nblocksx = 1;
+    ibprop->m_nblocksy = nrows;
+
+    bands.push_back(ibprop);
+  }
+
+  return std::make_tuple(grid, bands);
+}
+
 std::shared_ptr<te::rst::Raster>
 terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Raster> inputRaster,
     std::map<std::string, std::string> outputRasterInfo,
@@ -458,11 +494,16 @@ terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Ras
     inputRasterBands.push_back(i);
   }
 
-  //TODO: PAULO: rever se é possível usar o driver "EXPANSIBLE"
-  std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("MEM", 0, std::vector<te::rst::BandProperty*>(), outputRasterInfo));
+//  std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("MEM", 0, std::vector<te::rst::BandProperty*>(), outputRasterInfo));
+
+  te::rst::Grid* grid = nullptr;
+  std::vector<te::rst::BandProperty*> bands;
+  std::tie(grid, bands) = getOutputRasterInfo(outputRasterInfo);
+  assert(grid);
+  std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
   auto ok = te::rp::RasterResample(*inputRaster, inputRasterBands, (te::rst::Interpolator::Method)method, 0, 0, oldNRows,
                                    oldNCols, rows, cols, outputRasterInfo,
-                                   "MEM" ,resampledRasterPtr);
+                                   "EXPANSIBLE" ,resampledRasterPtr);
 
   assert(ok);
 

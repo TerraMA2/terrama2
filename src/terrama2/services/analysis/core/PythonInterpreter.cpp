@@ -217,8 +217,6 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
           outputRaster->setValue(col, row, value);
       }
     }
-
-
   }
   catch(error_already_set)
   {

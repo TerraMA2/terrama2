@@ -589,7 +589,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
 void terrama2::services::analysis::core::storeGridAnalysisResult(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode)
 {
-
+//TODO:lock Datamanager
   auto errors = Context::getInstance().getErrors(analysisHashCode);
   if(!errors.empty())
     return;
