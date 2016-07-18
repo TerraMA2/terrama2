@@ -42,6 +42,29 @@ module.exports = {
     return response.json({status: code, message: err.message});
   },
 
+  getCommonRequestFields : function() {
+    return [{
+      key: UriPattern.HOST,
+      type: FormField.TEXT,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.PORT,
+      type: FormField.NUMBER,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.USER,
+      type: FormField.TEXT,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.PASSWORD,
+      type: FormField.PASSWORD,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    }]
+  },
+
   makeCommonRequestFields: function(scheme, port, exceptField, required, displayOrder) {
     var properties = {};
     properties[UriPattern.HOST] = {
@@ -363,7 +386,6 @@ module.exports = {
           console.log(e);
         }
       });
-      TcpManager.emit('removeListeners');
     });
   },
 

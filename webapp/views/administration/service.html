@@ -39,7 +39,7 @@
         <h4 class="modal-title">{[ __("Connection") ]}</h4>
       </div>
       <div class="modal-body">
-        <p>{[ __("SSH connection") ]}: <i class="fa" ng-class="{'fa-check': ssh.isValid, 'fa-times': !ssh.isValid, 'fa-spinner': ssh.isLoading}"></i></p>
+        <p>{[ __("Host connection") ]}: <i class="fa" ng-class="{'fa-check': ssh.isValid, 'fa-times': !ssh.isValid, 'fa-spinner': ssh.isLoading}"></i></p>
         <p>{[ __("Database connection") ]}: <i class="fa" ng-class="{'fa-check': db.isValid, 'fa-times': !db.isValid, 'fa-spinner': db.isLoading}"></i></p>
       </div>
       <div class="modal-footer">
@@ -59,7 +59,7 @@
             <div class="panel panel-default" ng-class="{'panel-danger': !ssh.isValid && ssh.message, 'panel-success': ssh.isValid}">
               <div class="panel-heading">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" href="#sshError">{[ __("SSH connection") ]}:</a>
+                  <a data-toggle="collapse" href="#sshError">{[ __("Host connection") ]}:</a>
                   <span ng-if="ssh.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
                   <span ng-if="!ssh.isLoading && ssh.isValid" class="glyphicon glyphicon-ok"></span>
                   <span ng-if="!ssh.isLoading && !ssh.isValid" class="glyphicon glyphicon-remove"></span>
@@ -98,7 +98,7 @@
         <terrama2-box title="'{[ __('Information') ]}'" css="css">
           <div class="row">
             <div class="col-md-12">
-              <div class="col-md-8">
+              <div class="col-md-7">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("Name") ]}:</label>
                   <input class="form-control" name="name" ng-model="service.name" placeholder="{[ __('Service  Name') ]}" type="text" required>
@@ -109,7 +109,7 @@
                 </div>
               </div>
               <!-- /.col -->
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("Type") ]}:</label>
                   <select class="form-control" name="type" ng-disabled="update" ng-model="service.service_type_id" required>
@@ -123,6 +123,16 @@
 
                 </div>
                 <!-- /.form-group -->
+              </div>
+
+              <div class="col-md-2">
+                <div class="form-group">
+                  <div class="checkbox">
+                    <label style="font-weight: 700; margin-top:19px;">
+                      <input type="checkbox" name="active" ng-model="service.isLocal" ng-init="initService(true)"> Local Service
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -139,11 +149,11 @@
 
         <terrama2-box title="'{[ __('Host') ]}'" css="css">
           <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12" ng-show="!service.isLocal">
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("Address") ]}:</label>
-                  <input class="form-control" name="host" ng-disabled="update" ng-model="service.host" placeholder="{[ __('Ssh Hostname') ]}" type="text" required>
+                  <input class="form-control" name="host" ng-model="service.host" placeholder="{[ __('Ssh Hostname') ]}" type="text" ng-required="!service.isLocal">
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.host.$dirty" ng-class="{'glyphicon-ok': serviceForm.host.$valid, 'glyphicon-remove': serviceForm.host.$invalid }"></span>
 
@@ -154,7 +164,7 @@
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("Port") ]}:</label>
-                  <input class="form-control" name="sshPort" ng-disabled="update" ng-model="service.sshPort" placeholder="{[ __('Ssh Port') ]}" type="number" min="1" max="65535" required>
+                  <input class="form-control" name="sshPort" ng-model="service.sshPort" placeholder="{[ __('Ssh Port') ]}" type="number" min="1" max="65535" ng-required="!service.isLocal">
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.sshPort.$dirty" ng-class="{'glyphicon-ok': serviceForm.sshPort.$valid, 'glyphicon-remove': serviceForm.sshPort.$invalid }"></span>
 
                   <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.required">{[ __('Ssh port is required') ]}</span>
@@ -171,7 +181,7 @@
               <div class="col-md-12">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("Service Executable Path") ]}:</label>
-                  <input class="form-control" name="path" ng-disabled="update" ng-model="service.pathToBinary" placeholder="{[ __('Script path to run') ]}" type="text" required>
+                  <input class="form-control" name="path" ng-model="service.pathToBinary" placeholder="{[ __('Script path to run') ]}" type="text" required>
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.path.$dirty" ng-class="{'glyphicon-ok': serviceForm.path.$valid, 'glyphicon-remove': serviceForm.path.$invalid }"></span>
 
@@ -184,7 +194,7 @@
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("User") ]}:</label>
-                  <input class="form-control" name="user" ng-disabled="update" ng-model="service.sshUser" placeholder="{[ __('Ssh username') ]}" type="text" required>
+                  <input class="form-control" name="user" ng-model="service.sshUser" placeholder="{[ __('Ssh username') ]}" type="text" required>
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.user.$dirty" ng-class="{'glyphicon-ok': serviceForm.user.$valid, 'glyphicon-remove': serviceForm.user.$invalid }"></span>
 

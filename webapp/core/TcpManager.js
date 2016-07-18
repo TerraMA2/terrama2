@@ -6,6 +6,9 @@ var Service = require('./Service');
 var NodeUtils = require('util');
 var EventEmitter = require('events').EventEmitter;
 var ServiceType = require('./Enums').ServiceType;
+var Process = require('./Process');
+var Executor = require('./Executor');
+var Promise = require('bluebird');
 
 
 var TcpManager = function() {
@@ -21,7 +24,7 @@ var TcpManager = function() {
   this.on('connect', this.connect);
 
   this.registered = false;
-}
+};
 
 NodeUtils.inherits(TcpManager, EventEmitter);
 
@@ -35,8 +38,8 @@ TcpManager.prototype.isRegistered = function() {
 
 
 /**
- This method prepares a bytearray to send in tcp socket.
- @param {Signals} signal - a valid terrama2 tcp signal
+ This method prepares a byte array to send in tcp socket.
+ @param {Signals} signal - a valid TerraMA2 tcp signal
  @param {Object} object - a javascript object message to send
  */
 TcpManager.prototype.makebuffer = function(signal, object) {
@@ -123,7 +126,7 @@ function _getClient(connection) {
 var logs = {
   collectors: [],
   analysis: []
-}
+};
 
 /**
  This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
@@ -178,7 +181,6 @@ TcpManager.prototype.removeData = function(serviceInstance, data) {
 /**
  This method sends a LOG_SIGNAL with bytearray to tcp socket. It is async
  @param {ServiceInstance} serviceInstance - a terrama2 service instance
- @param {ServiceType} serviceType - a terrama2 service type
  @param {Object} data - a javascript object message to send
  */
 TcpManager.prototype.logData = function(serviceInstance, data) {
@@ -261,23 +263,30 @@ TcpManager.prototype.updateService = function(serviceInstance) {
 TcpManager.prototype.startService = function(serviceInstance) {
   var self = this;
 
-  // ssh structure
-  var ssh = new SSH();
+  return new Promise(function(resolve, reject) {
+    var instance = new Process();
+    if (serviceInstance.host && serviceInstance.host !== "") {
+      instance.setAdapter(new SSH());
+    } else {
+      instance.setAdapter(new Executor());
+    }
 
-  ssh.connect(serviceInstance).then(function() {
-
-    ssh.startService().then(function(code) {
-      self.emit("serviceStarted", serviceInstance);
-    }).catch(function(err, errCode) {
-      self.emit('error', serviceInstance, err);
-    }).finally(function() {
-      ssh.disconnect();
+    instance.connect(serviceInstance).then(function() {
+      instance.startService().then(function(code) {
+        // self.emit("serviceStarted", serviceInstance);
+        resolve();
+      }).catch(function(err) {
+        // self.emit('error', serviceInstance, err);
+        reject(err);
+      }).finally(function() {
+        instance.disconnect();
+      })
+    }).catch(function(err) {
+      console.log('ssh startservice error')
+      console.log(err);
+      reject(err);
+      // self.emit("error", serviceInstance, err);
     });
-
-  }).catch(function(err) {
-    console.log('ssh startservice error')
-    console.log(err);
-    self.emit("error", serviceInstance, err);
   });
 };
 
@@ -309,21 +318,25 @@ TcpManager.prototype.statusService = function(serviceInstance) {
 
 TcpManager.prototype.connect = function(serviceInstance) {
   var self = this;
-  try {
-    var client = _getClient(serviceInstance);
+  return new Promise(function(resolve, reject) {
+    try {
+      var client = _getClient(serviceInstance);
 
-    client.connect().then(function() {
-      // preparing socket listeners
-      self.initialize(client);
+      client.connect().then(function() {
+        // preparing socket listeners
+        self.initialize(client);
 
-    }).catch(function(err) {
-      console.log(err)
-    }).finally(function() {
-      self.emit('serviceConnected', serviceInstance);
-    })
-  } catch (e) {
-    this.emit("error", serviceInstance, e);
-  }
+      }).catch(function(err) {
+        console.log(err)
+      }).finally(function() {
+        resolve()
+        // self.emit('serviceConnected', serviceInstance);
+      })
+    } catch (e) {
+      reject(e);
+      // this.emit("error", serviceInstance, e);
+    }
+  });
 };
 
 TcpManager.prototype.getService = function(serviceInstance) {
@@ -456,4 +469,4 @@ TcpManager.prototype.disconnect = function() {
   }
 };
 
-module.exports = TcpManager;
+module.exports = new TcpManager();

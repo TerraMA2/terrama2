@@ -714,6 +714,11 @@ angular.module('terrama2.dataseries.registration', [
             })
           });
 
+          if (!$scope.isUpdating)
+            if ($scope.dataProviders.length > 0) {
+              $scope.dataSeries.data_provider_id = $scope.dataProviders[0].id.toString();
+            }
+
           $scope.tableFields = [];
           // building table fields. Check if form is for all ('*')
           if (data.metadata.form.indexOf('*') != -1) {
@@ -845,7 +850,7 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.save = function() {
-        $scope.$broadcast('formFieldValidation');1
+        $scope.$broadcast('formFieldValidation');
         if($scope.forms.generalDataForm.$invalid) {
           return;
         }

@@ -48,8 +48,8 @@ var Service = module.exports = function(serviceInstance) {
   var callbackSuccess = null;
   var callbackError = null;
 
-  self.writeData = function(buffer, timeout, timeoutCallback) {
-    self.socket.write(buffer);
+  self.writeData = function(buffer, timeout, timeoutCallback, writeCallback) {
+    self.socket.write(buffer, writeCallback || function() {});
 
     if (timeout) {
       timeoutCallback = timeoutCallback || function() { };
@@ -163,7 +163,9 @@ var Service = module.exports = function(serviceInstance) {
       return;
     }
 
-    self.writeData(buffer);
+    self.writeData(buffer, null, null, function() {
+      console.log("Sent all");
+    });
   };
 
   self.stop = function(buffer) {

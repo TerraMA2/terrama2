@@ -55,9 +55,7 @@ angular.module('terrama2.analysis.registration', [
     $scope.schedule = {};
     $scope.isFrequency = false;
     $scope.isSchedule = false;
-    $scope.scheduleOptions = {
-
-    }
+    $scope.scheduleOptions = {};
 
     $scope.onScriptChanged = function(editor) {
       $scope.analysis.script = editor.getSession().getDocument().getValue();
@@ -152,7 +150,6 @@ angular.module('terrama2.analysis.registration', [
         default:
           console.log("invalid analysis type");
           return;
-          break;
       }
 
       $scope.onTargetDataSeriesChange = function() {

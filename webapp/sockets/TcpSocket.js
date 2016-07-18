@@ -15,7 +15,7 @@ var TcpSocket = function(io) {
   var iosocket = io.sockets;
 
   // TcpManager
-  var TcpManagerClass = require('./../core/TcpManager');
+  var TcpManager = require('./../core/TcpManager');
 
   // TerraMA2 Utils
   var Utils = require('./../core/Utils');
@@ -29,7 +29,6 @@ var TcpSocket = function(io) {
   // Socket connection event
   iosocket.on('connection', function(client) {
 
-    var TcpManager = new TcpManagerClass();
     console.log("NEW socket.io CONNECTION");
 
     var onServiceStarted = function(service) {
@@ -64,6 +63,7 @@ var TcpSocket = function(io) {
       client.emit('statusResponse', {
         status: 200,
         service: service.id,
+        loading: false,
         online: Object.keys(response).length > 0
       });
     };
@@ -81,6 +81,7 @@ var TcpSocket = function(io) {
       client.emit('stopResponse', {
         status: 200,
         online: false,
+        loading: false,
         service: service.id
       })
     };
@@ -90,6 +91,7 @@ var TcpSocket = function(io) {
       client.emit('closeResponse', {
         status: 400,
         service: service.id,
+        loading: false,
         online: false
       })
     };
@@ -131,8 +133,33 @@ var TcpSocket = function(io) {
     // client listeners
     client.on('start', function(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
+        var _handleErr = function(err) {
+          client.emit('errorResponse', {
+            status: 400,
+            message: err.toString(),
+            service: instance ? instance.id : 0
+          });
+        };
         dataSentFlags[instance.id] = { id: instance.id, isDataSent: false };
-        TcpManager.emit('startService', instance);
+
+        // notify every one with loading
+        iosocket.emit('statusResponse', {
+          status: 200,
+          loading: true,
+          service: instance.id
+        });
+
+        TcpManager.startService(instance).then(function() {
+          setTimeout(function() {
+            TcpManager.connect(instance).then(function() {
+              TcpManager.updateService(instance);
+
+              setTimeout(function() {
+                TcpManager.emit('statusService', instance);
+              }, 2000);
+            }).catch(_handleErr)
+          }, 2000);
+        }).catch(_handleErr);
       }).catch(function(err) {
         console.log(err);
       })
@@ -141,12 +168,21 @@ var TcpSocket = function(io) {
 
     client.on('status', function(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
+        // notify every one with loading
+        iosocket.emit('statusResponse', {
+          status: 200,
+          loading: true,
+          online: false,
+          service: instance.id
+        });
+
         TcpManager.emit('statusService', instance);
       }).catch(function(err) {
         console.log(err);
         client.emit('statusResponse', {
           status: 400,
           online: false,
+          loading: false,
           service: json.service
         })
       });
@@ -155,6 +191,13 @@ var TcpSocket = function(io) {
 
     client.on('stop', function(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
+        iosocket.emit('stopResponse', {
+          status: 200,
+          loading: true,
+          online: true,
+          service: instance.id
+        });
+
         TcpManager.emit('stopService', instance);
       }).catch(function(err) {
         console.log(err);
@@ -176,7 +219,7 @@ var TcpSocket = function(io) {
           status: 400,
           message: err.toString()
         })
-      }
+      };
 
       DataManager.listServiceInstances().then(function(services) {
         DataManager.listAnalyses().then(function(analysisList) {
@@ -211,8 +254,8 @@ var TcpSocket = function(io) {
     });
 
     client.on('disconnect', function() {
-      // removing clients listeners of TcpManager instance
-      TcpManager.emit('removeListeners');
+      // // removing clients listeners of TcpManager instance
+      // TcpManager.emit('removeListeners');
 
       // removing tcp listener
       TcpManager.removeListener('statusReceived', onStatusReceived);

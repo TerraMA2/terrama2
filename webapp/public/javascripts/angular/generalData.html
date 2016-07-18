@@ -36,7 +36,10 @@
     <div class="col-md-7">
       <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Data Provider') }}:</label>
-        <select class="form-control" name="data_provider_id" ng-model="dataSeries.data_provider_id" ng-change="changeDataProvider()" required>
+        <select class="form-control"
+                name="data_provider_id"
+                ng-model="dataSeries.data_provider_id"
+                ng-change="changeDataProvider()" required>
           <option ng-repeat="provider in dataProviders" value="{{ provider.id }}">{{ provider.name }}</option>
         </select>
 

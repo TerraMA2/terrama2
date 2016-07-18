@@ -4,6 +4,15 @@
 
 {% block title %} TerraMA² {[ __("Data Provider Registration") ]} {% endblock %}
 
+{% block styles %}
+<style>
+  .has-feedback label~.form-control-feedback {
+    top: 25px !important;
+    margin-right: 20px !important;
+  }
+</style>
+{% endblock %}
+
 {% block ngApp %} ng-app="terrama2.dataprovider.registration" {% endblock %}
 
 {% block javascripts %}
@@ -88,19 +97,18 @@
         </div>
       </form>
 
-        <div class="col-md-12">
-          <div class="form-group">
-            <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
-          </div>
+      <terrama2-box title="'{[ __('Host') ]}'" css="css" ng-show="dataProvider.protocol && dataProvider.protocol !== ''">
+        <div class="row">
+          <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
         </div>
-        <!-- /.col -->
+      </terrama2-box>
     </div>
     <!-- /.row -->
 
     <div class="box-footer">
       <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __("OK") ]}</button>
       <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
-      <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection(connectionForm);" style="margin-left: 10px;">{[ __("Check Connection")]}</button>
+      <button type="submit" class="btn btn-primary pull-right" ng-click="checkConnection(forms.connectionForm);" style="margin-left: 10px;">{[ __("Check Connection")]}</button>
     </div>
 
     <div class="overlay" ng-show="isChecking">
