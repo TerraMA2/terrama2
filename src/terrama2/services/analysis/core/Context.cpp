@@ -552,6 +552,7 @@ void terrama2::services::analysis::core::Context::createOutputRaster(AnalysisHas
   try
   {
     auto rinfo = getOutputRasterInfo(dataManagerPtr, analysisHashCode);
+    //TODO: PAULO: rever se é possível usar o driver "EXPANSIBLE"
     std::shared_ptr<te::rst::Raster> raster(te::rst::RasterFactory::make("MEM", 0, std::vector<te::rst::BandProperty*>(), rinfo));
     outputRasterMap_[analysisHashCode] = raster;
   }

@@ -131,8 +131,15 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
+      // Tranform the coordinate from the output srid to the  source srid
+      // so we can get the row and column of the source data.
+      te::gm::Point point(te::gm::PointType, grid->getSRID());
+      point.setX(coord.getX());
+      point.setY(coord.getY());
+      point.transform(dsGrid->getSRID());
+
       double column, row;
-      dsGrid->geoToGrid(coord.getX(), coord.getY(), column, row);
+      dsGrid->geoToGrid(point.getX(), point.getY(), column, row);
 
       if(!grid->isPointInGrid(column, row))
       {

@@ -641,7 +641,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(DataManagerPtr 
   std::vector<te::rst::BandProperty*> bprops;
   bprops.push_back(new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE));
 
-  te::rst::RasterProperty* rstp = new te::rst::RasterProperty(grid, bprops, rinfo);
+  te::rst::RasterProperty* rstp = new te::rst::RasterProperty(new te::rst::Grid(*grid), bprops, rinfo);
   te::da::DataSetType* dt = new te::da::DataSetType("test.tif");
 
   dt->add(rstp);
@@ -653,6 +653,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(DataManagerPtr 
 
   te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
   std::size_t rpos = te::da::GetFirstPropertyPos(ds.get(), te::dt::RASTER_TYPE);
+
   dsItem->setRaster(rpos, dynamic_cast<te::rst::Raster*>(raster->clone()));
   ds->add(dsItem);
 

@@ -100,26 +100,26 @@ int main(int argc, char* argv[])
     // Data Series 1
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    terrama2::core::DataSeries* dataSeries1 = new terrama2::core::DataSeries();
-//    terrama2::core::DataSeriesPtr dataSeries1Ptr(dataSeries1);
-//    dataSeries1->semantics = semanticsManager.getSemantics("GRID-geotiff");
-//    dataSeries1->name = "geotiff 1";
-//    dataSeries1->id = 1;
-//    dataSeries1->dataProviderId = 1;
+    terrama2::core::DataSeries* dataSeries1 = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeries1Ptr(dataSeries1);
+    dataSeries1->semantics = semanticsManager.getSemantics("GRID-geotiff");
+    dataSeries1->name = "geotiff 1";
+    dataSeries1->id = 1;
+    dataSeries1->dataProviderId = 1;
 
-//    terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
-//    dataSet1->active = true;
-//    dataSet1->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+    terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
+    dataSet1->active = true;
+    dataSet1->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
-//    dataSeries1->datasetList.emplace_back(dataSet1);
+    dataSeries1->datasetList.emplace_back(dataSet1);
 
-//    AnalysisDataSeries gridADS1;
-//    gridADS1.id = 1;
-//    gridADS1.dataSeriesId = dataSeries1Ptr->id;
-//    gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
+    AnalysisDataSeries gridADS1;
+    gridADS1.id = 1;
+    gridADS1.dataSeriesId = dataSeries1Ptr->id;
+    gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-//    dataManager->add(dataSeries1Ptr);
+    dataManager->add(dataSeries1Ptr);
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
 
     analysis->id = 1;
     analysis->name = "Grid Sample";
-    analysis->script = "return grid.sample(\"geotiff 2\")";
+    analysis->script = "return 255 - grid.sample(\"geotiff 2\")";
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = false;
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
-//    analysisDataSeriesList.push_back(gridADS1);
+    analysisDataSeriesList.push_back(gridADS1);
     analysisDataSeriesList.push_back(gridADS2);
     // analysisDataSeriesList.push_back(gridADS3);
     // analysisDataSeriesList.push_back(gridADS4);
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
     outputGrid->analysisId = 1;
     outputGrid->interpolationMethod = InterpolationMethod::BICUBIC;
     outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
-    outputGrid->interestAreaDataSeriesId = 2;
+    outputGrid->interestAreaDataSeriesId = 1;
     outputGrid->resolutionType = ResolutionType::BIGGEST_GRID;
 
     analysis->outputGridPtr = outputGridPtr;

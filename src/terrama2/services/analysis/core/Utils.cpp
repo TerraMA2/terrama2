@@ -446,32 +446,25 @@ terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Ras
     std::map<std::string, std::string> outputRasterInfo,
     InterpolationMethod method)
 {
-  int resX = std::stoi(outputRasterInfo["MEM_RASTER_RES_X"]);
-  int resY = std::stoi(outputRasterInfo["MEM_RASTER_RES_Y"]);
-  int srid = std::stoi(outputRasterInfo["MEM_RASTER_SRID"]);
-  double llx = std::stof(outputRasterInfo["MEM_RASTER_MIN_X"]);
-  double lly = std::stof(outputRasterInfo["MEM_RASTER_MIN_Y"]);
-  double urx = std::stof(outputRasterInfo["MEM_RASTER_MAX_X"]);
-  double ury = std::stof(outputRasterInfo["MEM_RASTER_MAX_Y"]);
+  auto oldNRows = inputRaster->getNumberOfRows();
+  auto oldNCols = inputRaster->getNumberOfColumns();
 
-  // std::shared_ptr<te::rst::Raster> reprojectedRaster(te::rst::Reproject(inputRaster.get(), srid, llx, lly, urx, ury,
-  //     resX, resY, outputRasterInfo, (int)method));
-
-  std::shared_ptr<te::gm::Envelope> box(inputRaster->getExtent());
-  auto oldNRows = (unsigned int)std::abs(std::ceil((box->getUpperRightY() - box->getLowerLeftY()) / resY));
-  auto oldNCols = (unsigned int)std::abs(std::ceil((box->getUpperRightX() - box->getLowerLeftX()) / resX));
-
-  int rows = std::stoi(outputRasterInfo["MEM_RASTER_NROWS"]);
-  int cols = std::stoi(outputRasterInfo["MEM_RASTER_NCOLS"]);
+  unsigned int rows = static_cast<unsigned int>(std::stoi(outputRasterInfo["MEM_RASTER_NROWS"]));
+  unsigned int cols = static_cast<unsigned int>(std::stoi(outputRasterInfo["MEM_RASTER_NCOLS"]));
 
   std::vector< unsigned int > inputRasterBands;
+  for(unsigned int i = 0; i < inputRaster->getNumberOfBands(); ++i)
+  {
+    inputRasterBands.push_back(i);
+  }
 
-
-//  std::auto_ptr< te::rst::Raster > resampledRasterPtr(new te::mem::Raster());
+  //TODO: PAULO: rever se é possível usar o driver "EXPANSIBLE"
   std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("MEM", 0, std::vector<te::rst::BandProperty*>(), outputRasterInfo));
   auto ok = te::rp::RasterResample(*inputRaster, inputRasterBands, (te::rst::Interpolator::Method)method, 0, 0, oldNRows,
                                    oldNCols, rows, cols, outputRasterInfo,
                                    "MEM" ,resampledRasterPtr);
+
+  assert(ok);
 
   return std::shared_ptr<te::rst::Raster>(resampledRasterPtr.release());
 }
