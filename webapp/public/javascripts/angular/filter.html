@@ -9,48 +9,8 @@
       </ul>
       <div class="tab-content">
         <div class="tab-pane active" id="filterDateTab">
-          <div class="col-md-12">
-            <p></p>
-            <div class='col-md-6'>
-              <div class="form-group">
-                <label>{{ i18n.__('Ignores data previous to') }}:</label>
-                <div class="dropdown dropup">
-                  <a class="dropdown-toggle" id="dropdownBeforeDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2" ng-disabled="isUpdating">
-                    <div class="input-group">
-                      <input type="text" class="form-control" data-date-time-input="YYYY-MM-DD HH:mm" data-ng-model="filter.date.beforeDate">
-
-                      <span class="input-group-addon">
-                        <i class="glyphicon glyphicon-calendar"></i>
-                      </span>
-                    </div>
-                  </a>
-                  <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel">
-                    <datetimepicker data-ng-model="filter.date.beforeDate" data-datetimepicker-config="{ dropdownSelector: '#dropdownBeforeDate' }" data-before-render="beforeRenderStartDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div class='col-md-6'>
-              <div class="form-group">
-                <label>{{ i18n.__('Ignores data after') }}:</label>
-                <div class="dropdown dropup">
-                  <a class="dropdown-toggle" id="dropdownAfterDate" role="button" data-toggle="dropdown" data-target="#" href="#dropdown2">
-                    <div class="input-group">
-                      <input type="text" class="form-control" data-date-time-input="YYYY-MM-DD hh:mm" data-ng-model="filter.date.afterDate">
-
-                      <span class="input-group-addon">
-                        <i class="glyphicon glyphicon-calendar"></i>
-                      </span>
-                    </div>
-                  </a>
-                  <ul class="dropdown-menu dropup" role="menu" aria-labelledby="dLabel" >
-                    <datetimepicker data-ng-model="filter.date.afterDate" data-datetimepicker-config="{ dropdownSelector: '#dropdownAfterDate' }" data-before-render="beforeRenderEndDate($view, $dates, $leftDate, $upDate, $rightDate)"/>
-                  </ul>
-                </div>
-              </div>
-              <!-- ./form-group -->
-            </div>
-            <!-- ./col-md-6 -->
+          <div class="col-md-12" style="padding-top: 20px">
+            <terrama2-filter-datetime-picker before-datetime="filter.date.beforeDate" after-datetime="filter.date.afterDate"></terrama2-filter-datetime-picker>
           </div>
         </div>
         <div class="tab-pane" id="filterAreaTab">

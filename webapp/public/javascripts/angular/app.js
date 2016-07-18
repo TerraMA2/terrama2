@@ -185,7 +185,7 @@ terrama2Application.directive('terrama2BoxFooter', function() {
       });
     }
   }
-})
+});
 
 terrama2Application.directive('terrama2Form', function() {
   return {
@@ -216,4 +216,53 @@ terrama2Application.directive('terrama2BoxOverlay', function() {
     transclude: true,
     template: '<div class="overlay" ng-show="isChecking"><i class="fa fa-refresh fa-spin"></i></div>'
   }
+});
+
+terrama2Application.directive('terrama2Datetime', function($timeout) {
+  return {
+    restrict: 'A',
+    require : 'ngModel',
+    link: function(scope, element, attrs, ngModelCtrl) {
+      var options = angular.extend({}, options, scope.$eval(attrs.options));
+      scope.options = options;
+
+      // Watchers
+      scope.$watch('options', function (newValue) {
+        var data = element.data('DateTimePicker');
+        $.map(newValue, function (value, key) {
+          data[key](value);
+        });
+      });
+
+      ngModelCtrl.$render = function () {
+        if (!!ngModelCtrl.$viewValue) {
+          element.data('DateTimePicker').date(ngModelCtrl.$viewValue);
+        } else {
+          element.data('DateTimePicker').date(null);
+        }
+      };
+
+      // Digesting scope
+      element.on('dp.change', function (e) {
+        $timeout(function () {
+          if (!!e.date) {
+            scope.$apply(function () {
+              ngModelCtrl.$setViewValue(e.date);
+            });
+          }
+        });
+      });
+
+      element.datetimepicker(options);
+
+      $timeout(function () {
+        if (!!ngModelCtrl.$viewValue) {
+          if (!(ngModelCtrl.$viewValue instanceof moment)) {
+            ngModelCtrl.$setViewValue(moment(scope.date));
+          }
+          element.data('DateTimePicker').date(ngModelCtrl.$viewValue);
+        }
+      });
+    }
+  };
 });
