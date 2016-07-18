@@ -33,7 +33,7 @@ var fs = require('fs');
 var path = require('path');
 
 // Tcp
-var TcpManagerClass = require('./TcpManager');
+var TcpManager = require('./TcpManager');
 
 // data model
 var DataModel = require('./data-model');
@@ -89,8 +89,6 @@ function _processFilter(filterObject) {
 
 
 var models = null;
-
-var TcpManager = new TcpManagerClass();
 
 /**
  * Controller of the system index.
@@ -160,6 +158,35 @@ var DataManager = {
         // services type
         inserts.push(models.db.ServiceType.create({name: "COLLECT"}));
         inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
+
+        // default services
+        var collectorService = {
+          name: "Local Collector",
+          description: "Local service for Collect",
+          host: "127.0.0.1",
+          port: 10000,
+          sshUser: "terrama2",
+          sshPort: 22,
+          pathToBinary: "terrama2_servce",
+          numberOfThreads: 0,
+          service_type_id: Enums.ServiceType.COLLECTOR,
+          log: {
+            host: "127.0.0.1",
+            port: 5432,
+            user: "postgres",
+            password: "postgres",
+            database: "nodejs" // TODO: change it
+          }
+        };
+
+        var analysisService = Object.assign({}, collectorService);
+        analysisService.name = "Local Analysis";
+        analysisService.description = "Local service for Analysis";
+        analysisService.port = 10001;
+        analysisService.service_type_id = Enums.ServiceType.ANALYSIS;
+
+        inserts.push(self.addServiceInstance(collectorService));
+        inserts.push(self.addServiceInstance(analysisService));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -720,7 +747,7 @@ var DataManager = {
           port: serviceObject.port,
           numberOfThreads: serviceObject.numberOfThreads
         }, {
-          fields: ['name', 'description', 'port', 'numberOfThreads', 'runEnviroment'],
+          fields: ['name', 'description', 'port', 'numberOfThreads', 'runEnviroment', 'host', 'sshUser', 'sshPort', 'pathToBinary'],
           where: {
             id: serviceId
           }
@@ -967,8 +994,6 @@ var DataManager = {
               }
             });
 
-            TcpManager.emit('removeListeners');
-
           }).catch(function(err) {
             reject(err);
           });
@@ -1075,8 +1100,6 @@ var DataManager = {
 
               }
             })
-
-            TcpManager.emit('removeListeners');
           }).catch(function(err) { });
 
           resolve(new DataModel.DataProvider(dataProvider));
@@ -1131,7 +1154,6 @@ var DataManager = {
               services.forEach(function(service) {
                 try {
                   TcpManager.emit('removeData', service, objectToSend);
-                  TcpManager.emit('removeListeners');
                 } catch (e) {
                   console.log(e);
                 }

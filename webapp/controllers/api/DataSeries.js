@@ -1,5 +1,5 @@
 var DataManager = require("../../core/DataManager");
-var TcpManagerClass = require('../../core/TcpManager');
+var TcpManager = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var DataSeriesType = require('./../../core/Enums').DataSeriesType;
@@ -9,8 +9,6 @@ var passport = require('./../../config/Passport');
 var _ = require('lodash');
 
 module.exports = function(app) {
-  var TcpManager = new TcpManagerClass();
-
   return {
     post: function(request, response) {
       var dataSeriesObject = request.body.dataSeries;
@@ -48,7 +46,6 @@ module.exports = function(app) {
                   console.log("Error during send data each service: ", e);
                 }
               });
-              TcpManager.emit('removeListeners');
 
               var token = Utils.generateToken(app, TokenCode.SAVE, collectorResult.output.name);
               return response.json({status: 200, output: output, token: token});
@@ -77,7 +74,6 @@ module.exports = function(app) {
                 console.log("Error during send data each service: ", e);
               }
             });
-            TcpManager.emit('removeListeners');
 
             var token = Utils.generateToken(app, TokenCode.SAVE, dataSeriesResult.name);
             return response.json({status: 200, output: output, token: token});
@@ -277,7 +273,6 @@ module.exports = function(app) {
                         console.log(e);
                       }
                     });
-                    TcpManager.emit('removeListeners');
 
                     return response.json({status: 200, name: dataSeriesResult.name});
                   }).catch(function(err) {
@@ -308,7 +303,6 @@ module.exports = function(app) {
                     console.log(e);
                   }
                 });
-                TcpManager.emit('removeListeners');
 
                 response.json({status: 200, name: dataSeriesResult.name});
               }).catch(function(err) {

@@ -8,6 +8,9 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   $scope.model = configuration.dataProvider.uriObject || {};
 
   $scope.forms = {};
+  $scope.css = {
+    boxType: "box-solid"
+  }
 
   if (configuration.fields) {
     $scope.schema = {

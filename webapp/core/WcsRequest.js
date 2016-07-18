@@ -38,16 +38,8 @@ WcsRequest.prototype.request = function() {
 };
 
 WcsRequest.fields = function() {
-  return Utils.makeCommonRequestFields("WCS", 80, null, [UriPattern.HOST, UriPattern.PORT], [
-    UriPattern.HOST,
-    UriPattern.PORT,
-    UriPattern.USER,
-    {
-      key: UriPattern.PASSWORD,
-      type: Form.Field.PASSWORD
-    },
-    UriPattern.PATHNAME
-  ])
+  return Utils.makeCommonRequestFields("WCS", 80, null, [UriPattern.HOST, UriPattern.PORT],
+      Utils.getCommonRequestFields().concat([{key: UriPattern.PATHNAME, type: Form.Field.TEXT, htmlClass: 'col-md-12'}]))
 };
 
 

@@ -91,6 +91,20 @@ util.inherits(errors.DataSetError, errors.BaseError);
 
 
 /**
+ * Thrown when Service object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.ServiceError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'ServiceError';
+};
+util.inherits(errors.ServiceError, errors.BaseError);
+
+
+/**
  * Thrown when Project object has inconsistent data.
  *
  * @param {string} message Error message

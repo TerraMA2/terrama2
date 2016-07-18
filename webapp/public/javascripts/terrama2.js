@@ -1,45 +1,6 @@
 $(document).ready(function(){
   var socket = io(window.location.origin);
 
-  socket.on('checkPythonScriptResponse', function(result) {
-    $('#checkAnalysisScript > .loading').css('display', 'none');
-    $('#checkAnalysisScript > .text').css('display', '');
-
-    $('#checkAnalysisScript').removeAttr('disabled');
-    $('#analysisSaveButton').removeAttr('disabled');
-    $('#analysisCancelButton').removeAttr('disabled');
-    $('#analysisCancelButton').css('pointer-events', '');
-
-    if(result.hasError || result.hasPythonError) {
-      if(result.hasError) {
-        $('#systemError').text(result.systemError);
-        $('#systemError').css('display', '');
-      } else {
-        $('#systemError').css('display', 'none');
-      }
-
-      // $('#analysisSaveButton').attr('disabled', 'disabled');
-    } else {
-      $('#systemError').css('display', 'none');
-    }
-
-    $('#analysisSaveButton').removeAttr('disabled');
-
-    $('#scriptCheckResult').text(result.messages);
-  });
-
-  $('#checkAnalysisScript').on('click', function() {
-    $('#checkAnalysisScript').attr('disabled', 'disabled');
-    $('#analysisSaveButton').attr('disabled', 'disabled');
-    $('#analysisCancelButton').attr('disabled', 'disabled');
-    $('#analysisCancelButton').css('pointer-events', 'none');
-
-    $('#checkAnalysisScript > .text').css('display', 'none');
-    $('#checkAnalysisScript > .loading').css('display', '');
-
-    socket.emit('checkPythonScriptRequest', { script: $('textarea[name="script"]').val() });
-  });
-
   socket.on('testSSHConnectionResponse', function(result) {
     if(result.error) {
       if($('#sshModal').hasClass('modal-success')) $('#sshModal').removeClass('modal-success');

@@ -1,13 +1,10 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
-var TcpManagerClass = require("../../core/TcpManager");
-var passport = require('./../../config/Passport');
+var TcpManager = require("../../core/TcpManager");
 
 
 module.exports = function(app) {
-  var TcpManager = new TcpManagerClass();
-
   return {
     get: function(request, response) {
       var analysisId = request.params.id;
@@ -68,8 +65,6 @@ module.exports = function(app) {
                 console.log(e);
               }
             });
-
-            TcpManager.emit('removeListeners');
 
             console.log(JSON.stringify({
               "DataSeries": [analysisResult.dataSeries.toObject()],
@@ -139,7 +134,6 @@ module.exports = function(app) {
                 try {
                   TcpManager.emit('removeData', service, objectToSend);
 
-                  TcpManager.emit('removeListeners');
                 } catch (e) {
                   console.log(e);
                 }
