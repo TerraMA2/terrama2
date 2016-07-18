@@ -57,6 +57,8 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
 
     AnalysisPtr analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
 
+    //FIXME: PAULO: This is beeing called to many times, can this be avoided?
+    // ps: O(n) processing time to get the name, if the id would be used O(c) can be achieved
     auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
     if(!dataSeries)
@@ -136,6 +138,10 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       te::gm::Point point(te::gm::PointType, grid->getSRID());
       point.setX(coord.getX());
       point.setY(coord.getY());
+      //FIXME: PAULO: This a VERY cost operation, every raster's grid should be in the same srid before this, so it's never called
+
+      // ps: instantiate a map of transformations from output raster to source raster?
+      // this woud cut the cost of creating a transformation matrix every time
       point.transform(dsGrid->getSRID());
 
       double column, row;
