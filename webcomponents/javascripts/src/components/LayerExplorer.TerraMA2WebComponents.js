@@ -102,6 +102,20 @@ define(
     };
 
     /**
+     * Removes a layer with a given id from the LayerExplorer and calls the removeLayer method of the MapDisplay.
+     * @param {string} layerId - Layer id
+     * @param {string|undefined} parentGroupId - Parent group id
+     *
+     * @function removeLayer
+     * @memberof LayerExplorer
+     * @inner
+     */
+    var removeLayer = function(layerId, parentGroupId) {
+      $('#' + layerId.replace(':', '')).remove();
+      memberMapDisplay.removeLayer(layerId, parentGroupId);
+    };
+
+    /**
      * Builds a layer or a layer group with data from the map.
      * @param {ol.layer} layer - Layer or layers group to be used in the layer explorer
      * @param {string} parent - Parent id
@@ -248,6 +262,7 @@ define(
     return {
       getSelectedLayer: getSelectedLayer,
       addLayersFromMap: addLayersFromMap,
+      removeLayer: removeLayer,
       init: init
     };
   }
