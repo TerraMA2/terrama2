@@ -27,9 +27,6 @@
   \author Vinicius Campanha
 */
 
-// VINICIUS: remove
-#include "ViewStyle.hpp"
-
 // STL
 #include <cmath>
 #include <algorithm>
@@ -164,8 +161,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
             else
               rasterLayer->setSRID(std::stoi(dataset->format.at("srid")));
 
-            // VINICIUS: Set Style
-            MONO_0_Style(rasterLayer);
+            rasterLayer->setStyle(viewPtr->stylesPerDataSeries.at(dataSeriesId)->clone());
 
             layersList.push_back(rasterLayer);
           }

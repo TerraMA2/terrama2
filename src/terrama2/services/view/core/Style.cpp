@@ -152,7 +152,7 @@ te::se::Style* FeatureTypeStyleReader(te::xml::Reader& reader)
         reader.getElementLocalName() == "Rule")
     fts->push_back(te::se::serialize::ReadRule(reader));
 
-//  assert(reader.getNodeType() == te::xml::END_ELEMENT);
+  assert(reader.getNodeType() == te::xml::END_DOCUMENT);
   assert(reader.getElementLocalName() == "FeatureTypeStyle");
 
   reader.next();
