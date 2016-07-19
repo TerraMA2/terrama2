@@ -202,7 +202,7 @@ te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType)
     case te::gm::MultiSurfaceZMType:
     {
       te::se::Fill* fill = CreateFill("#5e5eeb", "100");
-      te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+      te::se::Stroke* stroke = CreateStroke("#FFFF00", "1", "", "", "", "");
       te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
       symbolizer->setFill(fill);
       symbolizer->setStroke(stroke);
