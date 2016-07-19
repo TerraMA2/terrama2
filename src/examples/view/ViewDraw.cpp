@@ -369,11 +369,11 @@ int main(int argc, char** argv)
     view->filtersPerDataSeries.emplace(2, filter);
     view->filtersPerDataSeries.emplace(3, filter);
 
-    view->stylesPerDataSeries.emplace(1, RGB_012_RGB_Contrast_Style());
+    view->stylesPerDataSeries.emplace(1, std::unique_ptr<te::se::Style>(RGB_012_RGB_Contrast_Style()));
 
-    view->stylesPerDataSeries.emplace(2, CreateFeatureTypeStyle(te::gm::PolygonType));
+    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
 
-    view->stylesPerDataSeries.emplace(3, CreateFeatureTypeStyle(te::gm::LineStringType));
+    view->stylesPerDataSeries.emplace(3, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::LineStringType)));
 
     dataManager->add(viewPtr);
 
