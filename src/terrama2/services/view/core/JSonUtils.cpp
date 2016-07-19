@@ -35,13 +35,20 @@
 
 // Terralib
 #include <terralib/se/Style.h>
+#include <terralib/xml/ReaderFactory.h>
 #include <terralib/xml/AbstractWriterFactory.h>
-#include <terralib/se/serialization/xml/Style.h>
+
+// TODO: Enable this when Terralib release fix for style serialization
+//#include <terralib/se/serialization/xml/Style.h>
+// TODO: Remove this when Terralib release fix for style serialization
+#include "Style.h"
+
 
 // Qt
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QObject>
+#include <QTemporaryFile>
 
 terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromViewJson(QJsonObject json)
 {
@@ -101,16 +108,43 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
       view->filtersPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), terrama2::core::fromFilterJson(json["dataset_series_filter"].toObject()));
     }
   }
-/*
+
   {
     auto datasetSeriesArray = json["styles_per_data_series"].toArray();
     auto it = datasetSeriesArray.begin();
     for(; it != datasetSeriesArray.end(); ++it)
     {
       auto obj = (*it).toObject();
-      view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), fromViewStyleJson(json["dataset_series_view_style"].toObject()));
+
+      QTemporaryFile file;
+
+      if(!file.open())
+      {
+        QString errMsg = QObject::tr("Could not load the XML file!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      file.write(obj["dataset_series_view_style"].toString().toStdString().c_str());
+      file.flush();
+
+      std::unique_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
+      reader->setValidationScheme(false);
+
+      reader->read(file.fileName().toStdString());
+
+      if(!reader->next())
+      {
+        QString errMsg = QObject::tr("Could not read the XML file!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      te::se::Style* style(te::se::serialize::Style::getInstance().read(*reader.get()));
+
+      view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), style);
     }
-  }*/
+  }
 
   return viewPtr;
 }
@@ -158,14 +192,29 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
     {
       QJsonObject datasetSeriesAndStyle;
       datasetSeriesAndStyle.insert("dataset_series_id", static_cast<int32_t>(it.first));
-      std::auto_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
-      writer->setRootNamespaceURI("/home/vinicius/file.xml");
-      writer->setURI("/home/vinicius/file.xml");
+
+      std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
+      writer->writeStartDocument("UTF-8", "no");
+      writer->setRootNamespaceURI("http://www.w3.org/2000/xmlns/se");
+
+      QTemporaryFile file;
+      if(!file.open())
+        throw Exception() << ErrorDescription("Could not create XML file!");
+
+      writer->setURI(file.fileName().toStdString());
       te::se::serialize::Style::getInstance().write(it.second->clone(), *writer.get());
 
       writer->writeToFile();
 
-      //datasetSeriesAndStyle.insert("dataset_series_view_style", toJson(it.second));
+      QByteArray content = file.readAll();
+      if(content.isEmpty())
+      {
+        QString errMsg = QObject::tr("Could not create XML file!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      datasetSeriesAndStyle.insert("dataset_series_view_style", QString(content));
 
       array.push_back(datasetSeriesAndStyle);
     }
