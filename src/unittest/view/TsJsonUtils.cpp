@@ -209,7 +209,7 @@ void TsJsonUtils::testGoNBackJSon()
     view->dataSeriesList.push_back(3);
     view->dataSeriesList.push_back(4);
 
-    view->stylesPerDataSeries.emplace(2, CreateFeatureTypeStyle(te::gm::PolygonType));
+    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 

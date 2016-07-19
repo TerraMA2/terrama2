@@ -125,7 +125,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
         throw Exception() << ErrorDescription(errMsg);
       }
 
-      file.write(obj["dataset_series_view_style"].toString().toStdString().c_str());
+      file.write(obj["dataset_series_view_style"].toString().toUtf8());
       file.flush();
 
       std::unique_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
@@ -140,9 +140,8 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
         throw Exception() << ErrorDescription(errMsg);
       }
 
-      te::se::Style* style(te::se::serialize::Style::getInstance().read(*reader.get()));
-
-      view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), style);
+      view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()),
+          std::unique_ptr<te::se::Style>(te::se::serialize::Style::getInstance().read(*reader.get())));
     }
   }
 
