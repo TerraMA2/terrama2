@@ -164,6 +164,12 @@ te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType)
   te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
   style->push_back(rule);
 
+  style->setName(new std::string("Style 1"));
+//  style->setDescription("description");
+  style->setFeatureTypeName(new std::string("Featuretypemname"));
+  std::string version = "1";
+  style->setVersion(version);
+
   return style;
 }
 
@@ -236,6 +242,28 @@ void TsJsonUtils::testGoNBackJSon()
       QCOMPARE(*viewBackPtr->filtersPerDataSeries.at(it.first).discardAfter, *it.second.discardAfter);
     }
 */
+    QCOMPARE(viewBackPtr->stylesPerDataSeries.size(), viewPtr->stylesPerDataSeries.size());
+
+    for(auto& it : viewPtr->stylesPerDataSeries)
+    {
+      QCOMPARE(*viewBackPtr->stylesPerDataSeries.at(it.first)->getName(), *it.second->getName());
+      QCOMPARE(viewBackPtr->stylesPerDataSeries.at(it.first)->getVersion(), it.second->getVersion());
+    }
+
+
+  }
+  catch(terrama2::Exception& e)
+  {
+    QString message(*boost::get_error_info<terrama2::ErrorDescription>(e));
+    QFAIL(message.toStdString().c_str());
+  }
+  catch(boost::exception& e)
+  {
+    QFAIL(boost::diagnostic_information(e).c_str());
+  }
+  catch(std::exception& e)
+  {
+    QFAIL(e.what());
   }
   catch(...)
   {
