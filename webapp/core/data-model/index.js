@@ -1,5 +1,6 @@
 /**
  * This file require entire modules in folder
+ * A data model defines how the data will be handled and delivered through networking
 */
 
 exports.AbstractData = require('./AbstractData');
