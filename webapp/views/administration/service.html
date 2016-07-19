@@ -191,10 +191,10 @@
             </div>
 
             <div class="col-md-12">
-              <div class="col-md-6">
+              <div class="col-md-6" ng-show="!service.isLocal">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("User") ]}:</label>
-                  <input class="form-control" name="user" ng-model="service.sshUser" placeholder="{[ __('Ssh username') ]}" type="text" required>
+                  <input class="form-control" name="user" ng-model="service.sshUser" placeholder="{[ __('Ssh username') ]}" type="text" ng-required="!service.isLocal">
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.user.$dirty" ng-class="{'glyphicon-ok': serviceForm.user.$valid, 'glyphicon-remove': serviceForm.user.$invalid }"></span>
 
@@ -202,7 +202,7 @@
                 </div>
               </div>
 
-              <div class="col-md-6">
+              <div ng-class="{'col-md-12': service.isLocal, 'col-md-6': !service.isLocal}">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("Service Port") ]}:</label>
                   <input class="form-control" name="port" ng-model="service.port" placeholder="{[ __('Service Port') ]}" type="number" min="1" max="65535" service-validation required>

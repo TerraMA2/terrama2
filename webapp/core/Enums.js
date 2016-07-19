@@ -162,5 +162,10 @@ module.exports = {
     LINUX: 'Linux',
     MACOSX: 'Darwin',
     UNKNOWN: ''
+  },
+
+  Port: {
+    MIN: 0,
+    MAX: 65535
   }
 };

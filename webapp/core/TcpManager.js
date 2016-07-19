@@ -274,7 +274,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
     instance.connect(serviceInstance).then(function() {
       instance.startService().then(function(code) {
         // self.emit("serviceStarted", serviceInstance);
-        resolve();
+        resolve(code);
       }).catch(function(err) {
         // self.emit('error', serviceInstance, err);
         reject(err);

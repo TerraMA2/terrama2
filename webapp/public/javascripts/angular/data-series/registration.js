@@ -4,12 +4,10 @@ angular.module('terrama2.dataseries.registration', [
     'terrama2.components.messagebox', // handling alert box
     'ui.router',
     'mgo-angular-wizard', // wizard
-    'ui.bootstrap.datetimepicker',
-    'ui.dateTimeInput',
     'schemaForm',
     'xeditable',
-    'terrama2.schedule'
-    // 'terrama2.components.datetimepicker'
+    'terrama2.schedule',
+    'terrama2.datetimepicker'
   ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
@@ -54,22 +52,22 @@ angular.module('terrama2.dataseries.registration', [
     $scope.dataProvidersStorager = [];
 
     var removeInput = function(dcpMask) {
-      $scope.inputDataSets.forEach(function(dcp, pcdIndex, array) {
+      $scope.inputDataSets.some(function(dcp, pcdIndex, array) {
         // todo: which fields should compare to remove?
         if (dcp.mask === dcpMask) {
           array.splice(pcdIndex, 1);
-          return;
+          return true;
         }
       });
     };
 
     $scope.removePcdStorager = function(dcpItem) {
-      $scope.dcpsStorager.forEach(function(dcp, pcdIndex, array) {
+      $scope.dcpsStorager.some(function(dcp, pcdIndex, array) {
         // todo: which fields should compare to remove?
         if (dcp.id === dcpItem.id) {
           array.splice(pcdIndex, 1);
           $scope.$emit("storagerDcpRemoved", dcpItem);
-          return;
+          return true;
         }
       });
     };
@@ -92,7 +90,7 @@ angular.module('terrama2.dataseries.registration', [
       }
     };
 
-    $scope.$on("requestStorageValues", function(event) {
+    $scope.$on("requestStorageValues", function() {
       // apply a validation
       $scope.$broadcast('schemaFormValidate');
 
@@ -123,7 +121,7 @@ angular.module('terrama2.dataseries.registration', [
             break;
         }
       } else {
-        angular.forEach(dataForm.$error, function (field) {
+        angular.forEach($scope.forms.storagerDataForm.$error, function (field) {
           angular.forEach(field, function(errorField){
             errorField.$setDirty();
           })
@@ -296,7 +294,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.filterArea = '1';
       $scope.$on('updateFilterArea', function(event, filterValue) {
         $scope.filterArea = filterValue;
-      })
+      });
 
       // terrama2 messagebox
       $scope.errorFound = false;
@@ -332,19 +330,19 @@ angular.module('terrama2.dataseries.registration', [
           if (fmt.hasOwnProperty(k)) {
             // checking if a number
             if (isNaN(fmt[k]))
-              output[k] = fmt[k]
+              output[k] = fmt[k];
             else
               output[k] = parseInt(fmt[k])
           }
         }
         return output;
-      }
+      };
 
       $scope.tryParseInt = function(value) {
         if (isNaN(value))
           return value;
         return parseInt(value);
-      }
+      };
 
 
       // wizard helper
@@ -354,10 +352,7 @@ angular.module('terrama2.dataseries.registration', [
           $scope.$broadcast('schemaFormValidate');
         }
 
-        if (form.$valid)
-          return true;
-
-        return false;
+        return form.$valid;
       };
 
       // intersection
@@ -376,7 +371,7 @@ angular.module('terrama2.dataseries.registration', [
           intersection.attributes = [];
           intersection.selected = false;
         }
-      }
+      };
 
       $scope.addAttribute = function(form, selected, attributeValue) {
         if (form.$invalid) {
@@ -391,7 +386,7 @@ angular.module('terrama2.dataseries.registration', [
 
         var found = attributes.filter(function(elm) {
           return elm === attributeValue;
-        })
+        });
 
         if (found.length === 0) {
           // check first: if has at least 1 attribute, mark as selected
@@ -416,7 +411,7 @@ angular.module('terrama2.dataseries.registration', [
             arr.splice(index, 1);
             return true;
           }
-        })
+        });
 
         if (intersection.attributes.length === 0)
           $scope.intersection[selected.id].selected = false;
@@ -433,17 +428,17 @@ angular.module('terrama2.dataseries.registration', [
 
         // emit row click
         $scope.onIntersectionDataSeriesClick(dataSeries);
-      }
+      };
 
       // filters
       $scope.intersectionDataSeries = function(dataSeries) {
         return (dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.STATIC_DATA ||
                 dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GRID)
-      }
+      };
 
       $scope.onFilterRegion = function() {
         $scope.filter.area={};
-      }
+      };
 
       // storager
       $scope.showStoragerForm = false;
@@ -527,25 +522,6 @@ angular.module('terrama2.dataseries.registration', [
         $scope.filter.pre_analysis = {};
         $scope.radioPreAnalysis = selected;
       };
-      // filter helpers
-      $scope.beforeRenderStartDate = function($view, $dates, $leftDate, $upDate, $rightDate) {
-        if ($scope.filter.date.afterDate) {
-          var activeDate = moment($scope.filter.date.afterDate);
-          for (var i = 0; i < $dates.length; i++) {
-            if ($dates[i].localDateValue() >= activeDate.valueOf()) $dates[i].selectable = false;
-          }
-        }
-      };
-      $scope.beforeRenderEndDate = function($view, $dates, $leftDate, $upDate, $rightDate) {
-        if ($scope.filter.date.beforeDate) {
-          var activeDate = moment($scope.filter.date.beforeDate).subtract(1, $view).add(1, 'minute');
-          for (var i = 0; i < $dates.length; i++) {
-            if ($dates[i].localDateValue() <= activeDate.valueOf()) {
-              $dates[i].selectable = false;
-            }
-          }
-        }
-      };
 
       // fill out interface with values
       $scope.parametersData = configuration.parametersData || {};
@@ -612,7 +588,7 @@ angular.module('terrama2.dataseries.registration', [
                   data_series: ds,
                   attributes: attrs,
                   selected: true
-                }
+                };
                 return true;
               }
             });
@@ -963,10 +939,15 @@ angular.module('terrama2.dataseries.registration', [
           // adjusting time without timezone
           var filterValues = Object.assign({}, $scope.filter);
           if (filterValues.date) {
-            if (filterValues.date.afterDate)
-              filterValues.date.afterDate = new Date(filterValues.date.afterDate.getTime() - filterValues.date.afterDate.getTimezoneOffset()).toString();
-            if (filterValues.date.beforeDate)
-              filterValues.date.beforeDate = new Date(filterValues.date.beforeDate.getTime() - filterValues.date.beforeDate.getTimezoneOffset()).toString();
+            if (filterValues.date.afterDate) {
+              var afterMomentDate = filterValues.date.afterDate.toDate();
+              filterValues.date.afterDate = new Date(afterMomentDate.getTime() - afterMomentDate.getTimezoneOffset()).toString();
+            }
+
+            if (filterValues.date.beforeDate) {
+              var beforeMomentDate = filterValues.date.beforeDate.toDate();
+              filterValues.date.beforeDate = new Date(beforeMomentDate.getTime() - beforeMomentDate.getTimezoneOffset()).toString();
+            }
           }
 
           var scheduleValues = Object.assign({}, $scope.schedule);

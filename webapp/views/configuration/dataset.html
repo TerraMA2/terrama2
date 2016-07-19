@@ -7,7 +7,6 @@
 {% block ngApp %}ng-app="terrama2.dataseries.registration"{% endblock %}
 
 {% block styles %}
-  <link rel="stylesheet" href="/externals/angular-datatimepicker/css/datetimepicker.css">
   <link rel="stylesheet" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
   <link rel="stylesheet" type="text/css" href="/externals/angular-wizard/angular-wizard.min.css">
   <link href="/externals/angular-xeditable/css/xeditable.css" rel="stylesheet">
@@ -92,6 +91,9 @@
   <!-- terrama2 app -->
   <script type="text/javascript" src="/javascripts/angular/app.js"></script>
 
+  <!-- TerraMA2 Datetimepicker -->
+  <script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
+
   <script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
 
   <!-- Angular i18n -->
@@ -121,13 +123,7 @@
   <script type="text/javascript" src="/javascripts/angular/services.js"></script>
   <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
   <script type="text/javascript" src="/javascripts/angular/data-series/registration.js"></script>
-
   <script type="text/javascript" src="/externals/bootstrap/js/jquery.bootstrap.wizard.js"></script>
-
-  <!-- Angular date input handler -->
-  <script type="text/javascript" src="/externals/angular-datatimepicker/js/datetimepicker.js"></script>
-  <script type="text/javascript" src="/externals/angular-datatimepicker/js/datetimepicker.templates.js"></script>
-  <script type="text/javascript" src="/externals/angular-datatimepicker/js/dateTimeInput.js"></script>
 
 {% endblock %}
 
