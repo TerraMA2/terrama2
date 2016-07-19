@@ -14,7 +14,6 @@
  * @property {int} memberDoubleClickEventKey - Double click event key.
  * @property {int} memberSingleClickEventKey - Single click event key.
  * @property {object} memberSocket - Socket object.
- * @property {function} memberCapabilitiesCallbackFunction - 'addCapabilitiesLayers' callback function.
  * @property {function} memberLayersStartLoadingFunction - Function triggered when a layer starts to load
  * @property {function} memberLayersEndLoadingFunction - Function triggered when a layer is loaded
  * @property {function} memberLoading - Loading layers counters
@@ -43,8 +42,6 @@ define(
     var memberSingleClickEventKey = null;
     // Socket object
     var memberSocket = null;
-    // 'addCapabilitiesLayers' callback function
-    var memberCapabilitiesCallbackFunction = null;
     // Function triggered when a layer starts to load
     var memberLayersStartLoadingFunction = null;
     // Function triggered when a layer is loaded
@@ -399,13 +396,14 @@ define(
      * @param {float} maxResolution - Layer maximum resolution
      * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
      * @returns {ol.layer.Tile} tile - New tiled wms layer
      *
      * @function createTileWMS
      * @memberof MapDisplay
      * @inner
      */
-    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled) {
+    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer) {
       var params = {
         'LAYERS': layerId,
         'TILED': true
@@ -413,6 +411,9 @@ define(
 
       if(time !== null && time !== undefined && time !== '')
         params['TIME'] = time;
+
+      if(buffer !== null && buffer !== undefined && buffer !== '')
+        params['BUFFER'] = buffer;
 
       var layerSource = new ol.source.TileWMS({
         preload: Infinity,
@@ -456,13 +457,14 @@ define(
      * @param {string} parentGroup - Parent group id
      * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addTileWMSLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled) {
+    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled, buffer) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -470,7 +472,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled)
+          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer)
         );
 
         layerGroup.setLayers(layers);
@@ -555,6 +557,34 @@ define(
       }
 
       return layerGroupExists;
+    };
+
+    /**
+     * Removes a layer with a given id from the Map.
+     * @param {string} layerId - Layer id
+     * @param {string|undefined} parentGroupId - Parent group id
+     *
+     * @function removeLayer
+     * @memberof MapDisplay
+     * @inner
+     */
+    var removeLayer = function(layerId, parentGroupId) {
+      if(parentGroupId !== "undefined" && parentGroupId !== 'undefined' && parentGroupId !== undefined && parentGroupId !== null) {
+        var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroupId);
+        var layers = layerGroup.getLayers();
+
+        layers.forEach(function(layer, i, array) {
+          if(layerId === layer.get('id')) {
+            layers.remove(layer);
+            return false;
+          }
+        });
+
+        layerGroup.setLayers(layers);
+      } else {
+        var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+        memberOlMap.removeLayer(layer);
+      }
     };
 
     /**
@@ -793,24 +823,6 @@ define(
     };
 
     /**
-     * Adds the layers of a given capabilities to the map.
-     * @param {string} capabilitiesUrl - Capabilities URL
-     * @param {string} serverUrl - Server URL
-     * @param {string} serverType - Server type
-     * @param {string} serverId - Server id
-     * @param {string} serverName - Server name
-     * @param {function} callbackFunction - Callback function
-     *
-     * @function addCapabilitiesLayers
-     * @memberof MapDisplay
-     * @inner
-     */
-    var addCapabilitiesLayers = function(capabilitiesUrl, serverUrl, serverType, serverId, serverName, callbackFunction) {
-      memberCapabilitiesCallbackFunction = callbackFunction;
-      memberSocket.emit('proxyRequest', { url: capabilitiesUrl, additionalParameters: { serverUrl: serverUrl, serverType: serverType, serverId: serverId, serverName: serverName } });
-    };
-
-    /**
      * Sets the layers start loading function.
      * @param {function} startLoadingFunction - Layers start loading function
      *
@@ -877,14 +889,9 @@ define(
       if(parentLayerGroup !== null) {
         var parentSubLayers = parentLayerGroup.getLayers();
 
-        parentSubLayers.push(
-          layerGroup
-        );
+        parentSubLayers.push(layerGroup);
 
         parentLayerGroup.setLayers(parentSubLayers);
-
-        memberCapabilitiesCallbackFunction();
-        memberCapabilitiesCallbackFunction = null;
       }
     };
 
@@ -1173,6 +1180,42 @@ define(
     };
 
     /**
+     * Sets the Map single click event to call the GetFeatureInfoUrl function.
+     * @param {string} layerId - Layer to be used in the GetFeatureInfoUrl function
+     * @param {function} callback - Callback function
+     *
+     * @function setGetFeatureInfoUrlOnClick
+     * @memberof MapDisplay
+     * @inner
+     */
+    var setGetFeatureInfoUrlOnClick = function(layerId, callback) {
+      unsetMapSingleClickEvent();
+      setMapSingleClickEvent(function(longitude, latitude) {
+        var source = findBy(memberOlMap.getLayerGroup(), 'id', layerId).getSource();
+        var coordinate = [longitude, latitude];
+        var resolution = memberOlMap.getView().getResolution();
+        var projection = 'EPSG:4326';
+        var params = { 'INFO_FORMAT': 'application/json' };
+
+        var url = source.getGetFeatureInfoUrl(coordinate, resolution, projection, params);
+
+        if(url) callback(url);
+        else callback(null);
+      });
+    };
+
+    /**
+     * Calls the function responsible for unset the Map single click event.
+     *
+     * @function unsetGetFeatureInfoUrlOnClick
+     * @memberof MapDisplay
+     * @inner
+     */
+    var unsetGetFeatureInfoUrlOnClick = function() {
+      unsetMapSingleClickEvent();
+    };
+
+    /**
      * Finds a layer by a given key.
      * @param {ol.layer.Group} layer - The layer group where the method will run the search
      * @param {string} key - Layer attribute to be used in the search
@@ -1214,20 +1257,6 @@ define(
     };
 
     /**
-     * Loads the sockets listeners.
-     *
-     * @private
-     * @function loadSocketsListeners
-     * @memberof MapDisplay
-     * @inner
-     */
-    /*var loadSocketsListeners = function() {
-      memberSocket.on('proxyResponse', function(response) {
-        createCapabilitiesLayers(response.msg, response.additionalParameters.serverUrl, response.additionalParameters.serverType, response.additionalParameters.serverId, response.additionalParameters.serverName);
-      });
-    };*/
-
-    /**
      * Alters the index of a layer.
      * @param {string} parent - Parent id
      * @param {int} indexFrom - Current index of the layer
@@ -1253,15 +1282,6 @@ define(
     var init = function() {
       memberParser = new ol.format.WMSCapabilities();
 
-      /*$.ajax({
-        url: TerraMA2WebComponents.getTerrama2Url() + "/socket.io/socket.io.js",
-        dataType: "script",
-        success: function() {
-          memberSocket = io(TerraMA2WebComponents.getTerrama2Url());
-          loadSocketsListeners();
-        }
-      });*/
-
       memberOlMap.getLayerGroup().set('id', 'terrama2-layerexplorer');
       memberOlMap.getLayerGroup().set('name', 'terrama2-layerexplorer');
 
@@ -1270,6 +1290,8 @@ define(
       });
 
       memberInitialExtent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
+
+      $('.ol-attribution > button > span').html('©');
 
       $(document).ready(function() {
         updateMapSize();
@@ -1291,11 +1313,11 @@ define(
       createTileWMS: createTileWMS,
       addTileWMSLayer: addTileWMSLayer,
       addGeoJSONVectorLayer: addGeoJSONVectorLayer,
+      removeLayer: removeLayer,
       addBaseLayers: addBaseLayers,
       addOSMLayer: addOSMLayer,
       addMapQuestOSMLayer: addMapQuestOSMLayer,
       addMapQuestSatelliteLayer: addMapQuestSatelliteLayer,
-      addCapabilitiesLayers: addCapabilitiesLayers,
       setLayersStartLoadingFunction: setLayersStartLoadingFunction,
       setLayersEndLoadingFunction: setLayersEndLoadingFunction,
       setLayerVisibility: setLayerVisibility,
@@ -1316,6 +1338,8 @@ define(
       setMapDoubleClickEvent: setMapDoubleClickEvent,
       setMapSingleClickEvent: setMapSingleClickEvent,
       unsetMapSingleClickEvent: unsetMapSingleClickEvent,
+      setGetFeatureInfoUrlOnClick: setGetFeatureInfoUrlOnClick,
+      unsetGetFeatureInfoUrlOnClick: unsetGetFeatureInfoUrlOnClick,
       findBy: findBy,
       applyCQLFilter: applyCQLFilter,
       alterLayerIndex: alterLayerIndex,
