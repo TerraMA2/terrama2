@@ -130,12 +130,11 @@ var DataManager = {
       models = modelsFn();
       models.load(connection);
 
+      // console.log("Loading DAO's...");
       // for(var k in dao) {
       //   if (dao.hasOwnProperty(k)) {
       //     var klass = dao[k](self);
       //     self[k] = new klass();
-      //
-      //     break;
       //   }
       // }
 
@@ -163,11 +162,8 @@ var DataManager = {
         var collectorService = {
           name: "Local Collector",
           description: "Local service for Collect",
-          host: "127.0.0.1",
-          port: 10000,
-          sshUser: "terrama2",
-          sshPort: 22,
-          pathToBinary: "terrama2_servce",
+          port: 6543,
+          pathToBinary: "terrama2_service",
           numberOfThreads: 0,
           service_type_id: Enums.ServiceType.COLLECTOR,
           log: {
@@ -182,7 +178,7 @@ var DataManager = {
         var analysisService = Object.assign({}, collectorService);
         analysisService.name = "Local Analysis";
         analysisService.description = "Local service for Analysis";
-        analysisService.port = 10001;
+        analysisService.port = 6544;
         analysisService.service_type_id = Enums.ServiceType.ANALYSIS;
 
         inserts.push(self.addServiceInstance(collectorService));
@@ -741,12 +737,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
-        models.db['ServiceInstance'].update({
-          name: serviceObject.name,
-          description: serviceObject.description,
-          port: serviceObject.port,
-          numberOfThreads: serviceObject.numberOfThreads
-        }, {
+        models.db['ServiceInstance'].update(serviceObject, {
           fields: ['name', 'description', 'port', 'numberOfThreads', 'runEnviroment', 'host', 'sshUser', 'sshPort', 'pathToBinary'],
           where: {
             id: serviceId
@@ -765,7 +756,7 @@ var DataManager = {
   updateLog: function(logId, logObject) {
     return new Promise(function(resolve, reject) {
       models.db.Log.update(logObject, {
-        fields: ['host', 'port', 'user', 'path'],
+        fields: ['host', 'port', 'user', 'database'],
         where: {
           id: logId
         }

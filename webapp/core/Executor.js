@@ -5,7 +5,14 @@ var ScreenAdapter = require('./ssh/ScreenAdapter');
 
 
 /**
- * This class allows to run commands like terminal style (local)*/
+ * This class allows to run commands like terminal style (local)
+ * @class Executor
+ *
+ * @author Raphael Willian da Costa
+ *
+ * @property {object} adapter - An adapter command to run (ScreenAdapter).
+ * @property {OS} platform - An enum value to represent Operational System
+ */
 var Executor = module.exports = function(adapter) {
   this.platform = null;
   this.adapter = adapter;

@@ -96,10 +96,11 @@ module.exports = function(app) {
                 } catch(e) {
                   console.log(e);
                 }
-              }
+              } else
+                shouldRestart = false;
               return response.json({status: 200, token: token, service: serviceInstance.id, restart: shouldRestart});
             });
-          }
+          };
 
           if (!Utils.equal(logSent.toObject(), logInDatabase.toObject())) {
             shouldRestart = true;
