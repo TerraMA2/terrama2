@@ -69,9 +69,9 @@
         <td ng-if="extra.service">Status</td>
         <td ng-if="isFunction(remove)">
       </tr>
-      <tr ng-repeat="element in model | filter:searchInput track by $index">
+      <tr ng-repeat="element in model | filter:searchInput | orderBy: 'last_process_timestamp' track by $index">
         <td ng-show="isFunction(icon())" style="width: 50px;">
-          <img ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
+          <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
           <span ng-if="iconProperties.type === 'icon'" class="label">
             <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
           </span>

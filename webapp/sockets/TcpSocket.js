@@ -73,7 +73,8 @@ var TcpSocket = function(io) {
       client.emit('logResponse', {
         status: 200,
         logs: response,
-        service_type: service.service_type_id
+        service_type: service.service_type_id,
+        service: service.name
       });
     };
 
@@ -243,7 +244,7 @@ var TcpSocket = function(io) {
                   TcpManager.emit('logData', service, obj);
                   break;
                 case ServiceType.COLLECTOR:
-                  obj.process_ids = collectorsIds,
+                  obj.process_ids = collectorsIds;
 
                   // requesting for collector log
                   TcpManager.emit('logData', service, obj);

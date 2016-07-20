@@ -82,7 +82,7 @@ angular.module('terrama2.table', ['terrama2'])
         $scope.makeLink = function(element) {
           var link = cacheLinks[element.id];
           if (!link) {
-            var link = $scope.link()(element);
+            link = $scope.link()(element);
             cacheLinks[element.id] = link;
           }
           return link;
