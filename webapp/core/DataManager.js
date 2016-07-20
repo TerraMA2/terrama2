@@ -28,7 +28,8 @@ var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
-var connection = require('../config/Sequelize.js');
+var Database = require('../config/Database');
+var orm = Database.getORM();
 var fs = require('fs');
 var path = require('path');
 
@@ -120,8 +121,10 @@ var DataManager = {
   init: function(callback) {
     var self = this;
 
+      var dbConfig = Database.config;
+
       models = modelsFn();
-      models.load(connection);
+      models.load(orm);
 
       // console.log("Loading DAO's...");
       // for(var k in dao) {
@@ -171,7 +174,7 @@ var DataManager = {
             port: 5432,
             user: "postgres",
             password: "postgres",
-            database: "nodejs" // TODO: change it
+            database: dbConfig.database // TODO: change it
           }
         };
 
@@ -206,7 +209,7 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.STATIC_DATA, description: "Data Series Static Data"}));
 
         // data formats semantics defaults todo: check it
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "DCP description"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "CSV description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
@@ -345,15 +348,15 @@ var DataManager = {
         });
       };
 
-      connection.authenticate().then(function() {
-        connection.sync().then(function () {
+      orm.authenticate().then(function() {
+        orm.sync().then(function () {
           fn();
         }).catch(function(err) {
           console.log(err);
           fn();
         });
       }).catch(function(err) {
-        callback(new Error("Could not initialize terrama2 due: " + err.message));
+        callback(new Error("Could not initialize TerraMA2 due: " + err.message));
       })
   },
 
@@ -381,7 +384,7 @@ var DataManager = {
       self.unload().then(function() {
         resolve();
 
-        connection.close();
+        Database.finalize();
       });
     });
   },
@@ -2021,7 +2024,7 @@ var DataManager = {
           {
             model: models.db['Filter'],
             required: false,
-            attributes: { include: [[connection.fn('ST_AsText', connection.col('region')), 'region_wkt']] }
+            attributes: { include: [[orm.fn('ST_AsText', orm.col('region')), 'region_wkt']] }
           },
           {
             model: models.db['Intersection'],
@@ -2087,7 +2090,7 @@ var DataManager = {
           {
             model: models.db['Filter'],
             required: false,
-            attributes: { include: [[connection.fn('ST_AsText', connection.col('region')), 'region_wkt']] }
+            attributes: { include: [[orm.fn('ST_AsText', orm.col('region')), 'region_wkt']] }
           },
           {
             model: models.db['Intersection'],

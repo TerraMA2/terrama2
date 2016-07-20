@@ -1,4 +1,4 @@
-var User = require('../../config/Sequelize.js').import('../../models/User.js');
+var User = require('../../config/Database').getORM().import('../../models/User.js');
 var Utils = require("../../core/Utils");
 var TokenCode = require('../../core/Enums').TokenCode;
 var UserError = require("../../core/Exceptions").UserError;
