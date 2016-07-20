@@ -120,13 +120,6 @@ var DataManager = {
   init: function(callback) {
     var self = this;
 
-    // Lock function
-    lock.readLock(function (release) {
-      var releaseCallback = function() {
-        release();
-        callback();
-      };
-
       models = modelsFn();
       models.load(connection);
 
@@ -155,11 +148,18 @@ var DataManager = {
         }));
 
         // services type
-        inserts.push(models.db.ServiceType.create({name: "COLLECT"}));
-        inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
+        inserts.push(models.db.ServiceType.create({id: 1, name: "COLLECT"}));
+        inserts.push(models.db.ServiceType.create({id: 2, name: "ANALYSIS"}));
+
+        // data provider type defaults
+        inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
+        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
+        inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
+        inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
 
         // default services
         var collectorService = {
+          id: 1,
           name: "Local Collector",
           description: "Local service for Collect",
           port: 6543,
@@ -176,6 +176,7 @@ var DataManager = {
         };
 
         var analysisService = Object.assign({}, collectorService);
+        analysisService.id = 2;
         analysisService.name = "Local Analysis";
         analysisService.description = "Local service for Analysis";
         analysisService.port = 6544;
@@ -183,12 +184,6 @@ var DataManager = {
 
         inserts.push(self.addServiceInstance(collectorService));
         inserts.push(self.addServiceInstance(analysisService));
-
-        // data provider type defaults
-        inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
-        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
-        inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
-        inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({
@@ -272,7 +267,7 @@ var DataManager = {
         var insertSemanticsProvider = function() {
           self.listSemanticsProvidersType().then(function(result) {
             if (result.length != 0) {
-              releaseCallback();
+              callback();
               return;
             }
 
@@ -318,9 +313,9 @@ var DataManager = {
 
                 var _makeSemanticsMetadata = function() {
                   models.db["SemanticsMetadata"].bulkCreate(semanticsMetadataArray).then(function(res) {
-                    releaseCallback();
+                    callback();
                   }).catch(function(err) {
-                    releaseCallback();
+                    callback();
                   })
                 }
 
@@ -331,14 +326,14 @@ var DataManager = {
                 })
               }).catch(function(err) {
                 console.log(err);
-                releaseCallback();
+                callback();
               });
             }).catch(function(err) {
               console.log(err);
-              releaseCallback();
+              callback();
             });
           }).catch(function() {
-            releaseCallback();
+            callback();
           });
         };
 
@@ -353,17 +348,13 @@ var DataManager = {
       connection.authenticate().then(function() {
         connection.sync().then(function () {
           fn();
-        }, function() {
-          fn();
         }).catch(function(err) {
           console.log(err);
           fn();
         });
       }).catch(function(err) {
-        release();
         callback(new Error("Could not initialize terrama2 due: " + err.message));
       })
-    });
   },
 
   unload: function() {
