@@ -5,6 +5,10 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     $scope.alertBox = {};
     $scope.display = false;
     $scope.alertLevel = "";
+    var cachedIcons = {};
+    cachedIcons[globals.enums.StatusLog.DONE] = "/images/check.png";
+    cachedIcons[globals.enums.StatusLog.ERROR] = "/images/warning.png";
+    cachedIcons[globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
 
     // injecting socket in angular scope
     $scope.socket = Socket;
@@ -45,14 +49,7 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     };
 
     $scope.iconFn = function(object) {
-      switch(object.status) {
-        case globals.enums.StatusLog.DONE:
-          return "/images/check.png";
-          break;
-        case globals.enums.StatusLog.ERROR:
-          return "/images/warning.png";
-          break;
-      }
+      return cachedIcons[object.status];
     };
 
     $scope.loading = true;

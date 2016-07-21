@@ -54,7 +54,18 @@
           <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
         </div>
 
-        <terrama2-table fields="fields" model="model" link="link" icon="iconFn" icon-properties="iconProperties"></terrama2-table>
+        <terrama2-table-header link="linkToAdd"></terrama2-table-header>
+
+        <terrama2-table-view expression="element in model | filter:searchInput track by $index">
+          <terrama2-td title="">
+            <img ng-if="iconFn(element)" ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
+          </terrama2-td>
+          <terrama2-td title="Service">{{ element.service }}</terrama2-td>
+          <terrama2-td title="Type">{{ element.type }}</terrama2-td>
+          <terrama2-td title="Name">{{ element.name }}</terrama2-td>
+          <terrama2-td title="Message">{{ element.message }}</terrama2-td>
+          <terrama2-td title="Date">{{ element.date }}</terrama2-td>
+        </terrama2-table-view>
       </div>
 
     </div><!-- /.box-body -->

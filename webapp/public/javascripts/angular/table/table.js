@@ -1,3 +1,15 @@
+function makeHeader() {
+  return {
+    restrict: 'EA',
+    transclude: true,
+    require: '^?terrama2Table2',
+    scope: {
+      title: '='
+    },
+    template: '<td><ng-transclude></ng-transclude></td>'
+  };
+}
+
 angular.module('terrama2.table', ['terrama2'])
   .directive('terrama2Table', function(i18n) {
     return {
@@ -129,4 +141,78 @@ angular.module('terrama2.table', ['terrama2'])
         }
       }
     }
+  })
+
+  .directive('terrama2TdHeader', function(i18n) {
+    return makeHeader();
+  })
+
+  .directive('terrama2TableView', function(i18n) {
+    return {
+      restrict: 'E',
+      priority: 1001,
+      template: function(tElm, tAttrs) {
+        var context = i18n.__('No ' + (tAttrs.context || "data") + " found.");
+        var expression = tAttrs.expression;
+        var td = "", th = "";
+        var counter = 0;
+
+        angular.forEach(tElm.find('terrama2-td'), function(column){
+          var klass = column.className;
+          th = th + "<th class='" + klass + "'>" + column.title + "</th>";
+          td = td + "<td class='" + klass + "'>" + column.innerHTML + "</td>";
+          ++counter;
+        });
+
+        // TODO: Fix the ng if. "model.length" is hardcoded. It should get from expression
+        var template = '<table class="table table-hover">' +
+            '<thead>' + th + '</thead>' +
+            '<tbody>' +
+            '<tr ng-repeat="' + expression + '">'+ td +'</tr>' +
+            '<tr ng-if="model.length === 0"><td colspan="' +  counter + '">'+ context +'</td></tr>' +
+            '</tbody>' +
+            '</table>';
+        return template;
+      }
+    }
+  })
+  .directive('terrama2Table2Filter', function($compile, i18n) {
+    return {
+      restrict: 'E',
+      priority: 1500,
+      transclude: true,
+      templateUrl: "/javascripts/angular/table/templates/tbl.html",
+      compile: function pre(element, attrs) {
+        var repeat = element.find('terrama2-table2');
+        repeat.attr('expression', attrs.expression);
+        $compile(element.contents());
+        return this.link;
+      },
+      scope: true,
+      link: function(scope, element, attrs, transclude) {
+        scope.link = attrs.link;
+
+        scope.$watch('model', function(value) {
+          console.log(value);
+        })
+
+        transclude(scope.$parent, function(clone, scope) {
+          element.append(clone())
+        })
+      }
+    };
+  })
+
+  .directive('terrama2TableHeader', function(i18n) {
+    return {
+      restrict: 'E',
+      transclude: {
+        "extraButtonsSlot": "?terrama2Btn"
+      },
+
+      templateUrl: "/javascripts/angular/table/templates/tableFilter.html",
+      link: function(scope, element, attrs, transclude) {
+        scope.linkToAdd = attrs.linkToAdd;
+      }
+    };
   });
