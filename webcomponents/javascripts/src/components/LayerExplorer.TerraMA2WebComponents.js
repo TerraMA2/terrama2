@@ -75,21 +75,26 @@ define(
      * Adds a layer or a layer group to the layer explorer with data from the map.
      * @param {string} id - Layer or layer group id
      * @param {string} parent - Parent id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the element should be inserted as last element of the parent, if the parameter isn't provided, it's set to false
      *
      * @function addLayersFromMap
      * @memberof LayerExplorer
      * @inner
      */
-    var addLayersFromMap = function(id, parent) {
+    var addLayersFromMap = function(id, parent, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
       if(data !== null) {
         var elem = buildLayersFromMap(data, parent);
 
         if(parent === 'terrama2-layerexplorer') {
-          $('#' + parent).prepend(elem);
+          if(appendAtTheEnd) $('#' + parent).append(elem);
+          else $('#' + parent).prepend(elem);
         } else {
-          $('#' + parent + ' > ul.children').prepend(elem);
+          if(appendAtTheEnd) $('#' + parent + ' > ul.children').append(elem);
+          else $('#' + parent + ' > ul.children').prepend(elem);
         }
 
         // Handle opacity slider control
