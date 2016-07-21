@@ -65,7 +65,7 @@ terrama2Application.factory("$HttpTimeout", ['$http', '$q',
     return function(httpOptions, timeout) {
       return _makeRequest(httpOptions, timeout);
     }
-  }])
+  }]);
 
 terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
   function ($http, $cacheFactory) {
@@ -75,7 +75,7 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
       return promise.then(function(response) {
         return response.data;
       })
-    }
+    };
 
     return {
       get: function $httpOnce(url, options) {
@@ -108,7 +108,7 @@ terrama2Application.directive('terrama2CompareTo', function() {
       });
     }
   }
-})
+});
 
 terrama2Application.directive('terrama2ShowErrors', function() {
   return {
@@ -139,7 +139,7 @@ terrama2Application.directive('terrama2ShowErrors', function() {
       });
     }
   }
-})
+});
 
 terrama2Application.directive('terrama2Box', function($parse) {
   return {

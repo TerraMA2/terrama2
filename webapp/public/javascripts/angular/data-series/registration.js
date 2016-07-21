@@ -276,13 +276,31 @@ angular.module('terrama2.dataseries.registration', [
     "ServiceInstanceFactory",
     "$timeout",
     'FormHelper',
+    "WizardHandler",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
+
+      // wizard global properties
+      $scope.wizard = {
+        general: {
+          required: true,
+          formName: 'generalDataForm'
+        },
+        parameters: {
+          required: true,
+          formName: 'parametersForm'
+        },
+        store: {
+          required: false,
+          formName: 'storagerForm',
+          secondForm: 'storagerDataForm'
+        }
+      };
 
       $scope.forms = {};
       $scope.isDynamic = configuration.dataSeriesType === "dynamic";
@@ -348,9 +366,21 @@ angular.module('terrama2.dataseries.registration', [
       // wizard helper
       var isWizardStepValid = function(form, isSchemaForm) {
         $scope.$broadcast('formFieldValidation');
-        if (isSchemaForm == true) {
-          $scope.$broadcast('schemaFormValidate');
-        }
+        $scope.$broadcast('schemaFormValidate');
+        var w = WizardHandler.wizard();
+        w.getEnabledSteps().forEach(function(wizardStep) {
+          var data = wizardStep.wzData || {}
+          var name = data.formName || "";
+
+          if (name) {
+            var condition = $scope.forms[name].$invalid;
+            var secondName = wizardStep.wzData.secondForm;
+
+            if (secondName)
+              condition = condition || $scope.forms[secondName].$invalid;
+            wizardStep.wzData.error = condition;
+          }
+        });
 
         return form.$valid;
       };
@@ -455,7 +485,7 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.$on("storagerDcpRemoved", function(event, dcp) {
-        $scope.dcps.forEach(function(element, index, arr) {
+        $scope.dcps.some(function(element, index, arr) {
           if (element.mask == dcp.inputDataSet) {
             arr.splice(index, 1);
             return;
@@ -483,7 +513,7 @@ angular.module('terrama2.dataseries.registration', [
 
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
-        this["wzData"].error = !isWizardStepValid($scope.forms.generalDataForm);
+        isWizardStepValid($scope.forms.generalDataForm);
         return true;
       };
 
@@ -500,12 +530,12 @@ angular.module('terrama2.dataseries.registration', [
             this["wzData"].error = false;
             return true;
           }
-        this["wzData"].error = !isWizardStepValid($scope.forms.parametersForm, true);
+        !isWizardStepValid($scope.forms.parametersForm, true);
         return true;
       };
 
       $scope.isThirdStepValid = function(obj) {
-        this["wzData"].error = !isWizardStepValid($scope.forms.storagerForm);
+        !isWizardStepValid($scope.forms.storagerForm);
         return true;
       };
       //. end wizard validations
