@@ -123,18 +123,19 @@ terrama2Application.directive('terrama2ShowErrors', function() {
       // on the form controller
       var inputName = inputNgEl.attr('name');
 
-      // only apply the has-error class after the user leaves the text box
-      inputNgEl.bind('blur', function() {
+      var _helper = function() {
         el.toggleClass('has-success', formCtrl[inputName].$valid);
         el.toggleClass('has-error', formCtrl[inputName].$invalid);
+        formCtrl[inputName].$setDirty();
+      };
+
+      // only apply the has-error class after the user leaves the text box
+      inputNgEl.bind('blur', function() {
+        _helper();
       });
 
       scope.$on('formFieldValidation', function(formName) {
-        var s = formCtrl;
-        var target = formCtrl[inputName];
-        el.toggleClass('has-error', target.$invalid);
-        el.toggleClass('has-success', target.$valid);
-        target.$setDirty();
+        _helper();
       });
     }
   }
