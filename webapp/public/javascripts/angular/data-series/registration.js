@@ -166,6 +166,9 @@ angular.module('terrama2.dataseries.registration', [
           })
         });
 
+        if ($scope.dataProvidersStorager.length > 0)
+          $scope.storager_data_provider_id = $scope.dataProvidersStorager[0].id;
+
         var metadata = data.metadata;
         var properties = metadata.schema.properties;
 
@@ -368,6 +371,8 @@ angular.module('terrama2.dataseries.registration', [
         $scope.$broadcast('formFieldValidation');
         $scope.$broadcast('schemaFormValidate');
         var w = WizardHandler.wizard();
+
+        var response = false;
         w.getEnabledSteps().forEach(function(wizardStep) {
           var data = wizardStep.wzData || {}
           var name = data.formName || "";
@@ -381,8 +386,6 @@ angular.module('terrama2.dataseries.registration', [
             wizardStep.wzData.error = condition;
           }
         });
-
-        return form.$valid;
       };
 
       // intersection
@@ -479,6 +482,9 @@ angular.module('terrama2.dataseries.registration', [
       $scope.onStoragerFormatChange = function() {
         console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
+
+        if ($scope.services.length > 0)
+          $scope.storager_service = $scope.services[0].id;
         $timeout(function() {
           $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format, dcps: $scope.dcps});
         })
@@ -656,7 +662,7 @@ angular.module('terrama2.dataseries.registration', [
       });
 
       $scope.i18n = i18n;
-      $scope.isWizard = $scope.stateApp.current.name === "wizard" || true;
+      $scope.isWizard = $scope.stateApp.current.name === "wizard";
       $scope.projection = "";
 
       // change form: advanced or wizard
@@ -857,6 +863,11 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.save = function() {
         $scope.$broadcast('formFieldValidation');
+
+        if ($scope.isWizard) {
+          isWizardStepValid(null, false);
+        }
+
         if($scope.forms.generalDataForm.$invalid) {
           return;
         }
