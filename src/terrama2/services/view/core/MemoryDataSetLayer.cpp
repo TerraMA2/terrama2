@@ -22,7 +22,7 @@
 /*!
   \file terrama2/services/view/core/MemoryDataSetLayer.cpp
 
-  \brief DataSet layer to deal with an dataSet in memory(without a dataSource).
+  \brief DataSet layer to deal with an dataSet in memory(a dataSet without a dataSource).
 
   \author Vinicius Campanha
 */
