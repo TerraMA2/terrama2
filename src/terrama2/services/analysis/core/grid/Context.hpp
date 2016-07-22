@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/GridContext.hpp
+  \file terrama2/services/analysis/core/grid/Context.hpp
 
-  \brief Contains grid analysis operators.
+  \brief Contains grid analysis context.
 
   \author Jano Simas
 */
