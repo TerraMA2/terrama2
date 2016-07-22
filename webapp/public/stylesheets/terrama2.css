@@ -200,3 +200,15 @@
 .terrama2-schema-form > div:last-child {
   position: absolute !important;
 }
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none;
+}
+
+/*[ng\:cloak].terrama2-splash {*/
+  /*display:block !important;*/
+/*}*/
+/*.terrama2-splash {*/
+  /*background-color: blue;*/
+  /*display: none;*/
+/*}*/

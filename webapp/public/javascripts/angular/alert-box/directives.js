@@ -1,4 +1,42 @@
 angular.module("terrama2.components.messagebox", [])
+  .run(function($templateCache) {
+    // <terrama2-alert-box>
+    $templateCache.put('message-box.html',
+    '<div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel">' +
+      '<button type="button" class="close" ng-click="close()">×</button>' +
+      '<h4><i class="icon fa" ng-class="alertIcon()"></i> {{ title }}</h4>' +
+      '<div class="row">' +
+        '<div class="col-md-12">{{ message }}</div>'+
+        '<div class="col-md-12" ng-if="isAnyExtra()">'+
+          '<button type="button" class="btn btn-primary pull-right" ng-click="extra.confirmButtonFn(extra.object)">' +
+            '{{ extra.confirmButtonName ||  "Confirm" }}' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>');
+
+    // <terrama2-modal>
+    $templateCache.put('modal.html',
+    '<div class="{{ css }}" ng-class="modalType" id="{{ modalId }}" role="dialog" aria-labelledby="my{{ modalId }}">' +
+      '<div class="modal-dialog">' +
+        '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+              '<span aria-hidden="true">×</span>' +
+            '</button>' +
+            '<h4 class="modal-title">{{ title }}</h4>' +
+          '</div>' +
+          '<div class="modal-body" ng-transclude>' +
+
+          '</div>' +
+          '<div class="modal-footer">' +
+            '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+    );
+  })
   .directive("terrama2MessageBox", function() {
     return {
       restrict: "AE",
@@ -17,7 +55,7 @@ angular.module("terrama2.components.messagebox", [])
   .directive("terrama2AlertBox", function() {
     return {
       restrict: "E",
-      templateUrl: "/javascripts/angular/alert-box/templates/message-box.html",
+      templateUrl: "message-box.html",
       scope: {
         alertLevel: '=alertLevel',
         title: "=title",

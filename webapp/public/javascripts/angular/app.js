@@ -1,5 +1,25 @@
 var terrama2Application = angular.module("terrama2", ['i18n']);
 
+// setting caches
+terrama2Application.run(function($templateCache) {
+  // TerraMA2 Box
+  $templateCache.put('box.html',
+  '<div class="col-md-12">' +
+    '<div class="box box-default {{ boxType }}">' +
+      '<div class="box-header with-border">' +
+        '<h3 class="box-title">{{ title }}</h3>' +
+        '<div class="box-tools pull-right">' +
+          '<button type="button" class="btn btn-box-tool terrama2-circle-button" style="margin-right: 15px;" data-toggle="tooltip" data-placement="bottom" title="{{ helper }}"><i class="fa fa-question"></i></button>' +
+          '<button type="button" class="btn btn-box-tool" data-widget="collapse"><i ng-if="!collapsed" class="fa fa-minus"></i></button> ' +
+        '</div>' +
+      '</div>' +
+      '<div style=\""display: {{ collapsed ? "none" : "block" }};\"" class="box-body">' +
+        '<div id="targetTransclude"></div>' +
+      '</div>' +
+    '</div>' +
+  '</div>');
+});
+
 terrama2Application.factory("TryCaster", function() {
   return function(value) {
     if (isNaN(value))
@@ -115,12 +135,10 @@ terrama2Application.directive('terrama2ShowErrors', function() {
     restrict: 'A',
     require: '^form',
     link: function(scope, el, attrs, formCtrl) {
-      // find the text box element, which has the 'name' attribute
       var inputEl   = el[0].querySelector("[name]");
-      // convert the native text box element to an angular element
+
       var inputNgEl = angular.element(inputEl);
-      // get the name on the text box so we know the property to check
-      // on the form controller
+
       var inputName = inputNgEl.attr('name');
 
       var _helper = function() {
@@ -142,11 +160,11 @@ terrama2Application.directive('terrama2ShowErrors', function() {
   }
 });
 
-terrama2Application.directive('terrama2Box', function($parse) {
+terrama2Application.directive('terrama2Box', function($parse, $templateCache) {
   return {
     restrict: 'E',
     transclude: true,
-    templateUrl: '/javascripts/angular/templates/box.html',
+    templateUrl: 'box.html', // template cache
     scope: {
       title: '=title',
       helper: '=?helper',

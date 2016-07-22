@@ -148,7 +148,12 @@
     <div class="content-wrapper">
       <!-- Main content -->
       <section class="content">
-        <div class="row">
+        <!-- Loading section-->
+        <!--<div ng-show="::false" style="height: 100%; width: 100%; top: 0; left: 0; z-index: 10000;" class="overlay">-->
+          <!--<i class="fa fa-refresh fa-spin"></i>-->
+        <!--</div>-->
+
+        <div class="row" ng-cloak="">
 
           {# Block for handling content of each TerraMA2 page #}
           {% block content %}
