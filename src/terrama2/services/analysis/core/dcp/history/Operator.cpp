@@ -60,7 +60,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 
   try
   {
-    readInfoFromDict(cache);
+//    readInfoFromDict(cache);
 
     // In case an error has already occurred, there is nothing to be done
     if(!Context::getInstance().getErrors(cache.analysisHashCode).empty())

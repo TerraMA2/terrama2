@@ -173,6 +173,33 @@ const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst
   return gridSeries->gridMap();
 }
 
+std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
+terrama2::services::analysis::core::getGridMap2(DataManagerPtr dataManager, DataSeriesId dataSeriesId)
+{
+  auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
+  if(!dataSeriesPtr)
+  {
+    QString errMsg = QObject::tr("Could not recover data series: %1.").arg(dataSeriesId);
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
+  auto dataProviderPtr = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
+
+  terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
+  std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
+  terrama2::core::Filter filter;
+  filter.lastValue = true;
+  auto gridSeries = accessorGrid->getGridSeries(filter);
+
+  if(!gridSeries)
+  {
+    QString errMsg = QObject::tr("Invalid grid series for data series: %1.").arg(dataSeriesId);
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
+  return gridSeries->gridMap2();
+}
+
 std::map<std::string, std::string> terrama2::services::analysis::core::getOutputRasterInfo(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode)
 {
   auto analysis = Context::getInstance().getAnalysis(analysisHashCode);
@@ -498,7 +525,7 @@ terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Ras
 
   te::rst::Grid* grid = nullptr;
   std::vector<te::rst::BandProperty*> bands;
-  std::tie(grid, bands) = getOutputRasterInfo(outputRasterInfo);
+  std::tie(grid, bands) = terrama2::services::analysis::core::getOutputRasterInfo(outputRasterInfo);
   assert(grid);
   std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
   auto ok = te::rp::RasterResample(*inputRaster, inputRasterBands, (te::rst::Interpolator::Method)method, 0, 0, oldNRows,

@@ -34,6 +34,8 @@
 #include "Analysis.hpp"
 #include "OperatorCache.hpp"
 #include "Context.hpp"
+#include "BaseContext.hpp"
+#include "grid/Context.hpp"
 #include "Typedef.hpp"
 
 // STL
@@ -105,6 +107,7 @@ namespace terrama2
           \note This must be called before creating any thread.
         */
         void initInterpreter();
+        void populateNamespace();
 
         /*!
           \brief Finalize Python interpreter.
@@ -126,7 +129,7 @@ namespace terrama2
           \param analysisHashCode Analysis hash code.
           \param indexes Vector of row indexes to process.
         */
-        void runScriptGridAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> rows);
+        void runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::grid::ContextPtr context, std::vector<uint64_t> rows);
 
         /*!
           \brief Run Python script for a monitored object analysis.
@@ -139,7 +142,7 @@ namespace terrama2
           \brief Read analysis information from Python thread dict.
           \param cache Cache to store the information for the operator.
         */
-        void readInfoFromDict(OperatorCache& cache);
+        void readInfoFromDict(OperatorCache& cache, BaseContextPtr context);
 
         /*!
           \brief Returns the result of the operation for the given statistic.
@@ -177,7 +180,7 @@ namespace terrama2
         /*!
          \brief Registers all grid functions in the Python interpreter.
         */
-        void registerGridFunctions();
+        void registerGridFunctions(terrama2::services::analysis::core::grid::ContextPtr context);
 
         /*!
           \brief Registers all DCP functions in the Python interpreter.
@@ -198,7 +201,7 @@ namespace terrama2
           \brief Insert the analysis script in a function.
           \param analysisHashCode Analysis hashcode.
         */
-        std::string prepareScript(AnalysisHashCode analysisHashCode);
+        std::string prepareScript(terrama2::services::analysis::core::BaseContextPtr context);
 
       } // end namespace core
     }   // end namespace analysis

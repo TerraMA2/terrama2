@@ -34,6 +34,7 @@
 // TerraMA2
 #include "Shared.hpp"
 #include "AnalysisLogger.hpp"
+#include "grid/Context.hpp"
 
 // STL
 #include <vector>
@@ -82,7 +83,7 @@ namespace terrama2
           \param analysisHashCode The analysis hashcode.
           \param threadPool Smart pointer to the thread pool.
         */
-        void runGridAnalysis(DataManagerPtr shared_ptr, AnalysisHashCode analysisHashCode, ThreadPoolPtr threadPool);
+        void runGridAnalysis(DataManagerPtr shared_ptr, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime , ThreadPoolPtr threadPool);
 
         /*!
           \brief Reads the analysis result from context and stores it to the configured output dataset.
@@ -103,7 +104,7 @@ namespace terrama2
           \param dataManager A smart pointer to the data manager.
           \param analysisHashCode The analysis hashcode.
         */
-        void storeGridAnalysisResult(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode);
+        void storeGridAnalysisResult(terrama2::services::analysis::core::grid::ContextPtr context);
 
 
       } // end namespace core

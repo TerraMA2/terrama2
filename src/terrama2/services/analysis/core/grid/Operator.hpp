@@ -35,6 +35,7 @@
 #include "../PythonInterpreter.hpp"
 #include "../BufferMemory.hpp"
 #include "../Analysis.hpp"
+#include "Context.hpp"
 
 // STL
 #include <string>
@@ -56,7 +57,7 @@ namespace terrama2
             \param dataSeriesName DataSeries name.
             \return The current pixel value for the selected data series.
           */
-          double sample(const std::string& dataSeriesName);
+          double sample(const std::string& dataSeriesName, ContextPtr context);
 
 
         }   // end namespace grid

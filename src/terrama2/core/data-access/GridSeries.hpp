@@ -38,7 +38,6 @@
 //TerraLib
 #include <terralib/raster.h>
 
-
 namespace terrama2
 {
   namespace core
@@ -55,10 +54,12 @@ namespace terrama2
         //! Add a group of DataSet data to the GridSeries.
         void addGridSeries(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap);
         //! Returns a map of DataSetGrid data.
-        const std::unordered_map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridMap();
+        inline const std::unordered_map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridMap() const { return rasterMap_; }
+        inline const std::unordered_multimap<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridMap2() const { return rasterMap2_; }
 
       private:
         std::unordered_map<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap_;//!< Map of DataSetGrid data.
+        std::unordered_multimap<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap2_;//!< Map of DataSetGrid data.
 
     };
   }

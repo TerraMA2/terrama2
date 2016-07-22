@@ -98,7 +98,8 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
 {
   AnalysisPtr analysis = Context::getInstance().getAnalysis(analysisHashCode);
 
-  std::string script = prepareScript(analysisHashCode);
+//FIXME: fix MonitoredObjectScript
+  std::string script;// = prepareScript(analysisHashCode);
 
   // grab the global interpreter lock
   GILLock gilLock;
@@ -155,17 +156,15 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
 }
 
 
-void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> rows)
+void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::grid::ContextPtr context, std::vector<uint64_t> rows)
 {
-  AnalysisPtr analysis = Context::getInstance().getAnalysis(analysisHashCode);
+  AnalysisPtr analysis = context->getAnalysis();
 
-  std::string script = prepareScript(analysisHashCode);
-
-  auto outputRaster = Context::getInstance().getOutputRaster(analysisHashCode);
+  auto outputRaster = context->getOutputRaster();
   if(!outputRaster)
   {
     QString errMsg(QObject::tr("Invalid output raster."));
-    Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
+    context->addError(errMsg.toStdString());
     return;
   }
 
@@ -176,7 +175,7 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
 
   int nCols = outputRaster->getNumberOfColumns();
 
-
+  std::string script = prepareScript(context);
   PyObject* pCompiledFn = Py_CompileString( script.c_str() , "" , Py_file_input ) ;
   assert( pCompiledFn != NULL ) ;
 
@@ -197,19 +196,17 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
     {
       for(int col = 0; col < nCols; ++col)
       {
-        auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
         auto pValueRow = PyInt_FromLong(row);
         auto pValueColumn = PyInt_FromLong(col);
 
         PyObject* poDict = PyDict_New();
 
-        PyDict_SetItemString(poDict, "analysisHashCode", pValueAnalysis);
         PyDict_SetItemString(poDict, "row", pValueRow);
         PyDict_SetItemString(poDict, "column", pValueColumn);
         state->dict = poDict;
 
 
-        boost::python::object result = analysisFunction(analysisHashCode, row, col);
+        boost::python::object result = analysisFunction(row, col);
         double value = boost::python::extract<double>(result);
         if(std::isnan(value))
           outputRaster->setValue(col, row, analysis->outputGridPtr->interpolationDummy);
@@ -221,7 +218,7 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
   catch(error_already_set)
   {
     std::string errMsg = extractException();
-    Context::getInstance().addError(analysisHashCode, errMsg);
+    context->addError(errMsg);
   }
 
 
@@ -268,7 +265,7 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
 void terrama2::services::analysis::core::addValue(const std::string& attribute, double value)
 {
   OperatorCache cache;
-  readInfoFromDict(cache);
+//  readInfoFromDict(cache);
 
   auto dataManagerPtr = Context::getInstance().getDataManager().lock();
   if(!dataManagerPtr)
@@ -458,18 +455,20 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
 }
 
 
-void terrama2::services::analysis::core::registerGridFunctions()
+void terrama2::services::analysis::core::registerGridFunctions(terrama2::services::analysis::core::grid::ContextPtr context)
 {
-  // map the dcp namespace to a sub-module
-  // make "from terrama2.dcp import <function>" work
+  // map the grid namespace to a sub-module
+  // make "from terrama2.grid import <function>" work
   object gridModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid"))));
-  // make "from terrama2 import dcp" work
-  scope().attr("grid") = gridModule;
+  // make "from terrama2 import grid" work
+  import("terrama2").attr("grid") = gridModule;
   // set the current scope to the new sub-module
   scope gridScope = gridModule;
 
   // export functions inside grid namespace
-  def("sample", terrama2::services::analysis::core::grid::sample);
+  def("sample", boost::python::make_function(boost::bind(&terrama2::services::analysis::core::grid::sample, boost::placeholders::_1, context),
+                                             default_call_policies(),
+                                             boost::mpl::vector<double,const std::string&>()));
 }
 
 // Declaration needed for default parameter ids
@@ -652,7 +651,7 @@ BOOST_PYTHON_MODULE (terrama2)
           .value("standard_deviation", terrama2::services::analysis::core::StatisticOperation::STANDARD_DEVIATION)
           .value("count", terrama2::services::analysis::core::StatisticOperation::COUNT);
 
-  terrama2::services::analysis::core::registerGridFunctions();
+  // terrama2::services::analysis::core::registerGridFunctions();
   terrama2::services::analysis::core::registerDCPFunctions();
   terrama2::services::analysis::core::registerOccurrenceFunctions();
 
@@ -666,44 +665,36 @@ extern "C" PyObject* INIT_MODULE();
 extern "C" void INIT_MODULE();
 #endif
 
+void terrama2::services::analysis::core::populateNamespace()
+{
+  INIT_MODULE();
+}
 
 void terrama2::services::analysis::core::initInterpreter()
 {
   PyEval_InitThreads();
   Py_Initialize();
-  INIT_MODULE();
+  // INIT_MODULE();
   PyEval_ReleaseLock();
 }
 
 void terrama2::services::analysis::core::finalizeInterpreter()
 {
   // shut down the interpreter
-  PyEval_AcquireLock();
+//  PyEval_AcquireLock();
   Py_Finalize();
 }
 
-void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
+void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache, BaseContextPtr context)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
 
-
-  // Analysis ID
-  PyObject* analysisKey = PyString_FromString("analysisHashCode");
-  PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
-  if(analysisPy != NULL)
-  {
-    cache.analysisHashCode = PyInt_AsLong(analysisPy);
-//    Py_DECREF(analysisPy);
-  }
-//  Py_DECREF(analysisKey);
-
-  auto analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
-
+  auto analysis = context->getAnalysis();
   if(!analysis)
   {
     QString errMsg(QObject::tr("Could not recover analysis configuration."));
-    Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+    context->addError(errMsg.toStdString());
     return;
   }
 
@@ -750,9 +741,9 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
 }
 
 
-std::string terrama2::services::analysis::core::prepareScript(AnalysisHashCode analysisHashCode)
+std::string terrama2::services::analysis::core::prepareScript(terrama2::services::analysis::core::BaseContextPtr context)
 {
-  AnalysisPtr analysis = Context::getInstance().getAnalysis(analysisHashCode);
+  AnalysisPtr analysis = context->getAnalysis();
   std::string formatedScript = analysis->script;
 
   // Adds indent after line break
@@ -772,13 +763,13 @@ std::string terrama2::services::analysis::core::prepareScript(AnalysisHashCode a
   switch(analysis->type)
   {
     case AnalysisType::GRID_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, row, col):\n" + formatedScript;
+      formatedScript = "from terrama2 import *\ndef analysis(row, col):\n" + formatedScript;
       break;
     case AnalysisType::MONITORED_OBJECT_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, index):\n" + formatedScript;
+      formatedScript = "from terrama2 import *\ndef analysis(index):\n" + formatedScript;
       break;
     case AnalysisType::PCD_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode):\n" + formatedScript;
+      formatedScript = "from terrama2 import *\ndef analysis():\n" + formatedScript;
       break;
   }
 

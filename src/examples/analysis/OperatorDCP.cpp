@@ -91,17 +91,16 @@ int main(int argc, char* argv[])
   dataManager->add(outputDataSeriesPtr);
 
   std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-          "x = dcp.min(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
-          "add_value(\"min\", x)\n"
-          "x = dcp.max(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
-          "add_value(\"max\", x)\n"
-          "x = dcp.mean(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
-          "add_value(\"mean\", x)\n"
-          "x = dcp.median(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
-          "add_value(\"median\", x)\n"
-          "x = dcp.standard_deviation(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
-          "add_value(\"standardDeviation\", x)\n";
-
+                       "x = dcp.min(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                       "add_value(\"min\", x)\n"
+                       "x = dcp.max(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                       "add_value(\"max\", x)\n"
+                       "x = dcp.mean(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                       "add_value(\"mean\", x)\n"
+                       "x = dcp.median(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                       "add_value(\"median\", x)\n"
+                       "x = dcp.standard_deviation(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                       "add_value(\"standardDeviation\", x)\n";
 
   Analysis* analysis = new Analysis;
   AnalysisPtr analysisPtr(analysis);

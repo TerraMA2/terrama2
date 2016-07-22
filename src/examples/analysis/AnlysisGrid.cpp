@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
     logger->setConnectionInfo(connInfo);
     service.setLogger(logger);
 
-    service.start(1);
+    service.start();
     service.addAnalysis(1);
 
     QTimer timer;

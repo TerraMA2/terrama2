@@ -158,7 +158,7 @@ namespace terrama2
               \param analysisHashCode Hash code of the analysis.
               \param geomId Geometry identifier.
               \param attribute Name of the attribute.
-              \param result The result value.
+              \result The result value.
             */
             void setAnalysisResult(AnalysisHashCode analysisHashCode, const std::string& geomId, const std::string& attribute,
                                    double result);
@@ -172,7 +172,7 @@ namespace terrama2
             /*!
               \brief Returns a weak pointer to the data manager.
 
-              \param result The weak pointer to the data manager.
+              \result The weak pointer to the data manager.
             */
             std::weak_ptr<terrama2::services::analysis::core::DataManager> getDataManager();
 

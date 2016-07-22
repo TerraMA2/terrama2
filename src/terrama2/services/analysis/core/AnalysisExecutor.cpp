@@ -43,6 +43,8 @@
 #include "../../../impl/DataStoragerPostGis.hpp"
 #include "../../../impl/DataStoragerTiff.hpp"
 
+#include "grid/Context.hpp"
+
 // STL
 #include <thread>
 #include <future>
@@ -84,7 +86,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
     // If it's the first analysis to be run, it needs to set the main thread state in the context.
     if(Context::getInstance().getMainThreadState() == nullptr)
     {
-      Context::getInstance().setMainThreadState(PyThreadState_Get());
+      // Context::getInstance().setMainThreadState(PyThreadState_Get());
     }
 
     Context::getInstance().addAnalysis(analysisHashCode, analysis);
@@ -103,7 +105,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       }
       case AnalysisType::GRID_TYPE:
       {
-        runGridAnalysis(dataManager, analysisHashCode, threadPool);
+        runGridAnalysis(dataManager, analysis, startTime, threadPool);
         break;
       }
     }
@@ -115,6 +117,18 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   catch(const std::exception& e)
   {
     Context::getInstance().addError(analysisHashCode, e.what());
+  }
+  catch(const boost::python::error_already_set&)
+  {
+    //TODO: how to log this error?
+    PyErr_Print();
+
+    QString errMsg = QObject::tr("An python exception occurred.");
+    Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
+  }
+  catch(const boost::exception& e)
+  {
+    Context::getInstance().addError(analysisHashCode, boost::diagnostic_information(e));
   }
   catch(...)
   {
@@ -457,24 +471,24 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
 }
 
-void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode, ThreadPoolPtr threadPool)
+void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
 {
+  auto context = std::make_shared<terrama2::services::analysis::core::grid::Context>(dataManager, analysis, startTime);
+  context->registerGridFunctions();
+
   std::vector<std::future<void> > futures;
   std::vector<PyThreadState*> states;
   PyThreadState * mainThreadState = nullptr;
+
   try
   {
-    Context::getInstance().createOutputRaster(analysisHashCode);
-
-    auto analysis = Context::getInstance().getAnalysis(analysisHashCode);
-
     if(!analysis->outputGridPtr)
     {
       QString errMsg = QObject::tr("Invalid output grid configuration.");
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    auto outputRaster = Context::getInstance().getOutputRaster(analysisHashCode);
+    auto outputRaster = context->getOutputRaster();
 
     if(!outputRaster)
     {
@@ -490,7 +504,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
     }
 
     // Recovers the main thread state
-    mainThreadState = Context::getInstance().getMainThreadState();
+    mainThreadState = context->getMainThreadState();
     if(mainThreadState == nullptr)
     {
       QString errMsg = QObject::tr("Could not recover python interpreter main thread state");
@@ -520,8 +534,6 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
     unsigned int begin = 0;
 
-    std::vector<PyThreadState*> states;
-
     //Starts collection threads
     for (uint i = 0; i < threadNumber; ++i)
     {
@@ -540,32 +552,42 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
       // create a thread state object for this thread
       PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
-      futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::runScriptGridAnalysis, myThreadState, analysisHashCode, indexes));
+      futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::runScriptGridAnalysis, myThreadState, context, indexes));
 
       begin += packageSize;
     }
 
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
 
-
-
-    storeGridAnalysisResult(dataManager, analysisHashCode);
+    storeGridAnalysisResult(context);
   }
-  catch(terrama2::Exception e)
+  catch(const terrama2::Exception& e)
   {
-    Context::getInstance().addError(analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
-    Context::getInstance().addError(analysisHashCode, e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    context->addError(e.what());
+    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
+  }
+  catch(const boost::python::error_already_set&)
+  {
+    //TODO: how to log this error?
+    PyErr_Print();
+
+    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
+  }
+  catch(const boost::exception& e)
+  {
+    context->addError(boost::diagnostic_information(e));
+    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    Context::getInstance().addError(analysisHashCode, errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    context->addError(errMsg.toStdString());
+    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
   }
 
 
@@ -587,14 +609,13 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   PyEval_ReleaseLock();
 }
 
-void terrama2::services::analysis::core::storeGridAnalysisResult(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode)
+void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::services::analysis::core::grid::ContextPtr context)
 {
-//TODO:lock Datamanager
-  auto errors = Context::getInstance().getErrors(analysisHashCode);
+  auto errors = context->getErrors();
   if(!errors.empty())
     return;
 
-  auto analysis = Context::getInstance().getAnalysis(analysisHashCode);
+  auto analysis = context->getAnalysis();
   if(!analysis)
   {
     QString errMsg = QObject::tr("Could not recover the analysis configuration.");
@@ -606,6 +627,9 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(DataManagerPtr 
     QString errMsg = QObject::tr("Invalid analysis type.");
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
+  auto dataManager = context->getDataManager().lock();
+  //FIXME: check dataManager
+  assert(dataManager.get());
 
   auto dataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
   if(!dataSeries)
@@ -624,7 +648,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(DataManagerPtr 
 
   std::map<std::string, std::string> rinfo;
 
-  auto raster = Context::getInstance().getOutputRaster(analysisHashCode);
+  auto raster = context->getOutputRaster();
   if(!raster)
   {
     QString errMsg = QObject::tr("Empty result.");
