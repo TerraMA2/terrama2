@@ -438,7 +438,7 @@ TcpManager.prototype.initialize = function(client) {
   // socket closed
   client.on('close', onClose);
 
-  client.on('error', onError)
+  client.on('serviceError', onError)
 
   // remove listener
   self.on('removeListeners', function() {
