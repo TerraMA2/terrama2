@@ -34,16 +34,21 @@
 #include "../../../core/utility/Logger.hpp"
 
 // Terralib
-#include <terralib/geometry/WKTReader.h>
+#include <terralib/se/Style.h>
+#include <terralib/xml/ReaderFactory.h>
+#include <terralib/xml/AbstractWriterFactory.h>
 
-#include <terralib/se/PolygonSymbolizer.h>
-#include <terralib/se/Fill.h>
-#include <terralib/se/SvgParameter.h>
+// TODO: Enable this when Terralib release fix for style serialization
+//#include <terralib/se/serialization/xml/Style.h>
+// TODO: Remove this when Terralib release fix for style serialization
+#include "Style.h"
+
 
 // Qt
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QObject>
+#include <QTemporaryFile>
 
 terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromViewJson(QJsonObject json)
 {
@@ -103,16 +108,42 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
       view->filtersPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), terrama2::core::fromFilterJson(json["dataset_series_filter"].toObject()));
     }
   }
-/*
+
   {
     auto datasetSeriesArray = json["styles_per_data_series"].toArray();
     auto it = datasetSeriesArray.begin();
     for(; it != datasetSeriesArray.end(); ++it)
     {
       auto obj = (*it).toObject();
-      view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), fromViewStyleJson(json["dataset_series_view_style"].toObject()));
+
+      QTemporaryFile file;
+
+      if(!file.open())
+      {
+        QString errMsg = QObject::tr("Could not load the XML file!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      file.write(obj["dataset_series_view_style"].toString().toUtf8());
+      file.flush();
+
+      std::unique_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
+      reader->setValidationScheme(false);
+
+      reader->read(file.fileName().toStdString());
+
+      if(!reader->next())
+      {
+        QString errMsg = QObject::tr("Could not read the XML file!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()),
+          std::unique_ptr<te::se::Style>(te::se::serialize::Style::getInstance().read(*reader.get())));
     }
-  }*/
+  }
 
   return viewPtr;
 }
@@ -160,7 +191,29 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
     {
       QJsonObject datasetSeriesAndStyle;
       datasetSeriesAndStyle.insert("dataset_series_id", static_cast<int32_t>(it.first));
-      //datasetSeriesAndStyle.insert("dataset_series_view_style", toJson(it.second));
+
+      std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
+      writer->writeStartDocument("UTF-8", "no");
+      writer->setRootNamespaceURI("http://www.w3.org/2000/xmlns/se");
+
+      QTemporaryFile file;
+      if(!file.open())
+        throw Exception() << ErrorDescription("Could not create XML file!");
+
+      writer->setURI(file.fileName().toStdString());
+      te::se::serialize::Style::getInstance().write(it.second->clone(), *writer.get());
+
+      writer->writeToFile();
+
+      QByteArray content = file.readAll();
+      if(content.isEmpty())
+      {
+        QString errMsg = QObject::tr("Could not create XML file!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      datasetSeriesAndStyle.insert("dataset_series_view_style", QString(content));
 
       array.push_back(datasetSeriesAndStyle);
     }
@@ -168,51 +221,4 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   }
 
   return obj;
-}
-
-
-QJsonObject terrama2::services::view::core::toJson(const ViewStyle viewStyle)
-{
-  QJsonObject obj;
-  obj.insert("class", QString("ViewStyle"));
-
-  std::unique_ptr<te::se::PolygonSymbolizer> polygon(dynamic_cast<te::se::PolygonSymbolizer*>(viewStyle.getSymbolizer(te::gm::PolygonType)));
-//  obj.insert("view_style_polygon_fill_color", QString::fromStdString(polygon->getFill()->getColor()->getName()));
-    // TODO: dynamic cast to svgparametervalue
-//  obj.insert("view_style_opacity", QString::fromStdString(viewStyle.fillOpacity));
-//  obj.insert("view_style_width", QString::fromStdString(viewStyle.strokeWidth));
-//  obj.insert("view_style_dasharray",QString::fromStdString(viewStyle.strokeDasharray));
-//  obj.insert("view_style_linecap", QString::fromStdString(viewStyle.strokeLinecap));
-//  obj.insert("view_style_linejoin",QString::fromStdString(viewStyle.strokeLinejoin));
-//  obj.insert("view_style_size", QString::fromStdString(viewStyle.markSize));
-//  obj.insert("view_style_rotation", QString::fromStdString(viewStyle.markRotation));
-
-  return obj;
-}
-
-terrama2::services::view::core::ViewStyle* terrama2::services::view::core::fromViewStyleJson(QJsonObject json)
-{
-  if(json["class"].toString() != "ViewStyle")
-  {
-    QString errMsg = QObject::tr("Invalid View JSON object.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-  }
-/*
-  if(!json.contains("view_style_color")
-     || !json.contains("view_style_opacity")
-     || !json.contains("view_style_width")
-     || !json.contains("view_style_dasharray")
-     || !json.contains("view_style_linecap")
-     || !json.contains("view_style_linejoin")
-     || !json.contains("view_style_size")
-     || !json.contains("view_style_rotation"))
-  {
-    QString errMsg = QObject::tr("Invalid View Style JSON object.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-  }
-*/
-
-  return new ViewStyle();
 }

@@ -202,7 +202,7 @@ te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType)
     case te::gm::MultiSurfaceZMType:
     {
       te::se::Fill* fill = CreateFill("#5e5eeb", "100");
-      te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+      te::se::Stroke* stroke = CreateStroke("#FFFF00", "1", "", "", "", "");
       te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
       symbolizer->setFill(fill);
       symbolizer->setStroke(stroke);
@@ -314,6 +314,35 @@ te::se::Style* RGB_012_RGB_Contrast_Style()
   return style;
 }
 
+te::se::Style* MONO_0_Style()
+{
+  //create default raster symbolizer
+  te::se::RasterSymbolizer* rs = new te::se::RasterSymbolizer();
+
+  //set transparency
+  rs->setOpacity(new te::se::ParameterValue("1.0"));
+
+  //set channel selection
+  te::se::ChannelSelection* cs = new te::se::ChannelSelection();
+  cs->setColorCompositionType(te::se::GRAY_COMPOSITION);
+
+  //channel M
+  te::se::SelectedChannel* scM = new te::se::SelectedChannel();
+  scM->setSourceChannelName("0");
+  cs->setGrayChannel(scM);
+
+  rs->setChannelSelection(cs);
+
+  //add symbolizer to a layer style
+  te::se::Rule* r = new te::se::Rule();
+  r->push_back(rs);
+
+  te::se::Style* style = new te::se::CoverageStyle();
+  style->push_back(r);
+
+  return style;
+}
+
 int main(int argc, char** argv)
 {
   terrama2::core::initializeTerraMA();
@@ -369,11 +398,11 @@ int main(int argc, char** argv)
     view->filtersPerDataSeries.emplace(2, filter);
     view->filtersPerDataSeries.emplace(3, filter);
 
-    view->stylesPerDataSeries.emplace(1, RGB_012_RGB_Contrast_Style());
+    view->stylesPerDataSeries.emplace(1, std::unique_ptr<te::se::Style>(MONO_0_Style()));
 
-    view->stylesPerDataSeries.emplace(2, CreateFeatureTypeStyle(te::gm::PolygonType));
+    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
 
-    view->stylesPerDataSeries.emplace(3, CreateFeatureTypeStyle(te::gm::LineStringType));
+    view->stylesPerDataSeries.emplace(3, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::LineStringType)));
 
     dataManager->add(viewPtr);
 
