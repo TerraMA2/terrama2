@@ -20,19 +20,19 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/Context.cpp
+  \file terrama2/services/analysis/core/GridContext.cpp
 
   \brief Contains grid analysis context.
 
   \author Jano Simas
 */
 
-#include "Context.hpp"
-#include "Operator.hpp"
-#include "../DataManager.hpp"
-#include "../Utils.hpp"
-#include "../PythonInterpreter.hpp"
-#include "../../../../core/data-model/DataSetGrid.hpp"
+#include "GridContext.hpp"
+#include "grid/Operator.hpp"
+#include "DataManager.hpp"
+#include "Utils.hpp"
+#include "PythonInterpreter.hpp"
+#include "../../../core/data-model/DataSetGrid.hpp"
 
 #include <terralib/raster/Raster.h>
 #include <terralib/raster/RasterFactory.h>
@@ -48,13 +48,18 @@
 #include <boost/python/make_function.hpp>
 #include <boost/bind.hpp>
 
-terrama2::services::analysis::core::grid::Context::Context(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
+terrama2::services::analysis::core::GridContext::GridContext(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
   : BaseContext(dataManager, analysis, startTime)
 {
   createOutputRaster();
 }
 
-void terrama2::services::analysis::core::grid::Context::registerGridFunctions()
+void terrama2::services::analysis::core::GridContext::registerFunctions()
+{
+  registerGridFunctions();
+}
+
+void terrama2::services::analysis::core::GridContext::registerGridFunctions()
 {
   GILLock lock;
 
@@ -72,19 +77,19 @@ void terrama2::services::analysis::core::grid::Context::registerGridFunctions()
 
   auto context = shared_from_this();
   // export functions inside grid namespace
-  def("sample", boost::python::make_function(boost::bind(&terrama2::services::analysis::core::grid::sample, boost::placeholders::_1, std::static_pointer_cast<Context>(context)),
+  def("sample", boost::python::make_function(boost::bind(&terrama2::services::analysis::core::grid::sample, boost::placeholders::_1, std::static_pointer_cast<GridContext>(context)),
                                              default_call_policies(),
                                              boost::mpl::vector<double,const std::string&>()));
 
   PyThreadState_Swap(oldState);
 }
 
-std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::grid::Context::getOutputRaster()
+std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::GridContext::getOutputRaster()
 {
   return outputRaster_;
 }
 
-void terrama2::services::analysis::core::grid::Context::createOutputRaster()
+void terrama2::services::analysis::core::GridContext::createOutputRaster()
 {
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
@@ -115,7 +120,7 @@ void terrama2::services::analysis::core::grid::Context::createOutputRaster()
 
 }
 
-te::gm::Coord2D terrama2::services::analysis::core::grid::Context::convertoTo(const te::gm::Coord2D& point, const int srid)
+te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(const te::gm::Coord2D& point, const int srid)
 {
   te::gm::Coord2D newPoint;
   std::shared_ptr<te::srs::Converter> converter;
@@ -147,7 +152,7 @@ te::gm::Coord2D terrama2::services::analysis::core::grid::Context::convertoTo(co
 }
 
 
-std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::core::grid::Context::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId)
+std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId)
 {
   auto it = rasterMap_.find(datasetId);
   if(it != rasterMap_.end())
@@ -187,12 +192,12 @@ std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::co
   }
 }
 
-void terrama2::services::analysis::core::grid::Context::addRaster(const DataSetId datasetId, std::shared_ptr<te::rst::Raster> raster)
+void terrama2::services::analysis::core::GridContext::addRaster(const DataSetId datasetId, std::shared_ptr<te::rst::Raster> raster)
 {
   rasterMap_[datasetId].push_back(raster);
 }
 
-std::map<std::string, std::string> terrama2::services::analysis::core::grid::Context::getOutputRasterInfo()
+std::map<std::string, std::string> terrama2::services::analysis::core::GridContext::getOutputRasterInfo()
 {
   if(outputRasterInfo_.empty())
   {
@@ -220,7 +225,7 @@ std::map<std::string, std::string> terrama2::services::analysis::core::grid::Con
   return outputRasterInfo_;
 }
 
-void terrama2::services::analysis::core::grid::Context::addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo)
+void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo)
 {
   double resX = 0;
   double resY = 0;
@@ -380,7 +385,7 @@ void terrama2::services::analysis::core::grid::Context::addResolutionToRasterInf
   outputRasterInfo["MEM_RASTER_RES_Y"] = std::to_string(resY);
 }
 
-void terrama2::services::analysis::core::grid::Context::addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo)
+void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo)
 {
   Srid srid = 0;
   std::shared_ptr<te::gm::Envelope> box(new te::gm::Envelope());
@@ -481,7 +486,7 @@ void terrama2::services::analysis::core::grid::Context::addInterestAreaToRasterI
 }
 
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-terrama2::services::analysis::core::grid::Context::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager, DataSeriesId dataSeriesId)
+terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager, DataSeriesId dataSeriesId)
 {
   auto it = analysisInputGrid_.find(dataSeriesId);
   if(it == analysisInputGrid_.end())

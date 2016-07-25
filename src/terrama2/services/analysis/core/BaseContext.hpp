@@ -96,6 +96,8 @@ namespace terrama2
             terrama2::core::DataSeriesPtr findDataSeries(const std::string& dataSeriesName);
 
           protected:
+            mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
+            
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
             AnalysisPtr analysis_;
             std::shared_ptr<te::dt::TimeInstantTZ> startTime_;
@@ -104,7 +106,7 @@ namespace terrama2
             PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
 
             std::unordered_map<std::string, terrama2::core::DataSeriesPtr > dataSeriesMap_;
-            std::unordered_map<int, std::shared_ptr<te::srs::Converter> > converterMap_;
+            std::unordered_map<Srid, std::shared_ptr<te::srs::Converter> > converterMap_;
         };
 
       }

@@ -57,10 +57,11 @@ namespace terrama2
         class BaseContext;
         typedef std::shared_ptr<terrama2::services::analysis::core::BaseContext> BaseContextPtr;
 
-        namespace grid {
-          class Context;
-          typedef std::shared_ptr<terrama2::services::analysis::core::grid::Context> ContextPtr;
-        } /* grid */
+        class GridContext;
+        typedef std::shared_ptr<terrama2::services::analysis::core::GridContext> GridContextPtr;
+
+        class MonitoredObjectContext;
+        typedef std::shared_ptr<terrama2::services::analysis::core::MonitoredObjectContext> MonitoredObjectContextPtr;
 
       } // end namespace core
     }   // end namespace analysis

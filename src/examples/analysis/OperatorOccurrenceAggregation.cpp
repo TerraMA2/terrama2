@@ -14,7 +14,6 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/Context.hpp>
 #include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
@@ -213,8 +212,6 @@ int main(int argc, char* argv[])
 
   dataManager->add(analysisPtr);
 
-  // Starts the service and adds the analysis
-  Context::getInstance().setDataManager(dataManager);
   terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
   auto logger = std::make_shared<AnalysisLogger>();

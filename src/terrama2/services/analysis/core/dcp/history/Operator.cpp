@@ -46,7 +46,8 @@
 #include <terralib/geometry/MultiPolygon.h>
 
 
-double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticOperation statisticOperation,
+double terrama2::services::analysis::core::dcp::history::operatorImpl(MonitoredObjectContextPtr context,
+                                                                      StatisticOperation statisticOperation,
                                                                       const std::string& dataSeriesName,
                                                                       const std::string& attribute, DataSetId dcpId,
                                                                       Buffer buffer, const std::string& dateFilter)
@@ -63,7 +64,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 //    readInfoFromDict(cache);
 
     // In case an error has already occurred, there is nothing to be done
-    if(!Context::getInstance().getErrors(cache.analysisHashCode).empty())
+    if(!context->getErrors().empty())
     {
       return NAN;
     }
@@ -71,16 +72,16 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 
     bool hasData = false;
 
-    AnalysisPtr analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
+    AnalysisPtr analysis = context->getAnalysis();
 
-    auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+    auto dataManagerPtr = context->getDataManager().lock();
     if(!dataManagerPtr)
     {
       QString errMsg(QObject::tr("Invalid data manager."));
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto moDsContext = getMonitoredObjectContextDataSeries(cache.analysisHashCode, dataManagerPtr);
+    auto moDsContext = getMonitoredObjectContextDataSeries(context, dataManagerPtr);
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object dataset."));
@@ -110,13 +111,13 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
-        Context::getInstance().addDCPDataSeries(cache.analysisHashCode, dataSeries, dateFilter, false);
+        context->addDCPDataSeries(dataSeries, dateFilter, false);
 
         for(auto dataset : dataSeries->datasetList)
         {
           if(dataset->id != dcpId)
             continue;
-          contextDataSeries = Context::getInstance().getContextDataset(cache.analysisHashCode, dataset->id, dateFilter);
+          contextDataSeries = context->getContextDataset(dataset->id, dateFilter);
 
           terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                   dataset);
@@ -202,18 +203,18 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
       }
       catch(const terrama2::Exception& e)
       {
-        Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+        context->addError( boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
         exceptionOccurred = true;
       }
       catch(const std::exception& e)
       {
-        Context::getInstance().addError(cache.analysisHashCode, e.what());
+        context->addError(e.what());
         exceptionOccurred = true;
       }
       catch(...)
       {
         QString errMsg = QObject::tr("An unknown exception occurred.");
-        Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+        context->addError(errMsg.toStdString());
         exceptionOccurred = true;
       }
 
@@ -233,66 +234,72 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
   }
   catch(const terrama2::Exception& e)
   {
-    Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addError( boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return NAN;
   }
   catch(const std::exception& e)
   {
-    Context::getInstance().addError(cache.analysisHashCode, e.what());
+    context->addError(e.what());
     return NAN;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+    context->addError(errMsg.toStdString());
     return NAN;
   }
 }
 
 
-double terrama2::services::analysis::core::dcp::history::sum(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::history::sum(MonitoredObjectContextPtr context,
+                                                             const std::string& dataSeriesName,
                                                              const std::string& attribute, DataSetId dcpId,
                                                              Buffer buffer,
                                                              const std::string& dateFilter)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(context, StatisticOperation::SUM, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcp::history::mean(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::history::mean(MonitoredObjectContextPtr context,
+                                                              const std::string& dataSeriesName,
                                                               const std::string& attribute, DataSetId dcpId,
                                                               Buffer buffer,
                                                               const std::string& dateFilter)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(context, StatisticOperation::MEAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcp::history::min(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::history::min(MonitoredObjectContextPtr context,
+                                                             const std::string& dataSeriesName,
                                                              const std::string& attribute, DataSetId dcpId,
                                                              Buffer buffer,
                                                              const std::string& dateFilter)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(context, StatisticOperation::MIN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcp::history::max(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::history::max(MonitoredObjectContextPtr context,
+                                                             const std::string& dataSeriesName,
                                                              const std::string& attribute, DataSetId dcpId,
                                                              Buffer buffer,
                                                              const std::string& dateFilter)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(context, StatisticOperation::MAX, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcp::history::median(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::history::median(MonitoredObjectContextPtr context,
+                                                                const std::string& dataSeriesName,
                                                                 const std::string& attribute, DataSetId dcpId,
                                                                 Buffer buffer, const std::string& dateFilter)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(context, StatisticOperation::MEDIAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
 
-double terrama2::services::analysis::core::dcp::history::standardDeviation(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::history::standardDeviation(MonitoredObjectContextPtr context,
+                                                                           const std::string& dataSeriesName,
                                                                            const std::string& attribute,
                                                                            DataSetId dcpId,
                                                                            Buffer buffer, const std::string& dateFilter)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(context, StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }

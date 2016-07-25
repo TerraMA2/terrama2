@@ -53,7 +53,8 @@
 using namespace boost::python;
 
 
-double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation statisticOperation,
+double terrama2::services::analysis::core::dcp::operatorImpl(MonitoredObjectContextPtr context,
+                                                             StatisticOperation statisticOperation,
                                                              const std::string& dataSeriesName,
                                                              const std::string& attribute,
                                                              Buffer buffer, boost::python::list ids)
@@ -70,23 +71,23 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 //    readInfoFromDict(cache);
 
     // In case an error has already occurred, there is nothing to be done
-    if(!Context::getInstance().getErrors(cache.analysisHashCode).empty())
+    if(!context->getErrors().empty())
     {
       return NAN;
     }
 
     bool hasData = false;
 
-    auto dataManagerPtr = Context::getInstance().getDataManager().lock();
+    auto dataManagerPtr = context->getDataManager().lock();
     if(!dataManagerPtr)
     {
       QString errMsg(QObject::tr("Invalid data manager."));
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
-    AnalysisPtr analysis = Context::getInstance().getAnalysis(cache.analysisHashCode);
+    AnalysisPtr analysis = context->getAnalysis();
 
-    auto moDsContext = getMonitoredObjectContextDataSeries(cache.analysisHashCode, dataManagerPtr);
+    auto moDsContext = getMonitoredObjectContextDataSeries(context, dataManagerPtr);
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
@@ -121,14 +122,14 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
-        Context::getInstance().addDCPDataSeries(cache.analysisHashCode, dataSeries, "", true);
+        context->addDCPDataSeries(dataSeries, "", true);
 
         // For DCP operator count returns the number of DCP that influence the monitored object
         uint64_t influenceCount = 0;
 
         for(auto dataset : dataSeries->datasetList)
         {
-          dcpContextDataSeries = Context::getInstance().getContextDataset(cache.analysisHashCode, dataset->id);
+          dcpContextDataSeries = context->getContextDataset(dataset->id);
 
           terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                   dataset);
@@ -223,18 +224,18 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
       }
       catch(const terrama2::Exception& e)
       {
-        Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+        context->addError( boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
         exceptionOccurred = true;
       }
       catch(const std::exception& e)
       {
-        Context::getInstance().addError(cache.analysisHashCode, e.what());
+        context->addError(e.what());
         exceptionOccurred = true;
       }
       catch(...)
       {
         QString errMsg = QObject::tr("An unknown exception occurred.");
-        Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+        context->addError(errMsg.toStdString());
         exceptionOccurred = true;
       }
 
@@ -254,62 +255,62 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   }
   catch(const terrama2::Exception& e)
   {
-    Context::getInstance().addError(cache.analysisHashCode,  boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addError( boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return NAN;
   }
   catch(const std::exception& e)
   {
-    Context::getInstance().addError(cache.analysisHashCode, e.what());
+    context->addError(e.what());
     return NAN;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    Context::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+    context->addError(errMsg.toStdString());
     return NAN;
   }
 }
 
-int terrama2::services::analysis::core::dcp::count(const std::string& dataSeriesName, Buffer buffer)
+int terrama2::services::analysis::core::dcp::count(MonitoredObjectContextPtr context, const std::string& dataSeriesName, Buffer buffer)
 {
-  return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", buffer);
+  return (int) operatorImpl(context, StatisticOperation::COUNT, dataSeriesName, "", buffer);
 }
 
-double terrama2::services::analysis::core::dcp::min(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::min(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(context, StatisticOperation::MIN, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::max(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::max(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(context, StatisticOperation::MAX, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::mean(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::mean(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
                                                      Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(context, StatisticOperation::MEAN, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::median(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::median(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
                                                        Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(context, StatisticOperation::MEDIAN, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::sum(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::sum(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(context, StatisticOperation::SUM, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::standardDeviation(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::standardDeviation(MonitoredObjectContextPtr context, const std::string& dataSeriesName,
                                                                   const std::string& attribute, Buffer buffer,
                                                                   boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(context, StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, buffer, ids);
 }
 
 

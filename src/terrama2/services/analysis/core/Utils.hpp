@@ -120,11 +120,8 @@ namespace terrama2
         /*
           \brief Returns a map with the parameters to create the output raster.
 
-          \param analysisHashCode Analysis hashcode.
-
           \return The map with the parameters to create the output raster.
          */
-        std::map<std::string, std::string> getOutputRasterInfo(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode);
         std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> > getOutputRasterInfo(std::map<std::string, std::string> rinfo);
 
         std::shared_ptr<te::rst::Raster> reprojectRaster(std::shared_ptr<te::rst::Raster> inputRaster, std::map<std::string, std::string> outputRasterInfo, InterpolationMethod method);

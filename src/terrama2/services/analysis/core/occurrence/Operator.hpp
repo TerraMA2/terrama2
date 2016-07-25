@@ -63,7 +63,8 @@ namespace terrama2
             \param restriction SQL restriction.
             \return The result of the selected operation.
           */
-          double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+          double operatorImpl(MonitoredObjectContextPtr context,
+                              terrama2::services::analysis::core::StatisticOperation statisticOperation,
                               const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                               const std::string& dateFilter,
                               terrama2::services::analysis::core::Buffer aggregationBuffer,
@@ -81,7 +82,7 @@ namespace terrama2
 
             \return The number of occurrences in the monitored object.
           */
-          int count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+          int count(MonitoredObjectContextPtr context, const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                     const std::string& dateFilter, const std::string& restriction= "");
 
           /*!
@@ -94,7 +95,7 @@ namespace terrama2
             \param restriction SQL restriction.
             \return The minimum value of the attribute of occurrences in the monitored object area.
           */
-          double min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+          double min(MonitoredObjectContextPtr context, const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                      const std::string& dateFilter, const std::string& attribute, const std::string& restriction = "");
 
           /*!
@@ -107,7 +108,7 @@ namespace terrama2
             \param restriction SQL restriction.
             \return The maximum value of the attribute of occurrences in the monitored object area.
           */
-          double max(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+          double max(MonitoredObjectContextPtr context, const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                      const std::string& dateFilter,
                      const std::string& attribute, const std::string& restriction = "");
 
@@ -121,7 +122,7 @@ namespace terrama2
             \param restriction SQL restriction.
             \return The mean value of the attribute of occurrences in the monitored object area.
           */
-          double mean(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+          double mean(MonitoredObjectContextPtr context, const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                       const std::string& dateFilter,
                       const std::string& attribute, const std::string& restriction = "");
 
@@ -135,7 +136,7 @@ namespace terrama2
             \param restriction SQL restriction.
             \return The median value of the attribute of occurrences in the monitored object area.
           */
-          double median(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+          double median(MonitoredObjectContextPtr context, const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                         const std::string& dateFilter,
                         const std::string& attribute, const std::string& restriction = "");
 
@@ -149,7 +150,7 @@ namespace terrama2
             \param restriction SQL restriction.
             \return The sum of values of the attribute of occurrences in the monitored object area.
           */
-          double sum(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+          double sum(MonitoredObjectContextPtr context, const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                      const std::string& dateFilter,
                      const std::string& attribute, const std::string& restriction = "");
 
@@ -163,7 +164,7 @@ namespace terrama2
             \param restriction SQL restriction.
             \return The median value of the attribute of occurrences in the monitored object area.
           */
-          double standardDeviation(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+          double standardDeviation(MonitoredObjectContextPtr context, const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                                    const std::string& dateFilter,
                                    const std::string& attribute, const std::string& restriction = "");
 

@@ -34,7 +34,7 @@
 // TerraMA2
 #include "Shared.hpp"
 #include "AnalysisLogger.hpp"
-#include "grid/Context.hpp"
+#include "GridContext.hpp"
 
 // STL
 #include <vector>
@@ -64,23 +64,20 @@ namespace terrama2
         /*!
           \brief Prepare the context for a monitored object analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
-          \param analysisHashCode The analysis hashcode.
           \param threadPool Smart pointer to the thread pool.
         */
-        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode, ThreadPoolPtr threadPool);
+        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool);
 
         /*!
           \brief Prepare the context for a DCP analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
-          \param analysisHashCode The analysis hashcode.
           \param threadPool Smart pointer to the thread pool.
         */
-        void runDCPAnalysis(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode, ThreadPoolPtr threadPool);
+        void runDCPAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool);
 
         /*!
           \brief Prepare the context for a grid analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
-          \param analysisHashCode The analysis hashcode.
           \param threadPool Smart pointer to the thread pool.
         */
         void runGridAnalysis(DataManagerPtr shared_ptr, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime , ThreadPoolPtr threadPool);
@@ -88,23 +85,14 @@ namespace terrama2
         /*!
           \brief Reads the analysis result from context and stores it to the configured output dataset.
           \param dataManager A smart pointer to the data manager.
-          \param analysisHashCode The analysis hashcode.
         */
-        void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode);
+        void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, MonitoredObjectContextPtr context);
 
         /*!
           \brief Reads the analysis result from context and stores it to the configured output dataset.
           \param dataManager A smart pointer to the data manager.
-          \param analysisHashCode The analysis hashcode.
         */
-        void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, AnalysisHashCode analysisHashCode);
-
-        /*!
-          \brief Reads the analysis result from context and stores it to the configured output dataset.
-          \param dataManager A smart pointer to the data manager.
-          \param analysisHashCode The analysis hashcode.
-        */
-        void storeGridAnalysisResult(terrama2::services::analysis::core::grid::ContextPtr context);
+        void storeGridAnalysisResult(terrama2::services::analysis::core::GridContextPtr context);
 
 
       } // end namespace core

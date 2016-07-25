@@ -35,6 +35,7 @@
 #include "../PythonInterpreter.hpp"
 #include "../BufferMemory.hpp"
 #include "../Analysis.hpp"
+#include "../Shared.hpp"
 
 // STL
 #include <string>
@@ -67,7 +68,8 @@ namespace terrama2
 
             \return A double value with the result.
           */
-          double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation, const std::string& dataSeriesName,
+          double operatorImpl(MonitoredObjectContextPtr context,
+                             terrama2::services::analysis::core::StatisticOperation statisticOperation, const std::string& dataSeriesName,
                              const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
                              boost::python::list ids = boost::python::list());
 
@@ -81,7 +83,7 @@ namespace terrama2
 
             \return The number of DCP that have influence over the current monitored object.
           */
-          int count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer);
+          int count(MonitoredObjectContextPtr context,const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer);
 
           /*!
             \brief It calculates the minimum value of the latest DCP series data.
@@ -99,7 +101,7 @@ namespace terrama2
 
             \return A double with the minimum value.
           */
-          double min(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
+          double min(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
                         boost::python::list ids = boost::python::list());
 
           /*!
@@ -117,7 +119,7 @@ namespace terrama2
 
             \return A double with the maximum value.
           */
-          double max(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
+          double max(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
                         boost::python::list ids = boost::python::list());
 
           /*!
@@ -135,7 +137,7 @@ namespace terrama2
 
             \return A double with the mean.
           */
-          double mean(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
+          double mean(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
                          boost::python::list ids = boost::python::list());
 
           /*!
@@ -153,7 +155,7 @@ namespace terrama2
 
             \return A double with the median.
           */
-          double median(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
+          double median(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
                            boost::python::list ids = boost::python::list());
 
           /*!
@@ -171,7 +173,7 @@ namespace terrama2
 
             \return A double with the sum.
           */
-          double sum(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
+          double sum(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
                         boost::python::list ids = boost::python::list());
 
           /*!
@@ -189,7 +191,7 @@ namespace terrama2
 
             \return A double with the standard deviation.
           */
-          double standardDeviation(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
+          double standardDeviation(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
                                       boost::python::list ids = boost::python::list());
 
 

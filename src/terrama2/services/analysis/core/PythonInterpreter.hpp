@@ -33,9 +33,9 @@
 
 #include "Analysis.hpp"
 #include "OperatorCache.hpp"
-#include "Context.hpp"
 #include "BaseContext.hpp"
-#include "grid/Context.hpp"
+#include "GridContext.hpp"
+#include "MonitoredObjectContext.hpp"
 #include "Typedef.hpp"
 
 // STL
@@ -99,7 +99,7 @@ namespace terrama2
           \param attribute The name of the attribute.
           \param value The result value.
         */
-        void addValue(const std::string& attribute, double value);
+        void addValue(MonitoredObjectContextPtr context, const std::string& attribute, double value);
 
 
         /*!
@@ -120,7 +120,7 @@ namespace terrama2
           \param analysisHashCode Analysis hash code.
           \param indexes Vector of geometries indexes.
         */
-        void runMonitoredObjectScript(PyThreadState* state, AnalysisHashCode analysisHashCode, std::vector<uint64_t> indexes);
+        void runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint64_t> indexes);
 
 
         /*!
@@ -129,14 +129,14 @@ namespace terrama2
           \param analysisHashCode Analysis hash code.
           \param indexes Vector of row indexes to process.
         */
-        void runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::grid::ContextPtr context, std::vector<uint64_t> rows);
+        void runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint64_t> rows);
 
         /*!
           \brief Run Python script for a monitored object analysis.
           \param state Python thread state.
           \param analysisHashCode Analysis hash code.
         */
-        void runScriptDCPAnalysis(PyThreadState* state, AnalysisHashCode analysisHashCode);
+        void runScriptDCPAnalysis(PyThreadState* state, MonitoredObjectContextPtr context);
 
         /*!
           \brief Read analysis information from Python thread dict.
@@ -157,7 +157,7 @@ namespace terrama2
           \param dataManagerPtr Smart pointer to the data manager.
           \return The ContextDataSeries of the monitored object.
         */
-        std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries(AnalysisHashCode analysisHashCode,
+        std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries(MonitoredObjectContextPtr context,
                                                                                std::shared_ptr<DataManager>& dataManagerPtr);
 
         /*!
@@ -176,21 +176,6 @@ namespace terrama2
          \param cache The OperatorCache to store the results.
         */
         void calculateStatistics(std::vector<double>& values, OperatorCache& cache);
-
-        /*!
-         \brief Registers all grid functions in the Python interpreter.
-        */
-        void registerGridFunctions(terrama2::services::analysis::core::grid::ContextPtr context);
-
-        /*!
-          \brief Registers all DCP functions in the Python interpreter.
-        */
-        void registerDCPFunctions();
-
-        /*!
-          \brief Registers all occurrences functions in the Python interpreter.
-        */
-        void registerOccurrenceFunctions();
 
         /*!
           \brief Extracts the error message from Python interpreter.

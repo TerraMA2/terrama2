@@ -32,7 +32,7 @@
 #include "DataManager.hpp"
 #include "AnalysisExecutor.hpp"
 #include "PythonInterpreter.hpp"
-#include "Context.hpp"
+#include "MonitoredObjectContext.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Timer.hpp"
@@ -42,7 +42,6 @@ terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
   dataManager_(dataManager)
 {
-  terrama2::services::analysis::core::Context::getInstance().setDataManager(dataManager);
   connectDataManager();
 }
 
@@ -236,5 +235,3 @@ void terrama2::services::analysis::core::Service::start(size_t threadNumber)
   terrama2::core::Service::start(threadNumber);
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }
-
-

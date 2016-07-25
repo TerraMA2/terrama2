@@ -34,7 +34,7 @@
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/Reprojection.h>
 
-double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName, ContextPtr context)
+double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName, GridContextPtr context)
 {
   OperatorCache cache;
 
