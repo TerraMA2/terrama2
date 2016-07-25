@@ -31,6 +31,7 @@
 
 #include "Operator.hpp"
 #include "../Exception.hpp"
+#include "../ContextManager.hpp"
 #include "../../../../core/data-model/DataSetDcp.hpp"
 #include "../../../../core/data-model/Filter.hpp"
 #include "../../../../core/data-access/SynchronizedDataSet.hpp"
@@ -53,14 +54,14 @@
 using namespace boost::python;
 
 
-double terrama2::services::analysis::core::dcp::operatorImpl(MonitoredObjectContextPtr context,
-                                                             StatisticOperation statisticOperation,
+double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation statisticOperation,
                                                              const std::string& dataSeriesName,
                                                              const std::string& attribute,
                                                              Buffer buffer, boost::python::list ids)
 {
   OperatorCache cache;
-
+  readInfoFromDict(cache);
+  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
   // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
@@ -68,8 +69,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(MonitoredObjectCont
 
   try
   {
-//    readInfoFromDict(cache);
-
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
@@ -271,46 +270,46 @@ double terrama2::services::analysis::core::dcp::operatorImpl(MonitoredObjectCont
   }
 }
 
-int terrama2::services::analysis::core::dcp::count(MonitoredObjectContextPtr context, const std::string& dataSeriesName, Buffer buffer)
+int terrama2::services::analysis::core::dcp::count(const std::string& dataSeriesName, Buffer buffer)
 {
-  return (int) operatorImpl(context, StatisticOperation::COUNT, dataSeriesName, "", buffer);
+  return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", buffer);
 }
 
-double terrama2::services::analysis::core::dcp::min(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::min(const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(context, StatisticOperation::MIN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::max(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::max(const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(context, StatisticOperation::MAX, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::mean(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::mean(const std::string& dataSeriesName, const std::string& attribute,
                                                      Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(context, StatisticOperation::MEAN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::median(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::median(const std::string& dataSeriesName, const std::string& attribute,
                                                        Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(context, StatisticOperation::MEDIAN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::sum(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::sum(const std::string& dataSeriesName, const std::string& attribute,
                                                     Buffer buffer, boost::python::list ids)
 {
-  return operatorImpl(context, StatisticOperation::SUM, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, buffer, ids);
 }
 
-double terrama2::services::analysis::core::dcp::standardDeviation(MonitoredObjectContextPtr context, const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::standardDeviation(const std::string& dataSeriesName,
                                                                   const std::string& attribute, Buffer buffer,
                                                                   boost::python::list ids)
 {
-  return operatorImpl(context, StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, buffer, ids);
 }
 
 

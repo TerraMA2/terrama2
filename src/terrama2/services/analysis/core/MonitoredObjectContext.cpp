@@ -492,18 +492,18 @@ void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResu
 
 
 // Declaration needed for default parameter ids
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMin_overloads, terrama2::services::analysis::core::dcp::min, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMin_overloads, terrama2::services::analysis::core::dcp::min, 3, 4);
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMax_overloads, terrama2::services::analysis::core::dcp::max, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMax_overloads, terrama2::services::analysis::core::dcp::max, 3, 4);
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMean_overloads, terrama2::services::analysis::core::dcp::mean, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMean_overloads, terrama2::services::analysis::core::dcp::mean, 3, 4);
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMedian_overloads, terrama2::services::analysis::core::dcp::median, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMedian_overloads, terrama2::services::analysis::core::dcp::median, 3, 4);
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpSum_overloads, terrama2::services::analysis::core::dcp::sum, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpSum_overloads, terrama2::services::analysis::core::dcp::sum, 3, 4);
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpStandardDeviation_overloads,
-                                terrama2::services::analysis::core::dcp::standardDeviation, 4, 5);
+                                terrama2::services::analysis::core::dcp::standardDeviation, 3, 4);
 
 
 void terrama2::services::analysis::core::MonitoredObjectContext::registerDCPFunctions()

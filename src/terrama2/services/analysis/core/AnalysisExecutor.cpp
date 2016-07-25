@@ -568,8 +568,8 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   }
   catch(const boost::python::error_already_set&)
   {
-    //TODO: how to log this error?
-    PyErr_Print();
+    std::string errMsg = extractException();
+    context->addError(errMsg);
 
     std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
   }

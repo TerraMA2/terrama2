@@ -32,7 +32,6 @@
 
 
 #include "PythonInterpreter.hpp"
-#include "MonitoredObjectContext.hpp"
 
 // STL
 #include <memory>

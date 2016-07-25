@@ -240,6 +240,13 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
   PyThreadState_Swap(state);
   PyThreadState_Clear(state);
 
+//TODO: is it needed?
+  // Adds the analysis hashcode to the python state
+//  PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
+//  PyObject* poDict = PyDict_New();
+//  PyDict_SetItemString(poDict, "analysisHashCode", analysisValue);
+//  state->dict = poDict;
+
   try
   {
     object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
@@ -491,11 +498,6 @@ BOOST_PYTHON_MODULE (terrama2)
           .value("median", terrama2::services::analysis::core::StatisticOperation::MEDIAN)
           .value("standard_deviation", terrama2::services::analysis::core::StatisticOperation::STANDARD_DEVIATION)
           .value("count", terrama2::services::analysis::core::StatisticOperation::COUNT);
-
-  // terrama2::services::analysis::core::registerGridFunctions();
-//  terrama2::services::analysis::core::registerDCPFunctions();
-  // terrama2::services::analysis::core::registerOccurrenceFunctions();
-
 }
 
 #if PY_MAJOR_VERSION >= 3
@@ -523,7 +525,8 @@ void terrama2::services::analysis::core::finalizeInterpreter()
 {
   // shut down the interpreter
 //  PyEval_AcquireLock();
-  Py_Finalize();
+//FIXME: crashing here!
+//  Py_Finalize();
 }
 
 void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
@@ -546,7 +549,6 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
      ContextManager::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return;
   }
-
 
   switch(analysis->type)
   {
