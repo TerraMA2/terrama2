@@ -99,7 +99,7 @@ namespace terrama2
           \param attribute The name of the attribute.
           \param value The result value.
         */
-        void addValue(MonitoredObjectContextPtr context, const std::string& attribute, double value);
+        void addValue(const std::string& attribute, double value);
 
 
         /*!
@@ -142,7 +142,7 @@ namespace terrama2
           \brief Read analysis information from Python thread dict.
           \param cache Cache to store the information for the operator.
         */
-        void readInfoFromDict(OperatorCache& cache, BaseContextPtr context);
+        void readInfoFromDict(OperatorCache& cache);
 
         /*!
           \brief Returns the result of the operation for the given statistic.

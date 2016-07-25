@@ -57,7 +57,7 @@ namespace terrama2
             \param dataSeriesName DataSeries name.
             \return The current pixel value for the selected data series.
           */
-          double sample(const std::string& dataSeriesName, GridContextPtr context);
+          double sample(const std::string& dataSeriesName);
 
 
         }   // end namespace grid

@@ -82,7 +82,7 @@ namespace terrama2
               \brief Return the number of threads.
               \return The number of threads.
             */
-            int numberOfThreads() const;
+            size_t numberOfThreads() const;
 
           private:
 
@@ -161,7 +161,7 @@ namespace terrama2
             worker.join();
         }
 
-        inline int ThreadPool::numberOfThreads() const
+        inline size_t ThreadPool::numberOfThreads() const
         {
           return workers.size();
         }

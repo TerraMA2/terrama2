@@ -56,16 +56,18 @@ terrama2::services::analysis::core::GridContext::GridContext(terrama2::services:
 
 void terrama2::services::analysis::core::GridContext::registerFunctions()
 {
+  GILLock lock;
+  auto oldState = PyThreadState_Swap(mainThreadState_);
+  populateNamespace();
+
   registerGridFunctions();
+
+  PyThreadState_Swap(oldState);
 }
 
 void terrama2::services::analysis::core::GridContext::registerGridFunctions()
 {
-  GILLock lock;
-
   using namespace boost::python;
-  auto oldState = PyThreadState_Swap(mainThreadState_);
-  populateNamespace();
 
   // map the grid namespace to a sub-module
   // make "from terrama2.grid import <function>" work
@@ -75,13 +77,8 @@ void terrama2::services::analysis::core::GridContext::registerGridFunctions()
   // set the current scope to the new sub-module
   scope gridScope = gridModule;
 
-  auto context = shared_from_this();
   // export functions inside grid namespace
-  def("sample", boost::python::make_function(boost::bind(&terrama2::services::analysis::core::grid::sample, boost::placeholders::_1, std::static_pointer_cast<GridContext>(context)),
-                                             default_call_policies(),
-                                             boost::mpl::vector<double,const std::string&>()));
-
-  PyThreadState_Swap(oldState);
+  def("sample", terrama2::services::analysis::core::grid::sample);
 }
 
 std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::GridContext::getOutputRaster()

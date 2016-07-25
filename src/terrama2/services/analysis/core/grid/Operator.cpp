@@ -28,20 +28,22 @@
 */
 
 #include "Operator.hpp"
+#include "../ContextManager.hpp"
 #include "../../../../core/data-model/DataSetGrid.hpp"
 #include "../Utils.hpp"
 
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/Reprojection.h>
 
-double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName, GridContextPtr context)
+double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName)
 {
   OperatorCache cache;
+  readInfoFromDict(cache);
+
+  auto context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
 
   try
   {
-    readInfoFromDict(cache, context);
-
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {

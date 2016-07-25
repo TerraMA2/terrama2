@@ -65,8 +65,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double operatorImpl(MonitoredObjectContextPtr context,
-                                terrama2::services::analysis::core::StatisticOperation statisticOperation,
+            double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                 const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
                                 terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
@@ -83,7 +82,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double sum(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
+            double sum(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
                        terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
@@ -99,7 +98,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double mean(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
+            double mean(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
                         terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
@@ -115,7 +114,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double min(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
+            double min(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
                        terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
@@ -131,7 +130,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double max(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
+            double max(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
                        terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
@@ -147,7 +146,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double median(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
+            double median(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
                           terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
@@ -162,7 +161,7 @@ namespace terrama2
               \param dateFilter Time filter for the data.
               \return A double value with the result.
             */
-            double standardDeviation(MonitoredObjectContextPtr context, const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
+            double standardDeviation(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
                                      terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
           } // end namespace history

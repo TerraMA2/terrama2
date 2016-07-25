@@ -30,6 +30,7 @@
 
 
 #include "Operator.hpp"
+#include "../ContextManager.hpp"
 
 #include <QTextStream>
 
@@ -41,8 +42,7 @@
 #include <terralib/geometry/MultiPolygon.h>
 #include <terralib/geometry/Utils.h>
 
-double terrama2::services::analysis::core::occurrence::operatorImpl(MonitoredObjectContextPtr context,
-                                                                    StatisticOperation statisticOperation,
+double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOperation statisticOperation,
                                                                     const std::string& dataSeriesName,
                                                                     Buffer buffer,
                                                                     const std::string& dateFilter,
@@ -53,16 +53,14 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(MonitoredObj
 {
 
   OperatorCache cache;
-
+  readInfoFromDict(cache);
   // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
-
+  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
   try
   {
-//    readInfoFromDict(cache);
-
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
@@ -80,6 +78,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(MonitoredObj
     }
 
     AnalysisPtr analysis = context->getAnalysis();
+
+
 
     std::shared_ptr<ContextDataSeries> moDsContext = getMonitoredObjectContextDataSeries(context, dataManagerPtr);
     if(!moDsContext)
@@ -317,67 +317,60 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(MonitoredObj
   }
 }
 
-int terrama2::services::analysis::core::occurrence::count(MonitoredObjectContextPtr context,
-                                                          const std::string& dataSeriesName, Buffer buffer,
+int terrama2::services::analysis::core::occurrence::count(const std::string& dataSeriesName, Buffer buffer,
                                                           const std::string& dateFilter, const std::string& restriction)
 {
-  return (int) operatorImpl(context, StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, Buffer(), "",
+  return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, Buffer(), "",
                             StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::min(MonitoredObjectContextPtr context,
-                                                           const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
+double terrama2::services::analysis::core::occurrence::min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                                                            const std::string& dateFilter, const std::string& attribute, const std::string& restriction)
 {
-  return operatorImpl(context, StatisticOperation::MIN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::max(MonitoredObjectContextPtr context,
-                                                           const std::string& dataSeriesName, Buffer buffer,
+double terrama2::services::analysis::core::occurrence::max(const std::string& dataSeriesName, Buffer buffer,
                                                            const std::string& dateFilter,
                                                            const std::string& attribute, const std::string& restriction)
 {
-  return operatorImpl(context, StatisticOperation::MAX, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::mean(MonitoredObjectContextPtr context,
-                                                            const std::string& dataSeriesName, Buffer buffer,
+double terrama2::services::analysis::core::occurrence::mean(const std::string& dataSeriesName, Buffer buffer,
                                                             const std::string& dateFilter,
                                                             const std::string& attribute,
                                                             const std::string& restriction)
 {
-  return operatorImpl(context, StatisticOperation::MEAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::median(MonitoredObjectContextPtr context,
-                                                              const std::string& dataSeriesName, Buffer buffer,
+double terrama2::services::analysis::core::occurrence::median(const std::string& dataSeriesName, Buffer buffer,
                                                               const std::string& dateFilter,
                                                               const std::string& attribute,
                                                               const std::string& restriction)
 {
-  return operatorImpl(context, StatisticOperation::MEDIAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::standardDeviation(MonitoredObjectContextPtr context,
-                                                                         const std::string& dataSeriesName,
+double terrama2::services::analysis::core::occurrence::standardDeviation(const std::string& dataSeriesName,
                                                                          Buffer buffer,
                                                                          const std::string& dateFilter,
                                                                          const std::string& attribute,
                                                                          const std::string& restriction)
 {
-  return operatorImpl(context, StatisticOperation::STANDARD_DEVIATION, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::sum(MonitoredObjectContextPtr context,
-                                                           const std::string& dataSeriesName, Buffer buffer,
+double terrama2::services::analysis::core::occurrence::sum(const std::string& dataSeriesName, Buffer buffer,
                                                            const std::string& dateFilter,
                                                            const std::string& attribute, const std::string& restriction)
 {
-  return operatorImpl(context, StatisticOperation::SUM, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }

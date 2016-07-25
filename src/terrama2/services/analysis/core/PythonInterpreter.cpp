@@ -36,6 +36,7 @@
 #include <QTextStream>
 
 #include "Exception.hpp"
+#include "ContextManager.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "dcp/Operator.hpp"
@@ -120,6 +121,9 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
   {
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
+    AnalysisHashCode analysisHashCode = analysis->hashCode2(context->getStartTime());
+
+    auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
 
     for(uint64_t index : indexes)
     {
@@ -127,12 +131,13 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
 
       PyObject* poDict = PyDict_New();
 
+      auto isHashSet = PyDict_SetItemString(poDict, "analysisHashCode", pValueAnalysis);
       auto isindexSet = PyDict_SetItemString(poDict, "index", pValueIndex);
-      if(isindexSet == 0)
+      if(isHashSet == 0 && isindexSet == 0)
       {
         state->dict = poDict;
         //TODO: read the return value
-        analysisFunction(index);
+        analysisFunction(analysisHashCode, index);
       }
       else
       {
@@ -141,7 +146,7 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
       }
     }
   }
-  catch(error_already_set)
+  catch(const error_already_set&)
   {
     std::string errMsg = extractException();
     context->addError(errMsg);
@@ -187,6 +192,9 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
   {
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
+    auto analysisHashCode = analysis->hashCode2(context->getStartTime());
+
+    auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
 
     for(int row : rows)
     {
@@ -197,12 +205,13 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
 
         PyObject* poDict = PyDict_New();
 
+        PyDict_SetItemString(poDict, "analysisHashCode", pValueAnalysis);
         PyDict_SetItemString(poDict, "row", pValueRow);
         PyDict_SetItemString(poDict, "column", pValueColumn);
         state->dict = poDict;
 
 
-        boost::python::object result = analysisFunction(row, col);
+        boost::python::object result = analysisFunction(analysisHashCode, row, col);
         double value = boost::python::extract<double>(result);
         if(std::isnan(value))
           outputRaster->setValue(col, row, analysis->outputGridPtr->interpolationDummy);
@@ -251,10 +260,11 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
 
 }
 
-void terrama2::services::analysis::core::addValue(MonitoredObjectContextPtr context, const std::string& attribute, double value)
+void terrama2::services::analysis::core::addValue(const std::string& attribute, double value)
 {
   OperatorCache cache;
- readInfoFromDict(cache, context);
+ readInfoFromDict(cache);
+ auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
   auto dataManagerPtr = context->getDataManager().lock();
   if(!dataManagerPtr)
@@ -516,18 +526,27 @@ void terrama2::services::analysis::core::finalizeInterpreter()
   Py_Finalize();
 }
 
-void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache, BaseContextPtr context)
+void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
 
-  auto analysis = context->getAnalysis();
+  // Analysis ID
+  PyObject* analysisKey = PyString_FromString("analysisHashCode");
+  PyObject* analysisPy = PyDict_GetItem(pDict, analysisKey);
+  if(analysisPy != NULL)
+  {
+    cache.analysisHashCode = PyInt_AsLong(analysisPy);
+  }
+
+  auto analysis = ContextManager::getInstance().getAnalysis(cache.analysisHashCode);
   if(!analysis)
   {
     QString errMsg(QObject::tr("Could not recover analysis configuration."));
-    context->addError(errMsg.toStdString());
+     ContextManager::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return;
   }
+
 
   switch(analysis->type)
   {
@@ -540,10 +559,7 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache, 
       if(geomKey != NULL)
       {
         cache.index = PyInt_AsLong(geomIdPy);
-        // Py_DECREF(geomIdPy);
       }
-
-      // Py_DECREF(geomKey);
     }
     case AnalysisType::GRID_TYPE:
     {
@@ -553,9 +569,7 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache, 
       if(rowValue != NULL)
       {
         cache.row = PyInt_AsLong(rowValue);
-        // Py_DECREF(rowValue);
       }
-      // Py_DECREF(rowKey);
 
       // Ouput raster column
       PyObject* columnKey = PyString_FromString("column");
@@ -563,9 +577,7 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache, 
       if(columnValue != NULL)
       {
         cache.column = PyInt_AsLong(columnValue);
-        // Py_DECREF(columnValue);
       }
-      // Py_DECREF(columnKey);
     }
 
   }
@@ -594,13 +606,13 @@ std::string terrama2::services::analysis::core::prepareScript(terrama2::services
   switch(analysis->type)
   {
     case AnalysisType::GRID_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis(row, col):\n" + formatedScript;
+      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, row, col):\n" + formatedScript;
       break;
     case AnalysisType::MONITORED_OBJECT_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis(index):\n" + formatedScript;
+      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, index):\n" + formatedScript;
       break;
     case AnalysisType::PCD_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis():\n" + formatedScript;
+      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode):\n" + formatedScript;
       break;
   }
 

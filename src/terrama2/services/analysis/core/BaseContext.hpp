@@ -62,7 +62,7 @@ namespace terrama2
           public:
             BaseContext(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
-            ~BaseContext();
+            virtual ~BaseContext();
             BaseContext(const BaseContext& other) = default;
             BaseContext(BaseContext&& other) = default;
             BaseContext& operator=(const BaseContext& other) = default;
@@ -79,6 +79,8 @@ namespace terrama2
               \brief Returns the analysis configuration.
             */
             inline AnalysisPtr getAnalysis() const { return analysis_; }
+            inline std::shared_ptr<te::dt::TimeInstantTZ> getStartTime() const { return startTime_; }
+
 
             /*!
               \brief Returns the python interpreter main thread state.
@@ -97,7 +99,7 @@ namespace terrama2
 
           protected:
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
-            
+
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
             AnalysisPtr analysis_;
             std::shared_ptr<te::dt::TimeInstantTZ> startTime_;
