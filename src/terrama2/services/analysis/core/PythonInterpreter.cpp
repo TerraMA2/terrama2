@@ -314,7 +314,7 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
           context->addError(errMsg.toStdString());
           return;
         }
-
+        //TODO PAULO: verificar se o identificador existes
         // Stores the result in the context
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
         assert(!geomId.empty());
