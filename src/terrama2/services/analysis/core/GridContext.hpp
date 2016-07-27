@@ -104,7 +104,7 @@ namespace terrama2
             void addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
 
             std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-            getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId);
+            getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, const std::string& dateFilter = "");
 
             /*!
               \brief Adds the given raster to the context map.

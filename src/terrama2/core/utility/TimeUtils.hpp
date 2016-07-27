@@ -49,6 +49,7 @@ namespace terrama2
         \return A TimeInstantTZ  with the current time in UTC.
       */
       std::shared_ptr< te::dt::TimeInstantTZ > nowUTC();
+      boost::local_time::local_date_time nowBoostLocal();
 
       /*!
         \brief Add or subtrac a number of months from a TimeInstantTZ

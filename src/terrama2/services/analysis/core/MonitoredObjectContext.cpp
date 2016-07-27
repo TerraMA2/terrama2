@@ -397,15 +397,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
   if(!needToAdd)
     return;
 
-  time_t ts = 0;
-  struct tm t;
-  char buf[16];
-  ::localtime_r(&ts, &t);
-  ::strftime(buf, sizeof(buf), "%Z", &t);
-
-
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
-  boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
+  boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
 
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)

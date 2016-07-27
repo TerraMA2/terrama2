@@ -33,6 +33,11 @@
 #include "Utils.hpp"
 #include "PythonInterpreter.hpp"
 #include "../../../core/data-model/DataSetGrid.hpp"
+#include "../../../core/data-access/DataAccessorGrid.hpp"
+#include "../../../core/data-access/GridSeries.hpp"
+#include "../../../core/utility/DataAccessorFactory.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
+
 
 #include <terralib/raster/Raster.h>
 #include <terralib/raster/RasterFactory.h>
@@ -152,6 +157,10 @@ te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(cons
 std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId, const std::string& dateFilter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+  //FIXME: not implemente yet
+  if(dateFilter != "")
+    assert(0);
 
   DatasetKey key;
   key.datasetId_ = datasetId;
@@ -489,12 +498,48 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
 }
 
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager, DataSeriesId dataSeriesId)
+terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager, DataSeriesId dataSeriesId, const std::string& dateFilter)
 {
   auto it = analysisInputGrid_.find(dataSeriesId);
   if(it == analysisInputGrid_.end())
   {
-    auto inputGrid = terrama2::services::analysis::core::getGridMap(dataManager, dataSeriesId);
+    auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
+    if(!dataSeriesPtr)
+    {
+      QString errMsg = QObject::tr("Could not recover data series: %1.").arg(dataSeriesId);
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    auto dataProviderPtr = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
+
+    terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
+    std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
+
+    boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
+
+    terrama2::core::Filter filter;
+    filter.lastValue = true;
+
+    filter.discardAfter = startTime_;
+    if(!dateFilter.empty())
+    {
+      double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilter, "SECOND", "h");
+
+      ldt -= boost::posix_time::seconds(seconds);
+
+      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
+      filter.discardBefore = std::move(titz);
+    }
+
+    auto gridSeries = accessorGrid->getGridSeries(filter);
+
+    if(!gridSeries)
+    {
+      QString errMsg = QObject::tr("Invalid grid series for data series: %1.").arg(dataSeriesId);
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    auto inputGrid =  gridSeries->gridMap();
     analysisInputGrid_.emplace(dataSeriesId, inputGrid);
     return inputGrid;
   }
