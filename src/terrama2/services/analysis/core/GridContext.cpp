@@ -488,7 +488,7 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
   auto it = analysisInputGrid_.find(dataSeriesId);
   if(it == analysisInputGrid_.end())
   {
-    auto inputGrid = terrama2::services::analysis::core::getGridMap2(dataManager, dataSeriesId);
+    auto inputGrid = terrama2::services::analysis::core::getGridMap(dataManager, dataSeriesId);
     analysisInputGrid_.emplace(dataSeriesId, inputGrid);
     return inputGrid;
   }

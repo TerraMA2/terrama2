@@ -112,9 +112,7 @@ namespace terrama2
 
           \return The interest area strategy for the box of the output grid.
          */
-        const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId);
-//TODO: remove older gridMap
-        std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > getGridMap2(DataManagerPtr dataManager, DataSeriesId dataSeriesId);
+        std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId);
 
 
         /*

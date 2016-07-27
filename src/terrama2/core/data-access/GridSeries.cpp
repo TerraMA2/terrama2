@@ -62,7 +62,6 @@ void terrama2::core::GridSeries::addGridSeries(std::unordered_map<DataSetPtr,Dat
         std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet->dataset().get(), te::dt::RASTER_TYPE);
         std::shared_ptr<te::rst::Raster> raster = teDataSet->getRaster(i, rpos);
         rasterMap_.emplace(dataSet, raster);
-        rasterMap2_.emplace(dataSet, raster);
       }
     }
     catch(const std::bad_cast& )

@@ -146,7 +146,8 @@ terrama2::services::analysis::core::InterestAreaType terrama2::services::analysi
   }
 }
 
-const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId)
+std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
+terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId)
 {
   auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
   if(!dataSeriesPtr)
@@ -170,33 +171,6 @@ const std::unordered_map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst
   }
 
   return gridSeries->gridMap();
-}
-
-std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-terrama2::services::analysis::core::getGridMap2(DataManagerPtr dataManager, DataSeriesId dataSeriesId)
-{
-  auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
-  if(!dataSeriesPtr)
-  {
-    QString errMsg = QObject::tr("Could not recover data series: %1.").arg(dataSeriesId);
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
-
-  auto dataProviderPtr = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
-
-  terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
-  std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
-  terrama2::core::Filter filter;
-  filter.lastValue = true;
-  auto gridSeries = accessorGrid->getGridSeries(filter);
-
-  if(!gridSeries)
-  {
-    QString errMsg = QObject::tr("Invalid grid series for data series: %1.").arg(dataSeriesId);
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
-
-  return gridSeries->gridMap2();
 }
 
 std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> >
