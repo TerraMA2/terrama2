@@ -91,15 +91,15 @@ terrama2::services::analysis::core::MonitoredObjectContext::MonitoredObjectConte
 
 void terrama2::services::analysis::core::MonitoredObjectContext::registerFunctions()
 {
-  GILLock lock;
-
-  auto oldState = PyThreadState_Swap(mainThreadState_);
-  populateNamespace();
+  // GILLock lock;
+  //
+  // auto oldState = PyThreadState_Swap(mainThreadState_);
+  // populateNamespace();
 
   registerOccurrenceFunctions();
   registerDCPFunctions();
 
-  PyThreadState_Swap(oldState);
+  // PyThreadState_Swap(oldState);
 }
 
 void terrama2::services::analysis::core::MonitoredObjectContext::registerOccurrenceFunctions()
@@ -113,8 +113,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::registerOccurre
   import("terrama2").attr("occurrence") = occurrenceModule;
   // set the current scope to the new sub-module
   scope occurrenceScope = occurrenceModule;
-
-  auto context = std::static_pointer_cast<MonitoredObjectContext>(shared_from_this());
 
   // export functions inside occurrence namespace
   def("count", terrama2::services::analysis::core::occurrence::count,

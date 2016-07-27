@@ -35,18 +35,20 @@ terrama2::services::analysis::core::BaseContext::BaseContext(terrama2::services:
     analysis_(analysis),
     startTime_(startTime)
 {
-  GILLock lock;
-  auto oldState = PyThreadState_Get();
-  mainThreadState_ = Py_NewInterpreter();
-  PyThreadState_Swap(oldState);
+  // GILLock lock;
+  // auto oldState = PyThreadState_Get();
+  // mainThreadState_ = Py_NewInterpreter();
+  // PyThreadState_Swap(oldState);
+
+   mainThreadState_ = PyThreadState_Get();
 }
 
 terrama2::services::analysis::core::BaseContext::~BaseContext()
 {
-  GILLock lock;
-  auto oldState = PyThreadState_Swap(mainThreadState_);
-  Py_EndInterpreter(mainThreadState_);
-  PyThreadState_Swap(oldState);
+  // GILLock lock;
+  // auto oldState = PyThreadState_Swap(mainThreadState_);
+  // Py_EndInterpreter(mainThreadState_);
+  // PyThreadState_Swap(oldState);
 }
 
 void terrama2::services::analysis::core::BaseContext::addError(const std::string& errorMessage)

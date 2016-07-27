@@ -173,8 +173,6 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
 void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
-  context->registerFunctions();
-
   ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode2(startTime), context);
 
   std::vector<std::future<void> > futures;
@@ -467,8 +465,6 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::GridContext>(dataManager, analysis, startTime);
-  context->registerFunctions();
-
   ContextManager::getInstance().addGridContext(analysis->hashCode2(startTime), context);
 
   std::vector<std::future<void> > futures;

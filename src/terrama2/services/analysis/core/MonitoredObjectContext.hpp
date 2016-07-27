@@ -115,7 +115,7 @@ namespace terrama2
             MonitoredObjectContext& operator=(MonitoredObjectContext&& other) = default;
 
             void loadMonitoredObject();
-            void registerFunctions();
+            static void registerFunctions();
 
             void addDCPDataSeries(terrama2::core::DataSeriesPtr dataSeries,
                                   const std::string& dateFilter, const bool lastValue);
@@ -182,11 +182,11 @@ namespace terrama2
             /*!
               \brief Registers all occurrence functions in the Python interpreter.
             */
-            void registerOccurrenceFunctions();
+            static void registerOccurrenceFunctions();
             /*!
               \brief Registers all DCP functions in the Python interpreter.
             */
-            void registerDCPFunctions();
+            static void registerDCPFunctions();
 
 
             std::set<std::string> attributes_;

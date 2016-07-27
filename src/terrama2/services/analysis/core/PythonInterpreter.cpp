@@ -37,6 +37,8 @@
 
 #include "Exception.hpp"
 #include "ContextManager.hpp"
+#include "GridContext.hpp"
+#include "MonitoredObjectContext.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "dcp/Operator.hpp"
@@ -517,16 +519,19 @@ void terrama2::services::analysis::core::initInterpreter()
 {
   PyEval_InitThreads();
   Py_Initialize();
-  // INIT_MODULE();
+
+  populateNamespace();
+  GridContext::registerFunctions();
+  MonitoredObjectContext::registerFunctions();
+
   PyEval_ReleaseLock();
 }
 
 void terrama2::services::analysis::core::finalizeInterpreter()
 {
   // shut down the interpreter
-//  PyEval_AcquireLock();
-//FIXME: crashing here!
-//  Py_Finalize();
+ PyEval_AcquireLock();
+ Py_Finalize();
 }
 
 void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)

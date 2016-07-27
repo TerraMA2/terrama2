@@ -56,13 +56,13 @@ terrama2::services::analysis::core::GridContext::GridContext(terrama2::services:
 
 void terrama2::services::analysis::core::GridContext::registerFunctions()
 {
-  GILLock lock;
-  auto oldState = PyThreadState_Swap(mainThreadState_);
-  populateNamespace();
+  // GILLock lock;
+  // auto oldState = PyThreadState_Swap(mainThreadState_);
+  // populateNamespace();
 
   registerGridFunctions();
 
-  PyThreadState_Swap(oldState);
+  // PyThreadState_Swap(oldState);
 }
 
 void terrama2::services::analysis::core::GridContext::registerGridFunctions()
