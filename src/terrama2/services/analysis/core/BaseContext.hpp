@@ -57,6 +57,58 @@ namespace terrama2
     {
       namespace core
       {
+
+        /*!
+          \brief Composed key for accessing a ContextDataSeries.
+        */
+        struct DatasetKey
+        {
+          DataSetId datasetId_; //!< DataSet identifier.
+          std::string dateFilter_; //!< Date restriction.
+        };
+
+        struct DatasetKeyHash
+        {
+          std::size_t operator()(DatasetKey const& key) const
+          {
+            return std::hash<std::string>()(std::to_string(key.datasetId_)+key.dateFilter_);
+          }
+        };
+
+
+        /*!
+          \brief Comparator the context key.
+        */
+        struct LessKeyComparator
+        {
+          /*!
+            \brief Operator less then.
+          */
+          bool operator()(const DatasetKey& lhs, const DatasetKey& rhs) const
+          {
+            if(lhs.datasetId_ < rhs.datasetId_)
+            {
+              return true;
+            }
+            else if(lhs.datasetId_ > rhs.datasetId_)
+            {
+              return false;
+            }
+            else
+            {
+              return lhs.dateFilter_.compare(rhs.dateFilter_) < 0;
+            }
+          }
+        };
+
+        struct EqualKeyComparator
+        {
+          bool operator()(const DatasetKey& lhs, const DatasetKey& rhs) const
+          {
+            return lhs.datasetId_ == rhs.datasetId_&& lhs.datasetId_ == rhs.datasetId_;
+          }
+        };
+
         class BaseContext : public std::enable_shared_from_this<BaseContext>
         {
           public:

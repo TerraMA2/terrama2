@@ -81,7 +81,7 @@ namespace terrama2
               \param datasetId The DataSet identifier.
               \return A vector of smart pointers to the raster.
             */
-            std::vector< std::shared_ptr<te::rst::Raster> > getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId);
+            std::vector< std::shared_ptr<te::rst::Raster> > getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId, const std::string& dateFilter = "");
 
             /*!
               \brief Convert a coordinate from output srid to another srid
@@ -113,13 +113,13 @@ namespace terrama2
               \param raster The raster to be added to the context.
 
             */
-            void addRaster(const DataSetId datasetId, std::shared_ptr<te::rst::Raster> raster);
+            void addRaster(DatasetKey key, std::shared_ptr<te::rst::Raster> raster);
 
             std::shared_ptr<te::rst::Raster> outputRaster_;
             std::map<std::string, std::string> outputRasterInfo_;
 
             std::unordered_map<DataSeriesId, std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > > analysisInputGrid_;
-            std::unordered_map<DataSetId, std::vector<std::shared_ptr<te::rst::Raster> > > rasterMap_;
+            std::unordered_map<DatasetKey, std::vector<std::shared_ptr<te::rst::Raster> >, DatasetKeyHash, EqualKeyComparator > rasterMap_;
         };
       }
     }

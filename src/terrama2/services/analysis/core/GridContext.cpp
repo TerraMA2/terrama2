@@ -149,9 +149,15 @@ te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(cons
 }
 
 
-std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId)
+std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId, const std::string& dateFilter)
 {
-  auto it = rasterMap_.find(datasetId);
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+  DatasetKey key;
+  key.datasetId_ = datasetId;
+  key.dateFilter_ = dateFilter;
+
+  auto it = rasterMap_.find(key);
   if(it != rasterMap_.end())
     return it->second;
   else
@@ -166,7 +172,7 @@ std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::co
     // First call, need to call sample for each dataset raster and store the result in the context.
     auto gridMap = getGridMap(dataManager, dataSeries->id);
 
-    std::for_each(gridMap.begin(), gridMap.end(), [this, datasetId](decltype(*gridMap.begin()) it)
+    std::for_each(gridMap.begin(), gridMap.end(), [this, datasetId, key](decltype(*gridMap.begin()) it)
     {
       if(it.first->id == datasetId)
       {
@@ -181,17 +187,17 @@ std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::co
         auto outputGridConfig = getOutputRasterInfo();
         auto reprojectedRaster = terrama2::services::analysis::core::reprojectRaster(dsRaster, outputGridConfig, analysis_->outputGridPtr->interpolationMethod);
 
-        addRaster(datasetId, reprojectedRaster);
+        addRaster(key, reprojectedRaster);
       }
     });
 
-    return rasterMap_[datasetId];
+    return rasterMap_[key];
   }
 }
 
-void terrama2::services::analysis::core::GridContext::addRaster(const DataSetId datasetId, std::shared_ptr<te::rst::Raster> raster)
+void terrama2::services::analysis::core::GridContext::addRaster(DatasetKey key, std::shared_ptr<te::rst::Raster> raster)
 {
-  rasterMap_[datasetId].push_back(raster);
+  rasterMap_[key].push_back(raster);
 }
 
 std::map<std::string, std::string> terrama2::services::analysis::core::GridContext::getOutputRasterInfo()

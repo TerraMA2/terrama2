@@ -51,6 +51,8 @@ namespace terrama2
         {
           namespace history
           {
+            std::vector<double> sample(const OperatorCache& cache, const std::string& dataSeriesName, const std::string& dateFilter);
+
             /*!
               \brief Implementation of grid history operator.
 

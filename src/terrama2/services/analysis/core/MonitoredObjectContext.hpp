@@ -68,41 +68,6 @@ namespace terrama2
 
         };
 
-        /*!
-          \brief Composed key for accessing a ContextDataSeries.
-        */
-        struct ContextKey
-        {
-          DataSetId datasetId_; //!< DataSet identifier.
-          std::string dateFilter_; //!< Date restriction.
-        };
-
-
-        /*!
-          \brief Comparator the context key.
-        */
-        struct ContextKeyComparator
-        {
-          /*!
-            \brief Operator less then.
-          */
-          bool operator()(const ContextKey& lhs, const ContextKey& rhs) const
-          {
-            if(lhs.datasetId_ < rhs.datasetId_)
-            {
-              return true;
-            }
-            else if(lhs.datasetId_ > rhs.datasetId_)
-            {
-              return false;
-            }
-            else
-            {
-              return lhs.dateFilter_.compare(rhs.dateFilter_) < 0;
-            }
-          }
-        };
-
         class MonitoredObjectContext : public BaseContext
         {
           public:
@@ -159,7 +124,7 @@ namespace terrama2
 
               \return The map with the analysis result.
             */
-            std::map<std::string, std::map<std::string, double> > analysisResult() const { return analysisResult_; }
+            inline std::unordered_map<std::string, std::map<std::string, double> > analysisResult() const { return analysisResult_; }
 
             /*!
             \brief Sets the analysis result for a geometry and a given attribute.
@@ -190,8 +155,8 @@ namespace terrama2
 
 
             std::set<std::string> attributes_;
-            std::map<std::string, std::map<std::string, double> >  analysisResult_;
-            std::map<ContextKey, std::shared_ptr<ContextDataSeries>, ContextKeyComparator> datasetMap_; //!< Map containing all loaded datasets.
+            std::unordered_map<std::string, std::map<std::string, double> >  analysisResult_;
+            std::unordered_map<DatasetKey, std::shared_ptr<ContextDataSeries>, DatasetKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.
         };
       }
     }

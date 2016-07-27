@@ -207,7 +207,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
       dataSeriesContext->identifier = identifier;
       dataSeriesContext->geometryPos = geomPropertyPosition;
 
-      ContextKey key;
+      DatasetKey key;
       key.datasetId_ = dataset->id;
       datasetMap_[key] = dataSeriesContext;
     }
@@ -233,7 +233,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         dataSeriesContext->identifier = identifier;
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
-        ContextKey key;
+        DatasetKey key;
         key.datasetId_ = dataset->id;
         datasetMap_[key] = dataSeriesContext;
       }
@@ -340,7 +340,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
 
-    ContextKey key;
+    DatasetKey key;
     key.datasetId_ = series.dataSet->id;
     key.dateFilter_ = dateFilter;
     datasetMap_[key] = dataSeriesContext;
@@ -351,7 +351,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ContextKey key;
+  DatasetKey key;
   key.datasetId_ = datasetId;
   key.dateFilter_ = dateFilter;
 
@@ -368,7 +368,7 @@ bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const Da
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ContextKey key;
+  DatasetKey key;
   key.datasetId_ = datasetId;
   key.dateFilter_ = dateFilter;
 
@@ -466,7 +466,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
     }
 
 
-    ContextKey key;
+    DatasetKey key;
     key.datasetId_ = series.dataSet->id;
     key.dateFilter_ = dateFilter;
     datasetMap_[key] = dataSeriesContext;

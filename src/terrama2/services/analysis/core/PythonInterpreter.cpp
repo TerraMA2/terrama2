@@ -443,7 +443,7 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
   double half = values.size() / 2;
   if(values.size() > 1 && values.size() % 2 == 0)
   {
-    cache.median = (values[(int) half] + values[(int) half - 1]) / 2;
+    cache.median = (values[(int) half] + values[(int) half - 1]) / 2.;
   }
   else
   {

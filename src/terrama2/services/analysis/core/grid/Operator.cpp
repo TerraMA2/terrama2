@@ -50,8 +50,6 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       return NAN;
     }
 
-    //FIXME: PAULO: This is beeing called to many times, can this be avoided?
-    // ps: O(n) processing time to get the name, if the id would be used O(c) can be achieved
     auto dataSeries = context->findDataSeries(dataSeriesName);
     if(!dataSeries)
     {
