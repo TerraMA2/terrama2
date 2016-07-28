@@ -61,6 +61,7 @@ namespace terrama2
           double median = 0; //!< Median value.
           double mean = 0; //!< Mean value.
           double standardDeviation = 0; //!< Standard deviation value.
+          double variance = 0; //!< Standard deviation value.
           uint64_t count = 0; //!< Count value.
         };
       } // end namespace core

@@ -36,7 +36,6 @@
 #include "../../../core/data-access/DataAccessorGrid.hpp"
 #include "../../../core/data-access/GridSeries.hpp"
 
-
 // TerraLib
 #include <terralib/common/StringUtils.h>
 #include <terralib/raster/Reprojection.h>
@@ -45,6 +44,9 @@
 
 // QT
 #include <QObject>
+
+//STL
+#include <cmath>
 
 
 terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::core::ToAnalysisType(uint32_t type)
@@ -316,13 +318,14 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
 
   // calculates the variance
   double sumVariance = 0.;
-  for(unsigned int i = 0; i < values.size(); ++i)
+  for(const double& value : values)
   {
-    double value = values[i];
-    sumVariance += (value - cache.mean) * (value - cache.mean);
+    double diff = value - cache.mean;
+    sumVariance += diff*diff;
   }
 
-  cache.standardDeviation = sumVariance / cache.count;
+  cache.variance = sumVariance / cache.count;
+  cache.standardDeviation = std::sqrt(cache.variance);
 }
 
 
@@ -344,6 +347,8 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
       return cache.median;
     case StatisticOperation::COUNT:
       return cache.count;
+    case StatisticOperation::VARIANCE:
+      return cache.variance;
     default:
       return NAN;
   }

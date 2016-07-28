@@ -52,7 +52,7 @@ namespace terrama2
         {
 
           /*!
-            \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.
+            \brief Calculates the all statistics of the attribute of occurrences in the monitored object area.
 
             \param statisticOperation The statistic operation called by the script.
             \param dataSeriesName DataSeries name.
@@ -72,7 +72,7 @@ namespace terrama2
                               const std::string& restriction);
 
           /*!
-            \brief It calculates the count of occurrences in the monitored object.
+            \brief Calculates the count of occurrences in the monitored object.
 
             \param dataSeriesName DataSeries name.
             \param buffer Buffer to be used in the monitored object.
@@ -85,7 +85,7 @@ namespace terrama2
                     const std::string& dateFilter, const std::string& restriction= "");
 
           /*!
-            \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.
+            \brief Calculates the minimum value of the attribute of occurrences in the monitored object area.
 
             \param dataSeriesName DataSeries name.
             \param buffer Buffer to be used in the monitored object.
@@ -98,7 +98,7 @@ namespace terrama2
                      const std::string& dateFilter, const std::string& attribute, const std::string& restriction = "");
 
           /*!
-            \brief It calculates the maximum value of the attribute of occurrences in the monitored object area.
+            \brief Calculates the maximum value of the attribute of occurrences in the monitored object area.
 
             \param dataSeriesName DataSeries name.
             \param buffer Buffer to be used in the monitored object.
@@ -112,7 +112,7 @@ namespace terrama2
                      const std::string& attribute, const std::string& restriction = "");
 
           /*!
-            \brief It calculates the mean value of the attribute of occurrences in the monitored object area.
+            \brief Calculates the mean value of the attribute of occurrences in the monitored object area.
 
             \param dataSeriesName DataSeries name.
             \param buffer Buffer to be used in the monitored object.
@@ -126,7 +126,7 @@ namespace terrama2
                       const std::string& attribute, const std::string& restriction = "");
 
           /*!
-            \brief It calculates the median value of the attribute of occurrences in the monitored object area.
+            \brief Calculates the median value of the attribute of occurrences in the monitored object area.
 
             \param dataSeriesName DataSeries name.
             \param buffer Buffer to be used in the monitored object.
@@ -140,7 +140,7 @@ namespace terrama2
                         const std::string& attribute, const std::string& restriction = "");
 
           /*!
-            \brief It calculates the sum of values of the attribute of occurrences in the monitored object area.
+            \brief Calculates the sum of values of the attribute of occurrences in the monitored object area.
 
             \param dataSeriesName DataSeries name.
             \param buffer Buffer to be used in the monitored object.
@@ -154,19 +154,32 @@ namespace terrama2
                      const std::string& attribute, const std::string& restriction = "");
 
           /*!
-            \brief It calculates the median value of the attribute of occurrences in the monitored object area.
+            \brief Calculates the starndart deviation of the attribute of occurrences in the monitored object area.
 
             \param dataSeriesName DataSeries name.
             \param buffer Buffer to be used in the monitored object.
             \param dateFilter Time filter for the data.
             \param attribute Name of the attribute to be used in statistic operator.
             \param restriction SQL restriction.
-            \return The median value of the attribute of occurrences in the monitored object area.
           */
           double standardDeviation(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                                    const std::string& dateFilter,
                                    const std::string& attribute, const std::string& restriction = "");
 
+          /*
+           \brief Calculates the varince of the attribute of occurrences in the monitored object area.
+
+           \param dataSeriesName DataSeries name.
+           \param buffer Buffer to be used in the monitored object.
+           \param dateFilter Time filter for the data.
+           \param attribute Name of the attribute to be used in statistic operator.
+           \param restriction SQL restriction.
+         */
+          double variance(const std::string& dataSeriesName,
+                         terrama2::services::analysis::core::Buffer buffer,
+                         const std::string& dateFilter,
+                         const std::string& attribute,
+                         const std::string& restriction = "");
 
         }   // end namespace occurrence
       }     // end namespace core

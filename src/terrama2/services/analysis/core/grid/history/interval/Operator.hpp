@@ -70,7 +70,7 @@ namespace terrama2
                                   const std::string& dateFilterEnd);
 
               /*!
-                \brief It calculates the sum of historic grid data for a given time interval.
+                \brief Calculates the sum of historic grid data for a given time interval.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
@@ -84,7 +84,7 @@ namespace terrama2
                          const std::string& dateFilterEnd);
 
               /*!
-                \brief It calculates the mean of historic grid data for a given time interval.
+                \brief Calculates the mean of historic grid data for a given time interval.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
@@ -98,7 +98,7 @@ namespace terrama2
                           const std::string& dateFilterEnd);
 
               /*!
-                \brief It calculates the min of historic grid data for a given time interval.
+                \brief Calculates the min of historic grid data for a given time interval.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
@@ -112,7 +112,7 @@ namespace terrama2
                          const std::string& dateFilterEnd);
 
               /*!
-                \brief It calculates the max of historic grid data for a given time interval.
+                \brief Calculates the max of historic grid data for a given time interval.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
@@ -126,7 +126,7 @@ namespace terrama2
                          const std::string& dateFilterEnd);
 
               /*!
-                \brief It calculates the median of historic grid data for a given time interval.
+                \brief Calculates the median of historic grid data for a given time interval.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
@@ -140,7 +140,7 @@ namespace terrama2
                             const std::string& dateFilterEnd);
 
               /*!
-                \brief It calculates the standard deviation of historic grid data for a given time interval.
+                \brief Calculates the standard deviation of historic grid data for a given time interval.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 

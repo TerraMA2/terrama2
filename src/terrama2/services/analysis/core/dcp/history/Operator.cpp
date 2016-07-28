@@ -298,3 +298,11 @@ double terrama2::services::analysis::core::dcp::history::standardDeviation(const
 {
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dcpId, buffer, dateFilter);
 }
+
+double terrama2::services::analysis::core::dcp::history::variance(const std::string& dataSeriesName,
+    const std::string& attribute,
+    DataSetId dcpId,
+    Buffer buffer, const std::string& dateFilter)
+{
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+}

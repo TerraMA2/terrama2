@@ -367,6 +367,16 @@ double terrama2::services::analysis::core::occurrence::standardDeviation(const s
                       StatisticOperation::INVALID, restriction);
 }
 
+double terrama2::services::analysis::core::occurrence::variance(const std::string& dataSeriesName,
+    Buffer buffer,
+    const std::string& dateFilter,
+    const std::string& attribute,
+    const std::string& restriction) 
+{
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
+                      StatisticOperation::INVALID, restriction);
+}
+
 double terrama2::services::analysis::core::occurrence::sum(const std::string& dataSeriesName, Buffer buffer,
     const std::string& dateFilter,
     const std::string& attribute, const std::string& restriction)

@@ -229,6 +229,11 @@ double terrama2::services::analysis::core::grid::history::standardDeviation(cons
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilter);
 }
 
+double terrama2::services::analysis::core::grid::history::variance(const std::string& dataSeriesName, const std::string& dateFilter)
+{
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilter);
+}
+
 double terrama2::services::analysis::core::grid::history::sum(const std::string& dataSeriesName, const std::string& dateFilter)
 {
   return operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilter);

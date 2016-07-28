@@ -20,6 +20,8 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceSum_overloads, terrama2::services::ana
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::standardDeviation, 4, 5);
 
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceVariance_overloads, terrama2::services::analysis::core::occurrence::variance, 4, 5);
+
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationCount_overloads, terrama2::services::analysis::core::occurrence::aggregation::count, 4, 5);
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMin_overloads, terrama2::services::analysis::core::occurrence::aggregation::min, 6, 7);
@@ -34,6 +36,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationSum_overloads, terrama2::se
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::aggregation::standardDeviation, 6, 7);
 
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationVariance_overloads, terrama2::services::analysis::core::occurrence::aggregation::variance, 6, 7);
 
 void terrama2::services::analysis::core::python::MonitoredObject::registerFunctions()
 {
@@ -70,6 +73,9 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
   def("standard_deviation", terrama2::services::analysis::core::occurrence::standardDeviation,
       occurrenceStandardDeviation_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"),
           "Standard deviation operator for occurrence"));
+  def("variance", terrama2::services::analysis::core::occurrence::variance,
+      occurrenceVariance_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"),
+                                   "Variance operator for occurrence"));
 
   // Register operations for occurrence.aggregation
   object occurrenceAggregationModule(handle<>(borrowed(PyImport_AddModule("terrama2.occurrence.aggregation"))));
@@ -94,6 +100,9 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
   def("standard_deviation", terrama2::services::analysis::core::occurrence::aggregation::standardDeviation,
       occurrenceAggregationStandardDeviation_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
           "Standard deviation operator for occurrence aggregation"));
+  def("variance", terrama2::services::analysis::core::occurrence::aggregation::variance,
+      occurrenceAggregationVariance_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
+          "Variance operator for occurrence aggregation"));
 }
 
 
@@ -111,6 +120,8 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(dcpSum_overloads, terrama2::services::analysis::
 BOOST_PYTHON_FUNCTION_OVERLOADS(dcpStandardDeviation_overloads,
                                 terrama2::services::analysis::core::dcp::standardDeviation, 3, 4);
 
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpVariance_overloads,
+                                terrama2::services::analysis::core::dcp::variance, 3, 4);
 
 void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFunctions()
 {
@@ -138,6 +149,9 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFun
   def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation,
       dcpStandardDeviation_overloads(args("dataSeriesName", "attribute", "buffer", "ids"),
                                      "Standard deviation operator for DCP"));
+  def("variance", terrama2::services::analysis::core::dcp::variance,
+      dcpVariance_overloads(args("dataSeriesName", "attribute", "buffer", "ids"),
+                            "Standard deviation operator for DCP"));
   def("count", terrama2::services::analysis::core::dcp::count);
 
   // Register operations for dcp.history
@@ -154,5 +168,6 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFun
   def("median", terrama2::services::analysis::core::dcp::history::median);
   def("sum", terrama2::services::analysis::core::dcp::history::sum);
   def("standard_deviation", terrama2::services::analysis::core::dcp::history::standardDeviation);
+  def("variance", terrama2::services::analysis::core::dcp::history::variance);
 
 }

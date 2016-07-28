@@ -85,7 +85,7 @@ namespace terrama2
           int count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer);
 
           /*!
-            \brief It calculates the minimum value of the latest DCP series data.
+            \brief Calculates the minimum value of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -100,11 +100,11 @@ namespace terrama2
 
             \return A double with the minimum value.
           */
-          double min( const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                        boost::python::list ids = boost::python::list());
+          double min(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
+                     boost::python::list ids = boost::python::list());
 
           /*!
-            \brief It calculates the maximum value of the latest DCP series data.
+            \brief Calculates the maximum value of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -119,10 +119,10 @@ namespace terrama2
             \return A double with the maximum value.
           */
           double max(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                        boost::python::list ids = boost::python::list());
+                     boost::python::list ids = boost::python::list());
 
           /*!
-            \brief It calculates the mean of the latest DCP series data.
+            \brief Calculates the mean of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -137,10 +137,10 @@ namespace terrama2
             \return A double with the mean.
           */
           double mean(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                         boost::python::list ids = boost::python::list());
+                      boost::python::list ids = boost::python::list());
 
           /*!
-            \brief It calculates the median value of the latest DCP series data.
+            \brief Calculates the median value of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -155,10 +155,10 @@ namespace terrama2
             \return A double with the median.
           */
           double median(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                           boost::python::list ids = boost::python::list());
+                        boost::python::list ids = boost::python::list());
 
           /*!
-            \brief It calculates the sum of the latest DCP series data.
+            \brief Calculates the sum of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -173,10 +173,10 @@ namespace terrama2
             \return A double with the sum.
           */
           double sum(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                        boost::python::list ids = boost::python::list());
+                     boost::python::list ids = boost::python::list());
 
           /*!
-            \brief It calculates the standard deviation of the latest DCP series data.
+            \brief Calculates the standard deviation of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -191,14 +191,17 @@ namespace terrama2
             \return A double with the standard deviation.
           */
           double standardDeviation(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                                      boost::python::list ids = boost::python::list());
+                                   boost::python::list ids = boost::python::list());
+                                   
+          double variance(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
+                          boost::python::list ids = boost::python::list());
 
 
           /*!
            \brief Returns the influence type of an analysis.
            \param analysis Analysis configuration.
            \return The influence type.
-         */
+          */
           terrama2::services::analysis::core::InfluenceType getInfluenceType(const terrama2::services::analysis::core::AnalysisPtr analysis);
 
           /*!

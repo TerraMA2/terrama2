@@ -66,4 +66,5 @@ void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
   def("mean", terrama2::services::analysis::core::grid::history::mean);
   def("median", terrama2::services::analysis::core::grid::history::median);
   def("standard_deviation", terrama2::services::analysis::core::grid::history::standardDeviation);
+  def("variance", terrama2::services::analysis::core::grid::history::variance);
 }

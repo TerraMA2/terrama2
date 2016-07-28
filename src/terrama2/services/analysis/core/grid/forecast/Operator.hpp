@@ -66,7 +66,7 @@ namespace terrama2
                                 const std::string& dataSeriesName, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the sum of historic grid data.
+              \brief Calculates the sum of historic grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -78,7 +78,7 @@ namespace terrama2
             double sum(const std::string& dataSeriesName, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the mean of historic grid data.
+              \brief Calculates the mean of historic grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -90,7 +90,7 @@ namespace terrama2
             double mean(const std::string& dataSeriesName, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the min of historic grid data.
+              \brief Calculates the min of historic grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -102,7 +102,7 @@ namespace terrama2
             double min(const std::string& dataSeriesName, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the max of historic grid data.
+              \brief Calculates the max of historic grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -117,7 +117,7 @@ namespace terrama2
             double max(const std::string& dataSeriesName, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the median of historic grid data.
+              \brief Calculates the median of historic grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -129,7 +129,7 @@ namespace terrama2
             double median(const std::string& dataSeriesName, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the standard deviation of historic grid data.
+              \brief Calculates the standard deviation of historic grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 

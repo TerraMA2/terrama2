@@ -59,7 +59,8 @@ namespace terrama2
           MEAN = 4, //!< Mean.
           MEDIAN = 5, //!< Median.
           STANDARD_DEVIATION = 6, //!< Standard deviation.
-          COUNT = 7 //!< Count.
+          COUNT = 7, //!< Count.
+          VARIANCE = 8//!< Variance
         };
 
         /*!
