@@ -1,3 +1,5 @@
+"use strict";
+
 var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
 var TokenCode = require('./../../core/Enums').TokenCode;
@@ -24,21 +26,20 @@ module.exports = function(app) {
         }
 
         DataManager.listServiceInstances(restriction).then(function(services) {
-          // todo: checking status - on/off
           var output = [];
           services.forEach(function(service) {
             output.push(service.rawObject());
-          })
+          });
           return response.json(output);
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
-        })
+        });
       } else {
         DataManager.getServiceInstance({id: serviceId}).then(function(service) {
           response.json({status: 200, result: service.rawObject()});
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
-        })
+        });
       }
     },
 
@@ -91,13 +92,13 @@ module.exports = function(app) {
                   console.log("Should restart? - " + shouldRestart);
                   if (shouldRestart) {
                     TcpManager.emit('stopService', serviceInstance);
-                  } else
+                  } else {
                     TcpManager.emit('updateService', serviceInstance);
+                  }
                 } catch(e) {
                   console.log(e);
                 }
-              } else
-                shouldRestart = false;
+              } else { shouldRestart = false; }
               return response.json({status: 200, token: token, service: serviceInstance.id, restart: shouldRestart});
             });
           };
@@ -107,8 +108,7 @@ module.exports = function(app) {
             DataManager.updateLog(serviceInstance.log.id, logSent).then(function() {
               _continueRequest();
             }).catch(_handleError);
-          } else
-            _continueRequest();
+          } else { _continueRequest(); }
         }).catch(_handleError);
       }).catch(_handleError);
     },
@@ -117,13 +117,15 @@ module.exports = function(app) {
       var serviceId = request.params.id;
       DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
         DataManager.removeServiceInstance({id: serviceId}).then(function() {
+          // stopping service
+          TcpManager.stopService(serviceInstance);
           return response.json({status: 200, name: serviceInstance.name});
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
         });
       }).catch(function(err) {
         Utils.handleRequestError(response, err, 400);
-      })
+      });
     }
   };
 };

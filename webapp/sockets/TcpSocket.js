@@ -233,9 +233,14 @@ var TcpSocket = function(io) {
             end: end
           };
 
+          if (services.length === 0 && analysisList.length === 0) {
+            _handleError(new Error("No service available"));
+            return;
+          }
+
           DataManager.listCollectors().then(function(collectors) {
-            var analysisIds = analysisList.map(function(element) { return element.id });
-            var collectorsIds = collectors.map(function(elm) { return elm.id });
+            var analysisIds = analysisList.map(function(element) { return element.id; });
+            var collectorsIds = collectors.map(function(elm) { return elm.id; });
             services.forEach(function(service) {
               switch(service.service_type_id) {
                 case ServiceType.ANALYSIS:

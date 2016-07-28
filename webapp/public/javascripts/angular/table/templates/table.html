@@ -32,7 +32,7 @@
 
   <div class="col-md-2 terrama2-nopadding-box" ng-show="linkToAdd">
     <div class="form-group">
-      <button ng-show="extra.service && extra.service.hasServiceOffline()"
+      <button ng-show="extra.service && extra.service.hasServiceOffline() && model.length > 0"
               class="btn btn-primary"
               ng-disabled="extra.service.starting"
               ng-click="extra.service.startAll()"
@@ -43,7 +43,7 @@
               <i class="fa fa-magic" style="margin-right: 5px;"></i>
               {{ i18n.__('Start all') }}
       </button>
-      <button ng-show="extra.service && !extra.service.hasServiceOffline()"
+      <button ng-show="extra.service && !extra.service.hasServiceOffline() && model.length > 0"
               class="btn btn-danger"
               ng-disabled="extra.service.stoping"
               ng-click="extra.service.stopAll()"
