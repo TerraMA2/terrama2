@@ -110,7 +110,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
 
     // Save thread state before entering multi-thread zone
-
     Py_BEGIN_ALLOW_THREADS
 
     std::shared_ptr<ContextDataSeries> contextDataSeries;

@@ -53,4 +53,13 @@ void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
 
   // export functions inside grid namespace
   def("sample", terrama2::services::analysis::core::grid::sample);
+
+  // Register operations for grid.history
+  object gridHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.history"))));
+  // make "from terrama2.grid import history" work
+  scope().attr("history") = gridHistoryModule;
+  // set the current scope to the new sub-module
+  scope gridHistoryScope = gridHistoryModule;
+
+  def("min", terrama2::services::analysis::core::grid::history::min);
 }

@@ -182,7 +182,12 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
 
   std::string script = prepareScript(context);
   PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
-  assert(pCompiledFn != NULL) ;
+  if(pCompiledFn == NULL)
+  {
+    std::string errMsg = QObject::tr("Invalid script.").toStdString();
+    context->addError(errMsg);
+    return;
+  }
 
   Py_INCREF(pCompiledFn);
 
