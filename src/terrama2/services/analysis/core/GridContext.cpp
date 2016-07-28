@@ -56,13 +56,7 @@ terrama2::services::analysis::core::GridContext::GridContext(terrama2::services:
 
 void terrama2::services::analysis::core::GridContext::registerFunctions()
 {
-  // GILLock lock;
-  // auto oldState = PyThreadState_Swap(mainThreadState_);
-  // populateNamespace();
-
   registerGridFunctions();
-
-  // PyThreadState_Swap(oldState);
 }
 
 void terrama2::services::analysis::core::GridContext::registerGridFunctions()
@@ -185,9 +179,9 @@ std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::co
           throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
         }
         auto outputGridConfig = getOutputRasterInfo();
-        auto reprojectedRaster = terrama2::services::analysis::core::reprojectRaster(dsRaster, outputGridConfig, analysis_->outputGridPtr->interpolationMethod);
+        auto resampledRaster = terrama2::services::analysis::core::resampleRaster(dsRaster, outputGridConfig, analysis_->outputGridPtr->interpolationMethod);
 
-        addRaster(key, reprojectedRaster);
+        addRaster(key, resampledRaster);
       }
     });
 
@@ -207,6 +201,14 @@ std::map<std::string, std::string> terrama2::services::analysis::core::GridConte
     outputRasterInfo_["MEM_SRC_RASTER_DRIVER_TYPE"] = "GDAL";
     outputRasterInfo_["MEM_RASTER_DATATYPE"] = te::common::Convert2String(te::dt::DOUBLE_TYPE);
     outputRasterInfo_["MEM_RASTER_NBANDS"] = "1";
+
+    if(!analysis_->outputGridPtr)
+    {
+      QString errMsg = QObject::tr("Invalid output grid configuration.");
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    outputRasterInfo_["MEM_RASTER_NODATA"] = std::to_string(analysis_->outputGridPtr->interpolationDummy);
     addInterestAreaToRasterInfo(outputRasterInfo_);
     addResolutionToRasterInfo(outputRasterInfo_);
 

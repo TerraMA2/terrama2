@@ -185,7 +185,7 @@ namespace terrama2
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.
           */
-          AnalysisHashCode hashCode2(std::shared_ptr<te::dt::TimeInstantTZ> startDate) const
+          AnalysisHashCode hashCode(std::shared_ptr<te::dt::TimeInstantTZ> startDate) const
           {
             auto boostDate = startDate->getTimeInstantTZ();
             if(!startDate || boostDate.is_not_a_date_time())

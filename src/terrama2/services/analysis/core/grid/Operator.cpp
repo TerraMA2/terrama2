@@ -100,13 +100,15 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       double column, row;
       dsGrid->geoToGrid(point.x, point.y, column, row);
 
-      if(!grid->isPointInGrid(column, row))
+      int icol = static_cast<int>(std::round(column));
+      int irow = static_cast<int>(std::round(row));
+      if(!grid->isPointInGrid(icol, irow))
       {
         continue;
       }
 
       double value;
-      raster->getValue(column, row, value);
+      raster->getValue(icol, irow, value);
 
       return value;
     }
