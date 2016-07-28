@@ -159,19 +159,9 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
       hasData = !samples.empty();
 
       if(hasData)
-      {
-        cache.sum = std::accumulate(samples.cbegin(), samples.cend(), 0);
-        cache.min = *std::min_element(samples.cbegin(), samples.cend());
-        cache.max = *std::max_element(samples.cbegin(), samples.cend());
         terrama2::services::analysis::core::calculateStatistics(samples, cache);
-      }
-      else
-      {
-        if(statisticOperation == StatisticOperation::COUNT)
-          return 0.;
-        else
-          return NAN;
-      }
+      else if(statisticOperation == StatisticOperation::COUNT)
+        return 0.;
     }
     catch(...)
     {

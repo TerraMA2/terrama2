@@ -213,8 +213,8 @@ terrama2::services::analysis::core::getOutputRasterInfo(std::map<std::string, st
 
 std::shared_ptr<te::rst::Raster>
 terrama2::services::analysis::core::resampleRaster(std::shared_ptr<te::rst::Raster> inputRaster,
-                                                   std::map<std::string, std::string> outputRasterInfo,
-                                                   InterpolationMethod method)
+    std::map<std::string, std::string> outputRasterInfo,
+    InterpolationMethod method)
 {
   auto oldNRows = inputRaster->getNumberOfRows();
   auto oldNCols = inputRaster->getNumberOfColumns();
@@ -289,6 +289,17 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
 {
   if(values.size() == 0)
     return;
+
+  for(const double& value : values)
+  {
+    cache.sum += value;
+
+    if(value < cache.min)
+      cache.min = value;
+
+    if(value > cache.max)
+      cache.max = value;
+  }
 
   cache.mean = cache.sum / cache.count;
   std::sort(values.begin(), values.end());
