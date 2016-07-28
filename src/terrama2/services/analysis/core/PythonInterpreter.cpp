@@ -125,7 +125,7 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
   {
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
-    AnalysisHashCode analysisHashCode = analysis->hashCode2(context->getStartTime());
+    AnalysisHashCode analysisHashCode = analysis->hashCode(context->getStartTime());
 
     auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
 
@@ -196,7 +196,7 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
   {
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
-    auto analysisHashCode = analysis->hashCode2(context->getStartTime());
+    auto analysisHashCode = analysis->hashCode(context->getStartTime());
 
     auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
 

@@ -110,6 +110,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
     dataSet1->active = true;
     dataSet1->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+    dataSet1->id = 1;
 
     dataSeries1->datasetList.emplace_back(dataSet1);
 
@@ -126,26 +127,27 @@ int main(int argc, char* argv[])
     // Data Series 2
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
-    dataSeries2->semantics = semanticsManager.getSemantics("GRID-geotiff");
-    dataSeries2->name = "geotiff 2";
-    dataSeries2->id = 2;
-    dataSeries2->dataProviderId = 1;
-
-    terrama2::core::DataSetGrid* dataSet2 = new terrama2::core::DataSetGrid();
-    dataSet2->active = true;
-    dataSet2->format.emplace("mask", "Spot_Vegetacao_Jul2001_SP.tif");
-
-    dataSeries2->datasetList.emplace_back(dataSet2);
-
-    AnalysisDataSeries gridADS2;
-    gridADS2.id = 2;
-    gridADS2.dataSeriesId = dataSeries2Ptr->id;
-    gridADS2.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
-
-
-    dataManager->add(dataSeries2Ptr);
+//    terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
+//    terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
+//    dataSeries2->semantics = semanticsManager.getSemantics("GRID-geotiff");
+//    dataSeries2->name = "geotiff 2";
+//    dataSeries2->id = 2;
+//    dataSeries2->dataProviderId = 1;
+//
+//    terrama2::core::DataSetGrid* dataSet2 = new terrama2::core::DataSetGrid();
+//    dataSet2->active = true;
+//    dataSet2->format.emplace("mask", "Spot_Vegetacao_Jul2001_SP.tif");
+//    dataSet2->id = 2;
+//
+//    dataSeries2->datasetList.emplace_back(dataSet2);
+//
+//    AnalysisDataSeries gridADS2;
+//    gridADS2.id = 2;
+//    gridADS2.dataSeriesId = dataSeries2Ptr->id;
+//    gridADS2.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
+//
+//
+//    dataManager->add(dataSeries2Ptr);
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,6 +164,7 @@ int main(int argc, char* argv[])
     // terrama2::core::DataSetGrid* dataSet3 = new terrama2::core::DataSetGrid();
     // dataSet3->active = true;
     // dataSet3->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
+    // dataSet3->id = 3;
     //
     // dataSeries3->datasetList.emplace_back(dataSet3);
     //
@@ -188,7 +191,7 @@ int main(int argc, char* argv[])
     // terrama2::core::DataSetGrid* dataSet4 = new terrama2::core::DataSetGrid();
     // dataSet4->active = true;
     // dataSet4->format.emplace("mask", "L71218076_07620060814_r3g2b1.tif");
-    //
+    // dataSet4->id = 4;
     // dataSeries4->datasetList.emplace_back(dataSet4);
     //
     // AnalysisDataSeries gridADS4;
@@ -209,7 +212,7 @@ int main(int argc, char* argv[])
 
     analysis->id = 1;
     analysis->name = "Grid Sample";
-    analysis->script = "return 255 - grid.sample(\"geotiff 2\")";
+    analysis->script = "return grid.sample(\"geotiff 1\")";
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = false;
@@ -220,7 +223,7 @@ int main(int argc, char* argv[])
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
     analysisDataSeriesList.push_back(gridADS1);
-    analysisDataSeriesList.push_back(gridADS2);
+    //analysisDataSeriesList.push_back(gridADS2);
     // analysisDataSeriesList.push_back(gridADS3);
     // analysisDataSeriesList.push_back(gridADS4);
     analysis->analysisDataSeriesList = analysisDataSeriesList;
@@ -234,10 +237,12 @@ int main(int argc, char* argv[])
     OutputGridPtr outputGridPtr(outputGrid);
 
     outputGrid->analysisId = 1;
-    outputGrid->interpolationMethod = InterpolationMethod::BICUBIC;
+    outputGrid->interpolationMethod = InterpolationMethod::BILINEAR;
     outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
     outputGrid->interestAreaDataSeriesId = 1;
-    outputGrid->resolutionType = ResolutionType::BIGGEST_GRID;
+    outputGrid->resolutionType = ResolutionType::SAME_FROM_DATASERIES;
+    outputGrid->resolutionDataSeriesId = 1;
+    outputGrid->interpolationDummy = 266;
 
     analysis->outputGridPtr = outputGridPtr;
 
