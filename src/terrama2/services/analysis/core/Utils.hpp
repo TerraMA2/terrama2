@@ -124,7 +124,7 @@ namespace terrama2
          */
         std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> > getOutputRasterInfo(std::map<std::string, std::string> rinfo);
 
-        std::shared_ptr<te::rst::Raster> reprojectRaster(std::shared_ptr<te::rst::Raster> inputRaster, std::map<std::string, std::string> outputRasterInfo, InterpolationMethod method);
+        std::shared_ptr<te::rst::Raster> resampleRaster(std::shared_ptr<te::rst::Raster> inputRaster, std::map<std::string, std::string> outputRasterInfo, InterpolationMethod method);
 
       } // end namespace core
     }   // end namespace analysis

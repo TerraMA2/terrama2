@@ -212,6 +212,7 @@ terrama2::services::analysis::core::getOutputRasterInfo(std::map<std::string, st
   double maxy = std::stod(rinfo["MEM_RASTER_MAX_Y"]);
   double resx = std::stod(rinfo["MEM_RASTER_RES_X"]);
   double resy = std::stod(rinfo["MEM_RASTER_RES_Y"]);
+  double nodata = std::stod(rinfo["MEM_RASTER_NODATA"]);
 
   te::gm::Envelope* mbr = new te::gm::Envelope(minx, miny, maxx, maxy);
 
@@ -228,6 +229,7 @@ terrama2::services::analysis::core::getOutputRasterInfo(std::map<std::string, st
     ibprop->m_blkw = ncols;
     ibprop->m_nblocksx = 1;
     ibprop->m_nblocksy = nrows;
+    ibprop->m_noDataValue = nodata;
 
     bands.push_back(ibprop);
   }
@@ -236,9 +238,9 @@ terrama2::services::analysis::core::getOutputRasterInfo(std::map<std::string, st
 }
 
 std::shared_ptr<te::rst::Raster>
-terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Raster> inputRaster,
-    std::map<std::string, std::string> outputRasterInfo,
-    InterpolationMethod method)
+terrama2::services::analysis::core::resampleRaster(std::shared_ptr<te::rst::Raster> inputRaster,
+                                                   std::map<std::string, std::string> outputRasterInfo,
+                                                   InterpolationMethod method)
 {
   auto oldNRows = inputRaster->getNumberOfRows();
   auto oldNCols = inputRaster->getNumberOfColumns();
@@ -252,7 +254,6 @@ terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Ras
     inputRasterBands.push_back(i);
   }
 
-//  std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("MEM", 0, std::vector<te::rst::BandProperty*>(), outputRasterInfo));
 
   te::rst::Grid* grid = nullptr;
   std::vector<te::rst::BandProperty*> bands;

@@ -73,7 +73,7 @@
 void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, ThreadPoolPtr threadPool)
 {
   RegisterId logId = 0;
-  AnalysisHashCode analysisHashCode = analysis->hashCode2(startTime);
+  AnalysisHashCode analysisHashCode = analysis->hashCode(startTime);
 
   try
   {
@@ -175,7 +175,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
   auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
   context->registerFunctions();
 
-  ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode2(startTime), context);
+  ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
 
   std::vector<std::future<void> > futures;
   std::vector<PyThreadState*> states;
@@ -469,7 +469,15 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   auto context = std::make_shared<terrama2::services::analysis::core::GridContext>(dataManager, analysis, startTime);
   context->registerFunctions();
 
-  ContextManager::getInstance().addGridContext(analysis->hashCode2(startTime), context);
+  if(!analysis->outputGridPtr)
+  {
+    QString errMsg = QObject::tr("Invalid output grid configuration.");
+    context->addError(errMsg.toStdString());
+    return;
+  }
+
+
+  ContextManager::getInstance().addGridContext(analysis->hashCode(startTime), context);
 
   std::vector<std::future<void> > futures;
   std::vector<PyThreadState*> states;
@@ -477,12 +485,6 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
   try
   {
-    if(!analysis->outputGridPtr)
-    {
-      QString errMsg = QObject::tr("Invalid output grid configuration.");
-      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-    }
-
     auto outputRaster = context->getOutputRaster();
 
     if(!outputRaster)
