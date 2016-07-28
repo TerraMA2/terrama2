@@ -28,13 +28,18 @@
   \author Jano Simas
 */
 
+// TerraMA2
 #include "Operator.hpp"
 #include "../../ContextManager.hpp"
 #include "../../../../../core/data-model/DataSetGrid.hpp"
 #include "../../Utils.hpp"
 
+// TerraLib
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/Reprojection.h>
+
+// STD
+#include <numeric>
 
 std::vector<double> terrama2::services::analysis::core::grid::history::sample(const OperatorCache& cache, const std::string& dataSeriesName, const std::string& dateFilter)
 {
