@@ -96,6 +96,7 @@ namespace terrama2
 
         /*!
           \brief Add a value to the result table for the given attribute.
+          \note The attribute name will be converted to lower case.
           \param attribute The name of the attribute.
           \param value The result value.
         */

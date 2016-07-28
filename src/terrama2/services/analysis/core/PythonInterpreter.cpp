@@ -65,6 +65,7 @@
 
 // Boost Python
 #include <boost/python/call.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
@@ -279,6 +280,9 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 {
   OperatorCache cache;
   readInfoFromDict(cache);
+
+  std::string attrName = boost::to_lower_copy(attribute);
+
   auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
   auto dataManagerPtr = context->getDataManager().lock();
@@ -332,7 +336,7 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 
         if(moDsContext->series.teDataSetType->getProperty(moDsContext->identifier) == nullptr)
         {
-          QString errMsg(QObject::tr("Invalid attribute identifier."));
+          QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
           context->addError(errMsg.toStdString());
           return;
         }
@@ -341,8 +345,8 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
         assert(!geomId.empty());
 
-        context->addAttribute(attribute);
-        context->setAnalysisResult(geomId, attribute, value);
+        context->addAttribute(attrName);
+        context->setAnalysisResult(geomId, attrName, value);
       }
     }
 
