@@ -465,7 +465,6 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::GridContext>(dataManager, analysis, startTime);
-  ContextManager::getInstance().addGridContext(analysis->hashCode(startTime), context);
 
   if(!analysis->outputGridPtr)
   {
