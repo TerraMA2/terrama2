@@ -167,7 +167,7 @@ namespace terrama2
                                    const std::string& attribute, const std::string& restriction = "");
 
           /*
-           \brief Calculates the varince of the attribute of occurrences in the monitored object area.
+           \brief Calculates the variance of the attribute of occurrences in the monitored object area.
 
            \param dataSeriesName DataSeries name.
            \param buffer Buffer to be used in the monitored object.
