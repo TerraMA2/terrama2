@@ -2219,6 +2219,30 @@ var DataManager = {
     });
   },
 
+  getFilter: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Filter.findOne({where: restriction}).then(function(filter) {
+        if (filter === null)
+          return reject(new exceptions.FilterError("Could not get filter, retrieved null"));
+
+        if (filter.region) {
+          self.getWKT(filter.region).then(function(geom) {
+            var output = new DataModel.Filter(filter.get());
+            output.region_wkt = geom;
+            resolve(output);
+          }).catch(function(err) {
+            reject(err);
+          })
+        } else {
+          resolve(new DataModel.Filter(filter.get()));
+        }
+      }).catch(function(err) {
+        reject(new exceptions.FilterError("Could not retrieve filter " + err.toString()));
+      });
+    });
+  },
+
   updateFilter: function(filterId, filterObject) {
     var self = this;
     return new Promise(function(resolve, reject) {

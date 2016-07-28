@@ -40,7 +40,7 @@
                 name="data_provider_id"
                 ng-model="dataSeries.data_provider_id"
                 ng-change="changeDataProvider()" required>
-          <option ng-repeat="provider in dataProviders" value="{{ provider.id }}">{{ provider.name }}</option>
+          <option ng-repeat="provider in dataProviders track by $index" value="{{ provider.id }}">{{ provider.name }}</option>
         </select>
 
         <label class="help-block text-danger" ng-show="forms.generalDataForm.data_provider_id.$dirty && forms.generalDataForm.data_provider_id.$error.required">{{ i18n.__("Data provider is required") }}</label>

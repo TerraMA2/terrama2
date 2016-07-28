@@ -129,7 +129,7 @@ var TcpSocket = function(io) {
 
     TcpManager.on('close', onClose);
 
-    TcpManager.on('error', onError);
+    TcpManager.on('tcpError', onError);
 
     // client listeners
     client.on('start', function(json) {
@@ -268,7 +268,7 @@ var TcpSocket = function(io) {
       TcpManager.removeListener('logReceived', onLogReceived);
       TcpManager.removeListener('stop', onStop);
       TcpManager.removeListener('close', onClose);
-      TcpManager.removeListener('error', onError);
+      TcpManager.removeListener('tcpError', onError);
       TcpManager.removeListener('serviceStarted', onServiceStarted);
       TcpManager.removeListener('serviceConnected', onServiceConnected);
 

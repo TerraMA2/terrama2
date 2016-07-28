@@ -11,7 +11,7 @@ var AbstractSemantics = module.exports = function(semanticsObject) {
   if (this.constructor === AbstractSemantics)
     throw new Error("AbstractSemantic cannot be instantiated");
 
-  Utils.isValidDataSeriesType(semanticsObject.data_series_type_name);
+  Utils.isValidDataSeriesType(semanticsObject.data_series_type_name || semanticsObject.type);
 
   this.semantics = semanticsObject;
 };

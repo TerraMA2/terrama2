@@ -142,9 +142,10 @@ terrama2Application.directive('terrama2ShowErrors', function() {
       var inputName = inputNgEl.attr('name');
 
       var _helper = function() {
-        if (!formCtrl[inputName].$dirty)
-        el.toggleClass('has-success', formCtrl[inputName].$valid);
-        el.toggleClass('has-error', formCtrl[inputName].$invalid);
+        if (formCtrl[inputName].$dirty) {
+          el.toggleClass('has-success', formCtrl[inputName].$valid);
+          el.toggleClass('has-error', formCtrl[inputName].$invalid);
+        }
         formCtrl[inputName].$setDirty();
       };
 
