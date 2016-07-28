@@ -51,8 +51,8 @@ void TsUtility::testTimerNoFrequencyException()
     schedule.frequency = 0;
     schedule.frequencyUnit = "second";
 
-    ::testing::NiceMock<terrama2::core::MockProcessLogger> logger;
-    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    terrama2::core::MockProcessLogger logger;
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timer(schedule, 1, lastTime);
 
@@ -73,8 +73,8 @@ void TsUtility::testTimerInvalidUnitException()
     schedule.frequency = 30;
     schedule.frequencyUnit = "invalid";
 
-    ::testing::NiceMock<terrama2::core::MockProcessLogger> logger;
-    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    terrama2::core::MockProcessLogger logger;
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timer(schedule, 1, lastTime);
 
@@ -97,8 +97,8 @@ void TsUtility::testFrequencyTimer()
     schedule.frequency = 800;
     schedule.frequencyUnit = "second";
 
-    ::testing::NiceMock<terrama2::core::MockProcessLogger> logger;
-    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    terrama2::core::MockProcessLogger logger;
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timerSecond1(schedule, 1, lastTime);
 
@@ -168,8 +168,8 @@ void TsUtility::testScheduleTimer()
     schedule.scheduleTime = "09:00:00.000";
     schedule.scheduleUnit = "week";
 
-    ::testing::NiceMock<terrama2::core::MockProcessLogger> logger;
-    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    terrama2::core::MockProcessLogger logger;
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timerWeek1(schedule, 1, lastTime);
   }
