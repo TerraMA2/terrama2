@@ -316,7 +316,21 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
           context->addError(errMsg.toStdString());
           return;
         }
-        //TODO PAULO: verificar se o identificador existes
+
+        if(!moDsContext->series.teDataSetType)
+        {
+          QString errMsg(QObject::tr("Invalid dataset type."));
+          context->addError(errMsg.toStdString());
+          return;
+        }
+
+        if(moDsContext->series.teDataSetType->getProperty(moDsContext->identifier) == nullptr)
+        {
+          QString errMsg(QObject::tr("Invalid attribute identifier."));
+          context->addError(errMsg.toStdString());
+          return;
+        }
+
         // Stores the result in the context
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
         assert(!geomId.empty());
@@ -438,6 +452,7 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
   if(values.size() == 0)
     return;
 
+  cache.count = values.size();
   cache.mean = cache.sum / cache.count;
   std::sort(values.begin(), values.end());
   double half = values.size() / 2;
