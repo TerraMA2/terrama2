@@ -126,13 +126,12 @@ te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(cons
 }
 
 
-std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId, const std::string& dateFilter)
+std::vector< std::shared_ptr<te::rst::Raster> >
+terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
+                                                               const DataSetId datasetId,
+                                                               const std::string& dateFilter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-
-  //FIXME: not implemente yet
-  if(dateFilter != "")
-    assert(0);
 
   DatasetKey key;
   key.datasetId_ = datasetId;
@@ -151,7 +150,7 @@ std::vector< std::shared_ptr<te::rst::Raster> > terrama2::services::analysis::co
     }
 
     // First call, need to call sample for each dataset raster and store the result in the context.
-    auto gridMap = getGridMap(dataManager, dataSeries->id);
+    auto gridMap = getGridMap(dataManager, dataSeries->id, dateFilter);
 
     std::for_each(gridMap.begin(), gridMap.end(), [this, datasetId, key](decltype(*gridMap.begin()) it)
     {
@@ -279,7 +278,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
           {
             QString errMsg = QObject::tr("Could not recover raster for dataset: %1.").arg(gridMap.begin()->first->id);
             throw terrama2::InvalidArgumentException() <<
- ErrorDescription(errMsg);
+                ErrorDescription(errMsg);
           }
 
           // Calculates the area of the pixel
@@ -410,7 +409,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
           {
             QString errMsg = QObject::tr("Could not recover raster for dataset: %1.").arg(gridMap.begin()->first->id);
             throw terrama2::InvalidArgumentException()
-<< ErrorDescription(errMsg);
+                << ErrorDescription(errMsg);
           }
 
           if(srid == 0)

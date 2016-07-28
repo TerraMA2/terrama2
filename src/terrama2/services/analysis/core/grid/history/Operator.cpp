@@ -127,8 +127,85 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
   }
 }
 
-double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                    const std::string& dataSeriesName, const std::string& dateFilter)
+double terrama2::services::analysis::core::grid::history::operatorImpl(
+  terrama2::services::analysis::core::StatisticOperation statisticOperation,
+  const std::string& dataSeriesName,
+  const std::string& dateFilter)
 {
+  OperatorCache cache;
+  readInfoFromDict(cache);
+  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+  bool exceptionOccurred = false;
+  auto context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
 
+  try
+  {
+    // In case an error has already occurred, there is nothing to be done
+    if(!context->getErrors().empty())
+    {
+      return NAN;
+    }
+
+    bool hasData = false;
+
+    // Save thread state before entering multi-thread zone
+    Py_BEGIN_ALLOW_THREADS
+
+    try
+    {
+      auto samples = sample(cache, dataSeriesName, dateFilter);
+
+      hasData = !samples.empty();
+
+      if(hasData)
+      {
+        terrama2::services::analysis::core::calculateStatistics(samples, cache);
+        cache.sum = std::accumulate(samples.cbegin(), samples.cend(), 0);
+        cache.min = *std::min_element(samples.cbegin(), samples.cend());
+        cache.min = *std::max_element(samples.cbegin(), samples.cend());
+      }
+
+      if(statisticOperation == StatisticOperation::COUNT)
+        cache.count = samples.size();
+    }
+    catch(...)
+    {
+      exceptionOccurred = true;
+    }
+
+    // All operations are done, acquires the GIL and set the return value
+    Py_END_ALLOW_THREADS
+
+    if(exceptionOccurred)
+      return NAN;
+
+    if(!hasData && statisticOperation != StatisticOperation::COUNT)
+    {
+      return NAN;
+    }
+
+    return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    return NAN;
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
+    return NAN;
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    context->addError(errMsg.toStdString());
+    return NAN;
+  }
+}
+
+double terrama2::services::analysis::core::grid::history::min(const std::string& dataSeriesName, const std::string& dateFilter)
+{
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilter);
 }
