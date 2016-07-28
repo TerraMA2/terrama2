@@ -38,7 +38,7 @@
 double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName)
 {
   OperatorCache cache;
-  readInfoFromDict(cache);
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
   auto context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
 

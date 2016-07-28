@@ -61,7 +61,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                                                              Buffer buffer, boost::python::list ids)
 {
   OperatorCache cache;
-  readInfoFromDict(cache);
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
   auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
   // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
@@ -87,7 +87,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
     AnalysisPtr analysis = context->getAnalysis();
 
-    auto moDsContext = getMonitoredObjectContextDataSeries(context, dataManagerPtr);
+    auto moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));

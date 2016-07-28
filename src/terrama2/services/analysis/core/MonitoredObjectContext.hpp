@@ -142,6 +142,14 @@ namespace terrama2
             */
             void addAttribute(const std::string& attribute);
 
+            /*!
+              \brief Returns the ContextDataSeries of the monitored object for the given analysis.
+              \param analysisHashCode Analysis hashcode.
+              \param dataManagerPtr Smart pointer to the data manager.
+              \return The ContextDataSeries of the monitored object.
+            */
+            std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries(std::shared_ptr<DataManager>& dataManagerPtr);
+
           protected:
             std::set<std::string> attributes_;
             std::unordered_map<std::string, std::map<std::string, double> >  analysisResult_;

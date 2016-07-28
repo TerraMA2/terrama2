@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
     // this is needed for calling the destructor of the service before finalizing terralib
     {
       // Must initialize the python interpreter before creating any thread.
-      terrama2::services::analysis::core::initInterpreter();
+      terrama2::services::analysis::core::python::initInterpreter();
 
       QCoreApplication app(argc, argv);
 
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 
     try
     {
-      terrama2::services::analysis::core::finalizeInterpreter();
+      terrama2::services::analysis::core::python::finalizeInterpreter();
       terrama2::core::finalizeTerraMA();
 
       //Service closed by load error

@@ -324,3 +324,27 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
 
   cache.standardDeviation = sumVariance / cache.count;
 }
+
+
+double terrama2::services::analysis::core::getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation)
+{
+  switch(statisticOperation)
+  {
+    case StatisticOperation::SUM:
+      return cache.sum;
+    case StatisticOperation::MEAN:
+      return cache.mean;
+    case StatisticOperation::MIN:
+      return cache.min;
+    case StatisticOperation::MAX:
+      return cache.max;
+    case StatisticOperation::STANDARD_DEVIATION:
+      return cache.standardDeviation;
+    case StatisticOperation::MEDIAN:
+      return cache.median;
+    case StatisticOperation::COUNT:
+      return cache.count;
+    default:
+      return NAN;
+  }
+}

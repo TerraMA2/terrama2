@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   };
   serviceManager.setLogConnectionInfo(connInfo);
 
-  terrama2::services::analysis::core::initInterpreter();
+  terrama2::services::analysis::core::python::initInterpreter();
 
   QCoreApplication app(argc, argv);
 
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
   timer.start(10000);
   app.exec();
 
-  terrama2::services::analysis::core::finalizeInterpreter();
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

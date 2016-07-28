@@ -376,3 +376,34 @@ void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResu
   auto& attributeMap = analysisResult_[geomId];
   attributeMap[attribute] = result;
 }
+
+std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries>
+terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectContextDataSeries(std::shared_ptr<DataManager>& dataManagerPtr)
+{
+  std::shared_ptr<ContextDataSeries> contextDataSeries;
+
+  auto analysis = getAnalysis();
+
+  for(const AnalysisDataSeries& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      assert(dataSeries->datasetList.size() == 1);
+      auto datasetMO = dataSeries->datasetList[0];
+
+      if(!exists(datasetMO->id))
+      {
+        QString errMsg(QObject::tr("Could not recover monitored object dataset."));
+
+        addError(errMsg.toStdString());
+        return contextDataSeries;
+      }
+
+      return getContextDataset(datasetMO->id);
+    }
+  }
+
+  return contextDataSeries;
+}

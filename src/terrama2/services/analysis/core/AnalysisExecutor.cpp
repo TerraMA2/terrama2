@@ -111,7 +111,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   }
   catch(const boost::python::error_already_set&)
   {
-    std::string errMsg = extractException();
+    std::string errMsg = terrama2::services::analysis::core::python::extractException();
     ContextManager::getInstance().addError(analysisHashCode, errMsg);
   }
   catch(const boost::exception& e)
@@ -262,7 +262,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       // create a thread state object for this thread
       PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
-      futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::runMonitoredObjectScript, myThreadState, context, indexes));
+      futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::python::runMonitoredObjectScript, myThreadState, context, indexes));
 
       begin += packageSize;
     }
@@ -546,7 +546,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
       // create a thread state object for this thread
       PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
-      futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::runScriptGridAnalysis, myThreadState, context, indexes));
+      futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::python::runScriptGridAnalysis, myThreadState, context, indexes));
 
       begin += packageSize;
     }
@@ -567,7 +567,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   }
   catch(const boost::python::error_already_set&)
   {
-    std::string errMsg = extractException();
+    std::string errMsg = terrama2::services::analysis::core::python::extractException();
     context->addError(errMsg);
 
     std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));

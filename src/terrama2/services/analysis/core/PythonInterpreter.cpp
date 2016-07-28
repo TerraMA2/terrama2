@@ -27,8 +27,6 @@
   \author Paulo R. M. Oliveira
 */
 
-
-
 #include "PythonInterpreter.hpp"
 
 #include <boost/python.hpp>
@@ -74,7 +72,7 @@
 using namespace boost::python;
 
 
-std::string terrama2::services::analysis::core::extractException()
+std::string terrama2::services::analysis::core::python::extractException()
 {
   using namespace boost::python;
 
@@ -99,7 +97,7 @@ std::string terrama2::services::analysis::core::extractException()
   }
 }
 
-void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint64_t> indexes)
+void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint64_t> indexes)
 {
   AnalysisPtr analysis = context->getAnalysis();
 
@@ -162,7 +160,7 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
 }
 
 
-void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint64_t> rows)
+void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint64_t> rows)
 {
   AnalysisPtr analysis = context->getAnalysis();
 
@@ -240,7 +238,7 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
   state = PyThreadState_Swap(previousState);
 }
 
-void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* state, MonitoredObjectContextPtr context)
+void terrama2::services::analysis::core::python::runScriptDCPAnalysis(PyThreadState* state, MonitoredObjectContextPtr context)
 {
   AnalysisPtr analysis = context->getAnalysis();
 
@@ -276,10 +274,10 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
   PyEval_ReleaseLock();
 }
 
-void terrama2::services::analysis::core::addValue(const std::string& attribute, double value)
+void terrama2::services::analysis::core::python::addValue(const std::string& attribute, double value)
 {
   OperatorCache cache;
-  readInfoFromDict(cache);
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
   std::string attrName = boost::to_lower_copy(attribute);
 
@@ -359,63 +357,6 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
   }
 }
 
-
-double terrama2::services::analysis::core::getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation)
-{
-  switch(statisticOperation)
-  {
-    case StatisticOperation::SUM:
-      return cache.sum;
-    case StatisticOperation::MEAN:
-      return cache.mean;
-    case StatisticOperation::MIN:
-      return cache.min;
-    case StatisticOperation::MAX:
-      return cache.max;
-    case StatisticOperation::STANDARD_DEVIATION:
-      return cache.standardDeviation;
-    case StatisticOperation::MEDIAN:
-      return cache.median;
-    case StatisticOperation::COUNT:
-      return cache.count;
-    default:
-      return NAN;
-  }
-
-}
-
-
-std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries>
-terrama2::services::analysis::core::getMonitoredObjectContextDataSeries(MonitoredObjectContextPtr context, std::shared_ptr<DataManager>& dataManagerPtr)
-{
-  std::shared_ptr<ContextDataSeries> contextDataSeries;
-
-  auto analysis = context->getAnalysis();
-
-  for(const AnalysisDataSeries& analysisDataSeries : analysis->analysisDataSeriesList)
-  {
-    terrama2::core::DataSeriesPtr dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
-
-    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
-    {
-      assert(dataSeries->datasetList.size() == 1);
-      auto datasetMO = dataSeries->datasetList[0];
-
-      if(!context->exists(datasetMO->id))
-      {
-        QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-
-        context->addError(errMsg.toStdString());
-        return contextDataSeries;
-      }
-
-      return context->getContextDataset(datasetMO->id);
-    }
-  }
-
-  return contextDataSeries;
-}
-
 BOOST_PYTHON_MODULE(terrama2)
 {
   // specify that this module is actually a package
@@ -423,7 +364,7 @@ BOOST_PYTHON_MODULE(terrama2)
   package.attr("__path__") = "terrama2";
 
 
-  def("add_value", terrama2::services::analysis::core::addValue);
+  def("add_value", terrama2::services::analysis::core::python::addValue);
 
   // Export BufferType enum to python
   enum_<terrama2::services::analysis::core::BufferType>("BufferType")
@@ -463,12 +404,12 @@ extern "C" PyObject* INIT_MODULE();
 extern "C" void INIT_MODULE();
 #endif
 
-void terrama2::services::analysis::core::populateNamespace()
+void terrama2::services::analysis::core::python::populateNamespace()
 {
   INIT_MODULE();
 }
 
-void terrama2::services::analysis::core::initInterpreter()
+void terrama2::services::analysis::core::python::initInterpreter()
 {
   PyEval_InitThreads();
   Py_Initialize();
@@ -480,14 +421,14 @@ void terrama2::services::analysis::core::initInterpreter()
   PyEval_ReleaseLock();
 }
 
-void terrama2::services::analysis::core::finalizeInterpreter()
+void terrama2::services::analysis::core::python::finalizeInterpreter()
 {
   // shut down the interpreter
   PyEval_AcquireLock();
   Py_Finalize();
 }
 
-void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
+void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache& cache)
 {
   PyThreadState* state = PyThreadState_Get();
   PyObject* pDict = state->dict;
@@ -544,7 +485,7 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
 }
 
 
-std::string terrama2::services::analysis::core::prepareScript(terrama2::services::analysis::core::BaseContextPtr context)
+std::string terrama2::services::analysis::core::python::prepareScript(terrama2::services::analysis::core::BaseContextPtr context)
 {
   AnalysisPtr analysis = context->getAnalysis();
   std::string formatedScript = analysis->script;
@@ -578,8 +519,6 @@ std::string terrama2::services::analysis::core::prepareScript(terrama2::services
 
   return formatedScript;
 }
-
-
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop

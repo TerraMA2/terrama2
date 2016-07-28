@@ -273,8 +273,6 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
     item->setGeometry(0, dynamic_cast<te::gm::Geometry*>(occurrenceAggregation->buffer->clone()));
     item->setDouble(1, getOperationResult(cache, aggregationStatisticOperation));
     dsOut->add(item);
-
-
   }
 
 

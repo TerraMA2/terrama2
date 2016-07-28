@@ -54,7 +54,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
     Buffer buffer, const std::string& dateFilter)
 {
   OperatorCache cache;
-  readInfoFromDict(cache);
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
   auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
   // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
@@ -82,7 +82,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto moDsContext = getMonitoredObjectContextDataSeries(context, dataManagerPtr);
+    auto moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object dataset."));

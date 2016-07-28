@@ -47,6 +47,20 @@ namespace terrama2
     {
       namespace core
       {
+        /*!
+          \brief Defines the statistic operation to be used in the analysis.
+        */
+        enum class StatisticOperation
+        {
+          INVALID = 0, //!< Invalid operation.
+          MIN = 1, //!< Minimum value.
+          MAX = 2, //!< Maximum value.
+          SUM = 3, //!< Sum.
+          MEAN = 4, //!< Mean.
+          MEDIAN = 5, //!< Median.
+          STANDARD_DEVIATION = 6, //!< Standard deviation.
+          COUNT = 7 //!< Count.
+        };
 
         /*!
           \brief Returns a enum with the type of the Analysis based on the given parameter.
@@ -141,6 +155,14 @@ namespace terrama2
          \param cache The OperatorCache to store the results.
         */
         void calculateStatistics(std::vector<double>& values, OperatorCache& cache);
+
+
+        /*!
+          \brief Returns the result of the operation for the given statistic.
+          \param cache Cache with the calculated statistics.
+          \param statisticOperation The statistic operation called by the script.
+        */
+        double getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation);
 
       } // end namespace core
     }   // end namespace analysis
