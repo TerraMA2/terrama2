@@ -241,3 +241,73 @@ terrama2::services::analysis::core::reprojectRaster(std::shared_ptr<te::rst::Ras
 
   return std::shared_ptr<te::rst::Raster>(resampledRasterPtr.release());
 }
+
+
+double terrama2::services::analysis::core::getValue(terrama2::core::SynchronizedDataSetPtr syncDs,
+    const std::string& attribute, uint64_t i, int attributeType)
+{
+  if(attribute.empty())
+    return NAN;
+
+  double value = NAN;
+  switch(attributeType)
+  {
+    case te::dt::INT16_TYPE:
+    {
+      value = syncDs->getInt16(i, attribute);
+    }
+    break;
+    case te::dt::INT32_TYPE:
+    {
+      value = syncDs->getInt32(i, attribute);
+    }
+    break;
+    case te::dt::INT64_TYPE:
+    {
+      value = boost::lexical_cast<double>(syncDs->getInt64(i, attribute));
+    }
+    break;
+    case te::dt::DOUBLE_TYPE:
+    {
+      value = boost::lexical_cast<double>(syncDs->getDouble(i, attribute));
+    }
+    break;
+    case te::dt::NUMERIC_TYPE:
+    {
+      value = boost::lexical_cast<double>(syncDs->getNumeric(i, attribute));
+    }
+    break;
+    default:
+      break;
+  }
+
+  return value;
+}
+
+void terrama2::services::analysis::core::calculateStatistics(std::vector<double>& values, OperatorCache& cache)
+{
+  if(values.size() == 0)
+    return;
+
+  cache.mean = cache.sum / cache.count;
+  std::sort(values.begin(), values.end());
+  double half = values.size() / 2;
+  if(values.size() > 1 && values.size() % 2 == 0)
+  {
+    cache.median = (values[(int) half] + values[(int) half - 1]) / 2.;
+  }
+  else
+  {
+    cache.median = values.size() == 1 ? values[0] : 0.;
+  }
+
+  // calculates the variance
+  double sumVariance = 0.;
+  for(unsigned int i = 0; i < values.size(); ++i)
+  {
+    double value = values[i];
+    sumVariance += (value - cache.mean) * (value - cache.mean);
+  }
+
+  cache.standardDeviation = sumVariance / cache.count;
+}

@@ -29,6 +29,7 @@
 
 // TerraMA2
 #include "BufferMemory.hpp"
+#include "Utils.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
 

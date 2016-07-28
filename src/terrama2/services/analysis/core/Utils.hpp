@@ -33,6 +33,7 @@
 // TerraMA2
 
 #include "Analysis.hpp"
+#include "OperatorCache.hpp"
 #include "../../../core/Shared.hpp"
 
 // TerraLib
@@ -123,6 +124,23 @@ namespace terrama2
         std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> > getOutputRasterInfo(std::map<std::string, std::string> rinfo);
 
         std::shared_ptr<te::rst::Raster> reprojectRaster(std::shared_ptr<te::rst::Raster> inputRaster, std::map<std::string, std::string> outputRasterInfo, InterpolationMethod method);
+
+        /*!
+          \brief Returns the attribute value for the given position, it tries a lexical cast to double in case the attribute has a different type.
+          \param syncDs Smart pointer to the dataset.
+          \param attribute Attribute name.
+          \param i The position.
+          \param attributeType The attribute type.
+          \return The attribute value for the given position
+        */
+        double getValue(terrama2::core::SynchronizedDataSetPtr syncDs, const std::string& attribute, uint64_t i, int attributeType);
+
+        /*!
+         \brief Calculates the statistics based on the given values.
+         \param values The list of values.
+         \param cache The OperatorCache to store the results.
+        */
+        void calculateStatistics(std::vector<double>& values, OperatorCache& cache);
 
       } // end namespace core
     }   // end namespace analysis

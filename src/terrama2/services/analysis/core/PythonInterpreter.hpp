@@ -161,23 +161,6 @@ namespace terrama2
                                                                                std::shared_ptr<DataManager>& dataManagerPtr);
 
         /*!
-          \brief Returns the attribute value for the given position, it tries a lexical cast to double in case the attribute has a different type.
-          \param syncDs Smart pointer to the dataset.
-          \param attribute Attribute name.
-          \param i The position.
-          \param attributeType The attribute type.
-          \return The attribute value for the given position
-        */
-        double getValue(terrama2::core::SynchronizedDataSetPtr syncDs, const std::string& attribute, uint64_t i, int attributeType);
-
-        /*!
-         \brief Calculates the statistics based on the given values.
-         \param values The list of values.
-         \param cache The OperatorCache to store the results.
-        */
-        void calculateStatistics(std::vector<double>& values, OperatorCache& cache);
-
-        /*!
           \brief Extracts the error message from Python interpreter.
         */
         std::string extractException();

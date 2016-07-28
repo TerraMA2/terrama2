@@ -39,6 +39,8 @@
 #include "ContextManager.hpp"
 #include "GridContext.hpp"
 #include "MonitoredObjectContext.hpp"
+#include "PythonBindingMonitoredObject.hpp"
+#include "PythonBindingGrid.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "dcp/Operator.hpp"
@@ -75,7 +77,7 @@ std::string terrama2::services::analysis::core::extractException()
 {
   using namespace boost::python;
 
-  PyObject *exc,*val,*tb;
+  PyObject* exc,*val,*tb;
   PyErr_Fetch(&exc,&val,&tb);
   PyErr_NormalizeException(&exc,&val,&tb);
   handle<> hexc(exc),hval(allow_null(val)),htb(allow_null(tb));
@@ -108,14 +110,14 @@ void terrama2::services::analysis::core::runMonitoredObjectScript(PyThreadState*
   // swap in my thread state
   auto previousState = PyThreadState_Swap(state);
 
-  PyObject* pCompiledFn = Py_CompileString( script.c_str() , "" , Py_file_input ) ;
-  assert( pCompiledFn != NULL ) ;
+  PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
+  assert(pCompiledFn != NULL) ;
 
   Py_INCREF(pCompiledFn);
 
   // create a module
-  PyObject* pModule = PyImport_ExecCodeModule( (char*)"analysis" , pCompiledFn ) ;
-  assert( pModule != NULL ) ;
+  PyObject* pModule = PyImport_ExecCodeModule((char*)"analysis" , pCompiledFn) ;
+  assert(pModule != NULL) ;
 
   Py_INCREF(pModule);
 
@@ -179,14 +181,14 @@ void terrama2::services::analysis::core::runScriptGridAnalysis(PyThreadState* st
   int nCols = outputRaster->getNumberOfColumns();
 
   std::string script = prepareScript(context);
-  PyObject* pCompiledFn = Py_CompileString( script.c_str() , "" , Py_file_input ) ;
-  assert( pCompiledFn != NULL ) ;
+  PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
+  assert(pCompiledFn != NULL) ;
 
   Py_INCREF(pCompiledFn);
 
   // create a module
-  PyObject* pModule = PyImport_ExecCodeModule( (char*)"analysis" , pCompiledFn ) ;
-  assert( pModule != NULL ) ;
+  PyObject* pModule = PyImport_ExecCodeModule((char*)"analysis" , pCompiledFn) ;
+  assert(pModule != NULL) ;
 
   Py_INCREF(pModule);
 
@@ -242,12 +244,12 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
   PyThreadState_Swap(state);
   PyThreadState_Clear(state);
 
-//TODO: is it needed?
+  //TODO: is it needed?
   // Adds the analysis hashcode to the python state
-//  PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
-//  PyObject* poDict = PyDict_New();
-//  PyDict_SetItemString(poDict, "analysisHashCode", analysisValue);
-//  state->dict = poDict;
+  //  PyObject* analysisValue = PyInt_FromLong(analysisHashCode);
+  //  PyObject* poDict = PyDict_New();
+  //  PyDict_SetItemString(poDict, "analysisHashCode", analysisValue);
+  //  state->dict = poDict;
 
   try
   {
@@ -266,14 +268,13 @@ void terrama2::services::analysis::core::runScriptDCPAnalysis(PyThreadState* sta
 
   // release our hold on the global interpreter
   PyEval_ReleaseLock();
-
 }
 
 void terrama2::services::analysis::core::addValue(const std::string& attribute, double value)
 {
   OperatorCache cache;
- readInfoFromDict(cache);
- auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  readInfoFromDict(cache);
+  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
   auto dataManagerPtr = context->getDataManager().lock();
   if(!dataManagerPtr)
@@ -392,78 +393,7 @@ terrama2::services::analysis::core::getMonitoredObjectContextDataSeries(Monitore
   return contextDataSeries;
 }
 
-double terrama2::services::analysis::core::getValue(terrama2::core::SynchronizedDataSetPtr syncDs,
-                                                    const std::string& attribute, uint64_t i, int attributeType)
-{
-  if(attribute.empty())
-    return NAN;
-
-  double value = NAN;
-  switch(attributeType)
-  {
-    case te::dt::INT16_TYPE:
-    {
-      value = syncDs->getInt16(i, attribute);
-    }
-      break;
-    case te::dt::INT32_TYPE:
-    {
-      value = syncDs->getInt32(i, attribute);
-    }
-      break;
-    case te::dt::INT64_TYPE:
-    {
-      value = boost::lexical_cast<double>(syncDs->getInt64(i, attribute));
-    }
-      break;
-    case te::dt::DOUBLE_TYPE:
-    {
-      value = boost::lexical_cast<double>(syncDs->getDouble(i, attribute));
-    }
-      break;
-    case te::dt::NUMERIC_TYPE:
-    {
-      value = boost::lexical_cast<double>(syncDs->getNumeric(i, attribute));
-    }
-      break;
-    default:
-      break;
-  }
-
-  return value;
-}
-
-void terrama2::services::analysis::core::calculateStatistics(std::vector<double>& values, OperatorCache& cache)
-{
-  if(values.size() == 0)
-    return;
-
-  cache.mean = cache.sum / cache.count;
-  std::sort(values.begin(), values.end());
-  double half = values.size() / 2;
-  if(values.size() > 1 && values.size() % 2 == 0)
-  {
-    cache.median = (values[(int) half] + values[(int) half - 1]) / 2.;
-  }
-  else
-  {
-    cache.median = values.size() == 1 ? values[0] : 0.;
-  }
-
-  // calculates the variance
-  double sumVariance = 0.;
-  for(unsigned int i = 0; i < values.size(); ++i)
-  {
-    double value = values[i];
-    sumVariance += (value - cache.mean) * (value - cache.mean);
-  }
-
-  cache.standardDeviation = sumVariance / cache.count;
-}
-
-
-
-BOOST_PYTHON_MODULE (terrama2)
+BOOST_PYTHON_MODULE(terrama2)
 {
   // specify that this module is actually a package
   object package = scope();
@@ -474,32 +404,32 @@ BOOST_PYTHON_MODULE (terrama2)
 
   // Export BufferType enum to python
   enum_<terrama2::services::analysis::core::BufferType>("BufferType")
-          .value("none", terrama2::services::analysis::core::NONE)
-          .value("only_buffer", terrama2::services::analysis::core::ONLY_BUFFER)
-          .value("outside_plus_inside", terrama2::services::analysis::core::OUTSIDE_PLUS_INSIDE)
-          .value("object_plus_buffer", terrama2::services::analysis::core::OBJECT_PLUS_BUFFER)
-          .value("object_minus_buffer", terrama2::services::analysis::core::OBJECT_MINUS_BUFFER)
-          .value("distance_zone", terrama2::services::analysis::core::DISTANCE_ZONE);
+  .value("none", terrama2::services::analysis::core::NONE)
+  .value("only_buffer", terrama2::services::analysis::core::ONLY_BUFFER)
+  .value("outside_plus_inside", terrama2::services::analysis::core::OUTSIDE_PLUS_INSIDE)
+  .value("object_plus_buffer", terrama2::services::analysis::core::OBJECT_PLUS_BUFFER)
+  .value("object_minus_buffer", terrama2::services::analysis::core::OBJECT_MINUS_BUFFER)
+  .value("distance_zone", terrama2::services::analysis::core::DISTANCE_ZONE);
 
   // Export class Buffer enum to python
   class_<terrama2::services::analysis::core::Buffer>("Buffer", init<>())
-          .def(init<terrama2::services::analysis::core::BufferType, double, std::string>())
-          .def(init<terrama2::services::analysis::core::BufferType, double, std::string, double, std::string>())
-          .def_readwrite("buffer_type", &terrama2::services::analysis::core::Buffer::bufferType)
-          .def_readwrite("distance", &terrama2::services::analysis::core::Buffer::distance)
-          .def_readwrite("distance2", &terrama2::services::analysis::core::Buffer::distance2)
-          .def_readwrite("unit", &terrama2::services::analysis::core::Buffer::unit)
-          .def_readwrite("unit2", &terrama2::services::analysis::core::Buffer::unit2);
+  .def(init<terrama2::services::analysis::core::BufferType, double, std::string>())
+  .def(init<terrama2::services::analysis::core::BufferType, double, std::string, double, std::string>())
+  .def_readwrite("buffer_type", &terrama2::services::analysis::core::Buffer::bufferType)
+  .def_readwrite("distance", &terrama2::services::analysis::core::Buffer::distance)
+  .def_readwrite("distance2", &terrama2::services::analysis::core::Buffer::distance2)
+  .def_readwrite("unit", &terrama2::services::analysis::core::Buffer::unit)
+  .def_readwrite("unit2", &terrama2::services::analysis::core::Buffer::unit2);
 
   // Export class StatisticOperation enum to python
   enum_<terrama2::services::analysis::core::StatisticOperation>("Statistic")
-          .value("min", terrama2::services::analysis::core::StatisticOperation::MIN)
-          .value("max", terrama2::services::analysis::core::StatisticOperation::MAX)
-          .value("sum", terrama2::services::analysis::core::StatisticOperation::SUM)
-          .value("mean", terrama2::services::analysis::core::StatisticOperation::MEAN)
-          .value("median", terrama2::services::analysis::core::StatisticOperation::MEDIAN)
-          .value("standard_deviation", terrama2::services::analysis::core::StatisticOperation::STANDARD_DEVIATION)
-          .value("count", terrama2::services::analysis::core::StatisticOperation::COUNT);
+  .value("min", terrama2::services::analysis::core::StatisticOperation::MIN)
+  .value("max", terrama2::services::analysis::core::StatisticOperation::MAX)
+  .value("sum", terrama2::services::analysis::core::StatisticOperation::SUM)
+  .value("mean", terrama2::services::analysis::core::StatisticOperation::MEAN)
+  .value("median", terrama2::services::analysis::core::StatisticOperation::MEDIAN)
+  .value("standard_deviation", terrama2::services::analysis::core::StatisticOperation::STANDARD_DEVIATION)
+  .value("count", terrama2::services::analysis::core::StatisticOperation::COUNT);
 }
 
 #if PY_MAJOR_VERSION >= 3
@@ -521,8 +451,8 @@ void terrama2::services::analysis::core::initInterpreter()
   Py_Initialize();
 
   populateNamespace();
-  GridContext::registerFunctions();
-  MonitoredObjectContext::registerFunctions();
+  terrama2::services::analysis::core::python::Grid::registerFunctions();
+  terrama2::services::analysis::core::python::MonitoredObject::registerFunctions();
 
   PyEval_ReleaseLock();
 }
@@ -530,8 +460,8 @@ void terrama2::services::analysis::core::initInterpreter()
 void terrama2::services::analysis::core::finalizeInterpreter()
 {
   // shut down the interpreter
- PyEval_AcquireLock();
- Py_Finalize();
+  PyEval_AcquireLock();
+  Py_Finalize();
 }
 
 void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
@@ -551,7 +481,7 @@ void terrama2::services::analysis::core::readInfoFromDict(OperatorCache& cache)
   if(!analysis)
   {
     QString errMsg(QObject::tr("Could not recover analysis configuration."));
-     ContextManager::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
+    ContextManager::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return;
   }
 
@@ -600,7 +530,7 @@ std::string terrama2::services::analysis::core::prepareScript(terrama2::services
   size_t pos = 0;
   std::string lineBreak = "\n";
   std::string formatedLineBreak = "\n    ";
-  while ((pos = formatedScript.find(lineBreak, pos)) != std::string::npos)
+  while((pos = formatedScript.find(lineBreak, pos)) != std::string::npos)
   {
     formatedScript.replace(pos, lineBreak.length(), formatedLineBreak);
     pos += formatedLineBreak.length();

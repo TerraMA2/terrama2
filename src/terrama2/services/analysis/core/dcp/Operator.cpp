@@ -30,6 +30,7 @@
 
 
 #include "Operator.hpp"
+#include "../Utils.hpp"
 #include "../Exception.hpp"
 #include "../ContextManager.hpp"
 #include "../../../../core/data-model/DataSetDcp.hpp"

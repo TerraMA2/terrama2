@@ -94,10 +94,7 @@ namespace terrama2
             */
             te::gm::Coord2D convertoTo(const te::gm::Coord2D& point, const int srid);
 
-            static void registerFunctions();
-
           protected:
-            static void registerGridFunctions();
 
             std::map<std::string, std::string> getOutputRasterInfo();
             void addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);

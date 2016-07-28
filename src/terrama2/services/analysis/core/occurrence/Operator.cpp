@@ -30,6 +30,7 @@
 
 
 #include "Operator.hpp"
+#include "../Utils.hpp"
 #include "../ContextManager.hpp"
 
 #include <QTextStream>
