@@ -126,28 +126,22 @@ var DataManager = {
       models = modelsFn();
       models.load(orm);
 
-      // console.log("Loading DAO's...");
-      // for(var k in dao) {
-      //   if (dao.hasOwnProperty(k)) {
-      //     var klass = dao[k](self);
-      //     self[k] = new klass();
-      //   }
-      // }
-
       var fn = function() {
         // todo: insert default values in database
         var inserts = [];
 
         // default users
         var salt = models.db['User'].generateSalt();
-        inserts.push(models.db['User'].create({
-          name: "TerraMA2 User",
-          username: "terrama2",
-          password: models.db['User'].generateHash("terrama2", salt),
+
+        // admin
+        inserts.push(models.db.User.create({
+          name: "Administrator",
+          username: "admin",
+          password: models.db['User'].generateHash("admin", salt),
           salt: salt,
           cellphone: '14578942362',
-          email: 'terrama2@terrama2.inpe.br',
-          administrator: false
+          email: 'admin@terrama2.inpe.br',
+          administrator: true
         }));
 
         // services type
@@ -357,7 +351,7 @@ var DataManager = {
         });
       }).catch(function(err) {
         callback(new Error("Could not initialize TerraMA2 due: " + err.message));
-      })
+      });
   },
 
   unload: function() {
@@ -722,7 +716,7 @@ var DataManager = {
         });
       }).catch(function(err) {
         reject(err);
-      })
+      });
 
     });
   },
@@ -740,10 +734,10 @@ var DataManager = {
           resolve();
         }).catch(function(err) {
           reject(err);
-        })
+        });
       }).catch(function(err) {
         reject(err);
-      })
+      });
     });
   },
 
