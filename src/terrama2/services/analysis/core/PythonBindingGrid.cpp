@@ -62,4 +62,8 @@ void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
   scope gridHistoryScope = gridHistoryModule;
 
   def("min", terrama2::services::analysis::core::grid::history::min);
+  def("max", terrama2::services::analysis::core::grid::history::max);
+  def("mean", terrama2::services::analysis::core::grid::history::mean);
+  def("median", terrama2::services::analysis::core::grid::history::median);
+  def("standard_deviation", terrama2::services::analysis::core::grid::history::standardDeviation);
 }
