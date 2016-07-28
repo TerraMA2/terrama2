@@ -39,10 +39,8 @@
 #include "ContextManager.hpp"
 #include "GridContext.hpp"
 #include "MonitoredObjectContext.hpp"
-#include "PythonBindingMonitoredObject.hpp"
 #include "PythonBindingGrid.hpp"
-#include "../../../core/utility/Logger.hpp"
-#include "../../../core/data-model/Filter.hpp"
+#include "PythonBindingMonitoredObject.hpp"
 #include "dcp/Operator.hpp"
 #include "dcp/history/Operator.hpp"
 #include "grid/Operator.hpp"
@@ -52,6 +50,8 @@
 #include "grid/forecast/interval/Operator.hpp"
 #include "occurrence/Operator.hpp"
 #include "occurrence/aggregation/Operator.hpp"
+#include "../../../core/utility/Logger.hpp"
+#include "../../../core/data-model/Filter.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -65,6 +65,7 @@
 
 // Boost Python
 #include <boost/python/call.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
@@ -279,6 +280,9 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
 {
   OperatorCache cache;
   readInfoFromDict(cache);
+
+  std::string attrName = boost::to_lower_copy(attribute);
+
   auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
   auto dataManagerPtr = context->getDataManager().lock();
@@ -322,13 +326,27 @@ void terrama2::services::analysis::core::addValue(const std::string& attribute, 
           context->addError(errMsg.toStdString());
           return;
         }
-        //TODO PAULO: verificar se o identificador existes
+
+        if(!moDsContext->series.teDataSetType)
+        {
+          QString errMsg(QObject::tr("Invalid dataset type."));
+          context->addError(errMsg.toStdString());
+          return;
+        }
+
+        if(moDsContext->series.teDataSetType->getProperty(moDsContext->identifier) == nullptr)
+        {
+          QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
+          context->addError(errMsg.toStdString());
+          return;
+        }
+
         // Stores the result in the context
         std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
         assert(!geomId.empty());
 
-        context->addAttribute(attribute);
-        context->setAnalysisResult(geomId, attribute, value);
+        context->addAttribute(attrName);
+        context->setAnalysisResult(geomId, attrName, value);
       }
     }
 
