@@ -290,6 +290,7 @@ void terrama2::services::analysis::core::calculateStatistics(std::vector<double>
   if(values.size() == 0)
     return;
 
+  cache.count = values.size();
   cache.mean = cache.sum / cache.count;
   std::sort(values.begin(), values.end());
   double half = values.size() / 2;
