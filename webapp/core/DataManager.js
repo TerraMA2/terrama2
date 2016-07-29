@@ -58,10 +58,8 @@ function _processFilter(filterObject) {
   var filterValues = {};
   // checking filter by date
   if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
-    if (filterObject.date.beforeDate)
-      filterValues.discard_before = new Date(filterObject.date.beforeDate);
-    if (filterObject.date.afterDate)
-      filterValues.discard_after = new Date(filterObject.date.afterDate);
+    if (filterObject.date.beforeDate) { filterValues.discard_before = new Date(filterObject.date.beforeDate); }
+    if (filterObject.date.afterDate) { filterValues.discard_after = new Date(filterObject.date.afterDate); }
   }
 
   // checking filter by area
@@ -70,11 +68,11 @@ function _processFilter(filterObject) {
       "type": "Polygon",
       "coordinates": [
         [
-          [filterObject.area["minX"], filterObject.area["minY"]],
-          [filterObject.area["maxX"], filterObject.area["minY"]],
-          [filterObject.area["maxX"], filterObject.area["maxY"]],
-          [filterObject.area["minX"], filterObject.area["maxY"]],
-          [filterObject.area["minX"], filterObject.area["minY"]]
+          [filterObject.area.minX, filterObject.area.minY],
+          [filterObject.area.maxX, filterObject.area.minY],
+          [filterObject.area.maxX, filterObject.area.maxY],
+          [filterObject.area.minX, filterObject.area.maxY],
+          [filterObject.area.minX, filterObject.area.minY]
         ]
       ],
       "crs": {
@@ -168,7 +166,7 @@ var DataManager = {
             port: 5432,
             user: "postgres",
             password: "postgres",
-            database: dbConfig.database // TODO: change it
+            database: dbConfig.database
           }
         };
 
@@ -202,7 +200,7 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS_MONITORED_OBJECT, description: "Data Series Analysis Monitored Object"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.STATIC_DATA, description: "Data Series Static Data"}));
 
-        // data formats semantics defaults todo: check it
+        // data formats semantics defaults
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "CSV description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
@@ -211,37 +209,37 @@ var DataManager = {
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GEOTIFF, description: "GeoTiff"}));
 
         // analysis type
-        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
-        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.GRID, name: "Grid", description: "Description Grid"}));
-        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.MONITORED, name: "Monitored Object", description: "Description Monitored"}));
+        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
+        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.GRID, name: "Grid", description: "Description Grid"}));
+        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.MONITORED, name: "Monitored Object", description: "Description Monitored"}));
 
         // analysis data series type
-        inserts.push(models.db["AnalysisDataSeriesType"].create({
+        inserts.push(models.db.AnalysisDataSeriesType.create({
           id: Enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE,
           name: "Dcp",
           description: "Description Dcp"
         }));
-        inserts.push(models.db["AnalysisDataSeriesType"].create({
+        inserts.push(models.db.AnalysisDataSeriesType.create({
           id: Enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE,
           name: "Grid",
           description: "Description Grid"
         }));
 
-        inserts.push(models.db["AnalysisDataSeriesType"].create({
+        inserts.push(models.db.AnalysisDataSeriesType.create({
           id: Enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE,
           name: "Monitored Object",
           description: "Description Monitored"
         }));
 
-        inserts.push(models.db["AnalysisDataSeriesType"].create({
+        inserts.push(models.db.AnalysisDataSeriesType.create({
           id: Enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE,
           name: "Additional Data",
           description: "Description Additional Data"
         }));
 
         // script language supported
-        inserts.push(models.db["ScriptLanguage"].create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
-        inserts.push(models.db["ScriptLanguage"].create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
+        inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
+        inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
 
         // semantics: temp code: TODO: fix
         var semanticsJsonPath = path.join(__dirname, "../../share/terrama2/semantics.json");
@@ -263,7 +261,7 @@ var DataManager = {
         // it will match each of semantics with providers
         var insertSemanticsProvider = function() {
           self.listSemanticsProvidersType().then(function(result) {
-            if (result.length != 0) {
+            if (result.length !== 0) {
               callback();
               return;
             }
@@ -276,7 +274,7 @@ var DataManager = {
 
                   dependencies.forEach(function(dependency) {
                     dataProvidersType.some(function(providerType) {
-                      if (dependency == providerType.name) {
+                      if (dependency === providerType.name) {
                         semanticsProvidersArray.push({
                           data_provider_type_id: providerType.id,
                           data_series_semantics_id: semantics.id
@@ -284,7 +282,7 @@ var DataManager = {
                         return true;
                       }
                     });
-                  })
+                  });
                 });
 
                 // adding metadata to semantics
@@ -454,6 +452,10 @@ var DataManager = {
                   },
                   {
                     model: models.db.DataSetMonitored,
+                    required: false
+                  },
+                  {
+                    model: models.db.DataSetGrid,
                     required: false
                   },
                   models.db['DataSetFormat']

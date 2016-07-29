@@ -150,12 +150,12 @@ angular.module('terrama2.dataseries.registration', [
 
       var queryParams = {
         metadata: true
-      }
+      };
 
       if ($scope.isDynamic)
-        queryParams['type'] = "dynamic"
+        queryParams['type'] = "dynamic";
       else
-        queryParams['type'] = "static"
+        queryParams['type'] = "static";
 
       DataSeriesSemanticsFactory.get(args.format.code, queryParams).success(function(data) {
         $scope.dataProvidersStorager = [];
@@ -952,16 +952,7 @@ angular.module('terrama2.dataseries.registration', [
 
               break;
             case "OCCURRENCE":
-              var format = $scope.model;
-              var dataSet = {
-                semantics: semantics,
-                active: $scope.dataSeries.active,
-                format: format
-              };
-              dataToSend.dataSets.push(dataSet);
-              break;
             case "GRID":
-              break;
             case "STATIC_DATA":
               var format = $scope.model;
 

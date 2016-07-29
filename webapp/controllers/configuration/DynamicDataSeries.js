@@ -1,10 +1,12 @@
+"use strict";
+
 var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
+var Promise = require('bluebird');
 
 
 module.exports = function(app) {
-
   return {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
