@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/dcp/DCPOperator.hpp
+  \file terrama2/services/analysis/core/dcp/Operator.hpp
 
   \brief Contains DCP analysis operators.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_DCP_DCPOPERATOR_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_DCP_DCPOPERATOR_HPP__
+#ifndef __TERRAMA2_ANALYSIS_CORE_DCP_OPERATOR_HPP__
+#define __TERRAMA2_ANALYSIS_CORE_DCP_OPERATOR_HPP__
 
 // TerraMA2
 #include "../PythonInterpreter.hpp"
@@ -229,4 +229,4 @@ namespace terrama2
   }       // end namespace services
 }         // end namespace terrama2
 
-#endif //__TERRAMA2_ANALYSIS_CORE_DCP_DCPOPERATOR_HPP__
+#endif //__TERRAMA2_ANALYSIS_CORE_DCP_OPERATOR_HPP__
