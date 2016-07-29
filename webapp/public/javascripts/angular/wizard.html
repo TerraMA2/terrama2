@@ -9,7 +9,7 @@
   </div>
 
   <wizard on-finish="save()" template="/javascripts/angular/templates/terrama2-wizard.html">
-    <wz-step wz-title="General" canexit="isFirstStepValid" wz-data="{'required': true}">
+    <wz-step wz-title="General" canexit="isFirstStepValid" wz-data="wizard.general">
       <div class="col-md-12">
         <form name="forms.generalDataForm">
           <div ng-include="'/javascripts/angular/generalData.html'"></div>
@@ -25,7 +25,7 @@
 
     </wz-step>
 
-    <wz-step wz-title="Parameters" canexit="isSecondStepValid" wz-data="{'required': true}">
+    <wz-step wz-title="Parameters" canexit="isSecondStepValid" wz-data="wizard.parameters">
       <div class="col-md-12">
 
         <div class="col-md-12">
@@ -51,7 +51,7 @@
 
     </wz-step>
 
-    <wz-step wz-title="Store" canexit="isThirdStepValid" wz-data="{}" ng-if="isDynamic">
+    <wz-step wz-title="Store" canexit="isThirdStepValid" ng-if="isDynamic" wz-data="wizard.store">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
       </div>

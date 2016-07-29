@@ -1,4 +1,4 @@
-var User = require('../config/Sequelize.js').import('../models/User.js');
+var User = require('../config/Database').getORM().import('../models/User.js');
 
 module.exports = function(app) {
   function indexController(request, response) {
