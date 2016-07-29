@@ -129,15 +129,13 @@
             <i class="fa fa-power-off" style="margin-right: 5px;"></i>
             {{ i18n.__("Finalizing...") }}
           </button>
-
-          <!-- <button class="btn btn-danger" ng-show="element.online" style="margin-left: 20px;" ng-click="extra.service.reload(element)">
-            <i class="fa fa-power-off" style="margin-right: 5px;"></i>Reload
-          </button> -->
         </td>
 
         <td ng-if="isFunction(remove)" class="pull-cell-left">
-        <!-- data-ng-click="removeOperation(element);" -->
-          <button class="btn btn-sm btn-danger" ng-click="confirmRemoval(element)">{{ i18n.__('Remove') }}</button>
+          <button class="btn btn-sm btn-danger" ng-click="confirmRemoval(element)">
+            <span class="glyphicon glyphicon-remove"></span>
+            <span class="hidden-xs">{{ i18n.__('Remove') }}</span>
+          </button>
         </td>
       </tr>
 
