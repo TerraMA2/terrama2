@@ -283,16 +283,6 @@ angular.module('terrama2.analysis.registration', [
 
             $scope.analysis.data_provider_id = analysisInstance.dataSeries.data_provider_id;
           })
-
-          // TODO: change it to angular ui-ace.
-          editor.setValue($scope.analysis.script);
-          // editor.setOptions({
-          //   readOnly: true,
-          //   highlightActiveLine: false,
-          //   highlightGutterLine: false
-          // })
-          // editor.renderer.$cursorLayer.element.style.opacity=0
-
         }
 
       }).error(function(err) {
