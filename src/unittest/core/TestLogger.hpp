@@ -44,11 +44,13 @@
  */
 te::da::MockDataSet* createMockDataSet()
 {
-  te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
+  te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
 
-  ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(true));
-  ON_CALL(*mockDataSet, getAsString(std::string(),::testing::_)).WillByDefault(::testing::Return(""));
-  ON_CALL(*mockDataSet, isNull(std::string())).WillByDefault(::testing::Return(false));
+  EXPECT_CALL(*mockDataSet, moveNext()).WillRepeatedly(::testing::Return(true));
+  EXPECT_CALL(*mockDataSet, getAsString(::testing::An<std::string>(),::testing::_)).WillRepeatedly(::testing::Return(""));
+  EXPECT_CALL(*mockDataSet, getAsString(::testing::An<std::size_t>(),::testing::_)).WillRepeatedly(::testing::Return(""));
+  EXPECT_CALL(*mockDataSet, isNull(std::string())).WillRepeatedly(::testing::Return(false));
+  EXPECT_CALL(*mockDataSet, getNumProperties()).WillRepeatedly(::testing::Return(0));
 
   return mockDataSet;
 }
@@ -59,20 +61,25 @@ te::da::MockDataSet* createMockDataSet()
  */
 te::da::MockDataSourceTransactor* createMockDataSourceTransactor()
 {
-  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
+  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new te::da::MockDataSourceTransactor());
 
-  ON_CALL(*mockDataSourceTransactor, createDataSet(::testing::_, ::testing::_)).WillByDefault(::testing::Return());
-  ON_CALL(*mockDataSourceTransactor, PrimaryKeyPtrReturn()).WillByDefault(::testing::Return(new te::da::PrimaryKey()));
-  ON_CALL(*mockDataSourceTransactor, execute(std::string())).WillByDefault(::testing::Return());
-  ON_CALL(*mockDataSourceTransactor, commit()).WillByDefault(::testing::Return());
-  ON_CALL(*mockDataSourceTransactor, getLastGeneratedId()).WillByDefault(::testing::Return(1));
+  EXPECT_CALL(*mockDataSourceTransactor, createDataSet(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*mockDataSourceTransactor, PrimaryKeyPtrReturn()).WillRepeatedly(::testing::Return(new te::da::PrimaryKey()));
+  EXPECT_CALL(*mockDataSourceTransactor, execute(::testing::An<const std::string&>())).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*mockDataSourceTransactor, commit()).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*mockDataSourceTransactor, getLastGeneratedId()).WillRepeatedly(::testing::Return(1));
+  EXPECT_CALL(*mockDataSourceTransactor, PropertyPtrReturn()).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*mockDataSourceTransactor, addPrimaryKey(::testing::An<const std::string&>(), ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*mockDataSourceTransactor, addForeignKey(::testing::An<const std::string&>(), ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*mockDataSourceTransactor, escape(::testing::An<const std::string&>())).WillRepeatedly(::testing::Return(""));
+
 
   /* Every time the mockDataSourceTransactor object calls a method that returns a DataSet
    * the actualy method called will be the createMockDataSet() that returns a
    * new mocked DataSet.
    * A new mocked object is needed in every call because TerraLib takes ownership from the pointer.
    */
-  ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&createMockDataSet));
+  EXPECT_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillRepeatedly(::testing::Invoke(&createMockDataSet));
 
   return mockDataSourceTransactor;
 }
@@ -91,15 +98,15 @@ public:
   {
     std::unique_ptr< te::da::MockDataSource > mockDataSource(new ::testing::NiceMock<te::da::MockDataSource>());
 
-    ON_CALL(*mockDataSource.get(), isOpened()).WillByDefault(::testing::Return(true));
-    ON_CALL(*mockDataSource.get(), dataSetExists(::testing::_)).WillByDefault(::testing::Return(false));
+    EXPECT_CALL(*mockDataSource.get(), isOpened()).WillRepeatedly(::testing::Return(true));
+    EXPECT_CALL(*mockDataSource.get(), dataSetExists(::testing::_)).WillRepeatedly(::testing::Return(false));
 
     /* Every time the mockDataSource object calls a method that returns a DataSourceTransactor
      * the actualy method called will be the createMockDataSourceTransactor() that returns a
      * new mocked DataSourceTransactor.
      * A new mocked object is needed in every call because TerraLib takes ownership from the pointer.
      */
-    ON_CALL(*mockDataSource.get(), DataSourceTransactoPtrReturn()).WillByDefault(::testing::Invoke(&createMockDataSourceTransactor));
+    EXPECT_CALL(*mockDataSource.get(), DataSourceTransactoPtrReturn()).WillRepeatedly(::testing::Invoke(&createMockDataSourceTransactor));
 
 
     setDataSource(mockDataSource.release());
