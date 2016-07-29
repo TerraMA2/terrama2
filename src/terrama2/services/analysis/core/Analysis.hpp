@@ -180,7 +180,7 @@ namespace terrama2
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the analysis.
-          OutputGridPtr outputGridPtr;
+          OutputGridPtr outputGridPtr; //!< Output grid configuration.
 
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.
