@@ -20,7 +20,7 @@
     </div>
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
-      <form name="generalDataForm">
+      <form name="forms.generalDataForm">
         <div ng-include="'/javascripts/angular/generalData.html'"></div>
       </form>
     </div>
@@ -43,7 +43,7 @@
 
           <div class="col-md-12">
             <!-- schema form -->
-            <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+            <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
             <div class="col-md-2 terrama2-top-field" style="padding-bottom: 40px;">
               <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-disabled="isUpdating" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
