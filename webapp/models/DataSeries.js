@@ -1,4 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
+  "use strict";
+
   var DataSeries = sequelize.define("DataSeries",
     {
       id: {
@@ -48,7 +50,7 @@ module.exports = function(sequelize, DataTypes) {
               name: 'dataseries_id',
               allowNull: false
             }
-          })
+          });
 
           DataSeries.hasMany(models.DataSet, {
             onDelete: "CASCADE",
@@ -62,6 +64,22 @@ module.exports = function(sequelize, DataTypes) {
             onDelete: "CASCADE",
             foreignKey: {
               name: "data_series_id",
+              allowNull: false
+            }
+          });
+
+          DataSeries.hasMany(models.AnalysisOutputGrid, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "resolution_data_series_id",
+              allowNull: false
+            }
+          });
+
+          DataSeries.hasMany(models.AnalysisOutputGrid, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "area_of_interest_data_series_id",
               allowNull: false
             }
           });
