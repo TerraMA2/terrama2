@@ -84,6 +84,18 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::nowUTC()
   return std::make_shared< te::dt::TimeInstantTZ >(ldt);
 }
 
+boost::local_time::local_date_time terrama2::core::TimeUtils::nowBoostLocal()
+{
+  time_t ts = 0;
+  struct tm t;
+  char buf[16];
+  ::localtime_r(&ts, &t);
+  ::strftime(buf, sizeof(buf), "%Z", &t);
+
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
+  return boost::local_time::local_microsec_clock::local_time(zone);
+}
+
 void terrama2::core::TimeUtils::addMonth(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t months)
 {
   boost::local_time::local_date_time t = timeInstant->getTimeInstantTZ();

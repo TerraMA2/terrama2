@@ -61,7 +61,6 @@ void terrama2::core::Service::start(size_t threadNumber)
 
     //check for the number o threads to create
     threadNumber = verifyNumberOfThreads(threadNumber);
-    threadNumber = 1;
 
     //Starts collection threads
     for(uint i = 0; i < threadNumber; ++i)

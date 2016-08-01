@@ -39,12 +39,29 @@ namespace terrama2
       namespace core
       {
         class DataManager;
+        //! Shared smart pointer for DataManager
         typedef std::shared_ptr<terrama2::services::analysis::core::DataManager> DataManagerPtr;
-
 
         struct Analysis;
         //! Shared smart pointer for Analysis
         typedef std::shared_ptr<const terrama2::services::analysis::core::Analysis> AnalysisPtr;
+
+        class ThreadPool;
+        //! Shared smart pointer for ThreadPool
+        typedef std::shared_ptr<terrama2::services::analysis::core::ThreadPool> ThreadPoolPtr;
+
+        struct OutputGrid;
+        //! Shared smart pointer for OutputGrid
+        typedef std::shared_ptr<const terrama2::services::analysis::core::OutputGrid> OutputGridPtr;
+
+        class BaseContext;
+        typedef std::shared_ptr<terrama2::services::analysis::core::BaseContext> BaseContextPtr;
+
+        class GridContext;
+        typedef std::shared_ptr<terrama2::services::analysis::core::GridContext> GridContextPtr;
+
+        class MonitoredObjectContext;
+        typedef std::shared_ptr<terrama2::services::analysis::core::MonitoredObjectContext> MonitoredObjectContextPtr;
 
       } // end namespace core
     }   // end namespace analysis

@@ -14,7 +14,6 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/Context.hpp>
 #include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
@@ -48,7 +47,7 @@ int main(int argc, char* argv[])
   };
   serviceManager.setLogConnectionInfo(connInfo);
 
-  terrama2::services::analysis::core::initInterpreter();
+  terrama2::services::analysis::core::python::initInterpreter();
 
 
   QCoreApplication app(argc, argv);
@@ -212,8 +211,6 @@ int main(int argc, char* argv[])
 
   dataManager->add(analysisPtr);
 
-  // Starts the service and adds the analysis
-  Context::getInstance().setDataManager(dataManager);
   terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
 
@@ -229,7 +226,7 @@ int main(int argc, char* argv[])
   timer.start(100000);
   app.exec();
 
-
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

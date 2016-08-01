@@ -55,9 +55,10 @@ namespace terrama2
         static DataStorager* make(DataProviderPtr dataProvider);
 
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
+
       protected:
         std::string getMask(DataSetPtr dataSet) const;
-        std::string getTimezone(DataSetPtr dataSet) const;
+        std::string getTimezone(DataSetPtr dataSet, bool logError = true) const;
         std::string zeroPadNumber(long num, int size) const;
         std::string replaceMask(const std::string& mask,
                                 std::shared_ptr<te::dt::DateTime> timestamp,

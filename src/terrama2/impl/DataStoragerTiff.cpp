@@ -59,7 +59,7 @@ std::string terrama2::core::DataStoragerTiff::getMask(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataStoragerTiff::getTimezone(DataSetPtr dataSet) const
+std::string terrama2::core::DataStoragerTiff::getTimezone(DataSetPtr dataSet, bool logError) const
 {
   try
   {
@@ -68,7 +68,8 @@ std::string terrama2::core::DataStoragerTiff::getTimezone(DataSetPtr dataSet) co
   catch(...)
   {
     QString errMsg = QObject::tr("Undefined timezone in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
+    if(logError)
+      TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
@@ -124,7 +125,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
     try
     {
       //get dataset timezone
-      timezone = getTimezone(dataSet);
+      timezone = getTimezone(dataSet, false);
     }
     catch(const terrama2::core::UndefinedTagException&)
     {

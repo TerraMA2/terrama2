@@ -69,7 +69,7 @@ namespace terrama2
     struct DataSet
     {
       //! Default destructor.
-      virtual ~DataSet() {}
+      virtual ~DataSet() = default;
 
       DataSetId id = 0;//!< Unique identifier of the DataSet.
       DataSeriesId dataSeriesId = 0;//!< Identifier of the DataSeries responsible for the DataSet.

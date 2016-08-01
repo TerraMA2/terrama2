@@ -32,7 +32,6 @@
 
 
 #include "PythonInterpreter.hpp"
-#include "Context.hpp"
 
 // STL
 #include <memory>
@@ -136,7 +135,7 @@ namespace terrama2
           \param buffer Aggregation buffer configuration.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.
         */
-        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<uint64_t>& indexes,
+        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<uint32_t>& indexes,
                                                                   std::shared_ptr<ContextDataSeries> contextDataSeries,
                                                                   Buffer buffer, StatisticOperation aggregationStatisticOperation,
                                                                   const std::string& attribute);

@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   };
   serviceManager.setLogConnectionInfo(connInfo);
 
-  terrama2::services::analysis::core::initInterpreter();
+  terrama2::services::analysis::core::python::initInterpreter();
 
   QCoreApplication app(argc, argv);
 
@@ -151,7 +151,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "municipios_afetados.shp");
+  dataSet->format.emplace("mask", "estados_2010.shp");
+  dataSet->format.emplace("srid", "4326");
   dataSet->id = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
@@ -175,7 +176,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "objet_id_5";
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   //DataSeries information
@@ -203,14 +204,14 @@ int main(int argc, char* argv[])
   dcpSeries->datasetList.push_back(dcpDataset69034Ptr);
 
 
-  terrama2::core::DataSetDcp* dcpDataset30886 = new terrama2::core::DataSetDcp;
-  terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30886);
-  dcpDataset30886->active = true;
-  dcpDataset30886->format.emplace("mask", "30886.txt");
-  dcpDataset30886->format.emplace("timezone", "-02:00");
-  dcpDataset30886->dataSeriesId = 2;
-  dcpDataset30886->id = 3;
-  dcpDataset30886->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
+  terrama2::core::DataSetDcp* dcpDataset30885 = new terrama2::core::DataSetDcp;
+  terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30885);
+  dcpDataset30885->active = true;
+  dcpDataset30885->format.emplace("mask", "30885.txt");
+  dcpDataset30885->format.emplace("timezone", "-02:00");
+  dcpDataset30885->dataSeriesId = 2;
+  dcpDataset30885->id = 3;
+  dcpDataset30885->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
   dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
 
   AnalysisDataSeries dcpADS;
@@ -248,7 +249,7 @@ int main(int argc, char* argv[])
   timer.start(10000);
   app.exec();
 
-
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;
