@@ -104,8 +104,8 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
       dataSeriesContext->identifier = identifier;
       dataSeriesContext->geometryPos = geomPropertyPosition;
 
-      DatasetKey key;
-      key.datasetId_ = dataset->id;
+      ObjectKey key;
+      key.objectId_ = dataset->id;
       datasetMap_[key] = dataSeriesContext;
     }
     else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
@@ -130,8 +130,8 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         dataSeriesContext->identifier = identifier;
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
-        DatasetKey key;
-        key.datasetId_ = dataset->id;
+        ObjectKey key;
+        key.objectId_ = dataset->id;
         datasetMap_[key] = dataSeriesContext;
       }
     }
@@ -237,8 +237,8 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
 
-    DatasetKey key;
-    key.datasetId_ = series.dataSet->id;
+    ObjectKey key;
+    key.objectId_ = series.dataSet->id;
     key.dateFilter_ = dateFilter;
     datasetMap_[key] = dataSeriesContext;
   }
@@ -248,8 +248,8 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  DatasetKey key;
-  key.datasetId_ = datasetId;
+  ObjectKey key;
+  key.objectId_ = datasetId;
   key.dateFilter_ = dateFilter;
 
   auto it = datasetMap_.find(key);
@@ -265,8 +265,8 @@ bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const Da
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  DatasetKey key;
-  key.datasetId_ = datasetId;
+  ObjectKey key;
+  key.objectId_ = datasetId;
   key.dateFilter_ = dateFilter;
 
   auto it = datasetMap_.find(key);
@@ -355,8 +355,8 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
     }
 
 
-    DatasetKey key;
-    key.datasetId_ = series.dataSet->id;
+    ObjectKey key;
+    key.objectId_ = series.dataSet->id;
     key.dateFilter_ = dateFilter;
     datasetMap_[key] = dataSeriesContext;
   }
