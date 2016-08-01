@@ -1,8 +1,8 @@
 var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     bcrypt = require('bcrypt'),
-    connection = require('./Sequelize.js'),
-    User = connection.import('../models/User.js');
+    Database = require('./Database'),
+    User = Database.getORM().import('../models/User.js');
 
 var isAuthenticated = function(req, res, next) {
   if(req.isAuthenticated())

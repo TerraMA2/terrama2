@@ -28,7 +28,8 @@ var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
-var connection = require('../config/Sequelize.js');
+var Database = require('../config/Database');
+var orm = Database.getORM();
 var fs = require('fs');
 var path = require('path');
 
@@ -120,23 +121,10 @@ var DataManager = {
   init: function(callback) {
     var self = this;
 
-    // Lock function
-    lock.readLock(function (release) {
-      var releaseCallback = function() {
-        release();
-        callback();
-      };
+      var dbConfig = Database.config;
 
       models = modelsFn();
-      models.load(connection);
-
-      // console.log("Loading DAO's...");
-      // for(var k in dao) {
-      //   if (dao.hasOwnProperty(k)) {
-      //     var klass = dao[k](self);
-      //     self[k] = new klass();
-      //   }
-      // }
+      models.load(orm);
 
       var fn = function() {
         // todo: insert default values in database
@@ -144,22 +132,31 @@ var DataManager = {
 
         // default users
         var salt = models.db['User'].generateSalt();
-        inserts.push(models.db['User'].create({
-          name: "TerraMA2 User",
-          username: "terrama2",
-          password: models.db['User'].generateHash("terrama2", salt),
+
+        // admin
+        inserts.push(models.db.User.create({
+          name: "Administrator",
+          username: "admin",
+          password: models.db['User'].generateHash("admin", salt),
           salt: salt,
           cellphone: '14578942362',
-          email: 'terrama2@terrama2.inpe.br',
-          administrator: false
+          email: 'admin@terrama2.inpe.br',
+          administrator: true
         }));
 
         // services type
-        inserts.push(models.db.ServiceType.create({name: "COLLECT"}));
-        inserts.push(models.db.ServiceType.create({name: "ANALYSIS"}));
+        inserts.push(models.db.ServiceType.create({id: 1, name: "COLLECT"}));
+        inserts.push(models.db.ServiceType.create({id: 2, name: "ANALYSIS"}));
+
+        // data provider type defaults
+        inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
+        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
+        inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
+        inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
 
         // default services
         var collectorService = {
+          id: 1,
           name: "Local Collector",
           description: "Local service for Collect",
           port: 6543,
@@ -171,11 +168,12 @@ var DataManager = {
             port: 5432,
             user: "postgres",
             password: "postgres",
-            database: "nodejs" // TODO: change it
+            database: dbConfig.database // TODO: change it
           }
         };
 
         var analysisService = Object.assign({}, collectorService);
+        analysisService.id = 2;
         analysisService.name = "Local Analysis";
         analysisService.description = "Local service for Analysis";
         analysisService.port = 6544;
@@ -183,12 +181,6 @@ var DataManager = {
 
         inserts.push(self.addServiceInstance(collectorService));
         inserts.push(self.addServiceInstance(analysisService));
-
-        // data provider type defaults
-        inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
-        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc Type1"}));
-        inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
-        inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({
@@ -211,7 +203,7 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.STATIC_DATA, description: "Data Series Static Data"}));
 
         // data formats semantics defaults todo: check it
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "DCP description"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "CSV description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
@@ -272,7 +264,7 @@ var DataManager = {
         var insertSemanticsProvider = function() {
           self.listSemanticsProvidersType().then(function(result) {
             if (result.length != 0) {
-              releaseCallback();
+              callback();
               return;
             }
 
@@ -318,9 +310,9 @@ var DataManager = {
 
                 var _makeSemanticsMetadata = function() {
                   models.db["SemanticsMetadata"].bulkCreate(semanticsMetadataArray).then(function(res) {
-                    releaseCallback();
+                    callback();
                   }).catch(function(err) {
-                    releaseCallback();
+                    callback();
                   })
                 }
 
@@ -331,14 +323,14 @@ var DataManager = {
                 })
               }).catch(function(err) {
                 console.log(err);
-                releaseCallback();
+                callback();
               });
             }).catch(function(err) {
               console.log(err);
-              releaseCallback();
+              callback();
             });
           }).catch(function() {
-            releaseCallback();
+            callback();
           });
         };
 
@@ -350,20 +342,16 @@ var DataManager = {
         });
       };
 
-      connection.authenticate().then(function() {
-        connection.sync().then(function () {
-          fn();
-        }, function() {
+      orm.authenticate().then(function() {
+        orm.sync().then(function () {
           fn();
         }).catch(function(err) {
           console.log(err);
           fn();
         });
       }).catch(function(err) {
-        release();
-        callback(new Error("Could not initialize terrama2 due: " + err.message));
-      })
-    });
+        callback(new Error("Could not initialize TerraMA2 due: " + err.message));
+      });
   },
 
   unload: function() {
@@ -390,7 +378,7 @@ var DataManager = {
       self.unload().then(function() {
         resolve();
 
-        connection.close();
+        Database.finalize();
       });
     });
   },
@@ -728,7 +716,7 @@ var DataManager = {
         });
       }).catch(function(err) {
         reject(err);
-      })
+      });
 
     });
   },
@@ -746,10 +734,10 @@ var DataManager = {
           resolve();
         }).catch(function(err) {
           reject(err);
-        })
+        });
       }).catch(function(err) {
         reject(err);
-      })
+      });
     });
   },
 
@@ -2030,7 +2018,7 @@ var DataManager = {
           {
             model: models.db['Filter'],
             required: false,
-            attributes: { include: [[connection.fn('ST_AsText', connection.col('region')), 'region_wkt']] }
+            attributes: { include: [[orm.fn('ST_AsText', orm.col('region')), 'region_wkt']] }
           },
           {
             model: models.db['Intersection'],
@@ -2096,7 +2084,7 @@ var DataManager = {
           {
             model: models.db['Filter'],
             required: false,
-            attributes: { include: [[connection.fn('ST_AsText', connection.col('region')), 'region_wkt']] }
+            attributes: { include: [[orm.fn('ST_AsText', orm.col('region')), 'region_wkt']] }
           },
           {
             model: models.db['Intersection'],
@@ -2221,6 +2209,30 @@ var DataManager = {
       }).catch(function(err) {
         // todo: improve error message
         reject(new Error("Could not save filter. ", err));
+      });
+    });
+  },
+
+  getFilter: function(restriction) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.Filter.findOne({where: restriction}).then(function(filter) {
+        if (filter === null)
+          return reject(new exceptions.FilterError("Could not get filter, retrieved null"));
+
+        if (filter.region) {
+          self.getWKT(filter.region).then(function(geom) {
+            var output = new DataModel.Filter(filter.get());
+            output.region_wkt = geom;
+            resolve(output);
+          }).catch(function(err) {
+            reject(err);
+          })
+        } else {
+          resolve(new DataModel.Filter(filter.get()));
+        }
+      }).catch(function(err) {
+        reject(new exceptions.FilterError("Could not retrieve filter " + err.toString()));
       });
     });
   },

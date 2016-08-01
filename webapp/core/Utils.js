@@ -1,3 +1,5 @@
+"use strict";
+
 var Enums = require("./Enums");
 var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
@@ -62,7 +64,7 @@ module.exports = {
       key: UriPattern.PASSWORD,
       type: FormField.PASSWORD,
       htmlClass: 'col-md-6 terrama2-schema-form'
-    }]
+    }];
   },
 
   makeCommonRequestFields: function(scheme, port, exceptField, required, displayOrder) {
@@ -99,29 +101,7 @@ module.exports = {
       properties: properties,
       required: required,
       display: displayOrder
-    }
-  },
-
-  rollback: function(model, instance) {
-    return model.destroy({
-      where: {
-        id: instance.id
-      }
-    })
-  },
-
-  rollbackModels: function(models, instances, exception, promise) {
-    var promises = [];
-    for(var i = 0; i < models.length; ++i) {
-      promises.push(this.rollback(models[i], instances[i]));
-    }
-
-    Promise.all(promises).then(function() {
-      console.log("Rollback all");
-      return promise.reject(exception);
-    }).catch(function(err) {
-      promise.reject(err);
-    })
+    };
   },
 
   rollbackPromises: function(promises, exception, errorHandler) {
@@ -129,7 +109,7 @@ module.exports = {
       errorHandler(exception);
     }).catch(function(err) {
       errorHandler(err);
-    })
+    });
   },
 
   generateToken: function(app, code, intent) {
@@ -162,20 +142,22 @@ module.exports = {
 
   getAnalysisType: function(analysisCode) {
     if (analysisCode) {
+      var output = null;
       switch(parseInt(analysisCode)) {
         case Enums.AnalysisType.DCP:
-          return Enums.DataSeriesType.DCP;
+          output = Enums.DataSeriesType.DCP;
           break;
         case Enums.AnalysisType.GRID:
-          return Enums.DataSeriesType.GRID;
+          output = Enums.DataSeriesType.GRID;
           break;
         case Enums.AnalysisType.MONITORED:
-          return Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
+          output = Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
           break;
         default:
-          throw new Error("Invalid analysis id");
-          break;
+          output = null;
       }
+
+      if (output && output !== null) { return output; }
     }
     throw new Error("Invalid analysis id");
   },
@@ -183,36 +165,21 @@ module.exports = {
   getTcpSignal: function(value) {
     switch(value) {
       case Signals.TERMINATE_SERVICE_SIGNAL:
-        return Signals.TERMINATE_SERVICE_SIGNAL;
-        break;
       case Signals.STATUS_SIGNAL:
-        return Signals.STATUS_SIGNAL;
-        break;
       case Signals.ADD_DATA_SIGNAL:
-        return Signals.ADD_DATA_SIGNAL;
-        break;
       case Signals.START_PROCESS_SIGNAL:
-        return Signals.START_PROCESS_SIGNAL;
-        break;
       case Signals.LOG_SIGNAL:
-        return Signals.LOG_SIGNAL;
-        break;
       case Signals.REMOVE_DATA_SIGNAL:
-        return Signals.REMOVE_DATA_SIGNAL;
-        break;
       case Signals.PROCESS_FINISHED_SIGNAL:
-        return Signals.PROCESS_FINISHED_SIGNAL;
-        break;
       case Signals.UPDATE_SERVICE_SIGNAL:
-        return Signals.UPDATE_SERVICE_SIGNAL;
-        break;
+        return value;
       default:
         throw new exceptions.SignalError("Invalid terrama2 tcp signal");
     }
   },
 
   getUserHome: function() {
-    return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+    return process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
   },
 
   prepareAddSignalMessage: function(DataManager, projectId) {
@@ -279,20 +246,19 @@ module.exports = {
       var fullPath = path.join(directory, pattern);
 
       glob(fullPath, function(err, files) {
-        if (err)
-          return reject(err);
+        if (err) { return reject(err); }
 
         resolve(files);
-      })
-    })
+      });
+    });
   },
 
   listDynamicDataSeriesType: function() {
     var output = [];
     for(var key in Enums.DataSeriesType) {
-      if (Enums.DataSeriesType.hasOwnProperty(key) && key != "STATIC_DATA") {
+      if (Enums.DataSeriesType.hasOwnProperty(key) && key !== "STATIC_DATA") {
         var obj = {};
-        obj["data_series_type_name"] = Enums.DataSeriesType[key];
+        obj.data_series_type_name = Enums.DataSeriesType[key];
         output.push(obj);
       }
     }
@@ -303,26 +269,29 @@ module.exports = {
   matchObject: function(obj, target) {
     return Object.keys(obj).every(function(key) {
       return target[key] == obj[key];
-    })
+    });
   },
 
   find: function(restriction, where) {
     return where.filter(function(entry) {
       return this.matchObject(restriction, entry)
-    })
+    });
   },
 
   getServiceTypeName: function(intServiceType) {
+    var output = null;
     switch(intServiceType) {
       case Enums.ServiceType.COLLECTOR:
-        return "COLLECTOR";
+        output = "COLLECTOR";
         break;
       case Enums.ServiceType.ANALYSIS:
-        return "ANALYSIS";
+        output = "ANALYSIS";
         break;
-      default:
-        throw new exceptions.ServiceTypeError("Invalid service type value");
     }
+
+    if (output && output !== null) { return output; }
+
+    throw new exceptions.ServiceTypeError("Invalid service type value");
   },
 
   isValidDataSeriesType: function(code) {
@@ -332,9 +301,8 @@ module.exports = {
       case Enums.DataSeriesType.OCCURRENCE:
       case Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
       case Enums.DataSeriesType.GRID:
-      case Enums.DataSeriesType.POSGIS:
+      case Enums.DataSeriesType.POSTGIS:
         return true;
-        break;
       default:
         throw new Error("Invalid data series type");
     }
@@ -344,10 +312,7 @@ module.exports = {
     var output = [];
     for(var i = -12; i < 13; ++i) {
       var val = i < 0 ? i.toString() : "+" + i;
-      output.push({
-        name: val,
-        value: val
-      })
+      output.push({ name: val, value: val });
     }
     return output;
   },
@@ -372,7 +337,7 @@ module.exports = {
     var metadata = {};
     values.forEach(function(meta) {
       metadata[meta.key] = meta.value;
-    })
+    });
 
     return metadata;
   },

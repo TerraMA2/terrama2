@@ -2,9 +2,8 @@ angular.module('terrama2.analysis.registration', [
     'terrama2',
     'terrama2.services',
     'terrama2.components.messagebox',
+    'terrama2.datetimepicker',
     'terrama2.ace',
-    'ui.bootstrap.datetimepicker',
-    'ui.dateTimeInput',
     'schemaForm',
     'terrama2.schedule',
     'treeControl'
