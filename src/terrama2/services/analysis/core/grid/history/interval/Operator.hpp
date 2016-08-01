@@ -153,6 +153,20 @@ namespace terrama2
               double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin,
                                        const std::string& dateFilterEnd);
 
+              /*!
+                \brief Calculates the variance of historic grid data for a given time interval.
+
+                In case of an error or no data available it will return NAN(Not A Number).
+
+                \param dataSeriesName DataSeries name.
+                \param dateFilterBegin Begin of the time interval.
+                \param dateFilterEnd End of the time interval.
+
+                \return A double value with the result.
+              */
+              double variance(const std::string& dataSeriesName, const std::string& dateFilterBegin,
+                              const std::string& dateFilterEnd);
+
             } // end namespace interval
           }   // end namespace forecast
         }     // end namespace grid

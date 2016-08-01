@@ -128,14 +128,13 @@ te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(cons
 
 std::vector< std::shared_ptr<te::rst::Raster> >
 terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
-                                                               const DataSetId datasetId,
-                                                               const std::string& dateFilter)
+    const DataSetId datasetId, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   DatasetKey key;
   key.datasetId_ = datasetId;
-  key.dateFilter_ = dateFilter;
+  key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
 
   auto it = rasterMap_.find(key);
   if(it != rasterMap_.end())
@@ -150,7 +149,7 @@ terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::c
     }
 
     // First call, need to call sample for each dataset raster and store the result in the context.
-    auto gridMap = getGridMap(dataManager, dataSeries->id, dateFilter);
+    auto gridMap = getGridMap(dataManager, dataSeries->id, dateDiscardBefore, dateDiscardAfter);
 
     std::for_each(gridMap.begin(), gridMap.end(), [this, datasetId, key](decltype(*gridMap.begin()) it)
     {
@@ -477,7 +476,10 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
 }
 
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager, DataSeriesId dataSeriesId, const std::string& dateFilter)
+terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager,
+    DataSeriesId dataSeriesId,
+    const std::string& dateDiscardBefore,
+    const std::string& dateDiscardAfter)
 {
   auto it = analysisInputGrid_.find(dataSeriesId);
   if(it == analysisInputGrid_.end())
@@ -500,15 +502,36 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
     filter.lastValue = true;
 
     filter.discardAfter = startTime_;
-    if(!dateFilter.empty())
+    if(!dateDiscardBefore.empty())
     {
-      double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilter, "SECOND", "h");
+      double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
 
       ldt -= boost::posix_time::seconds(seconds);
 
       std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
       filter.discardBefore = std::move(titz);
+
+      filter.lastValue = false;
     }
+
+    if(!dateDiscardAfter.empty())
+    {
+      double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
+
+      ldt -= boost::posix_time::seconds(seconds);
+
+      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
+      filter.discardAfter = std::move(titz);
+
+      filter.lastValue = false;
+    }
+    else
+    {
+      // no interval set,
+      // use analysis execution timestamp as last valid date
+      filter.discardAfter = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
+    }
+
 
     auto gridSeries = accessorGrid->getGridSeries(filter);
 

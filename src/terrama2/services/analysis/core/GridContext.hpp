@@ -81,7 +81,8 @@ namespace terrama2
               \param datasetId The DataSet identifier.
               \return A vector of smart pointers to the raster.
             */
-            std::vector< std::shared_ptr<te::rst::Raster> > getRasterList(const terrama2::core::DataSeriesPtr& dataSeries, const DataSetId datasetId, const std::string& dateFilter = "");
+            std::vector< std::shared_ptr<te::rst::Raster> > getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
+                const DataSetId datasetId, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
 
             /*!
               \brief Convert a coordinate from output srid to another srid
@@ -100,8 +101,14 @@ namespace terrama2
             void addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
             void addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
 
+            /*!
+              \brief Return the a multimap of DataSetGridPtr to Raster
+
+              The parameters dateDiscardBefore and dateDiscardAfter are optional,
+              if they are not set only the last raster is returned.
+            */
             std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-            getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, const std::string& dateFilter = "");
+            getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
 
             /*!
               \brief Adds the given raster to the context map.

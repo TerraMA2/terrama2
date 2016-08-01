@@ -37,6 +37,8 @@
 void terrama2::services::analysis::core::python::Grid::registerFunctions()
 {
   registerGridFunctions();
+  registerGridHistoryFunctions();
+  registerGridHistoryIntervalFunctions();
 }
 
 void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
@@ -53,6 +55,11 @@ void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
 
   // export functions inside grid namespace
   def("sample", terrama2::services::analysis::core::grid::sample);
+}
+
+void terrama2::services::analysis::core::python::Grid::registerGridHistoryFunctions()
+{
+  using namespace boost::python;
 
   // Register operations for grid.history
   object gridHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.history"))));
@@ -67,4 +74,23 @@ void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
   def("median", terrama2::services::analysis::core::grid::history::median);
   def("standard_deviation", terrama2::services::analysis::core::grid::history::standardDeviation);
   def("variance", terrama2::services::analysis::core::grid::history::variance);
+}
+
+void terrama2::services::analysis::core::python::Grid::registerGridHistoryIntervalFunctions()
+{
+  using namespace boost::python;
+  
+  // Register operations for grid.history.interval
+  object gridHistoryIntervalModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.history.interval"))));
+  // make "from terrama2.grid.history import interval" work
+  scope().attr("interval") = gridHistoryIntervalModule;
+  // set the current scope to the new sub-module
+  scope gridHistoryIntervalScope = gridHistoryIntervalModule;
+
+  def("min", terrama2::services::analysis::core::grid::history::interval::min);
+  def("max", terrama2::services::analysis::core::grid::history::interval::max);
+  def("mean", terrama2::services::analysis::core::grid::history::interval::mean);
+  def("median", terrama2::services::analysis::core::grid::history::interval::median);
+  def("standard_deviation", terrama2::services::analysis::core::grid::history::interval::standardDeviation);
+  def("variance", terrama2::services::analysis::core::grid::history::interval::variance);
 }

@@ -51,7 +51,8 @@ namespace terrama2
         {
           namespace history
           {
-            std::vector<double> sample(const OperatorCache& cache, const std::string& dataSeriesName, const std::string& dateFilter);
+            std::vector<double> sample(const OperatorCache& cache, const std::string& dataSeriesName, const std::string& dateFilterBegin,
+            const std::string& dateFilterEnd);
 
             /*!
               \brief Implementation of grid history operator.
@@ -65,7 +66,8 @@ namespace terrama2
               \return A double value with the result.
             */
             double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                                const std::string& dataSeriesName, const std::string& dateFilter);
+                                const std::string& dataSeriesName, const std::string& dateFilterBegin,
+                                const std::string& dateFilterEnd = "");
 
             /*!
               \brief Calculates the sum of historic grid data.

@@ -41,7 +41,8 @@
 // STD
 #include <numeric>
 
-std::vector<double> terrama2::services::analysis::core::grid::history::sample(const OperatorCache& cache, const std::string& dataSeriesName, const std::string& dateFilter)
+std::vector<double> terrama2::services::analysis::core::grid::history::sample(const OperatorCache& cache, const std::string& dataSeriesName, const std::string& dateFilterBegin,
+const std::string& dateFilterEnd)
 {
   auto context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
 
@@ -75,7 +76,7 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
     for(auto dataset : datasets)
     {
 
-      auto rasterList = context->getRasterList(dataSeries, dataset->id, dateFilter);
+      auto rasterList = context->getRasterList(dataSeries, dataset->id, dateFilterBegin, dateFilterEnd);
       if(rasterList.empty())
       {
         QString errMsg(QObject::tr("Invalid raster for dataset: %1").arg(dataset->id));
@@ -134,8 +135,8 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
 
 double terrama2::services::analysis::core::grid::history::operatorImpl(
   terrama2::services::analysis::core::StatisticOperation statisticOperation,
-  const std::string& dataSeriesName,
-  const std::string& dateFilter)
+  const std::string& dataSeriesName, const std::string& dateFilterBegin,
+  const std::string& dateFilterEnd)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -159,7 +160,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
 
     try
     {
-      auto samples = sample(cache, dataSeriesName, dateFilter);
+      auto samples = sample(cache, dataSeriesName, dateFilterBegin, dateFilterEnd);
 
       hasData = !samples.empty();
 
