@@ -64,6 +64,7 @@
 // Boost Python
 #include <boost/python/call.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/python/stl_iterator.hpp>
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
@@ -519,6 +520,8 @@ std::string terrama2::services::analysis::core::python::prepareScript(terrama2::
 
   return formatedScript;
 }
+
+
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop

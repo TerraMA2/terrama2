@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
                                                };
     serviceManager.setLogConnectionInfo(connInfo);
 
-    terrama2::services::analysis::core::initInterpreter();
+    terrama2::services::analysis::core::python::initInterpreter();
 
     QCoreApplication app(argc, argv);
 
@@ -91,8 +91,7 @@ int main(int argc, char* argv[])
     dataManager->add(outputDataSeriesPtr);
 
     std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-                         "x = dcp.influence.by_attribute(\"Serra do Mar\", [\"dcp_id\"])\n"
-                         "add_value(\"dcp\", x)\n";
+                    "print(dcp.influence.by_rule(\"Serra do Mar\", moBuffer))\n";
 
     Analysis* analysis = new Analysis;
     AnalysisPtr analysisPtr(analysis);
@@ -234,7 +233,7 @@ int main(int argc, char* argv[])
     app.exec();
   }
 
-  terrama2::services::analysis::core::finalizeInterpreter();
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

@@ -2,7 +2,7 @@
 #include "PythonBindingMonitoredObject.hpp"
 #include "dcp/Operator.hpp"
 #include "dcp/history/Operator.hpp"
-#include "dcp/influence/Operator.hpp"
+#include "dcp/influence/PythonOperator.hpp"
 #include "occurrence/Operator.hpp"
 #include "occurrence/aggregation/Operator.hpp"
 
@@ -159,6 +159,14 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFun
   object dcpHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.history"))));
   // make "from terrama2.dcp import history" work
   scope().attr("history") = dcpHistoryModule;
+
+
+  // Register operations for dcp.history
+  object dcpInfluenceModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.influence"))));
+  // make "from terrama2.dcp import history" work
+  scope().attr("influence") = dcpInfluenceModule;
+
+
   // set the current scope to the new sub-module
   scope dcpHistoryScope = dcpHistoryModule;
 
@@ -171,15 +179,12 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFun
   def("standard_deviation", terrama2::services::analysis::core::dcp::history::standardDeviation);
   def("variance", terrama2::services::analysis::core::dcp::history::variance);
 
-  // Register operations for dcp.history
-  object dcpInfluenceModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.influence"))));
-  // make "from terrama2.dcp import history" work
-  scope().attr("influence") = dcpInfluenceModule;
+
   // set the current scope to the new sub-module
   scope dcpInfluenceScope = dcpInfluenceModule;
 
   // export functions inside history namespace
-  def("by_attribute", terrama2::services::analysis::core::dcp::influence::byAttribute);
-  def("by_rule", terrama2::services::analysis::core::dcp::influence::byRule);
+  def("by_attribute", terrama2::services::analysis::core::dcp::influence::python::byAttribute);
+  def("by_rule", terrama2::services::analysis::core::dcp::influence::python::byRule);
 
 }

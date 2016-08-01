@@ -359,7 +359,6 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::creat
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
-
       std::string radiusStr = analysis->metadata.at("INFLUENCE_RADIUS");
       std::string radiusUnit = analysis->metadata.at("INFLUENCE_RADIUS_UNIT");
 
@@ -373,9 +372,12 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::creat
       influenceRadius =
         te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * influenceRadius;
 
+      int srid = terrama2::core::getUTMSrid(position.get());
+      std::shared_ptr<te::gm::Geometry> geomPosition(dynamic_cast<te::gm::Geometry*>(position->clone()));
+      geomPosition->transform(srid);
+
       buffer.reset(position->buffer(influenceRadius, 16, te::gm::CapButtType));
 
-      int srid = position->getSRID();
       buffer->setSRID(srid);
 
       // Converts the buffer to monitored object SRID
@@ -420,7 +422,12 @@ bool terrama2::services::analysis::core::dcp::verifyDCPInfluence(InfluenceType i
       intersects = geom->intersects(dcpInfluenceBuffer.get());
     }
   }
-
+  else if(influenceType == InfluenceType::REGION)
+  {
+    // TODO: Ticket #482
+    QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+    throw Exception() << ErrorDescription(errMsg);
+  }
   return intersects;
 
 }
