@@ -39,6 +39,7 @@ void terrama2::services::analysis::core::python::Grid::registerFunctions()
   registerGridFunctions();
   registerGridHistoryFunctions();
   registerGridHistoryIntervalFunctions();
+  registerGridForecastFunctions();
 }
 
 void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
@@ -64,7 +65,7 @@ void terrama2::services::analysis::core::python::Grid::registerGridHistoryFuncti
   // Register operations for grid.history
   object gridHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.history"))));
   // make "from terrama2.grid import history" work
-  scope().attr("history") = gridHistoryModule;
+  import("terrama2.grid").attr("history") = gridHistoryModule;
   // set the current scope to the new sub-module
   scope gridHistoryScope = gridHistoryModule;
 
@@ -79,11 +80,11 @@ void terrama2::services::analysis::core::python::Grid::registerGridHistoryFuncti
 void terrama2::services::analysis::core::python::Grid::registerGridHistoryIntervalFunctions()
 {
   using namespace boost::python;
-  
+
   // Register operations for grid.history.interval
   object gridHistoryIntervalModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.history.interval"))));
   // make "from terrama2.grid.history import interval" work
-  scope().attr("interval") = gridHistoryIntervalModule;
+  import("terrama2.grid.history").attr("interval") = gridHistoryIntervalModule;
   // set the current scope to the new sub-module
   scope gridHistoryIntervalScope = gridHistoryIntervalModule;
 
@@ -93,4 +94,23 @@ void terrama2::services::analysis::core::python::Grid::registerGridHistoryInterv
   def("median", terrama2::services::analysis::core::grid::history::interval::median);
   def("standard_deviation", terrama2::services::analysis::core::grid::history::interval::standardDeviation);
   def("variance", terrama2::services::analysis::core::grid::history::interval::variance);
+}
+
+void terrama2::services::analysis::core::python::Grid::registerGridForecastFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for grid.forecast
+  object gridForecastModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.forecast"))));
+  // make "from terrama2.grid import forecast" work
+  import("terrama2.grid").attr("forecast") = gridForecastModule;
+  // set the current scope to the new sub-module
+  scope gridHistoryIntervalScope = gridForecastModule;
+
+  def("min", terrama2::services::analysis::core::grid::forecast::min);
+  def("max", terrama2::services::analysis::core::grid::forecast::max);
+  def("mean", terrama2::services::analysis::core::grid::forecast::mean);
+  def("median", terrama2::services::analysis::core::grid::forecast::median);
+  def("standard_deviation", terrama2::services::analysis::core::grid::forecast::standardDeviation);
+  def("variance", terrama2::services::analysis::core::grid::forecast::variance);
 }
