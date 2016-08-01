@@ -63,7 +63,7 @@ namespace terrama2
               \return A double value with the result.
             */
             double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                                const std::string& dataSeriesName, const std::string& dateFilter);
+                                const std::string& dataSeriesName, const std::string& dateFilterEnd);
 
             /*!
               \brief Calculates the sum of historic grid data.
@@ -138,6 +138,17 @@ namespace terrama2
               \return A double value with the result.
             */
             double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilter);
+
+            /*!
+              \brief Calculates the variance of historic grid data.
+
+              In case of an error or no data available it will return NAN(Not A Number).
+
+              \param dataSeriesName DataSeries name.
+              \param dateFilter Time filter for the data.
+              \return A double value with the result.
+            */
+            double variance(const std::string& dataSeriesName, const std::string& dateFilter);
 
           } // end namespace forecast
         }   // end namespace grid

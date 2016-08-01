@@ -122,87 +122,6 @@ int main(int argc, char* argv[])
 
     dataManager->add(dataSeries1Ptr);
 
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Series 2
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//    terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
-//    terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
-//    dataSeries2->semantics = semanticsManager.getSemantics("GRID-geotiff");
-//    dataSeries2->name = "geotiff 2";
-//    dataSeries2->id = 2;
-//    dataSeries2->dataProviderId = 1;
-//
-//    terrama2::core::DataSetGrid* dataSet2 = new terrama2::core::DataSetGrid();
-//    dataSet2->active = true;
-//    dataSet2->format.emplace("mask", "Spot_Vegetacao_Jul2001_SP.tif");
-//    dataSet2->id = 2;
-//
-//    dataSeries2->datasetList.emplace_back(dataSet2);
-//
-//    AnalysisDataSeries gridADS2;
-//    gridADS2.id = 2;
-//    gridADS2.dataSeriesId = dataSeries2Ptr->id;
-//    gridADS2.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
-//
-//
-//    dataManager->add(dataSeries2Ptr);
-
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Series 3
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // terrama2::core::DataSeries* dataSeries3 = new terrama2::core::DataSeries();
-    // terrama2::core::DataSeriesPtr dataSeries3Ptr(dataSeries3);
-    // dataSeries3->semantics = semanticsManager.getSemantics("GRID-geotiff");
-    // dataSeries3->name = "geotiff 3";
-    // dataSeries3->id = 3;
-    // dataSeries3->dataProviderId = 1;
-    //
-    // terrama2::core::DataSetGrid* dataSet3 = new terrama2::core::DataSetGrid();
-    // dataSet3->active = true;
-    // dataSet3->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
-    // dataSet3->id = 3;
-    //
-    // dataSeries3->datasetList.emplace_back(dataSet3);
-    //
-    // AnalysisDataSeries gridADS3;
-    // gridADS3.id = 3;
-    // gridADS3.dataSeriesId = dataSeries3Ptr->id;
-    // gridADS3.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
-    //
-    //
-    // dataManager->add(dataSeries3Ptr);
-
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Data Series 4
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // terrama2::core::DataSeries* dataSeries4 = new terrama2::core::DataSeries();
-    // terrama2::core::DataSeriesPtr dataSeries4Ptr(dataSeries4);
-    // dataSeries4->semantics = semanticsManager.getSemantics("GRID-geotiff");
-    // dataSeries4->name = "geotiff 4";
-    // dataSeries4->id = 4;
-    // dataSeries4->dataProviderId = 1;
-    //
-    // terrama2::core::DataSetGrid* dataSet4 = new terrama2::core::DataSetGrid();
-    // dataSet4->active = true;
-    // dataSet4->format.emplace("mask", "L71218076_07620060814_r3g2b1.tif");
-    // dataSet4->id = 4;
-    // dataSeries4->datasetList.emplace_back(dataSet4);
-    //
-    // AnalysisDataSeries gridADS4;
-    // gridADS4.id = 4;
-    // gridADS4.dataSeriesId = dataSeries4Ptr->id;
-    // gridADS4.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
-    //
-    //
-    // dataManager->add(dataSeries4Ptr);
-
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Analysis
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,9 +142,6 @@ int main(int argc, char* argv[])
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
     analysisDataSeriesList.push_back(gridADS1);
-    //analysisDataSeriesList.push_back(gridADS2);
-    // analysisDataSeriesList.push_back(gridADS3);
-    // analysisDataSeriesList.push_back(gridADS4);
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 

@@ -86,9 +86,9 @@ void terrama2::services::analysis::core::GridContext::createOutputRaster()
   {
     throw;
   }
-  catch(const std::exception&)
+  catch(const std::exception& e)
   {
-    QString errMsg = QObject::tr("Could not create output raster.");
+    QString errMsg = QObject::tr("Could not create output raster.\n%1").arg(e.what());
     throw Exception() << ErrorDescription(errMsg);
   }
 
@@ -518,7 +518,7 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
     {
       double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
 
-      ldt -= boost::posix_time::seconds(seconds);
+      ldt += boost::posix_time::seconds(seconds);
 
       std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
       filter.discardAfter = std::move(titz);
