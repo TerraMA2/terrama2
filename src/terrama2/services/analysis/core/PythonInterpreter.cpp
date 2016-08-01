@@ -97,7 +97,7 @@ std::string terrama2::services::analysis::core::python::extractException()
   }
 }
 
-void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint64_t> indexes)
+void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint32_t> indexes)
 {
   AnalysisPtr analysis = context->getAnalysis();
 
@@ -128,7 +128,7 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
 
     auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
 
-    for(uint64_t index : indexes)
+    for(uint32_t index : indexes)
     {
       auto pValueIndex = PyInt_FromLong(index);
 
@@ -160,7 +160,7 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
 }
 
 
-void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint64_t> rows)
+void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint32_t> rows)
 {
   AnalysisPtr analysis = context->getAnalysis();
 

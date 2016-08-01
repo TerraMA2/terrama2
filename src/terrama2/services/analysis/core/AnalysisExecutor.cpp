@@ -248,7 +248,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     for (size_t i = 0; i < threadNumber; ++i)
     {
 
-      std::vector<uint64_t> indexes;
+      std::vector<uint32_t> indexes;
        // The last package takes the rest of the division.
       if(i == threadNumber - 1)
         packageSize += mod;
@@ -532,7 +532,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
     for (size_t i = 0; i < threadNumber; ++i)
     {
 
-      std::vector<uint64_t> indexes;
+      std::vector<uint32_t> indexes;
       // The last package takes the rest of the division.
       if(i == threadNumber - 1)
         packageSize += mod;

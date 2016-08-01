@@ -63,8 +63,8 @@ namespace terrama2
         {
           terrama2::core::DataSetSeries series; //!< Dataset information.
           std::string identifier; //!< Identifier column.
-          int64_t geometryPos = -1; //!< Geometry column position.
-          te::sam::rtree::Index<uint64_t, 8> rtree; //!< Spatial index in memory
+          int32_t geometryPos = -1; //!< Geometry column position.
+          te::sam::rtree::Index<uint32_t, 8> rtree; //!< Spatial index in memory
 
         };
 

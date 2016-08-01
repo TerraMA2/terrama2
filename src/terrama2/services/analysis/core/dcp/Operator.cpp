@@ -125,7 +125,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
       context->addDCPDataSeries(dataSeries, "", true);
 
       // For DCP operator count returns the number of DCP that influence the monitored object
-      uint64_t influenceCount = 0;
+      uint32_t influenceCount = 0;
 
       for(auto dataset : dataSeries->datasetList)
       {
@@ -176,7 +176,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
             attributeType = property->getType();
           }
 
-          uint64_t countValues = 0;
+          uint32_t countValues = 0;
 
           if(dcpSyncDs->size() == 0)
             continue;

@@ -247,7 +247,7 @@ terrama2::services::analysis::core::resampleRaster(std::shared_ptr<te::rst::Rast
 
 
 double terrama2::services::analysis::core::getValue(terrama2::core::SynchronizedDataSetPtr syncDs,
-    const std::string& attribute, uint64_t i, int attributeType)
+    const std::string& attribute, uint32_t i, int attributeType)
 {
   if(attribute.empty())
     return NAN;

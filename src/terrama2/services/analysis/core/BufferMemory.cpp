@@ -126,7 +126,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
 
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(
-        std::vector<uint64_t>& indexes, std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
+        std::vector<uint32_t>& indexes, std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
         StatisticOperation aggregationStatisticOperation,
         const std::string& attribute)
 {

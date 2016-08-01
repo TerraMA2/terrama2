@@ -163,7 +163,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
             attributeType = property->getType();
           }
 
-          uint64_t countValues = 0;
+          uint32_t countValues = 0;
 
           if(syncDs->size() == 0)
             continue;

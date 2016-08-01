@@ -109,7 +109,7 @@ namespace terrama2
             \param analysisHashCode Analysis hash code.
             \param indexes Vector of geometries indexes.
           */
-          void runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint64_t> indexes);
+          void runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint32_t> indexes);
 
 
           /*!
@@ -118,7 +118,7 @@ namespace terrama2
             \param analysisHashCode Analysis hash code.
             \param indexes Vector of row indexes to process.
           */
-          void runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint64_t> rows);
+          void runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint32_t> rows);
 
           /*!
             \brief Run Python script for a monitored object analysis.

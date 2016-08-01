@@ -140,7 +140,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
         }
 
 
-        std::vector<uint64_t> indexes;
+        std::vector<uint32_t> indexes;
         uint32_t countValues = 0;
         terrama2::core::SynchronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
 
@@ -223,7 +223,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
           }
           else
           {
-            for(uint64_t i : indexes)
+            for(uint32_t i : indexes)
             {
               // Verifies if the occurrence intersects the monitored object
               auto occurrenceGeom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
@@ -371,7 +371,7 @@ double terrama2::services::analysis::core::occurrence::variance(const std::strin
     Buffer buffer,
     const std::string& dateFilter,
     const std::string& attribute,
-    const std::string& restriction) 
+    const std::string& restriction)
 {
   return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
