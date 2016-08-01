@@ -193,7 +193,7 @@ angular.module('terrama2.administration.services.registration',
       for(var i = 0; i < $scope.services.length; ++i) {
         var service = $scope.services[i];
 
-        if (service.port === $scope.service.port) {
+        if (service.id !== $scope.service.id && service.port === $scope.service.port) {
           $scope.alertLevel = "alert-warning";
           $scope.alertBox.title = i18n.__("Service Registration");
           $scope.alertBox.message = i18n.__("There is already a service registered in same port ") + service.port + " (" + service.name + ")";

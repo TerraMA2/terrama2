@@ -7,9 +7,10 @@
 {% block title %} TerraMA² {[ __('Analysis Registration') ]} {% endblock %}
 
 {% block styles %}
+  <link rel="stylesheet" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+
   <!-- Angular tree control -->
   <!-- link for CSS when using the tree as a Dom element -->
-  <link rel="stylesheet" href="/externals/angular-datatimepicker/css/datetimepicker.css">
   <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control.css">
   <!-- link for CSS when using the tree as an attribute -->
   <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control-attribute.css">
@@ -48,6 +49,8 @@
   }
 </script>
 
+<script type="text/javascript" src="/externals/moment/moment.js"></script>
+
 <!-- Angular -->
 <script type="text/javascript" src="/externals/angular/angular.min.js"></script>
 
@@ -58,8 +61,14 @@
 <script type="text/javascript" src="/externals/angular-schema-form/schema-form.js"></script>
 <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-decorator.min.js"></script>
 
+<!-- Bootstrap datetimepicker -->
+<script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
+
 <!-- terrama2 Angular app -->
 <script type="text/javascript" src="/javascripts/angular/app.js"></script>
+
+<!-- TerraMA2 Datetimepicker -->
+<script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
 
 <!-- Angular tree control -->
 <script type="text/javascript" src="/externals/angular-tree-control/angular-tree-control.js"></script>
@@ -76,13 +85,6 @@
 
 <!-- terrama2 Script -->
 <script type="text/javascript" src="/javascripts/terrama2.js"></script>
-
-<script type="text/javascript" src="/externals/moment/moment.js"></script>
-
-<!-- Angular date input handler -->
-<script type="text/javascript" src="/externals/angular-datatimepicker/js/datetimepicker.js"></script>
-<script type="text/javascript" src="/externals/angular-datatimepicker/js/datetimepicker.templates.js"></script>
-<script type="text/javascript" src="/externals/angular-datatimepicker/js/dateTimeInput.js"></script>
 
 <script type="text/javascript">
   // ace.require("ace/ext/language_tools");

@@ -1,3 +1,5 @@
+"use strict";
+
 var DataManager = require("../../core/DataManager");
 var Utils = require('../../helpers/Utils');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
@@ -8,9 +10,6 @@ var RequestFactory = require("../../core/RequestFactory");
 module.exports = function(app) {
   return {
     get: function(request, response) {
-      var dataProviderId = request.query.id,
-          method = request.query.method;
-
       var parameters = makeTokenParameters(request.query.token, app);
 
       return response.render("configuration/providers", parameters);

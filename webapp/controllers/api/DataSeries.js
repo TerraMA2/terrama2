@@ -4,8 +4,6 @@ var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var DataSeriesType = require('./../../core/Enums').DataSeriesType;
 var TokenCode = require('./../../core/Enums').TokenCode;
-var isEmpty = require('lodash').isEmpty;
-var passport = require('./../../config/Passport');
 var _ = require('lodash');
 
 module.exports = function(app) {
@@ -21,12 +19,12 @@ module.exports = function(app) {
       if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
         DataManager.getServiceInstance({id: serviceId}).then(function(serviceResult) {
           DataManager.addDataSeriesAndCollector(
-            dataSeriesObject,
-            scheduleObject,
-            filterObject,
-            serviceResult,
-            intersection,
-            active
+              dataSeriesObject,
+              scheduleObject,
+              filterObject,
+              serviceResult,
+              intersection,
+              active
           ).then(function(collectorResult) {
             var collector = collectorResult.collector;
             collector['project_id'] = app.locals.activeProject.id;
@@ -160,12 +158,13 @@ module.exports = function(app) {
       var _continue = function(collector) {
         // output
         DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
-          DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesInput) {
+          DataManager.getDataSeries({id: collector.input_data_series}).then(function(dataSeriesInput) {
+            collector.project_id = app.locals.activeProject.id;
             var output = {
               "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
               "Collectors": [collector.toObject()]
             };
-            
+
             // tcp sending
             Utils.sendDataToServices(DataManager, TcpManager, output);
 
@@ -203,7 +202,10 @@ module.exports = function(app) {
 
                   if (collector.filter.id) {
                     DataManager.updateFilter(collector.filter.id, filterObject).then(function() {
-                      _processIntersection();
+                      DataManager.getFilter({id: collector.filter.id}).then(function(filter) {
+                        collector.filter = filter;
+                        _processIntersection();
+                      });
                     }).catch(_handleError);
                   } else {
 
@@ -213,11 +215,11 @@ module.exports = function(app) {
                       if (collector.intersection.length > 0) {
                         // TODO: implement and call _continue(collector)
                         DataManager.updateIntersections(
-                          collector.intersection.map(function(elm){ return elm.id }),
-                          collector.intersection)
-                        .then(function() {
-                          _continue(collector);
-                        }).catch(_handleError);
+                            collector.intersection.map(function(elm){ return elm.id }),
+                            collector.intersection)
+                            .then(function() {
+                              _continue(collector);
+                            }).catch(_handleError);
                       } else {
                         _processIntersection();
                       }

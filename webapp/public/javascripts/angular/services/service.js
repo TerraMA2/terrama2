@@ -78,6 +78,11 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
       })
 
       ServiceInstanceFactory.get().success(function(services) {
+        if (services.length === 0) {
+          $scope.extra.service.starting = false;
+          return;
+        }
+
         services.forEach(function(service) {
           switch(service.service_type_id) {
             case 1:
@@ -99,8 +104,6 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
           } else
             $scope.socket.emit('status', {service: service.id});
         });
-
-        // todo: ping each one to check current state
       }).error(function(err) {
         console.log(err);
       });
@@ -168,11 +171,14 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
           },
 
           hasServiceOffline: function() {
+            if ($scope.model.length === 0) {
+              return false;
+            }
             return $scope.model.some(function(instance) {
               if (!instance.online) {
                 return true;
               }
-            })
+            });
           },
 
           handler: function(serviceInstance) {

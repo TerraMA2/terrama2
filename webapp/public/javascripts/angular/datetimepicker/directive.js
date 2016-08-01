@@ -1,3 +1,5 @@
+"use strict";
+
 angular.module('terrama2.datetimepicker', ['terrama2'])
   .directive('terrama2DatetimePicker', function() {
     return {
@@ -7,7 +9,7 @@ angular.module('terrama2.datetimepicker', ['terrama2'])
         dateTime: '=ngModel',
         options: '=?'
       }
-    }
+    };
   })
 
   .directive('terrama2FilterDatetimePicker', function(i18n) {

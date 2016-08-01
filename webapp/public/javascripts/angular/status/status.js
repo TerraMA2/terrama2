@@ -5,6 +5,10 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     $scope.alertBox = {};
     $scope.display = false;
     $scope.alertLevel = "";
+    var cachedIcons = {};
+    cachedIcons[globals.enums.StatusLog.DONE] = "/images/check.png";
+    cachedIcons[globals.enums.StatusLog.ERROR] = "/images/warning.png";
+    cachedIcons[globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
 
     // injecting socket in angular scope
     $scope.socket = Socket;
@@ -12,6 +16,18 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     $scope.model = [];
 
     $scope.fields = [
+      {
+        key: 'type',
+        as: 'Type'
+      },
+      {
+        key: 'service',
+        as: 'Service'
+      },
+      {
+        key: 'name',
+        as: 'Name'
+      },
       {
         key: 'message',
         as: 'Message'
@@ -28,20 +44,13 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
 
     $scope.iconProperties = {
       type: "img",
-      width: 16,
-      height: 16
+      width: 24,
+      height: 24
     };
 
     $scope.iconFn = function(object) {
-      switch(object.status) {
-        case globals.enums.StatusLog.DONE:
-          return "/images/check.png";
-          break;
-        case globals.enums.StatusLog.ERROR:
-          return "/images/warning.png";
-          break;
-      }
-    }
+      return cachedIcons[object.status];
+    };
 
     $scope.loading = true;
 
@@ -66,6 +75,7 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     $scope.socket.on('logResponse', function(response) {
       console.log(response);
       $scope.loading = false;
+      var service = response.service;
 
       var serviceType = response.service_type;
       var targetArray = [];
@@ -74,7 +84,7 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
       switch(serviceType) {
         case globals.enums.ServiceType.COLLECTOR:
           targetArray = configuration.collectors;
-          targetMessage = "Collector ";
+          targetMessage = "Collector";
           targetKey = "dataSeriesOutput";
           break;
         case globals.enums.ServiceType.ANALYSIS:
@@ -102,33 +112,29 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
         logProcess.log.forEach(function(logMessage) {
           var out = {
             date: moment(logMessage.last_process_timestamp.split('.')[0]).subtract(currentOffSet/60, 'hours').calendar(),
-            status: logMessage.status
+            status: logMessage.status,
+            type: targetMessage,
+            service: service
           };
 
           var currentProcess = _findOne(targetArray, logProcess.process_id);
 
           var obj = currentProcess[targetKey];
 
-          out.message = targetMessage;
-
-          if (typeof obj === "string") {
-            out.message += obj;
-          } else {
-            out.message += obj.name;
-          }
+          out.name = obj.name;
 
           switch(logMessage.status) {
             case globals.enums.StatusLog.DONE:
-              out.message += " - done";
+              out.message = "done";
               break;
             case globals.enums.StatusLog.START:
-              out.message += " - started";
+              out.message = "started";
               break;
             case globals.enums.StatusLog.DOWNLOADED:
-              out.message += " - downloaded";
+              out.message = "downloaded";
               break;
             case globals.enums.StatusLog.ERROR:
-              out.message += " - error";
+              out.message = "error";
               break;
           }
           $scope.model.push(out)
