@@ -548,7 +548,8 @@ angular.module('terrama2.analysis.registration', [
 
       // target data series
       var analysisTypeId;
-      switch(parseInt($scope.analysis.type_id)) {
+      var typeId = parseInt($scope.analysis.type_id);
+      switch(typeId) {
         case globals.enums.AnalysisType.DCP:
           analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
           break;
@@ -562,10 +563,12 @@ angular.module('terrama2.analysis.registration', [
       }
 
       // setting target data series metadata (monitored object, dcp..)
-      analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, analysisTypeId));
+      if (typeId !== globals.enums.AnalysisType.GRID) {
+        analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, analysisTypeId));
+      }
 
       // todo: improve it
-      // temp code for sending analysis dataseries
+      // temp code for sending analysis data series
       $scope.selectedDataSeriesList.forEach(function(selectedDS) {
         // additional data
         var analysisDataSeries = _makeAnalysisDataSeries(selectedDS, globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE);

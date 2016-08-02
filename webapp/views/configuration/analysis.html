@@ -393,11 +393,16 @@
                   <input class="form-control"
                          name="interpolation_dummy"
                          ng-model="analysis.grid.interpolation_dummy"
-                         placeholder="{[ __('Interpolation dummy value') ]}" type="text"
+                         placeholder="{[ __('Interpolation dummy value') ]}"
+                         type="number"
                          ng-required="analysis.grid.interpolation_method && analysis.grid.interpolation_method !== interpolationMethods.UNDEFINED_INTERPOLATION_METHOD.value">
                   <span class="help-block"
                         ng-show="forms.gridForm.interpolation_dummy.$dirty && forms.gridForm.interpolation_dummy.$error.required">
                     {[ __('Interpolation dummy is required') ]}
+                  </span>
+                  <span class="help-block"
+                        ng-show="forms.gridForm.interpolation_dummy.$dirty && forms.gridForm.interpolation_dummy.$error.number">
+                    {[ __('Interpolation dummy is invalid number') ]}
                   </span>
                 </div>
               </div>
@@ -408,7 +413,7 @@
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{[ __("Area of Interest") ]}:</label>
                   <select class="form-control" name="area_of_interest" ng-disabled="isUpdating"
-                          ng-model="analysis.grid.area_of_interest"
+                          ng-model="analysis.grid.area_of_interest_type"
                           ng-required="analysis.type_id == 2"
                           ng-options="interestArea.value as interestArea.name for interestArea in interestAreaTypes">
                   </select>
@@ -434,7 +439,7 @@
 
                   <!-- required -->
                   <span class="help-block"
-                        ng-show="forms.gridForm.area_of_interest_data_series_id.$dirty && forms.gridForm.area_of_interest_data_series_id.$error">
+                        ng-show="forms.gridForm.area_of_interest_data_series_id.$dirty && forms.gridForm.area_of_interest_data_series_id.$error.required">
                     {[ __('Data Series is required') ]}
                   </span>
                 </div>
@@ -456,7 +461,7 @@
                   </select>
 
                   <!-- required -->
-                  <span class="help-block" ng-show="forms.gridForm.resolution_type.$dirty && forms.gridForm.resolution_type.$error">
+                  <span class="help-block" ng-show="forms.gridForm.resolution_type.$dirty && forms.gridForm.resolution_type.$error.required">
                     {[ __('Resolution is required') ]}
                   </span>
                 </div>
@@ -475,7 +480,7 @@
 
                   <!-- required -->
                   <span class="help-block"
-                        ng-show="forms.gridForm.resolution_data_series_id.$dirty && forms.gridForm.resolution_data_series_id.$error">
+                        ng-show="forms.gridForm.resolution_data_series_id.$dirty && forms.gridForm.resolution_data_series_id.$error.required">
                     {[ __('Data Series is required') ]}
                   </span>
                 </div>
