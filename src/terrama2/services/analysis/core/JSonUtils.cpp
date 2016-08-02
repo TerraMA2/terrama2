@@ -39,6 +39,10 @@
 #include <QJsonArray>
 #include <QObject>
 
+// TerraLib
+#include <terralib/geometry/WKTReader.h>
+#include <terralib/geometry/Utils.h>
+
 terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::core::fromAnalysisJson(const QJsonObject& json)
 {
   if(json["class"].toString() != "Analysis")
@@ -75,7 +79,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
   analysis->projectId = json["project_id"].toInt();
   analysis->scriptLanguage = ToScriptLanguage(json["script_language"].toInt());
   analysis->script = json["script"].toString().toStdString();
-  analysis->type = ToType(json["type"].toInt());
+  analysis->type = ToAnalysisType(json["type"].toInt());
   analysis->name = json["name"].toString().toStdString();
   analysis->description = json["description"].toString().toStdString();
   analysis->active = json["active"].toBool();
@@ -191,3 +195,81 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
 
   return obj;
 }
+
+QJsonObject terrama2::services::analysis::core::toJson(OutputGridPtr outputGrid)
+{
+  QJsonObject obj;
+
+  if(!outputGrid)
+    return obj;
+
+  obj.insert("class", QString("OutputGrid"));
+  obj.insert("analysis_id", static_cast<qint32>(outputGrid->analysisId));
+  obj.insert("interpolation_method", static_cast<qint32>(outputGrid->interpolationMethod));
+  obj.insert("interpolation_dummy", QJsonValue(outputGrid->interpolationDummy));
+  obj.insert("resolution_type", static_cast<qint32>(outputGrid->resolutionType));
+  obj.insert("resolution_data_series_id", static_cast<qint32>(outputGrid->resolutionDataSeriesId));
+  obj.insert("resolution_x",  QJsonValue(outputGrid->interpolationDummy));
+  obj.insert("resolution_y",  QJsonValue(outputGrid->interpolationDummy));
+  obj.insert("srid", static_cast<qint32>(outputGrid->resolutionType));
+  obj.insert("area_of_interest_data_series_id", static_cast<qint32>(outputGrid->interestAreaDataSeriesId));
+  obj.insert("area_of_interest_type", static_cast<qint32>(outputGrid->interestAreaType));
+  std::string strBox;
+  if(outputGrid->interestAreaBox)
+  {
+    strBox = outputGrid->interestAreaBox->toString();
+  }
+
+  obj.insert("area_of_interest_box", QString::fromStdString(strBox));
+
+
+  return obj;
+}
+
+
+terrama2::services::analysis::core::OutputGridPtr terrama2::services::analysis::core::fromOutputGrid(const QJsonObject& json)
+{
+  if(json["class"].toString() != "OutputGrid")
+  {
+    QString errMsg(QObject::tr("Invalid OutputGrid JSON object."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!(json.contains("analysis_id")
+       && json.contains("interpolation_method")
+       && json.contains("interpolation_dummy")
+       && json.contains("resolution_type")
+       && json.contains("resolution_data_series_id")
+       && json.contains("resolution_x")
+       && json.contains("resolution_y")
+       && json.contains("srid")
+       && json.contains("area_of_interest_data_series_id")
+       && json.contains("area_of_interest_type")
+       && json.contains("area_of_interest_box")))
+  {
+    QString errMsg(QObject::tr("Invalid OutputGrid JSON object."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  OutputGrid* outputGrid = new OutputGrid;
+  OutputGridPtr outputGridPtr(outputGrid);
+
+
+  outputGrid->analysisId = json["analysis_id"].toInt();
+  outputGrid->interpolationMethod = ToInterpolationMethod(json["interpolation_method"].toInt());
+  outputGrid->interpolationDummy = json["script_language"].toDouble();
+  outputGrid->resolutionType =  ToResolutionType(json["resolution_type"].toInt());
+  outputGrid->resolutionDataSeriesId = json["resolution_data_series_id"].toInt();
+  outputGrid->resolutionX = json["resolution_x"].toDouble();
+  outputGrid->resolutionY = json["resolution_y"].toDouble();
+  outputGrid->srid = json["active"].toInt();
+  outputGrid->interestAreaDataSeriesId = json["area_of_interest_data_series_id"].toInt();
+  outputGrid->interestAreaType = ToInterestAreaType(json["area_of_interest_type"].toInt());
+  outputGrid->interestAreaBox.reset(te::gm::WKTReader::read(json["area_of_interest_box"].toString().toStdString().c_str()));
+
+  return outputGridPtr;
+}
+
+

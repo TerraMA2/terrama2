@@ -45,7 +45,7 @@ namespace terrama2
 {
   namespace core
   {
-    class DataSetSeries;
+    struct DataSetSeries;
   }
 }
 

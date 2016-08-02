@@ -247,7 +247,7 @@ bool terrama2::core::DataManager::hasDataSeries(DataSeriesId id) const
 terrama2::core::DataSeriesPtr terrama2::core::DataManager::findDataSeries(const std::string& name) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
-
+//TODO: create a map name->id to fasten the cases where this function is called to many times?
   const auto& it = std::find_if(dataseries_.cbegin(), dataseries_.cend(), [name] (std::pair<DataSeriesId, DataSeriesPtr> series)
                                                                           { return series.second->name == name; });
   if(it == dataseries_.cend())

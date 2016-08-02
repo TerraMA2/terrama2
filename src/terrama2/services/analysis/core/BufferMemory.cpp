@@ -29,6 +29,7 @@
 
 // TerraMA2
 #include "BufferMemory.hpp"
+#include "Utils.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
 
@@ -125,7 +126,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
 
 
 std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggregationBuffer(
-        std::vector<uint64_t>& indexes, std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
+        std::vector<uint32_t>& indexes, std::shared_ptr<ContextDataSeries> contextDataSeries, Buffer buffer,
         StatisticOperation aggregationStatisticOperation,
         const std::string& attribute)
 {
@@ -272,8 +273,6 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
     item->setGeometry(0, dynamic_cast<te::gm::Geometry*>(occurrenceAggregation->buffer->clone()));
     item->setDouble(1, getOperationResult(cache, aggregationStatisticOperation));
     dsOut->add(item);
-
-
   }
 
 

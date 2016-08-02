@@ -33,6 +33,7 @@
 
 #include "../../BufferMemory.hpp"
 #include "../../PythonInterpreter.hpp"
+#include "../../Shared.hpp"
 
 // STL
 #include <string>
@@ -69,7 +70,7 @@ namespace terrama2
                                 terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the sum of historic DCP data.
+              \brief Calculates the sum of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -85,7 +86,7 @@ namespace terrama2
                        terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the mean of historic DCP data.
+              \brief Calculates the mean of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -101,7 +102,7 @@ namespace terrama2
                         terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the min of historic DCP data.
+              \brief Calculates the min of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -117,7 +118,7 @@ namespace terrama2
                        terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the max of historic DCP data.
+              \brief Calculates the max of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -133,7 +134,7 @@ namespace terrama2
                        terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the median of historic DCP data.
+              \brief Calculates the median of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -149,7 +150,7 @@ namespace terrama2
                           terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
             /*!
-              \brief It calculates the standard deviation of historic DCP data.
+              \brief Calculates the standard deviation of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -162,6 +163,9 @@ namespace terrama2
             */
             double standardDeviation(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
                                      terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
+
+            double variance(const std::string& dataSeriesName, const std::string& attribute, DataSetId dcpId,
+                            terrama2::services::analysis::core::Buffer buffer, const std::string& dateFilter);
 
           } // end namespace history
         }   // end namespace dcp

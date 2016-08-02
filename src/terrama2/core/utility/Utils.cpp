@@ -76,7 +76,6 @@ namespace te
   } // end of namespace common
 } // end of namespace te
 
-
 std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
   // 1st: look in the neighborhood of the executable
@@ -342,7 +341,7 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
 
 bool terrama2::core::isValidColumn(size_t value)
 {
-   return value != std::numeric_limits<size_t>::max();
+  return value != std::numeric_limits<size_t>::max();
 }
 
 
@@ -368,6 +367,7 @@ std::string terrama2::core::getProperty(DataSetPtr dataSet, DataSeriesPtr dataSe
     {
     }
   }
+
 
   if(property.empty())
   {

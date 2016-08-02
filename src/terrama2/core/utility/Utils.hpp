@@ -64,7 +64,6 @@ namespace terrama2
 {
   namespace core
   {
-
     /*!
       \brief Returns the path relative to a directory or file in the context of TerraMA2.
 

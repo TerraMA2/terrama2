@@ -44,7 +44,6 @@ namespace terrama2
     */
     struct DataSetGrid : public DataSet
     {
-
     };
   } // end namespace core
 } // end namespace terrama2

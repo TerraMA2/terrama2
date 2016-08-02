@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     };
     serviceManager.setLogConnectionInfo(connInfo);
 
-    terrama2::services::analysis::core::initInterpreter();
+    terrama2::services::analysis::core::python::initInterpreter();
 
     QCoreApplication app(argc, argv);
 
@@ -290,6 +290,7 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

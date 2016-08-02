@@ -46,6 +46,18 @@ file(GLOB TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR
 file(GLOB TERRAMA2_GRID_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/*.cpp)
 file(GLOB TERRAMA2_GRID_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/*.hpp)
 
+file(GLOB TERRAMA2_GRID_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/history/*.cpp)
+file(GLOB TERRAMA2_GRID_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/history/*.hpp)
+
+file(GLOB TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/history/interval/*.cpp)
+file(GLOB TERRAMA2_GRID_HISTORY_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/history/interval/*.hpp)
+
+file(GLOB TERRAMA2_GRID_FORECAST_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/forecast/*.cpp)
+file(GLOB TERRAMA2_GRID_FORECAST_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/forecast/*.hpp)
+
+file(GLOB TERRAMA2_GRID_FORECAST_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/forecast/interval/*.cpp)
+file(GLOB TERRAMA2_GRID_FORECAST_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/forecast/interval/*.hpp)
+
 
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
@@ -60,6 +72,14 @@ source_group("Source Files\\occurrence\\aggregation"  FILES ${TERRAMA2_OCCURRENC
 source_group("Header Files\\occurrence\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES})
 source_group("Source Files\\grid"  FILES ${TERRAMA2_GRID_SRC_FILES})
 source_group("Header Files\\grid"  FILES ${TERRAMA2_GRID_HDR_FILES})
+source_group("Source Files\\grid\\history"  FILES ${TERRAMA2_GRID_HISTORY_SRC_FILES})
+source_group("Header Files\\grid\\history"  FILES ${TERRAMA2_GRID_HISTORY_HDR_FILES})
+source_group("Source Files\\grid\\history\\interval"  FILES ${TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES})
+source_group("Header Files\\grid\\history\\interval"  FILES ${TERRAMA2_GRID_HISTORY_INTERVAL_HDR_FILES})
+source_group("Source Files\\grid\\forecast"  FILES ${TERRAMA2_GRID_HISTORY_SRC_FILES})
+source_group("Header Files\\grid\\forecast"  FILES ${TERRAMA2_GRID_HISTORY_HDR_FILES})
+source_group("Source Files\\grid\\forecast\\interval"  FILES ${TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES})
+source_group("Header Files\\grid\\forecast\\interval"  FILES ${TERRAMA2_GRID_HISTORY_INTERVAL_HDR_FILES})
 
 include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
@@ -84,7 +104,15 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_OCCURRENCE_AGRREGATION_SRC_FILES}
                                           ${TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES_SRC_FILES}
                                           ${TERRAMA2_GRID_SRC_FILES}
-                                          ${TERRAMA2_GRID_HDR_FILES})
+                                          ${TERRAMA2_GRID_HDR_FILES}
+                                          ${TERRAMA2_GRID_HISTORY_SRC_FILES}
+                                          ${TERRAMA2_GRID_HISTORY_HDR_FILES}
+                                          ${TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES}
+                                          ${TERRAMA2_GRID_HISTORY_INTERVAL_HDR_FILES}
+                                          ${TERRAMA2_GRID_FORECAST_SRC_FILES}
+                                          ${TERRAMA2_GRID_FORECAST_HDR_FILES}
+                                          ${TERRAMA2_GRID_FORECAST_INTERVAL_SRC_FILES}
+                                          ${TERRAMA2_GRID_FORECAST_INTERVAL_HDR_FILES})
 
 qt5_use_modules(terrama2_analysis_core Core)
 
