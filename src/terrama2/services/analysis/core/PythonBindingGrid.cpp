@@ -40,6 +40,7 @@ void terrama2::services::analysis::core::python::Grid::registerFunctions()
   registerGridHistoryFunctions();
   registerGridHistoryIntervalFunctions();
   registerGridForecastFunctions();
+  registerGridForecastIntervalFunctions(); 
 }
 
 void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
@@ -113,4 +114,23 @@ void terrama2::services::analysis::core::python::Grid::registerGridForecastFunct
   def("median", terrama2::services::analysis::core::grid::forecast::median);
   def("standard_deviation", terrama2::services::analysis::core::grid::forecast::standardDeviation);
   def("variance", terrama2::services::analysis::core::grid::forecast::variance);
+}
+
+void terrama2::services::analysis::core::python::Grid::registerGridForecastIntervalFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for grid.forecast.interval
+  object gridHistoryIntervalModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.forecast.interval"))));
+  // make "from terrama2.grid.forecast import interval" work
+  import("terrama2.grid.forecast").attr("interval") = gridHistoryIntervalModule;
+  // set the current scope to the new sub-module
+  scope gridHistoryIntervalScope = gridHistoryIntervalModule;
+
+  def("min", terrama2::services::analysis::core::grid::forecast::interval::min);
+  def("max", terrama2::services::analysis::core::grid::forecast::interval::max);
+  def("mean", terrama2::services::analysis::core::grid::forecast::interval::mean);
+  def("median", terrama2::services::analysis::core::grid::forecast::interval::median);
+  def("standard_deviation", terrama2::services::analysis::core::grid::forecast::interval::standardDeviation);
+  def("variance", terrama2::services::analysis::core::grid::forecast::interval::variance);
 }

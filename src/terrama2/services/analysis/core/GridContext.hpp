@@ -117,13 +117,13 @@ namespace terrama2
               \param raster The raster to be added to the context.
 
             */
-            void addRaster(DatasetKey key, std::shared_ptr<te::rst::Raster> raster);
+            void addRaster(ObjectKey key, std::shared_ptr<te::rst::Raster> raster);
 
             std::shared_ptr<te::rst::Raster> outputRaster_;
             std::map<std::string, std::string> outputRasterInfo_;
 
-            std::unordered_map<DataSeriesId, std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> > > analysisInputGrid_;
-            std::unordered_map<DatasetKey, std::vector<std::shared_ptr<te::rst::Raster> >, DatasetKeyHash, EqualKeyComparator > rasterMap_;
+            std::unordered_map<ObjectKey, std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator> analysisInputGrid_;
+            std::unordered_map<ObjectKey, std::vector<std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator > rasterMap_;
         };
       }
     }

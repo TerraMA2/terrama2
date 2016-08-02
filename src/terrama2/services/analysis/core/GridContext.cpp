@@ -132,8 +132,8 @@ terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::c
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  DatasetKey key;
-  key.datasetId_ = datasetId;
+  ObjectKey key;
+  key.objectId_ = datasetId;
   key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
 
   auto it = rasterMap_.find(key);
@@ -174,7 +174,7 @@ terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::c
   }
 }
 
-void terrama2::services::analysis::core::GridContext::addRaster(DatasetKey key, std::shared_ptr<te::rst::Raster> raster)
+void terrama2::services::analysis::core::GridContext::addRaster(ObjectKey key, std::shared_ptr<te::rst::Raster> raster)
 {
   rasterMap_[key].push_back(raster);
 }
@@ -481,7 +481,11 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
     const std::string& dateDiscardBefore,
     const std::string& dateDiscardAfter)
 {
-  auto it = analysisInputGrid_.find(dataSeriesId);
+  ObjectKey key;
+  key.objectId_ = dataSeriesId;
+  key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
+
+  auto it = analysisInputGrid_.find(key);
   if(it == analysisInputGrid_.end())
   {
     auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
@@ -502,28 +506,30 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
     filter.lastValue = true;
 
     filter.discardAfter = startTime_;
-    if(!dateDiscardBefore.empty())
+    if(!dateDiscardBefore.empty() || !dateDiscardAfter.empty())
     {
-      double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
+      if(!dateDiscardBefore.empty())
+      {
+        double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
+        //TODO: PAULO: review losing precision
+        ldt -= boost::posix_time::seconds(seconds);
 
-      ldt -= boost::posix_time::seconds(seconds);
+        std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
+        filter.discardBefore = std::move(titz);
 
-      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-      filter.discardBefore = std::move(titz);
+        filter.lastValue = false;
+      }
 
-      filter.lastValue = false;
-    }
+      if(!dateDiscardAfter.empty())
+      {
+        double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
+        ldt -= boost::posix_time::seconds(seconds);
 
-    if(!dateDiscardAfter.empty())
-    {
-      double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
+        std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
+        filter.discardAfter = std::move(titz);
 
-      ldt += boost::posix_time::seconds(seconds);
-
-      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-      filter.discardAfter = std::move(titz);
-
-      filter.lastValue = false;
+        filter.lastValue = false;
+      }
     }
     else
     {
@@ -542,7 +548,7 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
     }
 
     auto inputGrid =  gridSeries->gridMap();
-    analysisInputGrid_.emplace(dataSeriesId, inputGrid);
+    analysisInputGrid_.emplace(key, inputGrid);
     return inputGrid;
   }
 

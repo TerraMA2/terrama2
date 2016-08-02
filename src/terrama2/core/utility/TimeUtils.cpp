@@ -204,5 +204,8 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
   if(unitName != "SECOND")
     result = te::common::UnitsOfMeasureManager::getInstance().getConversion("SECOND", unitName) * result;
 
-  return result;
+  if(timeStr.front() == '-')
+    return -result;
+  else
+    return result;
 }

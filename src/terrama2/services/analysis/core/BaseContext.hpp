@@ -61,17 +61,17 @@ namespace terrama2
         /*!
           \brief Composed key for accessing a ContextDataSeries.
         */
-        struct DatasetKey
+        struct ObjectKey
         {
-          DataSetId datasetId_; //!< DataSet identifier.
+          uint32_t objectId_; //!< Object identifier.
           std::string dateFilter_; //!< Date restriction.
         };
 
-        struct DatasetKeyHash
+        struct ObjectKeyHash
         {
-          std::size_t operator()(DatasetKey const& key) const
+          std::size_t operator()(ObjectKey const& key) const
           {
-            return std::hash<std::string>()(std::to_string(key.datasetId_)+key.dateFilter_);
+            return std::hash<std::string>()(std::to_string(key.objectId_)+key.dateFilter_);
           }
         };
 
@@ -84,13 +84,13 @@ namespace terrama2
           /*!
             \brief Operator less then.
           */
-          bool operator()(const DatasetKey& lhs, const DatasetKey& rhs) const
+          bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            if(lhs.datasetId_ < rhs.datasetId_)
+            if(lhs.objectId_ < rhs.objectId_)
             {
               return true;
             }
-            else if(lhs.datasetId_ > rhs.datasetId_)
+            else if(lhs.objectId_ > rhs.objectId_)
             {
               return false;
             }
@@ -103,9 +103,9 @@ namespace terrama2
 
         struct EqualKeyComparator
         {
-          bool operator()(const DatasetKey& lhs, const DatasetKey& rhs) const
+          bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            return lhs.datasetId_ == rhs.datasetId_&& lhs.datasetId_ == rhs.datasetId_;
+            return lhs.objectId_ == rhs.objectId_&& lhs.objectId_ == rhs.objectId_;
           }
         };
 
