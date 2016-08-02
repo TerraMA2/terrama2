@@ -523,8 +523,7 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
       if(!dateDiscardAfter.empty())
       {
         double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
-
-        ldt += boost::posix_time::seconds(seconds);
+        ldt -= boost::posix_time::seconds(seconds);
 
         std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
         filter.discardAfter = std::move(titz);

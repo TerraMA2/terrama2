@@ -36,7 +36,7 @@ double terrama2::services::analysis::core::grid::forecast::interval::operatorImp
   terrama2::services::analysis::core::StatisticOperation statisticOperation,
   const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
 {
-  return terrama2::services::analysis::core::grid::history::operatorImpl(statisticOperation, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return terrama2::services::analysis::core::grid::history::operatorImpl(statisticOperation, dataSeriesName, "-"+dateFilterBegin, "-"+dateFilterEnd);
 }
 
 double terrama2::services::analysis::core::grid::forecast::interval::min(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd)
