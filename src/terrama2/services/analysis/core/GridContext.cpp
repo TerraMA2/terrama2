@@ -500,8 +500,6 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
     terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
     std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
 
-    boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
-
     terrama2::core::Filter filter;
     filter.lastValue = true;
 
@@ -510,6 +508,7 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
     {
       if(!dateDiscardBefore.empty())
       {
+        boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
         double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
         //TODO: PAULO: review losing precision
         ldt -= boost::posix_time::seconds(seconds);
@@ -522,6 +521,7 @@ terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::
 
       if(!dateDiscardAfter.empty())
       {
+        boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
         double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
         ldt -= boost::posix_time::seconds(seconds);
 
