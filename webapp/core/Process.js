@@ -1,3 +1,5 @@
+"use strict";
+
 var Promise = require('bluebird');
 var util = require('util');
 var Utils = require('./Utils');
@@ -19,7 +21,7 @@ Process.prototype.connect = function(serviceInstance) {
       resolve(code);
     }).catch(function(err) {
       reject(err);
-    })
+    });
   });
 };
 
@@ -31,7 +33,7 @@ Process.prototype.disconnect = function() {
       resolve();
     }).catch(function(err) {
       reject(err);
-    })
+    });
   });
 };
 
