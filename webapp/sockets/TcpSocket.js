@@ -111,7 +111,7 @@ var TcpSocket = function(io) {
     DataManager.listServiceInstances().then(function(instances) {
       instances.forEach(function(instance) {
         TcpManager.registerListeners(instance);
-      })
+      });
     });
 
     // tcp listeners

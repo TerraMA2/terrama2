@@ -289,6 +289,43 @@ angular.module('terrama2.analysis.registration', [
               $scope.metadata[ds.name] = Object.assign({alias: analysisDs.alias}, analysisDs.metadata);
             });
 
+            if (analysisInstance.type.id === globals.enums.AnalysisType.GRID) {
+              // fill interpolation
+              debugger;
+              $scope.analysis.grid = {
+                interpolation_method: analysisInstance.output_grid[0].interpolation_method,
+                area_of_interest_type: analysisInstance.output_grid[0].area_of_interest_type,
+                resolution_type: analysisInstance.output_grid[0].resolution_type
+              };
+              var dummy = analysisInstance.output_grid[0].interpolation_dummy;
+              if (dummy) {
+                $scope.analysis.grid.interpolation_dummy = Number(dummy);
+              }
+              var resolutionDS = analysisInstance.output_grid[0].resolution_data_series_id;
+              if (resolutionDS) {
+                $scope.analysis.grid.resolution_data_series_id = resolutionDS;
+              }
+              var interestDS = analysisInstance.output_grid[0].area_of_interest_data_series_id;
+              if (interestDS) {
+                $scope.analysis.grid.area_of_interest_data_series_id = interestDS;
+              }
+              var resX = analysisInstance.output_grid[0].resolution_x;
+              var resY = analysisInstance.output_grid[0].resolution_y;
+              if (resX && resY) {
+                $scope.analysis.grid.resolution_x = Number(resX);
+                $scope.analysis.grid.resolution_y = Number(resY);
+              }
+              var coordinates = (analysisInstance.output_grid[0].interest_area_box || {}).coordinates;
+              if (coordinates) {
+                $scope.analysis.grid.area_of_interest_bounded = {
+                  minX: coordinates[0][0][0],
+                  minY: coordinates[0][0][1],
+                  maxX: coordinates[0][2][0],
+                  maxY: coordinates[0][2][1]
+                };
+              }
+            }
+
             // setting storager format
             $scope.storagerFormats.some(function(storagerFmt) {
               if (analysisInstance.dataSeries.data_series_semantics.id === storagerFmt.id) {
@@ -471,29 +508,24 @@ angular.module('terrama2.analysis.registration', [
 
       $scope.analysis_script_error = false;
       if ($scope.forms.generalDataForm.$invalid) {
-        // formErrorDisplay($scope.forms.generalDataForm);
         return;
       }
 
       if ($scope.forms.storagerDataForm.$invalid || $scope.forms.storagerForm.$invalid) {
-        // formErrorDisplay($scope.forms.storagerDataForm);
         return;
       }
 
       // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
       var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
       if (scheduleForm.$invalid) {
-        // errorHelper(scheduleForm);
         return;
       }
 
       if ($scope.forms.targetDataSeriesForm.$invalid) {
-        // formErrorDisplay($scope.forms.targetDataSeriesForm);
         return;
       }
 
       if ($scope.forms.scriptForm.$invalid) {
-        // formErrorDisplay($scope.forms.scriptForm);
         return;
       }
 
@@ -502,7 +534,6 @@ angular.module('terrama2.analysis.registration', [
         $scope.analysis_script_error = true;
         $scope.analysis_script_error_message = "Analysis will not able to generate a output data. Please fill at least a add_value() in script field.";
         angular.element("#scriptCheckResult").html($scope.analysis_script_error_message);
-        // makeDialog("alert-danger", $scope.analysis_script_error_message, true);
         return;
       }
 
@@ -602,6 +633,31 @@ angular.module('terrama2.analysis.registration', [
 
         default:
           break;
+      }
+
+      // checking geojson
+      if ($scope.analysis.grid.area_of_interest_bounded &&
+          !angular.equals({}, $scope.analysis.grid.area_of_interest_bounded)) {
+        var bounded = $scope.analysis.grid.area_of_interest_bounded;
+        var coordinates = [
+          [
+            [bounded.minX, bounded.minY],
+            [bounded.minX, bounded.maxY],
+            [bounded.maxX, bounded.maxY],
+            [bounded.maxX, bounded.minY],
+            [bounded.minX, bounded.minY]
+          ]
+        ];
+        analysisToSend.grid.area_of_interest_box = {
+          type: 'Polygon',
+          coordinates: coordinates,
+          crs: {
+            type: 'name',
+            properties : {
+              name: "EPSG:4326"
+            }
+          }
+        };
       }
 
       // sending post operation

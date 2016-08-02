@@ -2408,7 +2408,16 @@ var DataManager = {
 
                     models.db.AnalysisOutputGrid.create(analysisOutputGrid).then(function(analysisOutGridResult) {
                       // TODO: fill analysis object
-                      _savePromises();
+                      var obj = analysisOutGridResult.get();
+
+                      self.getWKT(analysisOutGridResult.area_of_interest_box).then(function(geomWkt) {
+                        obj.area_of_interest_box = geomWkt;
+                      }).catch(function(err) {
+                        console.log("Could not retrieve WKT in output grid " + err.toString());
+                      }).finally(function() {
+                        analysisInstance.setAnalysisOutputGrid([obj]);
+                        _savePromises();
+                      });
                     }).catch(function(err) {
                       console.log(err);
                       Utils.rollbackPromises([
@@ -2514,6 +2523,8 @@ var DataManager = {
         console.log(err);
         reject(err);
       };
+
+      var sequelize = Database.getORM();
       models.db['Analysis'].findAll({
         include: [
           {
@@ -2525,11 +2536,17 @@ var DataManager = {
               }
             ]
           },
+          {
+            model: models.db['AnalysisOutputGrid'],
+            attributes: {include: [[orm.fn('ST_AsText', orm.col('area_of_interest_box')), 'interest_box']]},
+            required: false
+          },
           models.db['AnalysisMetadata'],
           models.db['ScriptLanguage'],
           models.db['AnalysisType'],
           models.db['Schedule']
-        ]
+        ],
+        where: restriction || {}
       }).then(function(analysesResult) {
         var output = [];
         var promises = [];
@@ -2555,7 +2572,7 @@ var DataManager = {
                     return true;
                   }
                 })
-              })
+              });
 
               analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
                 analysisObject.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
@@ -2591,6 +2608,10 @@ var DataManager = {
                 required: false
               }
             ]
+          },
+          {
+            model: models.db['AnalysisOutputGrid'],
+            required: false
           },
           models.db['AnalysisMetadata'],
           models.db['ScriptLanguage'],
