@@ -41,7 +41,10 @@
       AnalysisType: {[ Enums.AnalysisType|json|safe ]} || {},
       AnalysisDataSeriesType: {[ Enums.AnalysisDataSeriesType|json|safe ]} || {},
       DataSeriesType: {[ Enums.DataSeriesType|json|safe ]} || {},
-    },
+      InterpolationMethod: {[ Enums.InterpolationMethod|json|safe ]},
+      ResolutionType: {[ Enums.ResolutionType|json|safe ]},
+      InterestAreaType: {[ Enums.InterestAreaType|json|safe ]}
+    }
   };
 
   var configuration = {
@@ -86,46 +89,16 @@
 <!-- terrama2 Script -->
 <script type="text/javascript" src="/javascripts/terrama2.js"></script>
 
-<script type="text/javascript">
-  // ace.require("ace/ext/language_tools");
-  //
-  // var editor = ace.edit("script");
-  // editor.setTheme("ace/theme/chrome");
-  // editor.getSession().setMode("ace/mode/python");
-  //
-  // editor.setOptions({
-  //   fontSize: "12pt",
-  //   enableBasicAutocompletion: true,
-  //   enableSnippets: true,
-  //   enableLiveAutocompletion: false,
-  //
-  //   readOnly: false,
-  //   highlightActiveLine: true,
-  //   highlightGutterLine: true
-  // });
-
-  // editor.setOptions({
-  //   readOnly: true,
-  //   highlightActiveLine: false,
-  //   highlightGutterLine: false
-  // })
-  // editor.renderer.$cursorLayer.element.style.opacity=0
-
-  // var textarea = $('textarea[name="script"]').hide();
-  // editor.getSession().setValue(textarea.val());
-  // editor.getSession().on('change', function() {
-  //   textarea.val(editor.getSession().getValue());
-  //   // notify angular
-  //   $(textarea).trigger('input');
-  // });
-</script>
-
 <script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
 
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
 <script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
+
+<!-- TerraMA2 Bounded Box -->
+<script type="text/javascript" src="/javascripts/angular/geo/app.js"></script>
+<script type="text/javascript" src="/javascripts/angular/geo/directives.js"></script>
 
 {% endblock %}
 
@@ -168,21 +141,19 @@
           <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
         </div>
 
-        <form name="generalDataForm">
+        <form name="forms.generalDataForm">
           <div class="col-md-8">
-            <div class="form-group" ng-class="{'has-error': generalDataForm.name.$dirty && generalDataForm.name.$error.required,
-                                               'has-success': generalDataForm.name.$dirty && generalDataForm.name.$valid}">
+            <div class="form-group" terrama2-show-errors>
               <label>{[ __("Name") ]}:</label>
               <input class="form-control" name="name" ng-model="analysis.name" placeholder="{[ __('Analysis Name') ]}" type="text" required>
 
-              <span class="help-block" ng-show="generalDataForm.name.$dirty && generalDataForm.name.$invalid" ng-class="{'has-error': generalDataForm.name.$invalid}">{[ __('Analysis name is required') ]}</span>
+              <span class="help-block" ng-show="forms.generalDataForm.name.$dirty && forms.generalDataForm.name.$invalid" ng-class="{'has-error': generalDataForm.name.$invalid}">{[ __('Analysis name is required') ]}</span>
             </div>
           </div>
           <!-- /.col -->
 
           <div class="col-md-4">
-            <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.type.$dirty && generalDataForm.type.$error.required,
-                                               'has-success': generalDataForm.type.$dirty && generalDataForm.type.$valid}">
+            <div class="form-group has-feedback" terrama2-show-errors>
               <label>{[ __("Type") ]}:</label>
               <select class="form-control" name="type" ng-model="analysis.type_id" ng-disabled="isUpdating" required>
                 <option value="{[ Enums.AnalysisType.DCP ]}">DCP</option>
@@ -190,8 +161,7 @@
                 <option value="{[ Enums.AnalysisType.MONITORED ]}">Monitored Object</option>
               </select>
 
-              <span class="help-block" ng-show="generalDataForm.type.$dirty && generalDataForm.type.$error.required"
-                    ng-class="{'has-error': generalDataForm.type.$invalid}">
+              <span class="help-block" ng-show="forms.generalDataForm.type.$dirty && forms.generalDataForm.type.$error.required">
                 {[ __('Analysis type is required') ]}
               </span>
             </div>
@@ -207,16 +177,14 @@
           </div>
 
           <div class="col-md-8">
-            <div class="form-group has-feedback" ng-class="{'has-error': generalDataForm.instance.$dirty && generalDataForm.instance.$error.required,
-                                               'has-success': generalDataForm.instance.$dirty && generalDataForm.instance.$valid}">
+            <div class="form-group has-feedback" terrama2-show-errors>
               <label>{[ __("Instance") ]}:</label>
               <select class="form-control" name="instance" ng-model="analysis.instance_id" required>
                 <option ng-repeat="instance in instances" value="{{ instance.id }}">{{ instance.name }}</option>
                 <option ng-if="instances.length == 0" value="">{[ __('No analysis instance found') ]}</option>
               </select>
 
-              <span class="help-block" ng-show="generalDataForm.instance.$dirty && generalDataForm.instance.$error.required"
-                    ng-class="{'has-error': generalDataForm.instance.$invalid}">
+              <span class="help-block" ng-show="forms.generalDataForm.instance.$dirty && forms.generalDataForm.instance.$error.required">
                 {[ __('Analysis instance is required') ]}
               </span>
             </div>
@@ -245,11 +213,10 @@
     <terrama2-box title="'{[ __('Store') ]}'" css="css">
       <div class="row">
 
-        <form name="storagerDataForm">
+        <form name="forms.storagerDataForm">
 
           <div class="col-md-4">
-            <div class="form-group" ng-class="{'has-error': storagerDataForm.format.$dirty && storagerDataForm.format.$error.required,
-                            'has-success': storagerDataForm.format.$dirty && storagerDataForm.format.$valid}">
+            <div class="form-group" terrama2-show-errors>
               <label>{[ __('Output Format') ]}:</label>
                 <select id="storageFormat" class="form-control"
                         name="format"
@@ -259,15 +226,14 @@
                         ng-options="format.name for format in storagerFormats" required>
               </select>
 
-              <label class="help-block text-danger" ng-show="storagerDataForm.format.$dirty && storagerDataForm.format.$error.required">
+              <span class="help-block" ng-show="forms.storagerDataForm.format.$dirty && forms.storagerDataForm.format.$error.required">
                 {[ __("Data store is required") ]}
-              </label>
+              </span>
             </div>
           </div>
 
           <div class="col-md-4">
-            <div class="form-group" ng-class="{'has-error': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required,
-                            'has-success': storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$valid}">
+            <div class="form-group" terrama2-show-errors>
               <label>{[ __('Data Store') ]}:</label>
               <select class="form-control"
                       name="storager_data_provider_id"
@@ -277,16 +243,17 @@
                       ng-required="storager.format.name" required>
                 <option></option>
               </select>
-              <label class="help-block text-danger" ng-show="storagerDataForm.storager_data_provider_id.$dirty && storagerDataForm.storager_data_provider_id.$error.required">
+              <span class="help-block"
+                     ng-show="forms.storagerDataForm.storager_data_provider_id.$dirty && forms.storagerDataForm.storager_data_provider_id.$error.required">
                 {[ __("Data store is required") ]}
-              </label>
+              </span>
             </div>
           </div>
         </form>
         <div class="col-md-12 terrama2-nopadding-box">
           <!-- schema form -->
           <div class="col-md-12" ng-show="showStoragerForm">
-            <form name="storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
+            <form name="forms.storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
           </div>
         </div>
 
@@ -306,24 +273,25 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="semanticsSelected + '{[ __('Data Series') ]}'" css="css">
+    <terrama2-box title="semanticsSelected + ' {[ __('Data Series') ]}'" css="css" ng-show="analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'">
       <div class="row">
         <div class="col-md-12">
-          <form name="targetDataSeriesForm">
+          <form name="forms.targetDataSeriesForm">
             <div class="col-md-6">
-              <div class="form-group has-feedback"
-                ng-class="{'has-error': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required, 'has-success': targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$valid}">
+              <div class="form-group has-feedback" terrama2-show-errors>
                 <label>{[ __("DataSeries") ]}:</label>
                 <select class="form-control"
                         name="targetDataSeries"
                         ng-disabled="isUpdating"
                         ng-model="targetDataSeries"
                         ng-options="targetDS as targetDS.name for targetDS in filteredDataSeries"
-                        ng-change="onTargetDataSeriesChange()" required>
+                        ng-change="onTargetDataSeriesChange()"
+                        ng-required="analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'">
                 </select>
 
                 <!-- required -->
-                <span class="help-block" ng-show="targetDataSeriesForm.targetDataSeries.$dirty && targetDataSeriesForm.targetDataSeries.$error.required">
+                <span class="help-block"
+                      ng-show="forms.targetDataSeriesForm.targetDataSeries.$dirty && forms.targetDataSeriesForm.targetDataSeries.$error.required">
                   {[ __('Data Series is required') ]}
                 </span>
               </div>
@@ -331,8 +299,7 @@
             <!-- ./col-md-6 -->
 
             <div class="col-md-6" ng-show="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
-              <div class="form-group has-feedback"
-                ng-class="{'has-error': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$error.required, 'has-success': targetDataSeriesForm.identifier.$dirty && targetDataSeriesForm.identifier.$valid}">
+              <div class="form-group has-feedback" terrama2-show-errors>
                 <label>{[ __("Attribute Identifier") ]}:</label>
                 <input type="text" class="form-control"
                                    name="identifier"
@@ -341,7 +308,8 @@
                                    ng-required="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
 
                 <!-- required -->
-                <span class="help-block" ng-show="targetDataSeriesForm.attributeIdentifier.$dirty && targetDataSeriesForm.attributeIdentifier.$error.required">
+                <span class="help-block"
+                      ng-show="forms.targetDataSeriesForm.attributeIdentifier.$dirty && forms.targetDataSeriesForm.attributeIdentifier.$error.required">
                   {[ __('Attribute Identifier') ]}
                 </span>
               </div>
@@ -352,14 +320,14 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="'{[ __('Additional Data') ]}'" css="css">
+    <terrama2-box title="dataSeriesBoxName" css="css">
       <div class="row">
         <div class="col-md-12">
           <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
             <i class="fa fa-plus"></i>
           </button>
           <!-- metadata form handler -->
-          <form name="metadataForm">
+          <form name="forms.metadataForm">
             <table class="table table-bordered table-hover">
               <tbody>
               <tr>
@@ -374,15 +342,16 @@
                 <td>
                   <input type="text" class="form-control" name="name" ng-model="metadata[dataSeries.name].alias" required>
                 </td>
-                <!-- <td>
-                  <button type="button" class="btn btn-primary" data-ng-click="onDataSeriesClick(dataSeries);"><i class="fa fa-gear"></i></button>
-                </td> -->
                 <td class="pull-cell-left">
-                  <button type="button" class="btn btn-danger btn-small" ng-click="removeDataSeries(dataSeries)">{[ __("Remove") ]}</button>
+                  <button type="button" class="btn btn-danger btn-sm" ng-click="removeDataSeries(dataSeries)">
+                    <i class="fa fa-times">
+                      <span class="hidden-xs">{[ __("Remove") ]}</span>
+                    </i>
+                  </button>
                 </td>
               </tr>
               <tr ng-if="selectedDataSeriesList.length == 0">
-                <td colspan="2">
+                <td colspan="3">
                   {[ __('No data series selected') ]}
                 </td>
               </tr>
@@ -396,10 +365,178 @@
       </div><!--./row-->
     </terrama2-box>
 
+    <terrama2-box title="'{[ __('Grid configuration') ]}'" css="css" ng-show="analysis.type_id == {[ Enums.AnalysisType.GRID ]}">
+      <div class="row">
+        <form name="forms.gridForm">
+          <div class="col-md-12">
+            <div class="col-md-12 terrama2-nopadding-box">
+              <div class="col-md-6">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label>{[ __("Interpolation Method") ]}:</label>
+                  <select class="form-control" name="interpolation_method" ng-disabled="isUpdating"
+                          ng-model="analysis.grid.interpolation_method"
+                          ng-required="analysis.type_id == 2"
+                          ng-options="obj.value as obj.name for (k, obj) in interpolationMethods">
+                  </select>
+
+                  <!-- required -->
+                  <span class="help-block"
+                        ng-show="forms.gridForm.interpolation_method.$dirty && forms.gridForm.interpolation_method.$error.required">
+                    {[ __('Interpolation method is required') ]}
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-md-6" ng-show="analysis.grid.interpolation_method !== interpolationMethods.UNDEFINED_INTERPOLATION_METHOD.value">
+                <div class="form-group" terrama2-show-errors>
+                  <label>{[ __("Interpolation dummy") ]}:</label>
+                  <input class="form-control"
+                         name="interpolation_dummy"
+                         ng-model="analysis.grid.interpolation_dummy"
+                         placeholder="{[ __('Interpolation dummy value') ]}"
+                         type="number"
+                         ng-required="analysis.grid.interpolation_method && analysis.grid.interpolation_method !== interpolationMethods.UNDEFINED_INTERPOLATION_METHOD.value">
+                  <span class="help-block"
+                        ng-show="forms.gridForm.interpolation_dummy.$dirty && forms.gridForm.interpolation_dummy.$error.required">
+                    {[ __('Interpolation dummy is required') ]}
+                  </span>
+                  <span class="help-block"
+                        ng-show="forms.gridForm.interpolation_dummy.$dirty && forms.gridForm.interpolation_dummy.$error.number">
+                    {[ __('Interpolation dummy is invalid number') ]}
+                  </span>
+                </div>
+              </div>
+            </div> <!-- ./cold-md-12 terrama2-nopadding-box-->
+
+            <div class="col-md-12 terrama2-nopadding-box">
+              <div class="col-md-6">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label>{[ __("Area of Interest") ]}:</label>
+                  <select class="form-control" name="area_of_interest" ng-disabled="isUpdating"
+                          ng-model="analysis.grid.area_of_interest_type"
+                          ng-required="analysis.type_id == 2"
+                          ng-options="interestArea.value as interestArea.name for interestArea in interestAreaTypes">
+                  </select>
+
+                  <!-- required -->
+                  <span class="help-block"
+                        ng-show="forms.gridForm.area_of_interest.$dirty && forms.gridForm.area_of_interest.$error.required">
+                    {[ __('Area of interest is required') ]}
+                  </span>
+                </div>
+              </div> <!-- ./col-md-6 -->
+
+              <div class="col-md-6" ng-show="analysis.grid.area_of_interest_type === interestAreaTypes.SAME_FROM_DATA_SERIES.value">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label>{[ __("DataSeries") ]}:</label>
+                  <select class="form-control"
+                          name="area_of_interest_data_series_id"
+                          ng-disabled="isUpdating"
+                          ng-model="analysis.grid.area_of_interest_data_series_id"
+                          ng-options="targetDS.id as targetDS.name for targetDS in selectedDataSeriesList"
+                          ng-required="analysis.grid.area_of_interest_type === interestAreaTypes.SAME_FROM_DATA_SERIES.value">
+                  </select>
+
+                  <!-- required -->
+                  <span class="help-block"
+                        ng-show="forms.gridForm.area_of_interest_data_series_id.$dirty && forms.gridForm.area_of_interest_data_series_id.$error.required">
+                    {[ __('Data Series is required') ]}
+                  </span>
+                </div>
+              </div> <!-- ./col-md-6 -->
+
+              <div class="col-md-6" ng-if="analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
+                <terrama2-bounded-box ng-model="analysis.grid.area_of_interest_bounded"></terrama2-bounded-box>
+              </div>
+            </div> <!-- ./cold-md-12 terrama2-nopadding-box-->
+
+            <div class="col-md-12 terrama2-nopadding-box">
+              <div class="col-md-6">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label>{[ __("Resolution") ]}:</label>
+                  <select class="form-control" name="resolution_type" ng-disabled="isUpdating"
+                          ng-model="analysis.grid.resolution_type"
+                          ng-required="analysis.type_id == 2"
+                          ng-options="resolutionType.value as resolutionType.name for resolutionType in resolutionTypes">
+                  </select>
+
+                  <!-- required -->
+                  <span class="help-block" ng-show="forms.gridForm.resolution_type.$dirty && forms.gridForm.resolution_type.$error.required">
+                    {[ __('Resolution is required') ]}
+                  </span>
+                </div>
+              </div> <!-- ./col-md-6 -->
+
+              <div class="col-md-6" ng-show="analysis.grid.resolution_type === resolutionTypes.CUSTOM.value">
+                <div class="col-md-6">
+                  <div class="form-group" terrama2-show-errors>
+                    <label>{[ __("X") ]}:</label>
+                    <input class="form-control"
+                           name="resolution_x"
+                           ng-model="analysis.grid.resolution_x"
+                           placeholder="{[ __('Resolution X') ]}" type="number"
+                           ng-required="analysis.grid.resolution_type === resolutionTypes.CUSTOM.value">
+
+                    <span class="help-block"
+                          ng-show="forms.gridForm.resolution_x.$dirty && forms.gridForm.resolution_x.$invalid">
+                        {[ __('X is required') ]}
+                    </span>
+                    <span class="help-block"
+                          ng-show="forms.gridForm.resolution_x.$dirty && forms.gridForm.resolution_x.$error.number">
+                        {[ __('X is invalid number') ]}
+                      </span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group" terrama2-show-errors>
+                    <label>{[ __("Y") ]}:</label>
+                    <input class="form-control"
+                           name="resolution_y"
+                           ng-model="analysis.grid.resolution_y"
+                           placeholder="{[ __('Resolution Y') ]}" type="number"
+                           ng-required="analysis.grid.resolution_type === resolutionTypes.CUSTOM.value">
+
+                    <span class="help-block"
+                          ng-show="forms.gridForm.resolution_y.$dirty && forms.gridForm.resolution_y.$invalid">
+                        {[ __('Y is required') ]}
+                    </span>
+                    <span class="help-block"
+                          ng-show="forms.gridForm.resolution_y.$dirty && forms.gridForm.resolution_y.$error.number">
+                        {[ __('Y is invalid number') ]}
+                      </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6" ng-show="analysis.grid.resolution_type === resolutionTypes.SAME_FROM_DATA_SERIES.value">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label>{[ __("DataSeries") ]}:</label>
+                  <select class="form-control"
+                          name="resolution_data_series_id"
+                          ng-disabled="isUpdating"
+                          ng-model="analysis.grid.resolution_data_series_id"
+                          ng-options="targetDS.id as targetDS.name for targetDS in selectedDataSeriesList"
+                          ng-required="analysis.grid.resolution_type == resolutionTypes.SAME_FROM_DATA_SERIES.value">
+                  </select>
+
+                  <!-- required -->
+                  <span class="help-block"
+                        ng-show="forms.gridForm.resolution_data_series_id.$dirty && forms.gridForm.resolution_data_series_id.$error.required">
+                    {[ __('Data Series is required') ]}
+                  </span>
+                </div>
+              </div> <!-- ./col-md-6 -->
+            </div> <!-- ./col-md-12 terrama2-nopadding-box -->
+          </div>
+        </form>
+      </div>
+    </terrama2-box>
+
     <terrama2-box title="'{[ __('Influence Area') ]}'" css="css" ng-show="analysis.type_id == 1">
       <div class="row">
         <div class="col-md-12">
-          <form name="influenceForm">
+          <form name="forms.influenceForm">
             <div class="col-md-12 terrama2-nopadding-box">
               <div class="col-md-12">
                 <div class="form-group has-feedback" ng-class="{'has-error': influenceForm.influence.$dirty && influenceForm.influence.$error.required, 'has-success': influenceForm.influence.$dirty && influenceForm.influence.$valid}">
@@ -415,7 +552,7 @@
                   </select>
 
                   <!-- required -->
-                  <span class="help-block" ng-show="influenceForm.influence.$dirty && influenceForm.influence.$error.required">
+                  <span class="help-block" ng-show="forms.influenceForm.influence.$dirty && forms.influenceForm.influence.$error.required">
                     {[ __('Influence is required') ]}
                   </span>
                 </div>
@@ -425,7 +562,7 @@
               <div class="col-md-12 terrama2-nopadding-box">
 
                 <div class="col-md-6">
-                  <div class="form-group" ng-class="{'has-error': influenceForm.radius.$dirty && influenceForm.radius.$error.required, 'has-success': influenceForm.radius.$dirty && influenceForm.radius.$valid}">
+                  <div class="form-group" terrama2-show-errors>
                     <label>{[ __("Radius") ]}:</label>
                     <input class="form-control"
                            name="radius"
@@ -435,7 +572,7 @@
                            ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
 
                     <!-- required -->
-                    <span class="help-block" ng-show="influenceForm.radius.$dirty && influenceForm.radius.$error.required">
+                    <span class="help-block" ng-show="forms.influenceForm.radius.$dirty && forms.influenceForm.radius.$error.required">
                       {[ __('Influence radius is required') ]}
                     </span>
                   </div>
@@ -443,7 +580,7 @@
 
                 <div class="col-md-6">
 
-                  <div class="form-group" ng-class="{'has-error': influenceForm.radiusUnit.$dirty && influenceForm.radiusUnit.$error.required, 'has-success': influenceForm.radiusUnit.$dirty && influenceForm.radiusUnit.$valid}">
+                  <div class="form-group" terrama2-show-errors>
                     <div class="input-group" style="margin-top: 25px;">
                       <input type="text" name="radiusUnit" ng-disabled="isUpdating" class="form-control" aria-label="..." ng-model="analysis.metadata.INFLUENCE_RADIUS_UNIT" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
                       <div class="input-group-btn">
@@ -465,26 +602,28 @@
               <div class="col-md-12 terrama2-nopadding-box">
 
                 <div class="col-md-6">
-                  <div class="form-group has-feedback" ng-class="{'has-error': influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$error.required, 'has-success': influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$valid}">
+                  <div class="form-group has-feedback">
                     <label>{[ __("Influence Data Series") ]}:</label>
                     <select class="form-control" name="dataSeriesId" ng-disabled="isUpdating" ng-model="analysis.metadata.INFLUENCE_DATASERIES_ID" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
                       <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
                     </select>
 
                     <!-- required -->
-                    <span class="help-block" ng-show="influenceForm.dataSeriesId.$dirty && influenceForm.dataSeriesId.$error.required">
+                    <span class="help-block"
+                          ng-show="forms.influenceForm.dataSeriesId.$dirty && forms.influenceForm.dataSeriesId.$error.required">
                       {[ __('Influence data series is required') ]}
                     </span>
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="form-group" ng-class="{'has-error': influenceForm.attribute.$dirty && influenceForm.attribute.$error.required, 'has-success': influenceForm.attribute.$dirty && influenceForm.attribute.$valid}">
+                  <div class="form-group" terrama2-show-errors>
                     <!-- TODO: combobox with data series properties -->
                     <label>{[ __("Influence Attribute") ]}:</label>
                     <input class="form-control" name="attribute" ng-disabled="isUpdating" type="text" ng-model="analysis.metadata.INFLUENCE_ATTRIBUTE" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
 
                     <!-- required -->
-                    <span class="help-block" ng-show="influenceForm.attribute.$dirty && influenceForm.attribute.$error.required">
+                    <span class="help-block"
+                          ng-show="forms.influenceForm.attribute.$dirty && forms.influenceForm.attribute.$error.required">
                       {[ __('Influence attribute name is required') ]}
                     </span>
                   </div>
@@ -500,9 +639,8 @@
       <div class="row">
 
         <div class="col-md-12">
-          <form name="scriptForm">
-            <div class="form-group" ng-class="{'has-error': scriptForm.script.$dirty && scriptForm.script.$error.required || analysis_script_error,
-                                               'has-success': scriptForm.script.$dirty && scriptForm.script.$valid}">
+          <form name="forms.scriptForm">
+            <div class="form-group" terrama2-show-errors>
 
               <!-- todo: adding helper functions, syntax validation and syntax highlighter -->
               <label>{[ __('Analysis Model') ]}:</label>
@@ -518,7 +656,7 @@
 
               <!-- required -->
               <span class="help-block"
-                    ng-show="scriptForm.script.$dirty && scriptForm.script.$error.required">
+                    ng-show="forms.scriptForm.script.$dirty && forms.scriptForm.script.$error.required">
                 {[ __('Analysis script is required') ]}
               </span>
 

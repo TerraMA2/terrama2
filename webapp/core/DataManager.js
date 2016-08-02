@@ -58,10 +58,8 @@ function _processFilter(filterObject) {
   var filterValues = {};
   // checking filter by date
   if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
-    if (filterObject.date.beforeDate)
-      filterValues.discard_before = new Date(filterObject.date.beforeDate);
-    if (filterObject.date.afterDate)
-      filterValues.discard_after = new Date(filterObject.date.afterDate);
+    if (filterObject.date.beforeDate) { filterValues.discard_before = new Date(filterObject.date.beforeDate); }
+    if (filterObject.date.afterDate) { filterValues.discard_after = new Date(filterObject.date.afterDate); }
   }
 
   // checking filter by area
@@ -70,11 +68,11 @@ function _processFilter(filterObject) {
       "type": "Polygon",
       "coordinates": [
         [
-          [filterObject.area["minX"], filterObject.area["minY"]],
-          [filterObject.area["maxX"], filterObject.area["minY"]],
-          [filterObject.area["maxX"], filterObject.area["maxY"]],
-          [filterObject.area["minX"], filterObject.area["maxY"]],
-          [filterObject.area["minX"], filterObject.area["minY"]]
+          [filterObject.area.minX, filterObject.area.minY],
+          [filterObject.area.maxX, filterObject.area.minY],
+          [filterObject.area.maxX, filterObject.area.maxY],
+          [filterObject.area.minX, filterObject.area.maxY],
+          [filterObject.area.minX, filterObject.area.minY]
         ]
       ],
       "crs": {
@@ -131,13 +129,13 @@ var DataManager = {
         var inserts = [];
 
         // default users
-        var salt = models.db['User'].generateSalt();
+        var salt = models.db.User.generateSalt();
 
         // admin
         inserts.push(models.db.User.create({
           name: "Administrator",
           username: "admin",
-          password: models.db['User'].generateHash("admin", salt),
+          password: models.db.User.generateHash("admin", salt),
           salt: salt,
           cellphone: '14578942362',
           email: 'admin@terrama2.inpe.br',
@@ -168,7 +166,7 @@ var DataManager = {
             port: 5432,
             user: "postgres",
             password: "postgres",
-            database: dbConfig.database // TODO: change it
+            database: dbConfig.database
           }
         };
 
@@ -202,7 +200,7 @@ var DataManager = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS_MONITORED_OBJECT, description: "Data Series Analysis Monitored Object"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.STATIC_DATA, description: "Data Series Static Data"}));
 
-        // data formats semantics defaults todo: check it
+        // data formats semantics defaults
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "CSV description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
         inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
@@ -211,37 +209,93 @@ var DataManager = {
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GEOTIFF, description: "GeoTiff"}));
 
         // analysis type
-        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
-        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.GRID, name: "Grid", description: "Description Grid"}));
-        inserts.push(models.db["AnalysisType"].create({id: Enums.AnalysisType.MONITORED, name: "Monitored Object", description: "Description Monitored"}));
+        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
+        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.GRID, name: "Grid", description: "Description Grid"}));
+        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.MONITORED, name: "Monitored Object", description: "Description Monitored"}));
 
         // analysis data series type
-        inserts.push(models.db["AnalysisDataSeriesType"].create({
+        inserts.push(models.db.AnalysisDataSeriesType.create({
           id: Enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE,
           name: "Dcp",
           description: "Description Dcp"
         }));
-        inserts.push(models.db["AnalysisDataSeriesType"].create({
+        inserts.push(models.db.AnalysisDataSeriesType.create({
           id: Enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE,
           name: "Grid",
           description: "Description Grid"
         }));
 
-        inserts.push(models.db["AnalysisDataSeriesType"].create({
+        inserts.push(models.db.AnalysisDataSeriesType.create({
           id: Enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE,
           name: "Monitored Object",
           description: "Description Monitored"
         }));
 
-        inserts.push(models.db["AnalysisDataSeriesType"].create({
+        inserts.push(models.db.AnalysisDataSeriesType.create({
           id: Enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE,
           name: "Additional Data",
           description: "Description Additional Data"
         }));
 
+        // area of interest
+        inserts.push(models.db.AnalysisAreaOfInterestType.create({
+          id: Enums.InterestAreaType.UNION.value,
+          name: Enums.InterestAreaType.UNION.name,
+          description: Enums.InterestAreaType.UNION.name
+        }));
+        inserts.push(models.db.AnalysisAreaOfInterestType.create({
+          id: Enums.InterestAreaType.SAME_FROM_DATA_SERIES.value,
+          name: Enums.InterestAreaType.SAME_FROM_DATA_SERIES.name,
+          description: Enums.InterestAreaType.SAME_FROM_DATA_SERIES.name
+        }));
+        inserts.push(models.db.AnalysisAreaOfInterestType.create({
+          id: Enums.InterestAreaType.CUSTOM.value,
+          name: Enums.InterestAreaType.CUSTOM.name,
+          description: Enums.InterestAreaType.CUSTOM.name
+        }));
+
+        // resolution type
+        inserts.push(models.db.AnalysisResolutionType.create({
+          id: Enums.ResolutionType.BIGGEST_GRID.value,
+          name: Enums.ResolutionType.BIGGEST_GRID.name,
+          description: Enums.ResolutionType.BIGGEST_GRID.name
+        }));
+        inserts.push(models.db.AnalysisResolutionType.create({
+          id: Enums.ResolutionType.SMALLEST_GRID.value,
+          name: Enums.ResolutionType.SMALLEST_GRID.name,
+          description: Enums.ResolutionType.SMALLEST_GRID.name
+        }));
+        inserts.push(models.db.AnalysisResolutionType.create({
+          id: Enums.ResolutionType.SAME_FROM_DATA_SERIES.value,
+          name: Enums.ResolutionType.SAME_FROM_DATA_SERIES.name,
+          description: Enums.ResolutionType.SAME_FROM_DATA_SERIES.name
+        }));
+        inserts.push(models.db.AnalysisResolutionType.create({
+          id: Enums.ResolutionType.CUSTOM.value,
+          name: Enums.ResolutionType.CUSTOM.name,
+          description: Enums.ResolutionType.CUSTOM.name
+        }));
+
+        // Interpolation methods
+        inserts.push(models.db.InterpolationMethod.create({
+          id: Enums.InterpolationMethod.NEAREST_NEIGHBOR.value,
+          name: Enums.InterpolationMethod.NEAREST_NEIGHBOR.name,
+          description: Enums.InterpolationMethod.NEAREST_NEIGHBOR.name
+        }));
+        inserts.push(models.db.InterpolationMethod.create({
+          id: Enums.InterpolationMethod.BI_LINEAR.value,
+          name: Enums.InterpolationMethod.BI_LINEAR.name,
+          description: Enums.InterpolationMethod.BI_LINEAR.name
+        }));
+        inserts.push(models.db.InterpolationMethod.create({
+          id: Enums.InterpolationMethod.BI_CUBIC.value,
+          name: Enums.InterpolationMethod.BI_CUBIC.name,
+          description: Enums.InterpolationMethod.BI_CUBIC.name
+        }));
+
         // script language supported
-        inserts.push(models.db["ScriptLanguage"].create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
-        inserts.push(models.db["ScriptLanguage"].create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
+        inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
+        inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
 
         // semantics: temp code: TODO: fix
         var semanticsJsonPath = path.join(__dirname, "../../share/terrama2/semantics.json");
@@ -263,7 +317,7 @@ var DataManager = {
         // it will match each of semantics with providers
         var insertSemanticsProvider = function() {
           self.listSemanticsProvidersType().then(function(result) {
-            if (result.length != 0) {
+            if (result.length !== 0) {
               callback();
               return;
             }
@@ -276,7 +330,7 @@ var DataManager = {
 
                   dependencies.forEach(function(dependency) {
                     dataProvidersType.some(function(providerType) {
-                      if (dependency == providerType.name) {
+                      if (dependency === providerType.name) {
                         semanticsProvidersArray.push({
                           data_provider_type_id: providerType.id,
                           data_series_semantics_id: semantics.id
@@ -284,7 +338,7 @@ var DataManager = {
                         return true;
                       }
                     });
-                  })
+                  });
                 });
 
                 // adding metadata to semantics
@@ -305,22 +359,22 @@ var DataManager = {
                       }
                       return true;
                     }
-                  })
+                  });
                 });
 
                 var _makeSemanticsMetadata = function() {
-                  models.db["SemanticsMetadata"].bulkCreate(semanticsMetadataArray).then(function(res) {
+                  models.db.SemanticsMetadata.bulkCreate(semanticsMetadataArray).then(function(res) {
                     callback();
                   }).catch(function(err) {
                     callback();
                   })
                 }
 
-                models.db["SemanticsProvidersType"].bulkCreate(semanticsProvidersArray).then(function(result) {
+                models.db.SemanticsProvidersType.bulkCreate(semanticsProvidersArray).then(function(result) {
                   _makeSemanticsMetadata();
                 }).catch(function(err) {
                   _makeSemanticsMetadata();
-                })
+                });
               }).catch(function(err) {
                 console.log(err);
                 callback();
@@ -338,7 +392,7 @@ var DataManager = {
           insertSemanticsProvider();
         }).catch(function(err) {
           console.log(err);
-          insertSemanticsProvider()
+          insertSemanticsProvider();
         });
       };
 
@@ -356,7 +410,7 @@ var DataManager = {
 
   unload: function() {
     var self = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       lock.writeLock(function(release) {
         self.data.dataProviders = [];
         self.data.dataSeries = [];
@@ -374,7 +428,7 @@ var DataManager = {
 
   finalize: function() {
     var self = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       self.unload().then(function() {
         resolve();
 
@@ -439,12 +493,12 @@ var DataManager = {
           // find all data series
           models.db.DataSeries.findAll({
             include: [
-              models.db['DataSeriesSemantics'],
+              models.db.DataSeriesSemantics,
               {
-                model: models.db['DataSet'],
+                model: models.db.DataSet,
                 include: [
                   {
-                    model: models.db['DataSetDcp'],
+                    model: models.db.DataSetDcp,
                     attributes: ['position'],
                     required: false
                   },
@@ -456,7 +510,11 @@ var DataManager = {
                     model: models.db.DataSetMonitored,
                     required: false
                   },
-                  models.db['DataSetFormat']
+                  {
+                    model: models.db.DataSetGrid,
+                    required: false
+                  },
+                  models.db.DataSetFormat
                 ]
               }
             ]
@@ -473,13 +531,11 @@ var DataManager = {
                   self.getWKT(dSet.position).then(function(wktPosition) {
                     _setWKT(dSet, wktPosition);
                   }).catch(_rejectClean);
-                } else
-                  self.data.dataSets.push(dSet);
+                } else { self.data.dataSets.push(dSet); }
               });
 
               self.data.dataSeries.push(builtDataSeries);
             });
-
 
             self.isLoaded = true;
             resolve();
@@ -495,15 +551,14 @@ var DataManager = {
       models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
         // it retrieves an array with data result (array) and query executed.
         // if data result is empty or greater than 1, its not allowed.
-        if (wktGeom[0].length !== 1)
-          reject(new exceptions.DataSetError("Invalid wkt retrieved from geojson."));
+        if (wktGeom[0].length !== 1) { reject(new exceptions.DataSetError("Invalid wkt retrieved from geojson.")); }
         else {
           resolve(wktGeom[0][0].geom);
         }
       }).catch(function(err) {
         reject(err);
       });
-    })
+    });
   },
 
   /**
@@ -522,8 +577,7 @@ var DataManager = {
           release();
         }).catch(function(e) {
           var message = "Could not save project: ";
-          if (e.errors)
-            message += e.errors[0].message;
+          if (e.errors) { message += e.errors[0].message; }
           reject(new exceptions.ProjectError(message));
           release();
         });
@@ -543,10 +597,8 @@ var DataManager = {
 
       lock.readLock(function(release) {
         var project = getItemByParam(self.data.projects, projectParam);
-        if (project)
-          resolve(Utils.clone(project));
-        else
-          reject(new exceptions.ProjectError("Project not found"));
+        if (project) { resolve(Utils.clone(project)); }
+        else { reject(new exceptions.ProjectError("Project not found")); }
 
         release();
       });
@@ -569,7 +621,7 @@ var DataManager = {
           where: {
             id: project.id
           }
-        }).then(function(rows) {
+        }).then(function() {
           var projectItem = getItemByParam(self.data.projects, {id: projectObject.id});
           projectItem.name = projectObject.name;
           projectItem.description = projectObject.description;
@@ -577,7 +629,7 @@ var DataManager = {
 
           resolve(Utils.clone(projectItem));
         }).catch(function(err) {
-          reject(new exceptions.ProjectError("Could update project"));
+          reject(new exceptions.ProjectError("Could update project " + err.toString()));
         });
       }).catch(function(err) {
         reject(err);
@@ -590,7 +642,7 @@ var DataManager = {
 
     return new Promise(function(resolve, reject) {
       self.getProject(restriction).then(function(projectResult) {
-        models.db["Project"].destroy({
+        models.db.Project.destroy({
           where: {
             id: projectResult.id
           }
@@ -603,10 +655,10 @@ var DataManager = {
         }).catch(function(err) {
           console.log("Remove Project: ", err);
           reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
-        })
+        });
       }).catch(function(err) {
         reject(err);
-      })
+      });
     });
 
   },
@@ -662,7 +714,7 @@ var DataManager = {
 
   listServiceInstances: function(restriction) {
     return new Promise(function(resolve, reject){
-      models.db['ServiceInstance'].findAll({
+      models.db.ServiceInstance.findAll({
         where: restriction,
         include: [models.db.Log]
       }).then(function(services) {
@@ -686,11 +738,9 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject){
       self.listServiceInstances(restriction).then(function(result) {
-        if (result.length == 0)
-          return reject(new Error("No service instances found"));
+        if (result.length === 0) { return reject(new Error("No service instances found")); }
 
-        if (result.length > 1)
-          return reject(new Error("More than one service instance retrieved"));
+        if (result.length > 1) { return reject(new Error("More than one service instance retrieved")); }
 
         resolve(result[0]);
       }).catch(function(err) {
@@ -2258,17 +2308,7 @@ var DataManager = {
   addAnalysis: function(analysisObject, scheduleObject, dataSeriesObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var _rollbackDataSeries = function(err, instance) {
-        self.removeDataSerie({id: instance.id}).then(function() {
-          console.log(err);
-          reject(new exceptions.AnalysisError("Could not save analysis: " + err.message));
-        }).catch(function(err) {
-          console.log("Error rollback data series analysis: ", err);
-          reject(err);
-        });
-      };
-
-      // adding dataseries_output
+      // adding data series_output
       self.addDataSeries(dataSeriesObject, {
         data_series_id: analysisObject.data_series_id,
         type: analysisObject.type
@@ -2281,7 +2321,7 @@ var DataManager = {
           analysisObject.schedule_id = scheduleResult.id;
 
           var scopeAnalysisObject = analysisObject;
-          models.db["Analysis"].create(analysisObject).then(function(analysisResult) {
+          models.db.Analysis.create(analysisObject).then(function(analysisResult) {
             analysisResult.getScriptLanguage().then(function(scriptLanguageResult) {
               var analysisDataSeriesArray = Utils.clone(scopeAnalysisObject.analysisDataSeries);
 
@@ -2297,7 +2337,7 @@ var DataManager = {
                 }
               }
 
-              models.db['AnalysisMetadata'].bulkCreate(analysisMetadata).then(function(bulkAnalysisMetadata) {
+              models.db.AnalysisMetadata.bulkCreate(analysisMetadata).then(function(bulkAnalysisMetadata) {
                 var analysisMetadataOutput = {};
                 bulkAnalysisMetadata.forEach(function(bulkMetadata) {
                   analysisMetadataOutput[bulkMetadata.key] = bulkMetadata.value;
@@ -2320,7 +2360,7 @@ var DataManager = {
                   delete analysisDS.metadata;
                   analysisDS.AnalysisDataSeriesMetadata = metadata;
 
-                  promises.push(models.db['AnalysisDataSeries'].create(analysisDS, {include: [models.db['AnalysisDataSeriesMetadata']]}));
+                  promises.push(models.db.AnalysisDataSeries.create(analysisDS, {include: [models.db.AnalysisDataSeriesMetadata]}));
                 });
 
                 var analysisInstance = new DataModel.Analysis(analysisResult);
@@ -2331,68 +2371,99 @@ var DataManager = {
 
                 analysisResult.getAnalysisType().then(function(analysisTypeResult) {
                   analysisInstance.type = analysisTypeResult.get();
-                  Promise.all(promises).then(function(results) {
-                    results.forEach(function(result) {
-                      var analysisDataSeries = new DataModel.AnalysisDataSeries(result.get());
-                      var analysisDataSeriesMetadata = {};
 
-                      result.AnalysisDataSeriesMetadata.forEach(function(meta) {
-                        var data = meta.get();
-                        analysisDataSeriesMetadata[data.key] = data.value;
+                  var _savePromises = function() {
+                    Promise.all(promises).then(function(results) {
+                      results.forEach(function(result) {
+                        var analysisDataSeries = new DataModel.AnalysisDataSeries(result.get());
+                        var analysisDataSeriesMetadata = {};
+
+                        result.AnalysisDataSeriesMetadata.forEach(function(meta) {
+                          var data = meta.get();
+                          analysisDataSeriesMetadata[data.key] = data.value;
+                        });
+
+                        analysisDataSeries.metadata = analysisDataSeriesMetadata;
+
+                        analysisInstance.addAnalysisDataSeries(analysisDataSeries);
                       });
 
-                      analysisDataSeries.metadata = analysisDataSeriesMetadata;
+                      // setting metadata
 
-                      analysisInstance.addAnalysisDataSeries(analysisDataSeries);
+                      resolve(analysisInstance);
+                    }).catch(function(err) {
+                      console.log(err);
+                      // rollback analysis data series
+                      Utils.rollbackPromises([
+                        self.removeDataSerie({id: dataSeriesResult.id}),
+                        self.removeSchedule({id: scheduleResult.id})
+                      ], new exceptions.AnalysisError("Could not save analysis data series" + err.toString()), reject);
                     });
+                  };
 
-                    // setting metadata
+                  // check for add analysis grid
+                  if (analysisTypeResult.id === Enums.AnalysisType.GRID) {
+                    var analysisOutputGrid = analysisObject.grid;
+                    analysisOutputGrid.analysis_id = analysisResult.id;
 
-                    resolve(analysisInstance);
-                  }).catch(function(err) {
-                    console.log(err);
-                    // rollback analysis data series
-                    Utils.rollbackPromises([
-                      self.removeDataSerie({id: dataSeriesResult.id}),
-                      self.removeSchedule({id: scheduleResult.id}),
-                    ], new exceptions.AnalysisError("Could not save analysis data series"), reject);
-                  });
+                    models.db.AnalysisOutputGrid.create(analysisOutputGrid).then(function(analysisOutGridResult) {
+                      // TODO: fill analysis object
+                      var obj = analysisOutGridResult.get();
+
+                      self.getWKT(analysisOutGridResult.area_of_interest_box).then(function(geomWkt) {
+                        obj.area_of_interest_box = geomWkt;
+                      }).catch(function(err) {
+                        console.log("Could not retrieve WKT in output grid " + err.toString());
+                      }).finally(function() {
+                        analysisInstance.setAnalysisOutputGrid([obj]);
+                        _savePromises();
+                      });
+                    }).catch(function(err) {
+                      console.log(err);
+                      Utils.rollbackPromises([
+                        self.removeDataSerie({id: dataSeriesResult.id}),
+                        self.removeSchedule({id: scheduleResult.id})
+                      ], new exceptions.AnalysisError("Could not save analysis output grid " + err.toString()), reject);
+                    });
+                  } else {
+                    _savePromises();
+                  }// end if
                 }).catch(function(err) {
                   // rollback analysis metadata
                   Utils.rollbackPromises([
                     self.removeDataSerie({id: dataSeriesResult.id}),
-                    self.removeSchedule({id: scheduleResult.id}),
-                  ], new exceptions.AnalysisError("Could not save analysis while retrieving analysis type " + err.message), reject);
+                    self.removeSchedule({id: scheduleResult.id})
+                  ], new exceptions.AnalysisError("Could not save analysis while retrieving analysis type " + err.toString()), reject);
                 })
 
               }).catch(function(err) {
                 // rollback analysis metadata
                 Utils.rollbackPromises([
                   self.removeDataSerie({id: dataSeriesResult.id}),
-                  self.removeSchedule({id: scheduleResult.id}),
-                ], new exceptions.AnalysisError("Could not save analysis metadata " + err.message), reject);
+                  self.removeSchedule({id: scheduleResult.id})
+                ], new exceptions.AnalysisError("Could not save analysis metadata " + err.toString()), reject);
               })
             }).catch(function(err) {
               // rollback data series
               Utils.rollbackPromises([
                 self.removeDataSerie({id: dataSeriesResult.id}),
-                self.removeSchedule({id: scheduleResult.id}),
-              ], new exceptions.AnalysisError("Could not save retrieve analysis script language"), reject);
+                self.removeSchedule({id: scheduleResult.id})
+              ], new exceptions.AnalysisError("Could not save retrieve analysis script language " + err.toString()), reject);
             })
           }).catch(function(err) {
             // analysis
             // rollback data series
             Utils.rollbackPromises([
               self.removeDataSerie({id: dataSeriesResult.id}),
-              self.removeSchedule({id: scheduleResult.id}),
-            ], new exceptions.AnalysisError("Could not save analysis"), reject);
+              self.removeSchedule({id: scheduleResult.id})
+            ], new exceptions.AnalysisError("Could not save analysis " + err.toString()), reject);
           })
         }).catch(function(err) {
           // schedule
           Utils.rollbackPromises([self.removeDataSerie({id: dataSeriesResult.id})], new exceptions.AnalysisError("Could not save analysis schedule"), reject);
         });
       }).catch(function(err) {
-        // dataseries
+        // data series
         console.log(err);
         reject(err);
       });
@@ -2403,7 +2474,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getAnalysis({id: analysisId}).then(function(analysisInstance) {
-        models.db['Analysis'].update(analysisObject, {
+        models.db.Analysis.update(analysisObject, {
           fields: ['name', 'description', 'instance_id', 'script'],
           where: {
             id: analysisId
@@ -2422,7 +2493,7 @@ var DataManager = {
                 }
               }
             ));
-          })
+          });
 
           Promise.all(promises).then(function() {
             // updating schedule
@@ -2452,6 +2523,8 @@ var DataManager = {
         console.log(err);
         reject(err);
       };
+
+      var sequelize = Database.getORM();
       models.db['Analysis'].findAll({
         include: [
           {
@@ -2463,11 +2536,17 @@ var DataManager = {
               }
             ]
           },
+          {
+            model: models.db['AnalysisOutputGrid'],
+            attributes: {include: [[orm.fn('ST_AsText', orm.col('area_of_interest_box')), 'interest_box']]},
+            required: false
+          },
           models.db['AnalysisMetadata'],
           models.db['ScriptLanguage'],
           models.db['AnalysisType'],
           models.db['Schedule']
-        ]
+        ],
+        where: restriction || {}
       }).then(function(analysesResult) {
         var output = [];
         var promises = [];
@@ -2493,7 +2572,7 @@ var DataManager = {
                     return true;
                   }
                 })
-              })
+              });
 
               analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
                 analysisObject.addAnalysisDataSeries(new DataModel.AnalysisDataSeries(analysisDataSeries.get()));
@@ -2529,6 +2608,10 @@ var DataManager = {
                 required: false
               }
             ]
+          },
+          {
+            model: models.db['AnalysisOutputGrid'],
+            required: false
           },
           models.db['AnalysisMetadata'],
           models.db['ScriptLanguage'],

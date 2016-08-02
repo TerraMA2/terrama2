@@ -1,3 +1,5 @@
+"use strict";
+
 var Enums = require('../../core/Enums');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 var DataManager = require('./../../core/DataManager');

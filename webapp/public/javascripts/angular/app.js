@@ -1,3 +1,5 @@
+"use strict";
+
 var terrama2Application = angular.module("terrama2", ['i18n']);
 
 // setting caches
@@ -36,7 +38,7 @@ terrama2Application.factory('FormHelper', function() {
         errorField.$setDirty();
       })
     });
-  }
+  };
 });
 
 // Factory for handling HttpRequests with timeout specified.
@@ -94,7 +96,7 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
     var _wrap = function(promise) {
       return promise.then(function(response) {
         return response.data;
-      })
+      });
     };
 
     return {
@@ -107,7 +109,7 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
       put: function $httpOnce(url, options) {
         return _wrap(cache.get(url) || cache.put(url, $http.put(url, options)));
       }
-    }
+    };
   }
 ]);
 
@@ -127,7 +129,7 @@ terrama2Application.directive('terrama2CompareTo', function() {
         ngModel.$validate();
       });
     }
-  }
+  };
 });
 
 terrama2Application.directive('terrama2ShowErrors', function() {
@@ -135,7 +137,7 @@ terrama2Application.directive('terrama2ShowErrors', function() {
     restrict: 'A',
     require: '^form',
     link: function(scope, el, attrs, formCtrl) {
-      var inputEl   = el[0].querySelector("[name]");
+      var inputEl = el[0].querySelector("[name]");
 
       var inputNgEl = angular.element(inputEl);
 
@@ -150,15 +152,20 @@ terrama2Application.directive('terrama2ShowErrors', function() {
       };
 
       // only apply the has-error class after the user leaves the text box
-      inputNgEl.bind('blur', function() {
+      inputNgEl.bind('keyup', function() {
+        _helper();
+      });
+
+      inputNgEl.bind('change', function() {
         _helper();
       });
 
       scope.$on('formFieldValidation', function(formName) {
+        formCtrl[inputName].$setDirty();
         _helper();
       });
     }
-  }
+  };
 });
 
 terrama2Application.directive('terrama2Box', function($parse, $templateCache) {
@@ -205,7 +212,7 @@ terrama2Application.directive('terrama2BoxFooter', function() {
         element.append(clone);
       });
     }
-  }
+  };
 });
 
 terrama2Application.directive('terrama2Form', function() {
@@ -221,12 +228,12 @@ terrama2Application.directive('terrama2Form', function() {
         var elm = element.find('#targetTransclude');
 
         transclude(scope, function(clone, scp) {
-          elm.append(clone)
+          elm.append(clone);
         });
 
         scope.$on('formValidation', function() {
           scope.$emit('formStatus', scope.formName, scope[scope.formName].$valid);
-        })
+        });
       }
     }
   }
@@ -236,7 +243,7 @@ terrama2Application.directive('terrama2BoxOverlay', function() {
   return {
     transclude: true,
     template: '<div class="overlay" ng-show="isChecking"><i class="fa fa-refresh fa-spin"></i></div>'
-  }
+  };
 });
 
 terrama2Application.directive('terrama2Datetime', function($timeout) {

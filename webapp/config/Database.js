@@ -53,6 +53,10 @@ Database.prototype.init = function() {
 
       var _createSchema = function() {
         pg.connect(baseUri + "/" + databaseName, function(err, cli, dbDone) {
+          if (!schema || schema === "") {
+            dbDone();
+            return resolve(sequelize);
+          }
           var query = util.format("CREATE SCHEMA %s", schema);
           cli.query(query, function(err) {
             if (err && err.code !== "42P06") { // 42P06 -> Already exists
@@ -64,7 +68,7 @@ Database.prototype.init = function() {
               cli.end();
               resolve(sequelize);
             });
-          })
+          });
         });
       };
 

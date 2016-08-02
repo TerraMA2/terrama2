@@ -1,3 +1,5 @@
+"use strict";
+
 var util = require('util');
 var Promise = require('bluebird');
 
@@ -19,7 +21,7 @@ ScreenAdapter.executeCommand = function(ssh, command, serviceInstance, extra) {
     }).catch(function(err) {
       reject(err, -1);
     });
-  })
+  });
 };
 
 module.exports = ScreenAdapter;
