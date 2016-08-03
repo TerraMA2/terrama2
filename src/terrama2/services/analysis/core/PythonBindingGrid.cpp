@@ -33,6 +33,7 @@
 #include "grid/history/interval/Operator.hpp"
 #include "grid/forecast/Operator.hpp"
 #include "grid/forecast/interval/Operator.hpp"
+#include "grid/zonal/Operator.hpp"
 
 void terrama2::services::analysis::core::python::Grid::registerFunctions()
 {
@@ -40,7 +41,8 @@ void terrama2::services::analysis::core::python::Grid::registerFunctions()
   registerGridHistoryFunctions();
   registerGridHistoryIntervalFunctions();
   registerGridForecastFunctions();
-  registerGridForecastIntervalFunctions(); 
+  registerGridForecastIntervalFunctions();
+  registerGridZonalFunctions();
 }
 
 void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
@@ -133,4 +135,24 @@ void terrama2::services::analysis::core::python::Grid::registerGridForecastInter
   def("median", terrama2::services::analysis::core::grid::forecast::interval::median);
   def("standard_deviation", terrama2::services::analysis::core::grid::forecast::interval::standardDeviation);
   def("variance", terrama2::services::analysis::core::grid::forecast::interval::variance);
+}
+
+void terrama2::services::analysis::core::python::Grid::registerGridZonalFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for grid.zonal
+  object gridZonalModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.zonal"))));
+  // make "from terrama2.grid import zonal" work
+  import("terrama2.grid").attr("zonal") = gridZonalModule;
+  // set the current scope to the new sub-module
+  scope gridZonalScope = gridZonalModule;
+
+  def("count", terrama2::services::analysis::core::grid::zonal::count);
+  def("min", terrama2::services::analysis::core::grid::zonal::min);
+  def("max", terrama2::services::analysis::core::grid::zonal::max);
+  def("mean", terrama2::services::analysis::core::grid::zonal::mean);
+  def("median", terrama2::services::analysis::core::grid::zonal::median);
+  def("standard_deviation", terrama2::services::analysis::core::grid::zonal::standardDeviation);
+  def("variance", terrama2::services::analysis::core::grid::zonal::variance);
 }

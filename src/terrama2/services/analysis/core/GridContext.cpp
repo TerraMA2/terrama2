@@ -32,11 +32,8 @@
 #include "DataManager.hpp"
 #include "Utils.hpp"
 #include "PythonInterpreter.hpp"
-#include "../../../core/data-model/DataSetGrid.hpp"
-#include "../../../core/data-access/GridSeries.hpp"
-#include "../../../core/data-access/DataAccessorGrid.hpp"
-#include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/data-model/DataSetGrid.hpp"
 
 #include <terralib/raster/Raster.h>
 #include <terralib/raster/RasterFactory.h>
@@ -123,60 +120,6 @@ te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(cons
   newPoint.y = y;
 
   return newPoint;
-}
-
-
-std::vector< std::shared_ptr<te::rst::Raster> >
-terrama2::services::analysis::core::GridContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
-    const DataSetId datasetId, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter)
-{
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
-
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
-
-  auto it = rasterMap_.find(key);
-  if(it != rasterMap_.end())
-    return it->second;
-  else
-  {
-    auto dataManager = dataManager_.lock();
-    if(!dataManager.get())
-    {
-      //FIXME: throw if no dataManager
-      assert(0);
-    }
-
-    // First call, need to call sample for each dataset raster and store the result in the context.
-    auto gridMap = getGridMap(dataManager, dataSeries->id, dateDiscardBefore, dateDiscardAfter);
-
-    std::for_each(gridMap.begin(), gridMap.end(), [this, datasetId, key](decltype(*gridMap.begin()) it)
-    {
-      if(it.first->id == datasetId)
-      {
-        auto datasetGrid = it.first;
-        auto dsRaster = it.second;
-
-        if(!dsRaster)
-        {
-          QString errMsg(QObject::tr("Invalid raster for dataset: %1").arg(datasetGrid->id));
-          throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-        }
-        auto outputGridConfig = getOutputRasterInfo();
-        auto resampledRaster = terrama2::services::analysis::core::resampleRaster(dsRaster, outputGridConfig, analysis_->outputGridPtr->interpolationMethod);
-
-        addRaster(key, resampledRaster);
-      }
-    });
-
-    return rasterMap_[key];
-  }
-}
-
-void terrama2::services::analysis::core::GridContext::addRaster(ObjectKey key, std::shared_ptr<te::rst::Raster> raster)
-{
-  rasterMap_[key].push_back(raster);
 }
 
 std::map<std::string, std::string> terrama2::services::analysis::core::GridContext::getOutputRasterInfo()
@@ -475,82 +418,10 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
   outputRasterInfo["MEM_RASTER_MAX_Y"] = std::to_string(box->getUpperRightY());
 }
 
-std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-terrama2::services::analysis::core::GridContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager,
-    DataSeriesId dataSeriesId,
-    const std::string& dateDiscardBefore,
-    const std::string& dateDiscardAfter)
+std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::GridContext::resampleRaster(std::shared_ptr<te::rst::Raster> raster)
 {
-  ObjectKey key;
-  key.objectId_ = dataSeriesId;
-  key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
+  auto outputGridConfig = getOutputRasterInfo();
+  auto resampledRaster = terrama2::services::analysis::core::resampleRaster(raster, outputGridConfig, analysis_->outputGridPtr->interpolationMethod);
 
-  auto it = analysisInputGrid_.find(key);
-  if(it == analysisInputGrid_.end())
-  {
-    auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
-    if(!dataSeriesPtr)
-    {
-      QString errMsg = QObject::tr("Could not recover data series: %1.").arg(dataSeriesId);
-      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-    }
-
-    auto dataProviderPtr = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
-
-    terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
-    std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
-
-    terrama2::core::Filter filter;
-    filter.lastValue = true;
-
-    filter.discardAfter = startTime_;
-    if(!dateDiscardBefore.empty() || !dateDiscardAfter.empty())
-    {
-      if(!dateDiscardBefore.empty())
-      {
-        boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
-        double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
-        //TODO: PAULO: review losing precision
-        ldt -= boost::posix_time::seconds(seconds);
-
-        std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-        filter.discardBefore = std::move(titz);
-
-        filter.lastValue = false;
-      }
-
-      if(!dateDiscardAfter.empty())
-      {
-        boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
-        double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
-        ldt -= boost::posix_time::seconds(seconds);
-
-        std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-        filter.discardAfter = std::move(titz);
-
-        filter.lastValue = false;
-      }
-    }
-    else
-    {
-      // no interval set,
-      // use analysis execution timestamp as last valid date
-      filter.discardAfter = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
-    }
-
-
-    auto gridSeries = accessorGrid->getGridSeries(filter);
-
-    if(!gridSeries)
-    {
-      QString errMsg = QObject::tr("Invalid grid series for data series: %1.").arg(dataSeriesId);
-      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-    }
-
-    auto inputGrid =  gridSeries->gridMap();
-    analysisInputGrid_.emplace(key, inputGrid);
-    return inputGrid;
-  }
-
-  return it->second;
+  return resampledRaster;
 }

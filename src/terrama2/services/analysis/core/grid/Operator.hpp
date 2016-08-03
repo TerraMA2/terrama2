@@ -32,10 +32,8 @@
 #define __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
 
 // TerraMA2
-#include "../PythonInterpreter.hpp"
 #include "../BufferMemory.hpp"
 #include "../Analysis.hpp"
-#include "../GridContext.hpp"
 
 // STL
 #include <string>
