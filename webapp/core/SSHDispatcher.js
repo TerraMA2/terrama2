@@ -1,3 +1,5 @@
+"use strict";
+
 var Client = require('ssh2').Client;
 var Promise = require("bluebird");
 var fs = require('fs');
@@ -34,8 +36,8 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
         // detecting MAC or Linux
         return self.execute("uname");
       }).finally(function() {
-        resolve()
-      })
+        resolve();
+      });
     });
 
     self.client.on('keyboard-interactive', function(name, instructions, instructionsLang, prompts, finish) {
@@ -58,8 +60,9 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
         }
       });
 
-      if (!privateKey)
+      if (!privateKey) {
         return reject(new Error("Could not find private key in \"" + defaultDir + "\""));
+      }
 
       self.client.connect({
         host: self.serviceInstance.host,
@@ -67,18 +70,19 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
         username: self.serviceInstance.sshUser,
         privateKey: require('fs').readFileSync(privateKey),
         tryKeyboard: true
-      })
+      });
     }).catch(function(err) {
       reject(err);
-    })
+    });
   });
 };
 
 SSHDispatcher.prototype.disconnect = function() {
   var self = this;
   return new Promise(function(resolve, reject) {
-    if (!self.connected)
+    if (!self.connected) {
       return reject(new Error("Could not disconnect. There is no such active connection"));
+    }
 
     self.client.end();
     resolve();
@@ -92,8 +96,7 @@ SSHDispatcher.prototype.execute = function(command) {
       return reject(new Error("Could not start service. There is no such active connection"));
 
     self.client.exec(command, function(err, stream) {
-      if (err)
-        return reject(err);
+      if (err) { return reject(err); }
 
       stream.on('exit', function(code, signal) {
         console.log("ssh-EXIT: ", code, signal);
@@ -102,7 +105,7 @@ SSHDispatcher.prototype.execute = function(command) {
       stream.on('close', function(code, signal) {
         console.log('code: ' + code + ', signal: ' + signal);
 
-        if (code == 0) {
+        if (code === 0) {
           resolve(code);
         } else {
           reject(new Error("Error occurred while remote command: code \"" + code + "\", signal: \"" + signal + "\""));
@@ -135,8 +138,9 @@ SSHDispatcher.prototype.execute = function(command) {
 SSHDispatcher.prototype.startService = function(commandType) {
   var self = this;
   return new Promise(function(resolve, reject) {
-    if (!self.connected)
+    if (!self.connected) {
       return reject(new Error("Could not start service. There is no such active connection"));
+    }
 
     try {
       var serviceInstance = self.serviceInstance;
@@ -148,28 +152,6 @@ SSHDispatcher.prototype.startService = function(commandType) {
       var command = util.format("%s %s %s", executable, serviceTypeString, port);
 
       console.log("Platform " + self.platform);
-      // if (process.plataform == 'win32') {
-      //   command = "start " + util.format(
-      //     "%s %s %s", executable.endsWith(".exe") ? executable : executable + ".exe",
-      //     serviceTypeString,
-      //     port);
-      // } else {
-        // avoiding nohup lock ssh session
-        // command = "nohup " + util.format(
-        //   "%s %s %s  > terrama2.out 2> terrama2.err < /dev/null %s",
-        //   executable,
-        //   serviceTypeString,
-        //   port,
-        //   (!self.serviceInstance.pathToBinary.endsWith("&") ? " &" : ""));
-        // command = util.format("screen -dmS %s %s %s %s", commandId,
-        //                                                  executable,
-        //                                                  serviceTypeString,
-        //                                                  port)
-        // command = util.format("screen -s \"%s\" -X stuff $'%s %s %s\n'", commandId,
-        //                                                                  executable,
-        //                                                                  serviceTypeString,
-        //                                                                  port);
-      // }
 
       var _handleError = function(err, code) {
         reject(err, code);
@@ -181,7 +163,7 @@ SSHDispatcher.prototype.startService = function(commandType) {
             resolve(code);
           }).catch(function(err, code) {
             reject(err, code);
-          })
+          });
         } else {
           self.adapter.executeCommand(self, command, serviceInstance, {
             serviceType: serviceTypeString
@@ -190,24 +172,22 @@ SSHDispatcher.prototype.startService = function(commandType) {
           }).catch(_handleError);
         }
       };
-
       // TODO: Should the user configure 'EXPORT PATH=....', 'SET PATH='%PATH%...'
       // checking if there enviromentVars to be exported
       if (enviromentVars) {
         self.execute(enviromentVars).then(function(code) {
-          console.log("Success setting enviroment vars")
+          console.log("Success setting enviroment vars");
           console.log(code);
           _executeCommand();
         }).catch(function(err, code) {
           console.log("**Could not export enviroment vars**");
           reject(err, code);
-        })
+        });
       } else {
         _executeCommand();
       }
     } catch (e) {
       reject(e);
     }
-
   });
 };

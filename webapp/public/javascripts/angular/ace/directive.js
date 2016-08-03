@@ -1,3 +1,5 @@
+"use strict";
+
 angular.module('terrama2.ace', ['terrama2'])
   .directive('terrama2Ace', function() {
     return {
@@ -25,7 +27,7 @@ angular.module('terrama2.ace', ['terrama2'])
           enableBasicAutocompletion: true,
           enableSnippets: true,
           enableLiveAutocompletion: false,
-        })
+        });
 
         element.height(200);
 
@@ -52,10 +54,10 @@ angular.module('terrama2.ace', ['terrama2'])
           editor.renderer.updateFull();
         }, true);
 
-        editor.getSession().setValue("");
-        editor.getSession().on('change', function() {
+        session.setValue("");
+        session.on('change', function(e) {
           options.onChange(editor);
         });
       }
-    }
-  })
+    };
+  });

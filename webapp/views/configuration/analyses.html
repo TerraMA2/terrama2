@@ -38,7 +38,7 @@
 
       $scope.alertLevel = "alert-success";
       $scope.alertBox = {
-        title: "Data Provider",
+        title: "Analysis",
         message: "{[ message ]}"
       };
       $scope.display = $scope.alertBox.message !== "";
@@ -72,7 +72,7 @@
           default:
             return "/images/map-pin.png";
         }
-      }
+      };
 
       AnalysisFactory.get().success(function(analysis) {
         $scope.model = analysis;
