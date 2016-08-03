@@ -196,7 +196,7 @@
               <div class="form-group">
                 <div class="checkbox">
                   <label style="font-weight: 700; margin-top:19px;">
-                    <input name="active" ng-model="analysis.active" ng-disabled="isUpdating" ng-init="analysis.active = true" type="checkbox"> {[ __("Active") ]}
+                    <input name="active" ng-model="analysis.active" ng-init="initActive(configuration.analysis.active)" type="checkbox"> {[ __("Active") ]}
                   </label>
                 </div>
               </div>
