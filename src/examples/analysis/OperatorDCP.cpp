@@ -91,15 +91,18 @@ int main(int argc, char* argv[])
     dataManager->add(outputDataSeriesPtr);
 
     std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-                         "x = dcp.min(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                         "ids = dcp.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
+                         "x = dcp.count(\"Serra do Mar\", moBuffer)\n"
+                         "add_value(\"count\", x)\n"
+                         "x = dcp.min(\"Serra do Mar\", \"Pluvio\", ids)\n"
                          "add_value(\"min\", x)\n"
-                         "x = dcp.max(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                         "x = dcp.max(\"Serra do Mar\", \"Pluvio\", ids)\n"
                          "add_value(\"max\", x)\n"
-                         "x = dcp.mean(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                         "x = dcp.mean(\"Serra do Mar\", \"Pluvio\", ids)\n"
                          "add_value(\"mean\", x)\n"
-                         "x = dcp.median(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                         "x = dcp.median(\"Serra do Mar\", \"Pluvio\", ids)\n"
                          "add_value(\"median\", x)\n"
-                         "x = dcp.standard_deviation(\"Serra do Mar\", \"Pluvio\", moBuffer)\n"
+                         "x = dcp.standard_deviation(\"Serra do Mar\", \"Pluvio\", ids)\n"
                          "add_value(\"standard_deviation\", x)\n";
 
     Analysis* analysis = new Analysis;
@@ -237,7 +240,7 @@ int main(int argc, char* argv[])
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    timer.start(10000);
+    timer.start(100000);
 
     app.exec();
   }

@@ -33,15 +33,15 @@
 #include "../Utils.hpp"
 #include "../Exception.hpp"
 #include "../ContextManager.hpp"
+#include "../PythonUtils.hpp"
 #include "../../../../core/data-model/DataSetDcp.hpp"
 #include "../../../../core/data-model/Filter.hpp"
 #include "../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../core/Shared.hpp"
+#include "influence/Operator.hpp"
 
 // QT
 #include <QObject>
-
-
 
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -51,6 +51,9 @@
 #include <terralib/common/UnitsOfMeasureManager.h>
 
 #include <math.h>
+#include <terralib/srs/SpatialReferenceSystemManager.h>
+#include <terralib/srs/SpatialReferenceSystem.h>
+
 
 using namespace boost::python;
 
@@ -58,7 +61,7 @@ using namespace boost::python;
 double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation statisticOperation,
     const std::string& dataSeriesName,
     const std::string& attribute,
-    Buffer buffer, boost::python::list ids)
+    boost::python::list ids)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -72,6 +75,15 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   {
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
+    {
+      return NAN;
+    }
+
+
+    std::vector<DataSetId> vecDCPIds;
+    terrama2::services::analysis::core::python::pythonToVector<DataSetId>(ids, vecDCPIds);
+
+    if(vecDCPIds.empty())
     {
       return NAN;
     }
@@ -91,7 +103,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     if(!moDsContext)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      errMsg = errMsg.arg(analysis->id);
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -100,7 +111,6 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     if(!geom.get())
     {
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-      errMsg = errMsg.arg(analysis->id);
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
@@ -116,8 +126,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
       if(!dataSeries)
       {
-        QString errMsg(QObject::tr("Could not find a data series with the given name: %2"));
-        errMsg = errMsg.arg(analysis->id);
+        QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
         errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
         throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
       }
@@ -127,94 +136,79 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
       // For DCP operator count returns the number of DCP that influence the monitored object
       uint32_t influenceCount = 0;
 
-      for(auto dataset : dataSeries->datasetList)
+
+      for(DataSetId dcpId : vecDCPIds)
       {
-        dcpContextDataSeries = context->getContextDataset(dataset->id);
-
-        terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
-              dataset);
-        if(!dcpDataset)
+        bool found = false;
+        for(auto dataset : dataSeries->datasetList)
         {
-          QString errMsg(QObject::tr("Could not recover DCP dataset."));
-          errMsg = errMsg.arg(analysis->id);
-          throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-        }
-
-
-        if(dcpDataset->position == nullptr)
-        {
-          QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
-          errMsg = errMsg.arg(analysis->id);
-          throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-        }
-
-        auto influenceType = getInfluenceType(analysis);
-
-        auto dcpInfluenceBuffer = createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(),
-                                  influenceType);
-
-        bool intersects = verifyDCPInfluence(influenceType, geom, dcpInfluenceBuffer);
-
-        if(intersects)
-        {
-          ++influenceCount;
-
-          auto dcpSyncDs = dcpContextDataSeries->series.syncDataSet;
-
-          int attributeType = 0;
-          if(!attribute.empty())
+          if(dataset->id == dcpId)
           {
-            auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
+            found = true;
 
-            // only operation COUNT can be done without attribute.
-            if(!property && statisticOperation != StatisticOperation::COUNT)
+            // recover dataset from context
+            dcpContextDataSeries = context->getContextDataset(dataset->id);
+
+            ++influenceCount;
+
+            auto dcpSyncDs = dcpContextDataSeries->series.syncDataSet;
+
+            int attributeType = 0;
+            if(!attribute.empty())
             {
-              QString errMsg(QObject::tr("Invalid attribute name"));
-              errMsg = errMsg.arg(analysis->id);
-              throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
-            }
-            attributeType = property->getType();
-          }
+              auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
 
-          uint32_t countValues = 0;
-
-          if(dcpSyncDs->size() == 0)
-            continue;
-
-          std::vector<double> values;
-          for(unsigned int i = 0; i < dcpSyncDs->size(); ++i)
-          {
-            try
-            {
-              if(!attribute.empty() && !dcpSyncDs->isNull(i, attribute))
+              // only operation COUNT can be done without attribute.
+              if(!property && statisticOperation != StatisticOperation::COUNT)
               {
-                hasData = true;
-                countValues++;
-                double value = getValue(dcpSyncDs, attribute, i, attributeType);
-                values.push_back(value);
-                cache.sum += value;
-                if(value > cache.max)
-                  cache.max = value;
-                if(value < cache.min)
-                  cache.min = value;
+                QString errMsg(QObject::tr("Invalid attribute name"));
+                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
+              }
+              attributeType = property->getType();
+            }
+
+            uint32_t countValues = 0;
+
+            if(dcpSyncDs->size() == 0)
+              continue;
+
+            // fills the vector with values
+            std::vector<double> values;
+            for(unsigned int i = 0; i < dcpSyncDs->size(); ++i)
+            {
+              try
+              {
+                if(!attribute.empty() && !dcpSyncDs->isNull(i, attribute))
+                {
+                  hasData = true;
+                  countValues++;
+                  double value = getValue(dcpSyncDs, attribute, i, attributeType);
+                  values.push_back(value);
+                }
+              }
+              catch(...)
+              {
+                // In case the DCP doesn't have the specified column
+                continue;
               }
             }
-            catch(...)
-            {
-              // In case the DCP doesn't have the specified column
+
+            if(countValues == 0)
               continue;
-            }
+
+            // Statistics are calculated based on the number of values
+            // but the operator count for DCP returns the number of DCPs that influence the monitored object
+
+            cache.count = countValues;
+
+            calculateStatistics(values, cache);
           }
+        }
 
-          if(countValues == 0)
-            continue;
-
-          // Statitics are calculated based on the number of values
-          // but the operator count for DCP returns the number of DCPs that influence the monitored object
-
-          cache.count = countValues;
-
-          calculateStatistics(values, cache);
+        if(!found)
+        {
+          QString errMsg(QObject::tr("Invalid DCP identifier"));
+          throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
         }
       }
 
@@ -273,51 +267,50 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
 int terrama2::services::analysis::core::dcp::count(const std::string& dataSeriesName, Buffer buffer)
 {
-  return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", buffer);
+  return (int)terrama2::services::analysis::core::dcp::influence::byRule(dataSeriesName, buffer).size();
 }
 
-double terrama2::services::analysis::core::dcp::min(const std::string& dataSeriesName, const std::string& attribute,
-    Buffer buffer, boost::python::list ids)
+double terrama2::services::analysis::core::dcp::min(const std::string& dataSeriesName, const std::string& attribute, boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::max(const std::string& dataSeriesName, const std::string& attribute,
-    Buffer buffer, boost::python::list ids)
+    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::mean(const std::string& dataSeriesName, const std::string& attribute,
-    Buffer buffer, boost::python::list ids)
+    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::median(const std::string& dataSeriesName, const std::string& attribute,
-    Buffer buffer, boost::python::list ids)
+    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::sum(const std::string& dataSeriesName, const std::string& attribute,
-    Buffer buffer, boost::python::list ids)
+    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::standardDeviation(const std::string& dataSeriesName,
-    const std::string& attribute, Buffer buffer,
+    const std::string& attribute,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, ids);
 }
 
 double terrama2::services::analysis::core::dcp::variance(const std::string& dataSeriesName,
-    const std::string& attribute, Buffer buffer,
+    const std::string& attribute,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, buffer, ids);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, ids);
 }
 
 terrama2::services::analysis::core::InfluenceType terrama2::services::analysis::core::dcp::getInfluenceType(
@@ -370,18 +363,26 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::creat
       double influenceRadius = std::atof(radiusStr.c_str());
 
       influenceRadius =
-        te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * influenceRadius;
+              te::common::UnitsOfMeasureManager::getInstance().getConversion(radiusUnit, "METER") * influenceRadius;
 
-      int srid = terrama2::core::getUTMSrid(position.get());
       std::shared_ptr<te::gm::Geometry> geomPosition(dynamic_cast<te::gm::Geometry*>(position->clone()));
-      geomPosition->transform(srid);
 
-      buffer.reset(position->buffer(influenceRadius, 16, te::gm::CapButtType));
+      auto spatialReferenceSystem = te::srs::SpatialReferenceSystemManager::getInstance().getSpatialReferenceSystem(geomPosition->getSRID());
+      std::string unitName = spatialReferenceSystem->getUnitName();
 
-      buffer->setSRID(srid);
+      if(unitName == "degree")
+      {
+        int srid = terrama2::core::getUTMSrid(position.get());
+        geomPosition->transform(srid);
+      }
+
+      buffer.reset(geomPosition->buffer(influenceRadius, 16, te::gm::CapButtType));
+
+      buffer->setSRID(geomPosition->getSRID());
 
       // Converts the buffer to monitored object SRID
       buffer->transform(monitoredObjectSrid);
+
       break;
     }
     case InfluenceType::REGION:
@@ -400,6 +401,12 @@ bool terrama2::services::analysis::core::dcp::verifyDCPInfluence(InfluenceType i
     std::shared_ptr<te::gm::Geometry> dcpInfluenceBuffer)
 {
   bool intersects = false;
+
+  double x = geom->getMBR()->getCenter().getX();
+  double y = geom->getMBR()->getCenter().getY();
+
+  double cx = dcpInfluenceBuffer->getMBR()->getCenter().getX();
+  double cy = dcpInfluenceBuffer->getMBR()->getCenter().getY();
   if(influenceType == InfluenceType::RADIUS_TOUCHES)
   {
     intersects = geom->intersects(dcpInfluenceBuffer.get());

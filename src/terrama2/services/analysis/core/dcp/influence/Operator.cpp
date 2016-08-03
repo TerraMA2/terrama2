@@ -215,6 +215,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byRul
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
+    std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
 
     auto dcpDataSeries = dataManagerPtr->findDataSeries(dataSeriesName);
     if(!dcpDataSeries)
@@ -234,7 +235,13 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byRul
         throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
       }
 
-      auto dcpInfluenceBuffer = createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(), influenceType);
+      auto dcpInfluenceBuffer = context->getDCPBuffer(dcpDataset->id);
+      if(!dcpInfluenceBuffer)
+      {
+        dcpInfluenceBuffer = createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(),
+                                                      influenceType);
+        context->addDCPBuffer(dcpDataset->id, dcpInfluenceBuffer);
+      }
 
       if(verifyDCPInfluence(influenceType, geom, dcpInfluenceBuffer))
       {

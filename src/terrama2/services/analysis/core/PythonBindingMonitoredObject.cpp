@@ -107,23 +107,6 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
 }
 
 
-// Declaration needed for default parameter ids
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMin_overloads, terrama2::services::analysis::core::dcp::min, 3, 4);
-
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMax_overloads, terrama2::services::analysis::core::dcp::max, 3, 4);
-
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMean_overloads, terrama2::services::analysis::core::dcp::mean, 3, 4);
-
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpMedian_overloads, terrama2::services::analysis::core::dcp::median, 3, 4);
-
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpSum_overloads, terrama2::services::analysis::core::dcp::sum, 3, 4);
-
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpStandardDeviation_overloads,
-                                terrama2::services::analysis::core::dcp::standardDeviation, 3, 4);
-
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpVariance_overloads,
-                                terrama2::services::analysis::core::dcp::variance, 3, 4);
-
 void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFunctions()
 {
   using namespace boost::python;
@@ -137,22 +120,13 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFun
   scope scpScope = dcpModule;
 
   // export functions inside dcp namespace
-  def("min", terrama2::services::analysis::core::dcp::min,
-      dcpMin_overloads(args("dataSeriesName", "attribute", "buffer", "ids"), "Minimum operator for DCP"));
-  def("max", terrama2::services::analysis::core::dcp::max,
-      dcpMax_overloads(args("dataSeriesName", "attribute", "buffer", "ids"), "Maximum operator for DCP"));
-  def("mean", terrama2::services::analysis::core::dcp::mean,
-      dcpMean_overloads(args("dataSeriesName", "attribute", "buffer", "ids"), "Mean operator for DCP"));
-  def("median", terrama2::services::analysis::core::dcp::median,
-      dcpMedian_overloads(args("dataSeriesName", "attribute", "buffer", "ids"), "Median operator for DCP"));
-  def("sum", terrama2::services::analysis::core::dcp::sum,
-      dcpSum_overloads(args("dataSeriesName", "attribute", "buffer", "ids"), "Sum operator for DCP"));
-  def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation,
-      dcpStandardDeviation_overloads(args("dataSeriesName", "attribute", "buffer", "ids"),
-                                     "Standard deviation operator for DCP"));
-  def("variance", terrama2::services::analysis::core::dcp::variance,
-      dcpVariance_overloads(args("dataSeriesName", "attribute", "buffer", "ids"),
-                            "Standard deviation operator for DCP"));
+  def("min", terrama2::services::analysis::core::dcp::min);
+  def("max", terrama2::services::analysis::core::dcp::max);
+  def("mean", terrama2::services::analysis::core::dcp::mean);
+  def("median", terrama2::services::analysis::core::dcp::median);
+  def("sum", terrama2::services::analysis::core::dcp::sum);
+  def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation);
+  def("variance", terrama2::services::analysis::core::dcp::variance);
   def("count", terrama2::services::analysis::core::dcp::count);
 
   // Register operations for dcp.history
