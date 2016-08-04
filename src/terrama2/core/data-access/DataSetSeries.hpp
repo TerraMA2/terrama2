@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/Series.hpp
+  \file terrama2/core/data-access/DataSetSeries.hpp
 
   \brief
 

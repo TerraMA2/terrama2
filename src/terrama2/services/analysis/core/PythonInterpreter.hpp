@@ -143,10 +143,11 @@ namespace terrama2
             \param analysisHashCode Analysis hashcode.
           */
           std::string prepareScript(terrama2::services::analysis::core::BaseContextPtr context);
-        } /* python */
-      } // end namespace core
-    }   // end namespace analysis
-  }     // end namespace services
-}       // end namespace terrama2
+
+        } // end namespace python
+      }   // end namespace core
+    }     // end namespace analysis
+  }       // end namespace services
+}         // end namespace terrama2
 
 #endif //__TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__

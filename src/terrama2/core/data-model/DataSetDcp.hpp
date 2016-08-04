@@ -43,13 +43,13 @@ namespace terrama2
     /*!
       \brief DataSet information for Dcp
 
-      A DCP is a fixed position data producer plataform.
+      A DCP is a fixed position data producer platform.
 
       DCP data is supposed to have a timestamp associated.
 
       ## JSon ##
 
-      Structure for transferece of a DataSetDcp.
+      Structure for transference of a DataSetDcp.
 
       \code{.json}
       {

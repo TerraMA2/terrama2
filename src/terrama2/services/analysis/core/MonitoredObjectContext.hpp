@@ -150,10 +150,31 @@ namespace terrama2
             */
             std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries(std::shared_ptr<DataManager>& dataManagerPtr);
 
+            /*!
+              \brief Returns the DCP buffer for the given dataset identifier.
+              \note It will return an empty smart pointer if none buffer is found.
+
+              \param datasetId The DataSet identifier.
+              \param dateFilter The date restriction to be used in the DataSet.
+              \return The DCP buffer.
+            */
+            std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId, const std::string& dateFilter = "");
+
+            /*!
+              \brief Adds the given DCP buffer to the context.
+
+              \param buffer The DCP buffer to be added.
+              \param datasetId The DataSet identifier.
+              \param dateFilter The date restriction to be used in the DataSet.
+
+            */
+            void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const std::string& dateFilter = "");
+
           protected:
             std::set<std::string> attributes_;
             std::unordered_map<std::string, std::map<std::string, double> >  analysisResult_;
             std::unordered_map<ObjectKey, std::shared_ptr<ContextDataSeries>, ObjectKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.
+            std::unordered_map<ObjectKey, std::shared_ptr<te::gm::Geometry>, ObjectKeyHash, EqualKeyComparator > bufferDcpMap_; //!< Map containing DCP buffers.
         };
       }
     }
