@@ -32,6 +32,7 @@ var Database = require('../config/Database');
 var orm = Database.getORM();
 var fs = require('fs');
 var path = require('path');
+var Filters = require("./filters");
 
 // Tcp
 var TcpManager = require('./TcpManager');
@@ -48,9 +49,20 @@ var lock = new ReadWriteLock();
 
 // Helpers
 function getItemByParam(array, object) {
-  var key = Object.keys(object)[0];
-  return array.find(function(item){
-    return (item[key] == object[key]);
+  return getItemsByParam(array, object)[0];
+}
+
+function getItemsByParam(array, object) {
+  return array.filter(function(item){
+    var count = 0;
+    for(var key in object) {
+      if (object.hasOwnProperty(key)) {
+        if (item[key] === object[key]) {
+          ++count;
+        }
+      }
+    }
+    return count === Object.keys(object).length;
   });
 }
 
@@ -594,7 +606,6 @@ var DataManager = {
   getProject: function(projectParam) {
     var self = this;
     return new Promise(function(resolve, reject) {
-
       lock.readLock(function(release) {
         var project = getItemByParam(self.data.projects, projectParam);
         if (project) { resolve(Utils.clone(project)); }
@@ -688,7 +699,7 @@ var DataManager = {
           var service = new DataModel.Service(serviceResult);
           var logObject = serviceObject.log;
           logObject.service_instance_id = serviceResult.id;
-          models.db['Log'].create(logObject).then(function(logResult) {
+          models.db.Log.create(logObject).then(function(logResult) {
             var log = new DataModel.Log(logResult);
             service.log = log.toObject();
 
@@ -721,8 +732,7 @@ var DataManager = {
         var output = [];
         services.forEach(function(service){
           var serviceObject = new DataModel.Service(service.get());
-          var logObject = new DataModel.Log(service.Log || {});
-          serviceObject.log = logObject;
+          serviceObject.log = new DataModel.Log(service.Log || {});
           output.push(serviceObject);
         });
 
@@ -755,7 +765,7 @@ var DataManager = {
       self.getServiceInstance(restriction).then(function(serviceResult) {
         // update collectors removing ID and setting them to inactive
         self.updateCollectors({service_instance_id: serviceResult.id}, {active: false}).then(function() {
-          models.db['ServiceInstance'].destroy({where: restriction}).then(function() {
+          models.db.ServiceInstance.destroy({where: restriction}).then(function() {
             resolve();
           }).catch(function(err) {
             console.log(err);
@@ -775,7 +785,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
-        models.db['ServiceInstance'].update(serviceObject, {
+        models.db.ServiceInstance.update(serviceObject, {
           fields: ['name', 'description', 'port', 'numberOfThreads', 'runEnviroment', 'host', 'sshUser', 'sshPort', 'pathToBinary'],
           where: {
             id: serviceId
@@ -802,8 +812,8 @@ var DataManager = {
         resolve();
       }).catch(function(err) {
         reject(new Error("Could not update log " + err.toString()));
-      })
-    })
+      });
+    });
   },
 
   /**
@@ -815,11 +825,11 @@ var DataManager = {
    */
   addDataProviderType: function(dataProviderTypeObject) {
     return new Promise(function(resolve, reject) {
-      models.db['DataProviderType'].create(dataProviderTypeObject).then(function(result) {
+      models.db.DataProviderType.create(dataProviderTypeObject).then(function(result) {
         resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         reject(err);
-      })
+      });
     });
   },
 
@@ -830,7 +840,7 @@ var DataManager = {
    */
   listDataProviderType: function() {
     return new Promise(function(resolve, reject) {
-      models.db['DataProviderType'].findAll({}).then(function(result) {
+      models.db.DataProviderType.findAll({}).then(function(result) {
         var output = [];
         result.forEach(function(element) {
           output.push(Utils.clone(element.get()));
@@ -839,7 +849,7 @@ var DataManager = {
         resolve(output);
       }).catch(function(err) {
         reject(err);
-      })
+      });
     });
   },
 
@@ -851,12 +861,12 @@ var DataManager = {
   getDataProviderType: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db['DataProviderType'].findOne({where: restriction}).then(function(typeResult) {
+      models.db.DataProviderType.findOne({where: restriction}).then(function(typeResult) {
         resolve(typeResult.get());
       }).catch(function(err) {
         console.log(err);
         reject(new Error("Could not retrieve DataProviderType " + err.message));
-      })
+      });
     });
   },
 
@@ -866,14 +876,13 @@ var DataManager = {
    * @return {Promise<DataProviderIntent>} - a 'bluebird' module with DataProviderIntent instance or error callback
    */
   getDataProviderIntent: function(restriction) {
-    var self = this;
     return new Promise(function(resolve, reject) {
-      models.db['DataProviderIntent'].findOne({where: restriction}).then(function(intentResult) {
+      models.db.DataProviderIntent.findOne({where: restriction}).then(function(intentResult) {
         resolve(intentResult.get());
       }).catch(function(err) {
         console.log(err);
         reject(new Error("Could not retrieve DataProviderIntent " + err.message));
-      })
+      });
     });
   },
 
@@ -885,11 +894,11 @@ var DataManager = {
    */
   addDataFormat: function(dataFormatObject) {
     return new Promise(function(resolve, reject) {
-      models.db['DataFormat'].create(dataFormatObject).then(function(result) {
+      models.db.DataFormat.create(dataFormatObject).then(function(result) {
         resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         reject(err);
-      })
+      });
     });
   },
 
@@ -900,7 +909,7 @@ var DataManager = {
    */
   listDataFormats: function() {
     return new Promise(function(resolve, reject) {
-      models.db['DataFormat'].findAll({}).then(function(dataFormats) {
+      models.db.DataFormat.findAll({}).then(function(dataFormats) {
         var output = [];
 
         dataFormats.forEach(function(dataFormat){
@@ -910,7 +919,7 @@ var DataManager = {
         resolve(output);
       }).catch(function(err) {
         reject(new exceptions.DataFormatError("Could not retrieve data format", err));
-      })
+      });
     });
   },
 
@@ -1064,26 +1073,12 @@ var DataManager = {
   listDataProviders: function(restriction) {
     var dataProviderObjectList = [];
 
-    if (restriction === undefined || restriction === null)
+    if (restriction === undefined || restriction === null) {
       restriction = {};
+    }
 
-    var keys = Object.keys(restriction);
-
-    this.data.dataProviders.forEach(function(dataProvider) {
-
-      // todo: implement better approach
-      var keyCont = 0;
-      keys.forEach(function (key) {
-        if (dataProvider[key] === restriction[key])
-          ++keyCont;
-        else
-          return false;
-      });
-
-      if (keyCont == keys.length)
-        dataProviderObjectList.push(new DataModel.DataProvider(dataProvider));
-
-      keyCont = 0;
+    getItemsByParam(this.data.dataProviders, restriction).forEach(function(dataProvider) {
+      dataProviderObjectList.push(new DataModel.DataProvider(dataProvider));
     });
     return dataProviderObjectList;
   },
@@ -1107,14 +1102,11 @@ var DataManager = {
             id: dataProvider.id
           }
         }).then(function() {
-          if (dataProviderObject.name)
-            dataProvider.name = dataProviderObject.name;
+          if (dataProviderObject.name) { dataProvider.name = dataProviderObject.name; }
 
-          if (dataProviderObject.description)
-            dataProvider.description = dataProviderObject.description;
+          if (dataProviderObject.description) { dataProvider.description = dataProviderObject.description; }
 
-          if (dataProviderObject.uri)
-            dataProvider.uri = dataProviderObject.uri;
+          if (dataProviderObject.uri) { dataProvider.uri = dataProviderObject.uri; }
 
           dataProvider.active = dataProviderObject.active;
 
@@ -1124,19 +1116,18 @@ var DataManager = {
                 console.log("Sending Add_signal to update");
                 TcpManager.emit('sendData', service, {
                   "DataProviders": [dataProvider.toObject()]
-                })
+                });
               } catch (e) {
 
               }
-            })
+            });
           }).catch(function(err) { });
 
           resolve(new DataModel.DataProvider(dataProvider));
         }).catch(function(err) {
           reject(new exceptions.DataProviderError("Could not update data provider ", err));
         });
-      } else
-        reject(new exceptions.DataProviderError("Data provider not found"));
+      } else { reject(new exceptions.DataProviderError("Data provider not found")); }
     });
   },
 
@@ -1151,8 +1142,7 @@ var DataManager = {
   removeDataProvider: function(dataProviderParam, cascade) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      if (!cascade)
-        cascade = false;
+      if (!cascade) { cascade = false; }
 
       for(var index = 0; index < self.data.dataProviders.length; ++index) {
         var provider = self.data.dataProviders[index];
@@ -1192,7 +1182,7 @@ var DataManager = {
             }).catch(function(err) {
               console.log(err);
               reject(err);
-            })
+            });
           }).catch(function(err) {
             console.log(err);
             reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
@@ -1215,10 +1205,11 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataSerie = getItemByParam(self.data.dataSeries, restriction);
-      if (dataSerie)
+      if (dataSerie) {
         resolve(new DataModel.DataSeries(dataSerie));
-      else
+      } else {
         reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
+      }
     });
   },
 
@@ -1235,17 +1226,17 @@ var DataManager = {
       var dataSeriesList = [];
 
       if (restriction && restriction.hasOwnProperty("schema")) {
-        if (restriction.schema == "all") {
+        if (restriction.schema === "all") {
           self.listDataSeries({"Collector": {}}).then(function(data) {
             self.listDataSeries({"DataSeries": "Static"}).then(function(staticData) {
               var output = [];
               data.forEach(function(d) {
                 output.push(d);
-              })
+              });
 
               staticData.forEach(function(d) {
                 output.push(d);
-              })
+              });
 
               return resolve(output);
             }).catch(function(err) {
@@ -1262,8 +1253,9 @@ var DataManager = {
           var eDataSeries = [];
           self.data.dataSeries.forEach(function(dSeries) {
             var dSeriesSemantics = dSeries.data_series_semantics;
-            if (func(dSeriesSemantics.data_series_type_name))
+            if (func(dSeriesSemantics.data_series_type_name)) {
               eDataSeries.push(new DataModel.DataSeries(dSeries));
+            }
           });
           return resolve(eDataSeries);
         };
@@ -1272,13 +1264,13 @@ var DataManager = {
           case "Static":
             // get all static
             _exec(function(dataSeriestype) {
-              return dataSeriestype == "STATIC_DATA";
+              return dataSeriestype === "STATIC_DATA";
             });
             break;
           case "Dynamic":
             // get all dynamic
             _exec(function(dataSeriestype) {
-              return dataSeriestype != "STATIC_DATA";
+              return dataSeriestype !== "STATIC_DATA";
             });
             break;
           default:
@@ -1289,41 +1281,13 @@ var DataManager = {
         // todo: should have parent search module? #tempCode for filtering
         // collector restriction
         self.listCollectors({}).then(function(collectorsResult) {
-
-          if (collectorsResult.length == 0)
+          if (collectorsResult.length === 0) {
             return resolve(collectorsResult);
-
-          // creating a copy
-          var copyDataSeries = [];
-          self.data.dataSeries.forEach(function(ds) {
-            if (ds.data_series_semantics.data_series_type_name != Enums.DataSeriesType.STATIC_DATA)
-              copyDataSeries.push(new DataModel.DataSeries(ds));
+          }
+          var collectorFilter = new Filters.CollectorFilter();
+          var output = collectorFilter.match(collectorsResult, {
+            dataSeries: self.data.dataSeries
           });
-
-          var output = [];
-
-          copyDataSeries.forEach(function(element, index, arr) {
-            console.log(element.name);
-            collectorsResult.some(function(collector) {
-              // collect
-              if (collector.output_data_series === element.id) {
-                return true;
-              } else if (collector.input_data_series === element.id) {
-                // removing input data series. TODO: improve this approach
-                delete copyDataSeries[index];
-                return true;
-              }
-              return false;
-            })
-          });
-
-          // removing holes in array
-          copyDataSeries.forEach(function(copyDs) {
-            if (copyDs)
-              output.push(copyDs);
-          });
-
-
           // collect output and processing
           return resolve(output);
         }).catch(function(err) {
@@ -1414,9 +1378,7 @@ var DataManager = {
 
               Promise.all(promises).then(function(wktDataSets) {
                 // todo: emit signal
-                // self.data.dataSeries.push(new DataModel.DataSeries(output));
                 output.dataSets = wktDataSets;
-                // TcpManager.sendData({"DataSeries": [output.toObject()]});
 
                 // resolving promise
                 resolve(output);
@@ -1435,11 +1397,6 @@ var DataManager = {
           rollback(err);
         });
       }).catch(function(err){
-        var msg = "";
-
-        // err.errors.forEach(function(error) {
-        //   msg = error.message;
-        // });
         console.log(err);
         reject(new exceptions.DataSeriesError("Could not save data series " + err.message));
       });
@@ -1474,13 +1431,14 @@ var DataManager = {
           }).catch(function(err) {
             console.log(err);
             reject(err);
-          })
+          });
         }).catch(function(err) {
           reject(new exceptions.DataSeriesError("Could not update data series ", err));
         });
 
-      } else
+      } else {
         reject(new exceptions.DataSeriesError("Data series not found. "));
+      }
     });
   },
 
@@ -1537,20 +1495,20 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create({
-        active: dataSetObject["active"],
-        data_series_id: dataSetObject["data_series_id"]
+        active: dataSetObject.active,
+        data_series_id: dataSetObject.data_series_id
       }).then(function(dataSet) {
 
         var onSuccess = function(dSet) {
           var output;
           output = DataModel.DataSetFactory.build(Object.assign(Utils.clone(dSet.get()), dataSet.get()));
-          console.log(output)
+          console.log(output);
 
           output.semantics = dataSeriesSemantic;
 
           // save dataformat
           if (dataSetObject.format) {
-            var formats = dataSetObject["format"];
+            var formats = dataSetObject.format;
             var formatList = [];
 
             if (formats instanceof Array) {
@@ -1565,8 +1523,6 @@ var DataManager = {
                   });
                 }
               }
-            } else {
-              // invalid
             }
 
             models.db.DataSetFormat.bulkCreate(formatList, {data_set_id: dataSet.id}).then(function () {
@@ -1577,8 +1533,9 @@ var DataManager = {
                 });
 
                 //  if analysis, add input dataseries id
-                if (analysisType && analysisType.data_series_id)
-                  output.format['monitored_object_dataseries_id'] = analysisType.data_series_id;
+                if (analysisType && analysisType.data_series_id) {
+                  output.format.monitored_object_dataseries_id = analysisType.data_series_id;
+                }
 
                 self.data.dataSets.push(output);
                 resolve(output);
@@ -1602,7 +1559,7 @@ var DataManager = {
         var rollback = function(dataSet) {
           dataSet.destroy().then(function() {
             console.log("rollback");
-            reject(new exceptions.DataSetError("Invalid dataset type. DataSet destroyed"));
+            reject(new exceptions.DataSetError("Invalid data set type. DataSet destroyed"));
           }).catch(onError);
         };
 
@@ -1660,33 +1617,34 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       // setting default format
-      if (format === undefined)
-        format = Enums.Format.GEOJSON;
+      if (format === undefined) { format = Enums.Format.GEOJSON; }
 
-      if (format !== Enums.Format.GEOJSON && format !== Enums.Format.WKT)
+      if (format !== Enums.Format.GEOJSON && format !== Enums.Format.WKT) {
         return reject(new exceptions.DataSetError("Invalid output format while retrieving dataset"));
+      }
 
       lock.readLock(function (release) {
         var dataSet = getItemByParam(self.data.dataSets, restriction);
         if (dataSet) {
           var output = DataModel.DataSetFactory.build(dataSet);
 
-          if (output.position && format === Enums.Format.WKT)
+          if (output.position && format === Enums.Format.WKT) {
             // Getting wkt representation of Point from GeoJSON
-            self.getWKT(output.position).then(function(wktGeom) {
+            self.getWKT(output.position).then(function (wktGeom) {
               resolve(output);
               release();
-            }).catch(function(err) {
+            }).catch(function (err) {
               reject(err);
               release();
             });
-          else {
+          } else {
             resolve(output);
             release();
           }
         }
-        else
+        else {
           reject(new exceptions.DataSetError("Could not find a data set: ", restriction));
+        }
         release();
       });
     });
@@ -1731,12 +1689,11 @@ var DataManager = {
                     output.position = Utils.clone(dSet.position);
                     break;
                   default:
-                    ;
                 }
                 resolve(output);
               }).catch(function(err) {
                 reject(err);
-              })
+              });
             });
           }).catch(function(err) {
             reject(err);
@@ -1745,8 +1702,9 @@ var DataManager = {
           reject(err);
         });
 
-      } else
+      } else {
         reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
+      }
     });
   },
 
@@ -1879,7 +1837,7 @@ var DataManager = {
 
             }).catch(function(err) {
               // rollback schedule
-              console.log("rollback schedule")
+              console.log("rollback schedule");
               Utils.rollbackPromises([
                 self.removeSchedule(scheduleResult),
                 self.removeDataSerie(dataSeriesResult),
@@ -2032,7 +1990,7 @@ var DataManager = {
         'schedule_id',
         'active',
         'collector_type'
-      ]
+      ];
 
       self.updateCollectors({id: collectorId}, collectorObject, {fields: fields}).then(function() {
         resolve();
@@ -2049,7 +2007,7 @@ var DataManager = {
         var output = [];
         inputOutputResult.forEach(function(element) {
           output.push(element.get());
-        })
+        });
         resolve(output);
       }).catch(function(err) {
         reject(err);
@@ -2093,8 +2051,8 @@ var DataManager = {
 
                 return true;
               }
-            })
-          })
+            });
+          });
 
           resolve(output);
         }).catch(function(err) {
@@ -2171,7 +2129,7 @@ var DataManager = {
         var output = [];
         intesectionList.forEach(function(element) {
           output.push(new DataModel.Intersection(element.get()));
-        })
+        });
         resolve(output);
       }).catch(function(err) {
         reject(new Error("Could not save intersection. " + err.toString()));
@@ -2180,7 +2138,6 @@ var DataManager = {
   },
 
   updateIntersection: function(intersectionId, intersectionObject) {
-    var self = this;
     return new Promise(function(resolve, reject) {
       models.db.Intersection.update(intersectionObject, {
         fields: ['attribute'],
@@ -2201,7 +2158,7 @@ var DataManager = {
       var promises = [];
       intersectionList.forEach(function(element, index) {
         promises.push(self.updateIntersection(intersectionsIds[index], element));
-      })
+      });
       Promise.all(promises).then(function() {
         resolve();
       }).catch(function(err) {
@@ -2217,7 +2174,7 @@ var DataManager = {
         var output = [];
         intersectionResult.forEach(function(element) {
           output.push(element.get());
-        })
+        });
         resolve(output);
       }).catch(function(err) {
         reject(new Error("Could not retrieve intersection " + err.toString()));
@@ -2231,7 +2188,7 @@ var DataManager = {
         resolve();
       }).catch(function(err) {
         reject(new Error("Could not remove intersection " + err.toString()));
-      })
+      });
     });
   },
 
@@ -2288,7 +2245,6 @@ var DataManager = {
   },
 
   updateFilter: function(filterId, filterObject) {
-    var self = this;
     return new Promise(function(resolve, reject) {
       var filterValues = _processFilter(filterObject);
       models.db.Filter.update(filterValues, {
@@ -2302,6 +2258,16 @@ var DataManager = {
         console.log(err);
         reject(new Error("Could not update filter " + err.toString()))
       })
+    });
+  },
+
+  addAnalysisDataSeries: function(analysisDataSeriesObject) {
+    return new Promise(function(resolve, reject) {
+      models.db.AnalysisDataSeries.create(analysisDataSeriesObject, {include: [models.db.AnalysisDataSeriesMetadata]}).then(function(result) {
+        resolve(result.get());
+      }).catch(function(err) {
+        reject(new exceptions.AnalysisError("Could not save analysis data series " + err.toString()));
+      });
     });
   },
 
@@ -2360,7 +2326,7 @@ var DataManager = {
                   delete analysisDS.metadata;
                   analysisDS.AnalysisDataSeriesMetadata = metadata;
 
-                  promises.push(models.db.AnalysisDataSeries.create(analysisDS, {include: [models.db.AnalysisDataSeriesMetadata]}));
+                  promises.push(self.addAnalysisDataSeries(analysisDS));
                 });
 
                 var analysisInstance = new DataModel.Analysis(analysisResult);
@@ -2387,8 +2353,6 @@ var DataManager = {
 
                         analysisInstance.addAnalysisDataSeries(analysisDataSeries);
                       });
-
-                      // setting metadata
 
                       resolve(analysisInstance);
                     }).catch(function(err) {
@@ -2483,17 +2447,28 @@ var DataManager = {
           // updating analysis dataSeries
           var promises = [];
 
-          analysisInstance.analysis_dataseries_list.forEach(function(analysisDS) {
+          var analysisDSList = [];
 
-            promises.push(models.db['AnalysisDataSeries'].update(
-              {alias: analysisDS.alias},
-              {
-                fields: ['alias'],
-                where: {
-                  id: analysisDS.id
+          // TODO: improve this
+          analysisInstance.analysis_dataseries_list.forEach(function(analysisDS) {
+            analysisObject.analysisDataSeries.some(function(element) {
+              if (element.data_series_id === analysisDS.data_series_id) {
+                // update
+                promises.push(models.db.AnalysisDataSeries.update(element, {
+                  fields: ['alias'],
+                  where: {id: analysisDS.id}
+                }));
+              } else {
+                if (element.data_series_id) {
+                //   insert
+                  element.analysis_id = analysisInstance.id;
+                  promises.push(self.addAnalysisDataSeries(element))
+                } else {
+                //  delete
+                  promises.push(models.db.AnalysisDataSeries.destroy({where: {id : analysisDS.id}}));
                 }
               }
-            ));
+            });
           });
 
           Promise.all(promises).then(function() {
@@ -2525,7 +2500,6 @@ var DataManager = {
         reject(err);
       };
 
-      var sequelize = Database.getORM();
       models.db['Analysis'].findAll({
         include: [
           {
