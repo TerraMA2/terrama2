@@ -52,6 +52,7 @@ namespace terrama2
             void registerGridForecastIntervalFunctions();
             void registerGridZonalFunctions();
             void registerGridZonalHistoryFunctions();
+            void registerGridZonalHistoryRatioFunctions();
           } /* MonitoredObject */
         } /* python */
       }
