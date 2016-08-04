@@ -6,6 +6,10 @@
 #include "occurrence/Operator.hpp"
 #include "occurrence/aggregation/Operator.hpp"
 
+// pragma to silence python macros warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+
 // // Declaration needed for default parameter restriction
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceCount_overloads, terrama2::services::analysis::core::occurrence::count, 3, 4);
 
@@ -38,6 +42,9 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationSum_overloads, terrama2::se
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::aggregation::standardDeviation, 6, 7);
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationVariance_overloads, terrama2::services::analysis::core::occurrence::aggregation::variance, 6, 7);
+
+// closing "-Wunused-local-typedef" pragma
+#pragma GCC diagnostic pop
 
 void terrama2::services::analysis::core::python::MonitoredObject::registerFunctions()
 {
@@ -105,7 +112,6 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
       occurrenceAggregationVariance_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
           "Variance operator for occurrence aggregation"));
 }
-
 
 void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFunctions()
 {

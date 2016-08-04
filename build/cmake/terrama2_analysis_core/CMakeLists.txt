@@ -49,6 +49,18 @@ file(GLOB TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR
 file(GLOB TERRAMA2_GRID_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/*.cpp)
 file(GLOB TERRAMA2_GRID_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/*.hpp)
 
+file(GLOB TERRAMA2_GRID_ZONAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/*.cpp)
+file(GLOB TERRAMA2_GRID_ZONAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/*.hpp)
+
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/*.cpp)
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/*.hpp)
+
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/ratio/*.cpp)
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_RATIO_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/ratio/*.hpp)
+
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/prec/*.cpp)
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_PREC_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/prec/*.hpp)
+
 file(GLOB TERRAMA2_GRID_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/history/*.cpp)
 file(GLOB TERRAMA2_GRID_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/history/*.hpp)
 
@@ -77,6 +89,14 @@ source_group("Source Files\\occurrence\\aggregation"  FILES ${TERRAMA2_OCCURRENC
 source_group("Header Files\\occurrence\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES})
 source_group("Source Files\\grid"  FILES ${TERRAMA2_GRID_SRC_FILES})
 source_group("Header Files\\grid"  FILES ${TERRAMA2_GRID_HDR_FILES})
+source_group("Source Files\\grid\\zonal"  FILES ${TERRAMA2_GRID_ZONAL_SRC_FILES})
+source_group("Header Files\\grid\\zonal"  FILES ${TERRAMA2_GRID_ZONAL_HDR_FILES})
+source_group("Source Files\\grid\\zonal\\history"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_SRC_FILES})
+source_group("Header Files\\grid\\zonal\\history"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_HDR_FILES})
+source_group("Source Files\\grid\\zonal\\history\\ratio"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES})
+source_group("Header Files\\grid\\zonal\\history\\ratio"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES})
+source_group("Source Files\\grid\\zonal\\history\\prec"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES})
+source_group("Header Files\\grid\\zonal\\history\\prec"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES})
 source_group("Source Files\\grid\\history"  FILES ${TERRAMA2_GRID_HISTORY_SRC_FILES})
 source_group("Header Files\\grid\\history"  FILES ${TERRAMA2_GRID_HISTORY_HDR_FILES})
 source_group("Source Files\\grid\\history\\interval"  FILES ${TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES})
@@ -112,6 +132,14 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_OCCURRENCE_AGGREGATION_HDR_FILES_SRC_FILES}
                                           ${TERRAMA2_GRID_SRC_FILES}
                                           ${TERRAMA2_GRID_HDR_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_SRC_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HDR_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_SRC_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_HDR_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_RATIO_HDR_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_HDR_FILES}
                                           ${TERRAMA2_GRID_HISTORY_SRC_FILES}
                                           ${TERRAMA2_GRID_HISTORY_HDR_FILES}
                                           ${TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES}

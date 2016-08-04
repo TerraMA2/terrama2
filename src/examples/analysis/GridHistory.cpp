@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 
     analysis->id = 1;
     analysis->name = "Grid Sample";
-    analysis->script = "return 255-grid.forecast.interval.min(\"geotiff 1\", \"0d\", \"30d\")";
+    analysis->script = "return grid.history.interval.min(\"geotiff 1\", \"30d\", \"0d\")";
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = false;
