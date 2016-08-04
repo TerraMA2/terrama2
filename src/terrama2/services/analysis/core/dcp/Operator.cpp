@@ -402,11 +402,6 @@ bool terrama2::services::analysis::core::dcp::verifyDCPInfluence(InfluenceType i
 {
   bool intersects = false;
 
-  double x = geom->getMBR()->getCenter().getX();
-  double y = geom->getMBR()->getCenter().getY();
-
-  double cx = dcpInfluenceBuffer->getMBR()->getCenter().getX();
-  double cy = dcpInfluenceBuffer->getMBR()->getCenter().getY();
   if(influenceType == InfluenceType::RADIUS_TOUCHES)
   {
     intersects = geom->intersects(dcpInfluenceBuffer.get());
