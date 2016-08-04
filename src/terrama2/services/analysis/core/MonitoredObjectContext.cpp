@@ -416,8 +416,8 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredO
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  DatasetKey key;
-  key.datasetId_ = datasetId;
+  ObjectKey key;
+  key.objectId_ = datasetId;
   key.dateFilter_ = dateFilter;
 
   auto it = bufferDcpMap_.find(key);
@@ -433,12 +433,8 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(co
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  DatasetKey key;
-  key.datasetId_ = datasetId;
+  ObjectKey key;
+  key.objectId_ = datasetId;
   key.dateFilter_ = dateFilter;
   bufferDcpMap_[key] = buffer;
 }
-
-
-
-
