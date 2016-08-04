@@ -45,7 +45,7 @@ terrama2::services::analysis::core::BaseContext::BaseContext(terrama2::services:
   // mainThreadState_ = Py_NewInterpreter();
   // PyThreadState_Swap(oldState);
 
-   mainThreadState_ = PyThreadState_Get();
+  mainThreadState_ = PyThreadState_Get();
 }
 
 terrama2::services::analysis::core::BaseContext::~BaseContext()
@@ -130,7 +130,6 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
   }
 }
 
-
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
 terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager,
     DataSeriesId dataSeriesId,
@@ -141,8 +140,8 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
   key.objectId_ = dataSeriesId;
   key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
 
-  auto it = analysisInputGrid_.find(key);
-  if(it == analysisInputGrid_.end())
+  auto it = analysisGridMap_.find(key);
+  if(it == analysisGridMap_.end())
   {
     auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
     if(!dataSeriesPtr)
@@ -156,45 +155,7 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
     terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
     std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
 
-    terrama2::core::Filter filter;
-    filter.lastValue = true;
-
-    filter.discardAfter = startTime_;
-    if(!dateDiscardBefore.empty() || !dateDiscardAfter.empty())
-    {
-      if(!dateDiscardBefore.empty())
-      {
-        boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
-        double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
-        //TODO: PAULO: review losing precision
-        ldt -= boost::posix_time::seconds(seconds);
-
-        std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-        filter.discardBefore = std::move(titz);
-
-        filter.lastValue = false;
-      }
-
-      if(!dateDiscardAfter.empty())
-      {
-        boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
-        double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
-        ldt -= boost::posix_time::seconds(seconds);
-
-        std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-        filter.discardAfter = std::move(titz);
-
-        filter.lastValue = false;
-      }
-    }
-    else
-    {
-      // no interval set,
-      // use analysis execution timestamp as last valid date
-      filter.discardAfter = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
-    }
-
-
+    terrama2::core::Filter filter = createFilter(dateDiscardBefore, dateDiscardAfter);
     auto gridSeries = accessorGrid->getGridSeries(filter);
 
     if(!gridSeries)
@@ -203,9 +164,95 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    auto inputGrid =  gridSeries->gridMap();
-    analysisInputGrid_.emplace(key, inputGrid);
-    return inputGrid;
+    auto gridMap =  gridSeries->gridMap();
+    analysisGridMap_.emplace(key, gridMap);
+    return gridMap;
+  }
+
+  return it->second;
+}
+
+terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFilter(const std::string& dateDiscardBefore, const std::string& dateDiscardAfter)
+{
+  terrama2::core::Filter filter;
+  filter.lastValue = true;
+
+  filter.discardAfter = startTime_;
+  if(!dateDiscardBefore.empty() || !dateDiscardAfter.empty())
+  {
+    if(!dateDiscardBefore.empty())
+    {
+      boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
+      double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
+      //TODO: PAULO: review losing precision
+      ldt -= boost::posix_time::seconds(seconds);
+
+      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
+      filter.discardBefore = std::move(titz);
+
+      filter.lastValue = false;
+    }
+
+    if(!dateDiscardAfter.empty())
+    {
+      boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
+      double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
+      ldt -= boost::posix_time::seconds(seconds);
+
+      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
+      filter.discardAfter = std::move(titz);
+
+      filter.lastValue = false;
+    }
+  }
+  else
+  {
+    // no interval set,
+    // use analysis execution timestamp as last valid date
+    filter.discardAfter = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
+  }
+
+  return filter;
+}
+
+std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >
+terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataSeriesId,
+    const std::string& dateDiscardBefore,
+    const std::string& dateDiscardAfter)
+{
+  ObjectKey key;
+  key.objectId_ = dataSeriesId;
+  key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
+
+  auto dataManager = getDataManager().lock();
+
+  auto it = analysisSeriesMap_.find(key);
+  if(it == analysisSeriesMap_.end())
+  {
+    auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
+    if(!dataSeriesPtr)
+    {
+      QString errMsg = QObject::tr("Could not recover data series: %1.").arg(dataSeriesId);
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    auto dataProviderPtr = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
+
+    terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
+    std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
+
+    terrama2::core::Filter filter = createFilter(dateDiscardBefore, dateDiscardAfter);
+    auto gridSeries = accessorGrid->getGridSeries(filter);
+
+    if(!gridSeries)
+    {
+      QString errMsg = QObject::tr("Invalid grid series for data series: %1.").arg(dataSeriesId);
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    auto series =  gridSeries->getSeries();
+    analysisSeriesMap_.emplace(key, series);
+    return series;
   }
 
   return it->second;

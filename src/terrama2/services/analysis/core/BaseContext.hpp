@@ -34,6 +34,9 @@
 #include <set>
 #include <memory>
 
+#include "../../../core/data-model/Filter.hpp"
+#include "../../../core/data-access/DataSetSeries.hpp"
+#include "../../../core/Shared.hpp"
 #include "DataManager.hpp"
 #include "Analysis.hpp"
 #include "Typedef.hpp"
@@ -160,6 +163,9 @@ namespace terrama2
             std::vector< std::shared_ptr<te::rst::Raster> > getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
                 const DataSetId datasetId, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
 
+            std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > getSeriesMap(DataSeriesId dataSeriesId,
+                const std::string& dateDiscardBefore = "",
+                const std::string& dateDiscardAfter = "");
 
           protected:
             /*!
@@ -170,6 +176,8 @@ namespace terrama2
             */
             std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
             getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
+
+            terrama2::core::Filter createFilter(const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
 
             /*!
               \brief Adds the given raster to the context map.
@@ -194,7 +202,8 @@ namespace terrama2
 
             std::unordered_map<std::string, terrama2::core::DataSeriesPtr > dataSeriesMap_;
             std::unordered_map<Srid, std::shared_ptr<te::srs::Converter> > converterMap_;
-            std::unordered_map<ObjectKey, std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator> analysisInputGrid_;
+            std::unordered_map<ObjectKey, std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator> analysisGridMap_;
+            std::unordered_map<ObjectKey, std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >, ObjectKeyHash, EqualKeyComparator> analysisSeriesMap_;
             std::unordered_map<ObjectKey, std::vector<std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator > rasterMap_;
         };
 
