@@ -123,6 +123,7 @@ void terrama2::core::Service::stop(bool holdStopSignal) noexcept
     for (auto& future : processingThreadPool_)
     {
       if(future.valid())
+
         future.get();
     }
     processingThreadPool_.clear();
