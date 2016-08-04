@@ -73,13 +73,6 @@ app.directive("terrama2BoundedBox", function(i18n) {
     },
     controller: function($scope) {
       $scope.i18n = i18n;
-
-      $scope.$on("updateBoundedBox", function(event, coordinates) {
-        $scope.model.minX = coordinates[0][0][0];
-        $scope.model.minY = coordinates[0][0][1];
-        $scope.model.maxX = coordinates[0][2][0];
-        $scope.model.maxY = coordinates[0][2][1];
-      });
     }
   };
 });

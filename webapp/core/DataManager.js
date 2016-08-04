@@ -2475,7 +2475,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       self.getAnalysis({id: analysisId}).then(function(analysisInstance) {
         models.db.Analysis.update(analysisObject, {
-          fields: ['name', 'description', 'instance_id', 'script'],
+          fields: ['name', 'description', 'instance_id', 'script', 'active'],
           where: {
             id: analysisId
           }
@@ -2484,6 +2484,7 @@ var DataManager = {
           var promises = [];
 
           analysisInstance.analysis_dataseries_list.forEach(function(analysisDS) {
+
             promises.push(models.db['AnalysisDataSeries'].update(
               {alias: analysisDS.alias},
               {

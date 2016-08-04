@@ -35,6 +35,11 @@ angular.module('terrama2.analysis.registration', [
     };
     $scope.forms = {};
 
+    $scope.initActive = function(state) {
+      $scope.analysis.active = (configuration.analysis.active === false || configuration.analysis.active) ?
+          configuration.analysis.active : true;
+    };
+
     $scope.dataSeriesBoxName = i18n.__('Additional Data');
 
     // flag to handling script status
@@ -144,6 +149,10 @@ angular.module('terrama2.analysis.registration', [
       $scope.analysis.metadata = {};
       var semanticsType;
       var intTypeId = parseInt(value);
+
+      if ($scope.analysis.grid) {
+        delete $scope.analysis.grid;
+      }
 
       $scope.dataSeriesBoxName = i18n.__("Additional Data");
       switch(intTypeId) {
@@ -530,10 +539,34 @@ angular.module('terrama2.analysis.registration', [
       }
 
       // checking script form if there any "add_value"
-      if ($scope.analysis.script.indexOf("add_value") < 0) {
-        $scope.analysis_script_error = true;
-        $scope.analysis_script_error_message = "Analysis will not able to generate a output data. Please fill at least a add_value() in script field.";
-        angular.element("#scriptCheckResult").html($scope.analysis_script_error_message);
+      var typeId = parseInt($scope.analysis.type_id);
+
+      var checkResult = angular.element("#scriptCheckResult");
+
+      var hasScriptError = function(expression, message) {
+        var output = false;
+        if ($scope.analysis.script.indexOf(expression) < 0) {
+          $scope.analysis_script_error = true;
+          $scope.analysis_script_error_message = "Analysis will not able to generate a output data. " + message;
+          output = true;
+        } else {
+          $scope.analysis_script_error_message = "";
+          $scope.analysis_script_error = false;
+        }
+        checkResult.html($scope.analysis_script_error_message);
+        return output;
+      };
+
+      var expression, message;
+
+      if (typeId === globals.enums.AnalysisType.GRID) {
+        expression = "return";
+        message = "Grid analysis script must end with 'return' statement";
+      } else {
+        expression = "add_value";
+        message = "Please fill at least a add_value() in script field.";
+      }
+      if (hasScriptError(expression, message)) {
         return;
       }
 
@@ -579,7 +612,6 @@ angular.module('terrama2.analysis.registration', [
 
       // target data series
       var analysisTypeId;
-      var typeId = parseInt($scope.analysis.type_id);
       switch(typeId) {
         case globals.enums.AnalysisType.DCP:
           analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
@@ -593,9 +625,37 @@ angular.module('terrama2.analysis.registration', [
           break;
       }
 
+      // preparing data to send
+      var analysisToSend = Object.assign({}, $scope.analysis);
+
       // setting target data series metadata (monitored object, dcp..)
       if (typeId !== globals.enums.AnalysisType.GRID) {
         analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, analysisTypeId));
+      } else {
+        // checking geojson
+        if ($scope.analysis.grid && $scope.analysis.grid.area_of_interest_bounded &&
+            !angular.equals({}, $scope.analysis.grid.area_of_interest_bounded)) {
+          var bounded = $scope.analysis.grid.area_of_interest_bounded;
+          var coordinates = [
+            [
+              [bounded.minX, bounded.minY],
+              [bounded.minX, bounded.maxY],
+              [bounded.maxX, bounded.maxY],
+              [bounded.maxX, bounded.minY],
+              [bounded.minX, bounded.minY]
+            ]
+          ];
+          analysisToSend.grid.area_of_interest_box = {
+            type: 'Polygon',
+            coordinates: coordinates,
+            crs: {
+              type: 'name',
+              properties : {
+                name: "EPSG:4326"
+              }
+            }
+          };
+        }
       }
 
       // todo: improve it
@@ -606,7 +666,6 @@ angular.module('terrama2.analysis.registration', [
         analysisDataSeriesArray.push(analysisDataSeries);
       });
 
-      var analysisToSend = Object.assign({}, $scope.analysis);
       analysisToSend.dataSeries = $scope.selectedDataSeriesList;
       analysisToSend.analysisDataSeries = analysisDataSeriesArray;
 
@@ -633,31 +692,6 @@ angular.module('terrama2.analysis.registration', [
 
         default:
           break;
-      }
-
-      // checking geojson
-      if ($scope.analysis.grid.area_of_interest_bounded &&
-          !angular.equals({}, $scope.analysis.grid.area_of_interest_bounded)) {
-        var bounded = $scope.analysis.grid.area_of_interest_bounded;
-        var coordinates = [
-          [
-            [bounded.minX, bounded.minY],
-            [bounded.minX, bounded.maxY],
-            [bounded.maxX, bounded.maxY],
-            [bounded.maxX, bounded.minY],
-            [bounded.minX, bounded.minY]
-          ]
-        ];
-        analysisToSend.grid.area_of_interest_box = {
-          type: 'Polygon',
-          coordinates: coordinates,
-          crs: {
-            type: 'name',
-            properties : {
-              name: "EPSG:4326"
-            }
-          }
-        };
       }
 
       // sending post operation
