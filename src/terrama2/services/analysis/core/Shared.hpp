@@ -50,9 +50,9 @@ namespace terrama2
         //! Shared smart pointer for ThreadPool
         typedef std::shared_ptr<terrama2::services::analysis::core::ThreadPool> ThreadPoolPtr;
 
-        struct OutputGrid;
+        struct AnalysisOutputGrid;
         //! Shared smart pointer for OutputGrid
-        typedef std::shared_ptr<const terrama2::services::analysis::core::OutputGrid> OutputGridPtr;
+        typedef std::shared_ptr<const terrama2::services::analysis::core::AnalysisOutputGrid> OutputGridPtr;
 
         class BaseContext;
         typedef std::shared_ptr<terrama2::services::analysis::core::BaseContext> BaseContextPtr;
