@@ -43,15 +43,36 @@ namespace terrama2
         {
           namespace MonitoredObject
           {
-            void registerFunctions();
             /*!
-              \brief Registers all occurrence functions in the Python interpreter.
+              \brief Registers all functions for monitored object analysis.
+            */
+            void registerFunctions();
+
+            /*!
+              \brief Registers occurrence functions in the Python interpreter.
             */
             void registerOccurrenceFunctions();
+
             /*!
-              \brief Registers all DCP functions in the Python interpreter.
+              \brief Registers occurrence aggregation functions in the Python interpreter.
+            */
+            void registerOccurrenceAggregationFunctions();
+
+            /*!
+              \brief Registers DCP functions in the Python interpreter.
             */
             void registerDCPFunctions();
+
+            /*!
+              \brief Registers DCP history functions in the Python interpreter.
+            */
+            void registerDCPHistoryFunctions();
+
+            /*!
+              \brief Registers DCP influence functions in the Python interpreter.
+            */
+            void registerDCPInfluenceFunctions();
+
           } /* MonitoredObject */
         } /* python */
       }

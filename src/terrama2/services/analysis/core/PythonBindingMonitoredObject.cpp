@@ -43,13 +43,19 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationStandardDeviation_overloads
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationVariance_overloads, terrama2::services::analysis::core::occurrence::aggregation::variance, 6, 7);
 
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpInfluenceByRule_overloads, terrama2::services::analysis::core::dcp::influence::python::byRule, 1, 2);
+
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
 
 void terrama2::services::analysis::core::python::MonitoredObject::registerFunctions()
 {
   registerOccurrenceFunctions();
+  registerOccurrenceAggregationFunctions();
   registerDCPFunctions();
+  registerDCPHistoryFunctions();
+  registerDCPInfluenceFunctions();
+
 }
 
 void terrama2::services::analysis::core::python::MonitoredObject::registerOccurrenceFunctions()
@@ -85,32 +91,6 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
       occurrenceVariance_overloads(args("dataSeriesName", "buffer", "dateFilter", "attribute", "restriction"),
                                    "Variance operator for occurrence"));
 
-  // Register operations for occurrence.aggregation
-  object occurrenceAggregationModule(handle<>(borrowed(PyImport_AddModule("terrama2.occurrence.aggregation"))));
-  // make "from terrama2.occurrence import aggregation" work
-  scope().attr("aggregation") = occurrenceAggregationModule;
-  // set the current scope to the new sub-module
-  scope occurrenceAggregationScope = occurrenceAggregationModule;
-
-  def("count", terrama2::services::analysis::core::occurrence::aggregation::count,
-      occurrenceAggregationCount_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
-          "Count operator for occurrence aggregation"));
-  def("min", terrama2::services::analysis::core::occurrence::aggregation::min,
-      occurrenceAggregationMin_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Minimum operator for occurrence aggregation"));
-  def("max", terrama2::services::analysis::core::occurrence::aggregation::max,
-      occurrenceAggregationMax_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Maximum operator for occurrence aggregation"));
-  def("mean", terrama2::services::analysis::core::occurrence::aggregation::mean,
-      occurrenceAggregationMean_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Mean operator for occurrence aggregation"));
-  def("median", terrama2::services::analysis::core::occurrence::aggregation::median,
-      occurrenceAggregationMedian_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Median operator for occurrence aggregation"));
-  def("sum", terrama2::services::analysis::core::occurrence::aggregation::sum,
-      occurrenceAggregationSum_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Sum operator for occurrence aggregation"));
-  def("standard_deviation", terrama2::services::analysis::core::occurrence::aggregation::standardDeviation,
-      occurrenceAggregationStandardDeviation_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
-          "Standard deviation operator for occurrence aggregation"));
-  def("variance", terrama2::services::analysis::core::occurrence::aggregation::variance,
-      occurrenceAggregationVariance_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
-          "Variance operator for occurrence aggregation"));
 }
 
 void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFunctions()
@@ -134,19 +114,16 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFun
   def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation);
   def("variance", terrama2::services::analysis::core::dcp::variance);
   def("count", terrama2::services::analysis::core::dcp::count);
+}
+
+void terrama2::services::analysis::core::python::MonitoredObject::registerDCPHistoryFunctions()
+{
+  using namespace boost::python;
 
   // Register operations for dcp.history
   object dcpHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.history"))));
   // make "from terrama2.dcp import history" work
-  scope().attr("history") = dcpHistoryModule;
-
-
-  // Register operations for dcp.history
-  object dcpInfluenceModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.influence"))));
-  // make "from terrama2.dcp import history" work
-  scope().attr("influence") = dcpInfluenceModule;
-
-
+  import("terrama2.dcp").attr("history") = dcpHistoryModule;
   // set the current scope to the new sub-module
   scope dcpHistoryScope = dcpHistoryModule;
 
@@ -158,13 +135,54 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFun
   def("sum", terrama2::services::analysis::core::dcp::history::sum);
   def("standard_deviation", terrama2::services::analysis::core::dcp::history::standardDeviation);
   def("variance", terrama2::services::analysis::core::dcp::history::variance);
+}
 
+void terrama2::services::analysis::core::python::MonitoredObject::registerDCPInfluenceFunctions()
+{
+  using namespace boost::python;
 
+  // Register operations for dcp.history
+  object dcpInfluenceModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.influence"))));
+
+  import("terrama2.dcp").attr("influence") = dcpInfluenceModule;
   // set the current scope to the new sub-module
   scope dcpInfluenceScope = dcpInfluenceModule;
 
+
   // export functions inside history namespace
   def("by_attribute", terrama2::services::analysis::core::dcp::influence::python::byAttribute);
-  def("by_rule", terrama2::services::analysis::core::dcp::influence::python::byRule);
 
+  def("by_attribute", terrama2::services::analysis::core::dcp::influence::python::byRule,
+      dcpInfluenceByRule_overloads(args("dataSeriesName", "buffer"), "Influence by rule operator"));
+}
+
+void terrama2::services::analysis::core::python::MonitoredObject::registerOccurrenceAggregationFunctions()
+{
+  using namespace boost::python;
+  // Register operations for occurrence.aggregation
+  object occurrenceAggregationModule(handle<>(borrowed(PyImport_AddModule("terrama2.occurrence.aggregation"))));
+  // make "from terrama2.occurrence import aggregation" work
+  import("terrama2.occurrence").attr("aggregation") = occurrenceAggregationModule;
+  // set the current scope to the new sub-module
+  scope occurrenceAggregationScope = occurrenceAggregationModule;
+
+  def("count", terrama2::services::analysis::core::occurrence::aggregation::count,
+      occurrenceAggregationCount_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
+                                           "Count operator for occurrence aggregation"));
+  def("min", terrama2::services::analysis::core::occurrence::aggregation::min,
+      occurrenceAggregationMin_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Minimum operator for occurrence aggregation"));
+  def("max", terrama2::services::analysis::core::occurrence::aggregation::max,
+      occurrenceAggregationMax_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Maximum operator for occurrence aggregation"));
+  def("mean", terrama2::services::analysis::core::occurrence::aggregation::mean,
+      occurrenceAggregationMean_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Mean operator for occurrence aggregation"));
+  def("median", terrama2::services::analysis::core::occurrence::aggregation::median,
+      occurrenceAggregationMedian_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Median operator for occurrence aggregation"));
+  def("sum", terrama2::services::analysis::core::occurrence::aggregation::sum,
+      occurrenceAggregationSum_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"), "Sum operator for occurrence aggregation"));
+  def("standard_deviation", terrama2::services::analysis::core::occurrence::aggregation::standardDeviation,
+      occurrenceAggregationStandardDeviation_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
+                                                       "Standard deviation operator for occurrence aggregation"));
+  def("variance", terrama2::services::analysis::core::occurrence::aggregation::variance,
+      occurrenceAggregationVariance_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
+                                              "Variance operator for occurrence aggregation"));
 }

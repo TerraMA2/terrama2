@@ -41,7 +41,7 @@ namespace terrama2
 {
   namespace services
   {
-    
+
     namespace analysis
     {
       namespace core
@@ -53,9 +53,15 @@ namespace terrama2
             namespace python
             {
 
+              /*
+               \brief Python wrapper for influence by attribute operator
+               */
               boost::python::list byAttribute(const std::string& dataSeriesName, boost::python::list attributeList);
 
-              boost::python::list byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer);
+              /*
+               \brief Python wrapper for influence by rule operator
+               */
+              boost::python::list byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer = terrama2::services::analysis::core::Buffer());
 
             } // end namespace python
           }   // end namespace influence
