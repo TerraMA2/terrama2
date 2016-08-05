@@ -205,7 +205,8 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryMean_overloads, terrama2::servic
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryMedian_overloads, terrama2::services::analysis::core::grid::zonal::history::median, 2, 3);
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::standardDeviation, 2, 3);
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::variance, 2, 3);
-
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryNum_overloads, terrama2::services::analysis::core::grid::zonal::history::num, 2, 3);
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryList_overloads, terrama2::services::analysis::core::grid::zonal::history::list, 2, 3);
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
 
@@ -222,25 +223,31 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryF
 
   def("count", terrama2::services::analysis::core::grid::zonal::history::count,
       gridZonalHistoryCount_overloads(args("dataSeriesName", "buffer"),
-                               "Count operator for grid zonal"));
+                                      "Count operator for grid zonal"));
   def("min", terrama2::services::analysis::core::grid::zonal::history::min,
       gridZonalHistoryMin_overloads(args("dataSeriesName", "buffer"),
-                             "Min operator for grid zonal"));
+                                    "Min operator for grid zonal"));
   def("max", terrama2::services::analysis::core::grid::zonal::history::max,
       gridZonalHistoryMax_overloads(args("dataSeriesName", "buffer"),
-                             "Max operator for grid zonal"));
+                                    "Max operator for grid zonal"));
   def("mean", terrama2::services::analysis::core::grid::zonal::history::mean,
       gridZonalHistoryMean_overloads(args("dataSeriesName", "buffer"),
-                              "Mean operator for grid zonal"));
+                                     "Mean operator for grid zonal"));
   def("median", terrama2::services::analysis::core::grid::zonal::history::median,
       gridZonalHistoryMedian_overloads(args("dataSeriesName", "buffer"),
-                                "Median operator for grid zonal"));
+                                       "Median operator for grid zonal"));
   def("standard_deviation", terrama2::services::analysis::core::grid::zonal::history::standardDeviation,
       gridZonalHistoryStandardDeviation_overloads(args("dataSeriesName", "buffer"),
           "Standard deviation operator for grid zonal"));
   def("variance", terrama2::services::analysis::core::grid::zonal::history::variance,
       gridZonalHistoryVariance_overloads(args("dataSeriesName", "buffer"),
-                                  "Variance operator for grid zonal"));
+                                         "Variance operator for grid zonal"));
+  def("num", terrama2::services::analysis::core::grid::zonal::history::num,
+      gridZonalHistoryNum_overloads(args("dataSeriesName", "buffer"),
+                                    "Num operator for grid zonal"));
+  def("list", terrama2::services::analysis::core::grid::zonal::history::list,
+      gridZonalHistoryList_overloads(args("dataSeriesName", "buffer"),
+                                     "List operator for grid zonal"));
 }
 
 // pragma to silence python macros warnings
@@ -272,25 +279,25 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryR
 
   def("count", terrama2::services::analysis::core::grid::zonal::history::ratio::count,
       gridZonalHistoryRatioCount_overloads(args("dataSeriesName", "buffer"),
-                               "Count operator for grid zonal"));
+          "Count operator for grid zonal"));
   def("min", terrama2::services::analysis::core::grid::zonal::history::ratio::min,
       gridZonalHistoryRatioMin_overloads(args("dataSeriesName", "buffer"),
-                             "Min operator for grid zonal"));
+                                         "Min operator for grid zonal"));
   def("max", terrama2::services::analysis::core::grid::zonal::history::ratio::max,
       gridZonalHistoryRatioMax_overloads(args("dataSeriesName", "buffer"),
-                             "Max operator for grid zonal"));
+                                         "Max operator for grid zonal"));
   def("mean", terrama2::services::analysis::core::grid::zonal::history::ratio::mean,
       gridZonalHistoryRatioMean_overloads(args("dataSeriesName", "buffer"),
-                              "Mean operator for grid zonal"));
+                                          "Mean operator for grid zonal"));
   def("median", terrama2::services::analysis::core::grid::zonal::history::ratio::median,
       gridZonalHistoryRatioMedian_overloads(args("dataSeriesName", "buffer"),
-                                "Median operator for grid zonal"));
+          "Median operator for grid zonal"));
   def("standard_deviation", terrama2::services::analysis::core::grid::zonal::history::ratio::standardDeviation,
       gridZonalHistoryRatioStandardDeviation_overloads(args("dataSeriesName", "buffer"),
           "Standard deviation operator for grid zonal"));
   def("variance", terrama2::services::analysis::core::grid::zonal::history::ratio::variance,
       gridZonalHistoryRatioVariance_overloads(args("dataSeriesName", "buffer"),
-                                  "Variance operator for grid zonal"));
+          "Variance operator for grid zonal"));
 }
 
 
@@ -323,23 +330,23 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryP
 
   def("count", terrama2::services::analysis::core::grid::zonal::history::prec::count,
       gridZonalHistoryPrecCount_overloads(args("dataSeriesName", "buffer"),
-                               "Count operator for grid zonal"));
+                                          "Count operator for grid zonal"));
   def("min", terrama2::services::analysis::core::grid::zonal::history::prec::min,
       gridZonalHistoryPrecMin_overloads(args("dataSeriesName", "buffer"),
-                             "Min operator for grid zonal"));
+                                        "Min operator for grid zonal"));
   def("max", terrama2::services::analysis::core::grid::zonal::history::prec::max,
       gridZonalHistoryPrecMax_overloads(args("dataSeriesName", "buffer"),
-                             "Max operator for grid zonal"));
+                                        "Max operator for grid zonal"));
   def("mean", terrama2::services::analysis::core::grid::zonal::history::prec::mean,
       gridZonalHistoryPrecMean_overloads(args("dataSeriesName", "buffer"),
-                              "Mean operator for grid zonal"));
+                                         "Mean operator for grid zonal"));
   def("median", terrama2::services::analysis::core::grid::zonal::history::prec::median,
       gridZonalHistoryPrecMedian_overloads(args("dataSeriesName", "buffer"),
-                                "Median operator for grid zonal"));
+          "Median operator for grid zonal"));
   def("standard_deviation", terrama2::services::analysis::core::grid::zonal::history::prec::standardDeviation,
       gridZonalHistoryPrecStandardDeviation_overloads(args("dataSeriesName", "buffer"),
           "Standard deviation operator for grid zonal"));
   def("variance", terrama2::services::analysis::core::grid::zonal::history::prec::variance,
       gridZonalHistoryPrecVariance_overloads(args("dataSeriesName", "buffer"),
-                                  "Variance operator for grid zonal"));
+          "Variance operator for grid zonal"));
 }

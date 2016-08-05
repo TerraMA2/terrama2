@@ -38,176 +38,191 @@
 int terrama2::services::analysis::core::grid::zonal::history::num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
 {
 
-    OperatorCache cache;
-    terrama2::services::analysis::core::python::readInfoFromDict(cache);
-    // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
-    // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  OperatorCache cache;
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
-    try
+  try
+  {
+    // In case an error has already occurred, there is nothing to be done
+    if(!context->getErrors().empty())
     {
-      // In case an error has already occurred, there is nothing to be done
-      if(!context->getErrors().empty())
-      {
-        return NAN;
-      }
-
-      auto dataManagerPtr = context->getDataManager().lock();
-      if(!dataManagerPtr)
-      {
-        QString errMsg(QObject::tr("Invalid data manager."));
-        throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
-      }
-
-      std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-      if(!moDsContext)
-      {
-        QString errMsg(QObject::tr("Could not recover monitored object data series."));
-        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
-
-      if(moDsContext->series.syncDataSet->size() == 0)
-      {
-        QString errMsg(QObject::tr("Could not recover monitored object data series."));
-        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
-
-      auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
-      if(!moGeom.get())
-      {
-        QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-        throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-      }
-      auto geomResult = createBuffer(buffer, moGeom);
-
-      auto dataSeries = context->findDataSeries(dataSeriesName);
-      if(!dataSeries)
-      {
-        QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-        errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
-
-      auto datasets = dataSeries->datasetList;
-      for(auto dataset : datasets)
-      {
-        auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, "");
-        if(!rasterList.empty())
-          return rasterList.size();
-      }
-
-      return 0;
-    }
-    catch(const terrama2::Exception& e)
-    {
-      context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
       return NAN;
     }
-    catch(const std::exception& e)
+
+    auto dataManagerPtr = context->getDataManager().lock();
+    if(!dataManagerPtr)
     {
-      context->addError(e.what());
-      return NAN;
+      QString errMsg(QObject::tr("Invalid data manager."));
+      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
-    catch(...)
+
+    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
+    if(!moDsContext)
     {
-      QString errMsg = QObject::tr("An unknown exception occurred.");
-      context->addError(errMsg.toStdString());
-      return NAN;
+      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
+
+    if(moDsContext->series.syncDataSet->size() == 0)
+    {
+      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
+    if(!moGeom.get())
+    {
+      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
+      throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
+    }
+    auto geomResult = createBuffer(buffer, moGeom);
+
+    auto dataSeries = context->findDataSeries(dataSeriesName);
+    if(!dataSeries)
+    {
+      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
+      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    auto datasets = dataSeries->datasetList;
+    for(auto dataset : datasets)
+    {
+      auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, "");
+      if(!rasterList.empty())
+        return rasterList.size();
+    }
+
+    return 0;
+  }
+  catch(const terrama2::Exception& e)
+  {
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    return NAN;
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
+    return NAN;
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    context->addError(errMsg.toStdString());
+    return NAN;
+  }
 }
 
-std::vector<std::string> terrama2::services::analysis::core::grid::zonal::history::list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+boost::python::list terrama2::services::analysis::core::grid::zonal::history::list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
 {
 
-    OperatorCache cache;
-    terrama2::services::analysis::core::python::readInfoFromDict(cache);
-    // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
-    // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  OperatorCache cache;
+  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
 
-    try
+  try
+  {
+    // In case an error has already occurred, there is nothing to be done
+    if(!context->getErrors().empty())
     {
-      // In case an error has already occurred, there is nothing to be done
-      if(!context->getErrors().empty())
-      {
-        return {};
-      }
+      return {};
+    }
 
-      auto dataManagerPtr = context->getDataManager().lock();
-      if(!dataManagerPtr)
-      {
-        QString errMsg(QObject::tr("Invalid data manager."));
-        throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
-      }
+    auto dataManagerPtr = context->getDataManager().lock();
+    if(!dataManagerPtr)
+    {
+      QString errMsg(QObject::tr("Invalid data manager."));
+      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
+    }
 
-      std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-      if(!moDsContext)
-      {
-        QString errMsg(QObject::tr("Could not recover monitored object data series."));
-        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
+    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
+    if(!moDsContext)
+    {
+      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+    }
 
-      if(moDsContext->series.syncDataSet->size() == 0)
-      {
-        QString errMsg(QObject::tr("Could not recover monitored object data series."));
-        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
+    if(moDsContext->series.syncDataSet->size() == 0)
+    {
+      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+    }
 
-      auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
-      if(!moGeom.get())
-      {
-        QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-        throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-      }
-      auto geomResult = createBuffer(buffer, moGeom);
+    auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
+    if(!moGeom.get())
+    {
+      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
+      throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
+    }
 
-      auto dataSeries = context->findDataSeries(dataSeriesName);
-      if(!dataSeries)
-      {
-        QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-        errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
+    auto geomResult = createBuffer(buffer, moGeom);
 
-      auto seriesList = context->getSeriesMap(dataSeries->id, dateDiscardBefore, "");
-      for(auto pair : seriesList)
+    auto dataSeries = context->findDataSeries(dataSeriesName);
+    if(!dataSeries)
+    {
+      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
+      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
+      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    auto seriesList = context->getSeriesMap(dataSeries->id, dateDiscardBefore, "0s");
+    for(auto pair : seriesList)
+    {
+      auto series = pair.second;
+      auto teDataset = series.syncDataSet->dataset();
+      if(!teDataset->isEmpty())
       {
-        auto series = pair.second;
-        auto teDataset = series.syncDataSet->dataset();
-        if(!teDataset->isEmpty())
+        std::size_t rasterColumn = te::da::GetFirstPropertyPos(teDataset.get(), te::dt::RASTER_TYPE);
+        if(rasterColumn == std::numeric_limits<size_t>::max())
+          continue;
+
+        std::size_t timestampColumn = te::da::GetFirstPropertyPos(teDataset.get(), te::dt::DATETIME_TYPE);
+        //no date column found
+        if(timestampColumn == std::numeric_limits<size_t>::max())
+          continue;
+
+        boost::python::list timeList;
+        teDataset->moveBeforeFirst();
+        while(teDataset->moveNext())
         {
-          std::size_t pos = te::da::GetFirstPropertyPos(teDataset.get(), te::dt::DATETIME_TYPE);
-          std::vector<std::string> timeList;
+          if(teDataset->isNull(rasterColumn) || teDataset->isNull(timestampColumn))
+            continue;
 
-          teDataset->moveBeforeFirst();
-          while(teDataset->moveNext())
-          {
-            if(!teDataset->isNull(pos))
-              timeList.push_back(teDataset->getDateTime(pos)->toString());
-          }
+          auto raster = teDataset->getRaster(rasterColumn);
+          auto extent = raster->getExtent();
+          if(!extent->intersects(*geomResult->getMBR()))
+            continue;
 
-          return timeList;
+          timeList.append(boost::python::object(teDataset->getDateTime(timestampColumn)->toString()));
         }
-      }
 
-      return {};
+        return timeList;
+      }
     }
-    catch(const terrama2::Exception& e)
-    {
-      context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-      return {};
-    }
-    catch(const std::exception& e)
-    {
-      context->addError(e.what());
-      return {};
-    }
-    catch(...)
-    {
-      QString errMsg = QObject::tr("An unknown exception occurred.");
-      context->addError(errMsg.toStdString());
-      return {};
-    }
+
+    return {};
+  }
+  catch(const terrama2::Exception& e)
+  {
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    return {};
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
+    return {};
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    context->addError(errMsg.toStdString());
+    return {};
+  }
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
