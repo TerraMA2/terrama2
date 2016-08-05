@@ -1,9 +1,10 @@
+"use strict";
+
 var DataManager = require("../../core/DataManager");
 var DataProviderError = require('./../../core/Exceptions').DataProviderError;
 var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
-var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
   return {
@@ -49,14 +50,13 @@ module.exports = function(app) {
             }).catch(function(err) {
               handleError(response, err, 400);
             });
-
           }).catch(function(err) {
             handleError(response, err, 400);
           });
 
         }).catch(function(err) {
           handleError(response, err, 400);
-        })
+        });
       };
 
       // check connection
@@ -72,15 +72,15 @@ module.exports = function(app) {
       var name = request.query.name;
 
       if (name) {
-        DataManager.getDataProvider({name: name}).then(function(dataProvider) {
+        DataManager.getDataProvider({name: name, project_id: app.locals.activeProject.id}).then(function(dataProvider) {
           response.json(dataProvider.toObject());
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
-        })
+        });
       } else {
         var output = [];
-        DataManager.listDataProviders().forEach(function(element) {
+        DataManager.listDataProviders({project_id: app.locals.activeProject.id}).forEach(function(element) {
           output.push(element.rawObject());
         });
         response.json(output);
@@ -98,23 +98,24 @@ module.exports = function(app) {
         active: request.body.active,
         description: request.body.description,
         uri: requester.uri
-      }
+      };
 
       if (dataProviderId) {
-        DataManager.updateDataProvider(parseInt(dataProviderId), toUpdate).then(function() {
-          DataManager.getDataProvider({id: dataProviderId}).then(function(dProvider) {
+        dataProviderId = parseInt(dataProviderId);
+        DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
+          DataManager.getDataProvider({id: dataProviderId, project_id: app.locals.activeProject.id}).then(function(dProvider) {
             // generating token
             var token = Utils.generateToken(app, TokenCode.UPDATE, dProvider.name);
 
             response.json({status: 200, result: dProvider, token: token});
           }).catch(function(err) {
             response.status(400);
-            response.json({status: 400, message: err.message})
+            response.json({status: 400, message: err.message});
           });
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
-        })
+        });
 
       } else {
         response.status(400);
@@ -125,16 +126,17 @@ module.exports = function(app) {
     delete: function(request, response) {
       var id = request.params.id;
       if (id) {
+        id = parseInt(id);
         DataManager.getDataProvider({id: id}).then(function(dProvider) {
           DataManager.removeDataProvider({id: id}).then(function() {
           // generating token
             response.json({status: 200, name: dProvider.name});
           }).catch(function(err) {
             Utils.handleRequestError(response, err, 400);
-          })
+          });
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
-        })
+        });
       } else {
         Utils.handleRequestError(response, new DataProviderError("Missing data provider id"), 400);
       }

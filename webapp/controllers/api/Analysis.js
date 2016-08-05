@@ -11,6 +11,7 @@ module.exports = function(app) {
     get: function(request, response) {
       var analysisId = request.params.id;
       var restriction = analysisId ? {id: analysisId} : {};
+      restriction.project_id = app.locals.activeProject.id;
 
       DataManager.listAnalyses(restriction).then(function(analyses) {
         var output = [];
@@ -94,7 +95,7 @@ module.exports = function(app) {
         var scheduleObject = request.body.schedule;
 
         DataManager.updateAnalysis(analysisId, analysisObject, scheduleObject).then(function() {
-          DataManager.getAnalysis({id: analysisId}).then(function(analysisInstance) {
+          DataManager.getAnalysis({id: analysisId, project_id: app.locals.activeProject.id}).then(function(analysisInstance) {
 
             Utils.sendDataToServices(DataManager, TcpManager, {
               "DataSeries": [analysisInstance.dataSeries.toObject()],
@@ -120,7 +121,7 @@ module.exports = function(app) {
     delete: function(request, response) {
       var id = request.params.id;
       if(id) {
-        DataManager.getAnalysis({id: id}).then(function(analysis) {
+        DataManager.getAnalysis({id: id, project_id: app.locals.activeProject.id}).then(function(analysis) {
           DataManager.removeAnalysis({id: id}, null).then(function() {
             var objectToSend = {
               "Analysis": [analysis.id],
