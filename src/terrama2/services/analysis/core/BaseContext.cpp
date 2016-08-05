@@ -175,7 +175,6 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
 terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFilter(const std::string& dateDiscardBefore, const std::string& dateDiscardAfter)
 {
   terrama2::core::Filter filter;
-  filter.lastValue = true;
 
   filter.discardAfter = startTime_;
   if(!dateDiscardBefore.empty() || !dateDiscardAfter.empty())
@@ -192,6 +191,8 @@ terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFi
 
       filter.lastValue = false;
     }
+    else
+      filter.discardBefore = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
 
     if(!dateDiscardAfter.empty())
     {
@@ -204,12 +205,15 @@ terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFi
 
       filter.lastValue = false;
     }
+    else
+      filter.discardAfter = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
   }
   else
   {
-    // no interval set,
-    // use analysis execution timestamp as last valid date
+    // no filter set
+    // use start date as last value
     filter.discardAfter = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
+    filter.lastValue = true;
   }
 
   return filter;
