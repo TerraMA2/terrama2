@@ -64,6 +64,7 @@
 // Boost Python
 #include <boost/python/call.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/python/stl_iterator.hpp>
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
@@ -99,29 +100,46 @@ std::string terrama2::services::analysis::core::python::extractException()
 
 void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint32_t> indexes)
 {
-  AnalysisPtr analysis = context->getAnalysis();
-
-  std::string script = prepareScript(context);
 
   // grab the global interpreter lock
-  GILLock gilLock;
-  assert(state);
+  GILLock lock;
+
+  if(!state)
+  {
+    QString errMsg = QObject::tr("Invalid thread state for python interpreter.");
+    context->addError(errMsg.toStdString());
+    PyEval_ReleaseLock();
+    return;
+  }
+
   // swap in my thread state
   auto previousState = PyThreadState_Swap(state);
 
-  PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
-  assert(pCompiledFn != NULL) ;
-
-  Py_INCREF(pCompiledFn);
-
-  // create a module
-  PyObject* pModule = PyImport_ExecCodeModule((char*)"analysis" , pCompiledFn) ;
-  assert(pModule != NULL) ;
-
-  Py_INCREF(pModule);
-
   try
   {
+    AnalysisPtr analysis = context->getAnalysis();
+
+    std::string script = prepareScript(context);
+
+    PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
+    if(pCompiledFn == NULL)
+    {
+      QString errMsg = QObject::tr("Invalid script.");
+      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    Py_INCREF(pCompiledFn);
+
+    // create a module
+    PyObject* pModule = PyImport_ExecCodeModule((char*)"analysis" , pCompiledFn) ;
+    if(pModule == NULL)
+    {
+      std::string errMsg = QObject::tr("Could not register the analysis function.").toStdString();
+      throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg.c_str());
+    }
+
+    Py_INCREF(pModule);
+
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
     AnalysisHashCode analysisHashCode = analysis->hashCode(context->getStartTime());
@@ -144,8 +162,8 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
       }
       else
       {
-        //TODO: PAULO: how to deal with this error?
-        abort();
+        std::string errMsg = QObject::tr("Could not set script parameters.").toStdString();
+        throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg.c_str());
       }
     }
   }
@@ -153,6 +171,19 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   {
     std::string errMsg = extractException();
     context->addError(errMsg);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    context->addError(errMsg.toStdString());
   }
 
 
@@ -162,42 +193,52 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
 
 void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint32_t> rows)
 {
-  AnalysisPtr analysis = context->getAnalysis();
+  GILLock lock;
 
-  auto outputRaster = context->getOutputRaster();
-  if(!outputRaster)
+  if(!state)
   {
-    QString errMsg(QObject::tr("Invalid output raster."));
+    QString errMsg = QObject::tr("Invalid thread state for python interpreter.");
     context->addError(errMsg.toStdString());
+    PyEval_ReleaseLock();
     return;
   }
 
-  // grab the global interpreter lock
-  GILLock gilLock;
   // swap in my thread state
   auto previousState = PyThreadState_Swap(state);
 
-  int nCols = outputRaster->getNumberOfColumns();
-
-  std::string script = prepareScript(context);
-  PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
-  if(pCompiledFn == NULL)
-  {
-    std::string errMsg = QObject::tr("Invalid script.").toStdString();
-    context->addError(errMsg);
-    return;
-  }
-
-  Py_INCREF(pCompiledFn);
-
-  // create a module
-  PyObject* pModule = PyImport_ExecCodeModule((char*)"analysis" , pCompiledFn) ;
-  assert(pModule != NULL) ;
-
-  Py_INCREF(pModule);
-
   try
   {
+    AnalysisPtr analysis = context->getAnalysis();
+
+    auto outputRaster = context->getOutputRaster();
+    if(!outputRaster)
+    {
+      QString errMsg(QObject::tr("Invalid output raster."));
+      throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    int nCols = outputRaster->getNumberOfColumns();
+
+    std::string script = prepareScript(context);
+    PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
+    if(pCompiledFn == NULL)
+    {
+      QString errMsg(QObject::tr("Invalid script."));
+      throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    Py_INCREF(pCompiledFn);
+
+    // create a module
+    PyObject* pModule = PyImport_ExecCodeModule((char*)"analysis" , pCompiledFn) ;
+    if(pModule == NULL)
+    {
+      QString errMsg(QObject::tr("Could not register the analysis function."));
+      throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg);
+    }
+
+    Py_INCREF(pModule);
+
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
     auto analysisHashCode = analysis->hashCode(context->getStartTime());
@@ -243,7 +284,7 @@ void terrama2::services::analysis::core::python::runScriptDCPAnalysis(PyThreadSt
   AnalysisPtr analysis = context->getAnalysis();
 
   // grab the global interpreter lock
-  PyEval_AcquireLock();
+  GILLock lock;
   // swap in my thread state
   PyThreadState_Swap(state);
   PyThreadState_Clear(state);
@@ -269,9 +310,6 @@ void terrama2::services::analysis::core::python::runScriptDCPAnalysis(PyThreadSt
     std::string errMsg = extractException();
     context->addError(errMsg);
   }
-
-  // release our hold on the global interpreter
-  PyEval_ReleaseLock();
 }
 
 void terrama2::services::analysis::core::python::addValue(const std::string& attribute, double value)
@@ -464,7 +502,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
     }
     case AnalysisType::GRID_TYPE:
     {
-      // Ouput raster row
+      // Output raster row
       PyObject* rowKey = PyString_FromString("row");
       PyObject* rowValue = PyDict_GetItem(pDict, rowKey);
       if(rowValue != NULL)
@@ -519,6 +557,8 @@ std::string terrama2::services::analysis::core::python::prepareScript(terrama2::
 
   return formatedScript;
 }
+
+
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop

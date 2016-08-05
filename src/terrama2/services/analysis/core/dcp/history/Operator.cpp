@@ -40,6 +40,7 @@
 #include "../../../../../core/data-model/Filter.hpp"
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/Shared.hpp"
+#include "../../PythonUtils.hpp"
 
 
 // TerraLib
@@ -50,8 +51,9 @@
 
 double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticOperation statisticOperation,
     const std::string& dataSeriesName,
-    const std::string& attribute, DataSetId dcpId,
-    Buffer buffer, const std::string& dateFilter)
+    const std::string& attribute,
+    const std::string& dateFilter,
+    boost::python::list ids)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -63,13 +65,19 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 
   try
   {
-
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
       return NAN;
     }
 
+    std::vector<DataSetId> vecDCPIds;
+    terrama2::services::analysis::core::python::pythonToVector<DataSetId>(ids, vecDCPIds);
+
+    if(vecDCPIds.empty())
+    {
+      return NAN;
+    }
 
     bool hasData = false;
 
@@ -97,6 +105,9 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
     }
 
 
+
+    std::vector<double> values;
+
     // Frees the GIL, from now on can not use the interpreter
     Py_BEGIN_ALLOW_THREADS
     try
@@ -114,42 +125,33 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 
       context->addDCPDataSeries(dataSeries, dateFilter, false);
 
-      for(auto dataset : dataSeries->datasetList)
+
+      for(DataSetId dcpId : vecDCPIds)
       {
-        if(dataset->id != dcpId)
-          continue;
-        contextDataSeries = context->getContextDataset(dataset->id, dateFilter);
-
-        terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
-              dataset);
-        if(!dcpDataset)
+        for(auto dataset : dataSeries->datasetList)
         {
-          QString errMsg(QObject::tr("Could not recover DCP dataset: %1.").arg(dataset->id));
-          throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-        }
+          if(dataset->id != dcpId)
+            continue;
 
+          contextDataSeries = context->getContextDataset(dataset->id, dateFilter);
 
-        if(dcpDataset->position == nullptr)
-        {
-          QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
-          throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-        }
+          terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
+                  dataset);
+          if(!dcpDataset)
+          {
+            QString errMsg(QObject::tr("Could not recover DCP dataset: %1.").arg(dataset->id));
+            throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
+          }
 
-
-        auto influenceType = getInfluenceType(analysis);
-        auto dcpInfluenceBuffer = createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(), influenceType);
-
-        auto resultGeom = createBuffer(buffer, geom);
-
-
-        bool intersects = verifyDCPInfluence(influenceType, resultGeom, dcpInfluenceBuffer);
-
-        if(intersects)
-        {
+          if(dcpDataset->position == nullptr)
+          {
+            QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
+            throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
+          }
 
           auto syncDs = contextDataSeries->series.syncDataSet;
-
           int attributeType = 0;
+
           if(!attribute.empty())
           {
             auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
@@ -163,13 +165,11 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
             attributeType = property->getType();
           }
 
-          uint32_t countValues = 0;
 
           if(syncDs->size() == 0)
             continue;
 
 
-          std::vector<double> values;
           for(unsigned int i = 0; i < syncDs->size(); ++i)
           {
             try
@@ -177,14 +177,8 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
               if(!attribute.empty() && !syncDs->isNull(i, attribute))
               {
                 hasData = true;
-                countValues++;
                 double value = getValue(syncDs, attribute, i, attributeType);
                 values.push_back(value);
-                cache.sum += value;
-                if(value > cache.max)
-                  cache.max = value;
-                if(value < cache.min)
-                  cache.min = value;
               }
             }
             catch(...)
@@ -194,13 +188,12 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
             }
           }
 
-          if(countValues == 0)
-            continue;
-
-          calculateStatistics(values, cache);
 
         }
       }
+
+      calculateStatistics(values, cache);
+
     }
     catch(const terrama2::Exception& e)
     {
@@ -223,6 +216,9 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
     // All operations are done, acquires the GIL and set the return value
     Py_END_ALLOW_THREADS
 
+    if(values.empty() && statisticOperation != StatisticOperation::COUNT)
+      return NAN;
+
     if(exceptionOccurred)
       return NAN;
 
@@ -231,7 +227,8 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
       return NAN;
     }
 
-    return getOperationResult(cache, statisticOperation);
+    double x = getOperationResult(cache, statisticOperation);
+    return x;
   }
   catch(const terrama2::Exception& e)
   {
@@ -253,56 +250,57 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 
 
 double terrama2::services::analysis::core::dcp::history::sum(const std::string& dataSeriesName,
-    const std::string& attribute, DataSetId dcpId,
-    Buffer buffer,
-    const std::string& dateFilter)
+    const std::string& attribute,
+    const std::string& dateFilter,
+    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dateFilter, ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::mean(const std::string& dataSeriesName,
-    const std::string& attribute, DataSetId dcpId,
-    Buffer buffer,
-    const std::string& dateFilter)
+    const std::string& attribute,
+    const std::string& dateFilter,
+    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dateFilter, ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::min(const std::string& dataSeriesName,
-    const std::string& attribute, DataSetId dcpId,
-    Buffer buffer,
-    const std::string& dateFilter)
+   const std::string& attribute,
+   const std::string& dateFilter,
+   boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dateFilter, ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::max(const std::string& dataSeriesName,
-    const std::string& attribute, DataSetId dcpId,
-    Buffer buffer,
-    const std::string& dateFilter)
+   const std::string& attribute,
+   const std::string& dateFilter,
+   boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dateFilter, ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::median(const std::string& dataSeriesName,
-    const std::string& attribute, DataSetId dcpId,
-    Buffer buffer, const std::string& dateFilter)
+    const std::string& attribute,
+    const std::string& dateFilter,
+    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dateFilter, ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::standardDeviation(const std::string& dataSeriesName,
-    const std::string& attribute,
-    DataSetId dcpId,
-    Buffer buffer, const std::string& dateFilter)
+   const std::string& attribute,
+   const std::string& dateFilter,
+   boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dateFilter, ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::variance(const std::string& dataSeriesName,
     const std::string& attribute,
-    DataSetId dcpId,
-    Buffer buffer, const std::string& dateFilter)
+    const std::string& dateFilter,
+    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, dcpId, buffer, dateFilter);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, dateFilter, ids);
 }

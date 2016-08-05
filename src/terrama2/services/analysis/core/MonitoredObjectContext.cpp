@@ -37,6 +37,7 @@
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 
+// TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/srs/SpatialReferenceSystemManager.h>
 #include <terralib/srs/SpatialReferenceSystem.h>
@@ -380,6 +381,9 @@ void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResu
 std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries>
 terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectContextDataSeries(std::shared_ptr<DataManager>& dataManagerPtr)
 {
+
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
   std::shared_ptr<ContextDataSeries> contextDataSeries;
 
   auto analysis = getAnalysis();
@@ -406,4 +410,31 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
   }
 
   return contextDataSeries;
+}
+
+std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredObjectContext::getDCPBuffer(const DataSetId datasetId, const std::string& dateFilter)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+  ObjectKey key;
+  key.objectId_ = datasetId;
+  key.dateFilter_ = dateFilter;
+
+  auto it = bufferDcpMap_.find(key);
+  if(it == bufferDcpMap_.end())
+  {
+    return std::shared_ptr<te::gm::Geometry>();
+  }
+
+  return it->second;
+}
+
+void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const std::string& dateFilter)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+  ObjectKey key;
+  key.objectId_ = datasetId;
+  key.dateFilter_ = dateFilter;
+  bufferDcpMap_[key] = buffer;
 }

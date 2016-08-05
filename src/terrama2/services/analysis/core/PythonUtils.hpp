@@ -20,16 +20,21 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/PythonBindindGrid.hpp
+  \file terrama2/services/analysis/core/PythonUtils.hpp
 
-  \brief
+  \brief Python utility functions for TerraMA2 Analysis module.
 
-  \author Jano Simas
+  \author Paulo R. M. Oliveira
 */
 
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHONUTILS_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHONUTILS_HPP__
 
-#ifndef __TERRAMA2_SERVINCES_ANALYSIS_CORE_PYTHON_GRID_HPP__
-#define __TERRAMA2_SERVINCES_ANALYSIS_CORE_PYTHON_GRID_HPP__
+// STL
+#include <vector>
+
+// Boost
+#include <boost/python/stl_iterator.hpp>
 
 namespace terrama2
 {
@@ -41,24 +46,18 @@ namespace terrama2
       {
         namespace python
         {
-          namespace Grid
+          template<typename T>
+          void pythonToVector(boost::python::object o, std::vector<T>& vec)
           {
-            void registerFunctions();
+            boost::python::stl_input_iterator<T> begin(o);
+            boost::python::stl_input_iterator<T> end;
 
-            void registerGridFunctions();
-            void registerGridHistoryFunctions();
-            void registerGridHistoryIntervalFunctions();
-            void registerGridForecastFunctions();
-            void registerGridForecastIntervalFunctions();
-            void registerGridZonalFunctions();
-            void registerGridZonalHistoryFunctions();
-            void registerGridZonalHistoryRatioFunctions();
-            void registerGridZonalHistoryPrecFunctions();
-          } /* MonitoredObject */
-        } /* python */
-      }
-    }
-  }
-}
+            vec.insert(vec.end(), begin, end);
+          }
+        }   // end namespace python
+      }     // end namespace core
+    }       // end namespace analysis
+  }         // end namespace services
+}           // end namespace terrama2
 
-#endif // __TERRAMA2_SERVINCES_ANALYSIS_CORE_PYTHON_GRID_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_PYTHONUTILS_HPP__

@@ -27,8 +27,8 @@
   \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_UTILS_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_UTILS_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_UTILS_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_UTILS_HPP__
 
 // TerraMA2
 
@@ -165,9 +165,10 @@ namespace terrama2
         */
         double getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation);
 
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
 
-#endif // __TERRAMA2_ANALYSIS_CORE_UTILS_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_UTILS_HPP__

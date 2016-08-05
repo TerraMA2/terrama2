@@ -20,23 +20,21 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/Operator.hpp
+  \file terrama2/services/analysis/core/dcp/influence/PythonOperator.hpp
 
-  \brief Contains grid analysis operators.
+  \brief Contains python wrapper for DCP influence operators.
 
   \author Paulo R. M. Oliveira
 */
 
+#include "../../BufferMemory.hpp"
+#include "../../../../../core/Typedef.hpp"
 
-#ifndef __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
-#define __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
-
-// TerraMA2
-#include "../BufferMemory.hpp"
-#include "../Analysis.hpp"
-
-// STL
+#include <vector>
 #include <string>
+
+#ifndef __TERRAMA2_ANALYSIS_CORE_DCP_INFLUENCE_PYTHON_OPERATOR_HPP__
+#define __TERRAMA2_ANALYSIS_CORE_DCP_INFLUENCE_PYTHON_OPERATOR_HPP__
 
 
 namespace terrama2
@@ -47,21 +45,24 @@ namespace terrama2
     {
       namespace core
       {
-        namespace grid
+        namespace dcp
         {
+          namespace influence
+          {
+            namespace python
+            {
 
-          /*!
-            \brief Return current pixel value for the selected data series.
-            \param dataSeriesName DataSeries name.
-            \return The current pixel value for the selected data series.
-          */
-          double sample(const std::string& dataSeriesName);
+              boost::python::list byAttribute(const std::string& dataSeriesName, boost::python::list attributeList);
+
+              boost::python::list byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer);
+
+            } // end namespace python
+          }   // end namespace influence
+        }     // end namespace dcp
+      }       // end namespace core
+    }         // end namespace analysis
+  }           // end namespace services
+}             // end namespace terrama2
 
 
-        }   // end namespace grid
-      }     // end namespace core
-    }       // end namespace analysis
-  }         // end namespace services
-}           // end namespace terrama2
-
-#endif // __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
+#endif //__TERRAMA2_ANALYSIS_CORE_DCP_INFLUENCE_PYTHON_OPERATOR_HPP__

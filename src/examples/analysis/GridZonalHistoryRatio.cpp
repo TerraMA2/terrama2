@@ -1,54 +1,60 @@
+
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/DataAccessorFactory.hpp>
+#include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
-#include <terrama2/core/data-model/DataSetDcp.hpp>
+#include <terrama2/core/data-model/DataSetGrid.hpp>
 
-#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
-#include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
+#include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
+#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
-#include <terrama2/Config.hpp>
 
+// STL
 #include <iostream>
+#include <memory>
 
 // QT
 #include <QTimer>
 #include <QCoreApplication>
 #include <QUrl>
 
-
 using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
+
   terrama2::core::initializeTerraMA();
 
   terrama2::core::registerFactories();
 
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+  std::map<std::string, std::string> connInfo{{"PG_HOST",            TERRAMA2_DATABASE_HOST},
+                                              {"PG_PORT",            TERRAMA2_DATABASE_PORT},
+                                              {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
+                                              {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
+                                              {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
+                                              {"PG_CONNECT_TIMEOUT", "4"},
+                                              {"PG_CLIENT_ENCODING", "UTF-8"}
+  };
+  serviceManager.setLogConnectionInfo(connInfo);
+
+  terrama2::services::analysis::core::python::initInterpreter();
+
   {
-    auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    std::map<std::string, std::string> connInfo{{"PG_HOST",            TERRAMA2_DATABASE_HOST},
-                                                {"PG_PORT",            TERRAMA2_DATABASE_PORT},
-                                                {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
-                                                {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
-                                                {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
-                                                {"PG_CONNECT_TIMEOUT", "4"},
-                                                {"PG_CLIENT_ENCODING", "UTF-8"}
-                                               };
-    serviceManager.setLogConnectionInfo(connInfo);
-
-    terrama2::services::analysis::core::python::initInterpreter();
-
     QCoreApplication app(argc, argv);
 
-
     DataManagerPtr dataManager(new DataManager());
+
 
     QUrl uri;
     uri.setScheme("postgis");
@@ -68,7 +74,9 @@ int main(int argc, char* argv[])
     outputDataProvider->dataProviderType = "POSTGIS";
     outputDataProvider->active = true;
 
+
     dataManager->add(outputDataProviderPtr);
+
 
     // DataSeries information
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
@@ -83,46 +91,34 @@ int main(int argc, char* argv[])
     terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
     outputDataSet->active = true;
     outputDataSet->id = 2;
-    outputDataSet->format.emplace("table_name", "dcp_result");
+    outputDataSet->format.emplace("table_name", "zonal_history_ratio_analysis_result");
 
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
 
     dataManager->add(outputDataSeriesPtr);
 
-    std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-                         "ids = dcp.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
-                         "x = dcp.count(\"Serra do Mar\", moBuffer)\n"
-                         "add_value(\"count\", x)\n"
-                         "x = dcp.min(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"min\", x)\n"
-                         "x = dcp.max(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"max\", x)\n"
-                         "x = dcp.mean(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"mean\", x)\n"
-                         "x = dcp.median(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"median\", x)\n"
-                         "x = dcp.standard_deviation(\"Serra do Mar\", \"Pluvio\", ids)\n"
-                         "add_value(\"standard_deviation\", x)\n";
 
     Analysis* analysis = new Analysis;
     AnalysisPtr analysisPtr(analysis);
 
     analysis->id = 1;
-    analysis->name = "Min DCP";
+    analysis->name = "Analysis";
+    analysis->active = false;
+
+    std::string script = "x = grid.zonal.history.prec.max(\"geotiff 1\", \"30d\")\n"
+                         "add_value(\"max\", x)\n"
+                         "return";
+
+
     analysis->script = script;
+    analysis->outputDataSeriesId = 3;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
-    analysis->active = false;
-    analysis->outputDataSeriesId = 3;
     analysis->serviceInstanceId = 1;
 
-    analysis->metadata["INFLUENCE_TYPE"] = "1";
-    analysis->metadata["INFLUENCE_RADIUS"] = "50";
-    analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
-
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    terrama2::core::DataProviderPtr dataProvider1Ptr(dataProvider);
     dataProvider->name = "Provider";
     dataProvider->uri += TERRAMA2_DATA_DIR;
     dataProvider->uri += "/shapefile";
@@ -131,8 +127,8 @@ int main(int argc, char* argv[])
     dataProvider->active = true;
     dataProvider->id = 1;
 
+    dataManager->add(dataProvider1Ptr);
 
-    dataManager->add(dataProviderPtr);
 
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
@@ -150,23 +146,10 @@ int main(int argc, char* argv[])
     dataSet->format.emplace("mask", "estados_2010.shp");
     dataSet->format.emplace("srid", "4326");
     dataSet->id = 1;
+    dataSet->dataSeriesId = 1;
 
     dataSeries->datasetList.push_back(dataSetPtr);
     dataManager->add(dataSeriesPtr);
-
-
-    terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
-    dataProvider2->name = "Provider";
-    dataProvider2->uri += TERRAMA2_DATA_DIR;
-    dataProvider2->uri += "/PCD_serrmar_INPE";
-    dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider2->dataProviderType = "FILE";
-    dataProvider2->active = true;
-    dataProvider2->id = 2;
-
-
-    dataManager->add(dataProvider2Ptr);
 
     AnalysisDataSeries monitoredObjectADS;
     monitoredObjectADS.id = 1;
@@ -175,78 +158,79 @@ int main(int argc, char* argv[])
     monitoredObjectADS.metadata["identifier"] = "nome";
 
 
-    //DataSeries information
-    terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
-    terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
-    dcpSeries->dataProviderId = dataProvider2->id;
+    // DataProvider information
+    terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
+    dataProvider2->uri = "file://";
+    dataProvider2->uri += TERRAMA2_DATA_DIR;
+    dataProvider2->uri += "/geotiff";
 
+    dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider2->dataProviderType = "FILE";
+    dataProvider2->active = true;
+    dataProvider2->id = 2;
+    dataProvider2->name = "Local Geotiff";
+
+    dataManager->add(dataProvider2Ptr);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Data Series 2
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
     auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
-    dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
-    dcpSeries->name = "Serra do Mar";
-    dcpSeries->id = 2;
-    dcpSeries->dataProviderId = 2;
 
-    //DataSet information
-    terrama2::core::DataSetDcp* dcpDataset69034 = new terrama2::core::DataSetDcp;
-    terrama2::core::DataSetDcpPtr dcpDataset69034Ptr(dcpDataset69034);
-    dcpDataset69034->active = true;
-    dcpDataset69034->format.emplace("mask", "69034.txt");
-    dcpDataset69034->format.emplace("timezone", "-02:00");
-    dcpDataset69034->dataSeriesId = 2;
-    dcpDataset69034->id = 2;
-    dcpDataset69034->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-44.46540, -23.00506, 4618, nullptr));
-    dcpSeries->datasetList.push_back(dcpDataset69034Ptr);
+    terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
+    dataSeries2->semantics = semanticsManager.getSemantics("GRID-geotiff");
+    dataSeries2->name = "geotiff 1";
+    dataSeries2->id = 2;
+    dataSeries2->dataProviderId = 2;
+
+    terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
+    dataSet1->active = true;
+    dataSet1->format.emplace("mask", "Spot_Vegetacao_Jul2001_SP.tif");
+    dataSet1->id = 2;
+
+    dataSeries2->datasetList.emplace_back(dataSet1);
+
+    AnalysisDataSeries gridADS1;
+    gridADS1.id = 2;
+    gridADS1.dataSeriesId = dataSeries2Ptr->id;
+    gridADS1.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-    terrama2::core::DataSetDcp* dcpDataset30885 = new terrama2::core::DataSetDcp;
-    terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30885);
-    dcpDataset30885->active = true;
-    dcpDataset30885->format.emplace("mask", "30885.txt");
-    dcpDataset30885->format.emplace("timezone", "-02:00");
-    dcpDataset30885->dataSeriesId = 2;
-    dcpDataset30885->id = 3;
-    dcpDataset30885->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
-    dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
-
-    AnalysisDataSeries dcpADS;
-    dcpADS.id = 2;
-    dcpADS.dataSeriesId = dcpSeriesPtr->id;
-    dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
-
-    dataManager->add(dcpSeriesPtr);
+    dataManager->add(dataSeries2Ptr);
 
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
-    analysisDataSeriesList.push_back(dcpADS);
     analysisDataSeriesList.push_back(monitoredObjectADS);
-    analysis->analysisDataSeriesList = analysisDataSeriesList;
+    analysisDataSeriesList.push_back(gridADS1);
 
+    analysis->analysisDataSeriesList = analysisDataSeriesList;
 
     analysis->schedule.frequency = 1;
     analysis->schedule.frequencyUnit = "min";
 
     dataManager->add(analysisPtr);
 
-    // Starts the service and adds the analysis
-    Service service(dataManager);
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
+    Service service(dataManager);
     auto logger = std::make_shared<AnalysisLogger>();
     logger->setConnectionInfo(connInfo);
-    service.setLogger(logger);
 
+    service.setLogger(logger);
     service.start();
     service.addAnalysis(1);
 
+
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-    timer.start(100000);
-
+    timer.start(10000);
     app.exec();
   }
 
   terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
+
 
   return 0;
 }

@@ -94,17 +94,20 @@ int main(int argc, char* argv[])
   dataManager->add(outputDataSeriesPtr);
 
   std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-          "x = dcp.history.sum(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "ids = dcp.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
+          "for id in ids:"
+          "    add_value(\"id_\" + str(id), id)\n"
+          "x = dcp.history.sum(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_sum\",x)\n"
-          "x = dcp.history.max(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.max(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_max\",x)\n"
-          "x = dcp.history.min(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.min(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_min\",x)\n"
-          "x = dcp.history.mean(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.mean(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_mean\",x)\n"
-          "x = dcp.history.median(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.median(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_median\",x)\n"
-          "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.standard_deviation(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_standard_deviation\",x)\n";
 
 
@@ -188,7 +191,7 @@ int main(int argc, char* argv[])
   dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
 
   dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
-  dcpSeries->name = "DCP-Angra";
+  dcpSeries->name = "Serra do Mar";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
 
@@ -246,7 +249,7 @@ int main(int argc, char* argv[])
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  timer.start(100000);
   app.exec();
 
   terrama2::services::analysis::core::python::finalizeInterpreter();
