@@ -107,7 +107,6 @@ int main(int argc, char* argv[])
     analysis->active = false;
 
     std::string script = "x = grid.zonal.history.prec.max(\"geotiff 1\", \"30d\")\n"
-                         "print grid.zonal.history.list(\"geotiff 1\", \"30d\")\n"
                          "add_value(\"max\", x)\n"
                          "return";
 
@@ -164,7 +163,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
     dataProvider2->uri = "file://";
     dataProvider2->uri += TERRAMA2_DATA_DIR;
-    dataProvider2->uri += "/geotiff/historical";
+    dataProvider2->uri += "/geotiff";
 
     dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider2->dataProviderType = "FILE";
@@ -188,7 +187,7 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
     dataSet1->active = true;
-    dataSet1->format.emplace("mask", "yyyyMMdd.tif");
+    dataSet1->format.emplace("mask", "Spot_Vegetacao_Jul2001_SP.tif");
     dataSet1->id = 2;
 
     dataSeries2->datasetList.emplace_back(dataSet1);
