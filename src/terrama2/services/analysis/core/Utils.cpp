@@ -103,8 +103,6 @@ terrama2::services::analysis::core::InterpolationMethod terrama2::services::anal
 {
   switch(interpolationMethod)
   {
-    case 0:
-      return InterpolationMethod::UNDEFINTERPMETHOD;
     case 1:
       return InterpolationMethod::NEARESTNEIGHBOR;
     case 2:
@@ -120,13 +118,13 @@ terrama2::services::analysis::core::ResolutionType terrama2::services::analysis:
 {
   switch(resolutionType)
   {
-    case 0:
-      return ResolutionType::SMALLEST_GRID;
     case 1:
-      return ResolutionType::BIGGEST_GRID;
+      return ResolutionType::SMALLEST_GRID;
     case 2:
-      return ResolutionType::SAME_FROM_DATASERIES;
+      return ResolutionType::BIGGEST_GRID;
     case 3:
+      return ResolutionType::SAME_FROM_DATASERIES;
+    case 4:
       return ResolutionType::CUSTOM;
     default:
       throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid resolution type"));
@@ -137,11 +135,11 @@ terrama2::services::analysis::core::InterestAreaType terrama2::services::analysi
 {
   switch(interestAreaType)
   {
-    case 0:
-      return InterestAreaType::UNION;
     case 1:
-      return InterestAreaType::SAME_FROM_DATASERIES;
+      return InterestAreaType::UNION;
     case 2:
+      return InterestAreaType::SAME_FROM_DATASERIES;
+    case 3:
       return InterestAreaType::CUSTOM;
     default:
       throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid interest area type"));
