@@ -30,6 +30,16 @@ terrama2Application.factory("TryCaster", function() {
   }
 });
 
+terrama2Application.factory("MakeMetadata", function() {
+  return function(metadataArray) {
+    var output = {};
+    metadataArray.forEach(function(meta) {
+      output[meta.key] = meta.value;
+    });
+    return output;
+  }
+});
+
 // Helper for display invalid fields from form
 terrama2Application.factory('FormHelper', function() {
   return function(form) {

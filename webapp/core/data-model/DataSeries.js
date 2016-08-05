@@ -1,5 +1,8 @@
+"use strict";
+
 var BaseClass = require('./AbstractData');
 var DataSetFactory = require('./DataSetFactory');
+var DataProvider = require("./DataProvider");
 
 
 var DataSeries = function(params) {
@@ -11,21 +14,40 @@ var DataSeries = function(params) {
   this.data_provider_id = params.data_provider_id;
   this.data_series_semantics_id = params.data_series_semantics_id;
 
-  if (params.data_series_semantics)
+  if (params.DataProvider) {
+    this.setDataProvider(params.DataProvider);
+  } else {
+    this.setDataProvider(params.dataProvider || {});
+  }
+
+  if (params.data_series_semantics) {
     this.data_series_semantics = params.data_series_semantics;
-  else if (params['DataSeriesSemantic'])
+  } else if (params['DataSeriesSemantic']) {
     this.data_series_semantics = params['DataSeriesSemantic'].get();
+  }
 
   this.semantics = params.semantics;
 
-  if (params['DataSets'])
-    this.setDataSets(params['DataSets']);
-  else
+  if (params.DataSets) {
+    this.setDataSets(params.DataSets);
+  } else {
     this.dataSets = params.dataSets || [];
+  }
 };
 
 DataSeries.prototype = Object.create(BaseClass.prototype);
 DataSeries.prototype.constructor = DataSeries;
+
+DataSeries.prototype.setDataProvider = function(dataProvider) {
+  var provider = {};
+  if (dataProvider instanceof BaseClass) {
+    provider = dataProvider;
+  } else {
+    provider = new DataProvider(dataProvider || provider);
+  }
+
+  this.dataProvider = provider;
+};
 
 DataSeries.prototype.setDataSets = function(dataSets) {
   var output = [];

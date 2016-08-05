@@ -44,10 +44,10 @@ var Analysis = module.exports = function(params) {
   this.instance_id = params.instance_id;
   this.dataSeries = {};
 
-  if (params.AnalysisOutputGrids) {
-    this.setAnalysisOutputGrid(params.AnalysisOutputGrids);
+  if (params.AnalysisOutputGrid) {
+    this.setAnalysisOutputGrid(params.AnalysisOutputGrid);
   } else {
-    this.setAnalysisOutputGrid(params.outputGrid || []);
+    this.setAnalysisOutputGrid(params.outputGrid || {});
   }
 };
 
@@ -59,14 +59,12 @@ Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
 };
 
 Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
-  var output = [];
-  outputGrid.forEach(function(out) {
-    if (out.get) {
-      output.push(new AnalysisOutputGrid(out.get()));
-    } else {
-      output.push(new AnalysisOutputGrid(out));
-    }
-  });
+  var output = {};
+  if (outputGrid.get) {
+    output = new AnalysisOutputGrid(outputGrid.get());
+  } else {
+    output = new AnalysisOutputGrid(outputGrid);
+  }
   this.outputGrid = output;
 };
 
@@ -137,9 +135,7 @@ Analysis.prototype.toObject = function() {
     'analysis_dataseries_list': outputDataSeriesList,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : this.schedule,
     service_instance_id: this.instance_id,
-    output_grid: this.outputGrid.map(function(element) {
-      return element.toObject();
-    })
+    output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid
   });
 };
 

@@ -33,7 +33,7 @@ module.exports = function(app) {
       var dataProviderId = request.params.id;
       var redirectTo = request.query.redirectTo ? request.query : {redirectTo: "/configuration/providers"};
 
-      DataManager.getDataProvider({id: dataProviderId}).then(function(dataProvider) {
+      DataManager.getDataProvider({id: parseInt(dataProviderId || "0")}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);
 
         return response.render('configuration/provider', {

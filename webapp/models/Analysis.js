@@ -26,7 +26,7 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          Analysis.hasMany(models.AnalysisOutputGrid, {
+          Analysis.hasOne(models.AnalysisOutputGrid, {
             onDelete: "CASCADE",
             foreignKey: {
               name: 'analysis_id',

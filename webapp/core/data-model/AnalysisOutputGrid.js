@@ -31,7 +31,7 @@ AnalysisOutputGrid.prototype.constructor = AnalysisOutputGrid;
 AnalysisOutputGrid.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
-    interpolation_dummy: this.interpolationDummy,
+    interpolation_dummy: this.interpolationDummy ? Number(this.interpolationDummy) : this.interpolationDummy,
     interpolation_method: this.interpolationMethod,
     srid: this.srid,
     analysis_id: this.analysis.id,

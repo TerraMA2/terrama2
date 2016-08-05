@@ -1,3 +1,5 @@
+"use strict";
+
 var DataManager = require("../../core/DataManager");
 var TcpManager = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
@@ -27,7 +29,7 @@ module.exports = function(app) {
               active
           ).then(function(collectorResult) {
             var collector = collectorResult.collector;
-            collector['project_id'] = app.locals.activeProject.id;
+            collector.project_id = app.locals.activeProject.id;
 
             var output = {
               "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
@@ -49,7 +51,7 @@ module.exports = function(app) {
               return response.json({status: 200, output: output, token: token});
             }).catch(function(err) {
               return Utils.handleRequestError(response, err, 400);
-            })
+            });
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           });
@@ -77,7 +79,7 @@ module.exports = function(app) {
             return response.json({status: 200, output: output, token: token});
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
-          })
+          });
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });
@@ -90,12 +92,14 @@ module.exports = function(app) {
       var schema = request.query.schema;
 
       // collector scope
-      var collector = request.query['collector'];
+      var collector = request.query.collector;
 
       var dataSeriesTypeName;
 
-      // list dataseries restriction
-      var restriction = {};
+      // list data series restriction
+      var restriction = {
+        project_id: app.locals.activeProject.id
+      };
 
       if (dataSeriesType) {
         // checking data series: static or dynamic to filter data series output
@@ -179,8 +183,8 @@ module.exports = function(app) {
           collector.service_instance_id = serviceId;
           DataManager.updateCollector(collector.id, collector).then(function() {
             // input
-            DataManager.updateDataSeries(dataSeriesId, dataSeriesObject.input).then(function() {
-              DataManager.updateDataSeries(collector.output_data_series, dataSeriesObject.output).then(function() {
+            DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input).then(function() {
+              DataManager.updateDataSeries(parseInt(collector.output_data_series), dataSeriesObject.output).then(function() {
                 DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
                   var _processIntersection = function() {
                     if (_.isEmpty(intersection)) {
@@ -210,12 +214,11 @@ module.exports = function(app) {
                   } else {
 
                     if (_.isEmpty(filterObject.date)) {
-
                       // checking to update intersection
                       if (collector.intersection.length > 0) {
                         // TODO: implement and call _continue(collector)
                         DataManager.updateIntersections(
-                            collector.intersection.map(function(elm){ return elm.id }),
+                            collector.intersection.map(function(elm){ return elm.id; }),
                             collector.intersection)
                             .then(function() {
                               _continue(collector);
@@ -237,14 +240,14 @@ module.exports = function(app) {
               }).catch(_handleError);
             }).catch(_handleError);
           }).catch(_handleError);
-        }).catch(_handleError)
+        }).catch(_handleError);
       } else {
         DataManager.updateDataSeries(dataSeriesId, dataSeriesObject).then(function() {
           DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
             var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeries.name);
             return response.json({status: 200, result: dataSeries.toObject(), token: token});
-          }).catch(_handleError)
-        }).catch(_handleError)
+          }).catch(_handleError);
+        }).catch(_handleError);
       }
     },
 
@@ -279,7 +282,7 @@ module.exports = function(app) {
                     return response.json({status: 200, name: dataSeriesResult.name});
                   }).catch(function(err) {
                     return Utils.handleRequestError(response, err, 400);
-                  })
+                  });
                 }).catch(function(err) {
                   Utils.handleRequestError(response, err, 400);
                 });
@@ -309,15 +312,15 @@ module.exports = function(app) {
                 response.json({status: 200, name: dataSeriesResult.name});
               }).catch(function(err) {
                 return Utils.handleRequestError(response, err, 400);
-              })
+              });
 
             }).catch(function(error) {
               Utils.handleRequestError(response, error, 400);
-            })
+            });
           });
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
-        })
+        });
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }
