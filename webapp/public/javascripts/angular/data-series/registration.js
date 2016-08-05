@@ -201,7 +201,7 @@ angular.module('terrama2.dataseries.registration', [
             var plus = stringDate.lastIndexOf('+');
             var timezone = parseInt(minus > -1 ? stringDate.substring(minus+1, minus+3) : stringDate.substring(plus+1, plus+3));
 
-            return moment(stringDate).utc((minus > -1 ? timezone : -timezone)).toDate();
+            return moment(stringDate).utc((minus > -1 ? timezone : -timezone));
           };
 
           if (filter.discard_before)

@@ -302,29 +302,29 @@ angular.module('terrama2.analysis.registration', [
               // fill interpolation
               debugger;
               $scope.analysis.grid = {
-                interpolation_method: analysisInstance.output_grid[0].interpolation_method,
-                area_of_interest_type: analysisInstance.output_grid[0].area_of_interest_type,
-                resolution_type: analysisInstance.output_grid[0].resolution_type
+                interpolation_method: analysisInstance.output_grid.interpolation_method,
+                area_of_interest_type: analysisInstance.output_grid.area_of_interest_type,
+                resolution_type: analysisInstance.output_grid.resolution_type
               };
-              var dummy = analysisInstance.output_grid[0].interpolation_dummy;
+              var dummy = analysisInstance.output_grid.interpolation_dummy;
               if (dummy) {
                 $scope.analysis.grid.interpolation_dummy = Number(dummy);
               }
-              var resolutionDS = analysisInstance.output_grid[0].resolution_data_series_id;
+              var resolutionDS = analysisInstance.output_grid.resolution_data_series_id;
               if (resolutionDS) {
                 $scope.analysis.grid.resolution_data_series_id = resolutionDS;
               }
-              var interestDS = analysisInstance.output_grid[0].area_of_interest_data_series_id;
+              var interestDS = analysisInstance.output_grid.area_of_interest_data_series_id;
               if (interestDS) {
                 $scope.analysis.grid.area_of_interest_data_series_id = interestDS;
               }
-              var resX = analysisInstance.output_grid[0].resolution_x;
-              var resY = analysisInstance.output_grid[0].resolution_y;
+              var resX = analysisInstance.output_grid.resolution_x;
+              var resY = analysisInstance.output_grid.resolution_y;
               if (resX && resY) {
                 $scope.analysis.grid.resolution_x = Number(resX);
                 $scope.analysis.grid.resolution_y = Number(resY);
               }
-              var coordinates = (analysisInstance.output_grid[0].interest_area_box || {}).coordinates;
+              var coordinates = (analysisInstance.output_grid.interest_area_box || {}).coordinates;
               if (coordinates) {
                 $scope.analysis.grid.area_of_interest_bounded = {
                   minX: coordinates[0][0][0],
@@ -526,17 +526,11 @@ angular.module('terrama2.analysis.registration', [
 
       // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
       var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
-      if (scheduleForm.$invalid) {
-        return;
-      }
+      if (scheduleForm.$invalid) { return; }
 
-      if ($scope.forms.targetDataSeriesForm.$invalid) {
-        return;
-      }
+      if ($scope.forms.targetDataSeriesForm.$invalid) { return; }
 
-      if ($scope.forms.scriptForm.$invalid) {
-        return;
-      }
+      if ($scope.forms.scriptForm.$invalid) { return; }
 
       // checking script form if there any "add_value"
       var typeId = parseInt($scope.analysis.type_id);
