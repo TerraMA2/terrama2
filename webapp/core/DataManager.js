@@ -57,7 +57,12 @@ function getItemsByParam(array, object) {
     var count = 0;
     for(var key in object) {
       if (object.hasOwnProperty(key)) {
-        if (item[key] === object[key]) {
+        var keyValue = object[key];
+        if (Utils.isObject(keyValue)) {
+          // process (item, keyValue)
+        }
+
+        if (item[key] == object[key]) {
           ++count;
         }
       }
@@ -468,27 +473,11 @@ var DataManager = {
         self.data.dataSets = [];
         self.data.projects = [];
       };
-      // helper for clean up datamanager and reject promise
+      // helper for clean up DataManager and reject promise
       var _rejectClean = function(err) {
         clean();
         console.log("CLEAN: ", err);
         reject(err);
-      };
-
-      var _continueInMemory = function(dataSetObject, dataSetFmtsResult, builtDataSeries) {
-        // for each format
-        var fmt = {};
-        dataSetFmtsResult.forEach(function(format) {
-          if (format.data_set_id == dataSetObject.id) {
-            fmt[format.key] = format.value;
-          }
-        });
-
-        var builtDataSet = DataModel.DataSetFactory.build(Object.assign(dataSetObject, {format: fmt}));
-
-        builtDataSeries.dataSets.push(builtDataSet.toObject());
-        // adding local cache. TODO: Is it necessary to store individual or along data series?
-        self.data.dataSets.push(builtDataSet);
       };
 
       models.db.Project.findAll({}).then(function(projects) {
@@ -496,74 +485,85 @@ var DataManager = {
           self.data.projects.push(project.get());
         });
 
-        models.db.DataProvider.findAll({include: [models.db['DataProviderType']]}).then(function(dataProviders){
-          dataProviders.forEach(function(dataProvider) {
-            var provider = new DataModel.DataProvider(dataProvider.get());
-            self.data.dataProviders.push(provider);
-          });
+        // find all data series, providers
+        models.db.DataSeries.findAll({
+          include: [
+            {
+              model: models.db.DataProvider,
+              include: [models.db.DataProviderType]
+            },
+            models.db.DataSeriesSemantics,
+            {
+              model: models.db.DataSet,
+              include: [
+                {
+                  model: models.db.DataSetDcp,
+                  attributes: ['position'],
+                  required: false
+                },
+                {
+                  model: models.db.DataSetOccurrence,
+                  required: false
+                },
+                {
+                  model: models.db.DataSetMonitored,
+                  required: false
+                },
+                {
+                  model: models.db.DataSetGrid,
+                  required: false
+                },
+                models.db.DataSetFormat
+              ]
+            }
+          ]
+        }).then(function(dataSeries) {
+          var _setWKT = function(data, wkt) {
+            data.position = wkt;
+            self.data.dataSets.push(data);
+          };
+          dataSeries.forEach(function(dSeries) {
+            var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
 
-          // find all data series
-          models.db.DataSeries.findAll({
-            include: [
-              models.db.DataSeriesSemantics,
-              {
-                model: models.db.DataSet,
-                include: [
-                  {
-                    model: models.db.DataSetDcp,
-                    attributes: ['position'],
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetOccurrence,
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetMonitored,
-                    required: false
-                  },
-                  {
-                    model: models.db.DataSetGrid,
-                    required: false
-                  },
-                  models.db.DataSetFormat
-                ]
-              }
-            ]
-          }).then(function(dataSeries) {
-            var _setWKT = function(data, wkt) {
-              data.position = wkt;
-              self.data.dataSets.push(data);
-            };
-            dataSeries.forEach(function(dSeries) {
-              var builtDataSeries = new DataModel.DataSeries(dSeries.get());
+            var flag = self.data.dataProviders.some(function(dProvider) { return provider.id === dProvider.id; });
 
-              builtDataSeries.dataSets.forEach(function(dSet) {
-                if (dSet.position) {
-                  self.getWKT(dSet.position).then(function(wktPosition) {
-                    _setWKT(dSet, wktPosition);
-                  }).catch(_rejectClean);
-                } else { self.data.dataSets.push(dSet); }
-              });
+            if (!flag) {
+              self.data.dataProviders.push(provider);
+            }
 
-              self.data.dataSeries.push(builtDataSeries);
+            var builtDataSeries = new DataModel.DataSeries(dSeries.get());
+            builtDataSeries.setDataProvider(provider);
+
+            builtDataSeries.dataSets.forEach(function(dSet) {
+              if (dSet.position) {
+                self.getWKT(dSet.position).then(function(wktPosition) {
+                  _setWKT(dSet, wktPosition);
+                }).catch(_rejectClean);
+              } else { self.data.dataSets.push(dSet); }
             });
 
-            self.isLoaded = true;
-            resolve();
+            self.data.dataSeries.push(builtDataSeries);
+          });
 
-          }).catch(_rejectClean);
+          self.isLoaded = true;
+          resolve();
+
         }).catch(_rejectClean);
       }).catch(_rejectClean);
     });
   },
 
+  /**
+   * It retrieves a WKT geometry from a valid GeoJSON
+   * @param {Object} geoJSONObject - A GeoJSON object to be converted to WKT format
+   * @return {string} WKT representation
+   */
   getWKT: function(geoJSONObject) {
     return new Promise(function(resolve, reject) {
       models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
         // it retrieves an array with data result (array) and query executed.
         // if data result is empty or greater than 1, its not allowed.
-        if (wktGeom[0].length !== 1) { reject(new exceptions.DataSetError("Invalid wkt retrieved from geojson.")); }
+        if (wktGeom[0].length !== 1) { reject(new exceptions.DataSetError("Invalid wkt retrieved from GeoJSON.")); }
         else {
           resolve(wktGeom[0][0].geom);
         }
@@ -581,7 +581,6 @@ var DataManager = {
   addProject: function(projectObject) {
     var self = this;
     return new Promise(function(resolve, reject){
-
       lock.writeLock(function(release) {
         models.db.Project.create(projectObject).then(function(project){
           self.data.projects.push(project.get());
@@ -594,7 +593,6 @@ var DataManager = {
           release();
         });
       });
-
     });
   },
 
@@ -650,7 +648,6 @@ var DataManager = {
 
   removeProject: function(restriction) {
     var self = this;
-
     return new Promise(function(resolve, reject) {
       self.getProject(restriction).then(function(projectResult) {
         models.db.Project.destroy({
@@ -659,8 +656,9 @@ var DataManager = {
           }
         }).then(function() {
           for(var i = 0; i < self.data.projects.length; ++i) {
-            if (self.data.projects[i].id == projectResult.id)
+            if (self.data.projects[i].id == projectResult.id) {
               self.data.projects.splice(i, 1);
+            }
           }
           resolve();
         }).catch(function(err) {
@@ -818,7 +816,6 @@ var DataManager = {
 
   /**
    * It saves DataProviderType in database.
-   * @todo Load it in memory
    *
    * @param {Object} dataProviderTypeObject - An object containing needed values to create DataProviderType object.
    * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
@@ -927,7 +924,7 @@ var DataManager = {
    * It saves DataSeriesSemantics in database.
    *
    * @param {Object} semanticsObject - An object containing needed values to create DataSeriesSemantics object.
-   * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
+   * @return {Promise<Object>} - a 'bluebird' module with semantics instance or error callback.
    */
   addDataSeriesSemantics: function(semanticsObject) {
     return new Promise(function(resolve, reject){
@@ -950,8 +947,7 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.listDataSeriesSemantics(restriction).then(function(semanticsList) {
-        if (semanticsList.length === 1)
-          return resolve(semanticsList[0]);
+        if (semanticsList.length === 1) { return resolve(semanticsList[0]); }
 
         // error getting more than one or none
         return reject(new exceptions.DataSeriesSemanticsError("DataSeriesSemantics not found"));
@@ -979,24 +975,23 @@ var DataManager = {
         resolve(output);
       }).catch(function(err) {
         reject(new exceptions.DataSeriesSemanticsError("Could not retrieve data series semantics ", err));
-      })
+      });
     });
   },
 
   listSemanticsProvidersType: function(restriction) {
-    var self = this;
     return new Promise(function(resolve, reject) {
-      models.db['SemanticsProvidersType'].findAll({where: restriction}).then(function(semanticsProvidersResult) {
+      models.db.SemanticsProvidersType.findAll({where: restriction}).then(function(semanticsProvidersResult) {
         var output = [];
         semanticsProvidersResult.forEach(function(element) {
           output.push(element.get());
-        })
+        });
         resolve(output);
       }).catch(function(err) {
         console.log(err);
         reject(err);
       });
-    })
+    });
   },
 
   /**
@@ -1008,7 +1003,6 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
-
         dataProvider.getDataProviderType().then(function(dataProviderType) {
           var dProvider = new DataModel.DataProvider(dataProvider.get());
           dProvider.data_provider_type = dataProviderType.get();
@@ -1031,15 +1025,13 @@ var DataManager = {
 
               }
             });
-
           }).catch(function(err) {
             reject(err);
           });
         }).catch(function(err) {
           console.log(err);
           reject(err);
-        })
-
+        });
       }).catch(function(err){
         reject(new exceptions.DataProviderError("Could not save data provider. " + err.message));
       });
@@ -1057,10 +1049,10 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataProvider = getItemByParam(self.data.dataProviders, restriction);
-      if (dataProvider)
-        resolve(new DataModel.DataProvider(dataProvider));
-      else
+      if (dataProvider) { resolve(new DataModel.DataProvider(dataProvider)); }
+      else {
         reject(new exceptions.DataProviderError("Could not find a data provider: " + restriction[Object.keys(restriction)[0]]));
+      }
     });
   },
 
@@ -1352,7 +1344,7 @@ var DataManager = {
 
         // getting semantics
         dataSerie.getDataSeriesSemantic().then(function(dataSemantics) {
-          obj['DataSeriesSemantic'] = dataSemantics;
+          obj.DataSeriesSemantic = dataSemantics;
           output = new DataModel.DataSeries(obj);
 
           // if there DataSets to save too
@@ -1422,7 +1414,7 @@ var DataManager = {
             id: dataSeriesId
           }
         }).then(function() {
-          self.getDataProvider({id: dataSeriesObject.data_provider_id}).then(function(dataProvider) {
+          self.getDataProvider({id: parseInt(dataSeriesObject.data_provider_id)}).then(function(dataProvider) {
             dataSeries.name = dataSeriesObject.name;
             dataSeries.description = dataSeriesObject.description;
             dataSeries.data_provider_id = dataProvider.id;
@@ -1631,12 +1623,11 @@ var DataManager = {
           if (output.position && format === Enums.Format.WKT) {
             // Getting wkt representation of Point from GeoJSON
             self.getWKT(output.position).then(function (wktGeom) {
+              output.position = wktGeom;
               resolve(output);
-              release();
             }).catch(function (err) {
               reject(err);
-              release();
-            });
+            }).finally(function() { release(); });
           } else {
             resolve(output);
             release();
@@ -1659,18 +1650,6 @@ var DataManager = {
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
   updateDataSet: function(restriction, dataSetObject) {
-    /**
-     * restriction => {
-     *   id: someValue
-     * }
-     *
-     * dataSetObject => {
-     *   active: ...,
-     *   position: ...,
-     *   ...
-     * }
-     */
-
     var self = this;
     return new Promise(function(resolve, reject) {
 
@@ -1730,7 +1709,7 @@ var DataManager = {
         }
       }
 
-      reject(new exceptions.DataSetError("Data set not found."))
+      reject(new exceptions.DataSetError("Data set not found."));
     });
   },
 
@@ -1741,8 +1720,9 @@ var DataManager = {
    */
   listDataSets: function() {
     var dataSetsList = [];
-    for(var index = 0; index < this.data.dataSets.length; ++index)
+    for(var index = 0; index < this.data.dataSets.length; ++index) {
       dataSetsList.push(Utils.clone(this.data.dataSets[index]));
+    }
 
     return dataSetsList;
   },
@@ -1775,25 +1755,26 @@ var DataManager = {
               for(var i = 0; i < dataSeriesResult.dataSets.length; ++i) {
                 var inputDataSet = dataSeriesResult.dataSets[i];
                 var outputDataSet;
-                if (dataSeriesResultOutput.dataSets.length == 1)
+                if (dataSeriesResultOutput.dataSets.length === 1) {
                   outputDataSet = dataSeriesResultOutput.dataSets[0];
-                else
+                } else {
                   outputDataSet = dataSeriesResultOutput.dataSets[i];
+                }
 
                 inputOutputArray.push({
                   collector_id: collectorResult.id,
                   input_dataset: inputDataSet.id,
                   output_dataset: outputDataSet.id
-                })
+                });
               }
 
-              models.db['CollectorInputOutput'].bulkCreate(inputOutputArray).then(function(bulkInputOutputResult) {
+              models.db.CollectorInputOutput.bulkCreate(inputOutputArray).then(function(bulkInputOutputResult) {
                 var input_output_map = [];
                 bulkInputOutputResult.forEach(function(bulkResult) {
                   input_output_map.push({
                     input: bulkResult.input_dataset,
                     output: bulkResult.output_dataset
-                  })
+                  });
                 });
                 collector.input_output_map = input_output_map;
                 collector.schedule = schedule.toObject();
@@ -1810,7 +1791,7 @@ var DataManager = {
                   intersectionArray.forEach(function(intersect) {
                     intersect.collector_id = collector.id;
                   });
-                  models.db['Intersection'].bulkCreate(intersectionArray, {returning: true}).then(function(bulkIntersectionResult) {
+                  models.db.Intersection.bulkCreate(intersectionArray, {returning: true}).then(function(bulkIntersectionResult) {
                     collector.setIntersection(bulkIntersectionResult);
                     resolve({
                       collector: collector,
@@ -1825,7 +1806,7 @@ var DataManager = {
                       self.removeDataSerie(dataSeriesResultOutput),
                       self.removeSchedule({id: scheduleResult.id})
                     ], new exceptions.AnalysisError("Could not save data series"), reject);
-                  })
+                  });
                 }
               }).catch(function(err) {
                 Utils.rollbackPromises([
@@ -1833,8 +1814,7 @@ var DataManager = {
                   self.removeDataSerie(dataSeriesResultOutput),
                   self.removeSchedule({id: scheduleResult.id})
                 ], err, reject);
-              })
-
+              });
             }).catch(function(err) {
               // rollback schedule
               console.log("rollback schedule");
@@ -1855,16 +1835,14 @@ var DataManager = {
         }).catch(function(err) {
           console.log("rollback dataseries");
           Utils.rollbackPromises([self.removeDataSerie(dataSeriesResult)], err, reject);
-        })
+        });
       }).catch(function(err) {
         reject(err);
-      })
+      });
     });
   },
 
   addSchedule: function(scheduleObject) {
-    var self = this;
-
     return new Promise(function(resolve, reject) {
       models.db.Schedule.create(scheduleObject).then(function(schedule) {
         resolve(new DataModel.Schedule(schedule.get()));
@@ -1876,10 +1854,8 @@ var DataManager = {
   },
 
   updateSchedule: function(scheduleId, scheduleObject) {
-    var self = this;
-
     return new Promise(function(resolve, reject) {
-      models.db['Schedule'].update(scheduleObject, {
+      models.db.Schedule.update(scheduleObject, {
         fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency'],
         where: {
           id: scheduleId
@@ -1888,12 +1864,11 @@ var DataManager = {
         resolve();
       }).catch(function(err) {
         reject(new exceptions.ScheduleError("Could not update schedule " + err.toString()));
-      })
+      });
     });
   },
 
   removeSchedule: function(restriction) {
-    var self = this;
     return new Promise(function(resolve, reject) {
       models.db.Schedule.destroy({where: {id: restriction.id}}).then(function() {
         resolve();
@@ -1918,7 +1893,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       self.listCollectors(restriction || {}).then(function(collectors) {
         if (collectors.length == 1)
-          models.db['Schedule'].findOne({id: collectors[0].schedule_id}).then(function(scheduleResult) {
+          models.db.Schedule.findOne({id: collectors[0].schedule_id}).then(function(scheduleResult) {
             resolve(scheduleResult.get());
           }).catch(function(err) {
             console.log(err);
@@ -1929,7 +1904,7 @@ var DataManager = {
         }
       }).catch(function(err) {
         reject(err);
-      })
+      });
     });
   },
 
@@ -1938,11 +1913,12 @@ var DataManager = {
 
     return new Promise(function(resolve, reject) {
       models.db.Collector.create(collectorObject).then(function(collectorResult) {
-        if (_.isEmpty(filterObject))
+        if (_.isEmpty(filterObject)) {
           return resolve(collectorResult.get());
+        }
 
         if (_.isEmpty(filterObject.date)) {
-          return resolve(collectorResult.get())
+          return resolve(collectorResult.get());
         } else {
           filterObject.collector_id = collectorResult.id;
 
@@ -1954,29 +1930,27 @@ var DataManager = {
           }).catch(function(err) {
             console.log(err);
             reject(new exceptions.CollectorError("Could not save collector: ", err));
-          })
+          });
         }
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not save collector: ", err));
-      })
+      });
     });
   },
 
   updateCollectors: function(restriction, values, extra) {
-    var self = this;
     return new Promise(function(resolve, reject) {
       var options = Object.assign({
         where: restriction
       }, extra instanceof Object ? extra : {});
 
-      models.db['Collector'].update(values, options).then(function() {
+      models.db.Collector.update(values, options).then(function() {
         resolve();
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not update collector" + err.message));
-      })
-
+      });
     });
   },
 
@@ -2011,25 +1985,25 @@ var DataManager = {
         resolve(output);
       }).catch(function(err) {
         reject(err);
-      })
-    })
+      });
+    });
   },
 
   listCollectors: function(restriction, projectId) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db['Collector'].findAll({
+      models.db.Collector.findAll({
         where: restriction,
         include: [
           models.db.Schedule,
-          models.db['CollectorInputOutput'],
+          models.db.CollectorInputOutput,
           {
-            model: models.db['Filter'],
+            model: models.db.Filter,
             required: false,
             attributes: { include: [[orm.fn('ST_AsText', orm.col('region')), 'region_wkt']] }
           },
           {
-            model: models.db['Intersection'],
+            model: models.db.Intersection,
             required: false
           }
         ]
@@ -2058,8 +2032,7 @@ var DataManager = {
         }).catch(function(err) {
           console.log(err);
           reject(new exceptions.CollectorError("Could not retrieve collector data series output: " + err.toString()));
-        })
-
+        });
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
@@ -2080,22 +2053,22 @@ var DataManager = {
         where: restriction,
         include: [
           {
-            model: models.db['Schedule']
+            model: models.db.Schedule
           },
           {
-            model: models.db['DataSeries'],
+            model: models.db.DataSeries,
             where: restrictionOutput
           },
           {
-            model: models.db['CollectorInputOutput']
+            model: models.db.CollectorInputOutput
           },
           {
-            model: models.db['Filter'],
+            model: models.db.Filter,
             required: false,
             attributes: { include: [[orm.fn('ST_AsText', orm.col('region')), 'region_wkt']] }
           },
           {
-            model: models.db['Intersection'],
+            model: models.db.Intersection,
             required: false
           }
         ]
@@ -2109,7 +2082,7 @@ var DataManager = {
           }).catch(function(err) {
             console.log("Retrieved null while getting collector");
             reject(new exceptions.CollectorError("Could not find collector. "));
-          })
+          });
         } else {
           console.log("Retrieved null while getting collector");
           reject(new exceptions.CollectorError("Could not find collector. "));
@@ -2122,8 +2095,6 @@ var DataManager = {
   },
 
   addIntersection: function(intersectionArray) {
-    var self = this;
-
     return new Promise(function(resolve, reject) {
       models.db.Intersection.bulkCreate(intersectionArray, {returning: true}).then(function(intesectionList) {
         var output = [];
@@ -2133,7 +2104,7 @@ var DataManager = {
         resolve(output);
       }).catch(function(err) {
         reject(new Error("Could not save intersection. " + err.toString()));
-      })
+      });
     });
   },
 
@@ -2148,7 +2119,7 @@ var DataManager = {
         resolve();
       }).catch(function(err) {
         reject(new Error("Could not update intersection " + err.toString()));
-      })
+      });
     });
   },
 
@@ -2163,8 +2134,8 @@ var DataManager = {
         resolve();
       }).catch(function(err) {
         reject(err);
-      })
-    })
+      });
+    });
   },
 
   listIntersections: function(restriction) {
@@ -2178,7 +2149,7 @@ var DataManager = {
         resolve(output);
       }).catch(function(err) {
         reject(new Error("Could not retrieve intersection " + err.toString()));
-      })
+      });
     });
   },
 
@@ -2209,7 +2180,7 @@ var DataManager = {
             resolve(filter);
           }).catch(function(err) {
             reject(err);
-          })
+          });
         } else {
           resolve(new DataModel.Filter(filter.get()));
         }
@@ -2224,8 +2195,9 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.Filter.findOne({where: restriction}).then(function(filter) {
-        if (filter === null)
+        if (filter === null) {
           return reject(new exceptions.FilterError("Could not get filter, retrieved null"));
+        }
 
         if (filter.region) {
           self.getWKT(filter.region).then(function(geom) {
@@ -2234,7 +2206,7 @@ var DataManager = {
             resolve(output);
           }).catch(function(err) {
             reject(err);
-          })
+          });
         } else {
           resolve(new DataModel.Filter(filter.get()));
         }
@@ -2257,7 +2229,7 @@ var DataManager = {
       }).catch(function(err) {
         console.log(err);
         reject(new Error("Could not update filter " + err.toString()))
-      })
+      });
     });
   },
 
@@ -2299,7 +2271,7 @@ var DataManager = {
                     analysis_id: analysisResult.id,
                     key: key,
                     value: analysisObject.metadata[key]
-                  })
+                  });
                 }
               }
 
@@ -2398,22 +2370,21 @@ var DataManager = {
                     self.removeDataSerie({id: dataSeriesResult.id}),
                     self.removeSchedule({id: scheduleResult.id})
                   ], new exceptions.AnalysisError("Could not save analysis while retrieving analysis type " + err.toString()), reject);
-                })
-
+                });
               }).catch(function(err) {
                 // rollback analysis metadata
                 Utils.rollbackPromises([
                   self.removeDataSerie({id: dataSeriesResult.id}),
                   self.removeSchedule({id: scheduleResult.id})
                 ], new exceptions.AnalysisError("Could not save analysis metadata " + err.toString()), reject);
-              })
+              });
             }).catch(function(err) {
               // rollback data series
               Utils.rollbackPromises([
                 self.removeDataSerie({id: dataSeriesResult.id}),
                 self.removeSchedule({id: scheduleResult.id})
               ], new exceptions.AnalysisError("Could not save retrieve analysis script language " + err.toString()), reject);
-            })
+            });
           }).catch(function(err) {
             // analysis
             // rollback data series
@@ -2421,7 +2392,7 @@ var DataManager = {
               self.removeDataSerie({id: dataSeriesResult.id}),
               self.removeSchedule({id: scheduleResult.id})
             ], new exceptions.AnalysisError("Could not save analysis " + err.toString()), reject);
-          })
+          });
         }).catch(function(err) {
           // schedule
           Utils.rollbackPromises([self.removeDataSerie({id: dataSeriesResult.id})], new exceptions.AnalysisError("Could not save analysis schedule"), reject);
@@ -2447,8 +2418,6 @@ var DataManager = {
           // updating analysis dataSeries
           var promises = [];
 
-          var analysisDSList = [];
-
           // TODO: improve this
           analysisInstance.analysis_dataseries_list.forEach(function(analysisDS) {
             analysisObject.analysisDataSeries.some(function(element) {
@@ -2462,7 +2431,7 @@ var DataManager = {
                 if (element.data_series_id) {
                 //   insert
                   element.analysis_id = analysisInstance.id;
-                  promises.push(self.addAnalysisDataSeries(element))
+                  promises.push(self.addAnalysisDataSeries(element));
                 } else {
                 //  delete
                   promises.push(models.db.AnalysisDataSeries.destroy({where: {id : analysisDS.id}}));
@@ -2485,11 +2454,11 @@ var DataManager = {
 
         }).catch(function(err) {
           reject(new exceptions.AnalysisError("Could not update analysis. " + err.toString()));
-        })
+        });
       }).catch(function(err) {
         reject(err);
-      })
-    })
+      });
+    });
   },
 
   listAnalyses: function(restriction) {
@@ -2503,23 +2472,23 @@ var DataManager = {
       models.db['Analysis'].findAll({
         include: [
           {
-            model: models.db['AnalysisDataSeries'],
+            model: models.db.AnalysisDataSeries,
             include: [
               {
-                model: models.db['AnalysisDataSeriesMetadata'],
+                model: models.db.AnalysisDataSeriesMetadata,
                 required: false
               }
             ]
           },
           {
-            model: models.db['AnalysisOutputGrid'],
+            model: models.db.AnalysisOutputGrid,
             attributes: {include: [[orm.fn('ST_AsText', orm.col('area_of_interest_box')), 'interest_box']]},
             required: false
           },
-          models.db['AnalysisMetadata'],
-          models.db['ScriptLanguage'],
-          models.db['AnalysisType'],
-          models.db['Schedule']
+          models.db.AnalysisMetadata,
+          models.db.ScriptLanguage,
+          models.db.AnalysisType,
+          models.db.Schedule
         ],
         where: restriction || {}
       }).then(function(analysesResult) {
@@ -2546,7 +2515,7 @@ var DataManager = {
                     analysisObject.setDataSeries(dataSeries);
                     return true;
                   }
-                })
+                });
               });
 
               analysis.AnalysisDataSeries.forEach(function(analysisDataSeries) {
@@ -2572,31 +2541,31 @@ var DataManager = {
         dataSeriesRestriction = restrict.dataSeries;
         delete restrict.dataSeries;
       }
-      models.db['Analysis'].findOne({
+      models.db.Analysis.findOne({
         where: restrict,
         include: [
           {
-            model: models.db['AnalysisDataSeries'],
+            model: models.db.AnalysisDataSeries,
             include: [
               {
-                model: models.db['AnalysisDataSeriesMetadata'],
+                model: models.db.AnalysisDataSeriesMetadata,
                 required: false
               }
             ]
           },
           {
-            model: models.db['AnalysisOutputGrid'],
+            model: models.db.AnalysisOutputGrid,
             required: false
           },
-          models.db['AnalysisMetadata'],
-          models.db['ScriptLanguage'],
-          models.db['AnalysisType'],
-          models.db['Schedule'],
+          models.db.AnalysisMetadata,
+          models.db.ScriptLanguage,
+          models.db.AnalysisType,
+          models.db.Schedule,
           {
-            model: models.db['DataSet'],
+            model: models.db.DataSet,
             include: [
               {
-                model: models.db['DataSeries'],
+                model: models.db.DataSeries,
                 where: dataSeriesRestriction
               }
             ]
@@ -2618,10 +2587,10 @@ var DataManager = {
             resolve(analysisInstance);
           }).catch(function(err) {
             reject(err);
-          })
+          });
         }).catch(function(err) {
           reject(err);
-        })
+        });
       }).catch(function(err) {
         console.log(err);
         reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
@@ -2639,8 +2608,7 @@ var DataManager = {
   removeAnalysis: function(analysisParam, cascade) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      if(!cascade)
-        cascade = false;
+      if(!cascade) { cascade = false; }
 
       self.getAnalysis({id: analysisParam.id}).then(function(analysisResult) {
         models.db.Analysis.destroy({where: {id: analysisParam.id}}).then(function() {
@@ -2650,11 +2618,11 @@ var DataManager = {
             }).catch(function(err) {
               console.log("Could not remove analysis schedule ", err);
               reject(err);
-            })
+            });
           }).catch(function(err) {
             console.log("Could not remove output data series ", err);
             reject(err);
-          })
+          });
         }).catch(function(err) {
           console.log(err);
           reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
@@ -2662,10 +2630,9 @@ var DataManager = {
       }).catch(function(err) {
         console.log(err);
         reject(err);
-      })
+      });
     });
   }
-
 };
 
 module.exports = DataManager;

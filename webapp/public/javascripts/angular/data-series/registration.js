@@ -972,13 +972,13 @@ angular.module('terrama2.dataseries.registration', [
           var filterValues = Object.assign({}, $scope.filter);
           if (filterValues.date) {
             if (filterValues.date.afterDate) {
-              var afterMomentDate = filterValues.date.afterDate.toDate(); // - (afterMomentDate.getTimezoneOffset() * 60000)
-              filterValues.date.afterDate = new Date(afterMomentDate.getTime()).toString();
+              // var afterMomentDate = filterValues.date.afterDate.toDate(); // - (afterMomentDate.getTimezoneOffset() * 60000)
+              // filterValues.date.afterDate = afterMomentDate;
             }
 
             if (filterValues.date.beforeDate) {
-              var beforeMomentDate = filterValues.date.beforeDate.toDate();
-              filterValues.date.beforeDate = new Date(beforeMomentDate.getTime()).toString();
+              // var beforeMomentDate = filterValues.date.beforeDate.toDate();
+              // filterValues.date.beforeDate = beforeMomentDate;
             }
           }
 

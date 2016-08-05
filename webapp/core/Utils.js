@@ -187,20 +187,20 @@ module.exports = {
       var _handleError = function(err) {
         console.log(err);
         reject(err);
-      }
+      };
 
       var dataProvidersResult = DataManager.listDataProviders();
       var providers = [];
       dataProvidersResult.forEach(function(dataProvider) {
-        providers.push(dataProvider.toObject())
-      }) // end foreach dataProvidersResult
+        providers.push(dataProvider.toObject());
+      }); // end foreach dataProvidersResult
 
       // getting dataseries
       DataManager.listDataSeries().then(function(dataSeriesResult) {
         var series = [];
         dataSeriesResult.forEach(function(dataSeries) {
           series.push(dataSeries.toObject());
-        }) // end foreach dataSeriesResult
+        }); // end foreach dataSeriesResult
 
         // getting collectors
         DataManager.listCollectors({}, projectId).then(function(collectorsResult) {
@@ -215,11 +215,11 @@ module.exports = {
                   collector.project_id = dprovider.project_id;
                   return true;
                 }
-              })
+              });
             });
 
             collectors.push(collector.toObject());
-          }) // end foreach collectorsResult
+          }); // end foreach collectorsResult
 
           // getting analyses
           DataManager.listAnalyses().then(function(analysesResult) {
@@ -274,7 +274,7 @@ module.exports = {
 
   find: function(restriction, where) {
     return where.filter(function(entry) {
-      return this.matchObject(restriction, entry)
+      return this.matchObject(restriction, entry);
     });
   },
 
@@ -356,5 +356,15 @@ module.exports = {
 
   equal: function(origin, target) {
     return isEqual(origin, target);
+  },
+
+  /**
+   * It checks if a argument is instance of javascript Object
+   *
+   * @param {?} arg - A value
+   * @return {Boolean} A boolean result
+   */
+  isObject: function(arg) {
+    return arg === Object(arg);
   }
 };
