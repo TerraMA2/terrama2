@@ -370,7 +370,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
   std::string datasetName;
 
-  auto storager = terrama2::core::DataStoragerFactory::getInstance().make(dataSeries->semantics.dataFormat);
+  auto storager = terrama2::core::DataStoragerFactory::getInstance().make(dataSeries->semantics.dataFormat, dataProvider);
   if(!storager)
   {
     QString errMsg = QObject::tr("Could not create a DataStorager.");
@@ -441,7 +441,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
   try
   {
-    storager->store(dataProvider, series, dataset);
+    storager->store(series, dataset);
   }
   catch(terrama2::Exception /*e*/)
   {
@@ -671,8 +671,8 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::servi
 
   try
   {
-    terrama2::core::DataStoragerTiff storager;
-    storager.store(dataProvider, series, dataset);
+    terrama2::core::DataStoragerTiff storager(dataProvider);
+    storager.store(series, dataset);
   }
   catch(terrama2::Exception /*e*/)
   {

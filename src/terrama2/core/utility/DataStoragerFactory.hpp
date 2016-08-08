@@ -49,7 +49,7 @@ namespace terrama2
     {
       public:
         //! DataStorager constructor function.
-        typedef std::function<DataStoragerPtr()> FactoryFnctType;
+        typedef std::function<DataStoragerPtr(terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
         //! Register a new DataStorager constructor associated with the DataProviderType.
         void add(const DataFormat& format, FactoryFnctType f);
         //! Remove the DataStorager constructor associated with the DataProviderType.
@@ -61,7 +61,7 @@ namespace terrama2
 
           The DataStorager is constructed based on the format of the DataSeries.
         */
-        terrama2::core::DataStoragerPtr make(const DataFormat& format) const;
+        terrama2::core::DataStoragerPtr make(const DataFormat& format, terrama2::core::DataProviderPtr dataProvider) const;
 
 
       protected:

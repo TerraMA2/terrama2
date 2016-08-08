@@ -32,7 +32,6 @@
 
 //TerraMA2
 #include "../Shared.hpp"
-#include "../Typedef.hpp"
 #include "../data-model/DataManager.hpp"
 #include "../data-access/DataSetSeries.hpp"
 
@@ -57,8 +56,9 @@ namespace terrama2
       public:
         /*!
           \brief The constructor stores the destination server information.
+          \exception DataStoragerException Raised if the DataProvider is NULL
         */
-        DataStorager();
+        DataStorager(DataProviderPtr outputDataProvider);
         //! Default destructor.
         virtual ~DataStorager() = default;
 
@@ -70,7 +70,10 @@ namespace terrama2
         /*!
           \brief Store the data series in outputDataSet.
         */
-        virtual void store(DataProviderPtr dataProvider, DataSetSeries series, DataSetPtr outputDataSet) const = 0;
+        virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const = 0;
+
+      protected:
+        DataProviderPtr dataProvider_;//!< Destination server information.
     };
   }
 }

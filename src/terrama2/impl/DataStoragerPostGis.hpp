@@ -33,7 +33,6 @@
 //TerraMA2
 #include "../core/data-access/DataStorager.hpp"
 #include "../core/utility/Logger.hpp"
-#include "../core/Typedef.hpp"
 
 //QT
 #include <QString>
@@ -46,13 +45,14 @@ namespace terrama2
     class DataStoragerPostGis : public DataStorager
     {
       public:
-        DataStoragerPostGis() {}
+        DataStoragerPostGis(DataProviderPtr outputDataProvider)
+                : DataStorager(outputDataProvider) {}
         ~DataStoragerPostGis() {}
 
         static DataStoragerType dataStoragerType() { return "POSTGIS"; }
-        static DataStoragerPtr make();
+        static DataStoragerPtr make(DataProviderPtr dataProvider);
 
-        virtual void store(DataProviderPtr dataProvider, DataSetSeries series, DataSetPtr outputDataSet) const override;
+        virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
 
       protected:
         std::string getDataSetTableName(DataSetPtr dataSet) const;

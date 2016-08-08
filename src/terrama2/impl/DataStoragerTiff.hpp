@@ -48,13 +48,14 @@ namespace terrama2
     class DataStoragerTiff : public DataStorager
     {
       public:
-        DataStoragerTiff() {}
+        DataStoragerTiff(DataProviderPtr outputDataProvider)
+                : DataStorager(outputDataProvider) {}
         ~DataStoragerTiff() {}
 
+        static DataStoragerPtr make(DataProviderPtr dataProvider);
         static DataStoragerType dataStoragerType() { return "GEOTIFF"; }
-        static DataStoragerPtr make();
 
-        virtual void store(DataProviderPtr dataProvider, DataSetSeries series, DataSetPtr outputDataSet) const override;
+        virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
 
       protected:
         std::string getMask(DataSetPtr dataSet) const;

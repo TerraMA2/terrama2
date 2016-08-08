@@ -40,9 +40,9 @@
 //Qt
 #include <QUrl>
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerTiff::make()
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerTiff::make(DataProviderPtr dataProvider)
 {
-  return std::make_shared<DataStoragerTiff>();
+  return std::make_shared<DataStoragerTiff>(dataProvider);
 }
 
 std::string terrama2::core::DataStoragerTiff::getMask(DataSetPtr dataSet) const
@@ -82,8 +82,8 @@ std::string terrama2::core::DataStoragerTiff::zeroPadNumber(long num, int size) 
 }
 
 std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mask,
-    std::shared_ptr<te::dt::DateTime> timestamp,
-    terrama2::core::DataSetPtr dataSet) const
+                                                          std::shared_ptr<te::dt::DateTime> timestamp,
+                                                          terrama2::core::DataSetPtr dataSet) const
 {
   if(!timestamp.get())
     return mask;
@@ -190,15 +190,8 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   return fileName;
 }
 
-void terrama2::core::DataStoragerTiff::store(DataProviderPtr dataProvider, DataSetSeries series, DataSetPtr outputDataSet) const
+void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
-  if(!dataProvider)
-  {
-    QString errMsg = QObject::tr("Invalid data provider");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataProviderException() << ErrorDescription(errMsg);
-  }
-
   if(!outputDataSet.get() || !series.syncDataSet.get())
   {
     QString errMsg = QObject::tr("Mandatory parameters not provided.");
@@ -206,8 +199,9 @@ void terrama2::core::DataStoragerTiff::store(DataProviderPtr dataProvider, DataS
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  QUrl uri(QString::fromStdString(dataProvider->uri));
+  QUrl uri(QString::fromStdString(dataProvider_->uri));
   auto path = uri.path().toStdString();
+
 
   std::string mask = getMask(outputDataSet);
   if(mask.empty())
@@ -250,5 +244,4 @@ void terrama2::core::DataStoragerTiff::store(DataProviderPtr dataProvider, DataS
     std::string output = path + "/" + filename;
     te::rp::Copy2DiskRaster(*raster, output);
   }
-
 }

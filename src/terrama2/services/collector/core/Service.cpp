@@ -184,8 +184,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     auto inputOutputMap = collectorPtr->inputOutputMap;
     auto dataSetLst = outputDataSeries->datasetList;
-    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries->semantics.dataFormat);
     auto dataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
+    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries->semantics.dataFormat, dataProvider);
     for(auto& item : dataMap)
     {
       // intersection
@@ -198,7 +198,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       // store each item
       DataSetId outputDataSetId = inputOutputMap.at(item.first->id);
       auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet) { return dataSet->id == outputDataSetId; });
-      dataStorager->store(dataProvider, item.second, *outputDataSet);
+      dataStorager->store(item.second, *outputDataSet);
     }
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
