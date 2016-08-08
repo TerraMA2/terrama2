@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var AbstractClass = require('./../AbstractSemantics');
 var Form = require('./../Enums').Form;
