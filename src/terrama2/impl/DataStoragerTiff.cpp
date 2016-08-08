@@ -40,9 +40,9 @@
 //Qt
 #include <QUrl>
 
-terrama2::core::DataStorager* terrama2::core::DataStoragerTiff::make(DataProviderPtr dataProvider)
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerTiff::make()
 {
-  return new DataStoragerTiff(dataProvider);
+  return std::make_shared<DataStoragerTiff>();
 }
 
 std::string terrama2::core::DataStoragerTiff::getMask(DataSetPtr dataSet) const
@@ -190,8 +190,15 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   return fileName;
 }
 
-void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr outputDataSet) const
+void terrama2::core::DataStoragerTiff::store(DataProviderPtr dataProvider, DataSetSeries series, DataSetPtr outputDataSet) const
 {
+  if(!dataProvider)
+  {
+    QString errMsg = QObject::tr("Invalid data provider");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataProviderException() << ErrorDescription(errMsg);
+  }
+
   if(!outputDataSet.get() || !series.syncDataSet.get())
   {
     QString errMsg = QObject::tr("Mandatory parameters not provided.");
@@ -199,52 +206,49 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  QUrl uri(QString::fromStdString(dataProvider_->uri));
+  QUrl uri(QString::fromStdString(dataProvider->uri));
   auto path = uri.path().toStdString();
-  try
-  {
-    std::string mask = getMask(outputDataSet);
 
-    auto dataset = series.syncDataSet->dataset();
-    size_t rasterColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::RASTER_TYPE);
-    if(!isValidColumn(rasterColumn))
+  std::string mask = getMask(outputDataSet);
+  if(mask.empty())
+  {
+    QString errMsg = QObject::tr("Empty mask for output grid.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  auto dataset = series.syncDataSet->dataset();
+  size_t rasterColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::RASTER_TYPE);
+  if(!isValidColumn(rasterColumn))
+  {
+    QString errMsg = QObject::tr("No raster attribute.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  size_t timestampColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::DATETIME_TYPE);
+
+  dataset->moveBeforeFirst();
+  while(dataset->moveNext())
+  {
+    std::shared_ptr<te::rst::Raster> raster(dataset->isNull(rasterColumn) ? nullptr : dataset->getRaster(rasterColumn).release());
+    std::shared_ptr<te::dt::DateTime> timestamp;
+    if(!isValidColumn(timestampColumn) || dataset->isNull(timestampColumn))
+      timestamp = nullptr;
+    else
+      timestamp.reset(dataset->getDateTime(timestampColumn).release());
+
+    if(!raster.get())
     {
-      QString errMsg = QObject::tr("No raster attribute.");
+      QString errMsg = QObject::tr("Null raster found.");
       TERRAMA2_LOG_ERROR() << errMsg;
-      throw DataStoragerException() << ErrorDescription(errMsg);
+      continue;
     }
 
-    size_t timestampColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::DATETIME_TYPE);
+    std::string filename = replaceMask(mask, timestamp, outputDataSet);
 
-    dataset->moveBeforeFirst();
-    while(dataset->moveNext())
-    {
-      std::shared_ptr<te::rst::Raster> raster(dataset->isNull(rasterColumn) ? nullptr : dataset->getRaster(rasterColumn).release());
-      std::shared_ptr<te::dt::DateTime> timestamp;
-      if(!isValidColumn(timestampColumn) || dataset->isNull(timestampColumn))
-        timestamp = nullptr;
-      else
-        timestamp.reset(dataset->getDateTime(timestampColumn).release());
-
-      if(!raster.get())
-      {
-        QString errMsg = QObject::tr("Null raster found.");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        continue;
-      }
-
-      std::string filename = replaceMask(mask, timestamp, outputDataSet);
-
-      std::string output = path + "/" + filename;
-      te::rp::Copy2DiskRaster(*raster, output);
-    }
+    std::string output = path + "/" + filename;
+    te::rp::Copy2DiskRaster(*raster, output);
   }
-  catch(const DataStoragerException&)
-  {
-    throw;
-  }
-  catch(...)
-  {
-    //TODO: fix DataStoragerTiff catch
-  }
+
 }

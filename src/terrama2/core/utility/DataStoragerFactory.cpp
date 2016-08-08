@@ -35,27 +35,27 @@
 #include <QObject>
 #include <QString>
 
-void terrama2::core::DataStoragerFactory::add(const DataProviderType& dataProviderType, FactoryFnctType f)
+void terrama2::core::DataStoragerFactory::add(const std::string& format, FactoryFnctType f)
 {
-  auto it = factoriesMap_.find(dataProviderType);
+  auto it = factoriesMap_.find(format);
 
   if(it != factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("A data storager factory for this type already exists!");
+    QString errMsg = QObject::tr("A data storager factory for this format already exists!");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  factoriesMap_.emplace(dataProviderType, f);
+  factoriesMap_.emplace(format, f);
 }
 
-void terrama2::core::DataStoragerFactory::remove(const DataProviderType& dataProviderType)
+void terrama2::core::DataStoragerFactory::remove(const std::string& format)
 {
-  auto it = factoriesMap_.find(dataProviderType);
+  auto it = factoriesMap_.find(format);
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("There is no registered data storager factory for this type.");
+    QString errMsg = QObject::tr("There is no registered data storager factory for this format.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
   }
@@ -63,23 +63,23 @@ void terrama2::core::DataStoragerFactory::remove(const DataProviderType& dataPro
   factoriesMap_.erase(it);
 }
 
-bool terrama2::core::DataStoragerFactory::find(const DataProviderType& dataProviderType)
+bool terrama2::core::DataStoragerFactory::find(const std::string& format)
 {
-  auto it = factoriesMap_.find(dataProviderType);
+  auto it = factoriesMap_.find(format);
 
   return (it != factoriesMap_.end());
 }
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(terrama2::core::DataProviderPtr dataProvider) const
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerFactory::make(const std::string& format) const
 {
-  auto it = factoriesMap_.find(dataProvider->dataProviderType);
+  auto it = factoriesMap_.find(format);
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("Could not find a data storager factory for this type.");
+    QString errMsg = QObject::tr("Could not find a data storager factory for this format.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  return it->second(dataProvider);
+  return it->second();
 }

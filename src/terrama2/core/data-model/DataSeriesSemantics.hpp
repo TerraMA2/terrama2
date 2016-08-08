@@ -40,8 +40,6 @@ namespace terrama2
 {
   namespace core
   {
-    typedef std::string DataFormat;
-
     enum class DataSeriesType
     {
       DCP = 1,//!< Fixed position data producer station. (Data Collection Platform).

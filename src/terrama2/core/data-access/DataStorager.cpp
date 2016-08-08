@@ -34,13 +34,6 @@
 #include "../Exception.hpp"
 #include "../../Config.hpp"
 
-terrama2::core::DataStorager::DataStorager(DataProviderPtr outputDataProvider)
-  : dataProvider_(outputDataProvider)
+terrama2::core::DataStorager::DataStorager()
 {
-  if(!dataProvider_.get())
-  {
-    QString errMsg = QObject::tr("Mandatory parameters not provided.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw DataStoragerException() << ErrorDescription(errMsg);
-  }
 }

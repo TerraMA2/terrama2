@@ -32,6 +32,7 @@
 
 //TerraMA2
 #include "../Shared.hpp"
+#include "../Typedef.hpp"
 #include "../data-model/DataManager.hpp"
 #include "../data-access/DataSetSeries.hpp"
 
@@ -47,7 +48,7 @@ namespace terrama2
 {
   namespace core
   {
-    typedef std::string DataStoragetType;
+    typedef std::string DataStoragerType;
     /*!
       \brief DataStorager provides an interface to store a DataSetSeries.
     */
@@ -56,9 +57,8 @@ namespace terrama2
       public:
         /*!
           \brief The constructor stores the destination server information.
-          \exception DataStoragerException Raised if the DataProvider is NULL
         */
-        DataStorager(DataProviderPtr outputDataProvider);
+        DataStorager();
         //! Default destructor.
         virtual ~DataStorager() = default;
 
@@ -70,10 +70,7 @@ namespace terrama2
         /*!
           \brief Store the data series in outputDataSet.
         */
-        virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const = 0;
-
-      protected:
-        DataProviderPtr dataProvider_;//!< Destination server information.
+        virtual void store(DataProviderPtr dataProvider, DataSetSeries series, DataSetPtr outputDataSet) const = 0;
     };
   }
 }
