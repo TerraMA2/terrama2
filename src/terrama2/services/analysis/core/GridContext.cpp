@@ -288,7 +288,6 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
                 resY = raster->getResolutionY();
                 pixelArea = area;
               }
-              //TODO: shouldn't have an else?
             }
             else
             {
@@ -342,7 +341,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
 
           if(gridMap.empty())
           {
-            QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis_->outputGridPtr->resolutionDataSeriesId);
+            QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysisDataSeries.dataSeriesId);
             throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
           }
 
@@ -383,7 +382,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
         auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->interestAreaDataSeriesId);
         if(gridMap.empty())
         {
-          QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis_->outputGridPtr->resolutionDataSeriesId);
+          QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis_->outputGridPtr->interestAreaDataSeriesId);
           throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
         }
 
