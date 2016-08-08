@@ -49,10 +49,11 @@ namespace terrama2
     {
       public:
         DataStoragerTiff(DataProviderPtr outputDataProvider)
-          : DataStorager(outputDataProvider) {}
+                : DataStorager(outputDataProvider) {}
         ~DataStoragerTiff() {}
 
-        static DataStorager* make(DataProviderPtr dataProvider);
+        static DataStoragerPtr make(DataProviderPtr dataProvider);
+        static DataStoragerType dataStoragerType() { return "GEOTIFF"; }
 
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
 

@@ -38,11 +38,11 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/data-access/DataStorager.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
 #include "../../../impl/DataStoragerPostGis.hpp"
 #include "../../../impl/DataStoragerTiff.hpp"
-
 #include "GridContext.hpp"
 #include "MonitoredObjectContext.hpp"
 
@@ -369,19 +369,13 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   }
 
   std::string datasetName;
-  std::unique_ptr<terrama2::core::DataStorager> storager;
-  if(dataProvider->dataProviderType == "POSTGIS")
-  {
-    auto datasSet = dataSeries->datasetList[0];
-    datasetName = datasSet->format.at("table_name");
-    storager.reset(new terrama2::core::DataStoragerPostGis(dataProvider));
-  }
-  else
-  {
-    //TODO Paulo: Implement storager file
-    throw terrama2::Exception() << ErrorDescription("NOT IMPLEMENTED YET");
-  }
 
+  auto storager = terrama2::core::DataStoragerFactory::getInstance().make(dataSeries->semantics.dataFormat, dataProvider);
+  if(!storager)
+  {
+    QString errMsg = QObject::tr("Could not create a DataStorager.");
+    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
+  }
 
   auto attributes = context->getAttributes();
 
@@ -438,12 +432,6 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
   assert(dataSeries->datasetList.size() == 1);
   auto dataset = dataSeries->datasetList[0];
-
-  if(!storager)
-  {
-    QString errMsg = QObject::tr("Could not find storager support for the output data provider.");
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
 
   std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);
 
@@ -552,37 +540,36 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
       begin += packageSize;
     }
 
-    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
 
     storeGridAnalysisResult(context);
   }
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
   }
   catch(const boost::python::error_already_set&)
   {
     std::string errMsg = terrama2::services::analysis::core::python::extractException();
     context->addError(errMsg);
-
-    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
   }
   catch(const boost::exception& e)
   {
     context->addError(boost::diagnostic_information(e));
-    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), std::mem_fn(&std::future<void>::get));
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
   }
 
 

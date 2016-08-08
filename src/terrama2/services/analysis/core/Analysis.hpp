@@ -152,11 +152,11 @@ namespace terrama2
           double interpolationDummy = 0; //!< Dummy value.
           ResolutionType resolutionType; //!< Resolution type to be used in the output grid.
           DataSeriesId resolutionDataSeriesId; //!< Identifier of the DataSeries to copy the grid resolution.
-          double resolutionX; //!< Resolution to be used in X.
-          double resolutionY; //!< Resolution to be used in Y.
-          Srid srid; //!< SRID of the output grid.
+          double resolutionX = 0; //!< Resolution to be used in X.
+          double resolutionY = 0; //!< Resolution to be used in Y.
+          Srid srid = 0; //!< SRID of the output grid.
           InterestAreaType interestAreaType; //!< Type of interest area.
-          DataSeriesId interestAreaDataSeriesId; //!< Identifier of the DataSeries to copy the box resolution.
+          DataSeriesId interestAreaDataSeriesId = 0; //!< Identifier of the DataSeries to copy the box resolution.
           std::shared_ptr<te::gm::Geometry> interestAreaBox; //!< Custom box.
         };
 
