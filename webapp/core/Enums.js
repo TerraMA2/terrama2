@@ -248,5 +248,14 @@ module.exports = {
       name: "Custom",
       value: 4
     }
+  },
+
+  Operators: {
+    EQUAL: "$eq",
+    GREATER_THAN: "$gt",
+    GREATER_OR_EQUAL: "$gte",
+    NOT_EQUAL: "$ne",
+    LESS_THAN: "$lt",
+    LESS_EQUAL: "$le",
   }
 };

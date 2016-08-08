@@ -22,8 +22,8 @@ var DataSeries = function(params) {
 
   if (params.data_series_semantics) {
     this.data_series_semantics = params.data_series_semantics;
-  } else if (params['DataSeriesSemantic']) {
-    this.data_series_semantics = params['DataSeriesSemantic'].get();
+  } else if (params.DataSeriesSemantic) {
+    this.data_series_semantics = params.DataSeriesSemantic.get();
   }
 
   this.semantics = params.semantics;
@@ -52,16 +52,17 @@ DataSeries.prototype.setDataProvider = function(dataProvider) {
 DataSeries.prototype.setDataSets = function(dataSets) {
   var output = [];
   dataSets.forEach(function(dataSet) {
-    if (dataSet instanceof BaseClass)
+    if (dataSet instanceof BaseClass) {
       output.push(dataSet);
-    else { // sequelize instance
+    } else { // sequelize instance
       var ob = dataSet.get();
-      if (ob.DataSetDcp)
+      if (ob.DataSetDcp) {
         Object.assign(ob, ob.DataSetDcp.get());
-      else if (ob.DataSetOccurrence)
+      } else if (ob.DataSetOccurrence) {
         ob = Object.assign({}, ob.DataSetOccurrence.get(), ob);
-      else if (ob.DataSetMonitored)
+      } else if (ob.DataSetMonitored) {
         ob = Object.assign({}, ob.DataSetMonitored.get(), ob);
+      }
       output.push(DataSetFactory.build(ob));
     }
   });
@@ -83,17 +84,18 @@ DataSeries.prototype.toObject = function() {
     // semantics: this.semantics,
     semantics: this.data_series_semantics.code,
     datasets: dataSets
-  })
+  });
 };
 
 DataSeries.prototype.rawObject = function() {
   var dSets = [];
   this.dataSets.forEach(function(dSet) {
-    if (dSet instanceof BaseClass)
+    if (dSet instanceof BaseClass) {
       dSets.push(dSet.toObject());
-    else
+    } else {
       dSets.push(dSet);
-  })
+    }
+  });
   return {
     id: this.id,
     name: this.name,
@@ -103,7 +105,7 @@ DataSeries.prototype.rawObject = function() {
     data_series_semantic_code: this.data_series_semantics.code,
     data_series_semantics: this.data_series_semantics,
     dataSets: dSets
-  }
-}
+  };
+};
 
 module.exports = DataSeries;

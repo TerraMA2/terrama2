@@ -34,7 +34,7 @@ function getTokenCodeMessage(code) {
   return msg;
 }
 
-module.exports = {
+var Utils = {
   clone: function(object) {
     return cloneDeep(object);
   },
@@ -266,16 +266,61 @@ module.exports = {
     return output;
   },
 
+  /**
+   * A deep match object. It checks every key/object in target and match them from initial object.
+   * It applies a auto recursive call when obj key is pointing to an another object.
+   * @todo Compares with equality operator (===). Currently, it is working with == operator
+   * @todo Handle invalid use of Enums.Operators in validation
+   * @param {Object} obj - An javascript object with key/values to check.
+   * @param {Object} target - An javascript object to be watched
+   * @return {Boolean} a boolean condition of comparator.
+   */
   matchObject: function(obj, target) {
+    var self = this;
     return Object.keys(obj).every(function(key) {
-      return target[key] == obj[key];
+      if (self.isObject(obj[key])) {
+        return self.matchObject(obj[key], target[key]);
+      }
+
+      switch (key) {
+        case Enums.Operators.EQUAL:
+          return target === obj[key];
+        case Enums.Operators.GREATER_THAN:
+          return target > obj[key];
+        case Enums.Operators.GREATER_OR_EQUAL:
+          return target >= obj[key];
+        case Enums.Operators.LESS_THAN:
+          return target < obj[key];
+        case Enums.Operators.LESS_EQUAL:
+          return target <= obj[key];
+        case Enums.Operators.NOT_EQUAL:
+          return target !== obj[key];
+        default:
+          // equal operator
+          return target[key] == obj[key];
+      }
     });
   },
-
-  find: function(restriction, where) {
+  /**
+   * It applies a deep filter in array from restriction
+   * @param {Array<?>} where - An array of any to be filtered
+   * @param {Object} restriction - A javascript object with restriction values
+   * @return {Array<?>} a filtered array
+   */
+  filter: function(where, restriction) {
+    var self = this;
     return where.filter(function(entry) {
-      return this.matchObject(restriction, entry);
+      return self.matchObject(restriction, entry);
     });
+  },
+  /**
+   * It applies a deep find in array from restriction. Note if more than one has found, it will get first element.
+   * @param {Array<?>} where - An array of any to be filtered
+   * @param {Object} restriction - A javascript object with restriction values
+   * @return {?} An element of array.
+   */
+  find: function(where, restriction) {
+    return this.filter(where, restriction)[0];
   },
 
   getServiceTypeName: function(intServiceType) {
@@ -366,5 +411,20 @@ module.exports = {
    */
   isObject: function(arg) {
     return arg === Object(arg);
+  },
+
+  /**
+   * It creates a copy of object.
+   * @param {Object} object - a object to be copied
+   * @param {DataModel} model - a TerraMA2 model (optional)
+   */
+  makeCopy: function(object, model) {
+    if (model) {
+      return new model(object);
+    } else {
+      return Object.assign({}, object);
+    }
   }
 };
+
+module.exports = Utils;

@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * A generic Filter object. It follows Design Pattern Criteria */
 var Filter = module.exports = function() {};
