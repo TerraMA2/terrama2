@@ -61,6 +61,7 @@
 #include <terralib/datatype/TimeInstant.h>
 #include <terralib/memory/DataSet.h>
 #include <terralib/memory/DataSetItem.h>
+#include <terralib/dataaccess/dataset/UniqueKey.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/raster/BandProperty.h>
@@ -398,12 +399,12 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   //second property: analysis execution date
   te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty( "execution_date", te::dt::TIME_INSTANT_TZ, true);
   dt->add(dateProp);
-  //TODO: use unique key instead
-  // the primary key is composed by the geomId and the execution date.
-  std::string namepk = datasetName+ "_pk";
-  te::da::PrimaryKey* pk = new te::da::PrimaryKey(namepk, dt);
-  pk->add(geomIdProp);
-  pk->add(dateProp);
+
+  // the unique key is composed by the geomId and the execution date.
+  std::string nameuk = datasetName+ "_pk";
+  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt);
+  uk->add(geomIdProp);
+  uk->add(dateProp);
 
 
 
