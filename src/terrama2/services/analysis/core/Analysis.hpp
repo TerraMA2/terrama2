@@ -122,7 +122,6 @@ namespace terrama2
         enum class InterpolationMethod
         {
           //REVIEW: Why is this redefined? should te::rst::InterpolationMethod be used instead?
-          UNDEFINTERPMETHOD = 0,  //!< Undefined interpolation method.
           NEARESTNEIGHBOR = 1,    //!< Near neighborhood interpolation method.
           BILINEAR = 2,           //!< Bilinear interpolation method.
           BICUBIC = 3             //!< Bicubic interpolation method.
@@ -133,20 +132,20 @@ namespace terrama2
         */
         enum class ResolutionType
         {
-          SMALLEST_GRID, //!< Use the resolution from the smallest grid.
-          BIGGEST_GRID, //!< Use the resolution from the biggest grid.
-          SAME_FROM_DATASERIES, //!< Use the same resolution of a given grid.
-          CUSTOM //!< Use a custom resolution.
+          SMALLEST_GRID = 1, //!< Use the resolution from the smallest grid.
+          BIGGEST_GRID = 2, //!< Use the resolution from the biggest grid.
+          SAME_FROM_DATASERIES = 3, //!< Use the same resolution of a given grid.
+          CUSTOM = 4 //!< Use a custom resolution.
         };
 
         enum class InterestAreaType
         {
-          UNION, //!< Use the union of the areas from the DataSeries in the analysis.
-          SAME_FROM_DATASERIES, //!< Use the same box of a given grid.
-          CUSTOM //!< Use a custom box.
+          UNION = 1, //!< Use the union of the areas from the DataSeries in the analysis.
+          SAME_FROM_DATASERIES = 2, //!< Use the same box of a given grid.
+          CUSTOM = 3 //!< Use a custom box.
         };
 
-        struct OutputGrid
+        struct AnalysisOutputGrid
         {
           AnalysisId analysisId = 0; //!< Identifier of the analysis.
           InterpolationMethod interpolationMethod; //!< Interpolation method.

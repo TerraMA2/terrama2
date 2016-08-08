@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
     analysis->schedule.frequency = 1;
     analysis->schedule.frequencyUnit = "min";
 
-    OutputGrid* outputGrid = new OutputGrid();
+    AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
     OutputGridPtr outputGridPtr(outputGrid);
 
     outputGrid->analysisId = 1;
