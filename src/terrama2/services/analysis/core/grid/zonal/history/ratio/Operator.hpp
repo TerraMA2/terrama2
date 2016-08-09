@@ -20,11 +20,11 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/zonal/Operator.hpp
+  \file terrama2/services/analysis/core/grid/zonal/history/ratio/Operator.hpp
 
-  \brief Contains grid zonal analysis operators.
+  \brief Contains grid zonal history ratio operators to monitored object analysis.
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
 */
 
 
@@ -53,7 +53,7 @@ namespace terrama2
             {
               namespace ratio
               {
-                //Cantor pairing function for hashing the pair (column X row) https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+                //! Cantor pairing function for hashing the pair (column X row) https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
                 struct PairHash
                 {
                   std::size_t operator()(const std::pair<int, int>& pair) const
@@ -62,8 +62,16 @@ namespace terrama2
                   }
                 };
 
+                //! Get absolute time from the timeStr string.
                 double getAbsTimeFromString(const std::string& timeStr);
 
+                /*!
+                  \brief Add the values of the pixels of the intersecting area to the map of pixels
+
+                  This method will sum all pixels of a column X row pair;
+
+                  The map \e values indexes the sum of values of the pixel of all raster by a pair of column X row.
+                */
                 void appendValues(te::gm::Polygon* polygon, const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList, std::unordered_map<std::pair<int, int>, double, PairHash>& values);
 
                 /*!
@@ -80,6 +88,15 @@ namespace terrama2
                 double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                     const std::string& dataSeriesName, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "", terrama2::services::analysis::core::Buffer buffer = Buffer());
 
+                /*!
+                  \brief Calculates the number of pixels inside the monitored object.
+
+                  In case of an error or no data available it will return NAN(Not A Number).
+
+                  \param dataSeriesName DataSeries name.
+
+                  \return A double value with the result.
+                */
                 double count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
@@ -165,8 +182,6 @@ namespace terrama2
                   \return A double value with the result.
                 */
                 double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
-
-                void appendValues(te::rst::Raster* raster, te::gm::Polygon* polygon, std::vector<double>& values);
               } /* ratio */
             }
           } /* zonal */
