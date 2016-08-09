@@ -369,6 +369,16 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   }
 
   std::string datasetName;
+  if(dataSeries->semantics.dataFormat == "POSTGIS")
+  {
+    auto dataSet = dataSeries->datasetList[0];
+    datasetName = terrama2::core::getProperty(dataSet, dataSeries, "table_name");
+  }
+  else
+  {
+    //TODO Paulo: Implement storager file
+    throw terrama2::Exception() << ErrorDescription("NOT IMPLEMENTED YET");
+  }
 
   auto storager = terrama2::core::DataStoragerFactory::getInstance().make(dataSeries->semantics.dataFormat, dataProvider);
   if(!storager)
@@ -380,7 +390,6 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   auto attributes = context->getAttributes();
 
   assert(dataSeries->datasetList.size() == 1);
-
 
 
   te::da::DataSetType* dt = new te::da::DataSetType(datasetName);
@@ -395,12 +404,10 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   dt->add(dateProp);
 
   // the unique key is composed by the geomId and the execution date.
-  std::string nameuk = datasetName+ "_pk";
+  std::string nameuk = datasetName+ "_uk";
   te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt);
   uk->add(geomIdProp);
   uk->add(dateProp);
-
-
 
   //create index on date column
   te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt);
