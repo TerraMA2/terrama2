@@ -87,6 +87,25 @@ module.exports = {
     TYPE: "data_series_type_name"
   },
 
+  DataProviderType: {
+    FILE: {
+      name: "FILE",
+      value: 1
+    },
+    FTP: {
+      name: "FTP",
+      value: 2
+    },
+    HTTP: {
+      name: "HTTP",
+      value: 3
+    },
+    POSTGIS: {
+      name: "POSTGIS",
+      value: 4
+    }
+  },
+
   DataProviderIntent: {
     COLLECT: 'COLLECT',
     PROCESSING: 'PROCESSING'
