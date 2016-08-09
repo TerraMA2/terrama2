@@ -39,6 +39,7 @@
 // STL
 #include <functional>
 #include <map>
+#include <string>
 
 namespace terrama2
 {
@@ -48,19 +49,19 @@ namespace terrama2
     {
       public:
         //! DataStorager constructor function.
-        typedef std::function<DataStoragerPtr (terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
+        typedef std::function<DataStoragerPtr(terrama2::core::DataProviderPtr dataProvider)> FactoryFnctType;
         //! Register a new DataStorager constructor associated with the DataProviderType.
-        void add(const DataProviderType& dataProviderType, FactoryFnctType f);
+        void add(const DataFormat& format, FactoryFnctType f);
         //! Remove the DataStorager constructor associated with the DataProviderType.
-        void remove(const DataProviderType& dataProviderType);
-        //PAULO: documentar!
-        bool find(const DataProviderType& dataProviderType);
+        void remove(const DataFormat& format);
+        //! Returns if exists a factory for the given format.
+        bool find(const DataFormat& format);
         /*!
           \brief Creates a DataStorager
 
-          The DataStorager is constructed based on the DataProviderType of the DataProvider.
+          The DataStorager is constructed based on the format of the DataSeries.
         */
-        terrama2::core::DataStoragerPtr make(terrama2::core::DataProviderPtr dataProvider) const;
+        terrama2::core::DataStoragerPtr make(const DataFormat& format, terrama2::core::DataProviderPtr dataProvider) const;
 
 
       protected:
@@ -75,7 +76,7 @@ namespace terrama2
         DataStoragerFactory& operator=(const DataStoragerFactory& other) = delete;
         DataStoragerFactory& operator=(DataStoragerFactory&& other) = delete;
 
-        std::map<DataProviderType, FactoryFnctType> factoriesMap_;
+        std::map<DataFormat, FactoryFnctType> factoriesMap_;
     };
 
 

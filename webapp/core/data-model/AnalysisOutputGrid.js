@@ -37,11 +37,11 @@ AnalysisOutputGrid.prototype.toObject = function() {
     analysis_id: this.analysis.id,
     area_of_interest_type: this.areaOfInterestType,
     area_of_interest_data_series_id: this.areaOfInterestDataSeries.id,
+    area_of_interest_box: this.areaOfInterestBox,
     resolution_x: this.resolutionX,
     resolution_y: this.resolutionY,
     resolution_type: this.resolutionType,
-    resolution_data_series_id: this.resolutionDataSeries.id,
-    interest_area_box: this.areaOfInterestBox
+    resolution_data_series_id: this.resolutionDataSeries.id
   });
 };
 
