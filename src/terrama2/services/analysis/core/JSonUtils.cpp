@@ -138,7 +138,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
   analysis->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
   analysis->active = json["active"].toBool();
 
-  analysis->outputGridPtr = fromOutputGrid(json["output_grid"].toObject());
+  analysis->outputGridPtr = fromAnalysisOutputGrid(json["output_grid"].toObject());
 
   return analysisPtr;
 }
@@ -200,7 +200,7 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
   return obj;
 }
 
-QJsonObject terrama2::services::analysis::core::toJson(OutputGridPtr outputGrid)
+QJsonObject terrama2::services::analysis::core::toJson(AnalysisOutputGridPtr outputGrid)
 {
   QJsonObject obj;
 
@@ -231,8 +231,13 @@ QJsonObject terrama2::services::analysis::core::toJson(OutputGridPtr outputGrid)
 }
 
 
-terrama2::services::analysis::core::OutputGridPtr terrama2::services::analysis::core::fromOutputGrid(const QJsonObject& json)
+terrama2::services::analysis::core::AnalysisOutputGridPtr terrama2::services::analysis::core::fromAnalysisOutputGrid(const QJsonObject& json)
 {
+  if(json.isEmpty())
+  {
+    return std::make_shared<terrama2::services::analysis::core::AnalysisOutputGrid>();
+  }
+
   if(json["class"].toString() != "AnalysisOutputGrid")
   {
     QString errMsg(QObject::tr("Invalid AnalysisOutputGrid JSON object."));
@@ -258,7 +263,7 @@ terrama2::services::analysis::core::OutputGridPtr terrama2::services::analysis::
   }
 
   AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid;
-  OutputGridPtr outputGridPtr(outputGrid);
+  AnalysisOutputGridPtr outputGridPtr(outputGrid);
 
 
   outputGrid->analysisId = json["analysis_id"].toInt();

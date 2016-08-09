@@ -56,12 +56,12 @@ namespace terrama2
           \brief Creates an OutputGrid object from a QJsonObject.
           \see [OutputGrid at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/OutputGrid) for more information.
         */
-        OutputGridPtr fromOutputGrid(const QJsonObject& json);
+        AnalysisOutputGridPtr fromAnalysisOutputGrid(const QJsonObject& json);
 
         /*!
           \brief Creates a QJsonObject from an OutputGrid.
         */
-        QJsonObject toJson(OutputGridPtr outputGrid);
+        QJsonObject toJson(AnalysisOutputGridPtr outputGrid);
 
       } // end namespace core
     }   // end namespace analysis
