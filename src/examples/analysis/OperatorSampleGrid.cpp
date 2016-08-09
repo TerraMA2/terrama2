@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 
 
     AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
-    OutputGridPtr outputGridPtr(outputGrid);
+    AnalysisOutputGridPtr outputGridPtr(outputGrid);
 
     outputGrid->analysisId = 1;
     outputGrid->interpolationMethod = InterpolationMethod::BILINEAR;

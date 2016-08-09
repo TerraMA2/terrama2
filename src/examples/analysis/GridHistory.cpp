@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
     analysis->schedule.frequencyUnit = "min";
 
     AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
-    OutputGridPtr outputGridPtr(outputGrid);
+    AnalysisOutputGridPtr outputGridPtr(outputGrid);
 
     outputGrid->analysisId = 1;
     outputGrid->interpolationMethod = InterpolationMethod::BILINEAR;

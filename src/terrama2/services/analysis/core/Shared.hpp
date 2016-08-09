@@ -52,7 +52,7 @@ namespace terrama2
 
         struct AnalysisOutputGrid;
         //! Shared smart pointer for OutputGrid
-        typedef std::shared_ptr<const terrama2::services::analysis::core::AnalysisOutputGrid> OutputGridPtr;
+        typedef std::shared_ptr<const terrama2::services::analysis::core::AnalysisOutputGrid> AnalysisOutputGridPtr;
 
         class BaseContext;
         typedef std::shared_ptr<terrama2::services::analysis::core::BaseContext> BaseContextPtr;
