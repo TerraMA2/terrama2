@@ -35,7 +35,7 @@
 #include "../../Config.hpp"
 
 terrama2::core::DataStorager::DataStorager(DataProviderPtr outputDataProvider)
-  : dataProvider_(outputDataProvider)
+        : dataProvider_(outputDataProvider)
 {
   if(!dataProvider_.get())
   {

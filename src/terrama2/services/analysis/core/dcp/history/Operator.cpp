@@ -178,6 +178,8 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
               {
                 hasData = true;
                 double value = getValue(syncDs, attribute, i, attributeType);
+                if(std::isnan(value))
+                  continue;
                 values.push_back(value);
               }
             }

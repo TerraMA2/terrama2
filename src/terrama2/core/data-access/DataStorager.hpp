@@ -47,7 +47,7 @@ namespace terrama2
 {
   namespace core
   {
-    typedef std::string DataStoragetType;
+    typedef std::string DataStoragerType;
     /*!
       \brief DataStorager provides an interface to store a DataSetSeries.
     */

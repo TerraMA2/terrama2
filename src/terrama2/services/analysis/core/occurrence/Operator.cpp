@@ -195,22 +195,22 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
               if(occurrenceGeom->intersects(geomResult.get()))
               {
-                ++countValues;
 
                 try
                 {
                   if(!attribute.empty())
                   {
                     hasData = true;
-                    cache.count++;
+                    // second column contains the value
                     double value = bufferDs->getDouble(1);
 
+                    if(std::isnan(value))
+                      continue;
+
+                    ++countValues;
+
+                    cache.count++;
                     values.push_back(value);
-                    cache.sum += value;
-                    if(value > cache.max)
-                      cache.max = value;
-                    if(value < cache.min)
-                      cache.min = value;
                   }
                 }
                 catch(...)
@@ -237,15 +237,14 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                   if(!attribute.empty() && !syncDs->isNull(i, attribute))
                   {
                     hasData = true;
-                    cache.count++;
                     double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
 
+                    if(std::isnan(value))
+                      continue;
+
+                    cache.count++;
+
                     values.push_back(value);
-                    cache.sum += value;
-                    if(value > cache.max)
-                      cache.max = value;
-                    if(value < cache.min)
-                      cache.min = value;
                   }
                 }
                 catch(...)

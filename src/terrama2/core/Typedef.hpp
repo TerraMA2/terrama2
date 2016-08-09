@@ -51,6 +51,8 @@ typedef uint32_t ProcessId;
 typedef uint32_t RegisterId;
 //! DataProviderType code
 typedef std::string DataProviderType;
+//! Format of the data series semantics
+typedef std::string DataFormat;
 
 namespace terrama2
 {
