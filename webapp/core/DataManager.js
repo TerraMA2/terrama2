@@ -2193,6 +2193,8 @@ var DataManager = {
 
                 analysisDataSeriesArray.forEach(function(analysisDS) {
                   analysisDS.analysis_id = analysisResult.id;
+                  // ignore id
+                  delete analysisDS.id;
 
                   var metadata = [];
                   for(var key in analysisDS.metadata) {
@@ -2322,26 +2324,32 @@ var DataManager = {
           // updating analysis dataSeries
           var promises = [];
 
-          // TODO: improve this
-          analysisInstance.analysis_dataseries_list.forEach(function(analysisDS) {
-            analysisObject.analysisDataSeries.some(function(element) {
-              if (element.data_series_id === analysisDS.data_series_id) {
-                // update
-                promises.push(models.db.AnalysisDataSeries.update(element, {
-                  fields: ['alias'],
-                  where: {id: analysisDS.id}
-                }));
-              } else {
-                if (element.data_series_id) {
-                //   insert
-                  element.analysis_id = analysisInstance.id;
-                  promises.push(self.addAnalysisDataSeries(element));
-                } else {
-                //  delete
-                  promises.push(models.db.AnalysisDataSeries.destroy({where: {id : analysisDS.id}}));
-                }
-              }
-            });
+          var toUpdate = analysisObject.analysisDataSeries.filter(function(elm) { return elm.id !== 0; });
+          var toRemove = _.differenceWith(analysisInstance.analysis_dataseries_list, toUpdate, function(a, b) {
+            return a.id === b.id;
+          });
+
+          // TODO: improve this and delete
+          analysisObject.analysisDataSeries.some(function(element) {
+            if (element.id && element.id > 0) {
+              // update
+              promises.push(models.db.AnalysisDataSeries.update(element, {
+                fields: ['alias'],
+                where: {id: element.id}
+              }));
+            } else {
+              // insert
+              element.analysis_id = analysisInstance.id;
+              delete element.id;
+              promises.push(self.addAnalysisDataSeries(element));
+            }
+          });
+
+          // delete
+          toRemove.forEach(function(element) {
+            promises.push(models.db.AnalysisDataSeries.destroy({where: {
+              id: element.id
+            }}));
           });
 
           Promise.all(promises).then(function() {

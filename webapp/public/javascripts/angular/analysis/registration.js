@@ -295,7 +295,7 @@ angular.module('terrama2.analysis.registration', [
                 });
               }
 
-              $scope.metadata[ds.name] = Object.assign({alias: analysisDs.alias}, analysisDs.metadata);
+              $scope.metadata[ds.name] = Object.assign({id: analysisDs.id, alias: analysisDs.alias}, analysisDs.metadata);
             });
 
             if (analysisInstance.type.id === globals.enums.AnalysisType.GRID) {
@@ -594,8 +594,14 @@ angular.module('terrama2.analysis.registration', [
         var alias = ($scope.metadata[selectedDS.name] || {}).alias;
 
         delete metadata.alias;
+        var _id = 0;
+        if (metadata.id) {
+          _id = metadata.id;
+          delete metadata.id;
+        }
 
         return {
+          id: _id,
           data_series_id: selectedDS.id,
           metadata: metadata,
           alias: alias,
