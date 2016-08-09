@@ -9,7 +9,8 @@ var DataSeries = require("./../data-model/DataSeries");
 
 
 /**
- * Class responsible for filtering DataSeries from Collectors. */
+ * Class responsible for filtering DataSeries from Collectors.
+ */
 var CollectorFilter = module.exports = function() {};
 
 CollectorFilter.prototype = Object.create(Filter.prototype);
@@ -19,7 +20,8 @@ CollectorFilter.prototype.constructor = CollectorFilter;
 /**
  * @param {Array<Collector>} collectors - An array of TerraMA2 collectors
  * @param {Object} extra - An extra object with following syntax: {"dataSeries": Array<DataSeries>"}
- * @return {Array<DataSeries>} It retrieves a filtered data series from collector */
+ * @return {Array<DataSeries>} It retrieves a filtered data series from collector
+ */
 CollectorFilter.prototype.match = function(collectors, extra) {
   var dataSeries = extra.dataSeries;
   // creating a copy

@@ -1,3 +1,5 @@
+'use strict';
+
 var AbstractRequest = require('./AbstractRequest');
 var Client = require('jsftp');
 var Promise = require('bluebird');
@@ -43,8 +45,9 @@ FtpRequest.prototype.request = function() {
     });
 
     client.raw.quit(function(err, data) {
-      if (err)
-        return reject(err)
+      if (err) {
+        return reject(err);
+      }
 
       resolve();
     });

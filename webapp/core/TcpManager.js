@@ -187,8 +187,9 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
   try {
 
     // checking if there are active connections
-    if (Object.keys(clients).length === 0)
+    if (Object.keys(clients).length === 0) {
       throw new Error("There is no client to log request. Start services in Admin Dashboard");
+    }
 
     var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
 
@@ -324,16 +325,13 @@ TcpManager.prototype.connect = function(serviceInstance) {
       client.connect().then(function() {
         // preparing socket listeners
         self.initialize(client);
-
       }).catch(function(err) {
-        console.log(err)
+        console.log(err);
       }).finally(function() {
-        resolve()
-        // self.emit('serviceConnected', serviceInstance);
-      })
+        resolve();
+      });
     } catch (e) {
       reject(e);
-      // this.emit('tcpError', serviceInstance, e);
     }
   });
 };
@@ -376,14 +374,13 @@ TcpManager.prototype.registerListeners = function (serviceInstance) {
 
 TcpManager.prototype.initialize = function(client) {
   var self = this;
-  if (!client.isOpen() || client.isRegistered())
-    return;
+  if (!client.isOpen() || client.isRegistered()) { return; }
 
   console.log("Registering listeners " + client.service.name);
   this.registered = true;
 
   var onStatus = function(response) {
-    self.emit('statusReceived', client.service, response)
+    self.emit('statusReceived', client.service, response);
   };
 
   var onLog = function(response) {
@@ -408,7 +405,7 @@ TcpManager.prototype.initialize = function(client) {
             cachedLog.log.push.apply(logRetrieved.log);
             return true;
           }
-        })
+        });
       });
     }
 

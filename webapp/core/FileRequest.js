@@ -1,3 +1,5 @@
+'use strict';
+
 var AbstractRequest = require('./AbstractRequest');
 var Promise = require('bluebird');
 var fs = require('fs');
@@ -39,7 +41,7 @@ FileRequest.fields = function() {
         htmlClass: 'col-md-12'
       }
     ]
-  }
+  };
 };
 
 

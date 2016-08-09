@@ -1,3 +1,5 @@
+'use strict';
+
 var AbstractClass = require("./AbstractData");
 var Utils = require('./../Utils');
 

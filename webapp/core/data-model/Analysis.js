@@ -3,6 +3,7 @@
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
+var isObject = require("./../Utils").isObject;
 
 var Analysis = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Analysis'});
@@ -63,7 +64,11 @@ Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
   if (outputGrid.get) {
     output = new AnalysisOutputGrid(outputGrid.get());
   } else {
-    output = new AnalysisOutputGrid(outputGrid);
+    if (isObject(outputGrid) && Object.keys(outputGrid).length === 0) {
+      output = null;
+    } else {
+      output = new AnalysisOutputGrid(outputGrid);
+    }
   }
   this.outputGrid = output;
 };

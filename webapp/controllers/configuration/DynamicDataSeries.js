@@ -38,7 +38,7 @@ module.exports = function(app) {
             "Enums": Enums,
             dataSeries: {
               input: dataSeriesResults[0].rawObject(),
-              output: dataSeriesResults[1].rawObject(),
+              output: dataSeriesResults[1].rawObject()
             },
             collector: collectorResult.rawObject()
           });
@@ -59,13 +59,13 @@ module.exports = function(app) {
               dataSeries: {
                 input: dataSeries.rawObject()
               }
-            })
+            });
           }).catch(function(err) {
             response.render('base/404');
-          })
-        })
-      })
+          });
+        });
+      });
     }
-  }
+  };
 
 };

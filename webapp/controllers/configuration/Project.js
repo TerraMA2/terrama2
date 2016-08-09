@@ -1,3 +1,5 @@
+'use strict';
+
 var DataManager = require('../../core/DataManager');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
@@ -37,7 +39,7 @@ module.exports = function(app) {
       }).catch(function(err) {
         console.log(err);
         response.render('base/404');
-      })
+      });
     }
   };
 };

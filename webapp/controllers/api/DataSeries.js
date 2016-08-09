@@ -98,7 +98,9 @@ module.exports = function(app) {
 
       // list data series restriction
       var restriction = {
-        project_id: app.locals.activeProject.id
+        dataProvider: {
+          project_id: app.locals.activeProject.id
+        }
       };
 
       if (dataSeriesType) {
@@ -108,12 +110,15 @@ module.exports = function(app) {
             dataSeriesTypeName = DataSeriesType.STATIC_DATA;
             break;
           case "dynamic":
+            dataSeriesTypeName = {
+              $ne: DataSeriesType.STATIC_DATA
+            };
             break;
           default:
             return Utils.handleRequestError(response, new DataSeriesError("Invalid data series type. Available: \'static\' and \'dynamic\'"), 400);
         }
 
-        restriction.DataSeriesSemantics = {
+        restriction.data_series_semantics = {
           data_series_type_name: dataSeriesTypeName
         };
       }

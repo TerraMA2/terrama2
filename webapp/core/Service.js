@@ -1,9 +1,11 @@
+'use strict';
+
 var net = require('net');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
 var EventEmitter = require('events').EventEmitter;
 var NodeUtils = require('util');
-var Signals = require('./Signals')
+var Signals = require('./Signals');
 
 
 /**
@@ -22,16 +24,17 @@ function parseByteArray(byteArray) {
 
   var jsonMessage;
 
-  if (rawData.length === 0)
+  if (rawData.length === 0) {
     jsonMessage = {};
-  else
+  } else {
     jsonMessage = JSON.parse(rawData);
+  }
 
   return {
     size: messageSizeReceived,
     signal: signal,
     message: jsonMessage
-  }
+  };
 }
 
 
@@ -55,7 +58,7 @@ var Service = module.exports = function(serviceInstance) {
       timeoutCallback = timeoutCallback || function() { };
       self.socket.setTimeout(timeout, timeoutCallback);
     }
-  }
+  };
 
   self.isRegistered = function() {
     // TODO: better implementation
@@ -87,20 +90,22 @@ var Service = module.exports = function(serviceInstance) {
           break;
       }
 
-      if (callbackSuccess)
+      if (callbackSuccess) {
         callbackSuccess(parsed);
+      }
     } catch (e) {
       console.log("Error parsing bytearray: ", e);
       self.emit("serviceError", e);
-      if (callbackError)
+      if (callbackError) {
         callbackError(e);
+      }
     }
 
   });
 
   self.socket.on('drain', function() {
     console.log('drained');
-  })
+  });
 
   self.socket.on('close', function(byteArray) {
     self.emit('close', byteArray);
@@ -123,24 +128,24 @@ var Service = module.exports = function(serviceInstance) {
         callbackError = reject;
         self.socket.connect(self.service.port, self.service.host, function() {
           resolve();
-        })
-      } else
+        });
+      } else {
         reject(new Error("Could not connect. There is a open connection"));
-    })
+      }
+    });
   };
 
   self.status = function(buffer) {
-    return new Promise(function(resolve, reject) {
-      if (!self.isOpen()) {
-        self.emit("serviceError", new Error("Could not retrieve status from closed connection"));
-        return;
-      }
+    if (!self.isOpen()) {
+      self.emit("serviceError", new Error("Could not retrieve status from closed connection"));
+      return;
+    }
 
-      self.answered = false;
-      self.writeData(buffer, 4000, function() {
-        if (!self.answered)
-          self.emit("serviceError", new Error("Status Timeout exceeded."));
-      });
+    self.answered = false;
+    self.writeData(buffer, 4000, function() {
+      if (!self.answered) {
+        self.emit("serviceError", new Error("Status Timeout exceeded."));
+      }
     });
   };
 
@@ -180,8 +185,9 @@ var Service = module.exports = function(serviceInstance) {
       callbackError = reject;
       self.answered = false;
       self.writeData(buffer, 5000, function() {
-        if (!self.answered)
+        if (!self.answered) {
           self.emit("serviceError", new Error("Stop Timeout exceeded."));
+        }
       });
     });
   };
@@ -193,10 +199,11 @@ var Service = module.exports = function(serviceInstance) {
 
     self.answered = false;
     self.writeData(buffer, 3000, function() {
-      if (!self.answered)
+      if (!self.answered) {
         self.emit("serviceError", new Error("Log Timeout exceeded."));
+      }
     });
-  }
+  };
 };
 
 NodeUtils.inherits(Service, EventEmitter);

@@ -1,3 +1,5 @@
+'use strict';
+
 var Promise = require('bluebird');
 var execAsync = require('child_process').exec;
 var OS = require('./Enums').OS;
@@ -20,16 +22,16 @@ var Executor = module.exports = function(adapter) {
 
 Executor.prototype.connect = function(serviceInstance) {
   var self = this;
-  return new Promise(function(resolve, reject) {
+  return new Promise(function(resolve) {
     self.serviceInstance = serviceInstance;
     // detecting platform
-    self.execute("ipconfig").then(function(code) {
+    self.execute("ipconfig").then(function() {
       self.platform = OS.WIN;
-    }).catch(function(err) {
+    }).catch(function() {
       return self.execute("uname");
     }).finally(function() {
       resolve();
-    })
+    });
   });
 };
 
@@ -40,8 +42,9 @@ Executor.prototype.execute = function(command) {
 
     child.on('close', function(code, signal) {
       console.log("Executor close ", code, signal);
-      if (code !== 0)
+      if (code !== 0) {
         return reject(new Error("Error: exit code " + code));
+      }
 
       resolve(code);
     });
@@ -69,7 +72,7 @@ Executor.prototype.execute = function(command) {
 
     child.stderr.on('data', function(data) {
       console.log("Executor Error: ", data.toString());
-    })
+    });
   });
 };
 
@@ -81,12 +84,11 @@ Executor.prototype.startService = function(command) {
     }).catch(function(err) {
       reject(err);
     });
-  })
+  });
 };
 
 Executor.prototype.disconnect = function() {
-  var self = this;
-  return new Promise(function(resolve, reject) {
+  return new Promise(function(resolve) {
     resolve();
-  })
+  });
 };
