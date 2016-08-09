@@ -181,8 +181,10 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                 if(!attribute.empty() && !dcpSyncDs->isNull(i, attribute))
                 {
                   hasData = true;
-                  countValues++;
                   double value = getValue(dcpSyncDs, attribute, i, attributeType);
+                  if(std::isnan(value))
+                    continue;
+                  countValues++;
                   values.push_back(value);
                 }
               }
