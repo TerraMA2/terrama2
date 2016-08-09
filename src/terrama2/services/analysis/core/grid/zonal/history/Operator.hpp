@@ -51,9 +51,24 @@ namespace terrama2
           {
             namespace history
             {
+              /*!
+                \brief Calculates the number of raster images are available for the area and time constrains.
+              */
               int num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
+              /*!
+                \brief Return the list of timestamps of the raster images available for the area and time constrains.
+              */
               boost::python::list list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
+              /*!
+                \brief Calculates the number of pixels inside the monitored object.
+
+                In case of an error or no data available it will return NAN(Not A Number).
+
+                \param dataSeriesName DataSeries name.
+
+                \return A double value with the result.
+              */
               double count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               /*!
@@ -139,8 +154,6 @@ namespace terrama2
                 \return A double value with the result.
               */
               double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
-
-              void appendValues(te::rst::Raster* raster, te::gm::Polygon* polygon, std::vector<double>& values);
             }
           } /* zonal */
         }   // end namespace grid

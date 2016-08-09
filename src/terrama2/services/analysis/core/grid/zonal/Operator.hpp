@@ -67,6 +67,15 @@ namespace terrama2
             double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                 const std::string& dataSeriesName, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "", terrama2::services::analysis::core::Buffer buffer = Buffer());
 
+            /*!
+              \brief Calculates the number of pixels inside the monitored object.
+
+              In case of an error or no data available it will return NAN(Not A Number).
+
+              \param dataSeriesName DataSeries name.
+
+              \return A double value with the result.
+            */
             double count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
@@ -153,6 +162,9 @@ namespace terrama2
             */
             double variance(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
+            /*!
+              \brief Populates the vector \e values with the values of the pixels inside the \e polygon area.
+            */
             void appendValues(te::rst::Raster* raster, te::gm::Polygon* polygon, std::vector<double>& values);
           } /* zonal */
         }   // end namespace grid

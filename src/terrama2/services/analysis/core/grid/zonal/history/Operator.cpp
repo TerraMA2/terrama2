@@ -88,15 +88,23 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
+    int count = 0;
     auto datasets = dataSeries->datasetList;
     for(auto dataset : datasets)
     {
       auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, "");
-      if(!rasterList.empty())
-        return rasterList.size();
+
+      for (auto raster : rasterList)
+      {
+        auto extent = raster->getExtent();
+        if(!extent->intersects(*geomResult->getMBR()))
+          continue;
+
+        ++count;
+      }
     }
 
-    return 0;
+    return count;
   }
   catch(const terrama2::Exception& e)
   {
