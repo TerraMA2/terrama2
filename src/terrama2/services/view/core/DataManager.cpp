@@ -148,7 +148,7 @@ void terrama2::services::view::core::DataManager::addJSon(const QJsonObject& obj
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown error...");
   }
 }
 
@@ -180,6 +180,6 @@ void terrama2::services::view::core::DataManager::removeJSon(const QJsonObject& 
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown error...");
   }
 }

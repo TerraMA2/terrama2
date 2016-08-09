@@ -119,8 +119,6 @@ void terrama2::services::alert::core::DataManager::addJSon(const QJsonObject& ob
 {
   try
   {
-    std::lock_guard<std::recursive_mutex> lock(mtx_);
-
     terrama2::core::DataManager::DataManager::addJSon(obj);
 
     auto alerts = obj["Alerts"].toArray();
@@ -147,7 +145,7 @@ void terrama2::services::alert::core::DataManager::addJSon(const QJsonObject& ob
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown error...");
   }
 }
 
@@ -155,7 +153,6 @@ void terrama2::services::alert::core::DataManager::removeJSon(const QJsonObject&
 {
   try
   {
-    std::lock_guard<std::recursive_mutex> lock(mtx_);
     auto alerts = obj["Alerts"].toArray();
     for(auto json : alerts)
     {
@@ -179,6 +176,6 @@ void terrama2::services::alert::core::DataManager::removeJSon(const QJsonObject&
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown error...");
   }
 }
