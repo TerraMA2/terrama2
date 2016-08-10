@@ -165,7 +165,7 @@ QJsonObject terrama2::core::TcpManager::logToJson(const terrama2::core::ProcessL
   return obj;
 }
 
-bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, std::shared_ptr<QTcpSocket> tcpSocket)
+bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket* tcpSocket)
 {
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
@@ -229,7 +229,7 @@ bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, std::share
   }
 }
 
-void terrama2::core::TcpManager::sendTerminateSignal(std::shared_ptr<QTcpSocket> tcpSocket)
+void terrama2::core::TcpManager::sendTerminateSignal(QTcpSocket* tcpSocket)
 {
   TERRAMA2_LOG_DEBUG() << "sending TERMINATE_SERVICE_SIGNAL";
   QByteArray bytearray;
@@ -249,12 +249,12 @@ void terrama2::core::TcpManager::sendTerminateSignal(std::shared_ptr<QTcpSocket>
   return;
 }
 
-void terrama2::core::TcpManager::readReadySlot(std::shared_ptr<QTcpSocket> tcpSocket) noexcept
+void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
 {
   try
   {
     {
-      QDataStream in(tcpSocket.get());
+      QDataStream in(tcpSocket);
       TERRAMA2_LOG_DEBUG() << "bytes available: " << tcpSocket->bytesAvailable();
 
       if(blockSize_ == 0)
@@ -379,7 +379,7 @@ void terrama2::core::TcpManager::readReadySlot(std::shared_ptr<QTcpSocket> tcpSo
       }
     }//end of Raii block
 
-    if(tcpSocket.get() && !tcpSocket->atEnd())
+    if(tcpSocket && !tcpSocket->atEnd())
       readReadySlot(tcpSocket);
   }
   catch(...)
@@ -395,11 +395,11 @@ void terrama2::core::TcpManager::receiveConnection() noexcept
   {
     TERRAMA2_LOG_INFO() << QObject::tr("Receiving new configuration...");
 
-    std::shared_ptr<QTcpSocket> tcpSocket(nextPendingConnection());
-    if(!tcpSocket.get())
+    QTcpSocket* tcpSocket(nextPendingConnection());
+    if(!tcpSocket)
       return;
 
-    connect(tcpSocket.get(), &QTcpSocket::readyRead, [this, tcpSocket]() { readReadySlot(tcpSocket);});
+    connect(tcpSocket, &QTcpSocket::readyRead, [this, tcpSocket]() { readReadySlot(tcpSocket);});
   }
   catch(...)
   {
