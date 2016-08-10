@@ -369,6 +369,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   }
 
   std::string datasetName;
+
   if(dataSeries->semantics.dataFormat == "POSTGIS")
   {
     auto dataSet = dataSeries->datasetList[0];

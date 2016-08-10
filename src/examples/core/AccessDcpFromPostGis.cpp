@@ -5,7 +5,7 @@
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/impl/DataAccessorDcpPostGIS.hpp>
-
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <iostream>
 
 //QT
@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
     uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
 
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -35,7 +36,7 @@ int main(int argc, char* argv[])
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "DCP-postgis";
+    dataSeries->semantics = semanticsManager.getSemantics("DCP-postgis");
 
     //DataSet information
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();

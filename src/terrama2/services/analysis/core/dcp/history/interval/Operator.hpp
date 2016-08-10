@@ -20,23 +20,25 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/dcp/history/DCPHistoryOperator.hpp
+  \file terrama2/services/analysis/core/dcp/history/interval/Operator.hpp
 
-  \brief Contains DCP history analysis operators.
+  \brief Contains DCP history interval analysis operators.
 
   \author Paulo R. M. Oliveira
 */
 
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_OPERATOR_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_OPERATOR_HPP__
+#ifndef __TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_INTERVAL_OPERATOR_HPP__
+#define __TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_INTERVAL_OPERATOR_HPP__
 
-#include "../../BufferMemory.hpp"
-#include "../../PythonInterpreter.hpp"
-#include "../../Shared.hpp"
+#include "../../../Utils.hpp"
+#include "../../../Shared.hpp"
 
 // STL
 #include <string>
+
+// Boost
+#include <boost/python/list.hpp>
 
 namespace terrama2
 {
@@ -50,41 +52,25 @@ namespace terrama2
         {
           namespace history
           {
+            namespace interval
+            {
 
-            /*!
-              \brief Implementation of history operator for DCP series.
-
-              In case of an error or no data available it will return NAN(Not A Number).
-
-              \param statisticOperation The statistic operation chosen by the user.
-              \param dataSeriesName DataSeries name.
-              \param attribute Which DCP attribute will be used.
-              \param dateFilterBegin Begin of the time interval.
-              \param dateFilterEnd End of the time interval.
-              \param ids List of DCP identifiers.
-
-
-              \return A double value with the result.
-            */
-            double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                                const std::string& dataSeriesName, const std::string& attribute,
-                                const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                                boost::python::list ids);
-
-            /*!
+              /*!
               \brief Calculates the sum of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
               \param dataSeriesName DataSeries name.
               \param attribute Which DCP attribute will be used.
-              \param dateFilter Time filter for the data.
+              \param dateFilterBegin Begin of the time interval.
+              \param dateFilterEnd End of the time interval.
               \param ids List of DCP identifiers.
 
               \return A double value with the result.
             */
             double sum(const std::string& dataSeriesName, const std::string& attribute,
-                       const std::string& dateFilter, boost::python::list ids);
+                       const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                       boost::python::list ids);
 
             /*!
               \brief Calculates the mean of historic DCP data.
@@ -93,13 +79,15 @@ namespace terrama2
 
               \param dataSeriesName DataSeries name.
               \param attribute Which DCP attribute will be used.
-              \param dateFilter Time filter for the data.
+              \param dateFilterBegin Begin of the time interval.
+              \param dateFilterEnd End of the time interval.
               \param ids List of DCP identifiers.
 
               \return A double value with the result.
             */
             double mean(const std::string& dataSeriesName, const std::string& attribute,
-                        const std::string& dateFilter, boost::python::list ids);
+                        const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                        boost::python::list ids);
 
             /*!
               \brief Calculates the min of historic DCP data.
@@ -108,13 +96,15 @@ namespace terrama2
 
               \param dataSeriesName DataSeries name.
               \param attribute Which DCP attribute will be used.
-              \param dateFilter Time filter for the data.
+              \param dateFilterBegin Begin of the time interval.
+              \param dateFilterEnd End of the time interval.
               \param ids List of DCP identifiers.
 
               \return A double value with the result.
             */
             double min(const std::string& dataSeriesName, const std::string& attribute,
-                       const std::string& dateFilter, boost::python::list ids);
+                       const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                       boost::python::list ids);
 
             /*!
               \brief Calculates the max of historic DCP data.
@@ -123,13 +113,15 @@ namespace terrama2
 
               \param dataSeriesName DataSeries name.
               \param attribute Which DCP attribute will be used.
-              \param dateFilter Time filter for the data.
+              \param dateFilterBegin Begin of the time interval.
+              \param dateFilterEnd End of the time interval.
               \param ids List of DCP identifiers.
 
               \return A double value with the result.
             */
             double max(const std::string& dataSeriesName, const std::string& attribute,
-                       const std::string& dateFilter, boost::python::list ids);
+                       const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                       boost::python::list ids);
 
             /*!
               \brief Calculates the median of historic DCP data.
@@ -138,13 +130,15 @@ namespace terrama2
 
               \param dataSeriesName DataSeries name.
               \param attribute Which DCP attribute will be used.
-              \param dateFilter Time filter for the data.
+              \param dateFilterBegin Begin of the time interval.
+              \param dateFilterEnd End of the time interval.
               \param ids List of DCP identifiers.
 
               \return A double value with the result.
             */
             double median(const std::string& dataSeriesName, const std::string& attribute,
-                          const std::string& dateFilter, boost::python::list ids);
+                          const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                          boost::python::list ids);
 
             /*!
               \brief Calculates the standard deviation of historic DCP data.
@@ -153,13 +147,15 @@ namespace terrama2
 
               \param dataSeriesName DataSeries name.
               \param attribute Which DCP attribute will be used.
-              \param dateFilter Time filter for the data.
+              \param dateFilterBegin Begin of the time interval.
+              \param dateFilterEnd End of the time interval.
               \param ids List of DCP identifiers.
 
               \return A double value with the result.
             */
             double standardDeviation(const std::string& dataSeriesName, const std::string& attribute,
-                                     const std::string& dateFilter, boost::python::list ids);
+                                     const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                                     boost::python::list ids);
 
             /*!
               \brief Calculates the variance of historic DCP data.
@@ -168,19 +164,22 @@ namespace terrama2
 
               \param dataSeriesName DataSeries name.
               \param attribute Which DCP attribute will be used.
-              \param dateFilter Time filter for the data.
+              \param dateFilterBegin Begin of the time interval.
+              \param dateFilterEnd End of the time interval.
               \param ids List of DCP identifiers.
 
               \return A double value with the result.
             */
             double variance(const std::string& dataSeriesName, const std::string& attribute,
-                            const std::string& dateFilter, boost::python::list ids);
+                            const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                            boost::python::list ids);
 
-          } // end namespace history
-        }   // end namespace dcp
-      }     // end namespace core
-    }       // end namespace analysis
-  }         // end namespace services
-}           // end namespace terrama2
+            } // end namespace interval
+          }   // end namespace history
+        }     // end namespace dcp
+      }       // end namespace core
+    }         // end namespace analysis
+  }           // end namespace services
+}             // end namespace terrama2
 
-#endif //__TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_OPERATOR_HPP__
+#endif //__TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_INTERVAL_OPERATOR_HPP__

@@ -37,6 +37,9 @@ file(GLOB TERRAMA2_DCP_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/serv
 file(GLOB TERRAMA2_DCP_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/*.cpp)
 file(GLOB TERRAMA2_DCP_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/*.hpp)
 
+file(GLOB TERRAMA2_DCP_HISTORY_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/interval/*.cpp)
+file(GLOB TERRAMA2_DCP_HISTORY_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/history/interval/*.hpp)
+
 file(GLOB TERRAMA2_DCP_INFLUENCE_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/influence/*.cpp)
 file(GLOB TERRAMA2_DCP_INFLUENCE_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/influence/*.hpp)
 
@@ -81,6 +84,8 @@ source_group("Source Files\\dcp"  FILES ${TERRAMA2_DCP_SRC_FILES})
 source_group("Header Files\\dcp"  FILES ${TERRAMA2_DCP_HDR_FILES})
 source_group("Source Files\\dcp\\history"  FILES ${TERRAMA2_DCP_HISTORY_SRC_FILES})
 source_group("Header Files\\dcp\\history"  FILES ${TERRAMA2_DCP_HISTORY_HDR_FILES})
+source_group("Source Files\\dcp\\history\\interval"  FILES ${TERRAMA2_DCP_HISTORY_INTERVAL_SRC_FILES})
+source_group("Header Files\\dcp\\history\\interval"  FILES ${TERRAMA2_DCP_HISTORY_INTERVAL_HDR_FILES})
 source_group("Source Files\\dcp\\influence"  FILES ${TERRAMA2_DCP_INFLUENCE_SRC_FILES})
 source_group("Header Files\\dcp\\influence"  FILES ${TERRAMA2_DCP_INFLUENCE_HDR_FILES})
 source_group("Source Files\\occurrence"  FILES ${TERRAMA2_OCCURRENCE_SRC_FILES})
@@ -124,6 +129,8 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_DCP_HDR_FILES}
                                           ${TERRAMA2_DCP_HISTORY_SRC_FILES}
                                           ${TERRAMA2_DCP_HISTORY_HDR_FILES}
+                                          ${TERRAMA2_DCP_HISTORY_INTERVAL_SRC_FILES}
+                                          ${TERRAMA2_DCP_HISTORY_INTERVAL_HDR_FILES}
                                           ${TERRAMA2_DCP_INFLUENCE_SRC_FILES}
                                           ${TERRAMA2_DCP_INFLUENCE_HDR_FILES}
                                           ${TERRAMA2_OCCURRENCE_SRC_FILES}
