@@ -154,6 +154,11 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
 
     terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
     std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
+    if(!accessorGrid)
+    {
+      QString errMsg = QObject::tr("Could not create a DataAccessor to the data series: %1.").arg(dataSeriesId);
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
 
     terrama2::core::Filter filter = createFilter(dateDiscardBefore, dateDiscardAfter);
     auto gridSeries = accessorGrid->getGridSeries(filter);
