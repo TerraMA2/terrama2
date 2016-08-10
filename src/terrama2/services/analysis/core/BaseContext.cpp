@@ -82,7 +82,8 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 
   ObjectKey key;
   key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateDiscardBefore+dateDiscardAfter;
+  key.dateFilterBegin_ = dateDiscardBefore;
+  key.dateFilterEnd_ = dateDiscardAfter;
 
   auto it = rasterMap_.find(key);
   if(it != rasterMap_.end())
