@@ -5,6 +5,7 @@
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/Config.hpp>
 
 #include <iostream>
@@ -36,10 +37,12 @@ int main(int argc, char* argv[])
     dataProvider->dataProviderType = "POSTGIS";
     dataProvider->active = true;
 
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "OCCURRENCE-postgis";
+    dataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
 
     //DataSet information
     terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();

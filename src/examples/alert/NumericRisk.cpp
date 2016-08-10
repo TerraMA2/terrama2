@@ -2,6 +2,7 @@
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
@@ -45,11 +46,14 @@ terrama2::core::DataProviderPtr inputDataProvider()
 
 terrama2::core::DataSeriesPtr inputDataSeries()
 {
+
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
   //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->name = "Fire count";
-  dataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
+  dataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
 
@@ -82,11 +86,14 @@ terrama2::core::DataProviderPtr additionalDataProvider()
 
 terrama2::core::DataSeriesPtr additionalDataSeries()
 {
+
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
   //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->name = "States 2010";
-  dataSeries->semantics.code = "STATIC_DATA-ogr";
+  dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
   dataSeries->id = 2;
   dataSeries->dataProviderId = 2;
 

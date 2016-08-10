@@ -70,12 +70,14 @@ int main(int argc, char* argv[])
 
     dataManager->add(outputDataProviderPtr);
 
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
     // DataSeries information
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
     outputDataSeries->id = 3;
     outputDataSeries->name = "Analysis result";
-    outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
+    outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
     outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -137,8 +139,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->semantics.code = "STATIC_DATA-ogr";
-    dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+    dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
     dataSeries->dataProviderId = 1;
@@ -180,9 +181,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
     dcpSeries->dataProviderId = dataProvider2->id;
 
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
     dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
-    dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
     dcpSeries->name = "Serra do Mar";
     dcpSeries->id = 2;
     dcpSeries->dataProviderId = 2;
