@@ -131,7 +131,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
         throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
       }
 
-      context->addDCPDataSeries(dataSeries, "", true);
+      context->addDCPDataSeries(dataSeries, "", "", true);
 
       // For DCP operator count returns the number of DCP that influence the monitored object
       uint32_t influenceCount = 0;

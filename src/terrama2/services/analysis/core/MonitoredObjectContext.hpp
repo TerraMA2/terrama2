@@ -82,7 +82,7 @@ namespace terrama2
             void loadMonitoredObject();
 
             void addDCPDataSeries(terrama2::core::DataSeriesPtr dataSeries,
-                                  const std::string& dateFilter, const bool lastValue);
+                                  const std::string& dateFilterBegin, const std::string& dateFilterEnd, const bool lastValue);
             /*!
               \brief Returns the set of attributes that compose the analysis result.
 
@@ -104,19 +104,23 @@ namespace terrama2
               \brief Returns a smart pointer that contains the TerraLib DataSet for the given DataSetId.
 
               \param datasetId The DataSet identifier.
-              \param dateFilter The date restriction to be used in the DataSet.
+              \param dateFilterBegin The date restriction to be used in the DataSet.
+              \param dateFilterEnd The end date restriction to be used in the DataSet.
+
+              \return A smart pointer to the context data series.
             */
             std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> getContextDataset(const DataSetId datasetId,
-                const std::string& dateFilter = "") const;
+                const std::string& dateFilterBegin = "", const std::string& dateFilterEnd = "") const;
             /*!
               \brief Returns true if the given dataset has already been loaded into the context.
 
               \param datasetId The DataSet identifier.
-              \param dateFilter The date restriction to be used in the DataSet.
+              \param dateFilterBegin The begin date restriction to be used in the DataSet.
+              \param dateFilterEnd The end date restriction to be used in the DataSet.
               \return True if the given dataset has already been loaded into the context.
             */
             bool exists(const DataSetId datasetId,
-                        const std::string& dateFilter = "") const;
+                        const std::string& dateFilterBegin = "", const std::string& dateFilterEnd = "") const;
 
             /*!
               \brief Returns the map with the result for the given analysis.

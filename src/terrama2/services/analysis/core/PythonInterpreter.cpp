@@ -490,6 +490,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
   switch(analysis->type)
   {
     case AnalysisType::PCD_TYPE:
+      break;
     case AnalysisType::MONITORED_OBJECT_TYPE:
     {
       // Geom index

@@ -40,20 +40,11 @@ terrama2::services::analysis::core::BaseContext::BaseContext(terrama2::services:
     analysis_(analysis),
     startTime_(startTime)
 {
-  // GILLock lock;
-  // auto oldState = PyThreadState_Get();
-  // mainThreadState_ = Py_NewInterpreter();
-  // PyThreadState_Swap(oldState);
-
   mainThreadState_ = PyThreadState_Get();
 }
 
 terrama2::services::analysis::core::BaseContext::~BaseContext()
 {
-  // GILLock lock;
-  // auto oldState = PyThreadState_Swap(mainThreadState_);
-  // Py_EndInterpreter(mainThreadState_);
-  // PyThreadState_Swap(oldState);
 }
 
 void terrama2::services::analysis::core::BaseContext::addError(const std::string& errorMessage)
@@ -91,7 +82,7 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 
   ObjectKey key;
   key.objectId_ = datasetId;
-  key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
+  key.dateFilterBegin_ = dateDiscardBefore+dateDiscardAfter;
 
   auto it = rasterMap_.find(key);
   if(it != rasterMap_.end())
@@ -99,10 +90,10 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
   else
   {
     auto dataManager = dataManager_.lock();
-    if(!dataManager.get())
+    if(!dataManager)
     {
-      //FIXME: throw if no dataManager
-      assert(0);
+      QString errMsg(QObject::tr("Invalid data manager."));
+      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
     // First call, need to call sample for each dataset raster and store the result in the context.
@@ -138,7 +129,7 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
 {
   ObjectKey key;
   key.objectId_ = dataSeriesId;
-  key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
+  key.dateFilterBegin_ = dateDiscardBefore+dateDiscardAfter;
 
   auto it = analysisGridMap_.find(key);
   if(it == analysisGridMap_.end())
@@ -231,7 +222,7 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
 {
   ObjectKey key;
   key.objectId_ = dataSeriesId;
-  key.dateFilter_ = dateDiscardBefore+dateDiscardAfter;
+  key.dateFilterBegin_ = dateDiscardBefore+dateDiscardAfter;
 
   auto dataManager = getDataManager().lock();
 

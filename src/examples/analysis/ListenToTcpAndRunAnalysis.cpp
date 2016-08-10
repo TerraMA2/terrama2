@@ -10,6 +10,7 @@
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/impl/Utils.hpp>
@@ -89,12 +90,14 @@ int main(int argc, char* argv[])
     outputDataProvider->active = true;
 
 
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
     // DataSeries information
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
     outputDataSeries->id = 3;
     outputDataSeries->name = "Analysis result";
-    outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
+    outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
     outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -137,8 +140,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->semantics.code = "STATIC_DATA-ogr";
-    dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+    outputDataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
     dataSeries->dataProviderId = 1;
@@ -175,7 +177,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
     terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
     dcpSeries->dataProviderId = dataProvider2->id;
-    dcpSeries->semantics.code = "DCP-inpe";
+    dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
     dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
     dcpSeries->name = "Serra do Mar";
     dcpSeries->id = 2;

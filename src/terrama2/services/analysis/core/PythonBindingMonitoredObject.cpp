@@ -2,6 +2,7 @@
 #include "PythonBindingMonitoredObject.hpp"
 #include "dcp/Operator.hpp"
 #include "dcp/history/Operator.hpp"
+#include "dcp/history/interval/Operator.hpp"
 #include "dcp/influence/PythonOperator.hpp"
 #include "occurrence/Operator.hpp"
 #include "occurrence/aggregation/Operator.hpp"
@@ -54,6 +55,7 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerFuncti
   registerOccurrenceAggregationFunctions();
   registerDCPFunctions();
   registerDCPHistoryFunctions();
+  registerDCPHistoryIntervalFunctions();
   registerDCPInfluenceFunctions();
 
 }
@@ -137,6 +139,27 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPHis
   def("variance", terrama2::services::analysis::core::dcp::history::variance);
 }
 
+void terrama2::services::analysis::core::python::MonitoredObject::registerDCPHistoryIntervalFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for dcp.history
+  object dcpHistoryIntervalModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.history.interval"))));
+  // make "from terrama2.dcp import history" work
+  import("terrama2.dcp.history").attr("interval") = dcpHistoryIntervalModule;
+  // set the current scope to the new sub-module
+  scope dcpHistoryIntervalScope = dcpHistoryIntervalModule;
+
+  // export functions inside history namespace
+  def("min", terrama2::services::analysis::core::dcp::history::interval::min);
+  def("max", terrama2::services::analysis::core::dcp::history::interval::max);
+  def("mean", terrama2::services::analysis::core::dcp::history::interval::mean);
+  def("median", terrama2::services::analysis::core::dcp::history::interval::median);
+  def("sum", terrama2::services::analysis::core::dcp::history::interval::sum);
+  def("standard_deviation", terrama2::services::analysis::core::dcp::history::interval::standardDeviation);
+  def("variance", terrama2::services::analysis::core::dcp::history::interval::variance);
+}
+
 void terrama2::services::analysis::core::python::MonitoredObject::registerDCPInfluenceFunctions()
 {
   using namespace boost::python;
@@ -152,7 +175,7 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPInf
   // export functions inside history namespace
   def("by_attribute", terrama2::services::analysis::core::dcp::influence::python::byAttribute);
 
-  def("by_attribute", terrama2::services::analysis::core::dcp::influence::python::byRule,
+  def("by_rule", terrama2::services::analysis::core::dcp::influence::python::byRule,
       dcpInfluenceByRule_overloads(args("dataSeriesName", "buffer"), "Influence by rule operator"));
 }
 
@@ -186,3 +209,4 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
       occurrenceAggregationVariance_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
                                               "Variance operator for occurrence aggregation"));
 }
+
