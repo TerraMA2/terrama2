@@ -130,7 +130,8 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
 {
   ObjectKey key;
   key.objectId_ = dataSeriesId;
-  key.dateFilterBegin_ = dateDiscardBefore+dateDiscardAfter;
+  key.dateFilterBegin_ = dateDiscardBefore;
+  key.dateFilterEnd_ = dateDiscardAfter;
 
   auto it = analysisGridMap_.find(key);
   if(it == analysisGridMap_.end())
@@ -223,7 +224,8 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
 {
   ObjectKey key;
   key.objectId_ = dataSeriesId;
-  key.dateFilterBegin_ = dateDiscardBefore+dateDiscardAfter;
+  key.dateFilterBegin_ = dateDiscardBefore;
+  key.dateFilterEnd_ = dateDiscardAfter;
 
   auto dataManager = getDataManager().lock();
 
