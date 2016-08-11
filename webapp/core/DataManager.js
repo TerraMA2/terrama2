@@ -662,6 +662,72 @@ var DataManager = {
   },
 
   /**
+   * It updates a TerraMA2 user instance
+   * @param {Object} restriction - A javascript object to identify a user
+   * @param {Object} userObject - A javascript object with user values
+   * @return {Promise} a bluebird promise
+   */
+  updateUser: function(restriction, userObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.getUser(restriction).then(function(user) {
+        if (!userObject.password) {
+          userObject.password = user.password;
+        } else {
+          var salt = user.salt;
+          userObject.password = models.db.User.generateHash(userObject.password, salt);
+        }
+        models.db.User.update(userObject, {
+          fields: ['name', 'cellphone', 'administrator', 'email', 'password'],
+          where: restriction || {}
+        }).then(function() {
+          resolve();
+        }).catch(function(err) {
+          console.log(err);
+          reject(new exceptions.UserError("Could not update user.", err.errors));
+        });
+      }).catch(function(err) {
+        reject(err);
+      });
+    });
+  },
+
+  /**
+   * It retrieves all users in database filtering from given restriction
+   *
+   * @param {Object} restriction - A javascript object with restriction
+   * @return {Promise<Array<User>>} a bluebird module with users
+   */
+  listUsers: function(restriction) {
+    return new Promise(function(resolve, reject) {
+      models.db.User.findAll({where: restriction||{}}).then(function(users) {
+        resolve(users.map(function(userInstance) { return userInstance.get(); }));
+      }).catch(function(err) {
+        reject(new exceptions.UserError("Could not update user.", err.errors||[]));
+      });
+    });
+  },
+
+  /**
+   * It retrieves a user from given restriction
+   *
+   * @param {Object} restriction - A javascript object with query restriction
+   * @return {Promise<User>} a bluebird module with user sequelize instance
+   */
+  getUser: function(restriction) {
+    return new Promise(function(resolve, reject) {
+      models.db.User.findOne({where: restriction||{}}).then(function(user) {
+        if (user === null) {
+          return reject(new exceptions.UserError("Could not get user.", []));
+        }
+        resolve(user);
+      }).catch(function(err) {
+        reject(new exceptions.UserError("Could not update user.", err.errors||[]));
+      });
+    });
+  },
+
+  /**
    * It saves ServiceInstance in database and storage it in memory
    * @param {Object} serviceObject - An object containing project values to be saved.
    * @return {Promise} - a 'bluebird' module. The callback is either a {ServiceInstance} data values or error
@@ -1008,7 +1074,7 @@ var DataManager = {
           reject(err);
         });
       }).catch(function(err){
-        reject(new exceptions.DataProviderError("Could not save data provider. " + err.toString()));
+        reject(new exceptions.DataProviderError("Could not save data provider. ", err.errors));
       });
     });
   },
@@ -1365,27 +1431,26 @@ var DataManager = {
   removeDataSerie: function(dataSeriesParam) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      for(var index = 0; index < self.data.dataSeries.length; ++index) {
-        var dataSeries = self.data.dataSeries[index];
-        if (dataSeries.id == dataSeriesParam.id || dataSeries.name === dataSeriesParam.name) {
-          models.db.DataSeries.destroy({where: {
-            id: dataSeriesParam.id
-          }}).then(function (status) {
-            self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
-              if (dSet.data_series_id === dataSeries.id) {
-                self.data.dataSets.splice(dSetIndex, 1);
-              }
-            });
-            self.data.dataSeries.splice(index, 1);
-            resolve(status);
-          }).catch(function (err) {
-            console.log(err);
-            reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
+      var dataSeries = Utils.find(self.data.dataSeries, dataSeriesParam);
+
+      if (dataSeries) {
+        models.db.DataSeries.destroy({where: {
+          id: dataSeries.id
+        }}).then(function (status) {
+          self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
+            if (dSet.data_series_id === dataSeries.id) {
+              self.data.dataSets.splice(dSetIndex, 1);
+            }
           });
-          return;
-        }
+          self.data.dataSeries.splice(index, 1);
+          resolve(status);
+        }).catch(function (err) {
+          console.log(err);
+          reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
+        });
+      } else {
+        reject(new exceptions.DataSeriesError("Data series not found", []));
       }
-      reject(new exceptions.DataSeriesError("Data series not found"));
     });
   },
 
@@ -2047,7 +2112,6 @@ var DataManager = {
   },
 
   listIntersections: function(restriction) {
-    var self = this;
     return new Promise(function(resolve, reject) {
       models.db.Intersection.findAll(restriction).then(function(intersectionResult) {
         var output = [];
@@ -2293,7 +2357,6 @@ var DataManager = {
               ], new exceptions.AnalysisError("Could not save retrieve analysis script language " + err.toString()), reject);
             });
           }).catch(function(err) {
-            // analysis
             // rollback data series
             Utils.rollbackPromises([
               self.removeDataSerie({id: dataSeriesResult.id}),

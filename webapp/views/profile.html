@@ -1,7 +1,6 @@
-{% extends "../base/layout.html" %}
+{% extends "base/layout.html" %}
 
-{% set tabActive = currentTab %}
-{% set isProfile = profile || false %}
+{% set tabActive = "profile" %}
 
 {% block ngApp %}ng-app="terrama2.users"{% endblock %}
 
@@ -12,6 +11,7 @@ TerraMA² {[ __('User Update') ]}
 {% else %}
 TerraMA² {[ __('User Registration') ]}
 {% endif %}
+
 {% endblock %}
 
 {% block styles %}
@@ -44,9 +44,9 @@ TerraMA² {[ __('User Registration') ]}
 
 {% block content %}
 
-<div ng-controller="{% if (update) %}UserUpdate{% else %}UserRegistration{% endif %}">
-  <terrama2-box title="'{% if (update) %}{[ __('User Update') ]}{% else %}{[ __('User Registration') ]}{% endif %}'">
-    <div class="row" ng-init="initialization({[ currentUser.id ]}, '{[ redirectUrl ]}');">
+<div ng-controller="UserUpdate">
+  <terrama2-box title="'{[ __('User Update') ]}'">
+    <div class="row" ng-init="initialization({[ currentUser.id ]});">
       <div class="col-md-12">
         <div class="box box-default box-solid">
           <div class="box-header with-border">
@@ -60,7 +60,6 @@ TerraMA² {[ __('User Registration') ]}
           <div style="display: block;" class="box-body">
             <div class="row">
               <form name="form">
-
                 <div class="col-md-12">
                   <div class="form-group" terrama2-show-errors>
                     <label>{[ __("Name") ]}:</label>
@@ -73,7 +72,7 @@ TerraMA² {[ __('User Registration') ]}
                 <div class="col-md-4">
                   <div class="form-group" terrama2-show-errors>
                     <label>{[ __("Username") ]}:</label>
-                    <input class="form-control" name="username" ng-disabled="{[ update ]}" ng-model="user.username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}" required>
+                    <input class="form-control" name="username" ng-model="user.username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}" ng-disabled="true" required>
 
                     <span class="help-block has-error" ng-show="form.username.$dirty && form.username.$invalid">{[ __('Username is required') ]}</span>
                   </div>
@@ -112,13 +111,6 @@ TerraMA² {[ __('User Registration') ]}
                     <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{[ __('Email is required') ]}</span>
                   </div>
                 </div>
-
-                <div class="col-md-6" ng-if="{[ currentUser.administrator ]} && !{[ isProfile ]}">
-                  <div class="form-group">
-                    <label>{[ __("Administrator") ]}:</label>
-                    <input name="administrator" ng-model="user.administrator" id="administrator" type="checkbox"{% if user.administrator %} checked{% endif %}>
-                  </div>
-                </div>
               </form>
             </div>
             <!-- /.row -->
@@ -133,7 +125,7 @@ TerraMA² {[ __('User Registration') ]}
 
     <div class="box-footer">
       <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __('OK') ]}</button>
-      <a href="{[ redirectUrl ]}" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
+      <a href="/" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
   </terrama2-box>
 </div>

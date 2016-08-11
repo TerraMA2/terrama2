@@ -38,6 +38,20 @@
       border-left-color: #3c8dbc;
     }
 
+    .terrama2-overlay {
+      position: relative;
+      display: block !important;
+      z-index: 10;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .terrama2-overlay > .loading {
+      position: absolute;
+      margin-top: 25%;
+      left: 50%;
+      font-size: 49px;
+    }
+
   </style>
   {% block styles %}
 
@@ -113,9 +127,9 @@
                 </a>
               </li>
               {% endfor %}
+              <li class="header"></li>
 
               {% if currentUser !== null && currentUser.administrator %}
-              <li class="header"></li>
               <li class="treeview">
                 <a href="#">
                   <i class="fa fa-cogs"></i> <span>{[ __('Administration') ]}</span>
@@ -135,6 +149,11 @@
                 </ul>
               </li>
               {% endif %}
+              <li class="treeview {% if (tabActive === 'profile') %} active {% endif %}">
+                <a href="/profile/">
+                  <i class="fa fa-pencil-square-o "></i><span>{[ __("Profile") ]}</span>
+                </a>
+              </li>
 
             </ul>
             <!-- /.ul sidebar -->
@@ -148,12 +167,11 @@
     <div class="content-wrapper">
       <!-- Main content -->
       <section class="content">
-        <!-- Loading section-->
-        <!--<div ng-show="::false" style="height: 100%; width: 100%; top: 0; left: 0; z-index: 10000;" class="overlay">-->
-          <!--<i class="fa fa-refresh fa-spin"></i>-->
-        <!--</div>-->
+        <div ng-show="::false" class="terrama2-overlay">
+          <i class="loading fa fa-spin fa-refresh"></i>
+        </div>
 
-        <div class="row" ng-cloak="">
+        <div class="row" ng-cloak>
 
           {# Block for handling content of each TerraMA2 page #}
           {% block content %}

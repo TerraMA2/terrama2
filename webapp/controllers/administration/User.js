@@ -33,7 +33,7 @@ module.exports = function(app) {
     },
 
     new: function (request, response) {
-      return response.render('administration/user', { method: 'POST', url: '/administration/users/new' });
+      return response.render('administration/user', { currentTab: "users", redirectUrl: "/administration/users" });
     },
 
     edit: function (request, response) {
@@ -52,7 +52,12 @@ module.exports = function(app) {
             administrator: userObj.administrator
           };
 
-          return response.render('administration/user', { user: user, method: 'PUT', url: '/administration/users/edit/' + userObj.id });
+          return response.render('administration/user', {
+            user: user,
+            update: true,
+            currentTab: "users",
+            redirectUrl: "/administration/users"
+          });
         } else {
           Utils.handleRequestError(response, new UserError("Invalid user"), 400);
         }

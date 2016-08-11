@@ -10,7 +10,7 @@ module.exports = function(app) {
       DataManager.load().then(function() {
         var parameters = makeTokenParameters(request.query.token, app);
 
-        response.render("configuration/projects", parameters);
+        response.render("configuration/projects", Object.assign({context: request.query.context}, parameters));
       });
     },
 

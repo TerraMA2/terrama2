@@ -324,7 +324,7 @@ angular.module('terrama2.analysis.registration', [
                 $scope.analysis.grid.resolution_x = Number(resX);
                 $scope.analysis.grid.resolution_y = Number(resY);
               }
-              var coordinates = (analysisInstance.output_grid.interest_area_box || {}).coordinates;
+              var coordinates = (analysisInstance.output_grid.area_of_interest_box || {}).coordinates;
               if (coordinates) {
                 $scope.analysis.grid.area_of_interest_bounded = {
                   minX: coordinates[0][0][0],

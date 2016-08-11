@@ -16,7 +16,7 @@ var AnalysisOutputGrid = module.exports = function(params) {
   this.srid = params.srid;
   this.analysis = params.analysis || {id: params.analysis_id};
   this.areaOfInterestType = params.areaOfInterestType || params.area_of_interest_type;
-  this.areaOfInterestBox = params.areaOfInterestBox || params.area_of_interest_box || params.interest_box;
+  this.areaOfInterestBox = params.areaOfInterestBox || params.area_of_interest_box || null;
   this.areaOfInterestDataSeries = params.areaOfInterestDataSeries || {id: params.area_of_interest_data_series_id};
   this.resolutionX = params.resolutionX || params.resolution_x;
   this.resolutionY = params.resolutionY || params.resolution_y;
