@@ -69,6 +69,11 @@ namespace terrama2
             void registerDCPHistoryFunctions();
 
             /*!
+              \brief Registers DCP history interval functions in the Python interpreter.
+            */
+            void registerDCPHistoryIntervalFunctions();
+
+            /*!
               \brief Registers DCP influence functions in the Python interpreter.
             */
             void registerDCPInfluenceFunctions();

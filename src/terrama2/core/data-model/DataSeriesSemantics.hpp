@@ -46,8 +46,8 @@ namespace terrama2
       OCCURRENCE = 2,//!< Dated-positioned occurrence.
       GRID = 3,//!< Spatialy indexed data matrix.
       MONITORED_OBJECT = 4,//!< Group of vector-spatial-geometry to be monitored (//TODO: NOT in use, to be used for dynamic monitored objects).
-      STATIC = 5, //<! Group  of vector-spatial-geometry.
-      ANALYSIS_MONITORED_OBJECT = 6 //<! Analysis result data series.
+      STATIC = 5, //!< Group  of vector-spatial-geometry.
+      ANALYSIS_MONITORED_OBJECT = 6 //!< Analysis result data series.
     };
 
     /*!

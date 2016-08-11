@@ -104,10 +104,8 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
 
       int icol = static_cast<int>(std::round(column));
       int irow = static_cast<int>(std::round(row));
-      if(grid->isPointInGrid(icol, irow))
-      {
+      if(!grid->isPointInGrid(icol, irow))
         continue;
-      }
 
       double value;
       raster->getValue(icol, irow, value);

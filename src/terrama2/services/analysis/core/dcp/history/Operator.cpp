@@ -52,7 +52,8 @@
 double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticOperation statisticOperation,
     const std::string& dataSeriesName,
     const std::string& attribute,
-    const std::string& dateFilter,
+    const std::string& dateFilterBegin,
+    const std::string& dateFilterEnd,
     boost::python::list ids)
 {
   OperatorCache cache;
@@ -90,22 +91,6 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    auto geom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
-    if(!geom.get())
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-
-
     std::vector<double> values;
 
     // Frees the GIL, from now on can not use the interpreter
@@ -123,7 +108,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
         throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
       }
 
-      context->addDCPDataSeries(dataSeries, dateFilter, false);
+      context->addDCPDataSeries(dataSeries, dateFilterBegin, dateFilterEnd, false);
 
 
       for(DataSetId dcpId : vecDCPIds)
@@ -133,7 +118,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
           if(dataset->id != dcpId)
             continue;
 
-          contextDataSeries = context->getContextDataset(dataset->id, dateFilter);
+          contextDataSeries = context->getContextDataset(dataset->id, dateFilterBegin, dateFilterEnd);
 
           terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                   dataset);
@@ -256,7 +241,7 @@ double terrama2::services::analysis::core::dcp::history::sum(const std::string& 
     const std::string& dateFilter,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dateFilter, ids);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::mean(const std::string& dataSeriesName,
@@ -264,7 +249,7 @@ double terrama2::services::analysis::core::dcp::history::mean(const std::string&
     const std::string& dateFilter,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dateFilter, ids);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dateFilter, "",  ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::min(const std::string& dataSeriesName,
@@ -272,7 +257,7 @@ double terrama2::services::analysis::core::dcp::history::min(const std::string& 
    const std::string& dateFilter,
    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dateFilter, ids);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::max(const std::string& dataSeriesName,
@@ -280,7 +265,7 @@ double terrama2::services::analysis::core::dcp::history::max(const std::string& 
    const std::string& dateFilter,
    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dateFilter, ids);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::median(const std::string& dataSeriesName,
@@ -288,7 +273,7 @@ double terrama2::services::analysis::core::dcp::history::median(const std::strin
     const std::string& dateFilter,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dateFilter, ids);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::standardDeviation(const std::string& dataSeriesName,
@@ -296,7 +281,7 @@ double terrama2::services::analysis::core::dcp::history::standardDeviation(const
    const std::string& dateFilter,
    boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dateFilter, ids);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
 double terrama2::services::analysis::core::dcp::history::variance(const std::string& dataSeriesName,
@@ -304,5 +289,5 @@ double terrama2::services::analysis::core::dcp::history::variance(const std::str
     const std::string& dateFilter,
     boost::python::list ids)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, dateFilter, ids);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, dateFilter, "", ids);
 }

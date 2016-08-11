@@ -51,8 +51,6 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
 {
   try
   {
-    std::lock_guard<std::recursive_mutex> lock(mtx_);
-
     terrama2::core::DataManager::addJSon(obj);
 
     auto analysisArray = obj["Analysis"].toArray();
@@ -79,7 +77,7 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown error...");
   }
 }
 

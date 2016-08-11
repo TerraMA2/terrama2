@@ -40,6 +40,7 @@
 #include <terrama2/impl/Utils.hpp>
 
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/services/view/core/Service.hpp>
 #include <terrama2/services/view/core/DataManager.hpp>
 #include <terrama2/services/view/core/MemoryDataSetLayer.hpp>
@@ -63,13 +64,16 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
 
   dataManager->add(dataProviderRasterPtr);
 
+
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
   //DataSeries information
   terrama2::core::DataSeries* dataSeriesRaster = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesRasterPtr(dataSeriesRaster);
   dataSeriesRaster->id = 1;
   dataSeriesRaster->name = "dataSeriesRaster";
   dataSeriesRaster->dataProviderId = 1;
-  dataSeriesRaster->semantics.code = "GRID-geotiff";
+  dataSeriesRaster->semantics = semanticsManager.getSemantics("GRID-geotiff");
 
   terrama2::core::DataSetGrid* dataSetRaster = new terrama2::core::DataSetGrid();
   dataSetRaster->active = true;
@@ -101,7 +105,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   dataSeriesGeometry->id = 2;
   dataSeriesGeometry->name = "dataSeriesGeometry";
   dataSeriesGeometry->dataProviderId = 2;
-  dataSeriesGeometry->semantics.code = "STATIC_DATA-ogr";
+  dataSeriesGeometry->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
 
   terrama2::core::DataSetGrid* dataSetGeometry = new terrama2::core::DataSetGrid();
   dataSetGeometry->active = true;
@@ -118,7 +122,7 @@ void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager>
   dataSeriesGeometry2->id = 3;
   dataSeriesGeometry2->name = "dataSeriesGeometry2";
   dataSeriesGeometry2->dataProviderId = 2;
-  dataSeriesGeometry2->semantics.code = "STATIC_DATA-ogr";
+  dataSeriesGeometry2->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
 
   terrama2::core::DataSetGrid* dataSetGeometry2 = new terrama2::core::DataSetGrid();
   dataSetGeometry2->active = true;

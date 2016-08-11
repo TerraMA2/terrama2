@@ -69,14 +69,15 @@ namespace terrama2
         struct ObjectKey
         {
           uint32_t objectId_; //!< Object identifier.
-          std::string dateFilter_; //!< Date restriction.
+          std::string dateFilterBegin_; //!< Begin date restriction.
+          std::string dateFilterEnd_; //!< End date restriction.
         };
 
         struct ObjectKeyHash
         {
           std::size_t operator()(ObjectKey const& key) const
           {
-            return std::hash<std::string>()(std::to_string(key.objectId_)+key.dateFilter_);
+            return std::hash<std::string>()(std::to_string(key.objectId_)+key.dateFilterBegin_+key.dateFilterEnd_);
           }
         };
 
@@ -101,7 +102,7 @@ namespace terrama2
             }
             else
             {
-              return lhs.dateFilter_.compare(rhs.dateFilter_) < 0;
+              return lhs.dateFilterBegin_.compare(rhs.dateFilterBegin_) < 0;
             }
           }
         };

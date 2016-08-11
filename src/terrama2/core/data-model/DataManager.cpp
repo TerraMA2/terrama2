@@ -284,8 +284,6 @@ terrama2::core::DataManager::DataManager()
 
 void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
 {
-  std::lock_guard<std::recursive_mutex> lock(mtx_);
-
   auto dataProviders = obj["DataProviders"].toArray();
   for(auto json : dataProviders)
   {
@@ -309,8 +307,6 @@ void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
 
 void terrama2::core::DataManager::removeJSon(const QJsonObject& obj)
 {
-  std::lock_guard<std::recursive_mutex> lock(mtx_);
-
   auto dataSeries = obj["DataSeries"].toArray();
   for(auto json : dataSeries)
   {
