@@ -705,13 +705,16 @@ define(
      * @param {string} layerName - Layer name
      * @param {boolean} layerVisible - Layer visibility
      * @param {string} parentGroup - Parent layer group id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addOSMLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addOSMLayer = function(layerId, layerName, layerVisible, parentGroup) {
+    var addOSMLayer = function(layerId, layerName, layerVisible, parentGroup, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -725,14 +728,15 @@ define(
           source.on('tileloaderror', function() { increaseLoaded(layerId); });
         }
 
-        layers.push(
-          new ol.layer.Tile({
-            source: source,
-            id: layerId,
-            name: layerName,
-            visible: layerVisible
-          })
-        );
+        var newTile = new ol.layer.Tile({
+          source: source,
+          id: layerId,
+          name: layerName,
+          visible: layerVisible
+        });
+
+        if(appendAtTheEnd) layers.insertAt(0, newTile);
+        else layers.push(newTile);
 
         layerGroup.setLayers(layers);
       }
@@ -746,13 +750,16 @@ define(
      * @param {string} layerName - Layer name
      * @param {boolean} layerVisible - Layer visibility
      * @param {string} parentGroup - Parent layer group id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addMapQuestOSMLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addMapQuestOSMLayer = function(layerId, layerName, layerVisible, parentGroup) {
+    var addMapQuestOSMLayer = function(layerId, layerName, layerVisible, parentGroup, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -766,14 +773,15 @@ define(
           source.on('tileloaderror', function() { increaseLoaded(layerId); });
         }
 
-        layers.push(
-          new ol.layer.Tile({
-            source: source,
-            id: layerId,
-            name: layerName,
-            visible: layerVisible
-          })
-        );
+        var newTile = new ol.layer.Tile({
+          source: source,
+          id: layerId,
+          name: layerName,
+          visible: layerVisible
+        });
+
+        if(appendAtTheEnd) layers.insertAt(0, newTile);
+        else layers.push(newTile);
 
         layerGroup.setLayers(layers);
       }
@@ -787,13 +795,16 @@ define(
      * @param {string} layerName - Layer name
      * @param {boolean} layerVisible - Layer visibility
      * @param {string} parentGroup - Parent layer group id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addMapQuestSatelliteLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addMapQuestSatelliteLayer = function(layerId, layerName, layerVisible, parentGroup) {
+    var addMapQuestSatelliteLayer = function(layerId, layerName, layerVisible, parentGroup, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -807,14 +818,15 @@ define(
           source.on('tileloaderror', function() { increaseLoaded(layerId); });
         }
 
-        layers.push(
-          new ol.layer.Tile({
-            source: source,
-            id: layerId,
-            name: layerName,
-            visible: layerVisible
-          })
-        );
+        var newTile = new ol.layer.Tile({
+          source: source,
+          id: layerId,
+          name: layerName,
+          visible: layerVisible
+        });
+
+        if(appendAtTheEnd) layers.insertAt(0, newTile);
+        else layers.push(newTile);
 
         layerGroup.setLayers(layers);
       }
