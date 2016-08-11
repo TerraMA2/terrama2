@@ -2,6 +2,7 @@
 
 var DataManager = require("../../core/DataManager");
 var DataProviderError = require('./../../core/Exceptions').DataProviderError;
+var ValidationError = require('./../../core/Exceptions').ValidationError;
 var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
@@ -16,8 +17,9 @@ module.exports = function(app) {
       var requester = RequestFactory.build(uriObject);
 
       var handleError = function(response, err, code) {
+        var errors = err instanceof ValidationError ? err.getErrors() : {};
         response.status(code);
-        response.json({status: code || 400, message: err.message});
+        response.json({status: code || 400, message: err.message, errors: errors});
       };
 
       var _makeProvider = function() {
@@ -138,7 +140,7 @@ module.exports = function(app) {
           Utils.handleRequestError(response, err, 400);
         });
       } else {
-        Utils.handleRequestError(response, new DataProviderError("Missing data provider id"), 400);
+        Utils.handleRequestError(response, new DataProviderError("Missing data provider id", []), 400);
       }
     }
   };

@@ -1,10 +1,12 @@
+'use strict';
+
 angular.module("terrama2.services", ['terrama2'])
   .factory("DataProviderFactory", ["$http", function($http) {
     return {
       get: function() {
         return $http.get("/api/DataProvider", {});
       }
-    }
+    };
   }])
 
   .factory("DataSeriesSemanticsFactory", ["$http", function($http) {
@@ -26,7 +28,7 @@ angular.module("terrama2.services", ['terrama2'])
           params: extra instanceof Object ? extra : {}
         });
       }
-    }
+    };
   }])
 
   .factory("DataSeriesFactory", ["$http", "$HttpSync", function($http, $HttpSync) {
@@ -47,7 +49,7 @@ angular.module("terrama2.services", ['terrama2'])
       put: function(dataSeriesId, dataSeriesObject) {
         return $HttpSync.put(url + "/" + dataSeriesId, dataSeriesObject);
       }
-    }
+    };
   }])
 
   .factory("ServiceInstanceFactory", ["$http", function($http) {
@@ -58,7 +60,7 @@ angular.module("terrama2.services", ['terrama2'])
           method: 'GET',
           url: url,
           params: extra instanceof Object ? extra : {}
-        })
+        });
       },
 
       post: function(serviceObject) {
@@ -68,7 +70,7 @@ angular.module("terrama2.services", ['terrama2'])
       put: function(serviceId, serviceObject) {
         return $http.put(url + "/" + serviceId, serviceObject);
       }
-    }
+    };
   }])
 
   .factory("AnalysisFactory", ["$http", function($http) {
@@ -79,7 +81,7 @@ angular.module("terrama2.services", ['terrama2'])
           method: 'GET',
           url: url,
           params: extra instanceof Object ? extra : {}
-        })
+        });
       },
 
       post: function(serviceObject) {
@@ -89,7 +91,7 @@ angular.module("terrama2.services", ['terrama2'])
       put: function(analysisId, serviceObject) {
         return $http.put(url + "/" + analysisId, serviceObject);
       }
-    }
+    };
   }]).
 
   factory("Socket", function($rootScope) {
@@ -101,8 +103,8 @@ angular.module("terrama2.services", ['terrama2'])
           var args = arguments;
           $rootScope.$apply(function() {
             callback.apply(socket, args);
-          })
-        })
+          });
+        });
       },
 
       emit: function (eventName, data, callback) {
@@ -113,7 +115,7 @@ angular.module("terrama2.services", ['terrama2'])
               callback.apply(socket, args);
             }
           });
-        })
+        });
       },
 
       once: function(eventName, callback) {
@@ -121,8 +123,27 @@ angular.module("terrama2.services", ['terrama2'])
           var args = arguments;
           $rootScope.$apply(function() {
             callback.apply(socket, args);
-          })
-        })
+          });
+        });
       }
-    }
+    };
+  })
+  .factory("UserFactory", function($http) {
+    var url = "/api/users/";
+    return {
+      get: function(userId, restriction) {
+        var destination = url;
+        if (userId) {
+          destination += userId;
+        }
+        return $http({
+          method: 'GET',
+          url: destination,
+          params: restriction instanceof Object ? restriction : {}
+        });
+      },
+      put: function(userId, userObject) {
+        return $http.put(url + userId, userObject || {});
+      }
+    };
   });

@@ -339,5 +339,8 @@
 	"Y": "Y",
 	"Resolution Y": "Resolution Y",
 	"Y is required": "Y is required",
-	"Y is invalid number": "Y is invalid number"
+	"Y is invalid number": "Y is invalid number",
+	"Activate": "Activate",
+	"Profile": "Profile",
+	"Password did not match for the confirmation password": "Password did not match for the confirmation password"
 }

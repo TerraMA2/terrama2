@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * This file contains TerraMA2 common exceptions
  * @class Errors
@@ -9,15 +11,15 @@ var errors = module.exports = {};
 /**
  * The Base Error all TerraMA2 Errors inherit from.
  * @class BaseError
+ * @param {string} message - An error message
 */
-errors.BaseError = function() {
-  var tmp = Error.apply(this, arguments);
-  tmp.name = this.name = 'BaseError';
+errors.BaseError = function(message) {
+  Error.apply(this, arguments);
 
-  this.message = tmp.message;
+  this.name = this.name = 'BaseError';
+  this.message = message.message;
 
-  if (Error.captureStackTrace)
-    Error.captureStackTrace(this, this.constructor);
+  Error.captureStackTrace(this, this.constructor);
 };
 util.inherits(errors.BaseError, Error);
 
@@ -32,76 +34,93 @@ util.inherits(errors.BaseError, Error);
 errors.DataManagerError = function(message) {
   errors.BaseError.apply(this, arguments);
   this.name = 'DataManagerError';
-  this.message = 'DataManager Error';
-
-  // Use provided error message if available...
-  if (message) {
-    this.message = message;
-
-    // ... otherwise create a concatenated message out of existing errors.
-  } else if (this.errors.length > 0 && this.errors[0].message) {
-    this.message = this.errors.map(function(err) {
-      return err.type + ': ' + err.message;
-    }).join(',\n');
-  }
 };
 util.inherits(errors.DataManagerError, errors.BaseError);
+
+
+errors.ValidationError = function(message, errs) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'ValidationError';
+
+  this.errors = errs || [];
+  if (message) {
+    this.message = message;
+  } else if (this.errors.length > 0 && this.errors[0].message) {
+    this.message = this.errors.map(function(err){
+      return err.type + ": " + err.message;
+    }).join(',\n');
+  }
+
+  this.getErrors = function() {
+    var output = {};
+    this.errors.forEach(function(err) {
+      output[err.path] = err.message;
+    });
+    return output;
+  };
+};
+
+util.inherits(errors.ValidationError, errors.BaseError);
 
 
 /**
  * Thrown when DataProvider object has inconsistent data.
  *
  * @param {string} message Error message
+ * @param {Array<Error>} errs - An array of errors message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.DataProviderError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.DataProviderError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'DataProviderError';
 };
-util.inherits(errors.DataProviderError, errors.BaseError);
+util.inherits(errors.DataProviderError, errors.ValidationError);
 
 
 /**
  * Thrown when DataSeries object has inconsistent data.
  *
  * @param {string} message Error message
+ * @param {Array<Error>} errs - An array of errors message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.DataSeriesError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.DataSeriesError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'DataSeriesError';
 };
-util.inherits(errors.DataSeriesError, errors.BaseError);
+util.inherits(errors.DataSeriesError, errors.ValidationError);
 
 
 /**
  * Thrown when DataSet object has inconsistent data.
  *
  * @param {string} message Error message
+ * @param {Array<Error>} errs - An array of errors message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.DataSetError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.DataSetError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'DataSetError';
 };
-util.inherits(errors.DataSetError, errors.BaseError);
+util.inherits(errors.DataSetError, errors.ValidationError);
 
 
 /**
  * Thrown when Service object has inconsistent data.
  *
  * @param {string} message Error message
+ * @param {Array<Error>} errs - An array of errors message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.ServiceError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.ServiceError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'ServiceError';
 };
-util.inherits(errors.ServiceError, errors.BaseError);
+util.inherits(errors.ServiceError, errors.ValidationError);
 
 
 /**
@@ -109,54 +128,57 @@ util.inherits(errors.ServiceError, errors.BaseError);
  *
  * @param {string} message Error message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.ProjectError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.ProjectError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'ProjectError';
 };
-util.inherits(errors.ProjectError, errors.BaseError);
+util.inherits(errors.ProjectError, errors.ValidationError);
 
 /**
  * Thrown when User object has inconsistent data.
  *
  * @param {string} message Error message
+ * @param {Array<Error>} errs - An array of errors message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.UserError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.UserError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'UserError';
 };
-util.inherits(errors.UserError, errors.BaseError);
+util.inherits(errors.UserError, errors.ValidationError);
 
 
 /**
  * Thrown when DataSeriesSemanticsError object has inconsistent data.
  *
  * @param {string} message Error message
+ * @param {Array<Error>} errs - An array of errors message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.DataSeriesSemanticsError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.DataSeriesSemanticsError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'DataSeriesSemanticsError';
 };
-util.inherits(errors.DataSeriesSemanticsError, errors.BaseError);
+util.inherits(errors.DataSeriesSemanticsError, errors.ValidationError);
 
 
 /**
  * Thrown when DataFormatError object has inconsistent data.
  *
  * @param {string} message Error message
+ * @param {Array<Error>} errs - An array of errors message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.DataFormatError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.DataFormatError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'DataFormatError';
 };
-util.inherits(errors.DataFormatError, errors.BaseError);
+util.inherits(errors.DataFormatError, errors.ValidationError);
 
 
 /**
