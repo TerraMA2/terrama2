@@ -1431,26 +1431,27 @@ var DataManager = {
   removeDataSerie: function(dataSeriesParam) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var dataSeries = Utils.find(self.data.dataSeries, dataSeriesParam);
-
-      if (dataSeries) {
-        models.db.DataSeries.destroy({where: {
-          id: dataSeries.id
-        }}).then(function (status) {
-          self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
-            if (dSet.data_series_id === dataSeries.id) {
-              self.data.dataSets.splice(dSetIndex, 1);
-            }
+      for(var index = 0; index < self.data.dataSeries.length; ++index) {
+        var dataSeries = self.data.dataSeries[index];
+        if (dataSeries.id == dataSeriesParam.id || dataSeries.name === dataSeriesParam.name) {
+          models.db.DataSeries.destroy({where: {
+            id: dataSeriesParam.id
+          }}).then(function (status) {
+            self.data.dataSets.forEach(function(dSet, dSetIndex, array) {
+              if (dSet.data_series_id === dataSeries.id) {
+                self.data.dataSets.splice(dSetIndex, 1);
+              }
+            });
+            self.data.dataSeries.splice(index, 1);
+            resolve(status);
+          }).catch(function (err) {
+            console.log(err);
+            reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
           });
-          self.data.dataSeries.splice(index, 1);
-          resolve(status);
-        }).catch(function (err) {
-          console.log(err);
-          reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
-        });
-      } else {
-        reject(new exceptions.DataSeriesError("Data series not found", []));
+          return;
+        }
       }
+      reject(new exceptions.DataSeriesError("Data series not found"));
     });
   },
 
@@ -2509,10 +2510,10 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var restrict = Object.assign({}, restriction || {});
-      var dataSeriesRestriction = {};
-      if (restrict && restrict.dataSeries) {
-        dataSeriesRestriction = restrict.dataSeries;
-        delete restrict.dataSeries;
+      var dataSetRestriction = {};
+      if (restrict && restrict.dataSet) {
+        dataSetRestriction = restrict.dataSet;
+        delete restrict.dataSet;
       }
       models.db.Analysis.findOne({
         where: restrict,
@@ -2536,12 +2537,7 @@ var DataManager = {
           models.db.Schedule,
           {
             model: models.db.DataSet,
-            include: [
-              {
-                model: models.db.DataSeries,
-                where: dataSeriesRestriction
-              }
-            ]
+            where: dataSetRestriction
           }
         ]
       }).then(function(analysisResult) {
