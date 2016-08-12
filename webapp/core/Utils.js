@@ -314,13 +314,68 @@ var Utils = {
     });
   },
   /**
-   * It applies a deep find in array from restriction. Note if more than one has found, it will get first element.
+   * It performs a deep find in array from restriction. Note if more than one has found, it will get first element.
    * @param {Array<?>} where - An array of any to be filtered
    * @param {Object} restriction - A javascript object with restriction values
    * @return {?} An element of array.
    */
   find: function(where, restriction) {
     return this.filter(where, restriction)[0];
+  },
+
+  /**
+   * It performs a remove operation of array from given restriction.
+   * @param {Array<?>} where - An array of object to be iterated
+   * @param {Object} restriction - A javascript object with restriction values
+   * @return {?} An element of array.
+   *
+   * @example
+   * - Remove a "foo" element
+   * var elementRemoved = Utils.remove(array, {name: "foo"});
+   */
+  remove: function(where, restriction) {
+    var self = this;
+    var index = -1;
+
+    var element = where.find(function(entry, entryIndex) {
+      index = entryIndex;
+      return self.matchObject(restriction, entry);
+    });
+
+    if (element) {
+      where.splice(index, 1);
+    }
+
+    return element;
+  },
+
+  /**
+   * It performs a remove operation of all occurrences in array from given restriction.
+   * @param {Array<?>} where - An array of object to be iterated
+   * @param {Object} restriction - A javascript object with restriction values
+   * @return {Array<?>} Array of affected elements.
+   *
+   * @example
+   * - Remove all "foo" occurrences
+   * var elementsRemoved = Utils.remove(array, {name: "foo"});
+   */
+  removeAll: function(where, restriction) {
+    var self = this;
+    var indexes = [];
+
+    var elements = where.filter(function(entry, entryIndex) {
+      var matched = self.matchObject(restriction, entry);
+      if (matched) {
+        indexes.push(entryIndex);
+      }
+      return matched;
+    });
+
+    while(indexes.length > 0) {
+      where.splice(indexes.pop(), 1);
+    }
+
+    return elements;
   },
 
   getServiceTypeName: function(intServiceType) {

@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module("terrama2.components.messagebox", [])
   .run(function($templateCache) {
     // <terrama2-alert-box>
@@ -18,7 +20,7 @@ angular.module("terrama2.components.messagebox", [])
     // <terrama2-modal>
     $templateCache.put('modal.html',
     '<div class="{{ css }}" ng-class="modalType" id="{{ modalId }}" role="dialog" aria-labelledby="my{{ modalId }}">' +
-      '<div class="modal-dialog">' +
+      '<div class="modal-dialog" ng-class="klass">' +
         '<div class="modal-content">' +
           '<div class="modal-header">' +
             '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
@@ -26,10 +28,10 @@ angular.module("terrama2.components.messagebox", [])
             '</button>' +
             '<h4 class="modal-title">{{ title }}</h4>' +
           '</div>' +
-          '<div class="modal-body" ng-transclude>' +
+          '<div class="modal-body" ng-transclude="bodySlot">' +
 
           '</div>' +
-          '<div class="modal-footer">' +
+          '<div class="modal-footer" ng-transclude="footerSlot">' +
             '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
           '</div>' +
         '</div>' +
@@ -48,8 +50,8 @@ angular.module("terrama2.components.messagebox", [])
         message: "=",
         title: "=",
         close: "&"
-      },
-    }
+      }
+    };
   })
 
   .directive("terrama2AlertBox", function() {
@@ -76,7 +78,7 @@ angular.module("terrama2.components.messagebox", [])
         if (!$scope.close) {
           $scope.close = function() {
             $scope.display = false;
-          }
+          };
         }
 
         $scope.$watch("display", function(val) {
@@ -85,45 +87,65 @@ angular.module("terrama2.components.messagebox", [])
 
         $scope.isAnyExtra = function() {
           return Object.keys($scope.extra || {}).length > 0;
-        }
+        };
 
         $scope.alertIcon = function() {
           switch($scope.alertLevel) {
             case ALERT_LEVELS.INFO:
               return "fa-info";
-              break;
             case ALERT_LEVELS.WARNING:
               return "fa-exclamation-triangle";
-              break;
             case ALERT_LEVELS.DANGER:
               return "fa-times";
-              break;
             case ALERT_LEVELS.SUCCESS:
               return "fa-check";
-              break;
             default:
               return "fa-info";
           }
-        }
+        };
       }
-    }
+    };
   })
 
   .directive("terrama2ModalBox", function() {
     return {
       restrict: 'E',
-      transclude: true,
-      templateUrl: '/javascripts/angular/alert-box/templates/modal.html',
+      replace: true,
+      transclude: {
+        "bodySlot": "terrama2Content",
+        "footerSlot": "terrama2Button"
+      },
+      templateUrl: 'modal.html',
       scope: {
         title: '=title',
         modalId: '=modalId',
+        klass: "=class",
         modalType: '=modalType',
         properties: '=?properties'
       },
       controller: function($scope) {
-        if ($scope.properties === undefined)
-          $scope.properties = {};
-        $scope.css = $scope.properties.css || "modal fade"
+        if ($scope.properties === undefined) { $scope.properties = {}; }
+        $scope.css = $scope.properties.css || "modal fade";
       }
-    }
+    };
+  })
+
+  .directive("terrama2RemoveModal", function($parse) {
+    return {
+      restrict: "E",
+      template: "<terrama2-modal-box title='$ctrl.title' modal-id='\"removalID\"' properties='properties'>" +
+                  "<terrama2-content>Are you sure?</terrama2-content>" +
+                  "<terrama2-button class='btn btn-primary' on-click='onRemovalClick'>OK</terrama2-button>" +
+                  "<terrama2-button class='btn btn-primary' on-click='onCancelClick'>Cancel</terrama2-button>" +
+                "</terrama2-modal-box>",
+      scope: {
+        title: '=',
+        properties: '=?',
+        onRemovalClick: '@',
+        onCancelClick: '@'
+      },
+      link: function(scope, element, attrs) {
+        console.log(scope);
+      }
+    };
   });
