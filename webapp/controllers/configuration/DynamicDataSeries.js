@@ -47,7 +47,7 @@ module.exports = function(app) {
         });
       }).catch(function(err) {
         // check if analysis dataseries
-        DataManager.getAnalysis({dataSeries: {id: dataSeriesId}}).then(function(analysis) {
+        DataManager.getAnalysis({dataSet: {data_series_id: parseInt(dataSeriesId)}}).then(function(analysis) {
           response.redirect("/configuration/analyses/"+analysis.id+"/edit");
         }).catch(function(err) {
           // check if input dataseries (processed)
