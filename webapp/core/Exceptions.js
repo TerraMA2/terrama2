@@ -17,7 +17,7 @@ errors.BaseError = function(message) {
   Error.apply(this, arguments);
 
   this.name = this.name = 'BaseError';
-  this.message = message.message;
+  this.message = message;
 
   Error.captureStackTrace(this, this.constructor);
 };
