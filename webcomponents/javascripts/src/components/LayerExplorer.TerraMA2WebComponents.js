@@ -47,7 +47,7 @@ define(
      * @inner
      */
     var createLayerGroup = function(id, name, parent, layers) {
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + name + "</span><ul class='children'>" + layers + "</ul></li>";
+      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
     };
 
     /**
@@ -75,21 +75,26 @@ define(
      * Adds a layer or a layer group to the layer explorer with data from the map.
      * @param {string} id - Layer or layer group id
      * @param {string} parent - Parent id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the element should be inserted as last element of the parent, if the parameter isn't provided, it's set to false
      *
      * @function addLayersFromMap
      * @memberof LayerExplorer
      * @inner
      */
-    var addLayersFromMap = function(id, parent) {
+    var addLayersFromMap = function(id, parent, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
       if(data !== null) {
         var elem = buildLayersFromMap(data, parent);
 
         if(parent === 'terrama2-layerexplorer') {
-          $('#' + parent).prepend(elem);
+          if(appendAtTheEnd) $('#' + parent).append(elem);
+          else $('#' + parent).prepend(elem);
         } else {
-          $('#' + parent + ' > ul.children').prepend(elem);
+          if(appendAtTheEnd) $('#' + parent + ' > ul.children').append(elem);
+          else $('#' + parent + ' > ul.children').prepend(elem);
         }
 
         // Handle opacity slider control

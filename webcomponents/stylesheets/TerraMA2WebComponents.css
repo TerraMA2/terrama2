@@ -71,7 +71,10 @@
 
 /* LayerExplorer style */
 
-#terrama2-layerexplorer ul { padding-left: 35px; }
+#terrama2-layerexplorer ul {
+  padding-left: 35px;
+  margin-bottom: 0px;
+}
 
 #terrama2-layerexplorer ul.layerstack { list-style: none; }
 
@@ -92,7 +95,7 @@
   margin-left: 11px;
 }
 
-#terrama2-layerexplorer li > span { padding-left: 12px !important; }
+#terrama2-layerexplorer li > span { padding-left: 10.5px !important; }
 
 #terrama2-layerexplorer li.parent_li, #terrama2-layerexplorer li.parent_li > ul > li { margin: 0 !important; }
 
@@ -114,6 +117,8 @@
   font-size: 25px;
   font-weight: bold;
   margin-top: -8px;
+  max-height: 20px;
+  padding-right: 18px;
 }
 
 .terrama2-layerexplorer-minus {
@@ -121,6 +126,8 @@
   font-size: 45px;
   margin-top: -27px;
   margin-right: -1px;
+  max-height: 30px;
+  padding-right: 18px;
 }
 
 #terrama2-layerexplorer li.parent_li>span { cursor: pointer; }
