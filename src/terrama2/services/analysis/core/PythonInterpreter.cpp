@@ -274,7 +274,19 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
     std::string errMsg = extractException();
     context->addError(errMsg);
   }
-
+  catch(const terrama2::Exception& e)
+  {
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    context->addError(errMsg.toStdString());
+  }
 
   state = PyThreadState_Swap(previousState);
 }

@@ -216,25 +216,31 @@ terrama2::services::analysis::core::resampleRaster(std::shared_ptr<te::rst::Rast
                                                    std::map<std::string, std::string> outputRasterInfo,
                                                    InterpolationMethod method)
 {
-  auto oldNRows = inputRaster->getNumberOfRows();
-  auto oldNCols = inputRaster->getNumberOfColumns();
+  te::rst::Grid* grid = nullptr;
+  std::vector<te::rst::BandProperty*> bands;
+  std::tie(grid, bands) = terrama2::services::analysis::core::getOutputRasterInfo(outputRasterInfo);
+  assert(grid);
+  auto envelope = grid->getExtent();
+
+  te::gm::Geometry* boundingBox = te::gm::GetGeomFromEnvelope(envelope, grid->getSRID());
+  boundingBox->transform(inputRaster->getSRID());
+
+  auto cropRaster = te::rst::CropRaster(*inputRaster, *static_cast<te::gm::Polygon*>(boundingBox), outputRasterInfo, "EXPANSIBLE");
+
+  auto oldNRows = cropRaster->getNumberOfRows();
+  auto oldNCols = cropRaster->getNumberOfColumns();
 
   unsigned int rows = static_cast<unsigned int>(std::stoi(outputRasterInfo["MEM_RASTER_NROWS"]));
   unsigned int cols = static_cast<unsigned int>(std::stoi(outputRasterInfo["MEM_RASTER_NCOLS"]));
 
   std::vector< unsigned int > inputRasterBands;
-  for(unsigned int i = 0; i < inputRaster->getNumberOfBands(); ++i)
+  for(unsigned int i = 0; i < cropRaster->getNumberOfBands(); ++i)
   {
     inputRasterBands.push_back(i);
   }
 
-
-  te::rst::Grid* grid = nullptr;
-  std::vector<te::rst::BandProperty*> bands;
-  std::tie(grid, bands) = terrama2::services::analysis::core::getOutputRasterInfo(outputRasterInfo);
-  assert(grid);
   std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
-  auto ok = te::rp::RasterResample(*inputRaster, inputRasterBands, (te::rst::Interpolator::Method)method, 0, 0, oldNRows,
+  auto ok = te::rp::RasterResample(*cropRaster, inputRasterBands, (te::rst::Interpolator::Method)method, 0, 0, oldNRows,
                                    oldNCols, rows, cols, outputRasterInfo,
                                    "EXPANSIBLE" ,resampledRasterPtr);
 
