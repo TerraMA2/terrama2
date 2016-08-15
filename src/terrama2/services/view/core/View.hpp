@@ -77,8 +77,9 @@ namespace terrama2
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
 
-          uint32_t resolutionWidth = 0; //!< Width resolution of view in pixels
-          uint32_t resolutionHeight = 0; //!< Height resolution of view in pixels
+          std::string imageName = "";
+          uint32_t imageResolutionWidth = 0; //!< Width resolution of view in pixels
+          uint32_t imageResolutionHeight = 0; //!< Height resolution of view in pixels
 
           uint32_t srid = 0; //!< SRID to aplly in view
 

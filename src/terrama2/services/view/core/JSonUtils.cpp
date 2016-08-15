@@ -63,8 +63,9 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("project_id")
      || !json.contains("service_instance_id")
      || !json.contains("active")
-     || !json.contains("resolutionWidth")
-     || !json.contains("resolutionHeight")
+     || !json.contains("imageName")
+     || !json.contains("imageResolutionWidth")
+     || !json.contains("imageResolutionHeight")
      || !json.contains("schedule")
      || !json.contains("srid")
      || !json.contains("data_series_list")
@@ -83,8 +84,9 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   view->projectId = static_cast<uint32_t>(json["project_id"].toInt());
   view->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
   view->active = json["active"].toBool();
-  view->resolutionWidth = static_cast<uint32_t>(json["resolutionWidth"].toInt());
-  view->resolutionHeight = static_cast<uint32_t>(json["resolutionHeight"].toInt());
+  view->imageName = json["imageName"].toString().toStdString();
+  view->imageResolutionWidth = static_cast<uint32_t>(json["imageResolutionWidth"].toInt());
+  view->imageResolutionHeight = static_cast<uint32_t>(json["imageResolutionHeight"].toInt());
   view->srid = static_cast<uint32_t>(json["srid"].toInt());
 
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
@@ -157,8 +159,9 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("project_id", static_cast<int32_t>(view->projectId));
   obj.insert("service_instance_id", static_cast<int32_t>(view->serviceInstanceId));
   obj.insert("active", view->active);
-  obj.insert("resolutionWidth", static_cast<int32_t>(view->resolutionWidth));
-  obj.insert("resolutionHeight", static_cast<int32_t>(view->resolutionHeight));
+  obj.insert("imageName", QString(view->imageName.c_str()));
+  obj.insert("imageResolutionWidth", static_cast<int32_t>(view->imageResolutionWidth));
+  obj.insert("imageResolutionHeight", static_cast<int32_t>(view->imageResolutionHeight));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
   obj.insert("srid", static_cast<int32_t>(view->srid));
 
