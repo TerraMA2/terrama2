@@ -40,8 +40,10 @@ var Utils = {
   },
 
   handleRequestError: function(response, err, code) {
+    var message = err instanceof exceptions.BaseError ? err.toStr() : err.message;
+    var errors = err instanceof exceptions.ValidationError ? err.getErrors() : {};
     response.status(code);
-    return response.json({status: code, message: err.message});
+    return response.json({status: code, message: message, errors: errors});
   },
 
   getCommonRequestFields : function() {
