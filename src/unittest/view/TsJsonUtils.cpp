@@ -185,6 +185,7 @@ void TsJsonUtils::testGoNBackJSon()
     view->serviceInstanceId = 1;
     view->active = true;
     view->imageName = "ImageName";
+    view->imageType = te::map::ImageType(2);
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
@@ -219,8 +220,9 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->id, viewPtr->id);
     QCOMPARE(viewBackPtr->projectId, viewPtr->projectId);
     QCOMPARE(viewBackPtr->serviceInstanceId, viewPtr->serviceInstanceId);
-    QCOMPARE(viewBackPtr->imageName, viewPtr->imageName);
     QCOMPARE(viewBackPtr->active, viewPtr->active);
+    QCOMPARE(viewBackPtr->imageName, viewPtr->imageName);
+    QCOMPARE(viewBackPtr->imageType, viewPtr->imageType);
     QCOMPARE(viewBackPtr->imageResolutionWidth, viewPtr->imageResolutionWidth);
     QCOMPARE(viewBackPtr->imageResolutionHeight, viewPtr->imageResolutionHeight);
 

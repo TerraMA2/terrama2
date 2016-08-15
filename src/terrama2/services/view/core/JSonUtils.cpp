@@ -64,6 +64,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("service_instance_id")
      || !json.contains("active")
      || !json.contains("imageName")
+     || !json.contains("imageType")
      || !json.contains("imageResolutionWidth")
      || !json.contains("imageResolutionHeight")
      || !json.contains("schedule")
@@ -85,6 +86,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   view->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
   view->active = json["active"].toBool();
   view->imageName = json["imageName"].toString().toStdString();
+  view->imageType = te::map::ImageType(json["imageType"].toInt());
   view->imageResolutionWidth = static_cast<uint32_t>(json["imageResolutionWidth"].toInt());
   view->imageResolutionHeight = static_cast<uint32_t>(json["imageResolutionHeight"].toInt());
   view->srid = static_cast<uint32_t>(json["srid"].toInt());
@@ -160,6 +162,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("service_instance_id", static_cast<int32_t>(view->serviceInstanceId));
   obj.insert("active", view->active);
   obj.insert("imageName", QString(view->imageName.c_str()));
+  obj.insert("imageType", static_cast<int32_t>(view->imageType));
   obj.insert("imageResolutionWidth", static_cast<int32_t>(view->imageResolutionWidth));
   obj.insert("imageResolutionHeight", static_cast<int32_t>(view->imageResolutionHeight));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));

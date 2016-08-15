@@ -383,6 +383,7 @@ int main(int argc, char** argv)
     view->serviceInstanceId = 1;
     view->active = true;
     view->imageName = "ExampleImage";
+    view->imageType = te::map::ImageType(2);
     view->imageResolutionWidth = 1024;
     view->imageResolutionHeight = 768;
 

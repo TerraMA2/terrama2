@@ -287,9 +287,9 @@ void terrama2::services::view::core::drawLayersList(ViewPtr viewPtr, std::vector
 
     // Save view
     if(!viewPtr->imageName.empty())
-      canvas->save(viewPtr->imageName.c_str(), te::map::PNG);
+      canvas->save(viewPtr->imageName.c_str(), viewPtr->imageType);
     else
-      canvas->save("View" + viewPtr->id, te::map::PNG);
+      canvas->save("View" + viewPtr->id, viewPtr->imageType);
 
     canvas->clear();
   }

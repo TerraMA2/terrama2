@@ -78,6 +78,7 @@ namespace terrama2
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
 
           std::string imageName = "";
+          te::map::ImageType imageType = te::map::ImageType(1);
           uint32_t imageResolutionWidth = 0; //!< Width resolution of view in pixels
           uint32_t imageResolutionHeight = 0; //!< Height resolution of view in pixels
 
