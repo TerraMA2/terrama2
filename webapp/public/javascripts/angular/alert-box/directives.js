@@ -130,13 +130,13 @@ angular.module("terrama2.components.messagebox", [])
     };
   })
 
-  .directive("terrama2RemoveModal", function($parse) {
+  .directive("terrama2RemoveModal", function() {
     return {
       restrict: "E",
-      template: "<terrama2-modal-box title='$ctrl.title' modal-id='\"removalID\"' properties='properties'>" +
+      template: "<terrama2-modal-box title='title' modal-id='\"removalID\"' properties='properties'>" +
                   "<terrama2-content>Are you sure?</terrama2-content>" +
-                  "<terrama2-button class='btn btn-primary' on-click='onRemovalClick'>OK</terrama2-button>" +
-                  "<terrama2-button class='btn btn-primary' on-click='onCancelClick'>Cancel</terrama2-button>" +
+                  "<terrama2-button class='btn btn-primary' ng-click='onRemovalClick'>OK</terrama2-button>" +
+                  "<terrama2-button class='btn btn-primary' ng-click='onCancelClick'>Cancel</terrama2-button>" +
                 "</terrama2-modal-box>",
       scope: {
         title: '=',

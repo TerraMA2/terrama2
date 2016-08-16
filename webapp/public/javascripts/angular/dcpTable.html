@@ -1,5 +1,4 @@
-<div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'DCP') && isDynamic">
-
+<div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'DCP') && isDynamic" style="margin-bottom: 30px;">
   <div class="col-md-12">
     <div class="box-body table-responsive no-padding">
       <table class="table table-hover" >
@@ -23,8 +22,13 @@
                 {{ dcp[field]}}
               </span>
           </td>
-          <td>
+          <td class="pull-cell-left">
             <button class="btn btn-danger" ng-click="removePcd(dcp)" ng-disabled="isUpdating">{{ i18n.__("Remove") }}</button>
+          </td>
+        </tr>
+        <tr ng-show="dcps.length === 0">
+          <td colspan="{{ tableFields.length + 1 }}">
+            {{ i18n.__("No dcp available. Please add at least one dcp.") }}
           </td>
         </tr>
         </tbody>
