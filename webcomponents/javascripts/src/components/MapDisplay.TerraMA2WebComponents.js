@@ -397,13 +397,16 @@ define(
      * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
      * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
+     * @param {string} version - WMS version
+     * @param {string} format - Layer format
+     * @param {object} tileGrid - Grid pattern for accessing the tiles
      * @returns {ol.layer.Tile} tile - New tiled wms layer
      *
      * @function createTileWMS
      * @memberof MapDisplay
      * @inner
      */
-    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer) {
+    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer, version, format, tileGrid) {
       var params = {
         'LAYERS': layerId,
         'TILED': true
@@ -415,12 +418,23 @@ define(
       if(buffer !== null && buffer !== undefined && buffer !== '')
         params['BUFFER'] = buffer;
 
-      var layerSource = new ol.source.TileWMS({
+      if(version !== null && version !== undefined && version !== '')
+        params['VERSION'] = version;
+
+      if(format !== null && format !== undefined && format !== '')
+        params['FORMAT'] = format;
+
+      var layerSourceOptions = {
         preload: Infinity,
         url: url,
         serverType: type,
         params: params
-      });
+      };
+
+      if(tileGrid !== null && tileGrid !== undefined && tileGrid !== '')
+        layerSourceOptions['tileGrid'] = new ol.tilegrid.TileGrid(tileGrid);
+
+      var layerSource = new ol.source.TileWMS(layerSourceOptions);
 
       if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
         layerSource.on('tileloadstart', function() { increaseLoading(layerId); });
@@ -458,13 +472,16 @@ define(
      * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
      * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
+     * @param {string} version - WMS version
+     * @param {string} format - Layer format
+     * @param {object} tileGrid - Grid pattern for accessing the tiles
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addTileWMSLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled, buffer) {
+    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled, buffer, version, format, tileGrid) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -472,7 +489,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer)
+          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer, version, format, tileGrid)
         );
 
         layerGroup.setLayers(layers);
@@ -883,10 +900,10 @@ define(
 
           var subLayersLength = layers.Layer[i].Layer.length;
           for(var j = 0; j < subLayersLength; j++) {
-            tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, false));
+            tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, false, null, null, null));
           }
         } else {
-          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false, false));
+          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false, false, null, null, null));
         }
       }
 
