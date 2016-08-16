@@ -1,6 +1,7 @@
-"use strict";
+'use strict';
 
 angular.module('terrama2.ace', ['terrama2'])
+
   .directive('terrama2Ace', function() {
     return {
       restrict: 'EA',
@@ -21,15 +22,49 @@ angular.module('terrama2.ace', ['terrama2'])
           editor.setReadOnly(!!value || value === '');
         });
 
-        editor.setOptions({
-          fontSize: "12pt",
-          maxLines: 20,
-          enableBasicAutocompletion: true,
-          enableSnippets: true,
-          enableLiveAutocompletion: false,
-        });
+        var editorOptions = Object.assign({}, options);
+        // defaults
+        editorOptions.fontSize = options.fontSize || "12pt";
+        editorOptions.maxLines = options.maxLines || 20;
+        editorOptions.enableBasicAutocompletion = options.enableBasicAutocompletion || true;
+        editorOptions.enableSnippets = options.enableSnippets || true;
+        editorOptions.enableLiveAutocompletion = options.enableLiveAutocompletion || false;
 
-        element.height(200);
+        editor.setOptions(editorOptions);
+
+        var triggerCallback = function() {
+          var callback = arguments[0];
+          var args = Array.prototype.slice.call(arguments, 1);
+
+          if (angular.isDefined(callback)) {
+            scope.$evalAsync(function () {
+              if (angular.isFunction(callback)) {
+                callback(args);
+              } else {
+                throw new Error('callback must be a function!!');
+              }
+            });
+          }
+        };
+
+        var onChangeEvent = function (callback) {
+          return function (e) {
+            var newValue = session.getValue();
+
+            if (ngModel && newValue !== ngModel.$viewValue && !scope.$$phase &&
+               !scope.$root.$$phase) {
+              scope.$evalAsync(function () {
+                ngModel.$setViewValue(newValue);
+              });
+            }
+
+            triggerCallback(callback, e, editor);
+          };
+        }
+
+        var onChange = onChangeEvent(options.onChange);
+
+        element.height(options.height || 200);
 
         if (ngModel) {
           ngModel.$formatters.push(function (value) {
@@ -37,7 +72,7 @@ angular.module('terrama2.ace', ['terrama2'])
               return '';
             }
             else if (angular.isObject(value) || angular.isArray(value)) {
-              throw new Error('ui-ace cannot use an object or an array as a model');
+              throw new Error('TerraMA2 ace cannot use an object as a model. Try setting a property.');
             }
             return value;
           });
@@ -55,9 +90,7 @@ angular.module('terrama2.ace', ['terrama2'])
         }, true);
 
         session.setValue("");
-        session.on('change', function(e) {
-          options.onChange(editor);
-        });
+        session.on('change', onChange);
       }
     };
   });

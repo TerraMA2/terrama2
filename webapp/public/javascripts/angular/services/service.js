@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
   .controller('ListController', ['$scope', 'ServiceInstanceFactory', '$HttpTimeout', 'Socket', 'i18n',
     function($scope, ServiceInstanceFactory, $HttpTimeout, Socket, i18n) {
@@ -19,6 +21,11 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
         return "/api/Service/" + object.id + "/delete";
       };
 
+      $scope.confirmRemoval = function(object) {
+        $scope.target = object;
+        $("#removalID").modal();
+      };
+
       var getModel = function(serviceId) {
         var output = null;
         $scope.model.some(function(instance) {
@@ -26,9 +33,9 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
             output = instance;
             return true;
           }
-        })
+        });
         return output;
-      }
+      };
 
       // listeners
       $scope.socket.on('statusResponse', function(response) {
@@ -65,7 +72,7 @@ angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.
         service.loading = false;
         service.online = false;
         service.requestingForClose = false;
-      })
+      });
 
       $scope.socket.on('errorResponse', function(response) {
         var service = getModel(response.service);

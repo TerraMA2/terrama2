@@ -333,6 +333,13 @@ angular.module('terrama2.analysis.registration', [
                   maxY: coordinates[0][2][1]
                 };
               }
+            } else if (analysisInstance.type.id === globals.enums.AnalysisType.DCP) {
+              console.log("HERE");
+              $scope.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
+              $scope.analysis.metadata.INFLUENCE_RADIUS = analysisInstance.metadata.INFLUENCE_RADIUS;
+              $scope.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
+              $scope.analysis.metadata.INFLUENCE_DATASERIES_ID = analysisInstance.metadata.INFLUENCE_DATASERIES_ID;
+              $scope.analysis.metadata.INFLUENCE_ATTRIBUTE = analysisInstance.metadata.INFLUENCE_ATTRIBUTE;
             }
 
             // setting storager format
@@ -580,7 +587,7 @@ angular.module('terrama2.analysis.registration', [
 
       // cheking influence form: DCP and influence form valid
       if ($scope.analysis.type_id == 1) {
-        var form = angular.element('form[name="influenceForm"]').scope()['influenceForm'];
+        var form = $scope.forms.influenceForm;
         if (form.$invalid) {
           formErrorDisplay(form);
           return;

@@ -38,7 +38,7 @@
       // alert-box
       $scope.alertLevel = "alert-success";
       $scope.alertBox = {
-        title: "Project",
+        title: "{[ context ]}" || "Project",
         message: "{[ message ]}"
       };
       $scope.resetState = function() { $scope.display = false; };
