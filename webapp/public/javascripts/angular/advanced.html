@@ -1,8 +1,8 @@
 <div class="col-md-12">
   <div style="padding-bottom: 50px;">
 
-    <a ui-sref="advanced" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 5px;"></i>{{ i18n.__('Expert mode') }}</a>
-    <a ui-sref="wizard" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Wizard mode') }}</a>
+    <a ui-sref="advanced" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 5px;"></i>{{ i18n.__('Expert mode') }}</a>
+    <a ui-sref="wizard" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Wizard mode') }}</a>
 
   </div>
   <!-- alert box -->
@@ -12,7 +12,7 @@
 <div class="col-md-12">
   <div class="box box-default box-solid">
     <div class="box-header with-border">
-      <h3 class="box-title">{{ i18n.__('General Data') }}</h3>
+      <h3 class="box-title">{{ i18n.__('General') }}</h3>
       <div class="box-tools pull-right">
         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
         </button>
@@ -20,7 +20,7 @@
     </div>
     <!-- /.box-header -->
     <div style="display: block;" class="box-body">
-      <form name="generalDataForm">
+      <form name="forms.generalDataForm">
         <div ng-include="'/javascripts/angular/generalData.html'"></div>
       </form>
     </div>
@@ -30,7 +30,7 @@
 <div class="col-md-12" ng-show="form.length > 0">
   <div class="box box-default box-solid">
     <div class="box-header with-border">
-      <h3 class="box-title">{{ i18n.__('Parameters Data') }}</h3>
+      <h3 class="box-title">{{ i18n.__('Parameters') }}</h3>
       <div class="box-tools pull-right">
         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
         </button>
@@ -40,14 +40,18 @@
     <div style="display: block;" class="box-body">
       <div class="row">
         <div class="col-md-12">
-          <!-- schema form -->
-          <form name="parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
-          <div class="col-md-2 terrama2-top-field" style="padding-bottom: 40px;">
-            <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-disabled="isUpdating" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+          <div class="col-md-12">
+            <!-- schema form -->
+            <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+
+            <div class="col-md-2 terrama2-top-field" style="padding-bottom: 40px;">
+              <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-disabled="isUpdating" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+            </div>
+
+            <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
           </div>
 
-          <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
         </div>
       </div>
     </div>
@@ -55,32 +59,32 @@
 </div>
 
 <div class="col-md-12" ng-if="isDynamic">
-  <div class="box box-default box-solid">
+  <div class="box box-default box-solid collapsed-box">
     <div class="box-header with-border">
-      <h3 class="box-title">{{ i18n.__('Storager') }}</h3>
+      <h3 class="box-title">{{ i18n.__('Store') }}</h3>
       <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
         </button>
       </div>
     </div>
     <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
+    <div class="box-body">
       <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
     </div>
   </div>
 </div>
 
 <div class="col-md-12" ng-if="isDynamic">
-  <div class="box box-default box-solid">
+  <div class="box box-default box-solid collapsed-box">
     <div class="box-header with-border">
       <h3 class="box-title">{{ i18n.__('Filter') }}</h3>
       <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
         </button>
       </div>
     </div>
     <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
+    <div class="box-body">
       <form name="filterForm">
         <div ng-include="'/javascripts/angular/filter.html'"></div>
       </form>
@@ -89,22 +93,22 @@
 </div>
 
 <div class="col-md-12" ng-if="isDynamic">
-  <div class="box box-default box-solid">
+  <div class="box box-default box-solid collapsed-box">
     <div class="box-header with-border">
       <h3 class="box-title">{{ i18n.__('Intersection') }}</h3>
       <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
         </button>
       </div>
     </div>
     <!-- /.box-header -->
-    <div style="display: block;" class="box-body">
+    <div class="box-body">
       <div ng-include="'/javascripts/angular/data-series/templates/intersection.html'"></div>
     </div>
   </div>
 </div>
 
 <div class="box-footer">
-  <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;" ng-disabled="isUpdating" ng-click="save()">{{ i18n.__('OK') }}</button>
+  <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;" ng-click="save()">{{ i18n.__('OK') }}</button>
   <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
 </div>

@@ -19,9 +19,8 @@ function load(sequelizeObject) {
   });
 
   db.sequelize = sequelizeObject;
+  db.Sequelize = Sequelize;
 }
-
-db.Sequelize = Sequelize;
 
 module.exports = function() {
   return {

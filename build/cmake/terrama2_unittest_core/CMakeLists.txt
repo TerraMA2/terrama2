@@ -34,7 +34,9 @@ include_directories (SYSTEM
   ${terralib_INCLUDE_DIRS}
   ${terralib_DIR}
   ${GTEST_INCLUDE_DIRS}
-  ${GMOCK_INCLUDE_DIRS})
+  ${GMOCK_INCLUDE_DIRS}
+  ${Qt5Core_INCLUDE_DIRS}
+)
 
 
 set(CMAKE_AUTOMOC ON)
@@ -55,6 +57,7 @@ target_link_libraries(terrama2_unittest_core terrama2_core
                                              terrama2_impl
                                              terralib_mod_plugin
                                              terralib_mod_common
+                                             terralib_mod_ogr
                                              ${GTEST_BOTH_LIBRARIES}
                                              ${GMOCK_BOTH_LIBRARIES})
 

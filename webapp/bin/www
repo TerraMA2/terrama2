@@ -4,148 +4,157 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var io = require('../io');
-var debug = require('debug')('webapp:server');
-var http = require('http');
-var load = require('express-load');
-var portNumber = '36000';
-var PluginLoader = require("../core/PluginLoader");
-var DataManager = require("../core/DataManager");
-var TcpManager = require("../core/TcpManager");
+var Database = require('./../config/Database');
 
-/**
- * Get port from environment and store in Express.
- */
+Database.init().then(function (sequelize) {
+  var app = require('../app');
+  var io = require('../io');
+  var debug = require('debug')('webapp:server');
+  var http = require('http');
+  var load = require('express-load');
+  var portNumber = '36000';
+  var PluginLoader = require("../core/PluginLoader");
+  var DataManager = require("../core/DataManager");
+  var TcpManager = require("../core/TcpManager");
 
-var port = normalizePort(process.env.PORT || portNumber);
-app.set('port', port);
+  /**
+   * Get port from environment and store in Express.
+   */
 
-/**
- * Create HTTP server.
- */
+  var port = normalizePort(process.env.PORT || portNumber);
+  app.set('port', port);
 
-var server = http.createServer(app);
+  /**
+   * Create HTTP server.
+   */
 
-PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
+  var server = http.createServer(app);
 
-  // storing active connections
-  var connections = {};
+  PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
 
-  // getting db configuration and initializes data manager
-  DataManager.init(function(error) {
-    if (error) {
-      console.log(error);
-      process.exit(1);
-      return;
-    }
-    console.log("Initializing TerraMA2");
-    /**
-     * Listen on provided port, on all network interfaces.
-     */
+    // storing active connections
+    var connections = {};
 
-    server.listen(port);
+    // getting db configuration and initializes data manager
+    DataManager.init(function(error) {
+      if (error) {
+        console.log(error);
+        process.exit(1);
+        return;
+      }
+      console.log("Initializing TerraMA2");
+      /**
+       * Listen on provided port, on all network interfaces.
+       */
 
-    // approach for handling connections and remove it to avoid unclosed nodejs server
-    server.on('connection', function(conn) {
-      var key = conn.remoteAddress + ':' + conn.remotePort;
-      connections[key] = conn;
+      server.listen(port);
 
-      conn.on('close', function() {
-        delete connections[key];
-      })
-    });
+      // approach for handling connections and remove it to avoid unclosed nodejs server
+      server.on('connection', function(conn) {
+        var key = conn.remoteAddress + ':' + conn.remotePort;
+        connections[key] = conn;
 
-    server.on('error', onError);
-    server.on('listening', onListening);
-    server.on('close', onClose);
-
-    // detecting sigint error and then close server
-    process.on('SIGINT', function(){
-      DataManager.finalize().then(function() {
-        var _closeServer = function() {
-          server.close(function() {
-            console.log("TerraMA2 finalized");
-          });
-
-          for (var key in connections)
-            connections[key].destroy();
-        };
-
-        _closeServer();
+        conn.on('close', function() {
+          delete connections[key];
+        })
       });
+
+      server.on('error', onError);
+      server.on('listening', onListening);
+      server.on('close', onClose);
+
+      // detecting sigint error and then close server
+      process.on('SIGINT', function(){
+        DataManager.finalize().then(function() {
+          var _closeServer = function() {
+            server.close(function() {
+              console.log("TerraMA2 finalized");
+            });
+
+            for (var key in connections)
+              connections[key].destroy();
+          };
+
+          TcpManager.disconnect();
+
+          _closeServer();
+        });
+      });
+
+      io.attach(server);
+      load('sockets').into(io);
     });
 
-    io.attach(server);
-    load('sockets').into(io);
   });
 
-});
+  /**
+   * Normalize a port into a number, string, or false.
+   */
 
-/**
- * Normalize a port into a number, string, or false.
- */
+  function normalizePort(val) {
+    var port = parseInt(val, 10);
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
+    if (isNaN(port)) {
+      // named pipe
+      return val;
+    }
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
+    if (port >= 0) {
+      // port number
+      return port;
+    }
+
+    return false;
   }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+  /**
+   * Event listener for HTTP server "error" event.
+   */
 
-  return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
+  function onError(error) {
+    if (error.syscall !== 'listen') {
       throw error;
+    }
+
+    var bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case 'EACCES':
+        console.error(bind + ' requires elevated privileges');
+        process.exit(1);
+        break;
+      case 'EADDRINUSE':
+        console.error(bind + ' is already in use');
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
   }
-}
 
-/**
- * Event listener for server close. It unloads plugins
- */
-function onClose() {
-  PluginLoader.plugin.unloadAll();
-}
+  /**
+   * Event listener for server close. It unloads plugins
+   */
+  function onClose() {
+    PluginLoader.plugin.unloadAll();
+  }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
+  /**
+   * Event listener for HTTP server "listening" event.
+   */
 
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+  function onListening() {
+    var addr = server.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
 
-  debug('Listening on ' + bind);
-}
+    debug('Listening on ' + bind);
+  }
+}).catch(function(err) {
+  console.error("Could not initialize TerraMA2 database " + err.toString());
+  process.exit(1);
+});

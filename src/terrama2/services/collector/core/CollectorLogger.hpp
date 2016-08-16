@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTORLOG_HPP__
 
-#include "Typedef.hpp"
+#include "../core/Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
@@ -77,7 +77,7 @@ namespace terrama2
            */
           void addOutput(std::string value, RegisterId registerID);
 
-          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) override;
+          virtual void setConnectionInfo(const std::map < std::string, std::string >& connInfo) noexcept override;
 
         };
       }

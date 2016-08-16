@@ -29,6 +29,7 @@
 
 #include "DataManager.hpp"
 #include "JSonUtils.hpp"
+#include "Analysis.hpp"
 #include "../../../Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
 
@@ -50,15 +51,13 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
 {
   try
   {
-    std::lock_guard<std::recursive_mutex> lock(mtx_);
-
-    terrama2::core::DataManager::DataManager::addJSon(obj);
+    terrama2::core::DataManager::addJSon(obj);
 
     auto analysisArray = obj["Analysis"].toArray();
     for(auto json : analysisArray)
     {
       auto dataPtr = terrama2::services::analysis::core::fromAnalysisJson(json.toObject());
-      if(hasAnalysis(dataPtr.id))
+      if(hasAnalysis(dataPtr->id))
         update(dataPtr);
       else
         add(dataPtr);
@@ -78,47 +77,47 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknow error...");
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown error...");
   }
 }
 
-void terrama2::services::analysis::core::DataManager::add(const Analysis& analysis)
+void terrama2::services::analysis::core::DataManager::add(AnalysisPtr analysis)
 {
   // Inside a block so the lock is released before emitting the signal
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
 
-    if(analysis.name.empty())
+    if(analysis->name.empty())
     {
       QString errMsg = QObject::tr("Can not add an analysis with empty name.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    if(analysis.id == terrama2::core::InvalidId())
+    if(analysis->id == terrama2::core::InvalidId())
     {
       QString errMsg = QObject::tr("Can not add an analysis with an invalid id.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    analysis_[analysis.id] = analysis;
+    analysis_[analysis->id] = analysis;
   }
 
-  emit analysisAdded(analysis.id);
+  emit analysisAdded(analysis->id);
 }
 
-void terrama2::services::analysis::core::DataManager::update(const Analysis& analysis)
+void terrama2::services::analysis::core::DataManager::update(AnalysisPtr analysis)
 {
   {
     std::lock_guard<std::recursive_mutex> lock(mtx_);
     blockSignals(true);
-    removeAnalysis(analysis.id);
+    removeAnalysis(analysis->id);
     add(analysis);
     blockSignals(false);
   }
 
-  emit analysisUpdated(analysis.id);
+  emit analysisUpdated(analysis->id);
 }
 
 void terrama2::services::analysis::core::DataManager::removeAnalysis(const AnalysisId analysisId)
@@ -140,13 +139,13 @@ void terrama2::services::analysis::core::DataManager::removeAnalysis(const Analy
   emit analysisRemoved(analysisId);
 }
 
-terrama2::services::analysis::core::Analysis terrama2::services::analysis::core::DataManager::findAnalysis(const AnalysisId analysisId) const
+terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::core::DataManager::findAnalysis(const AnalysisId analysisId) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
 
   const auto& it = std::find_if(analysis_.cbegin(), analysis_.cend(),
-                                [analysisId](std::pair<AnalysisId, Analysis> analysis)
-                                { return analysis.second.id == analysisId; });
+                                [analysisId](std::pair<AnalysisId, AnalysisPtr> analysisPair)
+                                { return analysisPair.second->id == analysisId; });
   if(it == analysis_.cend())
   {
     QString errMsg = QObject::tr("Analysis not registered.");
@@ -161,7 +160,7 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::f
 {
   terrama2::core::DataSeriesPtr dataSeries;
   auto analysis = findAnalysis(analysisId);
-  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
   {
     if(analysisDataSeries.alias == name)
     {
@@ -179,7 +178,7 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::DataManager::f
 
 
   bool inAdditionalDataSeriesList = false;
-  for(auto analysisDataSeries : analysis.analysisDataSeriesList)
+  for(auto analysisDataSeries : analysis->analysisDataSeriesList)
   {
     if(analysisDataSeries.dataSeriesId == dataSeries->id)
     {

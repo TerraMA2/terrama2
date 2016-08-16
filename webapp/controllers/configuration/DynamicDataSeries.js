@@ -1,12 +1,16 @@
+"use strict";
+
 var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
+var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
+var Promise = require('bluebird');
 
 
 module.exports = function(app) {
-
   return {
     get: function(request, response) {
-      response.render('configuration/dynamicDataSeries');
+      var parameters = makeTokenParameters(request.query.token, app);
+      response.render('configuration/dynamicDataSeries', Object.assign({}, parameters, {"Enums": Enums}));
     },
 
     new: function(request, response) {
@@ -34,7 +38,7 @@ module.exports = function(app) {
             "Enums": Enums,
             dataSeries: {
               input: dataSeriesResults[0].rawObject(),
-              output: dataSeriesResults[1].rawObject(),
+              output: dataSeriesResults[1].rawObject()
             },
             collector: collectorResult.rawObject()
           });
@@ -42,9 +46,26 @@ module.exports = function(app) {
           console.log(err);
         });
       }).catch(function(err) {
-        response.render('base/404');
-      })
+        // check if analysis dataseries
+        DataManager.getAnalysis({dataSet: {data_series_id: parseInt(dataSeriesId)}}).then(function(analysis) {
+          response.redirect("/configuration/analyses/"+analysis.id+"/edit");
+        }).catch(function(err) {
+          // check if input dataseries (processed)
+          DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
+            response.render('configuration/dataset', {
+              state: "dynamic",
+              type: "dynamic",
+              "Enums": Enums,
+              dataSeries: {
+                input: dataSeries.rawObject()
+              }
+            });
+          }).catch(function(err) {
+            response.render('base/404');
+          });
+        });
+      });
     }
-  }
+  };
 
 };

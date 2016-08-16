@@ -1,13 +1,15 @@
+"use strict";
+
 var DataManager = require("../../core/DataManager");
 var DataProviderError = require('./../../core/Exceptions').DataProviderError;
+var ValidationError = require('./../../core/Exceptions').ValidationError;
 var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
-var passport = require('./../../config/Passport');
 
 module.exports = function(app) {
   return {
-    post: [passport.isCommonUser, function(request, response) {
+    post: function(request, response) {
       var dataProviderReceived = request.body;
 
       var uriObject = dataProviderReceived.uriObject;
@@ -15,8 +17,9 @@ module.exports = function(app) {
       var requester = RequestFactory.build(uriObject);
 
       var handleError = function(response, err, code) {
+        var errors = err instanceof ValidationError ? err.getErrors() : {};
         response.status(code);
-        response.json({status: code || 400, message: err.message});
+        response.json({status: code || 400, message: err.message, errors: errors});
       };
 
       var _makeProvider = function() {
@@ -49,14 +52,13 @@ module.exports = function(app) {
             }).catch(function(err) {
               handleError(response, err, 400);
             });
-
           }).catch(function(err) {
             handleError(response, err, 400);
           });
 
         }).catch(function(err) {
           handleError(response, err, 400);
-        })
+        });
       };
 
       // check connection
@@ -66,69 +68,80 @@ module.exports = function(app) {
         _makeProvider();
       });
 
-    }],
+    },
 
     get: function(request, response) {
       var name = request.query.name;
 
       if (name) {
-        DataManager.getDataProvider({name: name}).then(function(dataProvider) {
+        DataManager.getDataProvider({name: name, project_id: app.locals.activeProject.id}).then(function(dataProvider) {
           response.json(dataProvider.toObject());
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
-        })
+        });
       } else {
         var output = [];
-        DataManager.listDataProviders().forEach(function(element) {
+        DataManager.listDataProviders({project_id: app.locals.activeProject.id}).forEach(function(element) {
           output.push(element.rawObject());
         });
         response.json(output);
       }
     },
 
-    put: [passport.isCommonUser, function(request, response) {
-      var dataProviderName = request.params.name;
+    put: function(request, response) {
+      var dataProviderId = request.params.id;
+      var uriObject = request.body.uriObject;
 
-      if (dataProviderName) {
-        DataManager.updateDataProvider({name: dataProviderName, active: request.body.active}).then(function() {
-          DataManager.getDataProvider({name: dataProviderName}).then(function(dProvider) {
+      var requester = RequestFactory.build(uriObject);
+
+      var toUpdate = {
+        name: request.body.name,
+        active: request.body.active,
+        description: request.body.description,
+        uri: requester.uri
+      };
+
+      if (dataProviderId) {
+        dataProviderId = parseInt(dataProviderId);
+        DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
+          DataManager.getDataProvider({id: dataProviderId, project_id: app.locals.activeProject.id}).then(function(dProvider) {
             // generating token
             var token = Utils.generateToken(app, TokenCode.UPDATE, dProvider.name);
 
             response.json({status: 200, result: dProvider, token: token});
           }).catch(function(err) {
             response.status(400);
-            response.json({status: 400, message: err.message})
+            response.json({status: 400, message: err.message});
           });
         }).catch(function(err) {
           response.status(400);
           response.json({status: 400, message: err.message});
-        })
+        });
 
       } else {
         response.status(400);
-        response.json({status: 400, message: "DataProvider name not identified"});
+        response.json({status: 400, message: "DataProvider not identified"});
       }
-    }],
+    },
 
-    delete: [passport.isCommonUser, function(request, response) {
+    delete: function(request, response) {
       var id = request.params.id;
       if (id) {
+        id = parseInt(id);
         DataManager.getDataProvider({id: id}).then(function(dProvider) {
           DataManager.removeDataProvider({id: id}).then(function() {
           // generating token
             response.json({status: 200, name: dProvider.name});
           }).catch(function(err) {
             Utils.handleRequestError(response, err, 400);
-          })
+          });
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);
-        })
+        });
       } else {
-        Utils.handleRequestError(response, new DataProviderError("Missing data provider id"), 400);
+        Utils.handleRequestError(response, new DataProviderError("Missing data provider id", []), 400);
       }
-    }]
-
+    }
   };
 };

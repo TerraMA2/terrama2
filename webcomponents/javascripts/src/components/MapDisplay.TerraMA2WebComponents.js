@@ -14,7 +14,6 @@
  * @property {int} memberDoubleClickEventKey - Double click event key.
  * @property {int} memberSingleClickEventKey - Single click event key.
  * @property {object} memberSocket - Socket object.
- * @property {function} memberCapabilitiesCallbackFunction - 'addCapabilitiesLayers' callback function.
  * @property {function} memberLayersStartLoadingFunction - Function triggered when a layer starts to load
  * @property {function} memberLayersEndLoadingFunction - Function triggered when a layer is loaded
  * @property {function} memberLoading - Loading layers counters
@@ -43,8 +42,6 @@ define(
     var memberSingleClickEventKey = null;
     // Socket object
     var memberSocket = null;
-    // 'addCapabilitiesLayers' callback function
-    var memberCapabilitiesCallbackFunction = null;
     // Function triggered when a layer starts to load
     var memberLayersStartLoadingFunction = null;
     // Function triggered when a layer is loaded
@@ -160,6 +157,64 @@ define(
     };
 
     /**
+     * Converts a coordinate from decimal format to DMS.
+     * @param {string} coordinate - Coordinate to be converted
+     * @param {string} type - Coordinate type
+     * @returns {string} dmsCoordinate - Converted coordinate
+     *
+     * @private
+     * @function convertCoordinateToDMS
+     * @memberof MapDisplay
+     * @inner
+     */
+    var convertCoordinateToDMS = function(coordinate, type) {
+      var absCoordinate = Math.abs(coordinate);
+      var coordinateDegrees = Math.floor(absCoordinate);
+
+      var coordinateMinutes = (absCoordinate - coordinateDegrees) / (1 / 60);
+      var tempCoordinateMinutes = coordinateMinutes;
+      coordinateMinutes = Math.floor(coordinateMinutes);
+      var coordinateSeconds = (tempCoordinateMinutes - coordinateMinutes) / (1 / 60);
+      coordinateSeconds =  Math.round(coordinateSeconds * 10);
+      coordinateSeconds /= 10;
+
+      if(coordinateDegrees < 10)
+        coordinateDegrees = "0" + coordinateDegrees;
+
+      if(coordinateMinutes < 10)
+        coordinateMinutes = "0" + coordinateMinutes;
+
+      if(coordinateSeconds < 10)
+        coordinateSeconds = "0" + coordinateSeconds;
+
+      var dmsCoordinate = coordinateDegrees + " " + coordinateMinutes + " " + coordinateSeconds + " " + getCoordinateHemisphereAbbreviation(coordinate, type);
+
+      return dmsCoordinate;
+    };
+
+    /**
+     * Returns the hemisphere abbreviation for the given coordinate.
+     * @param {string} coordinate - Coordinate
+     * @param {string} type - Coordinate type
+     * @returns {string} coordinateHemisphereAbbreviation - Hemisphere abbreviation
+     *
+     * @private
+     * @function getCoordinateHemisphereAbbreviation
+     * @memberof MapDisplay
+     * @inner
+     */
+    var getCoordinateHemisphereAbbreviation = function(coordinate, type) {
+      var coordinateHemisphereAbbreviation = "";
+
+      if(type == 'LAT')
+        coordinateHemisphereAbbreviation = coordinate >= 0 ? "N" : "S";
+      else if(type == 'LON')
+        coordinateHemisphereAbbreviation = coordinate >= 0 ? "E" : "W";
+
+      return coordinateHemisphereAbbreviation;
+    };
+
+    /**
      * Adds a mouse position display in the map.
      *
      * @function addMousePosition
@@ -182,7 +237,7 @@ define(
         var mousePositionControl = new ol.control.MousePosition({
           coordinateFormat: (function(precision) {
             return (function(coordinates) {
-              return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision);
+              return ol.coordinate.toStringXY([correctLongitude(coordinates[0]), coordinates[1]], precision) + "<br/>" + convertCoordinateToDMS(correctLongitude(coordinates[0]), 'LON') + ", " + convertCoordinateToDMS(coordinates[1], 'LAT');
             });
           })(6),
           projection: 'EPSG:4326',
@@ -340,13 +395,15 @@ define(
      * @param {float} minResolution - Layer minimum resolution
      * @param {float} maxResolution - Layer maximum resolution
      * @param {string} time - Time parameter for temporal layers
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
      * @returns {ol.layer.Tile} tile - New tiled wms layer
      *
      * @function createTileWMS
      * @memberof MapDisplay
      * @inner
      */
-    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time) {
+    var createTileWMS = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer) {
       var params = {
         'LAYERS': layerId,
         'TILED': true
@@ -354,6 +411,9 @@ define(
 
       if(time !== null && time !== undefined && time !== '')
         params['TIME'] = time;
+
+      if(buffer !== null && buffer !== undefined && buffer !== '')
+        params['BUFFER'] = buffer;
 
       var layerSource = new ol.source.TileWMS({
         preload: Infinity,
@@ -372,7 +432,8 @@ define(
         source: layerSource,
         id: layerId,
         name: layerName,
-        visible: layerVisible
+        visible: layerVisible,
+        disabled: disabled
       });
 
       if(minResolution !== undefined && minResolution !== null)
@@ -395,13 +456,15 @@ define(
      * @param {float} maxResolution - Layer maximum resolution
      * @param {string} parentGroup - Parent group id
      * @param {string} time - Time parameter for temporal layers
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addTileWMSLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time) {
+    var addTileWMSLayer = function(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, parentGroup, time, disabled, buffer) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -409,7 +472,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time)
+          createTileWMS(url, type, layerId, layerName, layerVisible, minResolution, maxResolution, time, disabled, buffer)
         );
 
         layerGroup.setLayers(layers);
@@ -494,6 +557,34 @@ define(
       }
 
       return layerGroupExists;
+    };
+
+    /**
+     * Removes a layer with a given id from the Map.
+     * @param {string} layerId - Layer id
+     * @param {string|undefined} parentGroupId - Parent group id
+     *
+     * @function removeLayer
+     * @memberof MapDisplay
+     * @inner
+     */
+    var removeLayer = function(layerId, parentGroupId) {
+      if(parentGroupId !== "undefined" && parentGroupId !== 'undefined' && parentGroupId !== undefined && parentGroupId !== null) {
+        var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroupId);
+        var layers = layerGroup.getLayers();
+
+        layers.forEach(function(layer, i, array) {
+          if(layerId === layer.get('id')) {
+            layers.remove(layer);
+            return false;
+          }
+        });
+
+        layerGroup.setLayers(layers);
+      } else {
+        var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
+        memberOlMap.removeLayer(layer);
+      }
     };
 
     /**
@@ -614,13 +705,16 @@ define(
      * @param {string} layerName - Layer name
      * @param {boolean} layerVisible - Layer visibility
      * @param {string} parentGroup - Parent layer group id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addOSMLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addOSMLayer = function(layerId, layerName, layerVisible, parentGroup) {
+    var addOSMLayer = function(layerId, layerName, layerVisible, parentGroup, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -634,14 +728,15 @@ define(
           source.on('tileloaderror', function() { increaseLoaded(layerId); });
         }
 
-        layers.push(
-          new ol.layer.Tile({
-            source: source,
-            id: layerId,
-            name: layerName,
-            visible: layerVisible
-          })
-        );
+        var newTile = new ol.layer.Tile({
+          source: source,
+          id: layerId,
+          name: layerName,
+          visible: layerVisible
+        });
+
+        if(appendAtTheEnd) layers.insertAt(0, newTile);
+        else layers.push(newTile);
 
         layerGroup.setLayers(layers);
       }
@@ -655,13 +750,16 @@ define(
      * @param {string} layerName - Layer name
      * @param {boolean} layerVisible - Layer visibility
      * @param {string} parentGroup - Parent layer group id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addMapQuestOSMLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addMapQuestOSMLayer = function(layerId, layerName, layerVisible, parentGroup) {
+    var addMapQuestOSMLayer = function(layerId, layerName, layerVisible, parentGroup, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -675,14 +773,15 @@ define(
           source.on('tileloaderror', function() { increaseLoaded(layerId); });
         }
 
-        layers.push(
-          new ol.layer.Tile({
-            source: source,
-            id: layerId,
-            name: layerName,
-            visible: layerVisible
-          })
-        );
+        var newTile = new ol.layer.Tile({
+          source: source,
+          id: layerId,
+          name: layerName,
+          visible: layerVisible
+        });
+
+        if(appendAtTheEnd) layers.insertAt(0, newTile);
+        else layers.push(newTile);
 
         layerGroup.setLayers(layers);
       }
@@ -696,13 +795,16 @@ define(
      * @param {string} layerName - Layer name
      * @param {boolean} layerVisible - Layer visibility
      * @param {string} parentGroup - Parent layer group id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addMapQuestSatelliteLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addMapQuestSatelliteLayer = function(layerId, layerName, layerVisible, parentGroup) {
+    var addMapQuestSatelliteLayer = function(layerId, layerName, layerVisible, parentGroup, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -716,37 +818,20 @@ define(
           source.on('tileloaderror', function() { increaseLoaded(layerId); });
         }
 
-        layers.push(
-          new ol.layer.Tile({
-            source: source,
-            id: layerId,
-            name: layerName,
-            visible: layerVisible
-          })
-        );
+        var newTile = new ol.layer.Tile({
+          source: source,
+          id: layerId,
+          name: layerName,
+          visible: layerVisible
+        });
+
+        if(appendAtTheEnd) layers.insertAt(0, newTile);
+        else layers.push(newTile);
 
         layerGroup.setLayers(layers);
       }
 
       return layerGroupExists;
-    };
-
-    /**
-     * Adds the layers of a given capabilities to the map.
-     * @param {string} capabilitiesUrl - Capabilities URL
-     * @param {string} serverUrl - Server URL
-     * @param {string} serverType - Server type
-     * @param {string} serverId - Server id
-     * @param {string} serverName - Server name
-     * @param {function} callbackFunction - Callback function
-     *
-     * @function addCapabilitiesLayers
-     * @memberof MapDisplay
-     * @inner
-     */
-    var addCapabilitiesLayers = function(capabilitiesUrl, serverUrl, serverType, serverId, serverName, callbackFunction) {
-      memberCapabilitiesCallbackFunction = callbackFunction;
-      memberSocket.emit('proxyRequest', { url: capabilitiesUrl, additionalParameters: { serverUrl: serverUrl, serverType: serverType, serverId: serverId, serverName: serverName } });
     };
 
     /**
@@ -798,10 +883,10 @@ define(
 
           var subLayersLength = layers.Layer[i].Layer.length;
           for(var j = 0; j < subLayersLength; j++) {
-            tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false));
+            tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, false));
           }
         } else {
-          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false));
+          tilesWMSLayers.push(createTileWMS(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false, false));
         }
       }
 
@@ -816,14 +901,9 @@ define(
       if(parentLayerGroup !== null) {
         var parentSubLayers = parentLayerGroup.getLayers();
 
-        parentSubLayers.push(
-          layerGroup
-        );
+        parentSubLayers.push(layerGroup);
 
         parentLayerGroup.setLayers(parentSubLayers);
-
-        memberCapabilitiesCallbackFunction();
-        memberCapabilitiesCallbackFunction = null;
       }
     };
 
@@ -1112,6 +1192,42 @@ define(
     };
 
     /**
+     * Sets the Map single click event to call the GetFeatureInfoUrl function.
+     * @param {string} layerId - Layer to be used in the GetFeatureInfoUrl function
+     * @param {function} callback - Callback function
+     *
+     * @function setGetFeatureInfoUrlOnClick
+     * @memberof MapDisplay
+     * @inner
+     */
+    var setGetFeatureInfoUrlOnClick = function(layerId, callback) {
+      unsetMapSingleClickEvent();
+      setMapSingleClickEvent(function(longitude, latitude) {
+        var source = findBy(memberOlMap.getLayerGroup(), 'id', layerId).getSource();
+        var coordinate = [longitude, latitude];
+        var resolution = memberOlMap.getView().getResolution();
+        var projection = 'EPSG:4326';
+        var params = { 'INFO_FORMAT': 'application/json' };
+
+        var url = source.getGetFeatureInfoUrl(coordinate, resolution, projection, params);
+
+        if(url) callback(url);
+        else callback(null);
+      });
+    };
+
+    /**
+     * Calls the function responsible for unset the Map single click event.
+     *
+     * @function unsetGetFeatureInfoUrlOnClick
+     * @memberof MapDisplay
+     * @inner
+     */
+    var unsetGetFeatureInfoUrlOnClick = function() {
+      unsetMapSingleClickEvent();
+    };
+
+    /**
      * Finds a layer by a given key.
      * @param {ol.layer.Group} layer - The layer group where the method will run the search
      * @param {string} key - Layer attribute to be used in the search
@@ -1153,20 +1269,6 @@ define(
     };
 
     /**
-     * Loads the sockets listeners.
-     *
-     * @private
-     * @function loadSocketsListeners
-     * @memberof MapDisplay
-     * @inner
-     */
-    /*var loadSocketsListeners = function() {
-      memberSocket.on('proxyResponse', function(response) {
-        createCapabilitiesLayers(response.msg, response.additionalParameters.serverUrl, response.additionalParameters.serverType, response.additionalParameters.serverId, response.additionalParameters.serverName);
-      });
-    };*/
-
-    /**
      * Alters the index of a layer.
      * @param {string} parent - Parent id
      * @param {int} indexFrom - Current index of the layer
@@ -1192,15 +1294,6 @@ define(
     var init = function() {
       memberParser = new ol.format.WMSCapabilities();
 
-      /*$.ajax({
-        url: TerraMA2WebComponents.getTerrama2Url() + "/socket.io/socket.io.js",
-        dataType: "script",
-        success: function() {
-          memberSocket = io(TerraMA2WebComponents.getTerrama2Url());
-          loadSocketsListeners();
-        }
-      });*/
-
       memberOlMap.getLayerGroup().set('id', 'terrama2-layerexplorer');
       memberOlMap.getLayerGroup().set('name', 'terrama2-layerexplorer');
 
@@ -1209,6 +1302,8 @@ define(
       });
 
       memberInitialExtent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
+
+      $('.ol-attribution > button > span').html('©');
 
       $(document).ready(function() {
         updateMapSize();
@@ -1230,11 +1325,11 @@ define(
       createTileWMS: createTileWMS,
       addTileWMSLayer: addTileWMSLayer,
       addGeoJSONVectorLayer: addGeoJSONVectorLayer,
+      removeLayer: removeLayer,
       addBaseLayers: addBaseLayers,
       addOSMLayer: addOSMLayer,
       addMapQuestOSMLayer: addMapQuestOSMLayer,
       addMapQuestSatelliteLayer: addMapQuestSatelliteLayer,
-      addCapabilitiesLayers: addCapabilitiesLayers,
       setLayersStartLoadingFunction: setLayersStartLoadingFunction,
       setLayersEndLoadingFunction: setLayersEndLoadingFunction,
       setLayerVisibility: setLayerVisibility,
@@ -1255,6 +1350,8 @@ define(
       setMapDoubleClickEvent: setMapDoubleClickEvent,
       setMapSingleClickEvent: setMapSingleClickEvent,
       unsetMapSingleClickEvent: unsetMapSingleClickEvent,
+      setGetFeatureInfoUrlOnClick: setGetFeatureInfoUrlOnClick,
+      unsetGetFeatureInfoUrlOnClick: unsetGetFeatureInfoUrlOnClick,
       findBy: findBy,
       applyCQLFilter: applyCQLFilter,
       alterLayerIndex: alterLayerIndex,

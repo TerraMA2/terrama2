@@ -52,7 +52,7 @@ void TsUtility::testTimerNoFrequencyException()
     schedule.frequencyUnit = "second";
 
     terrama2::core::MockProcessLogger logger;
-    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timer(schedule, 1, lastTime);
 
@@ -74,7 +74,7 @@ void TsUtility::testTimerInvalidUnitException()
     schedule.frequencyUnit = "invalid";
 
     terrama2::core::MockProcessLogger logger;
-    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timer(schedule, 1, lastTime);
 
@@ -98,7 +98,7 @@ void TsUtility::testFrequencyTimer()
     schedule.frequencyUnit = "second";
 
     terrama2::core::MockProcessLogger logger;
-    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timerSecond1(schedule, 1, lastTime);
 
@@ -169,7 +169,7 @@ void TsUtility::testScheduleTimer()
     schedule.scheduleUnit = "week";
 
     terrama2::core::MockProcessLogger logger;
-    ON_CALL(logger, getLastProcessTimestamp(::testing::_)).WillByDefault(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timerWeek1(schedule, 1, lastTime);
   }

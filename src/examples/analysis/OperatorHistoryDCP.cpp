@@ -1,18 +1,18 @@
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 
-#include <terrama2/services/analysis/Shared.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
-#include <terrama2/services/analysis/core/AnalysisLogger.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   };
   serviceManager.setLogConnectionInfo(connInfo);
 
-  terrama2::services::analysis::core::initInterpreter();
+  terrama2::services::analysis::core::python::initInterpreter();
 
   QCoreApplication app(argc, argv);
 
@@ -73,12 +73,14 @@ int main(int argc, char* argv[])
   dataManager->add(outputDataProviderPtr);
 
 
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
   // DataSeries information
   terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 3;
   outputDataSeries->name = "Analysis result";
-  outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
+  outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
   outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -94,33 +96,39 @@ int main(int argc, char* argv[])
   dataManager->add(outputDataSeriesPtr);
 
   std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-          "x = dcp.history.sum(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "ids = dcp.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
+          "for id in ids:"
+          "    add_value(\"id_\" + str(id), id)\n"
+          "x = dcp.history.sum(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_sum\",x)\n"
-          "x = dcp.history.max(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.max(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_max\",x)\n"
-          "x = dcp.history.min(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.min(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_min\",x)\n"
-          "x = dcp.history.mean(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.mean(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_mean\",x)\n"
-          "x = dcp.history.median(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.median(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_median\",x)\n"
-          "x = dcp.history.standard_deviation(\"DCP-Angra\", \"Pluvio\", 2, moBuffer, \"3650d\")\n"
+          "x = dcp.history.standard_deviation(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_standard_deviation\",x)\n";
 
-  Analysis analysis;
-  analysis.id = 1;
-  analysis.name = "History DCP";
-  analysis.script = script;
-  analysis.scriptLanguage = ScriptLanguage::PYTHON;
-  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis.outputDataSeriesId = 3;
-  analysis.active = false;
-  analysis.serviceInstanceId = 1;
+
+  Analysis* analysis = new Analysis;
+  AnalysisPtr analysisPtr(analysis);
+
+  analysis->id = 1;
+  analysis->name = "History DCP";
+  analysis->script = script;
+  analysis->scriptLanguage = ScriptLanguage::PYTHON;
+  analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis->outputDataSeriesId = 3;
+  analysis->active = false;
+  analysis->serviceInstanceId = 1;
 
 
-  analysis.metadata["INFLUENCE_TYPE"] = "1";
-  analysis.metadata["INFLUENCE_RADIUS"] = "50";
-  analysis.metadata["INFLUENCE_RADIUS_UNIT"] = "km";
+  analysis->metadata["INFLUENCE_TYPE"] = "1";
+  analysis->metadata["INFLUENCE_RADIUS"] = "50";
+  analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -138,8 +146,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics.code = "STATIC_DATA-ogr";
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+  dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -148,8 +155,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "municipios_afetados.shp");
-  dataSet->format.emplace("identifier", "objet_id_5");
+  dataSet->format.emplace("mask", "estados_2010.shp");
+  dataSet->format.emplace("srid", "4326");
   dataSet->id = 1;
 
   dataSeries->datasetList.push_back(dataSetPtr);
@@ -173,15 +180,16 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   //DataSeries information
   terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
   terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
   dcpSeries->dataProviderId = dataProvider2->id;
-  dcpSeries->semantics.code = "DCP-inpe";
-  dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
-  dcpSeries->name = "DCP-Angra";
+
+  dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
+  dcpSeries->name = "Serra do Mar";
   dcpSeries->id = 2;
   dcpSeries->dataProviderId = 2;
 
@@ -197,14 +205,14 @@ int main(int argc, char* argv[])
   dcpSeries->datasetList.push_back(dcpDataset69034Ptr);
 
 
-  terrama2::core::DataSetDcp* dcpDataset30886 = new terrama2::core::DataSetDcp;
-  terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30886);
-  dcpDataset30886->active = true;
-  dcpDataset30886->format.emplace("mask", "30886.txt");
-  dcpDataset30886->format.emplace("timezone", "-02:00");
-  dcpDataset30886->dataSeriesId = 2;
-  dcpDataset30886->id = 3;
-  dcpDataset30886->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
+  terrama2::core::DataSetDcp* dcpDataset30885 = new terrama2::core::DataSetDcp;
+  terrama2::core::DataSetDcpPtr dcpDataset30886Ptr(dcpDataset30885);
+  dcpDataset30885->active = true;
+  dcpDataset30885->format.emplace("mask", "30885.txt");
+  dcpDataset30885->format.emplace("timezone", "-02:00");
+  dcpDataset30885->dataSeriesId = 2;
+  dcpDataset30885->id = 3;
+  dcpDataset30885->position = std::shared_ptr<te::gm::Point>(new te::gm::Point(-46.121, -23.758, 4618, nullptr));
   dcpSeries->datasetList.push_back(dcpDataset30886Ptr);
 
   AnalysisDataSeries dcpADS;
@@ -218,13 +226,13 @@ int main(int argc, char* argv[])
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(dcpADS);
   analysisDataSeriesList.push_back(monitoredObjectADS);
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
+  analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
+  analysis->schedule.frequency = 1;
+  analysis->schedule.frequencyUnit = "min";
 
-  dataManager->add(analysis);
+  dataManager->add(analysisPtr);
 
   // Starts the service and adds the analysis
   Service service(dataManager);
@@ -239,10 +247,10 @@ int main(int argc, char* argv[])
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  timer.start(100000);
   app.exec();
 
-
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

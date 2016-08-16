@@ -1,3 +1,5 @@
+'use strict';
+
 var AbstractRequest = require('./AbstractRequest');
 var FtpRequest = require("./FtpRequest");
 var HttpRequest = require("./HttpRequest");
@@ -12,13 +14,10 @@ function requestHelper(protocol, requestParameters) {
   switch (protocol) {
     case "ftp":
       return new FtpRequest(requestParameters);
-      break;
     case "http":
       return new HttpRequest(requestParameters);
-      break;
     case "file":
       return new FileRequest(requestParameters);
-      break;
     case "postgis":
       return new PostgisRequest(requestParameters);
     case "wcs":
@@ -29,8 +28,9 @@ function requestHelper(protocol, requestParameters) {
           var klass = PluginLoader.plugin.plugins[key].object;
 
           if (klass && klass.prototype instanceof AbstractRequest) {
-            if (klass.fields().name && klass.fields().name.toLowerCase() === protocol)
+            if (klass.fields().name && klass.fields().name.toLowerCase() === protocol) {
               return new klass(requestParameters);
+            }
           }
         }
       }

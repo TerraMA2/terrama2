@@ -1,37 +1,43 @@
- {% extends "../base/layout.html" %}
+{% extends "../base/layout.html" %}
 
 {% set tabActive = "static-data" %}
 
 {% block ngApp %}ng-app="terrama2.listDataSeries"{% endblock %}
 
-{% block title %} TerraMA2 {{ __('Static Data')}} {% endblock %}
+{% block title %} TerraMA² {{ __('Static Data')}} {% endblock %}
 
 {% block javascripts %}
 
 <script type="text/javascript">
-  var baseUrl = "/configuration/static/dataseries/";
-  var configuration = {
-    message: "{[ message ]}",
-    dataSeriesType: 'static',
-    link: function(object) {
-      return baseUrl + object.id + "?type=static#/wizard";
-    },
-    iconFn: function(object) {
-      if (object.type === 'Grid') {
-        return "/images/grid-small.png";
-      }
-      if (object.type === 'Vectorial')
-        return "/images/line-small.png";
+ var globals = {
+   enums: {
+     DataSeriesType: {[ Enums.DataSeriesType|json|safe ]}
+   }
+ };
 
-      return "/images/map-display.png";
-    },
+ var baseUrl = "/configuration/static/dataseries/";
+ var configuration = {
+   message: "{[ message ]}",
+   dataSeriesType: 'static',
+   link: function(object) {
+     return baseUrl + object.id + "?type=static#/wizard";
+   },
+   iconFn: function(object) {
+     if (object.type === 'Grid') {
+       return "/images/grid-small.png";
+     }
+     if (object.type === 'Vectorial')
+       return "/images/line-small.png";
 
-    iconProperties: {
-      type: "img"
-    }
-  };
+     return "/images/map-display.png";
+   },
 
-  configuration.linkToAdd = baseUrl + "new";
+   iconProperties: {
+     type: "img"
+   }
+ };
+
+ configuration.linkToAdd = baseUrl + "new";
 
 </script>
 
@@ -46,26 +52,18 @@
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="ListController">
-  <div class="box">
-    <div class="box-header with-border">
-      <h3 class="box-title">{[ __("Static Data") ]}</h3>
-    </div><!-- /.box-header -->
-
-    <div class="box-body">
-
+<div ng-controller="ListController">
+  <terrama2-box title="'{[ __("Static Data") ]}'">
+    <div class="row">
       <div class="col-md-12">
-        <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
-        </div>
+       <div class="col-md-12">
+         <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+       </div>
 
-        <terrama2-table fields="fields" model="model" icon="iconFn" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" remove="remove(object)" extra="extra"></terrama2-table>
-      </div>
-
-    </div><!-- /.box-body -->
-
-  </div><!-- /.box -->
-
+       <terrama2-table fields="fields" model="model" icon="iconFn" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" remove="remove(object)" extra="extra"></terrama2-table>
+     </div>
+    </div>
+  </terrama2-box>
 </div> <!-- end col md 12 -->
 
 {% endblock %}

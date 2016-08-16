@@ -1,11 +1,16 @@
 'use strict';
 
-var app = angular.module("terrama2.dataprovider.registration", ['schemaForm', 'terrama2.components.messagebox']);
+var app = angular.module("terrama2.dataprovider.registration", ['terrama2', 'schemaForm', 'terrama2.components.messagebox']);
 
 app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location",
   function($scope, $http, $q, $window, $httpParamSerializer, $location) {
 
   $scope.model = configuration.dataProvider.uriObject || {};
+
+  $scope.forms = {};
+  $scope.css = {
+    boxType: "box-solid"
+  }
 
   if (configuration.fields) {
     $scope.schema = {
@@ -14,7 +19,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       required: configuration.fields.required
     };
 
-    $scope.options = {formDefaults: {readonly: true}};
+    $scope.options = {};
   } else
     $scope.schema = {};
 
@@ -49,21 +54,21 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   $scope.isChecking = false;
   $scope.message = "";
   $scope.remoteFieldsRequired = false;
-  $scope.protocol = configuration.dataProvider.data_provider_type_name;
   $scope.dataProvider = {
     name: configuration.dataProvider.name,
     description: configuration.dataProvider.description,
     project: configuration.project,
-    active: configuration.dataProvider.active
+    active: configuration.dataProvider.active,
+    protocol: configuration.dataProvider.data_provider_type_name
   };
 
   $scope.initActive = function() {
     $scope.dataProvider.active = (configuration.dataProvider.active === false || configuration.dataProvider.active) ? configuration.dataProvider.active : true;
   };
 
-  $scope.onSchemeChanged = function() {
+  $scope.onSchemeChanged = function(ref) {
     $scope.typeList.forEach(function(dataProviderType) {
-      if (dataProviderType.name === $scope.protocol) {
+      if (dataProviderType.name === $scope.dataProvider.protocol) {
         // temp code for port changing
         $scope.model = {};
         $scope.schema = {
@@ -82,30 +87,24 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     });
   };
 
-  var isValidDataProviderTypeForm = function(form) {
+  $scope.isValidDataProviderTypeForm = function(form) {
     $scope.$broadcast('schemaFormValidate');
 
-    return form.$valid;
+    return $scope.forms.connectionForm.$valid;
   };
 
   $scope.save = function() {
-    if (!$scope.dataProviderForm.$valid) {
-      angular.forEach($scope.dataProviderForm.$error, function (field) {
-        angular.forEach(field, function(errorField){
-          errorField.$setTouched();
-        })
-      });
+    $scope.$broadcast('formFieldValidation');
+    var isConnectionFormValid = $scope.isValidDataProviderTypeForm($scope.forms.connectionForm);
+    if (!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
       return;
     }
-
-    if (!isValidDataProviderTypeForm($scope.connectionForm))
-      return;
 
     $scope.alertBox.title = "Data Provider Registration";
     $scope.errorFound = false;
 
     var formData = $scope.dataProvider;
-    formData.uriObject = Object.assign({protocol: $scope.protocol}, $scope.model);
+    formData.uriObject = Object.assign({protocol: $scope.dataProvider.protocol}, $scope.model);
 
     $http({
       url: configuration.saveConfig.url,
@@ -135,7 +134,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   };
 
   $scope.checkConnection = function(form) {
-    if (!isValidDataProviderTypeForm(form))
+    if (!$scope.isValidDataProviderTypeForm(form))
       return;
 
     $scope.isChecking = true; // for handling loading page
@@ -154,7 +153,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       }, 1000 * $scope.timeOutSeconds);
 
       var params = $scope.model;
-      params.protocol = $scope.protocol;
+      params.protocol = $scope.dataProvider.protocol;
 
       var httpRequest = $http({
         method: "POST",

@@ -1,22 +1,25 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = currentTab %}
+{% set isProfile = profile || false %}
+
+{% block ngApp %}ng-app="terrama2.users"{% endblock %}
+
 {% block title %}
 
 {% if user !== undefined %}
-  TerraMA2 {[ __('User Update') ]}
+TerraMA² {[ __('User Update') ]}
 {% else %}
-  TerraMA2 {[ __('User Registration') ]}
+TerraMA² {[ __('User Registration') ]}
 {% endif %}
-
 {% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="/externals/jquery-countries/css/intlTelInput.css">
 <style type="text/css">
-    .intl-tel-input
-    {
-        display: block !important;
-    }
+  .intl-tel-input {
+    display: block !important;
+  }
 </style>
 
 {% endblock %}
@@ -24,151 +27,115 @@
 {% block javascripts %}
 <script type="text/javascript" src="/externals/jquery-countries/js/intlTelInput.js"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
-        $("#cellphone").intlTelInput({
-            preferredCountries: [ "br", "us", "es", "fr"],
-            utilsScript: "/externals/jquery-countries/js/utils.js"
-        });
+  $(document).ready(function(){
+    $("#cellphone").intlTelInput({
+      preferredCountries: [ "br", "us", "es", "fr"],
+      utilsScript: "/externals/jquery-countries/js/utils.js"
     });
+  });
 </script>
-
 <script src="/externals/angular/angular.min.js"></script>
+<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
-<script type="text/javascript">
-  angular.module("terrama2.user.registration", [])
-    .controller("UserRegistration", function($scope, $http) {
-      $scope.isSubmiting = false;
-      $scope.errorFound = "";
-
-      $scope.user = {[ (user || {})|json|safe ]};
-      $scope.user.version = 4;
-
-      $scope.save = function() {
-        if (!$scope.form.$valid) {
-          angular.forEach($scope.form.$error, function (field) {
-            angular.forEach(field, function(errorField){
-              errorField.$setTouched();
-            })
-          });
-          return;
-        }
-
-        $scope.isSubmiting = true;
-        $http({
-          method: "{[ method ]}",
-          url: "{[ url ]}",
-          data: $scope.user
-        }).success(function(user) {
-//          alert("User saved");
-          $scope.errorFound = "";
-          window.location = "/administration/users?token=" + user.token;
-        }).error(function(err) {
-          alert(err.message);
-          $scope.errorFound = err.message;
-          console.log(err);
-          $scope.form.name.$invalid = true;
-        }).finally(function(){
-          $scope.isSubmiting = false;
-        });
-      };
-    });
-
-</script>
+<script src="/javascripts/angular/services.js"></script>
+<script src="/javascripts/angular/users/app.js"></script>
+<script src="/javascripts/angular/users/controllers.js"></script>
 {% endblock %}
 
 {% block content %}
 
-<div class="col-md-12" ng-app="terrama2.user.registration">
-  <div class="col-md-12" ng-controller="UserRegistration">
-      <div class="box box-default">
+<div ng-controller="{% if (update) %}UserUpdate{% else %}UserRegistration{% endif %}">
+  <terrama2-box title="'{% if (update) %}{[ __('User Update') ]}{% else %}{[ __('User Registration') ]}{% endif %}'">
+    <div class="row" ng-init="initialization({[ currentUser.id ]}, '{[ redirectUrl ]}');">
+      <div class="col-md-12">
+        <div class="box box-default box-solid">
           <div class="box-header with-border">
-              {% if user !== undefined %}
-                <h3 class="box-title">{[ __('User Update') ]}</h3>
-              {% else %}
-                <h3 class="box-title">{[ __('User Registration') ]}</h3>
-              {% endif %}
+            <h3 class="box-title">{[ __('General Data') ]}</h3>
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+            </div>
           </div>
           <!-- /.box-header -->
           <div style="display: block;" class="box-body">
-              <div class="col-md-12">
-                  <div class="box box-default box-solid">
-                      <div class="box-header with-border">
-                          <h3 class="box-title">{[ __('General Data') ]}</h3>
-                          <div class="box-tools pull-right">
-                              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                              </button>
-                          </div>
-                      </div>
-                      <!-- /.box-header -->
-                      <div style="display: block;" class="box-body">
-                          <div class="row">
-                            <form name="form">
+            <div class="row">
+              <form name="form">
 
-                              <div class="col-md-12">
-                                  <div class="form-group">
-                                      <label>{[ __("Name") ]}:</label>
-                                      <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{[ __('User Name') ]}" type="text" value="{[ user.name ]}">
-                                  </div>
-                              </div>
+                <div class="col-md-12">
+                  <div class="form-group" terrama2-show-errors>
+                    <label>{[ __("Name") ]}:</label>
+                    <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{[ __('User Name') ]}" type="text" value="{[ user.name ]}" required>
 
-                              <div class="col-md-4">
-                                  <div class="form-group">
-                                      <label>{[ __("Username") ]}:</label>
-                                      <input class="form-control" name="username" ng-model="user.username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-4">
-                                  <div class="form-group">
-                                      <label>{[ __("Password") ]}:</label>
-                                      <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{[ __('User Password credential') ]}" type="password">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-4">
-                                  <div class="form-group">
-                                      <label>{[ __("Confirm Password") ]}:</label>
-                                      <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{[ __('Confirm password') ]}" type="password">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <label>{[ __("Cell phone") ]}:</label>
-                                      <input class="form-control" runat="server" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{[ __('User cell phone number') ]}" type="tel" value="{[ user.cellphone ]}">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <label>{[ __("E-mail") ]}:</label>
-                                      <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{[ __('User e-mail') ]}" type="email" value="{[ user.email ]}">
-                                  </div>
-                              </div>
-
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <label>{[ __("Administrator") ]}:</label>
-                                      <input name="administrator" ng-model="user.administrator" id="administrator" type="checkbox"{% if user.administrator %} checked{% endif %}>
-                                  </div>
-                              </div>
-                            </form>
-                          </div>
-                          <!-- /.row -->
-                      </div>
-                      <!-- /.box body -->
+                    <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$invalid">{[ __('Name is required') ]}</span>
                   </div>
-              </div>
+                </div>
 
+                <div class="col-md-4">
+                  <div class="form-group" terrama2-show-errors>
+                    <label>{[ __("Username") ]}:</label>
+                    <input class="form-control" name="username" ng-disabled="{[ update ]}" ng-model="user.username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}" required>
+
+                    <span class="help-block has-error" ng-show="form.username.$dirty && form.username.$invalid">{[ __('Username is required') ]}</span>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group" terrama2-show-errors>
+                    <label>{[ __("Password") ]}:</label>
+                    <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{[ __('User Password credential') ]}" type="password" required>
+
+                    <span class="help-block has-error" ng-show="form.password.$dirty && form.password.$invalid">{[ __('Password is required') ]}</span>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group" terrama2-show-errors>
+                    <label>{[ __("Confirm Password") ]}:</label>
+                    <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{[ __('Confirm password') ]}" type="password" terrama2-compare-to="user.password" required>
+
+                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.required">{[ __('Confirm password is required') ]}</span>
+                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{[ __('Confirm password must be same password') ]}</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>{[ __("Cell phone") ]}:</label>
+                    <input class="form-control" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{[ __('User cell phone number') ]}" type="tel" value="{[ user.cellphone ]}">
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group" terrama2-show-errors>
+                    <label>{[ __("E-mail") ]}:</label>
+                    <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{[ __('User e-mail') ]}" type="email" value="{[ user.email ]}" required>
+                    <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{[ __('Email is required') ]}</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6" ng-if="{[ currentUser.administrator ]} && !{[ isProfile ]}">
+                  <div class="form-group">
+                    <label>{[ __("Administrator") ]}:</label>
+                    <input name="administrator" ng-model="user.administrator" id="administrator" type="checkbox"{% if user.administrator %} checked{% endif %}>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <!-- /.row -->
           </div>
           <!-- /.box body -->
-
-          <div class="box-footer">
-              <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __('OK') ]}</button>
-              <a href="/administration/users" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
-          </div>
+        </div>
+        <!-- ./box -->
       </div>
-  </div>
+      <!-- ./col-md-12 -->
+    </div>
+    <!-- ./row -->
+
+    <div class="box-footer">
+      <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __('OK') ]}</button>
+      <a href="{[ redirectUrl ]}" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
+    </div>
+  </terrama2-box>
 </div>
 
 {% endblock %}

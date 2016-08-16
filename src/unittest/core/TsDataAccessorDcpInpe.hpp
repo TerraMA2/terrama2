@@ -26,6 +26,7 @@
 
 
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/core/utility/DataRetrieverFactory.hpp>
 #include <QtTest>
 
 
@@ -49,7 +50,10 @@ class TsDataAccessorDcpInpe: public QObject
     void TestFailDataSeriesSemanticsInvalid();
     void TestOKDataRetrieverValid();
     void TestFailDataRetrieverInvalid();
+    void TestFailDataSourceInvalid();
+    void TestFailDataSetInvalid(); // TestFailDataSetEmpty()
     void TestOK();
+
 };
 
 #endif //__TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_DCP_INPE_HPP__

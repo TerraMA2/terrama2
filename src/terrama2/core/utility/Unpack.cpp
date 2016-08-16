@@ -265,7 +265,10 @@ void terrama2::core::Unpack::createDir(char *pathname, int mode)
     }
   }
   if (r != 0)
-    fprintf(stderr, "Could not create directory %s\n", pathname);
+  {
+    QString errMsg = QObject::tr("Could not create directory %1").arg(pathname);
+    TERRAMA2_LOG_DEBUG() << errMsg;
+  }
 }
 
 // Create a file, including parent directory as necessary.
@@ -329,8 +332,8 @@ void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
 
     if (bytesRead < 512)
     {
-      //TODO: Why fprint?
-      std::fprintf(stderr,"Short read on %s: expected 512, got %d\n",path.c_str(), bytesRead);
+      QString errMsg = QObject::tr("Short read on %1: Expected 512, got %2\n").arg(path.c_str()).arg(bytesRead);
+      TERRAMA2_LOG_DEBUG() << errMsg;
       return;
     }
 
@@ -343,7 +346,8 @@ void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
 
     if (!verifyChecksum(buff))
     {
-      std::fprintf(stderr, "Checksum failure\n");
+      QString errMsg = QObject::tr("Checksum failure.\n");
+      TERRAMA2_LOG_ERROR() << errMsg;
       return;
     }
 
@@ -402,7 +406,8 @@ void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
       bytesRead = std::fread(buff, 1, 512, fileCompressed.file());
       if (bytesRead < 512)
       {
-        std::fprintf(stderr,"Short read on %s: Expected 512, got %d\n",path.c_str(), bytesRead);
+        QString errMsg = QObject::tr("Short read on %1: Expected 512, got %2\n").arg(path.c_str()).arg(bytesRead);
+        TERRAMA2_LOG_DEBUG() << errMsg;
         return;
       }
 
@@ -413,7 +418,8 @@ void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
       {
         if (std::fwrite(buff, 1, bytesRead, fileUncompressed) != bytesRead)
         {
-          std::fprintf(stderr, "Failed write\n");
+          QString errMsg = QObject::tr("Failed write.\n");
+          TERRAMA2_LOG_ERROR() << errMsg;
           std::fclose(fileUncompressed);
           fileUncompressed = nullptr;
         }

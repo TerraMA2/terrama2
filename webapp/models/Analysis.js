@@ -1,4 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
+  "use strict";
+
   var Analysis = sequelize.define("Analysis",
     {
       id: {
@@ -24,6 +26,14 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
+          Analysis.hasOne(models.AnalysisOutputGrid, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: 'analysis_id',
+              allowNull: false
+            }
+          });
+
           Analysis.hasMany(models.AnalysisMetadata, {
             onDelete: "CASCADE",
             foreignKey: {

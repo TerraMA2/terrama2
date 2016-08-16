@@ -1,3 +1,5 @@
+'use strict';
+
 var AbstractRequest = require('./AbstractRequest');
 var Client = require('jsftp');
 var Promise = require('bluebird');
@@ -43,8 +45,9 @@ FtpRequest.prototype.request = function() {
     });
 
     client.raw.quit(function(err, data) {
-      if (err)
-        return reject(err)
+      if (err) {
+        return reject(err);
+      }
 
       resolve();
     });
@@ -52,15 +55,8 @@ FtpRequest.prototype.request = function() {
 };
 
 FtpRequest.fields = function() {
-  return Utils.makeCommonRequestFields("FTP", 21, null, [UriPattern.HOST, UriPattern.PORT, UriPattern.PATHNAME], [
-      UriPattern.HOST,
-      UriPattern.PORT,
-      UriPattern.USER,
-      {
-        key: UriPattern.PASSWORD,
-        type: Form.Field.PASSWORD
-      },
-      UriPattern.PATHNAME
-    ]);
-}
+  return Utils.makeCommonRequestFields("FTP", 21, null, [UriPattern.HOST, UriPattern.PORT, UriPattern.PATHNAME],
+         Utils.getCommonRequestFields().concat([{key: UriPattern.PATHNAME, type: Form.Field.TEXT, htmlClass: 'col-md-12 terrama2-schema-form'}]));
+};
+
 module.exports = FtpRequest;

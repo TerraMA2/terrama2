@@ -30,10 +30,10 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_SERVICE_HPP__
 
-#include "Analysis.hpp"
 #include "AnalysisLogger.hpp"
-#include "../Shared.hpp"
+#include "Shared.hpp"
 #include "../../../core/utility/Service.hpp"
+#include "ThreadPool.hpp"
 
 //STL
 #include <memory>
@@ -91,6 +91,21 @@ namespace terrama2
              */
             virtual void addToQueue(AnalysisId analysisId) noexcept override;
 
+
+            /*!
+               \brief Starts the server.
+               \param threadNumber Number of threads to process tasks.
+
+               Starts the server, starts to process waiting tasks.
+
+               If the number of threads is 0 (default), this method will try to identify the number of processors,
+               if it's not possible, only one thread will be created.
+
+               Initializes the thread pool for analysis execution.
+
+             */
+            virtual void start(size_t threadNumber = 0) override;
+
           protected:
 
             /*!
@@ -107,9 +122,10 @@ namespace terrama2
 
             /*!
               \brief Binds the method of execution to the task queue.
-              \param analysis Analysis configuration.
+              \param analysisId Analysis identifier.
+              \param startTime Start time of the analysis execution.
             */
-            void prepareTask(Analysis& analysis);
+            void prepareTask(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
             /*!
               \brief Connects data manager signals to analysis management methods.
@@ -117,10 +133,12 @@ namespace terrama2
             void connectDataManager();
 
 
+
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
-            std::vector<Analysis> analysisQueue_; //!< Analysis queue.
-            std::shared_ptr<AnalysisLogger> logger_; //!< Analysis proccess logger.
+            std::vector<std::pair<AnalysisId, std::shared_ptr<te::dt::TimeInstantTZ> > > analysisQueue_; //!< Analysis queue.
+            std::shared_ptr<AnalysisLogger> logger_; //!< Analysis process logger.
             DataManagerPtr dataManager_; //!< Data manager.
+            std::shared_ptr<ThreadPool> threadPool_; //!< Pool of thread to run the analysis.
 
         };
 

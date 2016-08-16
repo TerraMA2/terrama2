@@ -45,13 +45,12 @@
 
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::stringToTimestamp(const std::string& dateTime, const std::string& mask)
 {
-  boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
-  return std::make_shared<te::dt::TimeInstantTZ>(ldt);
-}
+    boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
+    return std::make_shared<te::dt::TimeInstantTZ>(ldt);
+  }
 
 boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocalTime(const std::string& dateTime, const std::string& mask)
 {
-  boost::posix_time::ptime boostDate;
   std::istringstream ss(dateTime);
   ss.exceptions(std::ios_base::failbit);
   boost::local_time::local_time_input_facet* facet = new boost::local_time::local_time_input_facet(mask);
@@ -63,6 +62,19 @@ boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocal
   return ldt;
 }
 
+ std::string terrama2::core::TimeUtils::boostLocalTimeToString(const boost::local_time::local_date_time& dateTime, const std::string& mask)
+{
+  std::stringstream ss;
+  ss.exceptions(std::ios_base::failbit);
+  boost::local_time::local_time_facet* facet = new boost::local_time::local_time_facet();
+  facet->format(mask.c_str());
+  ss.imbue(std::locale(ss.getloc(), facet));
+
+  ss << dateTime; // do the parse
+
+  return ss.str();
+}
+
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::nowUTC()
 {
 
@@ -72,7 +84,19 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::nowUTC()
   return std::make_shared< te::dt::TimeInstantTZ >(ldt);
 }
 
-void terrama2::core::TimeUtils::addMonth(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t months)
+boost::local_time::local_date_time terrama2::core::TimeUtils::nowBoostLocal()
+{
+  time_t ts = 0;
+  struct tm t;
+  char buf[16];
+  ::localtime_r(&ts, &t);
+  ::strftime(buf, sizeof(buf), "%Z", &t);
+
+  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
+  return boost::local_time::local_microsec_clock::local_time(zone);
+}
+
+void terrama2::core::TimeUtils::addMonth(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t months)
 {
   boost::local_time::local_date_time t = timeInstant->getTimeInstantTZ();
 
@@ -82,7 +106,7 @@ void terrama2::core::TimeUtils::addMonth(std::shared_ptr< te::dt::TimeInstantTZ 
   (*timeInstant) = temp;
 }
 
-void terrama2::core::TimeUtils::addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t days)
+void terrama2::core::TimeUtils::addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t days)
 {
   boost::local_time::local_date_time t = timeInstant->getTimeInstantTZ();
 
@@ -92,7 +116,7 @@ void terrama2::core::TimeUtils::addDay(std::shared_ptr< te::dt::TimeInstantTZ > 
   (*timeInstant) = temp;
 }
 
-void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t years)
+void terrama2::core::TimeUtils::addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t years)
 {
   boost::local_time::local_date_time t = timeInstant->getTimeInstantTZ();
 
@@ -180,5 +204,8 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
   if(unitName != "SECOND")
     result = te::common::UnitsOfMeasureManager::getInstance().getConversion("SECOND", unitName) * result;
 
-  return result;
+  if(timeStr.front() == '-')
+    return -result;
+  else
+    return result;
 }

@@ -87,6 +87,25 @@ module.exports = {
     TYPE: "data_series_type_name"
   },
 
+  DataProviderType: {
+    FILE: {
+      name: "FILE",
+      value: 1
+    },
+    FTP: {
+      name: "FTP",
+      value: 2
+    },
+    HTTP: {
+      name: "HTTP",
+      value: 3
+    },
+    POSTGIS: {
+      name: "POSTGIS",
+      value: 4
+    }
+  },
+
   DataProviderIntent: {
     COLLECT: 'COLLECT',
     PROCESSING: 'PROCESSING'
@@ -131,5 +150,131 @@ module.exports = {
   ScriptLanguage: {
     PYTHON: 1,
     LUA: 2
+  },
+
+  /**
+    * Possible status of manipulate data.
+    */
+  StatusLog: {
+    ERROR: 1,
+    START: 2,
+    DOWNLOADED: 3,
+    DONE: 4
+  },
+
+  /**
+    * Possible status of logged messages.
+    */
+  MessageType: {
+    ERROR_MESSAGE: 1,
+    INFO_MESSAGE: 2,
+    WARNING_MESSAGE: 3
+  },
+
+  SSH: {
+    COMMON: 1,
+    SCREEN: 2
+  },
+
+  /**
+   * All available Operation Systems
+   * @enum {string}
+   */
+  OS: {
+    WIN: 'Windows',
+    LINUX: 'Linux',
+    MACOSX: 'Darwin',
+    UNKNOWN: ''
+  },
+
+  /**
+   * It defines the valid range port number
+   * @enum {number}
+   */
+  Port: {
+    MIN: 0,
+    MAX: 65535
+  },
+
+  /**
+   * All interpolation methods for Analysis Grid
+   * @enum {Object}
+  */
+  InterpolationMethod: {
+    /** Near neighborhood interpolation method. */
+    NEAREST_NEIGHBOR: {
+      name: "Nearest Neighbor",
+      value: 1
+    },
+    /** Bilinear interpolation method. */
+    BI_LINEAR: {
+      name: "Bi linear",
+      value: 2
+    },
+    /** Bicubic interpolation method. */
+    BI_CUBIC: {
+      name: "Bi cubic",
+      value: 3
+    }
+  },
+
+  /**
+   * All area of interest type for Analysis Grid
+   * @readonly
+   * @enum {number}
+   */
+  InterestAreaType: {
+    /** Use the union of the areas from the DataSeries in the analysis. */
+    UNION: {
+      name: "Union",
+      value: 1
+    },
+    /** Use the same box of a given grid. */
+    SAME_FROM_DATA_SERIES: {
+      name: "Same from data series",
+      value: 2
+    },
+    /** Use a custom box */
+    CUSTOM: {
+      name: "Custom",
+      value: 3
+    }
+  },
+
+  /**
+   * All resolution type for Analysis Grid
+   * @readonly
+   * @enum {number}
+   */
+  ResolutionType: {
+    /** Use the resolution from the smallest grid. */
+    SMALLEST_GRID: {
+      name: "Smallest grid",
+      value: 1
+    },
+    /** Use the resolution from the biggest grid. */
+    BIGGEST_GRID: {
+      name: "Biggest grid",
+      value: 2
+    },
+    /** Use the same resolution of a given grid. */
+    SAME_FROM_DATA_SERIES: {
+      name: "Same from data series",
+      value: 3
+    },
+    /** Use a custom resolution */
+    CUSTOM: {
+      name: "Custom",
+      value: 4
+    }
+  },
+
+  Operators: {
+    EQUAL: "$eq",
+    GREATER_THAN: "$gt",
+    GREATER_OR_EQUAL: "$gte",
+    NOT_EQUAL: "$ne",
+    LESS_THAN: "$lt",
+    LESS_EQUAL: "$le",
   }
 };

@@ -3,6 +3,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
@@ -13,8 +14,7 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/Context.hpp>
-#include <terrama2/services/analysis/Shared.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -47,206 +47,211 @@ int main(int argc, char* argv[])
   };
   serviceManager.setLogConnectionInfo(connInfo);
 
-  terrama2::services::analysis::core::initInterpreter();
+  terrama2::services::analysis::core::python::initInterpreter();
+
+  {
+    QCoreApplication app(argc, argv);
+
+    DataManagerPtr dataManager(new DataManager());
 
 
-  QCoreApplication app(argc, argv);
+    QUrl uri;
+    uri.setScheme("postgis");
+    uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
+    uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
+    uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
+    uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
+    uri.setPath(QString::fromStdString("/" + TERRAMA2_DATABASE_DBNAME));
 
-  DataManagerPtr dataManager(new DataManager());
-
-
-  QUrl uri;
-  uri.setScheme("postgis");
-  uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
-  uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
-  uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
-  uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
-  uri.setPath(QString::fromStdString("/" + TERRAMA2_DATABASE_DBNAME));
-
-  // DataProvider information
-  terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
-  outputDataProvider->id = 3;
-  outputDataProvider->name = "DataProvider postgis";
-  outputDataProvider->uri = uri.url().toStdString();
-  outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
-  outputDataProvider->dataProviderType = "POSTGIS";
-  outputDataProvider->active = true;
+    // DataProvider information
+    terrama2::core::DataProvider* outputDataProvider = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr outputDataProviderPtr(outputDataProvider);
+    outputDataProvider->id = 3;
+    outputDataProvider->name = "DataProvider postgis";
+    outputDataProvider->uri = uri.url().toStdString();
+    outputDataProvider->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
+    outputDataProvider->dataProviderType = "POSTGIS";
+    outputDataProvider->active = true;
 
 
-  dataManager->add(outputDataProviderPtr);
+    dataManager->add(outputDataProviderPtr);
+
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
 
-  // DataSeries information
-  terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
-  outputDataSeries->id = 3;
-  outputDataSeries->name = "Analysis result";
-  outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
-  outputDataSeries->dataProviderId = outputDataProviderPtr->id;
+    // DataSeries information
+    terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
+    outputDataSeries->id = 3;
+    outputDataSeries->name = "Analysis result";
+    outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
+    outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
-  // DataSet information
-  terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
-  outputDataSet->active = true;
-  outputDataSet->id = 2;
-  outputDataSet->format.emplace("table_name", "buffer_analysis_result");
+    // DataSet information
+    terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
+    outputDataSet->active = true;
+    outputDataSet->id = 2;
+    outputDataSet->format.emplace("table_name", "buffer_analysis_result");
 
-  outputDataSeries->datasetList.emplace_back(outputDataSet);
-
-
-  dataManager->add(outputDataSeriesPtr);
-
-  Analysis analysis;
-
-  analysis.id = 1;
-  analysis.name = "Analysis";
-  analysis.active = false;
-
-  std::string script = "moBuffer = Buffer()\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"no_buffer\", x)\n"
-
-          "buffer = Buffer(BufferType.object_plus_buffer, 10., \"km\")\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"object_plus_buffer\", x)\n"
-
-          "buffer = Buffer(BufferType.only_buffer, -10., \"km\")\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"intern\", x)\n"
-
-          "buffer = Buffer(BufferType.only_buffer, 10, \"km\")\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"extern\", x)\n"
-
-          "buffer = Buffer(BufferType.outside_plus_inside, 10., \"km\", -10., \"km\")\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"outside_plus_inside\", x)\n"
-
-          "buffer = Buffer(BufferType.object_minus_buffer, -10., \"km\")\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"object_minus_buffer\", x)\n"
-
-          "buffer = Buffer(BufferType.distance_zone, 20, \"km\", 5, \"km\")\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"distance_zone\", x)\n";
+    outputDataSeries->datasetList.emplace_back(outputDataSet);
 
 
-  analysis.script = script;
-  analysis.outputDataSeriesId = 3;
-  analysis.scriptLanguage = ScriptLanguage::PYTHON;
-  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis.serviceInstanceId = 1;
-
-  terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-  std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
-  dataProvider->name = "Provider";
-  dataProvider->uri += TERRAMA2_DATA_DIR;
-  dataProvider->uri += "/shapefile";
-  dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-  dataProvider->dataProviderType = "FILE";
-  dataProvider->active = true;
-  dataProvider->id = 1;
-
-  dataManager->add(dataProviderPtr);
+    dataManager->add(outputDataSeriesPtr);
 
 
-  terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics.code = "STATIC_DATA-ogr";
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
-  dataSeries->name = "Monitored Object";
-  dataSeries->id = 1;
-  dataSeries->dataProviderId = 1;
+    Analysis* analysis = new Analysis;
+    AnalysisPtr analysisPtr(analysis);
 
-  //DataSet information
-  terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
-  terrama2::core::DataSetPtr dataSetPtr(dataSet);
-  dataSet->active = true;
-  dataSet->format.emplace("mask", "estados_2010.shp");
-  dataSet->format.emplace("srid", "4326");
-  dataSet->format.emplace("identifier", "nome");
-  dataSet->id = 1;
-  dataSet->dataSeriesId = 1;
+    analysis->id = 1;
+    analysis->name = "Analysis";
+    analysis->active = false;
 
-  dataSeries->datasetList.push_back(dataSetPtr);
-  dataManager->add(dataSeriesPtr);
+    std::string script = "moBuffer = Buffer()\n"
+                         "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
+                         "add_value(\"no_buffer\", x)\n"
 
-  AnalysisDataSeries monitoredObjectADS;
-  monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
-  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+                         "moBuffer = Buffer(BufferType.object_plus_buffer, 10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
+                         "add_value(\"object_plus_buffer\", x)\n"
 
+                         "moBuffer = Buffer(BufferType.only_buffer, -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
+                         "add_value(\"intern\", x)\n"
 
-  //DataProvider information
-  terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
-  dataProvider2->id = 2;
-  dataProvider2->name = "DataProvider queimadas postgis";
-  dataProvider2->uri = uri.url().toStdString();
-  dataProvider2->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
-  dataProvider2->dataProviderType = "POSTGIS";
-  dataProvider2->active = true;
+                         "moBuffer = Buffer(BufferType.only_buffer, 10, \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
+                         "add_value(\"extern\", x)\n"
 
-  dataManager->add(dataProvider2Ptr);
+                         "moBuffer = Buffer(BufferType.outside_plus_inside, 10., \"km\", -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
+                         "add_value(\"outside_plus_inside\", x)\n"
 
-  //DataSeries information
-  terrama2::core::DataSeries* occurrenceDataSeries = new terrama2::core::DataSeries();
-  terrama2::core::DataSeriesPtr occurrenceDataSeriesPtr(occurrenceDataSeries);
-  occurrenceDataSeries->id = 2;
-  occurrenceDataSeries->name = "Occurrence";
-  occurrenceDataSeries->semantics.code = "OCCURRENCE-postgis";
-  occurrenceDataSeries->dataProviderId = dataProvider2Ptr->id;
+                         "moBuffer = Buffer(BufferType.object_minus_buffer, -10., \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
+                         "add_value(\"object_minus_buffer\", x)\n"
+
+                         "moBuffer = Buffer(BufferType.distance_zone, 20, \"km\", 5, \"km\")\n"
+                         "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
+                         "add_value(\"distance_zone\", x)\n";
 
 
-  //DataSet information
-  terrama2::core::DataSetOccurrence* occurrenceDataSet = new terrama2::core::DataSetOccurrence();
-  occurrenceDataSet->active = true;
-  occurrenceDataSet->id = 2;
-  occurrenceDataSet->format.emplace("table_name", "queimadas");
-  occurrenceDataSet->format.emplace("timestamp_property", "data_pas");
-  occurrenceDataSet->format.emplace("geometry_property", "geom");
-  occurrenceDataSet->format.emplace("timezone", "UTC-03");
+    analysis->script = script;
+    analysis->outputDataSeriesId = 3;
+    analysis->scriptLanguage = ScriptLanguage::PYTHON;
+    analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+    analysis->serviceInstanceId = 1;
 
-  occurrenceDataSeries->datasetList.emplace_back(occurrenceDataSet);
+    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
+    std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
+    dataProvider->name = "Provider";
+    dataProvider->uri += TERRAMA2_DATA_DIR;
+    dataProvider->uri += "/shapefile";
+    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
+    dataProvider->dataProviderType = "FILE";
+    dataProvider->active = true;
+    dataProvider->id = 1;
 
-  dataManager->add(occurrenceDataSeriesPtr);
-
-  AnalysisDataSeries occurrenceADS;
-  occurrenceADS.id = 2;
-  occurrenceADS.dataSeriesId = occurrenceDataSeriesPtr->id;
-  occurrenceADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
-
-  std::vector<AnalysisDataSeries> analysisDataSeriesList;
-  analysisDataSeriesList.push_back(monitoredObjectADS);
-  analysisDataSeriesList.push_back(occurrenceADS);
-
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
-
-  analysis.schedule.frequency = 1;
-  analysis.schedule.frequencyUnit = "min";
-
-  dataManager->add(analysis);
-
-  // Starts the service and adds the analysis
-  Context::getInstance().setDataManager(dataManager);
-  terrama2::core::ServiceManager::getInstance().setInstanceId(1);
-  Service service(dataManager);
-
-  auto logger = std::make_shared<AnalysisLogger>();
-  logger->setConnectionInfo(connInfo);
-  service.setLogger(logger);
-  
-  service.start();
-  service.addAnalysis(1);
+    dataManager->add(dataProviderPtr);
 
 
-  QTimer timer;
-  QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(1000);
-  app.exec();
+    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
+    dataSeries->dataProviderId = dataProvider->id;
+    dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
+    dataSeries->name = "Monitored Object";
+    dataSeries->id = 1;
+    dataSeries->dataProviderId = 1;
 
+    //DataSet information
+    terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
+    terrama2::core::DataSetPtr dataSetPtr(dataSet);
+    dataSet->active = true;
+    dataSet->format.emplace("mask", "estados_2010.shp");
+    dataSet->format.emplace("srid", "4326");
+    dataSet->id = 1;
+    dataSet->dataSeriesId = 1;
+
+    dataSeries->datasetList.push_back(dataSetPtr);
+    dataManager->add(dataSeriesPtr);
+
+    AnalysisDataSeries monitoredObjectADS;
+    monitoredObjectADS.id = 1;
+    monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
+    monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    monitoredObjectADS.metadata["identifier"] = "nome";
+
+
+    //DataProvider information
+    terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
+    terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
+    dataProvider2->id = 2;
+    dataProvider2->name = "DataProvider queimadas postgis";
+    dataProvider2->uri = uri.url().toStdString();
+    dataProvider2->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
+    dataProvider2->dataProviderType = "POSTGIS";
+    dataProvider2->active = true;
+
+    dataManager->add(dataProvider2Ptr);
+
+    //DataSeries information
+    terrama2::core::DataSeries* occurrenceDataSeries = new terrama2::core::DataSeries();
+    terrama2::core::DataSeriesPtr occurrenceDataSeriesPtr(occurrenceDataSeries);
+    occurrenceDataSeries->id = 2;
+    occurrenceDataSeries->name = "Occurrence";
+
+    occurrenceDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
+
+    occurrenceDataSeries->dataProviderId = dataProvider2Ptr->id;
+
+
+    //DataSet information
+    terrama2::core::DataSetOccurrence* occurrenceDataSet = new terrama2::core::DataSetOccurrence();
+    occurrenceDataSet->active = true;
+    occurrenceDataSet->id = 2;
+    occurrenceDataSet->format.emplace("table_name", "queimadas_test_table");
+    occurrenceDataSet->format.emplace("timestamp_property", "data_pas");
+    occurrenceDataSet->format.emplace("geometry_property", "geom");
+    occurrenceDataSet->format.emplace("timezone", "UTC-03");
+
+    occurrenceDataSeries->datasetList.emplace_back(occurrenceDataSet);
+
+    dataManager->add(occurrenceDataSeriesPtr);
+
+    AnalysisDataSeries occurrenceADS;
+    occurrenceADS.id = 2;
+    occurrenceADS.dataSeriesId = occurrenceDataSeriesPtr->id;
+    occurrenceADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
+
+    std::vector<AnalysisDataSeries> analysisDataSeriesList;
+    analysisDataSeriesList.push_back(monitoredObjectADS);
+    analysisDataSeriesList.push_back(occurrenceADS);
+
+    analysis->analysisDataSeriesList = analysisDataSeriesList;
+
+    analysis->schedule.frequency = 1;
+    analysis->schedule.frequencyUnit = "min";
+
+    dataManager->add(analysisPtr);
+
+    terrama2::core::ServiceManager::getInstance().setInstanceId(1);
+
+    Service service(dataManager);
+    auto logger = std::make_shared<AnalysisLogger>();
+    logger->setConnectionInfo(connInfo);
+
+    service.setLogger(logger);
+    service.start();
+    service.addAnalysis(1);
+
+
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
+    timer.start(10000);
+    app.exec();
+  }
+
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
 

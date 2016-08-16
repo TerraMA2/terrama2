@@ -2,45 +2,46 @@
 
 {% set tabActive = "status" %}
 
-{% block ngApp %}ng-app="terrama2.projects.status"{% endblock %}
+{% block ngApp %}ng-app="terrama2.status"{% endblock %}
 
-{% block title %} TerraMA2 {{ __('Project Status')}} {% endblock %}
+{% block title %} TerraMA² {{ __('Project Status')}} {% endblock %}
 
 {% block javascripts %}
+<script type="text/javascript">
+  var globals = {
+    enums: {
+      StatusLog: {[ Enums.StatusLog|json|safe ]},
+      MessageType: {[ Enums.MessageType|json|safe ]},
+      ServiceType: {[ Enums.ServiceType|json|safe ]}
+    }
+  }
+  var configuration = {
+    collectors: {[ collectors|json|safe ]} || {},
+    analysis: {[ analysis|json|safe ]} || {}
+  }
+</script>
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
+<!-- Moment JS -->
+<script type="text/javascript" src="/externals/moment/moment.js"></script>
+
+<!-- AngularJS -->
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
+
+<!-- TerraMA2 -->
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
-<script>
-  angular.module('terrama2.projects.status', ['terrama2.table'])
-    .controller("ListController", ['$scope', function($scope) {
-      $scope.model = [];
-
-      $scope.fields = ['name', 'message', 'date'];
-
-      $scope.link = function(object) {
-        return "";
-      };
-
-      $scope.iconFn = function(object) {
-        if (object.status === 'Error')
-          return "fa fa-remove label-danger";
-        if (object.status === 'NoDataCollected')
-          return "fa fa-warning label-warning";
-      };
-
-      $scope.iconProperties = {
-        type: "icon"
-      };
-    }]);
-</script>
+<script src="/javascripts/angular/services.js"></script>
+<script src="/javascripts/angular/alert-box/directives.js"></script>
+<script src="/javascripts/angular/status/status.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="ListController">
+<div class="col-md-12" ng-controller="StatusController">
   <div class="box">
     <div class="box-header with-border">
       <h3 class="box-title">{[ __("Status") ]}</h3>
@@ -49,10 +50,29 @@
     <div class="box-body">
 
       <div class="col-md-12">
-        <terrama2-table fields="fields" model="model" link="link" icon="iconFn" icon-properties="iconProperties"></terrama2-table>
+        <div class="col-md-12">
+          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+        </div>
+
+        <terrama2-table-header link="linkToAdd"></terrama2-table-header>
+
+        <terrama2-table-view expression="element in model | filter:searchInput track by $index">
+          <terrama2-td title="">
+            <img ng-if="iconFn(element)" ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
+          </terrama2-td>
+          <terrama2-td title="Service">{{ element.service }}</terrama2-td>
+          <terrama2-td title="Type">{{ element.type }}</terrama2-td>
+          <terrama2-td title="Name">{{ element.name }}</terrama2-td>
+          <terrama2-td title="Message">{{ element.message }}</terrama2-td>
+          <terrama2-td title="Date">{{ element.date }}</terrama2-td>
+        </terrama2-table-view>
       </div>
 
     </div><!-- /.box-body -->
+
+    <div class="overlay" ng-show="loading">
+      <i class="fa fa-refresh fa-spin"></i>
+    </div>
 
   </div><!-- /.box -->
 

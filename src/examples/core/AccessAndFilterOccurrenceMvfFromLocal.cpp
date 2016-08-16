@@ -41,11 +41,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
     dataSet->active = true;
     dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
-    dataSet->format.emplace("timezone", "+00");
-    dataSet->format.emplace("srid", "4326");
     dataSeries->datasetList.emplace_back(dataSet);
 
-    //empty filter
     terrama2::core::Filter filter;
     filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-05-01 08:29:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
     filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-05-01 08:31:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
@@ -56,9 +53,9 @@ int main(int argc, char* argv[])
 
     std::cout << "Last data timestamp: " << accessor.lastDateTime()->toString() << std::endl;
 
-    assert(occurrenceSeries->getOccurrences().size() == 1);
+    assert(occurrenceSeries->occurrencesMap().size() == 1);
 
-    std::shared_ptr<te::da::DataSet> teDataSet = (*occurrenceSeries->getOccurrences().begin()).second.syncDataSet->dataset();
+    std::shared_ptr<te::da::DataSet> teDataSet = (*occurrenceSeries->occurrencesMap().begin()).second.syncDataSet->dataset();
 
     //Print column names and types (DateTime/Double)
     int dateColumn = -1;

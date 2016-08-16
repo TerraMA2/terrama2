@@ -41,7 +41,7 @@ terrama2::core::DataRetriever::DataRetriever(DataProviderPtr dataProvider)
   if(!dataProvider_.get())
   {
     QString errMsg = QObject::tr("Mandatory parameters not provided.");
-    TERRAMA2_LOG_ERROR() << errMsg; 
+    TERRAMA2_LOG_ERROR() << errMsg;
     throw DataRetrieverException() << ErrorDescription(errMsg);
   }
 }

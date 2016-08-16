@@ -1,0 +1,1 @@
+angular.module('terrama2.projects', ['terrama2']);

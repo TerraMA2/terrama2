@@ -1,8 +1,10 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = "users" %}
+
 {% block ngApp %}ng-app="terrama2.administration.users"{% endblock %}
 
-{% block title %} TerraMA2 {[ __('Users Handling') ]} {% endblock %}
+{% block title %} TerraMA² {[ __('Users Handling') ]} {% endblock %}
 
 {% block javascripts %}
 
@@ -27,7 +29,7 @@
             $scope.fields = [
               {
                 key: 'name',
-                as: 'Nome'
+                as: 'Name'
               },
               {
                 key: 'email',
@@ -35,15 +37,15 @@
               },
               {
                 key: 'cellphone',
-                as: 'Celular'
+                as: 'Cellphone'
               },
               {
                 key: 'username',
-                as: 'Usuário'
+                as: 'User'
               },
               {
                 key: 'administrator',
-                as: 'Administrador'
+                as: 'Administrator'
               },
             ];
             $scope.iconFn = null;
@@ -81,26 +83,16 @@
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="ListController">
-    <div class="box">
-        <div class="box-header with-border">
-            <h3 class="box-title">{[ __("Users") ]}</h3>
-        </div><!-- /.box-header -->
+<div ng-controller="ListController">
+  <terrama2-box title="'{[ __("Users") ]}'">
+    <div class="col-md-12">
+      <div class="col-md-12">
+        <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+      </div>
 
-        <div class="box-body">
-
-            <div class="col-md-12">
-              <div class="col-md-12">
-                <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
-              </div>
-
-              <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd" remove="remove(object);" extra="extra"></terrama2-table>
-            </div>
-
-        </div><!-- /.box-body -->
-
-    </div><!-- /.box -->
-
-</div> <!-- end col md 12 -->
+      <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd" remove="remove(object);" extra="extra"></terrama2-table>
+    </div>
+  </terrama2-box>
+</div>
 
 {% endblock %}

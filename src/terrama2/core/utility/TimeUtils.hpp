@@ -49,6 +49,7 @@ namespace terrama2
         \return A TimeInstantTZ  with the current time in UTC.
       */
       std::shared_ptr< te::dt::TimeInstantTZ > nowUTC();
+      boost::local_time::local_date_time nowBoostLocal();
 
       /*!
         \brief Add or subtrac a number of months from a TimeInstantTZ
@@ -56,7 +57,7 @@ namespace terrama2
         \param timeInstant A TimeInstantTZ to be added or subtracted
         \param month A number of months to add or subtract in the TimeInstantTZ
        */
-      void addMonth(std::shared_ptr<te::dt::TimeInstantTZ> timeInstant, int64_t months);
+      void addMonth(std::shared_ptr<te::dt::TimeInstantTZ> timeInstant, int32_t months);
 
       /*!
         \brief Add or subtrac a number of days from a TimeInstantTZ
@@ -64,7 +65,7 @@ namespace terrama2
         \param timeInstant A TimeInstantTZ to be added or subtracted
         \param days A number of days to add or subtract in the TimeInstantTZ
        */
-      void addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t days);
+      void addDay(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t days);
 
       /*!
         \brief Add or subtrac a number of years from a TimeInstantTZ
@@ -72,7 +73,7 @@ namespace terrama2
         \param timeInstant A TimeInstantTZ to be added or subtracted
         \param years A number of years to add or subtract in the TimeInstantTZ
        */
-      void addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int64_t years);
+      void addYear(std::shared_ptr< te::dt::TimeInstantTZ > timeInstant, int32_t years);
 
       /*!
         \brief Read units of time from string and convert it to the given unit.
@@ -100,6 +101,8 @@ namespace terrama2
         \return The boost local date object created.
        */
       boost::local_time::local_date_time stringToBoostLocalTime(const std::string& dateTime, const std::string& mask);
+
+      std::string boostLocalTimeToString(const boost::local_time::local_date_time& dateTime, const std::string& mask);
 
     }
   }

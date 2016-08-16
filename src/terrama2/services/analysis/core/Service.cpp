@@ -32,7 +32,7 @@
 #include "DataManager.hpp"
 #include "AnalysisExecutor.hpp"
 #include "PythonInterpreter.hpp"
-#include "Context.hpp"
+#include "MonitoredObjectContext.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Timer.hpp"
@@ -42,7 +42,6 @@ terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
   dataManager_(dataManager)
 {
-  terrama2::services::analysis::core::Context::getInstance().setDataManager(dataManager);
   connectDataManager();
 }
 
@@ -63,9 +62,9 @@ bool terrama2::services::analysis::core::Service::processNextData()
   if(analysisQueue_.empty())
     return false;
 
-  auto analysis = analysisQueue_.front();
+  auto analysisPair = analysisQueue_.front();
   //prepare task for collecting
-  prepareTask(analysis);
+  prepareTask(analysisPair.first, analysisPair.second);
 
   //remove from queue
   analysisQueue_.erase(analysisQueue_.begin());
@@ -74,24 +73,23 @@ bool terrama2::services::analysis::core::Service::processNextData()
   return !analysisQueue_.empty();
 }
 
-void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId) noexcept
 {
   try
   {
-    Analysis analysis = dataManager_->findAnalysis(analysisId);
+    AnalysisPtr analysis = dataManager_->findAnalysis(analysisId);
 
-    if(analysis.serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+    if(analysis->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
     {
       return;
     }
 
-    if(analysis.active)
+    if(analysis->active)
     {
       std::lock_guard<std::mutex> lock(mutex_);
 
-      auto lastProcess = logger_->getLastProcessTimestamp(analysis.id);
-      terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(analysis.schedule, analysisId, lastProcess);
-      connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::services::analysis::core::Service::addToQueue, Qt::UniqueConnection);
+      auto lastProcess = logger_->getLastProcessTimestamp(analysis->id);
+      terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
       timers_.emplace(analysisId, timer);
     }
 
@@ -111,6 +109,11 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     //TODO: should be caught elsewhere?
     TERRAMA2_LOG_ERROR() << e.what();
   }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
 
 }
 
@@ -119,7 +122,7 @@ void terrama2::services::analysis::core::Service::setLogger(std::shared_ptr<Anal
   logger_ = logger;
 }
 
-void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId) noexcept
 {
   try
   {
@@ -140,7 +143,7 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
     auto rend = analysisQueue_.rend();
     while(rit != rend)
     {
-      if(rit->id == analysisId)
+      if(rit->first == analysisId)
       {
         analysisQueue_.erase(rit.base());
       }
@@ -162,22 +165,24 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << tr("Unknown error");
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
     TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
   }
 }
 
-void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId /*analysisId*/)
+void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId) noexcept
 {
-  // the analysis object will only be fetched when the execution process begin.
-  // we only have the id so there is no need to update.
+  //TODO: addAnalysis adds to queue, is this expected?
+  addAnalysis(analysisId);
 }
 
-void terrama2::services::analysis::core::Service::prepareTask(Analysis& analysis)
+void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, logger_, analysis, processingThreadPool_.size()));
+    auto analysisPtr = dataManager_->findAnalysis(analysisId);
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, logger_, startTime, analysisPtr, threadPool_));
   }
   catch(std::exception& e)
   {
@@ -186,7 +191,7 @@ void terrama2::services::analysis::core::Service::prepareTask(Analysis& analysis
 }
 
 
-void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId)
+void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId) noexcept
 {
   try
   {
@@ -195,14 +200,14 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
     auto analysis = dataManager_->findAnalysis(analysisId);
 
-    if(analysis.serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
+    if(analysis->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
     {
       return;
     }
 
-    analysis.startDate = terrama2::core::TimeUtils::nowUTC();
+    auto startTime = terrama2::core::TimeUtils::nowUTC();
 
-    analysisQueue_.push_back(analysis);
+    analysisQueue_.push_back(std::make_pair(analysisId, startTime));
 
     //wake loop thread
     mainLoopCondition_.notify_one();
@@ -211,6 +216,11 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
 }
 
 void terrama2::services::analysis::core::Service::connectDataManager()
@@ -218,4 +228,10 @@ void terrama2::services::analysis::core::Service::connectDataManager()
   connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addAnalysis);
   connect(dataManager_.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
   connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
+}
+
+void terrama2::services::analysis::core::Service::start(size_t threadNumber)
+{
+  terrama2::core::Service::start(threadNumber);
+  threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }

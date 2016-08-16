@@ -3,6 +3,7 @@
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSet.hpp>
@@ -13,8 +14,7 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/PythonInterpreter.hpp>
-#include <terrama2/services/analysis/core/Context.hpp>
-#include <terrama2/services/analysis/Shared.hpp>
+#include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
   };
   serviceManager.setLogConnectionInfo(connInfo);
 
-  terrama2::services::analysis::core::initInterpreter();
+  terrama2::services::analysis::core::python::initInterpreter();
 
 
   QCoreApplication app(argc, argv);
@@ -76,13 +76,14 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataProviderPtr);
 
+  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
   // DataSeries information
   terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
   outputDataSeries->id = 3;
   outputDataSeries->name = "Analysis result";
-  outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
+  outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
   outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -97,44 +98,24 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  Analysis analysis;
 
-  analysis.id = 1;
-  analysis.name = "Analysis";
-  analysis.active = false;
+  Analysis* analysis = new Analysis;
+  AnalysisPtr analysisPtr(analysis);
+
+  analysis->id = 1;
+  analysis->name = "Analysis";
+  analysis->active = false;
 
   std::string script = "moBuffer = Buffer()\n"
           "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"count\", x)\n"
-
-          "x = occurrence.count(\"occ\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"count_alias\", x)\n"
-
-          "x = occurrence.max(\"Occurrence"
-          "\", moBuffer, \"500d\", \"v\", \"\")\n"
-          "add_value(\"max\", x)\n"
-
-          "x = occurrence.min(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
-          "add_value(\"min\", x)\n"
-
-          "x = occurrence.mean(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
-          "add_value(\"mean\", x)\n"
-
-          "x = occurrence.median(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
-          "add_value(\"median\", x)\n"
-
-          "x = occurrence.standard_deviation(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
-          "add_value(\"standard_deviation\", x)\n"
-
-          "x = occurrence.sum(\"Occurrence\", moBuffer, \"500d\", \"v\", \"\")\n"
-          "add_value(\"sum\", x)\n";
+          "add_value(\"count\", x)\n";
 
 
-  analysis.script = script;
-  analysis.outputDataSeriesId = 3;
-  analysis.scriptLanguage = ScriptLanguage::PYTHON;
-  analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-  analysis.serviceInstanceId = 1;
+  analysis->script = script;
+  analysis->outputDataSeriesId = 3;
+  analysis->scriptLanguage = ScriptLanguage::PYTHON;
+  analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+  analysis->serviceInstanceId = 1;
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   std::shared_ptr<const terrama2::core::DataProvider> dataProviderPtr(dataProvider);
@@ -152,7 +133,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
-  dataSeries->semantics.code = "STATIC_DATA-ogr";
+  dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
   dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
@@ -164,7 +145,6 @@ int main(int argc, char* argv[])
   dataSet->active = true;
   dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
-  dataSet->format.emplace("identifier", "nome");
   dataSet->id = 1;
   dataSet->dataSeriesId = 1;
 
@@ -175,6 +155,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   //DataProvider information
@@ -194,7 +175,9 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr occurrenceDataSeriesPtr(occurrenceDataSeries);
   occurrenceDataSeries->id = 2;
   occurrenceDataSeries->name = "Occurrence";
-  occurrenceDataSeries->semantics.code = "OCCURRENCE-postgis";
+
+  occurrenceDataSeries->semantics = semanticsManager.getSemantics("OCCURRENCE-postgis");
+
   occurrenceDataSeries->dataProviderId = dataProvider2Ptr->id;
 
 
@@ -202,7 +185,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetOccurrence* occurrenceDataSet = new terrama2::core::DataSetOccurrence();
   occurrenceDataSet->active = true;
   occurrenceDataSet->id = 2;
-  occurrenceDataSet->format.emplace("table_name", "queimadas");
+  occurrenceDataSet->format.emplace("table_name", "queimadas_test_table");
   occurrenceDataSet->format.emplace("timestamp_property", "data_pas");
   occurrenceDataSet->format.emplace("geometry_property", "geom");
   occurrenceDataSet->format.emplace("timezone", "UTC-03");
@@ -221,22 +204,20 @@ int main(int argc, char* argv[])
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysisDataSeriesList.push_back(occurrenceADS);
 
-  analysis.analysisDataSeriesList = analysisDataSeriesList;
+  analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis.schedule.frequency = 30;
-  analysis.schedule.frequencyUnit = "sec";
+  analysis->schedule.frequency = 30;
+  analysis->schedule.frequencyUnit = "sec";
 
-  dataManager->add(analysis);
+  dataManager->add(analysisPtr);
 
-  // Starts the service and adds the analysis
-  Context::getInstance().setDataManager(dataManager);
   terrama2::core::ServiceManager::getInstance().setInstanceId(1);
   Service service(dataManager);
 
   auto logger = std::make_shared<AnalysisLogger>();
   logger->setConnectionInfo(connInfo);
   service.setLogger(logger);
-  
+
   service.start();
   service.addAnalysis(1);
 
@@ -245,7 +226,7 @@ int main(int argc, char* argv[])
   timer.start(100000);
   app.exec();
 
-
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

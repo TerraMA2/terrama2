@@ -32,7 +32,26 @@ angular.module("terrama2.schedule", ['terrama2'])
           if (scheduleObject.schedule_unit) {
             $scope.model.scheduleHandler = scheduleObject.schedule_unit;
             $scope.model.schedule = scheduleObject.schedule;
-            $scope.model.schedule_time = scheduleObject.schedule_time;
+
+            // initializing with current date and s
+
+            try {
+              var date = new Date();
+              var time = scheduleObject.schedule_time;
+              var splitDate = time.split(":");
+
+              var hours = splitDate[0];
+              var minutes = splitDate[1];
+              var seconds = splitDate[2];
+
+              date.setMinutes(minutes);
+              date.setHours(hours);
+              date.setSeconds(seconds);
+
+              $scope.model.schedule_time = date;
+            } catch (e) {
+
+            }
           }else if (scheduleObject.frequency_unit) {
             $scope.model.frequency = scheduleObject.frequency;
             $scope.model.frequency_unit = scheduleObject.frequency_unit;
@@ -45,16 +64,18 @@ angular.module("terrama2.schedule", ['terrama2'])
         $scope.onScheduleChange = function(value) {
           var resetHelper = function(i) {
             if (i == 1) {
-              delete $scope.model.schedule;
-              delete $scope.model.schedule_retry;
-              delete $scope.model.schedule_retry_unit;
-              delete $scope.model.schedule_timeout;
-              delete $scope.model.schedule_timeout_unit;
+              $scope.model.schedule = null;
+              $scope.model.schedule_retry = null;
+              $scope.model.schedule_retry_unit = null;
+              $scope.model.schedule_timeout = null;
+              $scope.model.schedule_time = null;
+              $scope.model.schedule_unit = null;
+              $scope.model.schedule_timeout_unit = null;
               $scope.isFrequency = true;
               $scope.isSchedule = false;
             } else if (i == 2) {
-              delete $scope.model.frequency;
-              delete $scope.model.frequency_unit;
+              $scope.model.frequency = null;
+              $scope.model.frequency_unit = null;
               $scope.isFrequency = false;
               $scope.isSchedule = true;
             }

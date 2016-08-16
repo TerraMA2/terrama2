@@ -31,7 +31,7 @@
 #define __TERRAMA2_SERVICES_ALERT_CORE_EXCEPTION_HPP__
 
 // TerraMA2
-#include "../Exception.hpp"
+#include "../../../core/Exception.hpp"
 
 namespace terrama2
 {
@@ -40,7 +40,12 @@ namespace terrama2
     namespace alert
     {
       //! Base exception class for Alert Module exceptions.
-      struct Exception: virtual Exception {};
+      struct Exception: virtual terrama2::core::Exception{};
+
+      //! Base exception class for Report exceptions.
+      struct ReportException: virtual Exception{};
+      //! Base exception class for AdditionalDataException exceptions.
+      struct AdditionalDataException: virtual Exception{};
     }
   } /* services */
 }  // end namespace terrama2

@@ -44,6 +44,7 @@ include_directories ( SYSTEM
   ${terralib_DIR}
   ${Boost_INCLUDE_DIR}
   ${PYTHON_INCLUDE_DIRS}
+  ${Qt5Core_INCLUDE_DIRS}
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -57,6 +58,8 @@ qt5_use_modules(terrama2_service Core)
 target_link_libraries(terrama2_service terrama2_core
                                        terrama2_collector_core
                                        terrama2_analysis_core
+                                       terrama2_view_core
+                                       terrama2_alert_core
                                        terrama2_impl
                                        ${PYTHON_LIBRARIES}
                                        ${Boost_PYTHON_LIBRARY})

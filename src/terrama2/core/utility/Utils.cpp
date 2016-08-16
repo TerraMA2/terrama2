@@ -76,7 +76,6 @@ namespace te
   } // end of namespace common
 } // end of namespace te
 
-
 std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 {
   // 1st: look in the neighborhood of the executable
@@ -129,7 +128,8 @@ std::string terrama2::core::FindInTerraMA2Path(const std::string& fileName)
 void terrama2::core::initializeTerralib()
 {
   // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
+  auto& terralib = TerraLib::getInstance();
+  terralib.initialize();
 
   te::plugin::PluginInfo* info;
   std::string plugins_path = te::core::FindInTerraLibPath("share/terralib/plugins");
@@ -214,8 +214,7 @@ void terrama2::core::initializeTerraMA()
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
 
   //read semantics from json file
-  //TODO: where should the semantics file be placed?
-  std::string semanticsPath = FindInTerraMA2Path("src/terrama2/core/semantics.json");
+  std::string semanticsPath = FindInTerraMA2Path("share/terrama2/semantics.json");
   QFile semantcisFile(QString::fromStdString(semanticsPath));
   semantcisFile.open(QFile::ReadOnly);
   QByteArray bytearray = semantcisFile.readAll();
@@ -289,9 +288,18 @@ int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
   }
 
   // Creates a Proj4 description and returns the SRID.
-  std::string p4txt = "+proj=utm +zone=" + std::to_string(zoneNumber) + " +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs";
-  return te::srs::SpatialReferenceSystemManager::getInstance().getIdFromP4Txt(p4txt).second;
+  std::string p4txt = "+proj=utm +zone=" + std::to_string(zoneNumber) + " +datum=WGS84 +units=m +no_defs ";
 
+  try
+  {
+    auto srsPair = te::srs::SpatialReferenceSystemManager::getInstance().getIdFromP4Txt(p4txt);
+    return srsPair.second;
+  }
+  catch(std::exception& e)
+  {
+    QString msg(QObject::tr("Could not determine the SRID for a UTM projection"));
+    throw InvalidSRIDException() << terrama2::ErrorDescription(msg);
+  }
 }
 
 double terrama2::core::convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit)
@@ -333,5 +341,41 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
 
 bool terrama2::core::isValidColumn(size_t value)
 {
-   return value != std::numeric_limits<size_t>::max();
+  return value != std::numeric_limits<size_t>::max();
+}
+
+
+std::string terrama2::core::getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors)
+{
+  std::string property;
+  try
+  {
+    auto semantics = dataSeries->semantics;
+    property = semantics.metadata.at(tag);
+  }
+  catch(...)  //exceptions will be treated later
+  {
+  }
+
+  if(property.empty())
+  {
+    try
+    {
+      property = dataSet->format.at(tag);
+    }
+    catch(...)  //exceptions will be treated later
+    {
+    }
+  }
+
+
+  if(property.empty())
+  {
+    QString errMsg = QObject::tr("Undefined %2 in dataset: %1.").arg(dataSet->id).arg(QString::fromStdString(tag));
+    if(logErrors)
+      TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+
+  return property;
 }

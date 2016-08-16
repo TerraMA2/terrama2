@@ -34,7 +34,8 @@
 #include "Exception.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
+#include "Shared.hpp"
 
 // QT
 #include <QObject>
@@ -45,6 +46,7 @@
 
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/geometry/Geometry.h>
 
 
 namespace terrama2
@@ -115,6 +117,50 @@ namespace terrama2
         };
 
         /*!
+          \brief Allowed interpolation methods.
+        */
+        enum class InterpolationMethod
+        {
+          //REVIEW: Why is this redefined? should te::rst::InterpolationMethod be used instead?
+          NEARESTNEIGHBOR = 1,    //!< Near neighborhood interpolation method.
+          BILINEAR = 2,           //!< Bilinear interpolation method.
+          BICUBIC = 3             //!< Bicubic interpolation method.
+        };
+
+        /*!
+          \brief Defines the resolution type to be used in the output grid
+        */
+        enum class ResolutionType
+        {
+          SMALLEST_GRID = 1, //!< Use the resolution from the smallest grid.
+          BIGGEST_GRID = 2, //!< Use the resolution from the biggest grid.
+          SAME_FROM_DATASERIES = 3, //!< Use the same resolution of a given grid.
+          CUSTOM = 4 //!< Use a custom resolution.
+        };
+
+        enum class InterestAreaType
+        {
+          UNION = 1, //!< Use the union of the areas from the DataSeries in the analysis.
+          SAME_FROM_DATASERIES = 2, //!< Use the same box of a given grid.
+          CUSTOM = 3 //!< Use a custom box.
+        };
+
+        struct AnalysisOutputGrid
+        {
+          AnalysisId analysisId = 0; //!< Identifier of the analysis.
+          InterpolationMethod interpolationMethod; //!< Interpolation method.
+          double interpolationDummy = 0; //!< Dummy value.
+          ResolutionType resolutionType; //!< Resolution type to be used in the output grid.
+          DataSeriesId resolutionDataSeriesId; //!< Identifier of the DataSeries to copy the grid resolution.
+          double resolutionX = 0; //!< Resolution to be used in X.
+          double resolutionY = 0; //!< Resolution to be used in Y.
+          Srid srid = 0; //!< SRID of the output grid.
+          InterestAreaType interestAreaType; //!< Type of interest area.
+          DataSeriesId interestAreaDataSeriesId = 0; //!< Identifier of the DataSeries to copy the box resolution.
+          std::shared_ptr<te::gm::Geometry> interestAreaBox; //!< Custom box.
+        };
+
+        /*!
           \struct Analysis
           \brief Model for the configuration of an analysis execution.
         */
@@ -132,15 +178,16 @@ namespace terrama2
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
-          std::shared_ptr<te::dt::TimeInstantTZ> startDate; //!< Execution start date.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the analysis.
+          AnalysisOutputGridPtr outputGridPtr; //!< Output grid configuration.
 
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.
           */
-          AnalysisHashCode hashCode() const
+          AnalysisHashCode hashCode(std::shared_ptr<te::dt::TimeInstantTZ> startDate) const
           {
-            if(!startDate)
+            auto boostDate = startDate->getTimeInstantTZ();
+            if(!startDate || boostDate.is_not_a_date_time())
               throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));
 
             std::string str = std::to_string(id) + startDate->toString();

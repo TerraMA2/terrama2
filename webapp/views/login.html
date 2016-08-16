@@ -1,9 +1,13 @@
+{% set divDisplay = "none"; %}
+{% if (message) %}
+{% set divDisplay = "block"; %}
+{% endif %}
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>TerraMA2 - {[ __('Login') ]}</title>
+        <title>TerraMA² - {[ __('Login') ]}</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <!-- Bootstrap 3.3.5 -->
@@ -22,10 +26,16 @@
     <body class="hold-transition login-page">
         <div class="login-box">
             <div class="login-logo">
-                <a href="#"><b>TerraMA2</b></a>
+                <a href="#"><b>TerraMA²</b></a>
             </div><!-- /.login-logo -->
             <div class="login-box-body">
                 <p class="login-box-msg">{[ __('Sign in to start your session') ]}</p>
+
+                <div class="alert alert-danger" style="display: {[ divDisplay ]}">
+                  <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
+                  {[ message ]}
+                </div>
+
                 <form action="/login/process" method="post">
                     <div class="form-group has-feedback">
                         <input type="text" class="form-control" placeholder="Username" name="username">

@@ -47,7 +47,7 @@
 #include <QObject>
 
 
-void terrama2::core::GridSeries::addGridSeries(std::map<DataSetPtr,DataSetSeries> seriesMap)
+void terrama2::core::GridSeries::addGridSeries(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap)
 {
   dataSeriesMap_ = seriesMap;
   for(const auto& item : seriesMap)
@@ -57,23 +57,18 @@ void terrama2::core::GridSeries::addGridSeries(std::map<DataSetPtr,DataSetSeries
       DataSetGridPtr dataSet = std::dynamic_pointer_cast<const DataSetGrid>(item.first);
 
       auto teDataSet = item.second.syncDataSet;
-      for(int i = 0; i < teDataSet->size(); ++i)
+      for(size_t i = 0; i < teDataSet->size(); ++i)
       {
         std::size_t rpos = te::da::GetFirstPropertyPos(teDataSet->dataset().get(), te::dt::RASTER_TYPE);
         std::shared_ptr<te::rst::Raster> raster = teDataSet->getRaster(i, rpos);
         rasterMap_.emplace(dataSet, raster);
       }
     }
-    catch(const std::bad_cast& exp)
+    catch(const std::bad_cast& )
     {
       QString errMsg = QObject::tr("Bad Cast to DataSetGrid");
       TERRAMA2_LOG_ERROR() << errMsg;
       continue;
     }//bad cast
   }
-}
-
-const std::map<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& terrama2::core::GridSeries::gridList()
-{
-  return rasterMap_;
 }

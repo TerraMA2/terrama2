@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 #define __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 
+// TerraMA2
+#include "../Exception.hpp"
 #include "../Typedef.hpp"
 
 // TerraLib
@@ -48,9 +50,9 @@ namespace terrama2
     {
         Q_OBJECT
 
-      public:
+  public:
 
-        /*!
+      /*!
           \enum Status
 
           \brief Possible status of manipulate data.
@@ -113,19 +115,19 @@ namespace terrama2
          * \brief Log an error of process
          * \param description Error description
          */
-        virtual void error(const std::string description, const RegisterId registerId) const;
+        virtual void error(const std::string& description, const RegisterId registerId) const;
 
         /*!
          * \brief Log an information of process
          * \param description Error description
          */
-        virtual void info(const std::string description, const RegisterId registerId) const;
+        virtual void info(const std::string& description, const RegisterId registerId) const;
 
         /*!
          * \brief Log the end of process
          * \param dataTimestamp The las timestamp of data.
          */
-        virtual void done(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId) const;
+        virtual void done(const std::shared_ptr< te::dt::TimeInstantTZ >& dataTimestamp, const RegisterId registerId) const;
 
         /*!
          * \brief Returns the process last log timestamp
@@ -164,7 +166,7 @@ namespace terrama2
         * \brief Reset connection to log database information
         * \param connInfo Datasource connection information.
         */
-        virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) noexcept;
+        virtual void setConnectionInfo(const std::map<std::string, std::string>& connInfo) noexcept;
 
       protected:
 
@@ -183,14 +185,14 @@ namespace terrama2
          * \param tag A tag to identify data
          * \param value The data
          */
-        void addValue(const std::string tag, const std::string value, const RegisterId registerId) const;
+        void addValue(const std::string& tag, const std::string& value, const RegisterId registerId) const;
 
 
         /*!
          * \brief Store the name of the process log table and the message log table
          * \param tableName The log table name
          */
-        void setTableName(const std::string tableName);
+        void setTableName(std::string& tableName);
 
       private:
         /*!

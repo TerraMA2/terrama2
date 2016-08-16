@@ -61,10 +61,11 @@ namespace terrama2
         DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
         virtual ~DataAccessorStaticDataOGR();
 
-        static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
         {
-          return new DataAccessorStaticDataOGR(dataProvider, dataSeries, filter);
+          return std::make_shared<DataAccessorStaticDataOGR>(dataProvider, dataSeries, filter);
         }
+        static DataAccessorType dataAccessorType(){ return "STATIC_DATA-ogr"; }
 
         // Doc in base class
         virtual std::string dataSourceType() const override;

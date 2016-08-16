@@ -23,6 +23,9 @@ int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerraMA();
 
+  std::cout << "NOT WORKING" << std::endl;
+  return 1;
+
   {
     QUrl uri;
     uri.setScheme("postgis");
@@ -62,9 +65,9 @@ int main(int argc, char* argv[])
     terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
     std::cout << "\nLast data timestamp: " << accessor.lastDateTime()->toString() << std::endl;
 
-    assert(dcpSeries->getDcpSeries().size() == 1);
+    assert(dcpSeries->dcpSeriesMap().size() == 1);
 
-    auto datasetSeries = (*dcpSeries->getDcpSeries().begin()).second;
+    auto datasetSeries = (*dcpSeries->dcpSeriesMap().begin()).second;
     std::shared_ptr<te::da::DataSet> teDataSet = datasetSeries.syncDataSet->dataset();
 
 
@@ -104,7 +107,7 @@ int main(int argc, char* argv[])
     teDataSet->moveBeforeFirst();
     while (teDataSet->moveNext())
     {
-      sql+=teDataSet->getInt32(pos)+",";
+      sql+=std::to_string(teDataSet->getInt32(pos))+",";
     }
     sql.pop_back();
     sql+=")";

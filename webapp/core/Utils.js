@@ -1,3 +1,5 @@
+"use strict";
+
 var Enums = require("./Enums");
 var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
@@ -7,6 +9,7 @@ var exceptions = require('./Exceptions');
 var Signals = require('./Signals');
 var Promise = require("bluebird");
 var util = require('util');
+var isEqual = require('lodash').isEqual;
 
 // nodejs
 var glob = require('glob');
@@ -31,7 +34,7 @@ function getTokenCodeMessage(code) {
   return msg;
 }
 
-module.exports = {
+var Utils = {
   clone: function(object) {
     return cloneDeep(object);
   },
@@ -39,6 +42,29 @@ module.exports = {
   handleRequestError: function(response, err, code) {
     response.status(code);
     return response.json({status: code, message: err.message});
+  },
+
+  getCommonRequestFields : function() {
+    return [{
+      key: UriPattern.HOST,
+      type: FormField.TEXT,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.PORT,
+      type: FormField.NUMBER,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.USER,
+      type: FormField.TEXT,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    },
+    {
+      key: UriPattern.PASSWORD,
+      type: FormField.PASSWORD,
+      htmlClass: 'col-md-6 terrama2-schema-form'
+    }];
   },
 
   makeCommonRequestFields: function(scheme, port, exceptField, required, displayOrder) {
@@ -75,29 +101,7 @@ module.exports = {
       properties: properties,
       required: required,
       display: displayOrder
-    }
-  },
-
-  rollback: function(model, instance) {
-    return model.destroy({
-      where: {
-        id: instance.id
-      }
-    })
-  },
-
-  rollbackModels: function(models, instances, exception, promise) {
-    var promises = [];
-    for(var i = 0; i < models.length; ++i) {
-      promises.push(this.rollback(models[i], instances[i]));
-    }
-
-    Promise.all(promises).then(function() {
-      console.log("Rollback all");
-      return promise.reject(exception);
-    }).catch(function(err) {
-      promise.reject(err);
-    })
+    };
   },
 
   rollbackPromises: function(promises, exception, errorHandler) {
@@ -105,7 +109,7 @@ module.exports = {
       errorHandler(exception);
     }).catch(function(err) {
       errorHandler(err);
-    })
+    });
   },
 
   generateToken: function(app, code, intent) {
@@ -138,20 +142,22 @@ module.exports = {
 
   getAnalysisType: function(analysisCode) {
     if (analysisCode) {
+      var output = null;
       switch(parseInt(analysisCode)) {
         case Enums.AnalysisType.DCP:
-          return Enums.DataSeriesType.DCP;
+          output = Enums.DataSeriesType.DCP;
           break;
         case Enums.AnalysisType.GRID:
-          return Enums.DataSeriesType.GRID;
+          output = Enums.DataSeriesType.GRID;
           break;
         case Enums.AnalysisType.MONITORED:
-          return Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
+          output = Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
           break;
         default:
-          throw new Error("Invalid analysis id");
-          break;
+          output = null;
       }
+
+      if (output && output !== null) { return output; }
     }
     throw new Error("Invalid analysis id");
   },
@@ -159,36 +165,21 @@ module.exports = {
   getTcpSignal: function(value) {
     switch(value) {
       case Signals.TERMINATE_SERVICE_SIGNAL:
-        return Signals.TERMINATE_SERVICE_SIGNAL;
-        break;
       case Signals.STATUS_SIGNAL:
-        return Signals.STATUS_SIGNAL;
-        break;
       case Signals.ADD_DATA_SIGNAL:
-        return Signals.ADD_DATA_SIGNAL;
-        break;
       case Signals.START_PROCESS_SIGNAL:
-        return Signals.START_PROCESS_SIGNAL;
-        break;
       case Signals.LOG_SIGNAL:
-        return Signals.LOG_SIGNAL;
-        break;
       case Signals.REMOVE_DATA_SIGNAL:
-        return Signals.REMOVE_DATA_SIGNAL;
-        break;
       case Signals.PROCESS_FINISHED_SIGNAL:
-        return Signals.PROCESS_FINISHED_SIGNAL;
-        break;
       case Signals.UPDATE_SERVICE_SIGNAL:
-        return Signals.UPDATE_SERVICE_SIGNAL;
-        break;
+        return value;
       default:
         throw new exceptions.SignalError("Invalid terrama2 tcp signal");
     }
   },
 
   getUserHome: function() {
-    return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+    return process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
   },
 
   prepareAddSignalMessage: function(DataManager, projectId) {
@@ -196,20 +187,20 @@ module.exports = {
       var _handleError = function(err) {
         console.log(err);
         reject(err);
-      }
+      };
 
       var dataProvidersResult = DataManager.listDataProviders();
       var providers = [];
       dataProvidersResult.forEach(function(dataProvider) {
-        providers.push(dataProvider.toObject())
-      }) // end foreach dataProvidersResult
+        providers.push(dataProvider.toObject());
+      }); // end foreach dataProvidersResult
 
       // getting dataseries
       DataManager.listDataSeries().then(function(dataSeriesResult) {
         var series = [];
         dataSeriesResult.forEach(function(dataSeries) {
           series.push(dataSeries.toObject());
-        }) // end foreach dataSeriesResult
+        }); // end foreach dataSeriesResult
 
         // getting collectors
         DataManager.listCollectors({}, projectId).then(function(collectorsResult) {
@@ -224,11 +215,11 @@ module.exports = {
                   collector.project_id = dprovider.project_id;
                   return true;
                 }
-              })
+              });
             });
 
             collectors.push(collector.toObject());
-          }) // end foreach collectorsResult
+          }); // end foreach collectorsResult
 
           // getting analyses
           DataManager.listAnalyses().then(function(analysesResult) {
@@ -255,20 +246,19 @@ module.exports = {
       var fullPath = path.join(directory, pattern);
 
       glob(fullPath, function(err, files) {
-        if (err)
-          return reject(err);
+        if (err) { return reject(err); }
 
         resolve(files);
-      })
-    })
+      });
+    });
   },
 
   listDynamicDataSeriesType: function() {
     var output = [];
     for(var key in Enums.DataSeriesType) {
-      if (Enums.DataSeriesType.hasOwnProperty(key) && key != "STATIC_DATA") {
+      if (Enums.DataSeriesType.hasOwnProperty(key) && key !== "STATIC_DATA") {
         var obj = {};
-        obj["data_series_type_name"] = Enums.DataSeriesType[key];
+        obj.data_series_type_name = Enums.DataSeriesType[key];
         output.push(obj);
       }
     }
@@ -276,29 +266,77 @@ module.exports = {
     return output;
   },
 
+  /**
+   * A deep match object. It checks every key/object in target and match them from initial object.
+   * It applies a auto recursive call when obj key is pointing to an another object.
+   * @todo Compares with equality operator (===). Currently, it is working with == operator
+   * @todo Handle invalid use of Enums.Operators in validation
+   * @param {Object} obj - An javascript object with key/values to check.
+   * @param {Object} target - An javascript object to be watched
+   * @return {Boolean} a boolean condition of comparator.
+   */
   matchObject: function(obj, target) {
+    var self = this;
     return Object.keys(obj).every(function(key) {
-      return target[key] == obj[key];
-    })
-  },
+      if (self.isObject(obj[key])) {
+        return self.matchObject(obj[key], target[key]);
+      }
 
-  find: function(restriction, where) {
+      switch (key) {
+        case Enums.Operators.EQUAL:
+          return target === obj[key];
+        case Enums.Operators.GREATER_THAN:
+          return target > obj[key];
+        case Enums.Operators.GREATER_OR_EQUAL:
+          return target >= obj[key];
+        case Enums.Operators.LESS_THAN:
+          return target < obj[key];
+        case Enums.Operators.LESS_EQUAL:
+          return target <= obj[key];
+        case Enums.Operators.NOT_EQUAL:
+          return target !== obj[key];
+        default:
+          // equal operator
+          return target[key] == obj[key];
+      }
+    });
+  },
+  /**
+   * It applies a deep filter in array from restriction
+   * @param {Array<?>} where - An array of any to be filtered
+   * @param {Object} restriction - A javascript object with restriction values
+   * @return {Array<?>} a filtered array
+   */
+  filter: function(where, restriction) {
+    var self = this;
     return where.filter(function(entry) {
-      return this.matchObject(restriction, entry)
-    })
+      return self.matchObject(restriction, entry);
+    });
+  },
+  /**
+   * It applies a deep find in array from restriction. Note if more than one has found, it will get first element.
+   * @param {Array<?>} where - An array of any to be filtered
+   * @param {Object} restriction - A javascript object with restriction values
+   * @return {?} An element of array.
+   */
+  find: function(where, restriction) {
+    return this.filter(where, restriction)[0];
   },
 
   getServiceTypeName: function(intServiceType) {
+    var output = null;
     switch(intServiceType) {
       case Enums.ServiceType.COLLECTOR:
-        return "COLLECTOR";
+        output = "COLLECTOR";
         break;
       case Enums.ServiceType.ANALYSIS:
-        return "ANALYSIS";
+        output = "ANALYSIS";
         break;
-      default:
-        throw new exceptions.ServiceTypeError("Invalid service type value");
     }
+
+    if (output && output !== null) { return output; }
+
+    throw new exceptions.ServiceTypeError("Invalid service type value");
   },
 
   isValidDataSeriesType: function(code) {
@@ -308,9 +346,8 @@ module.exports = {
       case Enums.DataSeriesType.OCCURRENCE:
       case Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
       case Enums.DataSeriesType.GRID:
-      case Enums.DataSeriesType.POSGIS:
+      case Enums.DataSeriesType.POSTGIS:
         return true;
-        break;
       default:
         throw new Error("Invalid data series type");
     }
@@ -320,10 +357,7 @@ module.exports = {
     var output = [];
     for(var i = -12; i < 13; ++i) {
       var val = i < 0 ? i.toString() : "+" + i;
-      output.push({
-        name: val,
-        value: val
-      })
+      output.push({ name: val, value: val });
     }
     return output;
   },
@@ -348,8 +382,49 @@ module.exports = {
     var metadata = {};
     values.forEach(function(meta) {
       metadata[meta.key] = meta.value;
-    })
+    });
 
     return metadata;
+  },
+
+  sendDataToServices: function(DataManager, TcpManager, data) {
+    DataManager.listServiceInstances().then(function(services) {
+      services.forEach(function(service) {
+        try {
+          TcpManager.emit('sendData', service, data);
+        } catch (e) {
+          console.log(e);
+        }
+      });
+    });
+  },
+
+  equal: function(origin, target) {
+    return isEqual(origin, target);
+  },
+
+  /**
+   * It checks if a argument is instance of javascript Object
+   *
+   * @param {?} arg - A value
+   * @return {Boolean} A boolean result
+   */
+  isObject: function(arg) {
+    return arg === Object(arg);
+  },
+
+  /**
+   * It creates a copy of object.
+   * @param {Object} object - a object to be copied
+   * @param {DataModel} model - a TerraMA2 model (optional)
+   */
+  makeCopy: function(object, model) {
+    if (model) {
+      return new model(object);
+    } else {
+      return Object.assign({}, object);
+    }
   }
 };
+
+module.exports = Utils;

@@ -1,4 +1,4 @@
-var User = require('../../config/Sequelize.js').import('../../models/User.js');
+var User = require('../../config/Database').getORM().import('../../models/User.js');
 var Utils = require("../../core/Utils");
 var TokenCode = require('../../core/Enums').TokenCode;
 var UserError = require("../../core/Exceptions").UserError;
@@ -14,10 +14,11 @@ module.exports = function(app) {
         users.forEach(function(user) {
           var userObj = user.get();
 
+          // TODO: use i18n module
           if(userObj.administrator)
-            userObj.administrator = "Sim";
+            userObj.administrator = "Yes";
           else
-            userObj.administrator = "Não";
+            userObj.administrator = "No";
 
           usersArray.push(userObj);
         });
@@ -32,7 +33,7 @@ module.exports = function(app) {
     },
 
     new: function (request, response) {
-      return response.render('administration/user', { method: 'POST', url: '/administration/users/new' });
+      return response.render('administration/user', { currentTab: "users", redirectUrl: "/administration/users" });
     },
 
     edit: function (request, response) {
@@ -51,7 +52,12 @@ module.exports = function(app) {
             administrator: userObj.administrator
           };
 
-          return response.render('administration/user', { user: user, method: 'PUT', url: '/administration/users/edit/' + userObj.id });
+          return response.render('administration/user', {
+            user: user,
+            update: true,
+            currentTab: "users",
+            redirectUrl: "/administration/users"
+          });
         } else {
           Utils.handleRequestError(response, new UserError("Invalid user"), 400);
         }
@@ -135,7 +141,7 @@ module.exports = function(app) {
         Utils.handleRequestError(response, new UserError("Incorrect password"), 400);
       }
     },
-    
+
     // api: json
     delete: function(request, response) {
       var userId = request.params.id;

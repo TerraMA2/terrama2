@@ -31,7 +31,8 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_DATAMANAGER_HPP__
 
-#include "Analysis.hpp"
+#include "Shared.hpp"
+#include "Typedef.hpp"
 #include "../../../core/data-model/DataManager.hpp"
 
 namespace terrama2
@@ -94,7 +95,7 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            void add(const Analysis& analysis);
+            void add(AnalysisPtr analysis);
 
             /*!
               \brief Update a given analysis in the data manager
@@ -110,7 +111,7 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            void update(const Analysis& analysis);
+            void update(AnalysisPtr analysis);
 
             /*!
               \brief Removes the given analysis.
@@ -140,7 +141,7 @@ namespace terrama2
 
               \note Thread-safe.
             */
-            Analysis findAnalysis(const AnalysisId analysisId) const;
+            AnalysisPtr findAnalysis(const AnalysisId analysisId) const;
 
             using terrama2::core::DataManager::findDataSeries;
 
@@ -181,7 +182,7 @@ namespace terrama2
 
           protected:
 
-            std::map<AnalysisId, Analysis> analysis_; //!< A map from data-analysis-id to data-analysis.
+            std::map<AnalysisId, AnalysisPtr> analysis_; //!< A map from data-analysis-id to data-analysis.
         };
 
       } // end namespace core

@@ -27,6 +27,7 @@
   \author Jano Simas
 */
 #include "../Shared.hpp"
+#include "../data-model/DataSeriesRisk.hpp"
 #include "../data-model/Schedule.hpp"
 #include "../data-model/Filter.hpp"
 
@@ -100,6 +101,9 @@ namespace terrama2
       */
     Filter fromFilterJson(QJsonObject json);
     QJsonObject toJson(const Filter& filter);
+
+    DataSeriesRisk fromDataSeriesRiskJson(QJsonObject json);
+    QJsonObject toJson(const terrama2::core::DataSeriesRisk& risk);
 
     /*!
       \brief Creates a QJsonObject from a DataProvider.

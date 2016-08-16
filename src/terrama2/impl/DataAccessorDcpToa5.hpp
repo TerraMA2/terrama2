@@ -61,7 +61,8 @@ namespace terrama2
          */
         virtual ~DataAccessorDcpToa5() {}
 
-        static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        static DataAccessorType dataAccessorType(){ return "DCP-toa5"; }
 
       protected:
         /*!

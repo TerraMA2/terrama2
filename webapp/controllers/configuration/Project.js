@@ -1,13 +1,16 @@
+'use strict';
+
 var DataManager = require('../../core/DataManager');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
 module.exports = function(app) {
   return {
     get: function (request, response) {
+      app.locals.collapsed = app.locals.collapsed || true;
       DataManager.load().then(function() {
         var parameters = makeTokenParameters(request.query.token, app);
 
-        response.render("configuration/projects", parameters);
+        response.render("configuration/projects", Object.assign({context: request.query.context}, parameters));
       });
     },
 
@@ -36,7 +39,7 @@ module.exports = function(app) {
       }).catch(function(err) {
         console.log(err);
         response.render('base/404');
-      })
+      });
     }
   };
 };

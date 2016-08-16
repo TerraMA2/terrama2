@@ -1,5 +1,5 @@
-var DataSeriesType = require('./Enums').DataSeriesType;
-var FormField = require("./Enums").Form.Field;
+'use strict';
+
 var Utils = require('./Utils');
 
 /**
@@ -8,10 +8,11 @@ var Utils = require('./Utils');
  * @param {Object} params - It defines an object for semantics representation.
  */
 var AbstractSemantics = module.exports = function(semanticsObject) {
-  if (this.constructor === AbstractSemantics)
+  if (this.constructor === AbstractSemantics) {
     throw new Error("AbstractSemantic cannot be instantiated");
+  }
 
-  Utils.isValidDataSeriesType(semanticsObject.data_series_type_name);
+  Utils.isValidDataSeriesType(semanticsObject.data_series_type_name || semanticsObject.type);
 
   this.semantics = semanticsObject;
 };
@@ -43,7 +44,7 @@ AbstractSemantics.prototype.get = function() {
 
 AbstractSemantics.prototype.metadata = function() {
   return this.semantics.metadata;
-}
+};
 
 /**
  * It retrieves a list of DataProviders type that semantics works with.
@@ -93,5 +94,5 @@ AbstractSemantics.prototype.databaseValues = function() {
     code: semantics.code,
     data_format_name: semantics.data_format_name,
     data_series_type_name: semantics.data_series_type_name
-  }
+  };
 };

@@ -47,7 +47,7 @@ define(
      * @inner
      */
     var createLayerGroup = function(id, name, parent, layers) {
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + name + "</span><ul class='children'>" + layers + "</ul></li>";
+      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
     };
 
     /**
@@ -56,6 +56,7 @@ define(
      * @param {string} name - Layer name
      * @param {string} parent - Parent id
      * @param {boolean} visible - Flag that indicates if the layer should be visible when created
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled when created
      * @returns {string} html - HTML code of the layer
      *
      * @private
@@ -63,31 +64,37 @@ define(
      * @memberof LayerExplorer
      * @inner
      */
-    var createLayer = function(id, name, parent, visible) {
+    var createLayer = function(id, name, parent, visible, disabled) {
       var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
+      var classes = disabled ? "layer disabled-content" : "layer";
 
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='layer'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
+      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='" + classes + "'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
     };
 
     /**
      * Adds a layer or a layer group to the layer explorer with data from the map.
      * @param {string} id - Layer or layer group id
      * @param {string} parent - Parent id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the element should be inserted as last element of the parent, if the parameter isn't provided, it's set to false
      *
      * @function addLayersFromMap
      * @memberof LayerExplorer
      * @inner
      */
-    var addLayersFromMap = function(id, parent) {
+    var addLayersFromMap = function(id, parent, appendAtTheEnd) {
+      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+
       var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
       if(data !== null) {
         var elem = buildLayersFromMap(data, parent);
 
         if(parent === 'terrama2-layerexplorer') {
-          $('#' + parent).prepend(elem);
+          if(appendAtTheEnd) $('#' + parent).append(elem);
+          else $('#' + parent).prepend(elem);
         } else {
-          $('#' + parent + ' > ul.children').prepend(elem);
+          if(appendAtTheEnd) $('#' + parent + ' > ul.children').append(elem);
+          else $('#' + parent + ' > ul.children').prepend(elem);
         }
 
         // Handle opacity slider control
@@ -97,6 +104,20 @@ define(
 
         setSortable();
       }
+    };
+
+    /**
+     * Removes a layer with a given id from the LayerExplorer and calls the removeLayer method of the MapDisplay.
+     * @param {string} layerId - Layer id
+     * @param {string|undefined} parentGroupId - Parent group id
+     *
+     * @function removeLayer
+     * @memberof LayerExplorer
+     * @inner
+     */
+    var removeLayer = function(layerId, parentGroupId) {
+      $('#' + layerId.replace(':', '')).remove();
+      memberMapDisplay.removeLayer(layerId, parentGroupId);
     };
 
     /**
@@ -127,7 +148,7 @@ define(
           elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem);
       } else {
         if(!$("#" + layer.get('id').replace(':', '')).length)
-          elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'));
+          elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'), layer.get('disabled'));
       }
 
       return elem;
@@ -246,6 +267,7 @@ define(
     return {
       getSelectedLayer: getSelectedLayer,
       addLayersFromMap: addLayersFromMap,
+      removeLayer: removeLayer,
       init: init
     };
   }

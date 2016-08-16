@@ -1,3 +1,5 @@
+'use strict';
+
 var AbstractClass = require('./../AbstractSemantics');
 var Form = require('./../Enums').Form;
 
@@ -21,7 +23,7 @@ GridGeoTiff.prototype.schema = function() {
       }
     },
     required: ['mask']
-  }
+  };
 };
 
 GridGeoTiff.prototype.form = function() {

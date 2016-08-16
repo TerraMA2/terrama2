@@ -59,7 +59,7 @@ bool terrama2::core::DataAccessorFactory::add(const std::string& semanticsCode, 
 
     factoriesMap_[semantics] = f;
   }
-  catch(terrama2::core::SemanticsException e)
+  catch(const terrama2::core::SemanticsException& e)
   {
     // Could not add the factory because the given semantic isn't registered.
     QString errMsg = QObject::tr("Could not register data accessor factory\n Sematics not registered!");
@@ -107,7 +107,5 @@ terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terram
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  std::shared_ptr<DataAccessor> dataAccessor(factoriesMap_[dataSeries->semantics](dataProvider, dataSeries, filter));
-
-  return dataAccessor;
+  return factoriesMap_[dataSeries->semantics](dataProvider, dataSeries, filter);
 }

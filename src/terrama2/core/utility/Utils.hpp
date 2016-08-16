@@ -64,7 +64,6 @@ namespace terrama2
 {
   namespace core
   {
-
     /*!
       \brief Returns the path relative to a directory or file in the context of TerraMA2.
 
@@ -119,6 +118,8 @@ namespace terrama2
     DataSeriesType dataSeriesTypeFromString(const std::string& type);
 
     bool isValidColumn(size_t value);
+
+    std::string getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors = true);
   } // end namespace core
 }   // end namespace terrama2
 

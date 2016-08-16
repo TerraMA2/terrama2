@@ -29,6 +29,7 @@
 
 #include "Service.hpp"
 #include "Logger.hpp"
+#include "Timer.hpp"
 
 terrama2::core::Service::Service()
   : stop_(false)
@@ -41,7 +42,7 @@ terrama2::core::Service::~Service()
   stopService();
 }
 
-void terrama2::core::Service::start(uint threadNumber)
+void terrama2::core::Service::start(size_t threadNumber)
 {
 
   // if service already running, throws
@@ -52,7 +53,6 @@ void terrama2::core::Service::start(uint threadNumber)
     throw ServiceException() << ErrorDescription(errMsg);
   }
 
-
   try
   {
     stop_ = false;
@@ -61,7 +61,6 @@ void terrama2::core::Service::start(uint threadNumber)
 
     //check for the number o threads to create
     threadNumber = verifyNumberOfThreads(threadNumber);
-    threadNumber = 1;
 
     //Starts collection threads
     for(uint i = 0; i < threadNumber; ++i)
@@ -75,9 +74,11 @@ void terrama2::core::Service::start(uint threadNumber)
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ServiceException() << ErrorDescription(errMsg);
   }
+
+  TERRAMA2_LOG_DEBUG() << tr("Actual number of threads: %1").arg(processingThreadPool_.size());
 }
 
-int terrama2::core::Service::verifyNumberOfThreads(int numberOfThreads) const
+size_t terrama2::core::Service::verifyNumberOfThreads(size_t numberOfThreads) const
 {
   if(numberOfThreads == 0)
     numberOfThreads = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
@@ -89,34 +90,52 @@ int terrama2::core::Service::verifyNumberOfThreads(int numberOfThreads) const
 
 void terrama2::core::Service::stopService() noexcept
 {
-  stop(false);
+  try
+  {
+    stop(false);
+  }
+  catch (...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
 }
 
 void terrama2::core::Service::stop(bool holdStopSignal) noexcept
 {
+  try
   {
-    std::lock_guard<std::mutex> lock(mutex_);
-    // finish the thread
-    stop_ = true;
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      // finish the thread
+      stop_ = true;
 
-    //wake loop thread and collecting threads
-    mainLoopCondition_.notify_one();
-    processingThreadCondition_.notify_all();
+      //wake loop thread and collecting threads
+      mainLoopCondition_.notify_one();
+      processingThreadCondition_.notify_all();
+    }
+
+    //wait for the loop thread
+    if(mainLoopThread_.valid())
+      mainLoopThread_.get();
+
+    //wait for each collecting thread
+    for (auto& future : processingThreadPool_)
+    {
+      if(future.valid())
+
+        future.get();
+    }
+    processingThreadPool_.clear();
+
+    if(!holdStopSignal)
+      emit serviceFinishedSignal();
   }
-
-  //wait for the loop thread
-  if(mainLoopThread_.valid())
-    mainLoopThread_.get();
-
-  //wait for each collecting thread
-  for (auto& future : processingThreadPool_)
+  catch (...)
   {
-    if(future.valid())
-      future.get();
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
-
-  if(!holdStopSignal)
-    emit serviceFinishedSignal();
 }
 
 void terrama2::core::Service::mainLoopThread() noexcept
@@ -192,10 +211,43 @@ void terrama2::core::Service::processingTaskThread() noexcept
   }
 }
 
-void terrama2::core::Service::updateNumberOfThreads(int numberOfThreads)
+void terrama2::core::Service::updateNumberOfThreads(size_t numberOfThreads) noexcept
 {
+  //service not runnig, start service with numberOfThreads threads
+  if(!mainLoopThread_.valid())
+  {
+    start(numberOfThreads);
+    return;
+  }
+
+  std::unique_lock<std::mutex> lock(mutex_);
+  TERRAMA2_LOG_DEBUG() << tr("Old number of threads: %1").arg(processingThreadPool_.size());
+
   numberOfThreads = verifyNumberOfThreads(numberOfThreads);
-  //TODO: review updateNumberOfThreads. launch and join as needed instead of stop?
-  stop(true);
-  start(numberOfThreads);
+  //same number of threads, nothing to do
+  if(numberOfThreads == processingThreadPool_.size())
+    return;
+
+  //stop all threads and start again.
+  if(numberOfThreads < processingThreadPool_.size())
+  {
+    // joining individual threads is not possible because of the
+    // waiting condition and the stop condition that are global
+    stop(true);
+    start(numberOfThreads);
+  }
+
+  //create threads until there are numberOfThreads threads
+  while(numberOfThreads > processingThreadPool_.size())
+    processingThreadPool_.push_back(std::async(std::launch::async, &Service::processingTaskThread, this));
+
+  TERRAMA2_LOG_DEBUG() << tr("Actual number of threads: %1").arg(processingThreadPool_.size());
+}
+
+terrama2::core::TimerPtr terrama2::core::Service::createTimer(const Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const
+{
+  terrama2::core::TimerPtr timer = std::make_shared<const terrama2::core::Timer>(schedule, processId, lastProcess);
+  connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::core::Service::addToQueue, Qt::UniqueConnection);
+
+  return timer;
 }

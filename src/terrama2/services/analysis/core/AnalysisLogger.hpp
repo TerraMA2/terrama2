@@ -30,7 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 
-#include "../Typedef.hpp"
+#include "Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
 namespace terrama2
@@ -61,7 +61,7 @@ namespace terrama2
            */
           virtual ~AnalysisLogger() = default;
 
-          virtual void setConnectionInfo(const std::map < std::string, std::string > connInfo) override;
+          virtual void setConnectionInfo(const std::map < std::string, std::string >& connInfo) noexcept override;
 
         };
       }

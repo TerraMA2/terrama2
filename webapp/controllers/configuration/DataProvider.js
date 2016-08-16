@@ -1,3 +1,5 @@
+"use strict";
+
 var DataManager = require("../../core/DataManager");
 var Utils = require('../../helpers/Utils');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
@@ -8,9 +10,6 @@ var RequestFactory = require("../../core/RequestFactory");
 module.exports = function(app) {
   return {
     get: function(request, response) {
-      var dataProviderId = request.query.id,
-          method = request.query.method;
-
       var parameters = makeTokenParameters(request.query.token, app);
 
       return response.render("configuration/providers", parameters);
@@ -31,10 +30,10 @@ module.exports = function(app) {
     },
 
     edit: function(request, response) {
-      var dataProviderName = request.params.name;
+      var dataProviderId = request.params.id;
       var redirectTo = request.query.redirectTo ? request.query : {redirectTo: "/configuration/providers"};
 
-      DataManager.getDataProvider({name: dataProviderName}).then(function(dataProvider) {
+      DataManager.getDataProvider({id: parseInt(dataProviderId || "0")}).then(function(dataProvider) {
         var requester = RequestFactory.buildFromUri(dataProvider.uri);
 
         return response.render('configuration/provider', {
@@ -47,7 +46,7 @@ module.exports = function(app) {
             uriObject: requester.params
           },
           saveConfig: {
-            url: "/api/DataProvider/" + dataProvider.name,
+            url: "/api/DataProvider/" + dataProvider.id,
             method: "PUT"
           },
           fields: requester.constructor.fields(),

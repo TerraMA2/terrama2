@@ -1,9 +1,12 @@
+"use strict";
+
 angular.module('terrama2.analysis.registration', [
     'terrama2',
     'terrama2.services',
     'terrama2.components.messagebox',
-    'ui.bootstrap.datetimepicker',
-    'ui.dateTimeInput',
+    'terrama2.datetimepicker',
+    'terrama2.ace',
+    'terrama2.components.geo',
     'schemaForm',
     'terrama2.schedule',
     'treeControl'
@@ -19,9 +22,32 @@ angular.module('terrama2.analysis.registration', [
       'AnalysisFactory',
       'DataProviderFactory',
       'TryCaster',
-  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster) {
+      'Socket',
+  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster, Socket) {
+    var socket = Socket;
+
     // injecting i18n module
     $scope.i18n = i18n;
+
+    // TerraMA2 box
+    $scope.css = {
+      boxType: "box-solid"
+    };
+    $scope.forms = {};
+
+    $scope.initActive = function(state) {
+      $scope.analysis.active = (configuration.analysis.active === false || configuration.analysis.active) ?
+          configuration.analysis.active : true;
+    };
+
+    $scope.dataSeriesBoxName = i18n.__('Additional Data');
+
+    // flag to handling script status
+    $scope.testingScript = false;
+
+    $scope.interpolationMethods = globals.enums.InterpolationMethod;
+    $scope.interestAreaTypes = globals.enums.InterestAreaType;
+    $scope.resolutionTypes = globals.enums.ResolutionType;
 
     // checking if is update mode
     $scope.isUpdating = Object.keys(configuration.analysis).length > 0;
@@ -43,9 +69,36 @@ angular.module('terrama2.analysis.registration', [
     $scope.schedule = {};
     $scope.isFrequency = false;
     $scope.isSchedule = false;
-    $scope.scheduleOptions = {
-      disabled: $scope.isUpdating
-    }
+    $scope.scheduleOptions = {};
+
+    $scope.onScriptChanged = function(editor) {
+      $scope.analysis.script = editor.getSession().getDocument().getValue();
+    };
+
+    socket.on('checkPythonScriptResponse', function(result) {
+      $scope.testingScript = false;
+
+      var errorBlock = angular.element('#systemError');
+      var statusBlock = angular.element('#scriptCheckResult');
+
+      if(result.hasError || result.hasPythonError) {
+        if(result.hasError) {
+          errorBlock.text(result.systemError);
+          errorBlock.css('display', '');
+        } else {
+          errorBlock.css('display', 'none');
+        }
+      } else {
+        errorBlock.css('display', 'none');
+      }
+
+      statusBlock.text(result.messages);
+    });
+
+    $scope.onScriptValidation = function() {
+      $scope.testingScript = true;
+      socket.emit('checkPythonScriptRequest', {script: $scope.analysis.script || ""});
+    };
 
     // define dataseries selected in modal
     $scope.nodesDataSeries = [];
@@ -59,7 +112,7 @@ angular.module('terrama2.analysis.registration', [
     $scope.buffers = {
       "static": [],
       "dynamic": []
-    }
+    };
 
     // filter for dataseries basead analysis type. If obj monitored, then this list will be list of obj monitored and occurrences
     $scope.filteredDataSeries = [];
@@ -67,7 +120,7 @@ angular.module('terrama2.analysis.registration', [
     // helper of semantics selected to display in gui: Object Monitored, Dcp, Grid, etc.
     $scope.semanticsSelected = "";
 
-    // dataseries tree modal
+    // data series tree modal
     $scope.treeOptions = {
       nodeChildren: "children",
       multiSelection: true,
@@ -82,12 +135,12 @@ angular.module('terrama2.analysis.registration', [
         label: "a6",
         labelSelected: "2"
       }
-    }
+    };
 
     $scope.dataSeriesGroups = [
       {name: "Static", children: []},
       {name: "Dynamic", children: []}
-    ]
+    ];
 
     // watchers
     // cleaning analysis metadata when analysis type has been changed.
@@ -95,7 +148,14 @@ angular.module('terrama2.analysis.registration', [
     $scope.$watch("analysis.type_id", function(value) {
       $scope.analysis.metadata = {};
       var semanticsType;
-      switch(parseInt(value)) {
+      var intTypeId = parseInt(value);
+
+      if ($scope.analysis.grid) {
+        delete $scope.analysis.grid;
+      }
+
+      $scope.dataSeriesBoxName = i18n.__("Additional Data");
+      switch(intTypeId) {
         case globals.enums.AnalysisType.DCP:
           semanticsType = globals.enums.DataSeriesType.DCP;
           $scope.semanticsSelected = "Dcp";
@@ -103,23 +163,27 @@ angular.module('terrama2.analysis.registration', [
         case globals.enums.AnalysisType.GRID:
           semanticsType = globals.enums.DataSeriesType.GRID;
           $scope.semanticsSelected = "Grid";
+          $scope.dataSeriesBoxName = i18n.__("Grid Data Series");
           break;
         case globals.enums.AnalysisType.MONITORED:
           semanticsType = globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
-          $scope.semanticsSelected = "Object Monitored";
+          $scope.semanticsSelected = i18n.__("Object Monitored");
           break;
         default:
           console.log("invalid analysis type");
           return;
-          break;
       }
 
+      // re-fill data series
+      _processBuffers();
+
       $scope.onTargetDataSeriesChange = function() {
-        if ($scope.targetDataSeries && $scope.targetDataSeries.name)
+        if ($scope.targetDataSeries && $scope.targetDataSeries.name) {
           $scope.metadata[$scope.targetDataSeries.name] = {
             alias: $scope.targetDataSeries.name
           };
-      }
+        }
+      };
 
       // filtering formats
       $scope.storagerFormats = [];
@@ -133,17 +197,17 @@ angular.module('terrama2.analysis.registration', [
       $scope.filteredDataSeries = [];
       $scope.dataSeriesList.forEach(function(dataSeries) {
         var semantics = dataSeries.data_series_semantics;
-        if (semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA)
+        if (semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA) {
           $scope.filteredDataSeries.push(dataSeries);
+        }
       });
 
-      if ($scope.isUpdating)
-        $scope.$emit("analysisTypeChanged");
+      if ($scope.isUpdating) { $scope.$emit("analysisTypeChanged"); }
     });
 
     // targetDataSeries change. When
 
-    // terrama2 alert box
+    // TerraMA2 alert box
     $scope.alertBox = {};
     $scope.display = false;
     $scope.alertLevel = null;
@@ -155,8 +219,7 @@ angular.module('terrama2.analysis.registration', [
     $scope.modelStorager = {};
     $scope.schemaStorager = {};
     $scope.options = {};
-    if ($scope.isUpdating)
-      $scope.options.formDefaults = {readonly: true};
+    if ($scope.isUpdating) { $scope.options.formDefaults = {readonly: true}; }
 
     $scope.$on('storagerFormatChange', function(event, args) {
       $scope.formatSelected = args.format;
@@ -168,8 +231,7 @@ angular.module('terrama2.analysis.registration', [
 
         if ($scope.isUpdating) {
           $scope.modelStorager = configuration.analysis.dataSeries.dataSets[0].format;
-        } else
-          $scope.modelStorager = {};
+        } else { $scope.modelStorager = {}; }
 
         $scope.formStorager = metadata.form;
         $scope.schemaStorager = {
@@ -182,9 +244,10 @@ angular.module('terrama2.analysis.registration', [
 
         $scope.dataProvidersList.forEach(function(dataProvider) {
           data.data_providers_semantics.forEach(function(demand) {
-            if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
+            if (dataProvider.data_provider_type.id == demand.data_provider_type_id) {
               $scope.dataProviders.push(dataProvider);
-          })
+            }
+          });
         });
 
         $scope.$broadcast('schemaFormRedraw');
@@ -217,23 +280,60 @@ angular.module('terrama2.analysis.registration', [
             analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
               var ds = analysisDs.dataSeries;
 
-              if (analysisDs.type === globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE)
+              if (analysisDs.type === globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
                 $scope.selectedDataSeriesList.push(ds);
-              else {
+              } else {
                 $scope.filteredDataSeries.some(function(filteredDs) {
                   if (filteredDs.id === ds.id) {
                     $scope.targetDataSeries = filteredDs;
                     $scope.onTargetDataSeriesChange();
 
                     // set identifier
-                    $scope.identifier = analysisDs.metadata['identifier'] ;
+                    $scope.identifier = analysisDs.metadata.identifier;
                     return true;
                   }
-                })
+                });
               }
 
-              $scope.metadata[ds.name] = Object.assign({alias: analysisDs.alias}, analysisDs.metadata);
+              $scope.metadata[ds.name] = Object.assign({id: analysisDs.id, alias: analysisDs.alias}, analysisDs.metadata);
             });
+
+            if (analysisInstance.type.id === globals.enums.AnalysisType.GRID) {
+              // fill interpolation
+              debugger;
+              $scope.analysis.grid = {
+                interpolation_method: analysisInstance.output_grid.interpolation_method,
+                area_of_interest_type: analysisInstance.output_grid.area_of_interest_type,
+                resolution_type: analysisInstance.output_grid.resolution_type
+              };
+              var dummy = analysisInstance.output_grid.interpolation_dummy;
+              if (dummy) {
+                $scope.analysis.grid.interpolation_dummy = Number(dummy);
+              }
+              var resolutionDS = analysisInstance.output_grid.resolution_data_series_id;
+              if (resolutionDS) {
+                $scope.analysis.grid.resolution_data_series_id = resolutionDS;
+              }
+              var interestDS = analysisInstance.output_grid.area_of_interest_data_series_id;
+              if (interestDS) {
+                $scope.analysis.grid.area_of_interest_data_series_id = interestDS;
+              }
+              var resX = analysisInstance.output_grid.resolution_x;
+              var resY = analysisInstance.output_grid.resolution_y;
+              if (resX && resY) {
+                $scope.analysis.grid.resolution_x = Number(resX);
+                $scope.analysis.grid.resolution_y = Number(resY);
+              }
+              var coordinates = (analysisInstance.output_grid.area_of_interest_box || {}).coordinates;
+              if (coordinates) {
+                $scope.analysis.grid.area_of_interest_bounded = {
+                  minX: coordinates[0][0][0],
+                  minY: coordinates[0][0][1],
+                  maxX: coordinates[0][2][0],
+                  maxY: coordinates[0][2][1]
+                };
+              }
+            }
 
             // setting storager format
             $scope.storagerFormats.some(function(storagerFmt) {
@@ -245,17 +345,7 @@ angular.module('terrama2.analysis.registration', [
             });
 
             $scope.analysis.data_provider_id = analysisInstance.dataSeries.data_provider_id;
-          })
-
-          // TODO: change it to angular ui-ace.
-          editor.setValue($scope.analysis.script);
-          editor.setOptions({
-            readOnly: true,
-            highlightActiveLine: false,
-            highlightGutterLine: false
-          })
-          editor.renderer.$cursorLayer.element.style.opacity=0
-
+          });
         }
 
       }).error(function(err) {
@@ -284,30 +374,54 @@ angular.module('terrama2.analysis.registration', [
     // getting DataSeries
     DataSeriesFactory.get({schema: "all"}).success(function(dataSeriesObjects) {
       $scope.dataSeriesList = dataSeriesObjects;
-
-      dataSeriesObjects.forEach(function(dSeries) {
-        var semantics = dSeries.data_series_semantics;
-
-        if (semantics.data_series_type_name == "STATIC_DATA") {
-          dSeries.isDynamic = false;
-          $scope.buffers["static"].push(dSeries);
-        }
-        else {
-          dSeries.isDynamic = true;
-          $scope.buffers["dynamic"].push(dSeries);
-        }
-      });
-
-      $scope.dataSeriesGroups[0].children = $scope.buffers["static"];
-      $scope.dataSeriesGroups[1].children = $scope.buffers["dynamic"];
+      // fill buffers
+      _processBuffers();
     }).error(errorHelper);
 
     // helpers
+    var _processBuffers = function() {
+      // clean old data
+      $scope.buffers = {
+        "dynamic": [],
+        "static": []
+      };
+
+      // cleaning already selected data series
+      $scope.selectedDataSeriesList = [];
+
+      if (parseInt($scope.analysis.type_id) === globals.enums.AnalysisType.GRID) {
+        $scope.dataSeriesList.forEach(function(dSeries) {
+          var semantics = dSeries.data_series_semantics;
+
+          if (semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
+            dSeries.isDynamic = true;
+            $scope.buffers.dynamic.push(dSeries);
+          }
+        });
+      } else {
+        $scope.dataSeriesList.forEach(function(dSeries) {
+          var semantics = dSeries.data_series_semantics;
+
+          if (semantics.data_series_type_name === "STATIC_DATA") {
+            dSeries.isDynamic = false;
+            $scope.buffers.static.push(dSeries);
+          }
+          else {
+            dSeries.isDynamic = true;
+            $scope.buffers.dynamic.push(dSeries);
+          }
+        });
+      }
+
+      $scope.dataSeriesGroups[0].children = $scope.buffers.static;
+      $scope.dataSeriesGroups[1].children = $scope.buffers.dynamic;
+    };
+
     var formErrorDisplay = function(form) {
       angular.forEach(form.$error, function (field) {
         angular.forEach(field, function(errorField){
           errorField.$setDirty();
-        })
+        });
       });
     };
 
@@ -316,13 +430,13 @@ angular.module('terrama2.analysis.registration', [
       $scope.alertBox.message = bodyMessage;
       $scope.alertLevel = level;
       $scope.display = show;
-    }
+    };
 
     // handling functions
     // checking for empty data series table
     $scope.isEmptyDataSeries = function() {
       return $scope.selectedDataSeriesList.length === 0;
-    }
+    };
 
     // it adds dataseries from modal to table
     $scope.addDataSeries = function() {
@@ -334,7 +448,7 @@ angular.module('terrama2.analysis.registration', [
           }
           return false;
         });
-      }
+      };
 
       $scope.nodesDataSeries.forEach(function(target) {
         if (!target || !target.id)
@@ -348,7 +462,7 @@ angular.module('terrama2.analysis.registration', [
         } else {
           _helper("static", target);
         }
-      })
+      });
 
       $scope.nodesDataSeries = [];
     };
@@ -366,13 +480,13 @@ angular.module('terrama2.analysis.registration', [
           _pushToBuffer(type, dSeries);
           return true;
         }
-      })
-    }
+      });
+    };
 
     // it check if there is a dataseries selected
     $scope.isAnyDataSeriesSelected = function() {
       return $scope.selectedDataSeries && $scope.selectedDataSeries.id > 0;
-    }
+    };
 
     // it handles hidden box with data-series analysis metadata
     $scope.onDataSeriesClick = function(dataSeries) {
@@ -399,40 +513,54 @@ angular.module('terrama2.analysis.registration', [
 
     // save function
     $scope.save = function() {
+      $scope.$broadcast('formFieldValidation');
+
       $scope.analysis_script_error = false;
-      if ($scope.generalDataForm.$invalid) {
-        formErrorDisplay($scope.generalDataForm);
+      if ($scope.forms.generalDataForm.$invalid) {
         return;
       }
 
-      if ($scope.storagerDataForm.$invalid || $scope.storagerForm.$invalid) {
-        formErrorDisplay($scope.storagerDataForm);
+      if ($scope.forms.storagerDataForm.$invalid || $scope.forms.storagerForm.$invalid) {
         return;
       }
 
       // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
       var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
-      if (scheduleForm.$invalid) {
-        errorHelper(scheduleForm);
-        return;
-      }
+      if (scheduleForm.$invalid) { return; }
 
-      if ($scope.targetDataSeriesForm.$invalid) {
-        formErrorDisplay($scope.targetDataSeriesForm);
-        return;
-      }
+      if ($scope.forms.targetDataSeriesForm.$invalid) { return; }
 
-      if ($scope.scriptForm.$invalid) {
-        formErrorDisplay($scope.scriptForm);
-        return;
-      }
+      if ($scope.forms.scriptForm.$invalid) { return; }
 
       // checking script form if there any "add_value"
-      if ($scope.analysis.script.indexOf("add_value") < 0) {
-        $scope.analysis_script_error = true;
-        $scope.analysis_script_error_message = "Analysis will not able to generate a output data. Please fill at least a add_value() in script field.";
-        angular.element("#scriptCheckResult").html($scope.analysis_script_error_message);
-        // makeDialog("alert-danger", $scope.analysis_script_error_message, true);
+      var typeId = parseInt($scope.analysis.type_id);
+
+      var checkResult = angular.element("#scriptCheckResult");
+
+      var hasScriptError = function(expression, message) {
+        var output = false;
+        if ($scope.analysis.script.indexOf(expression) < 0) {
+          $scope.analysis_script_error = true;
+          $scope.analysis_script_error_message = "Analysis will not able to generate a output data. " + message;
+          output = true;
+        } else {
+          $scope.analysis_script_error_message = "";
+          $scope.analysis_script_error = false;
+        }
+        checkResult.html($scope.analysis_script_error_message);
+        return output;
+      };
+
+      var expression, message;
+
+      if (typeId === globals.enums.AnalysisType.GRID) {
+        expression = "return";
+        message = "Grid analysis script must end with 'return' statement";
+      } else {
+        expression = "add_value";
+        message = "Please fill at least a add_value() in script field.";
+      }
+      if (hasScriptError(expression, message)) {
         return;
       }
 
@@ -443,7 +571,7 @@ angular.module('terrama2.analysis.registration', [
           dataSeriesError = dSeries;
           return true;
         }
-      })
+      });
 
       if (hasError) {
         makeDialog("alert-danger", "Invalid data series. Please fill out alias in " + dataSeriesError.name, true);
@@ -466,8 +594,14 @@ angular.module('terrama2.analysis.registration', [
         var alias = ($scope.metadata[selectedDS.name] || {}).alias;
 
         delete metadata.alias;
+        var _id = 0;
+        if (metadata.id) {
+          _id = metadata.id;
+          delete metadata.id;
+        }
 
         return {
+          id: _id,
           data_series_id: selectedDS.id,
           metadata: metadata,
           alias: alias,
@@ -478,7 +612,7 @@ angular.module('terrama2.analysis.registration', [
 
       // target data series
       var analysisTypeId;
-      switch(parseInt($scope.analysis.type_id)) {
+      switch(typeId) {
         case globals.enums.AnalysisType.DCP:
           analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
           break;
@@ -491,22 +625,53 @@ angular.module('terrama2.analysis.registration', [
           break;
       }
 
+      // preparing data to send
+      var analysisToSend = Object.assign({}, $scope.analysis);
+
       // setting target data series metadata (monitored object, dcp..)
-      analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, analysisTypeId));
+      if (typeId !== globals.enums.AnalysisType.GRID) {
+        analysisDataSeriesArray.push(_makeAnalysisDataSeries($scope.targetDataSeries, analysisTypeId));
+      } else {
+        // checking geojson
+        if ($scope.analysis.grid && $scope.analysis.grid.area_of_interest_bounded &&
+            !angular.equals({}, $scope.analysis.grid.area_of_interest_bounded)) {
+          var bounded = $scope.analysis.grid.area_of_interest_bounded;
+          var coordinates = [
+            [
+              [bounded.minX, bounded.minY],
+              [bounded.minX, bounded.maxY],
+              [bounded.maxX, bounded.maxY],
+              [bounded.maxX, bounded.minY],
+              [bounded.minX, bounded.minY]
+            ]
+          ];
+          analysisToSend.grid.area_of_interest_box = {
+            type: 'Polygon',
+            coordinates: coordinates,
+            crs: {
+              type: 'name',
+              properties : {
+                name: "EPSG:4326"
+              }
+            }
+          };
+        }
+      }
 
       // todo: improve it
-      // temp code for sending analysis dataseries
+      // temp code for sending analysis data series
       $scope.selectedDataSeriesList.forEach(function(selectedDS) {
         // additional data
         var analysisDataSeries = _makeAnalysisDataSeries(selectedDS, globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE);
         analysisDataSeriesArray.push(analysisDataSeries);
       });
 
-      var analysisToSend = Object.assign({}, $scope.analysis);
       analysisToSend.dataSeries = $scope.selectedDataSeriesList;
       analysisToSend.analysisDataSeries = analysisDataSeriesArray;
 
-      var storager = Object.assign({}, $scope.storager, $scope.modelStorager);
+      var storager = {};
+      storager.format = Object.assign({}, $scope.modelStorager);
+      storager.semantics = Object.assign({}, $scope.storager);
 
       var scheduleValues = Object.assign({}, $scope.schedule);
       switch(scheduleValues.scheduleHandler) {
@@ -530,12 +695,18 @@ angular.module('terrama2.analysis.registration', [
       }
 
       // sending post operation
-      AnalysisFactory.post({
+      var objectToSend = {
         analysis: analysisToSend,
         storager: storager,
         schedule: scheduleValues
-      }).success(function(data) {
+      };
 
+      var request;
+
+      if ($scope.isUpdating) { request = AnalysisFactory.put(configuration.analysis.id, objectToSend); }
+      else { request = AnalysisFactory.post(objectToSend); }
+
+      request.success(function(data) {
         window.location = "/configuration/analyses?token=" + data.token;
       }).error(function(err) {
         console.log(err);

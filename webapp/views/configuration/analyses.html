@@ -4,7 +4,7 @@
 
 {% block ngApp %} ng-app="terrama2.analyses" {% endblock %}
 
-{% block title %} TerraMA2 {[ __('Analyses') ]} {% endblock %}
+{% block title %} TerraMA² {[ __('Analyses') ]} {% endblock %}
 
 {% block javascripts %}
 
@@ -36,12 +36,12 @@
         return "/configuration/analyses/" + object.id + "/edit";
       };
 
-      $scope.display = false;
       $scope.alertLevel = "alert-success";
       $scope.alertBox = {
-        title: "Data Provider",
+        title: "Analysis",
         message: "{[ message ]}"
       };
+      $scope.display = $scope.alertBox.message !== "";
 
       $scope.extra = {
         removeOperationCallback: function(err, data) {
@@ -72,7 +72,7 @@
           default:
             return "/images/map-pin.png";
         }
-      }
+      };
 
       AnalysisFactory.get().success(function(analysis) {
         $scope.model = analysis;
@@ -88,24 +88,16 @@
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="ListController">
-  <div class="col-md-12">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">{[ __('Analyses') ]}</h3>
-      </div><!-- /.box-header -->
+<div ng-controller="ListController">
+  <terrama2-box title="'{[ __('Analyses') ]}'">
+    <div class="col-md-12">
+      <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display">
+      </terrama2-alert-box>
+    </div>
 
-      <div class="box-body">
-        <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
-        </div>
-
-        <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd" context="'analysis'" remove="remove(object);" extra="extra"></terrama2-table>
-      </div><!-- /.box-body -->
-
-    </div><!-- /.box -->
-  </div> <!-- end col md 6 -->
-
+    <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd" context="'analysis'" remove="remove(object);" extra="extra">
+    </terrama2-table>
+  </terrama2-box>
 </div> <!-- end col md 12 -->
 
 {% endblock %}

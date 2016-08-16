@@ -11,6 +11,8 @@ var Collector = module.exports = function(params) {
   this.input_data_series = params.data_series_input;
   this.output_data_series = params.data_series_output;
 
+  this.dataSeriesOutput = params.dataSeriesOutput || {};
+
   if (params.CollectorInputOutputs)
     this.setInputOutputMap(params.CollectorInputOutputs);
   else
@@ -67,7 +69,8 @@ Collector.prototype.setInputOutputMap = function (inputOutputModel) {
 Collector.prototype.rawObject = function () {
   var obj = this.toObject();
   obj.schedule = this.schedule.toObject();
-  obj.filter = this.filter instanceof BaseClass ? this.filter.toObject() : this.filter;
+  obj.filter = this.filter instanceof BaseClass ? this.filter.rawObject() : this.filter;
+  obj.dataSeriesOutput = this.dataSeriesOutput instanceof BaseClass ? this.dataSeriesOutput.toObject() : this.dataSeriesOutput;
 
   var intersectionArray = [];
   this.intersection.forEach(function(intersect) {

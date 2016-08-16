@@ -76,6 +76,8 @@ namespace terrama2
     struct DataModelException: virtual Exception{ };
     //! Base Exception for DataManager
     struct DataManagerException: virtual DataModelException{ };
+    //Base Exception for DataSeriesRisk
+    struct DataSeriesRiskException: virtual DataModelException{ };
 
     //#################################
 
@@ -95,6 +97,9 @@ namespace terrama2
 
     //! Raised when the receives an invalid collect frequency
     struct InvalidFrequencyException: virtual UtilityException { };
+
+    //! Raised when the receives an invalid SRID
+    struct InvalidSRIDException: virtual UtilityException { };
 
     //! Raised when the receives an log exception
     struct LogException: virtual UtilityException { };

@@ -48,6 +48,13 @@
 
 void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
+  if(!dataProvider_)
+  {
+    QString errMsg = QObject::tr("Invalid data provider");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataProviderException() << ErrorDescription(errMsg);
+  }
+
   QUrl url(dataProvider_->uri.c_str());
 
   std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
@@ -130,10 +137,11 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
   scopedTransaction.commit();
 }
 
-terrama2::core::DataStorager* terrama2::core::DataStoragerPostGis::make(DataProviderPtr dataProvider)
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGis::make(DataProviderPtr dataProvider)
 {
-  return new DataStoragerPostGis(dataProvider);
+  return std::make_shared<DataStoragerPostGis>(dataProvider);
 }
+
 
 std::string terrama2::core::DataStoragerPostGis::getDataSetTableName(DataSetPtr dataSet) const
 {

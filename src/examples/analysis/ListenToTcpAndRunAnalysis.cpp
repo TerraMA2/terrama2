@@ -10,6 +10,7 @@
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/impl/Utils.hpp>
@@ -66,7 +67,7 @@ int main(int argc, char* argv[])
     };
     serviceManager.setLogConnectionInfo(connInfo);
 
-    terrama2::services::analysis::core::initInterpreter();
+    terrama2::services::analysis::core::python::initInterpreter();
 
     QCoreApplication app(argc, argv);
 
@@ -89,12 +90,14 @@ int main(int argc, char* argv[])
     outputDataProvider->active = true;
 
 
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
     // DataSeries information
     terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr outputDataSeriesPtr(outputDataSeries);
     outputDataSeries->id = 3;
     outputDataSeries->name = "Analysis result";
-    outputDataSeries->semantics.code = "ANALYSIS_MONITORED_OBJECT-postgis";
+    outputDataSeries->semantics = semanticsManager.getSemantics("ANALYSIS_MONITORED_OBJECT-postgis");
     outputDataSeries->dataProviderId = outputDataProviderPtr->id;
 
 
@@ -110,15 +113,18 @@ int main(int argc, char* argv[])
     std::string script = "x = dcp.min(\"Serra do Mar\", \"pluvio\", 2, Buffer.OBJECT_PLUS_EXTERN)\n"
             "add_value(\"min\", x)\n";
 
-    Analysis analysis;
-    analysis.id = 1;
-    analysis.name = "Min DCP";
-    analysis.script = script;
-    analysis.scriptLanguage = ScriptLanguage::PYTHON;
-    analysis.type = AnalysisType::MONITORED_OBJECT_TYPE;
-    analysis.active = false;
-    analysis.outputDataSeriesId = 3;
-    analysis.serviceInstanceId = 1;
+
+    Analysis* analysis = new Analysis;
+    AnalysisPtr analysisPtr(analysis);
+
+    analysis->id = 1;
+    analysis->name = "Min DCP";
+    analysis->script = script;
+    analysis->scriptLanguage = ScriptLanguage::PYTHON;
+    analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
+    analysis->active = false;
+    analysis->outputDataSeriesId = 3;
+    analysis->serviceInstanceId = 1;
 
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -134,8 +140,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     dataSeries->dataProviderId = dataProvider->id;
-    dataSeries->semantics.code = "STATIC_DATA-ogr";
-    dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+    outputDataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
     dataSeries->dataProviderId = 1;
@@ -144,9 +149,8 @@ int main(int argc, char* argv[])
     terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
     terrama2::core::DataSetPtr dataSetPtr(dataSet);
     dataSet->active = true;
-    dataSet->format.emplace("mask", "afetados.shp");
+    dataSet->format.emplace("mask", "municipios_afetados.shp");
     dataSet->format.emplace("srid", "4618");
-    dataSet->format.emplace("identifier", "NOME");
     dataSet->id = 1;
 
     dataSeries->datasetList.push_back(dataSetPtr);
@@ -166,13 +170,14 @@ int main(int argc, char* argv[])
     monitoredObjectADS.id = 1;
     monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+    monitoredObjectADS.metadata["identifier"] = "objet_id_5";
 
 
     //DataSeries information
     terrama2::core::DataSeries* dcpSeries = new terrama2::core::DataSeries;
     terrama2::core::DataSeriesPtr dcpSeriesPtr(dcpSeries);
     dcpSeries->dataProviderId = dataProvider2->id;
-    dcpSeries->semantics.code = "DCP-inpe";
+    dcpSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
     dcpSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::DCP;
     dcpSeries->name = "Serra do Mar";
     dcpSeries->id = 2;
@@ -210,7 +215,7 @@ int main(int argc, char* argv[])
     std::vector<AnalysisDataSeries> analysisDataSeriesList;
     analysisDataSeriesList.push_back(dcpADS);
     analysisDataSeriesList.push_back(monitoredObjectADS);
-    analysis.analysisDataSeriesList = analysisDataSeriesList;
+    analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
     // Serialize objects
@@ -224,12 +229,12 @@ int main(int argc, char* argv[])
 
     QJsonArray seriesArray;
     seriesArray.push_back(terrama2::core::toJson(dataSeriesPtr));
-    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));;
+    seriesArray.push_back(terrama2::core::toJson(dcpSeriesPtr));
     seriesArray.push_back(terrama2::core::toJson(outputDataSeriesPtr));
     obj.insert("DataSeries", seriesArray);
 
     QJsonArray analysisArray;
-    analysisArray.push_back(terrama2::services::analysis::core::toJson(analysis));
+    analysisArray.push_back(terrama2::services::analysis::core::toJson(analysisPtr));
     obj.insert("Analysis", analysisArray);
 
     // Creates JSON document
@@ -238,7 +243,7 @@ int main(int argc, char* argv[])
     // Starts the service and TCP manager
     auto dataManager = std::make_shared<DataManager>();
     terrama2::core::TcpManager tcpManager(dataManager, std::weak_ptr<terrama2::core::ProcessLogger>());
-    tcpManager.listen(QHostAddress::Any, 30001);
+    tcpManager.listen(QHostAddress::Any, 30000);
     terrama2::services::analysis::core::Service service(dataManager);
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
@@ -287,6 +292,7 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
+  terrama2::services::analysis::core::python::finalizeInterpreter();
   terrama2::core::finalizeTerraMA();
 
   return 0;

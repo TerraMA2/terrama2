@@ -60,6 +60,7 @@ namespace terrama2
 {
   namespace core
   {
+    typedef std::string DataAccessorType;
     /*!
     \class DataAccessor
     \brief DataAccessor provides an interface for accesing the data from a DataSeries.
@@ -117,7 +118,7 @@ namespace terrama2
           \exception DataProviderException Raised if internal DataProvider isn't active.
           \exception DataProviderException Raised if the Filter date result in an empty time range.
         */
-        virtual std::map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter) const;
+        virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter) const;
 
         //! Utility function for converting string to double in the te::da::DataSet contruction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
@@ -155,13 +156,8 @@ namespace terrama2
         */
         virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
 
-        /*!
-          \brief Get value of a property
-
-          The name of the property may come from the semantics metadata or the dataset format,
-          the semantics has priority.
-        */
-        virtual std::string getProperty(DataSetPtr dataSet, std::string tag, bool logErrors = true) const;
+        //! Recover timezone information from dataset
+        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
 
       protected:
 

@@ -61,8 +61,6 @@ namespace terrama2
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
         //! Recover file mask
         virtual std::string getMask(DataSetPtr dataset) const;
-        //! Recover timezone information from dataset
-        virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
 
       protected:
         virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
@@ -123,11 +121,9 @@ namespace terrama2
 
         virtual std::string getFolder(DataSetPtr dataSet) const;
 
-        std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const;
+        std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const;
     };
   }
 }
-
-
 
 #endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FILE_HPP__

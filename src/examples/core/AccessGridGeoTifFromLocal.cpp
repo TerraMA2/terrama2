@@ -6,6 +6,7 @@
 #include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/impl/DataAccessorGeoTiff.hpp>
 #include <terrama2/core/data-access/GridSeries.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
 
 #include <iostream>
 
@@ -28,14 +29,17 @@ int main(int argc, char* argv[])
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
 
+
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+
     //DataSeries information
     terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "GRID-geotiff";
+    dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "teste.tif");
+    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -45,9 +49,9 @@ int main(int argc, char* argv[])
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
     terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
 
-    assert(gridSeries->gridList().size() == 1);
+    assert(gridSeries->gridMap().size() == 1);
 
-    auto raster = gridSeries->gridList().begin()->second;
+auto raster = gridSeries->gridMap().begin()->second;
     assert(raster->getSRID() != 0);
 
     std::cout << "SRID: " << raster->getSRID() << std::endl;

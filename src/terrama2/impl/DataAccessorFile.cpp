@@ -67,11 +67,6 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataAccessorFile::getTimeZone(DataSetPtr dataSet, bool logErrors) const
-{
-  return getProperty(dataSet, "timezone", logErrors);
-}
-
 std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const
 {
   std::string mask = getMask(dataset);
@@ -88,9 +83,9 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::da::Dat
   auto dataSet = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   size_t propertiesNumber = dataSet->getNumProperties();
 
-  size_t dateColumn = std::numeric_limits<size_t>::max();;
-  size_t geomColumn = std::numeric_limits<size_t>::max();;
-  size_t rasterColumn = std::numeric_limits<size_t>::max();;
+  size_t dateColumn = std::numeric_limits<size_t>::max();
+  size_t geomColumn = std::numeric_limits<size_t>::max();
+  size_t rasterColumn = std::numeric_limits<size_t>::max();
   for(size_t i = 0; i < propertiesNumber; ++i)
   {
     if(!isValidColumn(dateColumn) && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
@@ -249,7 +244,7 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
 
 std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) const
 {
-  return getProperty(dataSet, "folder", false);
+  return getProperty(dataSet, dataSeries_, "folder", false);
 }
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
@@ -350,9 +345,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     // also joins if the DCP comes from separated files
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
     std::map<std::string, std::string> connInfo;
-    connInfo["URI"] = typePrefix() + fileInfo.absolutePath().toStdString();
 
-//    connInfo["URI"] = typePrefix() + dir.absolutePath().toStdString() + "/" + name;
+    connInfo["URI"] = typePrefix() + fileInfo.absolutePath().toStdString() + "/" + name;
     datasource->setConnectionInfo(connInfo);
 
     //RAII for open/closing the datasource
@@ -413,7 +407,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   filterDataSet(completeDataset, filter);
 
   //Get last data timestamp and compare with file name timestamp
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(completeDataset);
+  std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
 
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
 
@@ -445,13 +439,13 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   return series;
 }
 
-std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDataLastTimestamp(std::shared_ptr<te::da::DataSet> dataSet) const
+std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const
 {
-  size_t propertiesNumber = dataSet->getNumProperties();
+  size_t propertiesNumber = teDataSet->getNumProperties();
   size_t dateColumn = std::numeric_limits<size_t>::max();
   for(size_t i = 0; i < propertiesNumber; ++i)
   {
-    if(!isValidColumn(dateColumn) && dataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
+    if(!isValidColumn(dateColumn) && teDataSet->getPropertyDataType(i) == te::dt::DATETIME_TYPE)
     {
       dateColumn = i;
       break;
@@ -466,13 +460,13 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
 
   std::shared_ptr< te::dt::DateTime > lastDateTime;
 
-  dataSet->moveBeforeFirst();
-  while(dataSet->moveNext())
+  teDataSet->moveBeforeFirst();
+  while(teDataSet->moveNext())
   {
-    if(dataSet->isNull(dateColumn))
+    if(teDataSet->isNull(dateColumn))
       continue;
 
-    std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(dateColumn));
+    std::shared_ptr< te::dt::DateTime > dateTime(teDataSet->getDateTime(dateColumn));
     if(!lastDateTime.get() || *lastDateTime < *dateTime)
       lastDateTime = dateTime;
   }
@@ -488,15 +482,14 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   {
     //NOTE: Depends on te::dt::TimeInstant toString implementation, it's doc is wrong
     std::string dateString = lastDateTime->toString();
-    boost::local_time::local_date_time boostLocalTimeWithoutTimeZone = TimeUtils::stringToBoostLocalTime(dateString, "%Y-%b-%d %H:%M:%S");
+    boost::local_time::local_date_time boostLocalTimeWithoutTimeZone = TimeUtils::stringToBoostLocalTime(dateString, "%Y-%b-%d %H:%M:%S%F %ZP");
     auto date = boostLocalTimeWithoutTimeZone.date();
     auto time = boostLocalTimeWithoutTimeZone.utc_time().time_of_day();
     boost::posix_time::ptime ptime(date, time);
-    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC+00"));
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(getTimeZone(dataSet)));
 
     boost::local_time::local_date_time boostLocalTime(ptime, zone);
     lastDateTimeTz = std::make_shared<te::dt::TimeInstantTZ>(boostLocalTime);
-    //FIXME: add terrama2::DataSet timezone
   }
   else if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT_TZ)
   {

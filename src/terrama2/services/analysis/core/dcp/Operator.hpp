@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/dcp/DCPOperator.hpp
+  \file terrama2/services/analysis/core/dcp/Operator.hpp
 
   \brief Contains DCP analysis operators.
 
@@ -28,13 +28,14 @@
 */
 
 
-#ifndef __TERRAMA2_ANALYSIS_CORE_DCP_DCPOPERATOR_HPP__
-#define __TERRAMA2_ANALYSIS_CORE_DCP_DCPOPERATOR_HPP__
+#ifndef __TERRAMA2_ANALYSIS_CORE_DCP_OPERATOR_HPP__
+#define __TERRAMA2_ANALYSIS_CORE_DCP_OPERATOR_HPP__
 
 // TerraMA2
 #include "../PythonInterpreter.hpp"
 #include "../BufferMemory.hpp"
 #include "../Analysis.hpp"
+#include "../Shared.hpp"
 
 // STL
 #include <string>
@@ -62,14 +63,13 @@ namespace terrama2
 
             \param statisticOperation The statistic operation chosen by the user.
             \param dataSeriesName DataSeries name.
-            \param buffer Buffer to be used in the monitored object.
             \param ids A set of identifiers of DataSet.
 
             \return A double value with the result.
           */
-          double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation, const std::string& dataSeriesName,
-                             const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                             boost::python::list ids = boost::python::list());
+          double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                              const std::string& dataSeriesName, const std::string& attribute,
+                              boost::python::list ids);
 
           /*!
             \brief It returns the number of DCPs that have influence over the current monitored object.
@@ -84,7 +84,7 @@ namespace terrama2
           int count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer);
 
           /*!
-            \brief It calculates the minimum value of the latest DCP series data.
+            \brief Calculates the minimum value of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -94,16 +94,15 @@ namespace terrama2
             \param statisticOperation The statistic operation chosen by the user.
             \param dataSeriesName DataSeries name.
             \param attribute Which DCP attribute will be used.
-            \param buffer Buffer to be used in the monitored object.
             \param ids A set of identifiers of DataSet.
 
             \return A double with the minimum value.
           */
-          double min(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                        boost::python::list ids = boost::python::list());
+          double min(const std::string& dataSeriesName, const std::string& attribute,
+                     boost::python::list ids);
 
           /*!
-            \brief It calculates the maximum value of the latest DCP series data.
+            \brief Calculates the maximum value of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -112,16 +111,15 @@ namespace terrama2
 
             \param dataSeriesName DataSeries name.
             \param attribute Which DCP attribute will be used.
-            \param buffer Buffer to be used in the monitored object.
             \param ids A set of identifiers of DataSet.
 
             \return A double with the maximum value.
           */
-          double max(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                        boost::python::list ids = boost::python::list());
+          double max(const std::string& dataSeriesName, const std::string& attribute,
+                     boost::python::list ids);
 
           /*!
-            \brief It calculates the mean of the latest DCP series data.
+            \brief Calculates the mean of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -130,16 +128,15 @@ namespace terrama2
 
             \param dataSeriesName DataSeries name.
             \param attribute Which DCP attribute will be used.
-            \param buffer Buffer to be used in the monitored object.
             \param ids A set of identifiers of DataSet.
 
             \return A double with the mean.
           */
-          double mean(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                         boost::python::list ids = boost::python::list());
+          double mean(const std::string& dataSeriesName, const std::string& attribute,
+                      boost::python::list ids);
 
           /*!
-            \brief It calculates the median value of the latest DCP series data.
+            \brief Calculates the median value of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -148,16 +145,15 @@ namespace terrama2
 
             \param dataSeriesName DataSeries name.
             \param attribute Which DCP attribute will be used.
-            \param buffer Buffer to be used in the monitored object.
             \param ids A set of identifiers of DataSet.
 
             \return A double with the median.
           */
-          double median(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                           boost::python::list ids = boost::python::list());
+          double median(const std::string& dataSeriesName, const std::string& attribute,
+                        boost::python::list ids);
 
           /*!
-            \brief It calculates the sum of the latest DCP series data.
+            \brief Calculates the sum of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -166,16 +162,15 @@ namespace terrama2
 
             \param dataSeriesName DataSeries name.
             \param attribute Which DCP attribute will be used.
-            \param buffer Buffer to be used in the monitored object.
             \param ids A set of identifiers of DataSet.
 
             \return A double with the sum.
           */
-          double sum(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                        boost::python::list ids = boost::python::list());
+          double sum(const std::string& dataSeriesName, const std::string& attribute,
+                     boost::python::list ids);
 
           /*!
-            \brief It calculates the standard deviation of the latest DCP series data.
+            \brief Calculates the standard deviation of the latest DCP series data.
 
             In case an empty set of identifiers is given, it will use the influence
             configured for the analysis to determine which DCP dataset will be used.
@@ -184,21 +179,37 @@ namespace terrama2
 
             \param dataSeriesName DataSeries name.
             \param attribute Which DCP attribute will be used.
-            \param buffer Buffer to be used in the monitored object.
             \param ids A set of identifiers of DataSet.
 
             \return A double with the standard deviation.
           */
-          double standardDeviation(const std::string& dataSeriesName, const std::string& attribute, terrama2::services::analysis::core::Buffer buffer,
-                                      boost::python::list ids = boost::python::list());
+          double standardDeviation(const std::string& dataSeriesName, const std::string& attribute,
+                                   boost::python::list ids);
+
+          /*!
+            \brief Calculates the variance of the latest DCP series data.
+
+            In case an empty set of identifiers is given, it will use the influence
+            configured for the analysis to determine which DCP dataset will be used.
+
+            In case of an error or no data available it will return NAN(Not A Number).
+
+            \param dataSeriesName DataSeries name.
+            \param attribute Which DCP attribute will be used.
+            \param ids A set of identifiers of DataSet.
+
+            \return A double with the variance between DCP values.
+          */
+          double variance(const std::string& dataSeriesName, const std::string& attribute,
+                          boost::python::list ids);
 
 
           /*!
            \brief Returns the influence type of an analysis.
            \param analysis Analysis configuration.
            \return The influence type.
-         */
-          terrama2::services::analysis::core::InfluenceType getInfluenceType(const terrama2::services::analysis::core::Analysis& analysis);
+          */
+          terrama2::services::analysis::core::InfluenceType getInfluenceType(const terrama2::services::analysis::core::AnalysisPtr analysis);
 
           /*!
            \brief Creates the influence buffer.
@@ -208,7 +219,7 @@ namespace terrama2
            \param influenceType Influence type of the analysis.
            \return The buffer geometry.
           */
-          std::shared_ptr<te::gm::Geometry> createDCPInfluenceBuffer(const terrama2::services::analysis::core::Analysis& analysis, std::shared_ptr<te::gm::Geometry> position, int monitoredObjectSrid, InfluenceType influenceType);
+          std::shared_ptr<te::gm::Geometry> createDCPInfluenceBuffer(const terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::gm::Geometry> position, int monitoredObjectSrid, InfluenceType influenceType);
 
           /*!
            \brief Verify if the DCP influences the monitored object.
@@ -225,4 +236,4 @@ namespace terrama2
   }       // end namespace services
 }         // end namespace terrama2
 
-#endif //__TERRAMA2_ANALYSIS_CORE_DCP_DCPOPERATOR_HPP__
+#endif //__TERRAMA2_ANALYSIS_CORE_DCP_OPERATOR_HPP__

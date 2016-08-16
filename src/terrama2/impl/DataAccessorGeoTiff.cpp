@@ -50,7 +50,7 @@ terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataPro
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
   }
 }
 
@@ -78,7 +78,7 @@ void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<t
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  size_t timestampColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::DATETIME_TYPE);
+  size_t timestampColumn = te::da::GetFirstPropertyPos(complete.get(), te::dt::DATETIME_TYPE);
 
   dataSet->moveBeforeFirst();
   while(dataSet->moveNext())
