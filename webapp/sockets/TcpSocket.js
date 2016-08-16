@@ -162,7 +162,7 @@ var TcpSocket = function(io) {
               setTimeout(function() {
                 TcpManager.emit('statusService', instance);
               }, 2000);
-            }).catch(_handleErr)
+            }).catch(_handleErr);
           }, 2000);
         }).catch(_handleErr);
       }).catch(function(err) {
@@ -264,10 +264,7 @@ var TcpSocket = function(io) {
     });
 
     client.on('disconnect', function() {
-      // // removing clients listeners of TcpManager instance
-      // TcpManager.emit('removeListeners');
-
-      // removing tcp listener
+      // removing clients listeners of TcpManager instance
       TcpManager.removeListener('statusReceived', onStatusReceived);
       TcpManager.removeListener('statusReceived', onStatusReceivedData);
       TcpManager.removeListener('logReceived', onLogReceived);
