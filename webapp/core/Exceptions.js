@@ -17,9 +17,19 @@ errors.BaseError = function(message) {
   Error.apply(this, arguments);
 
   this.name = this.name = 'BaseError';
-  this.message = message.message;
+  this.message = message;
 
   Error.captureStackTrace(this, this.constructor);
+
+  var self = this;
+  /**
+  * It retrieves a string representation of exceptions.
+  * @function toStr
+  * @memberOf errors.BaseError
+  */
+  this.toStr = function() {
+    return self.message;
+  }
 };
 util.inherits(errors.BaseError, Error);
 
@@ -38,6 +48,14 @@ errors.DataManagerError = function(message) {
 util.inherits(errors.DataManagerError, errors.BaseError);
 
 
+/**
+ * Thrown when operation receives inconsistent values and it prepares a struct for handling validations with validations items
+ *
+ * @param {string} message Error message
+ * @param {Array<ValidationErrorItem>} errs - An array of items errors occurred
+ *
+ * @extends BaseError
+*/
 errors.ValidationError = function(message, errs) {
   errors.BaseError.apply(this, arguments);
   this.name = 'ValidationError';
@@ -47,14 +65,17 @@ errors.ValidationError = function(message, errs) {
     this.message = message;
   } else if (this.errors.length > 0 && this.errors[0].message) {
     this.message = this.errors.map(function(err){
-      return err.type + ": " + err.message;
+      return err.path + ": " + err.message;
     }).join(',\n');
   }
 
   this.getErrors = function() {
     var output = {};
     this.errors.forEach(function(err) {
-      output[err.path] = err.message;
+      output[err.path] = {
+        value: err.value,
+        message: err.message
+      };
     });
     return output;
   };
@@ -62,6 +83,20 @@ errors.ValidationError = function(message, errs) {
 
 util.inherits(errors.ValidationError, errors.BaseError);
 
+
+/**
+ * Used for handling each one of validation errors occurred.
+ *
+ * @param {string} message - An error message
+ * @param {string} path - The target field that triggered validation
+ * @param {string} value - The current value of target field
+ * @extends BaseError
+ */
+errors.ValidationErrorItem = function(message, path, value) {
+  this.message = message || '';
+  this.path = path || null;
+  this.value = value || null;
+};
 
 /**
  * Thrown when DataProvider object has inconsistent data.
@@ -185,14 +220,15 @@ util.inherits(errors.DataFormatError, errors.ValidationError);
  * Thrown when check connection has failed.
  *
  * @param {string} message Error message
+ * @param {Array<Error>} errs - An array of errors message
  *
- * @extends BaseError
+ * @extends ValidationError
  */
-errors.ConnectionError = function(message) {
-  errors.BaseError.apply(this, arguments);
+errors.ConnectionError = function(message, errs) {
+  errors.ValidationError.apply(this, arguments);
   this.name = 'ConnectionError';
 };
-util.inherits(errors.ConnectionError, errors.BaseError);
+util.inherits(errors.ConnectionError, errors.ValidationError);
 
 
 /**

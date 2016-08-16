@@ -33,13 +33,7 @@ npm install
 
 Note: TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipulation. Make sure you have PostgreSQL database and PostGIS spatial extension installed before.
 
-- Set PostgreSQL database configuration with PostGIS extension.
-```
-psql > CREATE DATABASE nodejs TEMPLATE template1;
-psql > \c nodejs
-psql > CREATE EXTENSION postgis;
-psql > CREATE SCHEMA terrama2;
-```
+By default, the ORM will use database settings located in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2). Edit it if necessary.
 
 - Run the following command:
 

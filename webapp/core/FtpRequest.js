@@ -19,23 +19,31 @@ FtpRequest.prototype.constructor = FtpRequest;
 FtpRequest.prototype.request = function() {
   var self = this;
   return  new Promise(function(resolve, reject) {
-    var client = new Client({
+    var config = {
       user: self.params[self.syntax().USER],
       pass: self.params[self.syntax().PASSWORD],
       host: self.params[self.syntax().HOST],
       port: self.params[self.syntax().PORT]
-    });
+    };
+
+    var client = new Client(config);
 
     client.on('error', function(err) {
       var error;
+      var syntax = self.syntax();
       switch (err.code) {
         case "ENOTFOUND":
         case 421:
-          error = new Exceptions.ConnectionError("Host not found");
+          var generic = "Host not found";
+          var hostError = new Exceptions.ValidationErrorItem(generic, syntax.HOST, config.user);
+          error = new Exceptions.ConnectionError("Host not found", [hostError]);
           break;
         case "ECONNREFUSED":
         case 530:
-          error = new Exceptions.ConnectionError("Connection refused. Username or password does not match");
+          var genericMessage = "Username or password does not match";
+          var userError = new Exceptions.ValidationErrorItem(genericMessage, syntax.USER, config.user);
+          var passwordError = new Exceptions.ValidationErrorItem(genericMessage, syntax.PASSWORD, config.pass);
+          error = new Exceptions.ConnectionError("Connection refused. " + genericMessage, [userError, passwordError]);
           break;
         default:
           error = new Exceptions.ConnectionError("Error in connection");

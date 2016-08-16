@@ -1,3 +1,5 @@
+'use strict';
+
 function makeHeader() {
   return {
     restrict: 'EA',
@@ -11,6 +13,45 @@ function makeHeader() {
 }
 
 angular.module('terrama2.table', ['terrama2'])
+  .run(function($templateCache) {
+    $templateCache.put('filterTable.html',
+      "<div class=\"col-md-10\">" +
+        "<div class=\"form-group\">" +
+          "<input class=\"form-control\" id=\"searchNameInput\" ng-model=\"model\" style=\"margin-top: 24px;\" placeholder=\"{{ placeholder }}\" type=\"text\">"+
+        "</div>"+
+      "</div>" +
+      "<div class=\"col-md-2\">" +
+        "<div class=\"form-group\">" +
+          "<button class=\"btn btn-default\" style=\"margin-top: 24px;\"><i class=\"fa fa-search\" style=\"margin-right: 5px;\"></i>{{ i18n.__('Advanced') }}</button>" +
+        "</div>" +
+      "</div>");
+
+    $templateCache.put("mockTable.html",
+    "<div>" +
+      "<terrama2-modal-box title='title' class='\"modal-danger\"' modal-type='\"modal-sm\"' modal-id='\"removalID\"' properties='properties'>" +
+        "<terrama2-content>{{ i18n.__(\"Are you sure to remove \" + target +\"?\") }}</terrama2-content>" +
+        "<terrama2-button class='btn btn-primary' ng-click='remove({object: target});'>OK</terrama2-button>" +
+        "<terrama2-button class='btn btn-primary' ng-click='link({object: target});'>Cancel</terrama2-button>" +
+      "</terrama2-modal-box>" +
+      "<div class='col-md-12'>" +
+        "<div class=\"col-md-12\">" +
+          "<div class=\"col-md-8\" ng-transclude='filterSlot'>" +
+            "<terrama2-filter-table ng-model=\"search.input\"></terrama2-filter-table>" +
+          "</div>" +
+          "<div class=\"col-md-4 terrama2-nopadding-box\" ng-transclude='extraButtonsSlot'>" +
+            "<div class='col-md-2'>" +
+              "<div class=\"form-group\">" +
+                "<a ng-href=\"{{ linkToAdd }}\" class=\"btn btn-default pull-right\" style=\"margin-top: 24px;\">" +
+                  "<i class=\"fa fa-plus\"></i>" +
+                "</a>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
+        "</div>" +
+      "</div>" +
+      "<div class='col-md-12' ng-transclude='contentSlot'></div>" +
+    "</div>");
+  })
   .directive('terrama2Table', function(i18n) {
     return {
       restrict: 'E',
@@ -151,6 +192,7 @@ angular.module('terrama2.table', ['terrama2'])
     return {
       restrict: 'E',
       priority: 1001,
+      replace: true,
       template: function(tElm, tAttrs) {
         var context = i18n.__('No ' + (tAttrs.context || "data") + " found.");
         var expression = tAttrs.expression;
@@ -159,8 +201,13 @@ angular.module('terrama2.table', ['terrama2'])
 
         angular.forEach(tElm.find('terrama2-td'), function(column){
           var klass = column.className;
+          var lnk = column.attributes.link;
+          var content = column.innerHTML;
+          if (lnk) {
+            content = "<a ng-href='" + lnk.value + "'>" + content + "</a>";
+          }
           th = th + "<th class='" + klass + "'>" + column.title + "</th>";
-          td = td + "<td class='" + klass + "'>" + column.innerHTML + "</td>";
+          td = td + "<td class='" + klass + "'>" + content + "</td>";
           ++counter;
         });
 
@@ -194,11 +241,11 @@ angular.module('terrama2.table', ['terrama2'])
 
         scope.$watch('model', function(value) {
           console.log(value);
-        })
+        });
 
         transclude(scope.$parent, function(clone, scope) {
-          element.append(clone())
-        })
+          element.append(clone());
+        });
       }
     };
   })
@@ -215,4 +262,39 @@ angular.module('terrama2.table', ['terrama2'])
         scope.linkToAdd = attrs.linkToAdd;
       }
     };
-  });
+  })
+
+  .directive('terrama2FilterTable', function (i18n) {
+    return {
+      restrict: 'E',
+      priority: 2000,
+      templateUrl: 'filterTable.html',
+      require: "ngModel",
+      scope: {
+        model: "=ngModel"
+      },
+      controller: function($scope) {
+        $scope.i18n = i18n;
+      }
+    };
+  })
+
+.directive("terrama2MockTable", function(i18n) {
+  return {
+    restrict: 'E',
+    templateUrl: "mockTable.html",
+    transclude: {
+      "filterSlot": "?div",
+      "extraButtonsSlot": "?terrama2Div",
+      "contentSlot": "terrama2TableView"
+    },
+    scope: {
+      title: "=",
+      remove: '&onRemove',
+      target: '='
+    },
+    controller: function($scope) {
+       $scope.i18n = i18n;
+      }
+  };
+});
