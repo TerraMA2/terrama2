@@ -184,8 +184,10 @@ void TsJsonUtils::testGoNBackJSon()
     view->projectId = 1;
     view->serviceInstanceId = 1;
     view->active = true;
-    view->resolutionWidth = 800;
-    view->resolutionHeight = 600;
+    view->imageName = "ImageName";
+    view->imageType = te::map::ImageType(2);
+    view->imageResolutionWidth = 800;
+    view->imageResolutionHeight = 600;
     view->srid = 4326;
 
     terrama2::core::Schedule schedule;
@@ -219,8 +221,10 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->projectId, viewPtr->projectId);
     QCOMPARE(viewBackPtr->serviceInstanceId, viewPtr->serviceInstanceId);
     QCOMPARE(viewBackPtr->active, viewPtr->active);
-    QCOMPARE(viewBackPtr->resolutionWidth, viewPtr->resolutionWidth);
-    QCOMPARE(viewBackPtr->resolutionHeight, viewPtr->resolutionHeight);
+    QCOMPARE(viewBackPtr->imageName, viewPtr->imageName);
+    QCOMPARE(viewBackPtr->imageType, viewPtr->imageType);
+    QCOMPARE(viewBackPtr->imageResolutionWidth, viewPtr->imageResolutionWidth);
+    QCOMPARE(viewBackPtr->imageResolutionHeight, viewPtr->imageResolutionHeight);
 
     QCOMPARE(viewBackPtr->schedule.id, viewPtr->schedule.id);
     QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);
