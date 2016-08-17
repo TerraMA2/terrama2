@@ -95,12 +95,34 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
     std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::nowUTC();
 
-    double secondsSinceLastProcess = 0;
+    if(dataSchedule.frequencyStartTime.is_not_a_date_time())
+    {
+      double secondsSinceLastProcess = 0;
 
-    if(impl_->lastEmit_)
-      secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
+      if(impl_->lastEmit_)
+        secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
 
-    secondsToStart = timerSeconds - secondsSinceLastProcess;
+      secondsToStart = timerSeconds - secondsSinceLastProcess;
+    }
+    else
+    {
+      // TODO: timezone from datasource, dataseries...
+//      boost::local_time::local_date_time date(nowTZ->getTimeInstantTZ().date(),
+//                                              dataSchedule.frequencyStartTime,
+//                                              nowTZ->getTimeInstantTZ().zone(),
+//                                              true);
+
+//      std::unique_ptr< te::dt::TimeInstantTZ > dt(new te::dt::TimeInstantTZ(date));
+
+      auto now = nowTZ->getTimeInstantTZ().time_of_day();
+      auto startTime = dataSchedule.frequencyStartTime;
+
+      while(startTime < now)
+        startTime += boost::posix_time::seconds(timerSeconds);
+
+      auto td = (startTime - now);
+      secondsToStart = td.total_seconds();;
+    }
   }
   else if(dataSchedule.schedule > 0)
   {

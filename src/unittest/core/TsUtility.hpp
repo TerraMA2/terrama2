@@ -46,6 +46,7 @@ private slots:
   void testTimerNoFrequencyException();
   void testTimerInvalidUnitException();
   void testFrequencyTimer();
+  void testFrequencyTimerBase();
   void testScheduleTimer();
 
   void testTimeUtilsAddMonth();

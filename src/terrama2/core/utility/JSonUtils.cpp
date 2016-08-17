@@ -416,6 +416,7 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   if(!(json.contains("id")
       && json.contains("frequency")
       && json.contains("frequency_unit")
+      && json.contains("frequency_start_time")
       && json.contains("schedule")
       && json.contains("schedule_time")
       && json.contains("schedule_unit")
@@ -433,6 +434,7 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   schedule.id = json["id"].toInt();
   schedule.frequency = json["frequency"].toInt();
   schedule.frequencyUnit = json["frequency_unit"].toString().toStdString();
+  schedule.frequencyStartTime = boost::posix_time::duration_from_string(json["frequency_start_time"].toString().toStdString());
   schedule.schedule = json["schedule"].toInt();
   schedule.scheduleTime = json["schedule_time"].toString().toStdString();
   schedule.scheduleUnit = json["schedule_unit"].toString().toStdString();
@@ -542,7 +544,7 @@ QJsonObject terrama2::core::toJson(Schedule schedule)
   obj.insert("id", static_cast<int32_t>(schedule.id));
   obj.insert("frequency",static_cast<int32_t>(schedule.frequency));
   obj.insert("frequency_unit", QString::fromStdString(schedule.frequencyUnit));
-
+  obj.insert("frequency_start_time",QString::fromStdString(boost::posix_time::to_simple_string(schedule.frequencyStartTime)));
   obj.insert("schedule",static_cast<int32_t>(schedule.schedule));
   obj.insert("schedule_time",QString::fromStdString(schedule.scheduleTime));
   obj.insert("schedule_unit",QString::fromStdString(schedule.scheduleUnit));
