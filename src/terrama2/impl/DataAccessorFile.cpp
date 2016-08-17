@@ -373,9 +373,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
       dataSetName = baseName;
     else if(itFileName != dataSetNames.cend())
       dataSetName = name;
-    //No valid dataset name found
-    if(dataSetName.empty())
-      continue;
+    else
+      dataSetName = name;
+
+// TODO: Some raster files (.env) don't appear in the getDataSetNames()
+// but we can open directly with the file name.
+// should we check or just continue with the file name?
 
     if(first)
     {

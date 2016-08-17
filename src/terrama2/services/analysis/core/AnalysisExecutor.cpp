@@ -656,7 +656,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::servi
   bprops.push_back(new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE));
 
   te::rst::RasterProperty* rstp = new te::rst::RasterProperty(new te::rst::Grid(*grid), bprops, rinfo);
-  te::da::DataSetType* dt = new te::da::DataSetType("test.tif");
+  te::da::DataSetType* dt = new te::da::DataSetType("raster dataset");
 
   dt->add(rstp);
 
