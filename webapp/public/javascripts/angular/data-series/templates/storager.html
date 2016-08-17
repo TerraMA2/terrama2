@@ -55,7 +55,7 @@
 
     <div class="col-md-12">
       <!--dcp table -->
-      <div class="col-md-12 terrama2-nopadding-box" ng-if="semantics === 'DCP' && storager.format && isDynamic">
+      <div class="col-md-12 terrama2-nopadding-box" ng-if="semantics === 'DCP' && storager.format && storager.format.code && isDynamic">
         <div class="col-md-12">
           <div class="row">
             <div class="box-body table-responsive no-padding">
@@ -74,15 +74,15 @@
                       <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
                     </span>
                     <!-- todo: fix it -->
-                    <span ng-if="!isUpdating && field.toLowerCase() != 'id'" editable-text="dcp[field]">
+                    <span ng-if="!isUpdating && field.toLowerCase() != '_id'" editable-text="dcp[field]">
                       {{ dcp[field]}}
                     </span>
 
-                    <span ng-if="isUpdating && field.toLowerCase() != 'id'">
+                    <span ng-if="isUpdating && field.toLowerCase() != '_id'">
                       {{ dcp[field]}}
                     </span>
 
-                    <span ng-if="field.toLowerCase() == 'id'">
+                    <span ng-if="field.toLowerCase() == '_id'">
                       {{ dcp[field]}}
                     </span>
                   </td>

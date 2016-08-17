@@ -55,7 +55,5 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  User.schema('terrama2');
-
   return User;
 };

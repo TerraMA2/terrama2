@@ -132,7 +132,7 @@ terrama2Application.directive('terrama2CompareTo', function() {
     },
     link: function(scope, element, attrs, ngModel) {
       ngModel.$validators.compareTo = function(modelValue) {
-        return modelValue == scope.compare;
+        return modelValue === scope.compare;
       };
 
       scope.$watch("compare", function() {
@@ -303,4 +303,63 @@ terrama2Application.directive('terrama2Datetime', function($timeout) {
       });
     }
   };
+});
+
+terrama2Application.directive("terrama2ServerErrors", function($parse) {
+  return {
+    restrict: "A",
+    require: "ngModel",
+    link: function(scope, element, attrs, ngModel) {
+      var inputNgEl = angular.element(element);
+      var inputName = inputNgEl.attr('name');
+
+      scope.$watch(function() {
+        var errors = $parse(attrs.terrama2ServerErrors)(scope) || {};
+
+        if (!errors[inputName]) { return true; }
+
+        return errors[inputName].value !== ngModel.$viewValue;
+      }, function(value) {
+        ngModel.$setValidity("terrama2Error", value);
+        // TODO: improve it
+        if (!value) {
+          element.trigger("change");
+        }
+        return;
+      });
+
+      // scope.errors = errors;
+
+      // ngModel.$parsers.unshift(function($viewValue) {
+      //   console.log("Errors - ", scope.errors);
+      //   var errors = scope.errors || {};
+      //
+      //   ngModel.$setValidity("terrama2Error", Object.keys(errors).length === 0);
+      // });
+    }
+  };
+});
+
+terrama2Application.directive('terrama2Button', function() {
+  return {
+    restrict: "E",
+    template: "<button ng-class='class' ng-transclude></button>",
+    scope: true,
+    replace: true,
+    transclude: true,
+    link: function(scope, element, attrs, tranclude) {
+      scope.class = attrs.class;
+    }
+  };
+});
+
+terrama2Application.directive("terrama2Content", function() {
+  return {
+    restrict: "E",
+    transclude: true,
+    template: "<div ng-class='divClass' ng-transclude></div>",
+    link: function(scope, element, attrs) {
+      scope.divClass = attrs.class || "row";
+    }
+  }
 });

@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true,
         autoIncrement: true
       },
-      position: DataTypes.GEOMETRY('Point', 4326)
+      position: DataTypes.GEOMETRY('Point')
     },
     {
       underscored: true,

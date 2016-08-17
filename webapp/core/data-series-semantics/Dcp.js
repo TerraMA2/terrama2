@@ -45,6 +45,7 @@ Dcp.schema = function() {
 };
 
 Dcp.form = function() {
+  var baseFields = AbstractClass.prototype.form.call(this);
   return [
     {
       key: "latitude",
@@ -58,7 +59,7 @@ Dcp.form = function() {
       key: "projection",
       htmlClass: "col-md-2"
     }
-  ].concat(AbstractClass.prototype.form.call(this));
+  ];
 };
 
 module.exports = Dcp;

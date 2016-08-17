@@ -342,5 +342,15 @@
 	"Y is invalid number": "Y is invalid number",
 	"Activate": "Activate",
 	"Profile": "Profile",
-	"Password did not match for the confirmation password": "Password did not match for the confirmation password"
+	"Password did not match for the confirmation password": "Password did not match for the confirmation password",
+	"Start all": "Start all",
+	"Stop all": "Stop all",
+	"Import": "Import",
+	"Export": "Export",
+	"Start all services": "Start all services",
+	"Stop all services": "Stop all services",
+	"Removal Confirmation": "Removal Confirmation",
+	"Advanced": "Advanced",
+	"No project found": "No project found",
+	"Are you sure?": "Are you sure?"
 }

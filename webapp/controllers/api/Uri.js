@@ -1,4 +1,5 @@
 var RequestFactory = require("../../core/RequestFactory");
+var handleRequestError = require("./../../core/Utils").handleRequestError;
 
 module.exports = function(app) {
   return {
@@ -12,12 +13,10 @@ module.exports = function(app) {
         factoryResult.request().then(function() {
           response.json({status:200});
         }).catch(function(err) {
-          response.status(400);
-          response.json({status:400, message:err.message});
+          handleRequestError(response, err, 400);
         });
       } catch(err) {
-        response.status(400);
-        response.json({status:400, message:err.message});
+        handleRequestError(response, err, 400);
       }
     }
   }

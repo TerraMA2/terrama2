@@ -80,5 +80,15 @@
     "metadata": {
       "timestamp_property": "file_timestamp"
     }
+  },
+  {
+    "name": "GrADS",
+    "code": "GRID-grads",
+    "type": "GRID",
+    "format": "GRADS",
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "file_timestamp"
+    }
   }
 ]

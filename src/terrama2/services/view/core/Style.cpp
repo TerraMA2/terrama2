@@ -157,7 +157,6 @@ te::se::Style* FeatureTypeStyleReader(te::xml::Reader& reader)
 
   reader.next();
 
-  // TODO: OnlineResource
 
   return fts.release();
 }
@@ -225,8 +224,6 @@ te::se::Style* CoverageStyleReader(te::xml::Reader& reader)
   assert(reader.getElementLocalName() == "CoverageStyle");
 
   reader.next();
-
-  // TODO: OnlineResource
 
   return cs.release();
 }
