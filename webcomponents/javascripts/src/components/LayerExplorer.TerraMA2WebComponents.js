@@ -39,6 +39,7 @@ define(
      * @param {string} name - Layer group name
      * @param {string} parent - Parent id
      * @param {string} layers - HTML code of the layers that will be inside of the layer group
+     * @param {string} classes - Classes to be used in the li element
      * @returns {string} html - HTML code of the layer group
      *
      * @private
@@ -46,8 +47,9 @@ define(
      * @memberof LayerExplorer
      * @inner
      */
-    var createLayerGroup = function(id, name, parent, layers) {
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
+    var createLayerGroup = function(id, name, parent, layers, classes) {
+      classes = classes !== '' ? ' ' + classes : classes;
+      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li" + classes + "'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
     };
 
     /**
@@ -57,6 +59,7 @@ define(
      * @param {string} parent - Parent id
      * @param {boolean} visible - Flag that indicates if the layer should be visible when created
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled when created
+     * @param {string} classes - Classes to be used in the li element
      * @returns {string} html - HTML code of the layer
      *
      * @private
@@ -64,9 +67,10 @@ define(
      * @memberof LayerExplorer
      * @inner
      */
-    var createLayer = function(id, name, parent, visible, disabled) {
+    var createLayer = function(id, name, parent, visible, disabled, classes) {
       var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
-      var classes = disabled ? "layer disabled-content" : "layer";
+      classes = classes !== '' ? classes + ' ' : classes;
+      classes += disabled ? "layer disabled-content" : "layer";
 
       return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='" + classes + "'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
     };
@@ -76,17 +80,21 @@ define(
      * @param {string} id - Layer or layer group id
      * @param {string} parent - Parent id
      * @param {boolean} appendAtTheEnd - Flag that indicates if the element should be inserted as last element of the parent, if the parameter isn't provided, it's set to false
+     * @param {string} classes - Classes to be used in the li element
      *
      * @function addLayersFromMap
      * @memberof LayerExplorer
      * @inner
      */
-    var addLayersFromMap = function(id, parent, appendAtTheEnd) {
+    var addLayersFromMap = function(id, parent, appendAtTheEnd, classes) {
       appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+      classes = (classes !== null && classes !== undefined) ? classes : '';
 
       var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
       if(data !== null) {
+        data['classes'] = classes;
+
         var elem = buildLayersFromMap(data, parent);
 
         if(parent === 'terrama2-layerexplorer') {
@@ -145,10 +153,10 @@ define(
         }
 
         if(!$("#" + layer.get('id').replace(':', '')).length)
-          elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem);
+          elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem, layer['classes']);
       } else {
         if(!$("#" + layer.get('id').replace(':', '')).length)
-          elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'), layer.get('disabled'));
+          elem = createLayer(layer.get('id'), layer.get('name'), parent, layer.get('visible'), layer.get('disabled'), layer['classes']);
       }
 
       return elem;
@@ -227,6 +235,7 @@ define(
      */
     var setSortable = function() {
       $('.children').sortable({
+        items: "li:not(.unsortable)",
         start: function(event, ui) {
           $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
         },
@@ -239,6 +248,7 @@ define(
       $('.children').disableSelection();
 
       $('#terrama2-layerexplorer').sortable({
+        items: "li:not(.unsortable)",
         start: function(event, ui) {
           $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
         },
