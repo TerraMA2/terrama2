@@ -390,7 +390,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       size_t nbands = raster->getNumberOfBands();
 
       // Creates one property for each raster band
-      for(int band = 0; band < nbands; ++band)
+      for(size_t band = 0; band < nbands; ++band)
       {
         te::dt::Property* property = new te::dt::SimpleProperty(intersectionDataSeries->name + "_band_" + std::to_string(band), te::dt::DOUBLE_TYPE);
         outputDt->add(property);

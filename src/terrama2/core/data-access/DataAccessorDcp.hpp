@@ -60,11 +60,11 @@ namespace terrama2
         //! Default copy constructor
         DataAccessorDcp(const DataAccessorDcp& other) = default;
         //! Default move constructor
-        DataAccessorDcp(DataAccessorDcp&& other) = default;
+        DataAccessorDcp(DataAccessorDcp&& other) : DataAccessor(std::move(other)){}
         //! Default const assignment operator
         DataAccessorDcp& operator=(const DataAccessorDcp& other) = default;
         //! Default assignment operator
-        DataAccessorDcp& operator=(DataAccessorDcp&& other) = default;
+        DataAccessorDcp& operator=(DataAccessorDcp&& other) { DataAccessor::operator=(std::move(other)); return *this; }
 
         //! Returns a DcpSeries filtered by Filter
         virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
