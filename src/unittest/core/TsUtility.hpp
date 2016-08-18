@@ -58,6 +58,8 @@ private slots:
   void invalidValidMask();
 
   void testValidDataSetName();
+  void testValidDataSetNameCompress();
+  void testValidDataSetNameCompressError();
   void testValidDataSetName2DigitsYear();
   void testValidDataSetName2DigitsYear1900();
   void testIgnoreArchiveExtension();
