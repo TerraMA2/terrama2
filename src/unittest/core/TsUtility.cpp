@@ -337,6 +337,30 @@ void TsUtility::testValidDataSetName()
     QFAIL("Should not be here!");
 }
 
+void TsUtility::testValidDataSetNameCompress()
+{
+  std::string name = "file2016-04-19153726.tar.gz";
+  std::string mask = "fileyyyy-MM-ddhhmmss";
+  std::string timezone = "00";
+  terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
+    QFAIL("Should not be here!");
+}
+
+void TsUtility::testValidDataSetNameCompressError()
+{
+  std::string name = "file2016-04-19153726.tar.error";
+  std::string mask = "fileyyyy-MM-ddhhmmss";
+  std::string timezone = "00";
+  terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
+    QFAIL("Should not be here!");
+}
+
 void TsUtility::testValidDataSetName2DigitsYear()
 {
   std::string name = "file16-04-19153726.file";
