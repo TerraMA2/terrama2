@@ -19,8 +19,8 @@ angular.module("terrama2.components.messagebox", [])
 
     // <terrama2-modal>
     $templateCache.put('modal.html',
-    '<div class="{{ css }}" ng-class="modalType" id="{{ modalId }}" role="dialog" aria-labelledby="my{{ modalId }}">' +
-      '<div class="modal-dialog" ng-class="klass">' +
+    '<div class="{{ css }}" ng-class="klass" id="{{ modalId }}" tabindex="-1" role="dialog" aria-labelledby="my{{ modalId }}">' +
+      '<div class="modal-dialog" ng-class="modalType" role="document">' +
         '<div class="modal-content">' +
           '<div class="modal-header">' +
             '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
@@ -36,8 +36,7 @@ angular.module("terrama2.components.messagebox", [])
           '</div>' +
         '</div>' +
       '</div>' +
-    '</div>'
-    );
+    '</div>');
   })
   .directive("terrama2MessageBox", function() {
     return {
@@ -110,16 +109,15 @@ angular.module("terrama2.components.messagebox", [])
   .directive("terrama2ModalBox", function() {
     return {
       restrict: 'E',
-      replace: true,
-      transclude: {
+      transclude: true,/*{
         "bodySlot": "terrama2Content",
         "footerSlot": "terrama2Button"
-      },
-      templateUrl: 'modal.html',
+      },*/
+      templateUrl: '/javascripts/angular/alert-box/templates/modal.html',
       scope: {
         title: '=title',
         modalId: '=modalId',
-        klass: "=class",
+        // klass: "=class",
         modalType: '=modalType',
         properties: '=?properties'
       },
