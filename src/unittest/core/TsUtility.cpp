@@ -164,7 +164,32 @@ void TsUtility::testFrequencyTimerBase()
     schedule.id = 0;
     schedule.frequency = 30;
     schedule.frequencyUnit = "minute";
-    schedule.frequencyStartTime = boost::posix_time::duration_from_string("20:30:00.000");
+    schedule.frequencyStartTime = "2016-Aug-17 01:30:00UTC+00";
+
+    terrama2::core::MockProcessLogger logger;
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    auto lastTime = logger.getLastProcessTimestamp(1);
+    terrama2::core::Timer timer(schedule, 1, lastTime);
+
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here!");
+  }
+}
+
+void TsUtility::testFrequencyTimerBase2()
+{
+  try
+  {
+    terrama2::core::Schedule schedule;
+    schedule.id = 0;
+    schedule.frequency = 30;
+    schedule.frequencyUnit = "minute";
+
+    auto day = terrama2::core::TimeUtils::nowUTC();
+    terrama2::core::TimeUtils::addDay(day, 2);
+    schedule.frequencyStartTime = day->toString();
 
     terrama2::core::MockProcessLogger logger;
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
