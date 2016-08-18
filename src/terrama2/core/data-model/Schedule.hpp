@@ -28,13 +28,19 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_SCHEDULE_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_SCHEDULE_HPP__
 
-//terrama2
-#include "../Typedef.hpp"
-
 //STL
 #include <map>
 
+// Boost
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+// TerraLib
 #include <terralib/datatype/TimeDuration.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+
+//terrama2
+#include "../Typedef.hpp"
+
 
 namespace terrama2
 {
@@ -83,6 +89,7 @@ namespace terrama2
 
       uint32_t frequency = 0; //!< The value for time frequency. Ex: From 5 to 5 minutes.
       std::string frequencyUnit; //!< Unit of the time frequency (years, months, days, minutes, hours or seconds)
+      std::string frequencyStartTime; //!< Base date and hour to start by frequency. Format: 2016-Aug-17 01:30:00.001234UTC+00
 
       uint32_t schedule = 0; //!< Value for Schedule day of week, day of year or day of month. Ex: The Third day of a week or the day 137 of a year.
       std::string scheduleTime; //!< The time to execute a process in the scheduled Day.
