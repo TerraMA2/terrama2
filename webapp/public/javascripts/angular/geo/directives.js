@@ -9,7 +9,7 @@ app.run(function($templateCache) {
       "<div class=\"col-md-6\">" +
         "<div class=\"form-group\" terrama2-show-errors>" +
           "<label>{{ i18n.__('X min') }}:</label>" +
-          "<input class=\"form-control\" id=\"minX\" name=\"minX\" ng-model=\"model.minX\" type=\"number\">" +
+          "<input class=\"form-control\" id=\"minX\" name=\"minX\" ng-model=\"model.minX\" type=\"number\" ng-required=\"isRequired\">" +
           "<span class='help-block' ng-show='boundedForm.minX.$dirty && boundedForm.minX.$error.required'>" +
           "{{ i18n.__('MinX is required') }}"+
           "</span> " +
@@ -22,12 +22,12 @@ app.run(function($templateCache) {
       "<div class=\"col-md-6\">" +
         "<div class=\"form-group\" terrama2-show-errors>" +
           "<label>X max:</label>" +
-            "<input class=\"form-control\" id=\"maxX\" name=\"maxX\" ng-model=\"model.maxX\" type=\"number\">" +
-            "<span class='help-block' ng-show='boundedForm.minX.$dirty && boundedForm.minX.$error.required'>" +
-            "{{ i18n.__('MinX is required') }}"+
+            "<input class=\"form-control\" id=\"maxX\" name=\"maxX\" ng-model=\"model.maxX\" type=\"number\" ng-required=\"isRequired\">" +
+            "<span class='help-block' ng-show='boundedForm.maxX.$dirty && boundedForm.maxX.$error.required'>" +
+            "{{ i18n.__('MaxX is required') }}"+
             "</span> " +
-            "<span class='help-block' ng-show='boundedForm.minX.$dirty && boundedForm.minX.$error.number'>" +
-            "{{ i18n.__('MinX is invalid') }}"+
+            "<span class='help-block' ng-show='boundedForm.maxX.$dirty && boundedForm.maxX.$error.number'>" +
+            "{{ i18n.__('MaxX is invalid') }}"+
             "</span> " +
           "</div>" +
         "</div>" +
@@ -35,12 +35,12 @@ app.run(function($templateCache) {
         "<div class=\"col-md-6\">" +
           "<div class=\"form-group\" terrama2-show-errors>" +
             "<label>Y min:</label>" +
-              "<input class=\"form-control\" id=\"minY\" name=\"minY\" ng-model=\"model.minY\" type=\"number\">" +
-              "<span class='help-block' ng-show='boundedForm.minX.$dirty && boundedForm.minX.$error.required'>" +
-              "{{ i18n.__('MinX is required') }}"+
+              "<input class=\"form-control\" id=\"minY\" name=\"minY\" ng-model=\"model.minY\" type=\"number\" ng-required=\"isRequired\">" +
+              "<span class='help-block' ng-show='boundedForm.minY.$dirty && boundedForm.minY.$error.required'>" +
+              "{{ i18n.__('MinY is required') }}"+
               "</span> " +
-              "<span class='help-block' ng-show='boundedForm.minX.$dirty && boundedForm.minX.$error.number'>" +
-              "{{ i18n.__('MinX is invalid') }}"+
+              "<span class='help-block' ng-show='boundedForm.minY.$dirty && boundedForm.minY.$error.number'>" +
+              "{{ i18n.__('MinY is invalid') }}"+
               "</span> " +
             "</div>" +
           "</div>" +
@@ -48,12 +48,24 @@ app.run(function($templateCache) {
           "<div class=\"col-md-6\">" +
             "<div class=\"form-group\" terrama2-show-errors>" +
               "<label>Y max:</label>" +
-              "<input class=\"form-control\" id=\"maxY\" name=\"maxY\" ng-model=\"model.maxY\" type=\"number\">" +
-              "<span class='help-block' ng-show='boundedForm.minX.$dirty && boundedForm.minX.$error.required'>" +
-              "{{ i18n.__('MinX is required') }}"+
+              "<input class=\"form-control\" id=\"maxY\" name=\"maxY\" ng-model=\"model.maxY\" type=\"number\" ng-required=\"isRequired\">" +
+              "<span class='help-block' ng-show='boundedForm.maxY.$dirty && boundedForm.maxY.$error.required'>" +
+              "{{ i18n.__('MaxY is required') }}"+
               "</span> " +
-              "<span class='help-block' ng-show='boundedForm.minX.$dirty && boundedForm.minX.$error.number'>" +
-              "{{ i18n.__('MinX is invalid') }}"+
+              "<span class='help-block' ng-show='boundedForm.maxY.$dirty && boundedForm.maxY.$error.number'>" +
+              "{{ i18n.__('MaxY is invalid') }}"+
+              "</span> " +
+            "</div>" +
+          "</div>" +
+          "<div class=\"col-md-6\">" +
+            "<div class=\"form-group\" terrama2-show-errors>" +
+              "<label>SRID:</label>" +
+              "<input class=\"form-control\" id=\"projection\" name=\"srid\" ng-model=\"model.srid\" type=\"number\" placeholder=\"{{ i18n.__('Type a projetion.') }}\" ng-required=\"isRequired\">" +
+              "<span class='help-block' ng-show='boundedForm.srid.$dirty && boundedForm.srid.$error.required'>" +
+              "{{ i18n.__('SRID is required') }}"+
+              "</span> " +
+              "<span class='help-block' ng-show='boundedForm.srid.$dirty && boundedForm.srid.$error.number'>" +
+              "{{ i18n.__('SRID is invalid') }}"+
               "</span> " +
             "</div>" +
           "</div>" +
@@ -69,7 +81,8 @@ app.directive("terrama2BoundedBox", function(i18n) {
     templateUrl: "bounded-box.html",
     require: "ngModel",
     scope: {
-      model: "=ngModel"
+      model: "=ngModel",
+      isRequired: "="
     },
     controller: function($scope) {
       $scope.i18n = i18n;

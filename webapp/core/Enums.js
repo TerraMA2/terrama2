@@ -276,5 +276,6 @@ module.exports = {
     NOT_EQUAL: "$ne",
     LESS_THAN: "$lt",
     LESS_EQUAL: "$le",
+    IN: "$in"
   }
 };

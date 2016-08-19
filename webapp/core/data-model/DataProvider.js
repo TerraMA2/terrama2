@@ -19,7 +19,7 @@ var DataProvider = function(params) {
 
   this.name = params.name;
   this.active = params.active;
-  this.uri = params.uri;
+  this.uri = decodeURI(params.uri);
 };
 
 DataProvider.prototype = Object.create(AbstractData.prototype);

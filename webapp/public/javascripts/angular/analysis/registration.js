@@ -414,6 +414,23 @@ angular.module('terrama2.analysis.registration', [
       $scope.dataSeriesGroups[0].children = $scope.buffers.static;
     });
 
+    $scope.$watch("analysis.grid.area_of_interest_type", function(value) {
+      if (value) {
+        if (value === $scope.interestAreaTypes.CUSTOM.value) {
+          var value = configuration.analysis.output_grid.srid || 4326;
+          if ($scope.analysis.grid.area_of_interest_bounded) {
+            $scope.analysis.grid.area_of_interest_bounded.srid = value;
+          } else {
+            $scope.analysis.grid.area_of_interest_bounded = {
+              srid: value
+            }
+          }
+        } else {
+
+        }
+      }
+    })
+
     // helpers
     var _processBuffers = function() {
       // clean old data
@@ -674,6 +691,12 @@ angular.module('terrama2.analysis.registration', [
         // checking geojson
         if ($scope.analysis.grid && $scope.analysis.grid.area_of_interest_bounded &&
             !angular.equals({}, $scope.analysis.grid.area_of_interest_bounded)) {
+
+          var boundedForm = angular.element('form[name="boundedForm"]').scope().boundedForm;
+          if (boundedForm.$invalid) {
+            return;
+          }
+
           var bounded = $scope.analysis.grid.area_of_interest_bounded;
           var coordinates = [
             [
@@ -690,10 +713,11 @@ angular.module('terrama2.analysis.registration', [
             crs: {
               type: 'name',
               properties : {
-                name: "EPSG:4326"
+                name: "EPSG:" + bounded.srid || "4326"
               }
             }
           };
+          analysisToSend.grid.srid = bounded.srid;
         }
       }
 
