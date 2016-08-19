@@ -16,20 +16,31 @@
     </div>
 
     <div class="col-md-5" ng-if="isFrequency">
-      <div class="form-group" terrama2-show-errors>
-        <label>{{ i18n.__('Frequency') }}:</label>
-        <input class="form-control"
-               name="frequency"
-               ng-model="model.frequency"
-               type="number"
-               ng-disabled="options.disabled"
-               ng-required="isFrequency"
-               min="{{ minSchedule }}"
-               max="{{ maxSchedule }}">
+      <div class="col-md-6">
+        <div class="form-group" terrama2-show-errors>
+          <label>{{ i18n.__('Frequency') }}:</label>
+          <input class="form-control"
+                 name="frequency"
+                 ng-model="model.frequency"
+                 type="number"
+                 ng-disabled="options.disabled"
+                 ng-required="isFrequency"
+                 min="{{ minSchedule }}"
+                 max="{{ maxSchedule }}">
 
-        <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && scheduleForm.frequency.$error.required">{{ i18n.__("Frequency value is required") }}</label>
+          <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && scheduleForm.frequency.$error.required">{{ i18n.__("Frequency value is required") }}</label>
 
-        <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && (scheduleForm.frequency.$error.max || scheduleForm.frequency.$error.min)">{{ i18n.__("Frequency value is invalid") }}</label>
+          <label class="help-block text-danger" ng-show="scheduleForm.frequency.$dirty && (scheduleForm.frequency.$error.max || scheduleForm.frequency.$error.min)">{{ i18n.__("Frequency value is invalid") }}</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>{{ i18n.__("Start Time") }}</label>
+
+          <terrama2-datetime-picker data-ng-model="model.frequency_start_time"
+                                    options="{format: 'YYYY/dd/MM HH:mm:ss', toolbarPlacement: 'top', allowInputToggle: true}">
+          </terrama2-datetime-picker>
+        </div>
       </div>
     </div>
 
@@ -46,14 +57,6 @@
                 ng-options="day.id as day.name for day in weekDays"
                 required>
         </select>
-
-        <!-- monthly -->
-        <select class="form-control" name="schedule" ng-if="model.scheduleHandler == 'monthly'" ng-disabled="options.disabled" ng-model="model.schedule" required>
-          <option ng-repeat="day in range(1, 32)" value="{{ day }}">{{ day }}</option>
-        </select>
-
-        <!-- yearly -->
-        <input type="number" class="form-control" ng-if="model.scheduleHandler == 'yearly'" ng-model="model.schedule" min="1" max="366" required>
 
         <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$invalid">{{ i18n.__("Schedule value is required") }}</label>
         <label class="help-block text-danger" ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$error.number">{{ i18n.__("Schedule value is not a valid integer") }}</label>
