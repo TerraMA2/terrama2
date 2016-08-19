@@ -65,11 +65,11 @@ namespace terrama2
         //! Default copy constructor
         DataAccessorOccurrence(const DataAccessorOccurrence& other) = default;
         //! Default move constructor
-        DataAccessorOccurrence(DataAccessorOccurrence&& other) = default;
+        DataAccessorOccurrence(DataAccessorOccurrence&& other) : DataAccessor(std::move(other)) {}
         //! Default const assignment operator
         DataAccessorOccurrence& operator=(const DataAccessorOccurrence& other) = default;
         //! Default assignment operator
-        DataAccessorOccurrence& operator=(DataAccessorOccurrence&& other) = default;
+        DataAccessorOccurrence& operator=(DataAccessorOccurrence&& other) { DataAccessor::operator=(std::move(other)); return *this; }
 
         //! Returns a OccurrenceSeries filtered by Filter
         virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);

@@ -268,7 +268,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       begin += packageSize;
     }
 
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
 
 
     storeMonitoredObjectAnalysisResult(dataManager, context);
@@ -276,18 +276,18 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
   catch(const terrama2::Exception& e)
   {
     context->addError( boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
 
 
@@ -548,36 +548,38 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
       begin += packageSize;
     }
 
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
 
-    storeGridAnalysisResult(context);
+    auto errors = context->getErrors();
+    if(errors.empty())
+      storeGridAnalysisResult(context);
   }
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
   catch(const boost::python::error_already_set&)
   {
     std::string errMsg = terrama2::services::analysis::core::python::extractException();
     context->addError(errMsg);
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
   catch(const boost::exception& e)
   {
     context->addError(boost::diagnostic_information(e));
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.wait(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
 
 
@@ -601,10 +603,6 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
 void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::services::analysis::core::GridContextPtr context)
 {
-  auto errors = context->getErrors();
-  if(!errors.empty())
-    return;
-
   auto analysis = context->getAnalysis();
   if(!analysis)
   {

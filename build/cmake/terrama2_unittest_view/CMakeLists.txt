@@ -33,7 +33,7 @@ endif()
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/view/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/unittest/view/*.hpp)
 
-include_directories (
+include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src
   ${terralib_INCLUDE_DIRS}

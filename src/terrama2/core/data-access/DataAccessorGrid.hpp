@@ -58,11 +58,11 @@ namespace terrama2
         //! Default copy constructor
         DataAccessorGrid(const DataAccessorGrid& other) = default;
         //! Default move constructor
-        DataAccessorGrid(DataAccessorGrid&& other) = default;
+        DataAccessorGrid(DataAccessorGrid&& other) : DataAccessor(std::move(other)){}
         //! Default const assignment operator
         DataAccessorGrid& operator=(const DataAccessorGrid& other) = default;
         //! Default assignment operator
-        DataAccessorGrid& operator=(DataAccessorGrid&& other) = default;
+        DataAccessorGrid& operator=(DataAccessorGrid&& other) { DataAccessor::operator=(std::move(other)); return *this; }
 
         //! Returns a GridSeries filtered by Filter
         virtual GridSeriesPtr getGridSeries(const Filter& filter);

@@ -12,39 +12,39 @@
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceCount_overloads, terrama2::services::analysis::core::occurrence::count, 3, 4);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceCount_overloads, terrama2::services::analysis::core::occurrence::count, 3, 4)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMin_overloads, terrama2::services::analysis::core::occurrence::min, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMin_overloads, terrama2::services::analysis::core::occurrence::min, 4, 5)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMax_overloads, terrama2::services::analysis::core::occurrence::max, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMax_overloads, terrama2::services::analysis::core::occurrence::max, 4, 5)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMean_overloads, terrama2::services::analysis::core::occurrence::mean, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMean_overloads, terrama2::services::analysis::core::occurrence::mean, 4, 5)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMedian_overloads, terrama2::services::analysis::core::occurrence::median, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMedian_overloads, terrama2::services::analysis::core::occurrence::median, 4, 5)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceSum_overloads, terrama2::services::analysis::core::occurrence::sum, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceSum_overloads, terrama2::services::analysis::core::occurrence::sum, 4, 5)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::standardDeviation, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::standardDeviation, 4, 5)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceVariance_overloads, terrama2::services::analysis::core::occurrence::variance, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceVariance_overloads, terrama2::services::analysis::core::occurrence::variance, 4, 5)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationCount_overloads, terrama2::services::analysis::core::occurrence::aggregation::count, 4, 5);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationCount_overloads, terrama2::services::analysis::core::occurrence::aggregation::count, 4, 5)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMin_overloads, terrama2::services::analysis::core::occurrence::aggregation::min, 6, 7);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMin_overloads, terrama2::services::analysis::core::occurrence::aggregation::min, 6, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMax_overloads, terrama2::services::analysis::core::occurrence::aggregation::max, 6, 7);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMax_overloads, terrama2::services::analysis::core::occurrence::aggregation::max, 6, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMean_overloads, terrama2::services::analysis::core::occurrence::aggregation::mean, 6, 7);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMean_overloads, terrama2::services::analysis::core::occurrence::aggregation::mean, 6, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMedian_overloads, terrama2::services::analysis::core::occurrence::aggregation::median, 6, 7);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMedian_overloads, terrama2::services::analysis::core::occurrence::aggregation::median, 6, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationSum_overloads, terrama2::services::analysis::core::occurrence::aggregation::sum, 6, 7);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationSum_overloads, terrama2::services::analysis::core::occurrence::aggregation::sum, 6, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::aggregation::standardDeviation, 6, 7);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::aggregation::standardDeviation, 6, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationVariance_overloads, terrama2::services::analysis::core::occurrence::aggregation::variance, 6, 7);
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationVariance_overloads, terrama2::services::analysis::core::occurrence::aggregation::variance, 6, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpInfluenceByRule_overloads, terrama2::services::analysis::core::dcp::influence::python::byRule, 1, 2);
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpInfluenceByRule_overloads, terrama2::services::analysis::core::dcp::influence::python::byRule, 1, 2)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
