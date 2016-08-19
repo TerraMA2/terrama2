@@ -72,7 +72,10 @@ angular.module('terrama2.analysis.registration', [
     $scope.scheduleOptions = {};
 
     $scope.onScriptChanged = function(editor) {
-      $scope.analysis.script = editor.getSession().getDocument().getValue();
+      var session = editor[1];
+      var document = editor[1].getSession().getDocument();
+
+      $scope.analysis.script = editor[1].getSession().getDocument().getValue();
     };
 
     socket.on('checkPythonScriptResponse', function(result) {
@@ -97,7 +100,15 @@ angular.module('terrama2.analysis.registration', [
 
     $scope.onScriptValidation = function() {
       $scope.testingScript = true;
-      socket.emit('checkPythonScriptRequest', {script: $scope.analysis.script || ""});
+      var split = $scope.analysis.script.split("\n");
+      var wrapScript = "def dummy():\n";
+      split.forEach(function(element) {
+        if (element) {
+          wrapScript += "    " + element + "\n";
+        }
+      })
+      console.log(wrapScript);
+      socket.emit('checkPythonScriptRequest', {script: wrapScript || ""});
     };
 
     // define dataseries selected in modal
@@ -385,6 +396,24 @@ angular.module('terrama2.analysis.registration', [
       _processBuffers();
     }).error(errorHelper);
 
+    $scope.$watch("targetDataSeries", function(newValue) {
+      var hasNewValue = Object.keys(newValue).length !== 1;
+      if (!hasNewValue) {
+        return;
+      }
+
+      $scope.buffers.static = [];
+      ($scope.dataSeriesList || []).forEach(function(dataSeries) {
+        if (dataSeries.data_series_semantics.data_series_type_name === "STATIC_DATA") {
+          if (dataSeries.id !== newValue.id) {
+            console.log(dataSeries);
+            $scope.buffers.static.push(dataSeries);
+          }
+        }
+      });
+      $scope.dataSeriesGroups[0].children = $scope.buffers.static;
+    });
+
     // helpers
     var _processBuffers = function() {
       // clean old data
@@ -410,8 +439,11 @@ angular.module('terrama2.analysis.registration', [
           var semantics = dSeries.data_series_semantics;
 
           if (semantics.data_series_type_name === "STATIC_DATA") {
-            dSeries.isDynamic = false;
-            $scope.buffers.static.push(dSeries);
+            // skip target data series in additional data
+            if ($scope.targetDataSeries && $scope.targetDataSeries.id !== dSeries.id) {
+              dSeries.isDynamic = false;
+              $scope.buffers.static.push(dSeries);
+            }
           }
           else {
             dSeries.isDynamic = true;
