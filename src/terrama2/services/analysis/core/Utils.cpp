@@ -220,28 +220,54 @@ terrama2::services::analysis::core::resampleRaster(std::shared_ptr<te::rst::Rast
   std::vector<te::rst::BandProperty*> bands;
   std::tie(grid, bands) = terrama2::services::analysis::core::getOutputRasterInfo(outputRasterInfo);
   assert(grid);
-  auto envelope = grid->getExtent();
+  // auto envelope = grid->getExtent();
+  // auto lowY = envelope->getLowerLeftY();
+  // auto leftX = envelope->getLowerLeftX();
+  // auto highY = envelope->getUpperRightY();
+  // auto rightX = envelope->getUpperRightX();
+  //
 
-  te::gm::Geometry* boundingBox = te::gm::GetGeomFromEnvelope(envelope, grid->getSRID());
-  boundingBox->transform(inputRaster->getSRID());
+  // double col, row;
+  // inputGrid->geoToGrid(leftX, highY, col, row);
+  //
+  // double col2, row2;
+  // inputGrid->geoToGrid(rightX, lowY, col2, row2);
 
-  auto cropRaster = te::rst::CropRaster(*inputRaster, *static_cast<te::gm::Polygon*>(boundingBox), outputRasterInfo, "EXPANSIBLE");
+  // CALCULA O TAMANHO DA IMAGEM DE ENTRADA,
+  // ELA PODE ESTAR CORTADA!!! E NÃO TER O TAMANHO INTEIRO DA IMAGEM DE SAIDA!
 
-  auto oldNRows = cropRaster->getNumberOfRows();
-  auto oldNCols = cropRaster->getNumberOfColumns();
+  // try {
+  //   outputRasterInfo.emplace("FORCE_MEM_DRIVER", "TRUE");
+  //
+  //   std::shared_ptr<te::rst::Raster> resampledRasterPtr(inputRaster->resample((te::rst::Interpolator::Method)method, row, col, row2-row, col2-col, newRows, newCols, outputRasterInfo));
+  //   return resampledRasterPtr;
+  // } catch (...) {
+  //   return std::shared_ptr<te::rst::Raster>();
+  // }
 
-  unsigned int rows = static_cast<unsigned int>(std::stoi(outputRasterInfo["MEM_RASTER_NROWS"]));
-  unsigned int cols = static_cast<unsigned int>(std::stoi(outputRasterInfo["MEM_RASTER_NCOLS"]));
+
+  auto oldNRows = inputRaster->getNumberOfRows();
+  auto oldNCols = inputRaster->getNumberOfColumns();
+
+  auto resX = grid->getResolutionX();
+  auto resY = grid->getResolutionY();
+
+  auto inputGrid = inputRaster->getGrid();
+  auto iresX = inputGrid->getResolutionX();
+  auto iresY = inputGrid->getResolutionY();
+
+  uint32_t newcols = oldNCols*iresX/resX;
+  uint32_t newrows = oldNRows*iresY/resY;
 
   std::vector< unsigned int > inputRasterBands;
-  for(unsigned int i = 0; i < cropRaster->getNumberOfBands(); ++i)
+  for(unsigned int i = 0; i < inputRaster->getNumberOfBands(); ++i)
   {
     inputRasterBands.push_back(i);
   }
 
   std::auto_ptr<te::rst::Raster> resampledRasterPtr(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
-  auto ok = te::rp::RasterResample(*cropRaster, inputRasterBands, (te::rst::Interpolator::Method)method, 0, 0, oldNRows,
-                                   oldNCols, rows, cols, outputRasterInfo,
+  auto ok = te::rp::RasterResample(*inputRaster, inputRasterBands, (te::rst::Interpolator::Method)method, 0, 0, oldNRows,
+                                   oldNCols, newrows, newcols, outputRasterInfo,
                                    "EXPANSIBLE" ,resampledRasterPtr);
 
   assert(ok);

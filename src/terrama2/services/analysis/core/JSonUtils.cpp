@@ -283,9 +283,10 @@ terrama2::services::analysis::core::AnalysisOutputGridPtr terrama2::services::an
     outputGrid->interestAreaDataSeriesId = json["area_of_interest_data_series_id"].toInt();
   outputGrid->interestAreaType = ToInterestAreaType(json["area_of_interest_type"].toInt());
   if(!json["area_of_interest_box"].isNull())
-    outputGrid->interestAreaBox.reset(te::gm::WKTReader::read(json["area_of_interest_box"].toString().toStdString().c_str()));
+  {
+    std::string wkt = json["area_of_interest_box"].toString().toStdString();
+    outputGrid->interestAreaBox.reset(te::gm::WKTReader::read(wkt.c_str()));
+  }
 
   return outputGridPtr;
 }
-
-
