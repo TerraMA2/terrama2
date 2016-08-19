@@ -42,7 +42,11 @@
 #include <QString>
 #include <QObject>
 
-bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& filter, std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
+bool terrama2::core::isValidDataSetName(const std::string& mask,
+                                        const Filter& filter,
+                                        std::string& timezone,
+                                        const std::string& name,
+                                        std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
 {
   if(!isValidDatedMask(mask))
   {
@@ -72,7 +76,7 @@ bool terrama2::core::isValidDataSetName(const std::string& mask, const Filter& f
   m.replace("ss", "(?<SECONDS>[0-5][0-9])");
 
   // add a extension validation in case of the name has it
-  m += "(?<EXTENSIONS>\\..+)?";
+  m += "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?";
 
   boost::regex expression(m.toStdString());
   boost::match_results< std::string::const_iterator > match;
