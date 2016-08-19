@@ -115,12 +115,12 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
 
     return NAN;
   }
-  catch(terrama2::Exception e)
+  catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return NAN;
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
     context->addError(e.what());
     return NAN;
