@@ -28,6 +28,7 @@
 */
 
 #include "Verify.hpp"
+#include "Logger.hpp"
 
 #include "../Exception.hpp"
 
@@ -40,7 +41,11 @@
 void terrama2::core::verify::srid(int srid_)
 {
   if(srid_ <= 0 || srid_ > 998999)
-    throw VerifyException() << terrama2::ErrorDescription(QObject::tr("Invalid SRID."));
+  {
+    QString errMsg = QObject::tr("Invalid SRID.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw VerifyException() << terrama2::ErrorDescription(errMsg);
+  }
 }
 
 void terrama2::core::verify::date(const std::shared_ptr<te::dt::TimeInstantTZ>& date)
@@ -50,9 +55,16 @@ void terrama2::core::verify::date(const std::shared_ptr<te::dt::TimeInstantTZ>& 
 
 void terrama2::core::verify::date(const boost::local_time::local_date_time& date)
 {
+  QString errMsg = QObject::tr("Invalid Date/Time.");
   if(date.is_special())
-    throw VerifyException() << terrama2::ErrorDescription(QObject::tr("Invalid Date/Time."));
+  {
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw VerifyException() << terrama2::ErrorDescription(errMsg);
+  }
 
   if(!date.zone())
-    throw VerifyException() << terrama2::ErrorDescription(QObject::tr("Invalid Timezone."));
+  {
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw VerifyException() << terrama2::ErrorDescription(errMsg);
+  }
 }

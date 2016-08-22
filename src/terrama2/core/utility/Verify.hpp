@@ -39,9 +39,34 @@ namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Functions for consistency check
+
+      This namespace agregates functions to verify if some data is valid,
+      all functions throw if some inconsitency is found and do nothing otherwise.
+
+      ## Intructions for new tests ##
+
+        - The name of the function must be minimal and refere to object beeing tested
+        - The tests must be minimal and must no interfere in the code they are used
+        - Test for overrall validity, for example, a boost::local_date must not be an invalid date.
+    */
     namespace verify {
+      /*!
+        \brief Verifies if the SRID is a valid number.
+
+        \note Doesn't check if the SRID actualy exists.
+      */
       void srid(int srid_);
+      
+      /*!
+        \brief Verifies if the date and the timezone are valid.
+      */
       void date(const std::shared_ptr<te::dt::TimeInstantTZ>& date);
+
+      /*!
+        \brief Verifies if the date and the timezone are valid.
+      */
       void date(const boost::local_time::local_date_time& date);
     } /* verify */
   } /* core */
