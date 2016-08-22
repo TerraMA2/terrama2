@@ -48,21 +48,46 @@ void terrama2::core::verify::srid(int srid_)
   }
 }
 
+void terrama2::core::verify::date(const std::shared_ptr<te::dt::TimeInstant>& date)
+{
+  if(!date.get())
+  {
+    QString errMsg = QObject::tr("Invalid Date/Time.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw VerifyException() << terrama2::ErrorDescription(errMsg);
+  }
+
+  verify::date(date->getTimeInstant());
+}
+
 void terrama2::core::verify::date(const std::shared_ptr<te::dt::TimeInstantTZ>& date)
 {
+  if(!date.get())
+  {
+    QString errMsg = QObject::tr("Invalid Date/Time.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw VerifyException() << terrama2::ErrorDescription(errMsg);
+  }
+
   verify::date(date->getTimeInstantTZ());
 }
 
 void terrama2::core::verify::date(const boost::local_time::local_date_time& date)
 {
-  QString errMsg = QObject::tr("Invalid Date/Time.");
-  if(date.is_special())
+  QString errMsg = QObject::tr("Invalid Timezone.");
+  if(!date.zone())
   {
     TERRAMA2_LOG_ERROR() << errMsg;
     throw VerifyException() << terrama2::ErrorDescription(errMsg);
   }
 
-  if(!date.zone())
+  verify::date(static_cast<const boost::posix_time::ptime::base_time&>(date));
+}
+
+void terrama2::core::verify::date(const boost::posix_time::ptime::base_time& date)
+{
+  QString errMsg = QObject::tr("Invalid Date/Time.");
+  if(date.is_special())
   {
     TERRAMA2_LOG_ERROR() << errMsg;
     throw VerifyException() << terrama2::ErrorDescription(errMsg);

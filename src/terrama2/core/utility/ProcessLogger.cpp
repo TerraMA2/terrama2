@@ -31,6 +31,7 @@
 #include "ProcessLogger.hpp"
 #include "TimeUtils.hpp"
 #include "../utility/Logger.hpp"
+#include "../utility/Verify.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -76,7 +77,7 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::stri
       TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     }
   }
-  catch (...)
+  catch(...)
   {
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
@@ -249,24 +250,14 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
 
   boost::format query("UPDATE "+ tableName_ + " SET status=%1%, data_timestamp=%2%, last_process_timestamp='%3%' WHERE id =" + QString::number(registerId).toStdString());
   QString timestamp = "NULL";
-  if(dataTimestamp.get())
-  {
-    auto boostTime = dataTimestamp->getTimeInstantTZ();
-    if(!boostTime.is_not_a_date_time())
-    {
-      if(boostTime.zone())
-        timestamp = QString::fromStdString(dataTimestamp->toString());
-      else
-      {
-        QString errMsg = QObject::tr("Wrong data format.\nUsing UTC timezone");
-        TERRAMA2_LOG_WARNING() << errMsg;
-        timestamp = QString::fromStdString(boost::posix_time::to_simple_string(boostTime.utc_time()))+"UTC+00";
-      }
 
-      timestamp.prepend("'");
-      timestamp.append("'");
-    }
-  }
+  verify::date(dataTimestamp);
+
+  auto boostTime = dataTimestamp->getTimeInstantTZ();
+  timestamp = QString::fromStdString(dataTimestamp->toString());
+
+  timestamp.prepend("'");
+  timestamp.append("'");
 
   query.bind_arg(1, static_cast<int>(Status::DONE));
   query.bind_arg(2, timestamp);
@@ -434,7 +425,7 @@ void terrama2::core::ProcessLogger::setTableName(std::string& tableName)
   // Check if schema_ exists in database
   {
     std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
-    transactor->execute("CREATE SCHEMA IF NOT EXISTS " + schema_ );
+    transactor->execute("CREATE SCHEMA IF NOT EXISTS " + schema_);
 
     transactor->commit();
   }

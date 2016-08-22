@@ -36,6 +36,7 @@
 #include "../utility/SemanticsManager.hpp"
 #include "../utility/TimeUtils.hpp"
 #include "../utility/Logger.hpp"
+#include "../utility/Verify.hpp"
 #include "../Exception.hpp"
 
 #include "JSonUtils.hpp"
@@ -264,16 +265,19 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
   {
     std::string dateTime = json.value("discard_before").toString().toStdString();
     filter.discardBefore = TimeUtils::stringToTimestamp(dateTime, timestampFacet);
+    verify::date(filter.discardBefore);
   }
   if(json.contains("discard_after") && !json.value("discard_after").isNull())
   {
     std::string dateTime = json["discard_after"].toString().toStdString();
     filter.discardAfter = TimeUtils::stringToTimestamp(dateTime, timestampFacet);
+    verify::date(filter.discardAfter);
   }
 
   if(json.contains("region") && !json.value("region").isNull())
   {
     filter.region = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(json["region"].toString().toStdString().c_str()));
+    verify::srid(filter.region->getSRID());
   }
 
   if(json.contains("value_comparison_operation")
@@ -413,22 +417,22 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  if(!(json.contains("id")
-      && json.contains("frequency")
-      && json.contains("frequency_unit")
-      && json.contains("frequency_start_time")
-      && json.contains("schedule")
-      && json.contains("schedule_time")
-      && json.contains("schedule_unit")
-      && json.contains("schedule_retry")
-      && json.contains("schedule_retry_unit")
-      && json.contains("schedule_timeout")
-      && json.contains("schedule_timeout_unit")))
-  {
-    QString errMsg = QObject::tr("Invalid Schedule JSON object.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-  }
+//  if(!(json.contains("id")
+//      && json.contains("frequency")
+//      && json.contains("frequency_unit")
+//      && json.contains("frequency_start_time")
+//      && json.contains("schedule")
+//      && json.contains("schedule_time")
+//      && json.contains("schedule_unit")
+//      && json.contains("schedule_retry")
+//      && json.contains("schedule_retry_unit")
+//      && json.contains("schedule_timeout")
+//      && json.contains("schedule_timeout_unit")))
+//  {
+//    QString errMsg = QObject::tr("Invalid Schedule JSON object.");
+//    TERRAMA2_LOG_ERROR() << errMsg;
+//    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+//  }
 
   terrama2::core::Schedule schedule;
   schedule.id = json["id"].toInt();
