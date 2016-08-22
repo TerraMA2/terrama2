@@ -35,7 +35,6 @@ CollectorFilter.prototype.match = function(collectors, extra) {
   var output = [];
 
   copyDataSeries.forEach(function(element, index) {
-    console.log(element.name);
     collectors.some(function(collector) {
       // collect
       if (collector.data_series_output === element.id) {

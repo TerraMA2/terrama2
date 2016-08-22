@@ -1879,7 +1879,7 @@ var DataManager = {
                   return resolve(collector);
                 }
 
-                if (_.isEmpty(filterObject.date)) {
+                if (_.isEmpty(filterObject.date) && _.isEmpty(filterObject.area)) {
                   return resolve(collector);
                 } else {
                   filterObject.collector_id = collectorResult.id;
@@ -2151,17 +2151,17 @@ var DataManager = {
       Object.assign(filterValues, _processFilter(filterObject));
 
       // checking filter
-      models.db.Filter.create(filterValues).then(function(filter) {
-        if (filter.region) {
-          self.getWKT(filter.region).then(function(geom) {
-            var filter = new DataModel.Filter(filter.get());
+      models.db.Filter.create(filterValues).then(function(filterResult) {
+        if (filterResult.region) {
+          self.getWKT(filterResult.region).then(function(geom) {
+            var filter = new DataModel.Filter(filterResult.get());
             filter.region_wkt = geom;
             resolve(filter);
           }).catch(function(err) {
             reject(err);
           });
         } else {
-          resolve(new DataModel.Filter(filter.get()));
+          resolve(new DataModel.Filter(filterResult.get()));
         }
       }).catch(function(err) {
         // todo: improve error message
