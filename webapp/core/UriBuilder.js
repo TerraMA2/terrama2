@@ -1,3 +1,5 @@
+'use strict';
+
 var Util = require('util');
 var URL = require("url");
 
@@ -17,7 +19,12 @@ function buildUri(uriObjectGiven, uriSyntax) {
     uriObject.auth = Util.format("%s:%s", uriObjectGiven[uriSyntax.USER], uriObjectGiven[uriSyntax.PASSWORD]);
   }
 
-  return URL.format(uriObject);
+  var output = URL.format(uriObject);
+  if (output.pathname) {
+    output.pathname = decodeURI(output.pathname);
+  }
+
+  return output;
 }
 
 function buildObject(uriString, uriSyntax) {
@@ -28,7 +35,7 @@ function buildObject(uriString, uriSyntax) {
     auth = uriObject.auth.split(':');
 
   var output = {};
-  
+
   output[uriSyntax.SCHEME] = uriObject.protocol.substr(0, uriObject.protocol.length-1).toUpperCase();
   output[uriSyntax.HOST] = uriObject.hostname;
   output[uriSyntax.PORT] = parseInt(uriObject.port);

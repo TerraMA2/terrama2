@@ -8,8 +8,8 @@ var Collector = module.exports = function(params) {
   this.id = params.id;
   this.project_id = params.project_id;
   this.service_instance_id = params.service_instance_id;
-  this.input_data_series = params.data_series_input;
-  this.output_data_series = params.data_series_output;
+  this.data_series_input = params.data_series_input;
+  this.data_series_output = params.data_series_output;
 
   this.dataSeriesOutput = params.dataSeriesOutput || {};
 
@@ -106,8 +106,8 @@ Collector.prototype.toObject = function() {
     id: this.id,
     project_id: this.project_id,
     service_instance_id: this.service_instance_id,
-    input_data_series: this.input_data_series,
-    output_data_series: this.output_data_series,
+    input_data_series: this.data_series_input,
+    output_data_series: this.data_series_output,
     input_output_map: this.input_output_map || [],
     schedule: this['schedule'] instanceof BaseClass ? this['schedule'].toObject() : this['schedule'],
     filter: this['filter'] instanceof BaseClass ? this.filter.toObject() : this.filter,
