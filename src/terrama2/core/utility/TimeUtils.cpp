@@ -31,6 +31,7 @@
 // TerraMA2
 #include "TimeUtils.hpp"
 #include "Logger.hpp"
+#include "Verify.hpp"
 #include "../../Exception.hpp"
 
 // TerraLib
@@ -46,6 +47,8 @@
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::stringToTimestamp(const std::string& dateTime, const std::string& mask)
 {
     boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
+    verify::date(ldt);
+
     return std::make_shared<te::dt::TimeInstantTZ>(ldt);
   }
 
@@ -58,6 +61,8 @@ boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocal
 
   boost::local_time::local_date_time ldt(boost::local_time::not_a_date_time);
   ss >> ldt; // do the parse
+
+  verify::date(ldt);
 
   return ldt;
 }
@@ -77,7 +82,6 @@ boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocal
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::TimeUtils::nowUTC()
 {
-
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("UTC+00"));
   boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
 

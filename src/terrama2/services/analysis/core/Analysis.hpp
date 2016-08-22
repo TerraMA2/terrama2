@@ -189,13 +189,13 @@ namespace terrama2
           {
             try
             {
-              verify::date(startDate);
+              terrama2::core::verify::date(startDate);
             }
             catch (...)
             {
               throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));
             }
-            
+
             std::string str = std::to_string(id) + startDate->toString();
             std::hash<std::string> hash_fn;
             return hash_fn(str);
