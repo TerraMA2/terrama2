@@ -75,7 +75,7 @@ app.run(function($templateCache) {
   "</form>");
 });
 
-app.directive("terrama2BoundedBox", function(i18n) {
+app.directive("terrama2BoundedBox", function(i18n, Polygon) {
   return {
     restrict: "E",
     templateUrl: "bounded-box.html",
@@ -86,6 +86,21 @@ app.directive("terrama2BoundedBox", function(i18n) {
     },
     controller: function($scope) {
       $scope.i18n = i18n;
+    },
+    link: function(scope, element, attrs, ngModelController) {
+      function updateView(value) {
+        ngModelCtrl.$viewValue = value;
+        ngModelCtrl.$render();
+      }
+
+      function updateModel(value) {
+        ngModelCtrl.$modelValue = value;
+        scope.ngModel = value;
+      }
+
+      scope.$on("fillBoundedBox", function(event, model) {
+        updateModel(Polygon.read(model));
+      });
     }
   };
 });
