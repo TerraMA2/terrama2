@@ -484,7 +484,7 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.onFilterRegion = function() {
-        $scope.filter.area={};
+        $scope.filter.area={srid: 4326};
       };
 
       // storager
@@ -558,7 +558,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.updatingDcp = false;
 
       // filter values
-      $scope.filter = {date: {}};
+      $scope.filter = {date: {}, area: {srid: 4326}};
       $scope.radioPreAnalysis = {};
       $scope.handlePreAnalysisFilter = function(selected) {
         $scope.filter.pre_analysis = {};
