@@ -20,31 +20,39 @@
 */
 
 /*!
-  \file terrama2/core/utility/Verify.hpp
+  \file terrama2/core/utility/Verify.cpp
 
   \brief Utility functions for easy consistency check
 
   \author Jano Simas
 */
 
+#include "Verify.hpp"
 
-#ifndef __TERRAMA2_CORE_UTILITY_VERIFY_HPP__
-#define __TERRAMA2_CORE_UTILITY_VERIFY_HPP__
+#include "../Exception.hpp"
 
-#include <boost/date_time/local_time/local_date_time.hpp>
+#include <QObject>
+#include <QString>
 
-#include <terralib/datatype/TimeInstantTZ.h>
 
-namespace terrama2
+//TODO: improve message to help identify where the error accurred
+
+void terrama2::core::verify::srid(int srid_)
 {
-  namespace core
-  {
-    namespace verify {
-      void srid(int srid_);
-      void date(const std::shared_ptr<te::dt::TimeInstantTZ>& date);
-      void date(const boost::local_time::local_date_time& date);
-    } /* verify */
-  } /* core */
-} /* terrama2 */
+  if(srid_ <= 0 || srid_ > 998999)
+    throw VerifyException() << terrama2::ErrorDescription(QObject::tr("Invalid SRID."));
+}
 
-#endif //__TERRAMA2_CORE_UTILITY_VERIFY_HPP__
+void terrama2::core::verify::date(const std::shared_ptr<te::dt::TimeInstantTZ>& date)
+{
+  verify::date(date->getTimeInstantTZ());
+}
+
+void terrama2::core::verify::date(const boost::local_time::local_date_time& date)
+{
+  if(date.is_special())
+    throw VerifyException() << terrama2::ErrorDescription(QObject::tr("Invalid Date/Time."));
+
+  if(!date.zone())
+    throw VerifyException() << terrama2::ErrorDescription(QObject::tr("Invalid Timezone."));
+}
