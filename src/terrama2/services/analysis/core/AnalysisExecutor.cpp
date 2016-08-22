@@ -559,11 +559,6 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
-  catch(const std::exception& e)
-  {
-    context->addError(e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
-  }
   catch(const boost::python::error_already_set&)
   {
     std::string errMsg = terrama2::services::analysis::core::python::extractException();
@@ -573,6 +568,11 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   catch(const boost::exception& e)
   {
     context->addError(boost::diagnostic_information(e));
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
   catch(...)
