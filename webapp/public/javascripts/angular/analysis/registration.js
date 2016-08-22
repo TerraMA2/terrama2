@@ -417,7 +417,8 @@ angular.module('terrama2.analysis.registration', [
     $scope.$watch("analysis.grid.area_of_interest_type", function(value) {
       if (value) {
         if (value === $scope.interestAreaTypes.CUSTOM.value) {
-          var value = configuration.analysis.output_grid.srid || 4326;
+          var analysisConfig = (configuration.analysis || {});
+          var value = (analysisConfig.output_grid || {}).srid || 4326;
           if ($scope.analysis.grid.area_of_interest_bounded) {
             $scope.analysis.grid.area_of_interest_bounded.srid = value;
           } else {
