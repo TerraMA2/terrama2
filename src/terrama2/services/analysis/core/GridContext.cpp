@@ -33,6 +33,7 @@
 #include "Utils.hpp"
 #include "PythonInterpreter.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/utility/Verify.hpp"
 #include "../../../core/data-model/DataSetGrid.hpp"
 
 #include <terralib/raster/Raster.h>
@@ -368,7 +369,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
 
           box->Union(*geomBox->getMBR());
         }
-        catch(terrama2::core::NoDataException e)
+        catch(const terrama2::core::NoDataException&)
         {
           continue;
         }
@@ -396,7 +397,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
         box->Union(*raster->getExtent());
         srid = raster->getSRID();
       }
-      catch(terrama2::core::NoDataException e)
+      catch(const terrama2::core::NoDataException&)
       {
       }
 
@@ -409,6 +410,8 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
       break;
     }
   }
+
+  terrama2::core::verify::srid(srid);
 
   outputRasterInfo["MEM_RASTER_SRID"] = std::to_string(srid);
   outputRasterInfo["MEM_RASTER_MIN_X"] = std::to_string(box->getLowerLeftX());
