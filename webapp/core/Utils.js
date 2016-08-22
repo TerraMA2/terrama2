@@ -226,6 +226,7 @@ var Utils = {
           // getting analyses
           DataManager.listAnalyses().then(function(analysesResult) {
             var analyses = [];
+
             analysesResult.forEach(function(analysis) {
               analyses.push(analysis.toObject());
             }); // end foreach analysesResult
@@ -281,7 +282,12 @@ var Utils = {
     var self = this;
     return Object.keys(obj).every(function(key) {
       if (self.isObject(obj[key])) {
-        return self.matchObject(obj[key], target[key]);
+        switch(key) {
+          case Enums.Operators.IN: // $in: [a,b,c...d]
+            return obj[key].indexOf(target) !== -1;
+          default:
+            return self.matchObject(obj[key], target[key]);
+        }
       }
 
       switch (key) {

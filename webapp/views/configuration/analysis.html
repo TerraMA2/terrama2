@@ -448,7 +448,8 @@
               </div> <!-- ./col-md-6 -->
 
               <div class="col-md-6" ng-if="analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
-                <terrama2-bounded-box ng-model="analysis.grid.area_of_interest_bounded"></terrama2-bounded-box>
+                <terrama2-bounded-box ng-model="analysis.grid.area_of_interest_bounded" is-required="analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
+                </terrama2-bounded-box>
               </div>
             </div> <!-- ./cold-md-12 terrama2-nopadding-box-->
 

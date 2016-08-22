@@ -16,7 +16,7 @@ var AnalysisOutputGrid = module.exports = function(params) {
   this.srid = params.srid;
   this.analysis = params.analysis || {id: params.analysis_id};
   this.areaOfInterestType = params.areaOfInterestType || params.area_of_interest_type;
-  this.areaOfInterestBox = params.areaOfInterestBox || params.interest_box || params.area_of_interest_box || null;
+  this.areaOfInterestBox = params.areaOfInterestBox || params.area_of_interest_box || params.interest_box || null;
   this.areaOfInterestBoxWKT = params.interest_box || null;
   this.areaOfInterestDataSeries = params.areaOfInterestDataSeries || {id: params.area_of_interest_data_series_id};
   this.resolutionX = params.resolutionX || params.resolution_x;
@@ -38,7 +38,7 @@ AnalysisOutputGrid.prototype.toObject = function() {
     analysis_id: this.analysis.id,
     area_of_interest_type: this.areaOfInterestType,
     area_of_interest_data_series_id: this.areaOfInterestDataSeries.id,
-    area_of_interest_box: this.areaOfInterestBox || this.areaOfInterestBoxWKT,
+    area_of_interest_box: this.areaOfInterestBoxWKT || this.areaOfInterestBox,
     resolution_x: this.resolutionX,
     resolution_y: this.resolutionY,
     resolution_type: this.resolutionType,
@@ -47,5 +47,7 @@ AnalysisOutputGrid.prototype.toObject = function() {
 };
 
 AnalysisOutputGrid.prototype.rawObject = function() {
-  return this.toObject();
+  var toObj = this.toObject();
+  toObj.area_of_interest_box = this.areaOfInterestBox;
+  return toObj;
 };

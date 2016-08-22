@@ -166,8 +166,8 @@ module.exports = function(app) {
 
       var _continue = function(collector) {
         // output
-        DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
-          DataManager.getDataSeries({id: collector.input_data_series}).then(function(dataSeriesInput) {
+        DataManager.getDataSeries({id: collector.data_series_output}).then(function(dataSeriesOutput) {
+          DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeriesInput) {
             collector.project_id = app.locals.activeProject.id;
             var output = {
               "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
@@ -189,7 +189,7 @@ module.exports = function(app) {
           DataManager.updateCollector(collector.id, collector).then(function() {
             // input
             DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input).then(function() {
-              DataManager.updateDataSeries(parseInt(collector.output_data_series), dataSeriesObject.output).then(function() {
+              DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output).then(function() {
                 DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
                   var _processIntersection = function() {
                     if (_.isEmpty(intersection)) {
@@ -263,11 +263,11 @@ module.exports = function(app) {
         DataManager.getDataSeries({id: id}).then(function(dataSeriesResult) {
           DataManager.getCollector({data_series_output: id}).then(function(collectorResult) {
             DataManager.removeDataSerie({id: id}).then(function() {
-              DataManager.removeDataSerie({id: collectorResult.input_data_series}).then(function() {
+              DataManager.removeDataSerie({id: collectorResult.data_series_input}).then(function() {
                 DataManager.removeSchedule({id: collectorResult.schedule.id}).then(function() {
                   var objectToSend = {
                     "Collectors": [collectorResult.id],
-                    "DataSeries": [collectorResult.input_data_series, collectorResult.output_data_series],
+                    "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
                     "Schedule": [collectorResult.schedule.id]
                   };
 
