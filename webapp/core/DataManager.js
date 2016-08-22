@@ -1698,7 +1698,7 @@ var DataManager = {
       self.addDataSeries(dataSeriesObject.input).then(function(dataSeriesResult) {
         self.addDataSeries(dataSeriesObject.output).then(function(dataSeriesResultOutput) {
           self.addSchedule(scheduleObject).then(function(scheduleResult) {
-            var schedule = new DataModel.Schedule(scheduleResult);
+            var schedule = scheduleResult;
             var collectorObject = {};
 
             // todo: get service_instance id and collector status (active)
@@ -1807,14 +1807,15 @@ var DataManager = {
   },
 
   getSchedule: function(restriction) {
-    var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.findOne(restriction || {}).then(function(schedule) {
+      models.db.Schedule.findOne({
+        where: restriction || {}
+      }).then(function(schedule) {
         if (schedule) {
           return resolve(new DataModel.Schedule(schedule.get()));
         }
         reject(new exceptions.ScheduleError("Could not find schedule"));
-      })
+      });
     });
   },
 
