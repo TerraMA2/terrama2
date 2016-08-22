@@ -49,34 +49,13 @@ var lock = new ReadWriteLock();
 
 
 function _processFilter(filterObject) {
-  var filterValues = {};
+  var filterValues = Object.assign({}, filterObject);
   // checking filter by date
   if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
     if (filterObject.date.beforeDate) { filterValues.discard_before = new Date(filterObject.date.beforeDate); }
     if (filterObject.date.afterDate) { filterValues.discard_after = new Date(filterObject.date.afterDate); }
   }
 
-  // checking filter by area
-  if (filterObject.hasOwnProperty('area') && !_.isEmpty(filterObject.area)) {
-    filterValues.region = {
-      "type": "Polygon",
-      "coordinates": [
-        [
-          [filterObject.area.minX, filterObject.area.minY],
-          [filterObject.area.maxX, filterObject.area.minY],
-          [filterObject.area.maxX, filterObject.area.maxY],
-          [filterObject.area.minX, filterObject.area.maxY],
-          [filterObject.area.minX, filterObject.area.minY]
-        ]
-      ],
-      "crs": {
-        "type": "name",
-        "properties": {
-          "name": "EPSG:4326"
-        }
-      }
-    };
-  }
   return filterValues;
 }
 
@@ -536,7 +515,7 @@ var DataManager = {
    */
   getWKT: function(geoJSONObject) {
     return new Promise(function(resolve, reject) {
-      models.db.sequelize.query("SELECT ST_AsText(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
+      models.db.sequelize.query("SELECT ST_AsEwkt(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
         // it retrieves an array with data result (array) and query executed.
         // if data result is empty or greater than 1, its not allowed.
         if (wktGeom[0].length !== 1) { reject(new exceptions.DataSetError("Invalid wkt retrieved from GeoJSON.")); }
@@ -645,6 +624,9 @@ var DataManager = {
             }
           }).then(function() {
             var project = Utils.remove(self.data.projects, {id: projectResult.id});
+            // remove children from memory
+            Utils.removeAll(self.data.dataProvider, {project_id: project.id});
+            Utils.removeAll(self.data.dataSeries, {dataProvider: {project_id: project.id}});
             resolve();
           }).catch(function(err) {
             console.log("Remove Project: ", err);
@@ -1879,7 +1861,7 @@ var DataManager = {
                   return resolve(collector);
                 }
 
-                if (_.isEmpty(filterObject.date) && _.isEmpty(filterObject.area)) {
+                if (_.isEmpty(filterObject.date) && _.isEmpty(filterObject.region||{})) {
                   return resolve(collector);
                 } else {
                   filterObject.collector_id = collectorResult.id;
@@ -1973,7 +1955,7 @@ var DataManager = {
           {
             model: models.db.Filter,
             required: false,
-            attributes: { include: [[orm.fn('ST_AsText', orm.col('region')), 'region_wkt']] }
+            attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt']] }
           },
           {
             model: models.db.Intersection,
@@ -2045,7 +2027,7 @@ var DataManager = {
           {
             model: models.db.Filter,
             required: false,
-            attributes: { include: [[orm.fn('ST_AsText', orm.col('region')), 'region_wkt']] }
+            attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt']] }
           },
           {
             model: models.db.Intersection,
@@ -2146,19 +2128,15 @@ var DataManager = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      var filterValues = {collector_id: filterObject.collector_id};
+      var filterValues = {collector_id: filterObject.collector_id, region: filterObject.region || null};
 
       Object.assign(filterValues, _processFilter(filterObject));
 
       // checking filter
       models.db.Filter.create(filterValues).then(function(filterResult) {
         if (filterResult.region) {
-          self.getWKT(filterResult.region).then(function(geom) {
-            var filter = new DataModel.Filter(filterResult.get());
-            filter.region_wkt = geom;
-            resolve(filter);
-          }).catch(function(err) {
-            reject(err);
+          self.getFilter({id: filterResult.id}).then(function(filterEwkt) {
+            resolve(filterEwkt);
           });
         } else {
           resolve(new DataModel.Filter(filterResult.get()));
@@ -2173,22 +2151,18 @@ var DataManager = {
   getFilter: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Filter.findOne({where: restriction}).then(function(filter) {
+      models.db.Filter.findOne({
+        attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt']]},
+        where: restriction
+      }).then(function(filter) {
         if (filter === null) {
           return reject(new exceptions.FilterError("Could not get filter, retrieved null"));
         }
 
-        if (filter.region) {
-          self.getWKT(filter.region).then(function(geom) {
-            var output = new DataModel.Filter(filter.get());
-            output.region_wkt = geom;
-            resolve(output);
-          }).catch(function(err) {
-            reject(err);
-          });
-        } else {
-          resolve(new DataModel.Filter(filter.get()));
-        }
+        var output = new DataModel.Filter(filter.get());
+        output.region_wkt = filter.dataValues.region_wkt;
+
+        resolve(output);
       }).catch(function(err) {
         reject(new exceptions.FilterError("Could not retrieve filter " + err.toString()));
       });
@@ -2219,6 +2193,26 @@ var DataManager = {
       }).catch(function(err) {
         reject(new exceptions.AnalysisError("Could not save analysis data series " + err.toString()));
       });
+    });
+  },
+
+  getAnalysisOutputGrid: function(restriction) {
+    return new Promise(function(resolve, reject) {
+      models.db.AnalysisOutputGrid.findOne({
+        attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
+        where: restriction
+      }).then(function(outputGrid) {
+        if (outputGrid === null) {
+          return reject(new Error("Analysis output grid not found"));
+        }
+
+        var output = new DataModel.AnalysisOutputGrid(outputGrid.get());
+        output.areaOfInterestBoxWKT = outputGrid.dataValues.interest_box;
+        resolve(output);
+      }).catch(function(err) {
+        console.log(err);
+        return reject(new Error("Analysis output grid not found " + err.toString()));
+      })
     });
   },
 
@@ -2326,12 +2320,8 @@ var DataManager = {
                     models.db.AnalysisOutputGrid.create(analysisOutputGrid).then(function(analysisOutGridResult) {
                       var obj = analysisOutGridResult.get();
 
-                      self.getWKT(analysisOutGridResult.area_of_interest_box).then(function(geomWkt) {
-                        obj.area_of_interest_box = geomWkt;
-                      }).catch(function(err) {
-                        console.log("Could not retrieve WKT in output grid " + err.toString());
-                      }).finally(function() {
-                        analysisInstance.setAnalysisOutputGrid(obj);
+                      self.getAnalysisOutputGrid({id: analysisOutGridResult.id}).then(function(output_grid) {
+                        analysisInstance.outputGrid = output_grid;
                         _savePromises();
                       });
                     }).catch(function(err) {
@@ -2488,7 +2478,7 @@ var DataManager = {
           },
           {
             model: models.db.AnalysisOutputGrid,
-            attributes: {include: [[orm.fn('ST_AsText', orm.col('area_of_interest_box')), 'interest_box']]},
+            attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
             required: false
           },
           models.db.AnalysisMetadata,
@@ -2561,7 +2551,7 @@ var DataManager = {
           },
           {
             model: models.db.AnalysisOutputGrid,
-            attributes: {include: [[orm.fn('ST_AsText', orm.col('area_of_interest_box')), 'interest_box']]},
+            attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
             required: false
           },
           models.db.AnalysisMetadata,

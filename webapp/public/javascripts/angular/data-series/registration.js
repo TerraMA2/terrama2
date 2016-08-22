@@ -286,9 +286,10 @@ angular.module('terrama2.dataseries.registration', [
     'FormHelper',
     "WizardHandler",
     'UniqueNumber',
+    "Polygon",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -992,6 +993,8 @@ angular.module('terrama2.dataseries.registration', [
 
           // adjusting time without timezone
           var filterValues = Object.assign({}, $scope.filter);
+          filterValues.region = Polygon.build($scope.filter.area || {});
+          delete filterValues.area;
 
           var scheduleValues = Object.assign({}, $scope.schedule);
           switch(scheduleValues.scheduleHandler) {

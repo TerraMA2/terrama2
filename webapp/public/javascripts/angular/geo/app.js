@@ -22,7 +22,7 @@ angular.module("terrama2.components.geo", ["terrama2"])
     }
   })
 
-  .factory("Polygon", function(GeoJSON, GeometryFormat) {
+  .factory("Polygon", function(GeoJSON, Geometry, GeometryFormat) {
     return {
       /**
        * @param {GeoJSON} geojson - A geojson object structure

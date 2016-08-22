@@ -96,11 +96,11 @@
 <!-- TerraMA2 Ace -->
 <script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
 
-<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
-
 <!-- TerraMA2 Bounded Box -->
 <script type="text/javascript" src="/javascripts/angular/geo/app.js"></script>
 <script type="text/javascript" src="/javascripts/angular/geo/directives.js"></script>
+
+<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
 
 {% endblock %}
 
@@ -447,7 +447,7 @@
                 </div>
               </div> <!-- ./col-md-6 -->
 
-              <div class="col-md-6" ng-if="analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
+              <div class="col-md-6" ng-show="analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
                 <terrama2-bounded-box ng-model="analysis.grid.area_of_interest_bounded" is-required="analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
                 </terrama2-bounded-box>
               </div>

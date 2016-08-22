@@ -693,7 +693,7 @@ angular.module('terrama2.analysis.registration', [
         if ($scope.analysis.grid && $scope.analysis.grid.area_of_interest_bounded &&
             !angular.equals({}, $scope.analysis.grid.area_of_interest_bounded)) {
 
-          var boundedForm = angular.element('form[name="boundedForm"]').scope().boundedForm;
+          var boundedForm = (angular.element('form[name="boundedForm"]').scope() || {boundedForm: {}}).boundedForm;
           if (boundedForm.$invalid) {
             return;
           }
