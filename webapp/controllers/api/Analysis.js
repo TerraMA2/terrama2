@@ -5,6 +5,7 @@ var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
 var TcpManager = require("../../core/TcpManager");
 var AnalysisError = require("./../../core/Exceptions").AnalysisError;
+var AnalysisFacade = require("./../../core/facade/Analysis");
 
 module.exports = function(app) {
   return {
@@ -53,8 +54,8 @@ module.exports = function(app) {
           ]
         };
 
-        DataManager.addAnalysis(analysisObject, scheduleObject, dataSeries).then(function(analysisResult) {
-          DataManager.listServiceInstances().then(function(services) {
+        AnalysisFacade.save(analysisObject, scheduleObject, dataSeries).then(function(analysisResult) {
+          DataManager.listServiceInstances({}).then(function(services) {
             services.forEach(function(service) {
               try {
                 TcpManager.emit('sendData', service, {
