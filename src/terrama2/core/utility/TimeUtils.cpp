@@ -46,11 +46,11 @@
 
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::stringToTimestamp(const std::string& dateTime, const std::string& mask)
 {
-    boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
-    verify::date(ldt);
+  boost::local_time::local_date_time ldt = stringToBoostLocalTime(dateTime, mask);
+  verify::date(ldt);
 
-    return std::make_shared<te::dt::TimeInstantTZ>(ldt);
-  }
+  return std::make_shared<te::dt::TimeInstantTZ>(ldt);
+}
 
 boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocalTime(const std::string& dateTime, const std::string& mask)
 {
@@ -67,7 +67,7 @@ boost::local_time::local_date_time terrama2::core::TimeUtils::stringToBoostLocal
   return ldt;
 }
 
- std::string terrama2::core::TimeUtils::boostLocalTimeToString(const boost::local_time::local_date_time& dateTime, const std::string& mask)
+std::string terrama2::core::TimeUtils::boostLocalTimeToString(const boost::local_time::local_date_time& dateTime, const std::string& mask)
 {
   std::stringstream ss;
   ss.exceptions(std::ios_base::failbit);

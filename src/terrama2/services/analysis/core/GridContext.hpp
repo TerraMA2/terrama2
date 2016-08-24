@@ -91,7 +91,6 @@ namespace terrama2
             std::map<std::string, std::string> getOutputRasterInfo();
             void addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
             void addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
-            virtual std::shared_ptr<te::rst::Raster> resampleRaster(std::shared_ptr<te::rst::Raster> raster);
 
             std::shared_ptr<te::rst::Raster> outputRaster_;
             std::map<std::string, std::string> outputRasterInfo_;

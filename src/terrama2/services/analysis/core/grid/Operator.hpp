@@ -57,6 +57,8 @@ namespace terrama2
           */
           double sample(const std::string& dataSeriesName);
 
+          double getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<te::rst::Interpolator> interpolator, double column, double row, size_t bandIdx);
+
 
         }   // end namespace grid
       }     // end namespace core

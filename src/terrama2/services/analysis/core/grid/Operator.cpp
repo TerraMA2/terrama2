@@ -34,8 +34,24 @@
 #include "../GridContext.hpp"
 #include "../PythonInterpreter.hpp"
 
+#include <terralib/raster/Band.h>
+#include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/Reprojection.h>
+
+double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<te::rst::Interpolator> interpolator, double column, double row, size_t bandIdx)
+{
+  std::complex<double> val;
+  interpolator->getValue(column, row, val, bandIdx);
+  auto band = raster->getBand(bandIdx);
+
+  double noData = band->getProperty()->m_noDataValue;
+  double value =  val.real();
+  if(value == noData)
+    return NAN;
+  else
+    return value;
+}
 
 double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName)
 {
@@ -73,7 +89,6 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
     auto datasets = dataSeries->datasetList;
     for(auto dataset : datasets)
     {
-
       auto rasterList = context->getRasterList(dataSeries, dataset->id);
       if(rasterList.size() > 1)
       {
@@ -88,6 +103,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       }
 
       auto raster = rasterList.front();
+      auto interpolator = context->getInterpolator(raster);
       auto dsGrid = raster->getGrid();
       if(!dsGrid)
       {
@@ -102,15 +118,9 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       double column, row;
       dsGrid->geoToGrid(point.x, point.y, column, row);
 
-      int icol = static_cast<int>(std::round(column));
-      int irow = static_cast<int>(std::round(row));
-      if(!dsGrid->isPointInGrid(icol, irow))
-        continue;
-
-      double value;
-      raster->getValue(icol, irow, value);
-
-      return value;
+      //TODO: allow using other bands
+      const int bandIdx = 0;
+      return getValue(raster, interpolator, column, row, bandIdx);
     }
 
     return NAN;

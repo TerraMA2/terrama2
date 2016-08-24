@@ -45,6 +45,7 @@
 #include <Python.h>
 
 #include <terralib/raster/Raster.h>
+#include <terralib/raster/Interpolator.h>
 
 namespace te
 {
@@ -164,6 +165,9 @@ namespace terrama2
             std::vector< std::shared_ptr<te::rst::Raster> > getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
                 const DataSetId datasetId, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
 
+            std::shared_ptr<te::rst::Interpolator> getInterpolator(std::shared_ptr<te::rst::Raster> raster);
+
+
             std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > getSeriesMap(DataSeriesId dataSeriesId,
                 const std::string& dateDiscardBefore = "",
                 const std::string& dateDiscardAfter = "");
@@ -206,6 +210,7 @@ namespace terrama2
             std::unordered_map<ObjectKey, std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator> analysisGridMap_;
             std::unordered_map<ObjectKey, std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >, ObjectKeyHash, EqualKeyComparator> analysisSeriesMap_;
             std::unordered_map<ObjectKey, std::vector<std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator > rasterMap_;
+            std::unordered_map<std::shared_ptr<te::rst::Raster>, std::shared_ptr<te::rst::Interpolator> > interpolatorMap_;
         };
 
       }

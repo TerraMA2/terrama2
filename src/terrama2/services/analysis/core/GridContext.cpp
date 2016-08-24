@@ -419,11 +419,3 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
   outputRasterInfo["MEM_RASTER_MAX_X"] = std::to_string(box->getUpperRightX());
   outputRasterInfo["MEM_RASTER_MAX_Y"] = std::to_string(box->getUpperRightY());
 }
-
-std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::GridContext::resampleRaster(std::shared_ptr<te::rst::Raster> raster)
-{
-  auto outputGridConfig = getOutputRasterInfo();
-  auto resampledRaster = terrama2::services::analysis::core::resampleRaster(raster, outputGridConfig, analysis_->outputGridPtr->interpolationMethod);
-
-  return resampledRaster;
-}

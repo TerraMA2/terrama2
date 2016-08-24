@@ -73,6 +73,12 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::BaseContext::f
   return it->second;
 }
 
+std::shared_ptr<te::rst::Interpolator> terrama2::services::analysis::core::BaseContext::getInterpolator(std::shared_ptr<te::rst::Raster> raster)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+  return interpolatorMap_[raster];
+}
 
 std::vector< std::shared_ptr<te::rst::Raster> >
 terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
@@ -112,9 +118,11 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
           QString errMsg(QObject::tr("Invalid raster for dataset: %1").arg(datasetGrid->id));
           throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
         }
-        auto resampledRaster = resampleRaster(dsRaster);
 
-        addRaster(key, resampledRaster);
+        addRaster(key, dsRaster);
+
+        std::shared_ptr<te::rst::Interpolator> interpolator(new te::rst::Interpolator(dsRaster.get(), static_cast<int>(analysis_->outputGridPtr->interpolationMethod)));
+        interpolatorMap_.emplace(dsRaster, interpolator);
       }
     });
 

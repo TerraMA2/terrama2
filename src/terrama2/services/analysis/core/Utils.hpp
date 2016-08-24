@@ -138,8 +138,6 @@ namespace terrama2
          */
         std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> > getOutputRasterInfo(std::map<std::string, std::string> rinfo);
 
-        std::shared_ptr<te::rst::Raster> resampleRaster(std::shared_ptr<te::rst::Raster> inputRaster, std::map<std::string, std::string> outputRasterInfo, InterpolationMethod method);
-
         /*!
           \brief Returns the attribute value for the given position, it tries a lexical cast to double in case the attribute has a different type.
           \param syncDs Smart pointer to the dataset.
