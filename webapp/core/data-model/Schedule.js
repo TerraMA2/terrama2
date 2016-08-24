@@ -41,4 +41,10 @@ Schedule.prototype.toObject = function() {
   })
 };
 
+Schedule.prototype.rawObject = function() {
+  var toObject = this.toObject();
+  toObject.frequency_start_time = this.frequency_start_time;
+  return toObject;
+}
+
 module.exports = Schedule;

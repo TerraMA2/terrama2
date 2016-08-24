@@ -54,3 +54,17 @@ Analysis.save = function(analysisObject, scheduleObject, dataSeriesObject) {
     });
   });
 };
+
+Analysis.list = function(restriction) {
+  return new PromiseClass(function(resolve, reject) {
+    DataManager.listAnalyses(restriction).then(function(analysisList) {
+      var output = [];
+      analysisList.forEach(function(analysis) {
+        output.push(analysis.rawObject());
+      });
+      resolve(output);
+    }).catch(function(err) {
+      reject(err);
+    });
+  });
+};

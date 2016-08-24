@@ -993,7 +993,9 @@ angular.module('terrama2.dataseries.registration', [
 
           // adjusting time without timezone
           var filterValues = Object.assign({}, $scope.filter);
-          filterValues.region = Polygon.build($scope.filter.area || {});
+          if (filterValues.region) {
+            filterValues.region = Polygon.build($scope.filter.area || {});
+          }
           delete filterValues.area;
 
           var scheduleValues = Object.assign({}, $scope.schedule);
@@ -1002,6 +1004,7 @@ angular.module('terrama2.dataseries.registration', [
             case "minutes":
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time.toDate();
               break;
             case "weeks":
             case "monthly":

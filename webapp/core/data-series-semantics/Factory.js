@@ -3,7 +3,7 @@ var DcpInpe = require('./DcpInpe');
 var DcpPostgis = require('./DcpPostgis');
 var WildFire = require('./WildFire');
 var OccurrencePostgis = require('./OccurrencePostgis');
-// var AnalysisPostgis = require('./AnalysisPostgis');
+var Grads = require('./Grads');
 var FileStaticDataOgr = require('./FileStaticDataOgr');
 var PostgisStaticDataOgr = require('./PostgisStaticDataOgr');
 var AnalysisMonitoredObject = require('./AnalysisMonitoredObject');
@@ -30,6 +30,7 @@ function availableTypes() {
   output.push(GridGeoTiff);
   output.push(DcpToa5);
   output.push(PostgisStaticDataOgr);
+  output.push(Grads);
 
   var plugins = availablePlugins();
 

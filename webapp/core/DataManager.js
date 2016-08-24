@@ -180,6 +180,7 @@ var DataManager = {
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.OGR, description: "Gdal ogr"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GEOTIFF, description: "GeoTiff"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GRADS, description: "GRADS"}));
 
         // analysis type
         inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
@@ -1783,7 +1784,7 @@ var DataManager = {
   updateSchedule: function(scheduleId, scheduleObject) {
     return new Promise(function(resolve, reject) {
       models.db.Schedule.update(scheduleObject, {
-        fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency'],
+        fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency', 'frequency_start_time'],
         where: {
           id: scheduleId
         }
@@ -2145,7 +2146,8 @@ var DataManager = {
         }
       }).catch(function(err) {
         // todo: improve error message
-        reject(new Error("Could not save filter. ", err));
+        console.log(err);
+        reject(new Error("Could not save filter. " + err.toString()));
       });
     });
   },

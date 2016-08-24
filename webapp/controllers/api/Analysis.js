@@ -14,12 +14,8 @@ module.exports = function(app) {
       var restriction = analysisId ? {id: analysisId} : {};
       restriction.project_id = app.locals.activeProject.id;
 
-      DataManager.listAnalyses(restriction).then(function(analyses) {
-        var output = [];
-        analyses.forEach(function(analysis) {
-          output.push(analysis.rawObject());
-        });
-        return response.json(output);
+      AnalysisFacade.list(restriction).then(function(analysis) {
+        return response.json(analysis);
       }).catch(function(err) {
         response.status(400);
         response.json({status: 400, message: err.message});
