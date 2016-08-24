@@ -57,6 +57,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
   : DataRetriever(dataprovider),
     curlwrapper_(std::move(curlwrapper))
 {
+  // FIXME: this folder won't work on Windows
   temporaryFolder_ = "/tmp/terrama2-download/";
   scheme_ = "file://";
 
