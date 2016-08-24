@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "umin_ddMMyyyy.ctl");
+    dataSet->format.emplace("ctl_filename", "umin_ddMMyyyy.ctl");
     dataSet->format.emplace("srid", "4326");
     dataSet->format.emplace("timezone", "+00");
 

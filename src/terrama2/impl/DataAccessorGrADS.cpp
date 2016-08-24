@@ -71,10 +71,25 @@ terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvide
   }
 }
 
+
+std::string terrama2::core::DataAccessorGrADS::getCtlFilename(DataSetPtr dataSet) const
+{
+  try
+  {
+    return dataSet->format.at("ctl_filename");
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined CTL filename in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
 std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset,
                                                             const Filter& filter) const
 {
-  std::string mask = getMask(dataset);
+  std::string mask = getCtlFilename(dataset);
   std::string uri = dataRetriever->retrieveData(mask, filter);
 
   return uri;
@@ -205,7 +220,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
     std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
 
-    QString ctlMask = replaceMask(getMask(dataSet).c_str());
+    QString ctlMask = getCtlFilename(dataSet).c_str();
 
     // Verify if it is a valid CTL file name
     if (!isValidDataSetName(ctlMask.toStdString(), filter, timezone, name, thisFileTimestamp))

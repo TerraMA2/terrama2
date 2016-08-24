@@ -200,6 +200,8 @@ namespace terrama2
 
         GrADSDataDescriptor readDataDescriptor(const std::string& filename) const;
 
+        std::string getCtlFilename(DataSetPtr dataSet) const;
+
       protected:
         //! Returns the data source type.
         virtual std::string dataSourceType() const override;
