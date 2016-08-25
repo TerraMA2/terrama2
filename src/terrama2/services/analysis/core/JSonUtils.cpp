@@ -198,6 +198,7 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
   obj.insert("schedule", terrama2::core::toJson(analysis->schedule));
   obj.insert("active", analysis->active);
   obj.insert("output_grid", toJson(analysis->outputGridPtr));
+  obj.insert("reprocessing_historical_data", toJson(analysis->reprocessingHistoricalData));
 
 
   return obj;
@@ -216,8 +217,8 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisOutputGridPtr out
   obj.insert("interpolation_dummy", QJsonValue(outputGrid->interpolationDummy));
   obj.insert("resolution_type", static_cast<qint32>(outputGrid->resolutionType));
   obj.insert("resolution_data_series_id", static_cast<qint32>(outputGrid->resolutionDataSeriesId));
-  obj.insert("resolution_x",  QJsonValue(outputGrid->interpolationDummy));
-  obj.insert("resolution_y",  QJsonValue(outputGrid->interpolationDummy));
+  obj.insert("resolution_x",  QJsonValue(outputGrid->resolutionX));
+  obj.insert("resolution_y",  QJsonValue(outputGrid->resolutionY));
   obj.insert("srid", static_cast<qint32>(outputGrid->resolutionType));
   obj.insert("area_of_interest_data_series_id", static_cast<qint32>(outputGrid->interestAreaDataSeriesId));
   obj.insert("area_of_interest_type", static_cast<qint32>(outputGrid->interestAreaType));
@@ -334,4 +335,28 @@ terrama2::services::analysis::core::ReprocessingHistoricalDataPtr terrama2::serv
   }
 
   return reprocessingHistoricalDataPtr;
+}
+
+QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analysis::core::ReprocessingHistoricalDataPtr
+                                                       reprocessingHistoricalDataPtr)
+{
+  QJsonObject obj;
+
+  if(!reprocessingHistoricalDataPtr)
+    return obj;
+
+  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
+  obj.insert("class", QString("ReprocessingHistoricalData"));
+  if(reprocessingHistoricalDataPtr->startDate.get())
+  {
+    std::string startDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->startDate->getTimeInstantTZ(), timestampFacet);
+    obj.insert("start_date", QString::fromStdString(startDate));
+  }
+  if(reprocessingHistoricalDataPtr->endDate.get())
+  {
+    std::string endDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->endDate->getTimeInstantTZ(), timestampFacet);
+    obj.insert("end_date", QString::fromStdString(endDate));
+  }
+
+  return obj;
 }
