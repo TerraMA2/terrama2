@@ -151,10 +151,6 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       QString errMsg = QObject::tr("Analysis %1 finished successfully.").arg(analysis->id);
       TERRAMA2_LOG_INFO() << errMsg;
     }
-
-
-    // Clears context
-    ContextManager::getInstance().clearContext(analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {
@@ -169,6 +165,9 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
     QString errMsg = QObject::tr("An unknown exception occurred.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
+
+  // Clears context
+  ContextManager::getInstance().clearContext(analysisHashCode);
 }
 
 void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
@@ -666,6 +665,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::servi
   te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
   std::size_t rpos = te::da::GetFirstPropertyPos(ds.get(), te::dt::RASTER_TYPE);
 
+  //REVIEW: should clone be used? why not the self raster?
   dsItem->setRaster(rpos, dynamic_cast<te::rst::Raster*>(raster->clone()));
   ds->add(dsItem);
 

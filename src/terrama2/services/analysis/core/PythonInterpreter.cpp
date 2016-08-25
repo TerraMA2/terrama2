@@ -165,7 +165,12 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
         std::string errMsg = QObject::tr("Could not set script parameters.").toStdString();
         throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg.c_str());
       }
+
+      Py_DECREF(poDict);
     }
+
+    Py_DECREF(pModule);
+    Py_DECREF(pCompiledFn);
   }
   catch(const error_already_set&)
   {
@@ -266,8 +271,13 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
           outputRaster->setValue(col, row, analysis->outputGridPtr->interpolationDummy);
         else
           outputRaster->setValue(col, row, value);
+
+        Py_DECREF(poDict);
       }
     }
+
+    Py_DECREF(pModule);
+    Py_DECREF(pCompiledFn);
   }
   catch(error_already_set)
   {
