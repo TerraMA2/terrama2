@@ -58,7 +58,7 @@ void TsProcessLogger::testProcessLogger()
 
   log.done(dataTime, registerID);
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QFAIL(e.what());
   }

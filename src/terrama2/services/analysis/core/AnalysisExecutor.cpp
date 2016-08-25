@@ -450,7 +450,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   {
     storager->store(series, dataset);
   }
-  catch(terrama2::Exception /*e*/)
+  catch(const terrama2::Exception /*e*/)
   {
     QString errMsg = QObject::tr("Could not store the result of the analysis.");
     throw Exception() << ErrorDescription(errMsg);
@@ -680,7 +680,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::servi
     terrama2::core::DataStoragerTiff storager(dataProvider);
     storager.store(series, dataset);
   }
-  catch(terrama2::Exception /*e*/)
+  catch(const terrama2::Exception& /*e*/)
   {
     QString errMsg = QObject::tr("Could not store the result of the analysis.");
     throw Exception() << ErrorDescription(errMsg);

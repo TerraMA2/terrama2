@@ -159,7 +159,7 @@ std::string terrama2::core::Unpack::unpackList(std::string uri)
     }
 
   }
-  catch(terrama2::Exception&)
+  catch(const terrama2::Exception&)
   {
     //logged on throw
   }

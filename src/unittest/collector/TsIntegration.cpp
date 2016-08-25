@@ -113,7 +113,7 @@ void TsIntegration::TestReadCsvStorePostGis()
 
     dataManager.removeDataProvider(provider.id());
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     QFAIL("Terrama2 exception...");
@@ -211,7 +211,7 @@ void TsIntegration::TestCollectorFTP()
 
     dataManager.removeDataProvider(provider.id());
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     QFAIL("Terrama2 exception...");
@@ -288,7 +288,7 @@ void TsIntegration::TestReadPostgisStorePostGis()
 
     dataManager.removeDataProvider(provider.id());
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     qDebug() << boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str();
     QFAIL("Terrama2 exception...");

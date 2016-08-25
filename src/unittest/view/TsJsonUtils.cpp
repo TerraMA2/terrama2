@@ -256,7 +256,7 @@ void TsJsonUtils::testGoNBackJSon()
 
 
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QString message(*boost::get_error_info<terrama2::ErrorDescription>(e));
     QFAIL(message.toStdString().c_str());
