@@ -364,7 +364,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     // get a transactor to interact to the data source
     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-    // Some drivers use tha base name and other use filename with extension
+    // Some drivers use the base name and other use filename with extension
     std::string dataSetName;
     std::vector<std::string> dataSetNames = transactor->getDataSetNames();
     auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
