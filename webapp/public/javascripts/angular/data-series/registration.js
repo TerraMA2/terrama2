@@ -8,7 +8,8 @@ angular.module('terrama2.dataseries.registration', [
     'xeditable',
     'terrama2.schedule',
     'terrama2.datetimepicker',
-    'terrama2.components.geo'
+    'terrama2.components.geo',
+    'treeControl',
   ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
@@ -402,6 +403,56 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       // intersection
+      // components: data series tree modal
+      $scope.treeOptions = {
+        nodeChildren: "children",
+        multiSelection: true,
+        dirSelectable: false,
+        injectClasses: {
+          ul: "list-group",
+          li: "list-group-item",
+          liSelected: "active",
+          iExpanded: "without-border",
+          iCollapsed: "without-border",
+          iLeaf: "as",
+          label: "a6",
+          labelSelected: "2"
+        }
+      };
+
+      $scope.dataSeriesGroups = [
+        {name: "Static", children: []},
+        {name: "Grid", children: []}
+      ];
+
+      $scope.addDataSeries = function() {
+        var _helper = function(type, target) {
+          $scope.buffers[type].some(function(element, index, arr) {
+            if (element.id == target.id) {
+              arr.splice(index, 1);
+              return true;
+            }
+            return false;
+          });
+        };
+
+        $scope.nodesDataSeries.forEach(function(target) {
+          if (!target || !target.id)
+            return;
+
+          $scope.metadata[target.name] = {alias: target.name};
+          $scope.selectedDataSeriesList.push(target);
+
+          if (target.isDynamic) {
+            _helper("dynamic", target);
+          } else {
+            _helper("static", target);
+          }
+        });
+
+        $scope.nodesDataSeries = [];
+      };
+
       // syntax: {data_series_id: {data_series: DataSeries, attributes: []}}
       $scope.intersection = {};
       $scope.selectedIntersection = null;
@@ -615,6 +666,19 @@ angular.module('terrama2.dataseries.registration', [
       // list data series
       DataSeriesFactory.get({schema: 'all'}).success(function(dataSeriesList) {
         $scope.dataSeriesList = dataSeriesList;
+
+        // fill intersection data series
+        $scope.dataSeriesList.forEach(function(dSeries) {
+          var dataSeriesType = dSeries.data_series_semantics.data_series_type_name;
+          switch(dataSeriesType) {
+            case globals.enums.DataSeriesType.GRID:
+              $scope.dataSeriesGroups[1].children.push(dSeries);
+              break;
+            case globals.enums.DataSeriesType.STATIC_DATA:
+              $scope.dataSeriesGroups[0].children.push(dSeries);
+              break;
+          }
+        });
 
         if ($scope.isUpdating) {
           // setting intersection values
