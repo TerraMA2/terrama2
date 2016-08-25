@@ -139,6 +139,9 @@ namespace terrama2
           CUSTOM = 4 //!< Use a custom resolution.
         };
 
+        /*!
+          \brief Defines the interest area type to be used in the output grid.
+        */
         enum class InterestAreaType
         {
           UNION = 1, //!< Use the union of the areas from the DataSeries in the analysis.
@@ -146,6 +149,18 @@ namespace terrama2
           CUSTOM = 3 //!< Use a custom box.
         };
 
+        /*!
+          \brief Defines the date filter for reprocessing of historical data
+        */
+        struct ReprocessingHistoricalData
+        {
+          std::shared_ptr<te::dt::TimeInstantTZ> startDate = nullptr; //!< Initial date of interest.
+          std::shared_ptr<te::dt::TimeInstantTZ> endDate = nullptr; //!< Final date of interest.
+        };
+
+        /*!
+          \brief Defines the parameters used to construct the output grid of an analysis.
+        */
         struct AnalysisOutputGrid
         {
           AnalysisId analysisId = 0; //!< Identifier of the analysis.
@@ -181,6 +196,7 @@ namespace terrama2
           terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
           ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the analysis.
           AnalysisOutputGridPtr outputGridPtr; //!< Output grid configuration.
+          ReprocessingHistoricalDataPtr reprocessingHistoricalData; //!< Date filter for reprocessing of historical data.
 
           /*!
            \brief Hash code is formed from the hash of the string AnalysisId + startDate.

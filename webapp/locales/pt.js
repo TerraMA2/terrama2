@@ -181,5 +181,6 @@
 	"Influence is required": "Influence is required",
 	"Influence radius is required": "Influence radius is required",
 	"Influence data series is required": "Influence data series is required",
-	"Influence attribute name is required": "Influence attribute name is required"
+	"Influence attribute name is required": "Influence attribute name is required",
+	"Profile": "Profile"
 }
