@@ -155,6 +155,7 @@ Analysis.prototype.rawObject = function() {
   });
   var obj = this.toObject();
 
+  obj.schedule = this.schedule instanceof BaseClass ? this.schedule.rawObject() : this.schedule,
   obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
   obj.analysis_dataseries_list = outputDataSeriesList;
   obj.output_grid = this.outputGrid instanceof BaseClass ? this.outputGrid.rawObject() : this.outputGrid;
