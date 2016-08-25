@@ -1,3 +1,5 @@
+'use strict';
+
 var BaseClass = require('./AbstractData');
 var Utils = require("./../Utils");
 
@@ -38,13 +40,13 @@ Schedule.prototype.toObject = function() {
     schedule_retry_unit: this.schedule_retry_unit,
     schedule_timeout: this.schedule_timeout,
     schedule_timeout_unit: this.schedule_timeout_unit
-  })
+  });
 };
 
 Schedule.prototype.rawObject = function() {
   var toObject = this.toObject();
   toObject.frequency_start_time = this.frequency_start_time;
   return toObject;
-}
+};
 
 module.exports = Schedule;

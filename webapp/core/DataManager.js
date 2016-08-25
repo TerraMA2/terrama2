@@ -1823,7 +1823,7 @@ var DataManager = {
           return resolve(new DataModel.Schedule(schedule.get()));
         }
         reject(new exceptions.ScheduleError("Could not find schedule"));
-      })
+      });
     });
   },
 
