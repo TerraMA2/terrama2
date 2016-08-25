@@ -28,9 +28,14 @@
 */
 
 // TerraLib
-#include <terralib/maptools/Canvas.h>
 #include <terralib/core/translator/Translator.h>
+#include <terralib/maptools/Canvas.h>
+#include <terralib/maptools/Chart.h>
 #include <terralib/maptools/Utils.h>
+#include <terralib/maptools/GroupingItem.h>
+#include <terralib/common/Globals.h>
+#include <terralib/common/STLUtils.h>
+
 
 // TerraMA2
 #include "MemoryDataSetRenderer.hpp"
@@ -40,6 +45,211 @@ te::map::MemoryDataSetRenderer::MemoryDataSetRenderer(std::shared_ptr< te::da::D
   : dataSet_(dataSet), memoryLayerSchema_(memoryLayerSchema)
 {
 
+}
+
+void te::map::MemoryDataSetRenderer::drawLayerGroupingMem(AbstractLayer* layer,
+                                                          const std::string& geomPropertyName,
+                                                          Canvas* canvas,
+                                                          const te::gm::Envelope& bbox,
+                                                          int srid,
+                                                          const double& scale, bool* cancel)
+{
+  assert(!geomPropertyName.empty());
+
+  //check scale
+  if (layer->getStyle())
+  {
+    if (!layer->getStyle()->getRules().empty())
+    {
+      // The current rule
+      te::se::Rule* rule = layer->getStyle()->getRules()[0];
+
+      if (!(scale >= rule->getMinScaleDenominator() && scale < rule->getMaxScaleDenominator()))
+      {
+        return;
+      }
+    }
+  }
+
+  // Creates a canvas configurer
+  te::map::CanvasConfigurer cc(canvas);
+
+  // The layer grouping
+  Grouping* grouping = layer->getGrouping();
+
+  // The referenced property name
+  std::string propertyName = grouping->getPropertyName();
+  assert(!propertyName.empty());
+
+  // The grouping type
+  GroupingType type = grouping->getType();
+
+  // The grouping precision
+  const std::size_t& precision = grouping->getPrecision();
+
+  // The grouping items
+  const std::vector<GroupingItem*>& items = grouping->getGroupingItems();
+
+  std::size_t nGroupItems = items.size();
+
+  // case UNIQUE_VALUE: for each GroupingItem, builds a map [item value] -> [symbolizers]
+  std::map<std::string, std::vector<te::se::Symbolizer*> > uniqueGroupsMap;
+
+  // case (NOT) UNIQUE_VALUE: for each GroupingItem, builds a map [item upper limit] -> [symbolizers]
+  std::map<std::pair< double, double>, std::vector<te::se::Symbolizer*> > othersGroupsMap;
+
+  for(std::size_t i = 0; i < nGroupItems; ++i)
+  {
+    // The current group item
+    GroupingItem* item = items[i];
+    assert(item);
+
+    if(type == UNIQUE_VALUE)
+    {
+      uniqueGroupsMap[item->getValue()] = item->getSymbolizers();
+    }
+    else
+    {
+      double lowerLimit = atof(item->getLowerLimit().c_str());
+      double upperLimit = atof(item->getUpperLimit().c_str());
+      std::pair<double, double> range(lowerLimit, upperLimit);
+
+      othersGroupsMap[range] = item->getSymbolizers();
+    }
+  }
+
+  // Builds the task message; e.g. ("Drawing the grouping of layer Countries.")
+  std::string message = TE_TR("Drawing the grouping of layer");
+  message += " " + layer->getTitle() + ".";
+
+  // Creates the draw task
+  te::common::TaskProgress task(message, te::common::TaskProgress::DRAW);
+
+  if(dataSet_.get() == 0)
+    throw Exception((boost::format(TE_TR("Could not retrieve the data set from the layer %1%.")) % layer->getTitle()).str());
+
+  if(dataSet_->moveNext() == false)
+    return;
+
+  // Gets the first geometry property
+  std::size_t gpos = te::da::GetPropertyPos(dataSet_.get(), geomPropertyName);
+
+  // Gets the property position
+  std::auto_ptr<te::map::LayerSchema> dt(layer->getSchema());
+  std::size_t propertyPos = te::da::GetPropertyPos(dt.get(), propertyName);
+
+  // Verifies if is necessary convert the data set geometries to the given srid
+  bool needRemap = false;
+  if((layer->getSRID() != TE_UNKNOWN_SRS) && (srid != TE_UNKNOWN_SRS) && (layer->getSRID() != srid))
+    needRemap = true;
+
+  // The layer chart
+  Chart* chart = layer->getChart();
+
+  dataSet_->moveFirst();
+  do
+  {
+    std::vector<te::se::Symbolizer*> symbolizers;
+
+    // Finds the current data set item on group map
+    std::string value;
+
+    if(dataSet_->isNull(propertyPos))
+      value = te::common::Globals::sm_nanStr;
+    else
+      value = dataSet_->getAsString(propertyPos, precision);
+
+    if(type == UNIQUE_VALUE)
+    {
+      std::map<std::string, std::vector<te::se::Symbolizer*> >::const_iterator it = uniqueGroupsMap.find(value);
+      if(it == uniqueGroupsMap.end())
+        continue;
+      symbolizers = it->second;
+    }
+    else
+    {
+      double dvalue = atof(value.c_str());
+      std::map<std::pair< double, double>, std::vector<te::se::Symbolizer*> >::const_iterator it;
+      for(it = othersGroupsMap.begin(); it != othersGroupsMap.end(); ++it)
+      {
+        if(dvalue >= it->first.first && dvalue <= it->first.second)
+          break;
+      }
+
+      if(it == othersGroupsMap.end())
+      {
+        te::se::Style* style = layer->getStyle();
+        if(style)
+        {
+          if(!style->getRules().empty())
+          {
+            te::se::Rule* rule = style->getRule(0);
+
+            symbolizers = rule->getSymbolizers();
+          }
+        }
+      }
+      else
+      {
+        symbolizers = it->second;
+      }
+
+      if(symbolizers.empty())
+        continue;
+    }
+
+    std::auto_ptr<te::gm::Geometry> geom;
+    try
+    {
+      geom = dataSet_->getGeometry(gpos);
+      if(geom.get() == 0)
+        continue;
+    }
+    catch(std::exception& /*e*/)
+    {
+      continue;
+    }
+
+    // Gets the set of symbolizers defined on group item
+    std::size_t nSymbolizers = symbolizers.size();
+
+    for(std::size_t j = 0; j < nSymbolizers; ++j) // for each <Symbolizer>
+    {
+      // The current symbolizer
+      te::se::Symbolizer* symb = symbolizers[j];
+
+      // Let's config the canvas based on the current symbolizer
+      cc.config(symb);
+
+      // If necessary, geometry remap
+      if(needRemap)
+      {
+        geom->setSRID(layer->getSRID());
+        geom->transform(srid);
+      }
+
+      canvas->draw(geom.get());
+
+      if(chart && j == nSymbolizers - 1)
+        buildChart(chart, dataSet_.get(), geom.get());
+    }
+
+    if(cancel != 0 && (*cancel))
+      return;
+
+  } while(dataSet_->moveNext());
+
+  // Let's draw the generated charts
+  for(std::size_t i = 0; i < m_chartCoordinates.size(); ++i)
+  {
+    canvas->drawImage(static_cast<int>(m_chartCoordinates[i].x),
+                      static_cast<int>(m_chartCoordinates[i].y),
+                      m_chartImages[i],
+                      chart->getWidth(),
+                      chart->getHeight());
+
+    te::common::Free(m_chartImages[i], chart->getHeight());
+  }
 }
 
 void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,

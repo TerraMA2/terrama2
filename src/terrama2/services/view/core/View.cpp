@@ -54,6 +54,7 @@
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 
+
 void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager)
 {
   auto dataManager = weakDataManager.lock();
@@ -196,6 +197,11 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
               geomLayer->setSRID(std::stoi(dataset->format.at("srid")));
 
             geomLayer->setStyle(viewPtr->stylesPerDataSeries.at(dataSeriesId)->clone());
+
+            if(viewPtr->legendPerDataSeries.find(dataSeriesId) != viewPtr->legendPerDataSeries.end())
+            {
+              geomLayer->setGrouping(new te::map::Grouping(*viewPtr->legendPerDataSeries.at(dataSeriesId).get()));
+            }
 
             layersList.push_back(geomLayer);
           }
