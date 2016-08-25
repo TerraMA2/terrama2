@@ -1280,9 +1280,6 @@ var DataManager = {
       } else if (restriction && restriction.hasOwnProperty("Collector")) {
         // collector restriction
         self.listCollectors({}).then(function(collectorsResult) {
-          if (collectorsResult.length === 0) {
-            return resolve(collectorsResult);
-          }
           var collectorFilter = new Filters.CollectorFilter();
           var output = collectorFilter.match(collectorsResult, {
             dataSeries: self.data.dataSeries
