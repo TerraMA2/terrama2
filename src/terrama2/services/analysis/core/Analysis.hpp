@@ -34,6 +34,7 @@
 #include "Exception.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
+#include "../../../core/utility/Verify.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 
@@ -186,9 +187,14 @@ namespace terrama2
           */
           AnalysisHashCode hashCode(std::shared_ptr<te::dt::TimeInstantTZ> startDate) const
           {
-            auto boostDate = startDate->getTimeInstantTZ();
-            if(!startDate || boostDate.is_not_a_date_time())
+            try
+            {
+              terrama2::core::verify::date(startDate);
+            }
+            catch (const terrama2::core::VerifyException&)
+            {
               throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));
+            }
 
             std::string str = std::to_string(id) + startDate->toString();
             std::hash<std::string> hash_fn;

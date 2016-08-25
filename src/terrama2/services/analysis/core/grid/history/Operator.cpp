@@ -30,6 +30,7 @@
 
 // TerraMA2
 #include "Operator.hpp"
+#include "../Operator.hpp"
 #include "../../ContextManager.hpp"
 #include "../../../../../core/data-model/DataSetGrid.hpp"
 #include "../../Utils.hpp"
@@ -100,11 +101,11 @@ const std::string& dateFilterEnd)
         double column, row;
         dsGrid->geoToGrid(point.x, point.y, column, row);
 
-        if(!grid->isPointInGrid(column, row))
-          break;
+        auto interpolator = context->getInterpolator(raster);
 
-        double value;
-        raster->getValue(column, row, value);
+        //TODO: allow using other bands
+        const int bandIdx = 0;
+        double value = getValue(raster, interpolator, column, row, bandIdx);
 
         samples.push_back(value);
       }
@@ -115,12 +116,12 @@ const std::string& dateFilterEnd)
 
     return {};
   }
-  catch(terrama2::Exception e)
+  catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return {};
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
     context->addError(e.what());
     return {};

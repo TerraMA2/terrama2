@@ -104,6 +104,8 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
+    std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
+
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!moGeom.get())
     {
@@ -140,12 +142,12 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
 
       for(auto raster : rasterList)
       {
+        geomResult->transform(raster->getSRID());
         //no intersection between the raster and the object geometry
         if(!raster->getExtent()->intersects(*geomResult->getMBR()))
           continue;
 
         std::vector<double> values;
-        geomResult->transform(raster->getSRID());
         //TODO: check for other valid types
         auto type = geomResult->getGeomTypeId();
         if(type == te::gm::PolygonType)

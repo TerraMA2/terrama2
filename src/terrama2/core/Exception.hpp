@@ -111,6 +111,9 @@ namespace terrama2
     //! Base Exception for Semantics
     struct SemanticsException: virtual UtilityException { };
 
+    //! Base Verify for Semantics
+    struct VerifyException: virtual UtilityException { };
+
     //#################################
 
   }  // end namespace core
