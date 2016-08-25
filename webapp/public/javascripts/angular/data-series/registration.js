@@ -758,31 +758,30 @@ angular.module('terrama2.dataseries.registration', [
           if ($scope.isUpdating) {
             if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
               // TODO: prepare format as dcp item
-              if ($scope.hasCollector) {
-                $scope.dcps = [];
-                inputDataSeries.dataSets.forEach(function(dataset) {
-                  if (dataset.position) {
-                    var lat;
-                    var long;
-                    if (dataset.position.type) {
-                      // geojson
-                      lat = dataset.position.coordinates[0];
-                      long = dataset.position.coordinates[1];
-                    } else {
-                      var first = dataset.position.indexOf("(");
-                      var firstSpace = dataset.position.indexOf(" ", first);
-                      lat = parseInt(dataset.position.slice(first+1, firstSpace));
 
-                      var last = dataset.position.indexOf(")", firstSpace);
-                      long = dataset.position.slice(firstSpace + 1, last);
+              $scope.dcps = [];
+              inputDataSeries.dataSets.forEach(function(dataset) {
+                if (dataset.position) {
+                  var lat;
+                  var long;
+                  if (dataset.position.type) {
+                    // geojson
+                    lat = dataset.position.coordinates[0];
+                    long = dataset.position.coordinates[1];
+                  } else {
+                    var first = dataset.position.indexOf("(");
+                    var firstSpace = dataset.position.indexOf(" ", first);
+                    lat = parseInt(dataset.position.slice(first+1, firstSpace));
 
-                    }
-                    dataset.format["latitude"] = lat;
-                    dataset.format["longitude"] = long;
+                    var last = dataset.position.indexOf(")", firstSpace);
+                    long = dataset.position.slice(firstSpace + 1, last);
+
                   }
-                  $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
-                });
-              }
+                  dataset.format["latitude"] = lat;
+                  dataset.format["longitude"] = long;
+                }
+                $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
+              });
             } else {
               $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
             }
@@ -1004,7 +1003,7 @@ angular.module('terrama2.dataseries.registration', [
             case "minutes":
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time.toISOString();
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
               break;
             case "weeks":
             case "monthly":
