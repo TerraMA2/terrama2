@@ -78,7 +78,8 @@ module.exports = {
     CSV: 'CSV',
     POSTGIS: 'POSTGIS',
     OGR: 'OGR',
-    GEOTIFF: 'GEOTIFF'
+    GEOTIFF: 'GEOTIFF',
+    GRADS: 'GRADS'
   },
 
   DataSeriesSemantics: {

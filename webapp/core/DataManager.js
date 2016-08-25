@@ -180,6 +180,7 @@ var DataManager = {
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.OGR, description: "Gdal ogr"}));
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GEOTIFF, description: "GeoTiff"}));
+        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GRADS, description: "GRADS"}));
 
         // analysis type
         inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
@@ -283,7 +284,8 @@ var DataManager = {
             code: semanticsElement.code,
             name: semanticsElement.name,
             data_format_name: semanticsElement.format,
-            data_series_type_name: semanticsElement.type
+            data_series_type_name: semanticsElement.type,
+            collector: semanticsElement.collector || false
           }));
         });
 
@@ -606,31 +608,39 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       self.getProject(restriction).then(function(projectResult) {
         self.listCollectors().then(function(collectors) {
-          if (collectors.length === 0) {
-            return Promise.resolve();
-          }
-          var scheduleIds = [];
-          collectors.forEach(function(collector) {
-            if (collector.dataSeriesOutput && collector.dataSeriesOutput.dataProvider.project_id === projectResult.id) {
-              scheduleIds.push(collector.schedule.id);
+          self.listAnalyses().then(function(analysisList) {
+            if (collectors.length === 0 || analysisList.length === 0) {
+              return Promise.resolve();
             }
-          });
 
-          return self.removeSchedule({id: {$in: scheduleIds}})
-        }).finally(function() {
-          models.db.Project.destroy({
-            where: {
-              id: projectResult.id
-            }
-          }).then(function() {
-            var project = Utils.remove(self.data.projects, {id: projectResult.id});
-            // remove children from memory
-            Utils.removeAll(self.data.dataProviders, {project_id: project.id});
-            Utils.removeAll(self.data.dataSeries, {dataProvider: {project_id: project.id}});
-            resolve();
-          }).catch(function(err) {
-            console.log("Remove Project: ", err);
-            reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
+            var scheduleIds = [];
+            collectors.forEach(function(collector) {
+              if (collector.dataSeriesOutput && collector.dataSeriesOutput.dataProvider.project_id === projectResult.id) {
+                scheduleIds.push(collector.schedule.id);
+              }
+            });
+
+            // pushing analysis schedules into scheduleIds
+            Array.prototype.push.apply(scheduleIds, analysisList.map(function(analysis) {
+              return analysis.schedule.id;
+            }));
+
+            return self.removeSchedule({id: {$in: scheduleIds}})
+          }).finally(function() {
+            models.db.Project.destroy({
+              where: {
+                id: projectResult.id
+              }
+            }).then(function() {
+              var project = Utils.remove(self.data.projects, {id: projectResult.id});
+              // remove children from memory
+              Utils.removeAll(self.data.dataProviders, {project_id: project.id});
+              Utils.removeAll(self.data.dataSeries, {dataProvider: {project_id: project.id}});
+              resolve();
+            }).catch(function(err) {
+              console.log("Remove Project: ", err);
+              reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
+            });
           });
         });
       }).catch(function(err) {
@@ -1270,9 +1280,6 @@ var DataManager = {
       } else if (restriction && restriction.hasOwnProperty("Collector")) {
         // collector restriction
         self.listCollectors({}).then(function(collectorsResult) {
-          if (collectorsResult.length === 0) {
-            return resolve(collectorsResult);
-          }
           var collectorFilter = new Filters.CollectorFilter();
           var output = collectorFilter.match(collectorsResult, {
             dataSeries: self.data.dataSeries
@@ -1783,7 +1790,7 @@ var DataManager = {
   updateSchedule: function(scheduleId, scheduleObject) {
     return new Promise(function(resolve, reject) {
       models.db.Schedule.update(scheduleObject, {
-        fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency'],
+        fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency', 'frequency_start_time'],
         where: {
           id: scheduleId
         }
@@ -2145,7 +2152,8 @@ var DataManager = {
         }
       }).catch(function(err) {
         // todo: improve error message
-        reject(new Error("Could not save filter. ", err));
+        console.log(err);
+        reject(new Error("Could not save filter. " + err.toString()));
       });
     });
   },
@@ -2190,10 +2198,27 @@ var DataManager = {
 
   addAnalysisDataSeries: function(analysisDataSeriesObject) {
     return new Promise(function(resolve, reject) {
-      models.db.AnalysisDataSeries.create(analysisDataSeriesObject, {include: [models.db.AnalysisDataSeriesMetadata]}).then(function(result) {
-        resolve(result.get());
+      models.db.AnalysisDataSeries.create(analysisDataSeriesObject, {
+        include: [models.db.AnalysisDataSeriesMetadata]
+      }).then(function(result) {
+        var output = new DataModel.AnalysisDataSeries(result);
+        resolve(output);
       }).catch(function(err) {
         reject(new exceptions.AnalysisError("Could not save analysis data series " + err.toString()));
+      });
+    });
+  },
+
+  addAnalysisOutputGrid: function(addAnalysisOutputGridObject) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.AnalysisOutputGrid.create(addAnalysisOutputGridObject).then(function(analysisOutGridResult) {
+        self.getAnalysisOutputGrid({id: analysisOutGridResult.id}).then(function(outputGrid) {
+          resolve(outputGrid);
+        });
+      }).catch(function(err) {
+        console.log(err);
+        reject(new exceptions.AnalysisError("Could not save analysis output grid " + err.toString()));
       });
     });
   },
@@ -2218,157 +2243,112 @@ var DataManager = {
     });
   },
 
-  addAnalysis: function(analysisObject, scheduleObject, dataSeriesObject) {
+  addAnalysis: function(analysisObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      // adding data series_output
-      self.addDataSeries(dataSeriesObject, {
-        data_series_id: analysisObject.data_series_id,
-        type: analysisObject.type
-      }).then(function(dataSeriesResult) {
-
-        self.addSchedule(scheduleObject).then(function(scheduleResult) {
-          // adding analysis
-          // todo: make it as factory: AnalysisGrid, Analysis...
-          analysisObject.dataset_output = dataSeriesResult.dataSets[0].id;
-          analysisObject.schedule_id = scheduleResult.id;
-
-          var scopeAnalysisObject = analysisObject;
-          models.db.Analysis.create(analysisObject).then(function(analysisResult) {
-            analysisResult.getScriptLanguage().then(function(scriptLanguageResult) {
-              var analysisDataSeriesArray = Utils.clone(scopeAnalysisObject.analysisDataSeries);
-
-              // making analysis metadata
-              var analysisMetadata = [];
-              for(var key in analysisObject.metadata) {
-                if (analysisObject.metadata.hasOwnProperty(key)) {
-                  analysisMetadata.push({
-                    analysis_id: analysisResult.id,
-                    key: key,
-                    value: analysisObject.metadata[key]
-                  });
-                }
-              }
-
-              models.db.AnalysisMetadata.bulkCreate(analysisMetadata).then(function(bulkAnalysisMetadata) {
-                var analysisMetadataOutput = {};
-                bulkAnalysisMetadata.forEach(function(bulkMetadata) {
-                  analysisMetadataOutput[bulkMetadata.key] = bulkMetadata.value;
-                });
-
-                var promises = [];
-
-                analysisDataSeriesArray.forEach(function(analysisDS) {
-                  analysisDS.analysis_id = analysisResult.id;
-                  // ignore id
-                  delete analysisDS.id;
-
-                  var metadata = [];
-                  for(var key in analysisDS.metadata) {
-                    if (analysisDS.metadata.hasOwnProperty(key)) {
-                      metadata.push({
-                        key: key,
-                        value: analysisDS.metadata[key]
-                      });
-                    }
+      models.db.Analysis.create(analysisObject).then(function(analysisResult) {
+        self.getDataSet({id: analysisResult.dataset_output}).then(function(dataSet) {
+          self.getDataSeries({id: dataSet.data_series_id}).then(function(dataSeries) {
+            self.getSchedule({id: analysisResult.schedule_id}).then(function(scheduleResult) {
+              analysisResult.getScriptLanguage().then(function(scriptLanguageResult) {
+                // creating a variable to make visible in closure
+                var analysisDataSeriesArray = Utils.clone(analysisObject.analysisDataSeries);
+                // making analysis metadata
+                var analysisMetadata = [];
+                for(var key in analysisObject.metadata) {
+                  if (analysisObject.metadata.hasOwnProperty(key)) {
+                    analysisMetadata.push({
+                      analysis_id: analysisResult.id,
+                      key: key,
+                      value: analysisObject.metadata[key]
+                    });
                   }
-                  delete analysisDS.metadata;
-                  analysisDS.AnalysisDataSeriesMetadata = metadata;
+                }
 
-                  promises.push(self.addAnalysisDataSeries(analysisDS));
-                });
+                models.db.AnalysisMetadata.bulkCreate(analysisMetadata).then(function(bulkAnalysisMetadata) {
+                  var analysisMetadataOutput = {};
+                  bulkAnalysisMetadata.forEach(function(bulkMetadata) {
+                    analysisMetadataOutput[bulkMetadata.key] = bulkMetadata.value;
+                  });
 
-                var analysisInstance = new DataModel.Analysis(analysisResult);
-                analysisInstance.setScriptLanguage(scriptLanguageResult);
-                analysisInstance.setSchedule(scheduleResult);
-                analysisInstance.setMetadata(analysisMetadataOutput);
-                analysisInstance.setDataSeries(dataSeriesResult);
+                  var promises = [];
 
-                analysisResult.getAnalysisType().then(function(analysisTypeResult) {
-                  analysisInstance.type = analysisTypeResult.get();
+                  analysisDataSeriesArray.forEach(function(analysisDS) {
+                    analysisDS.analysis_id = analysisResult.id;
+                    // ignore id
+                    delete analysisDS.id;
 
-                  var _savePromises = function() {
-                    Promise.all(promises).then(function(results) {
-                      results.forEach(function(result) {
-                        var analysisDataSeries = new DataModel.AnalysisDataSeries(result);
-                        var analysisDataSeriesMetadata = {};
+                    var metadata = [];
+                    for(var key in analysisDS.metadata) {
+                      if (analysisDS.metadata.hasOwnProperty(key)) {
+                        metadata.push({
+                          key: key,
+                          value: analysisDS.metadata[key]
+                        });
+                      }
+                    }
+                    delete analysisDS.metadata;
+                    analysisDS.AnalysisDataSeriesMetadata = metadata;
 
-                        result.AnalysisDataSeriesMetadata.forEach(function(meta) {
-                          var data = meta.get();
-                          analysisDataSeriesMetadata[data.key] = data.value;
+                    promises.push(self.addAnalysisDataSeries(analysisDS));
+                  });
+
+                  var analysisInstance = new DataModel.Analysis(analysisResult);
+                  analysisInstance.setScriptLanguage(scriptLanguageResult);
+                  analysisInstance.setSchedule(scheduleResult);
+                  analysisInstance.setMetadata(analysisMetadataOutput);
+                  analysisInstance.setDataSeries(dataSeries);
+
+                  analysisResult.getAnalysisType().then(function(analysisTypeResult) {
+                    analysisInstance.type = analysisTypeResult.get();
+
+                    var _savePromises = function() {
+                      Promise.all(promises).then(function(results) {
+                        results.forEach(function(result) {
+                          var analysisDataSeries = result;
+
+                          analysisInstance.addAnalysisDataSeries(analysisDataSeries);
                         });
 
-                        analysisDataSeries.metadata = analysisDataSeriesMetadata;
-
-                        analysisInstance.addAnalysisDataSeries(analysisDataSeries);
+                        resolve(analysisInstance);
+                      }).catch(function(err) {
+                        console.log(err);
+                        // rollback analysis data series
+                        Utils.rollbackPromises([
+                          self.removeAnalysis({id: analysisResult.id})
+                        ], new exceptions.AnalysisError("Could not save analysis data series " + err.toString()), reject);
                       });
+                    };
 
-                      resolve(analysisInstance);
-                    }).catch(function(err) {
-                      console.log(err);
-                      // rollback analysis data series
-                      Utils.rollbackPromises([
-                        self.removeDataSerie({id: dataSeriesResult.id}),
-                        self.removeSchedule({id: scheduleResult.id})
-                      ], new exceptions.AnalysisError("Could not save analysis data series " + err.toString()), reject);
-                    });
-                  };
+                    // check for add analysis grid
+                    if (analysisTypeResult.id === Enums.AnalysisType.GRID) {
+                      var analysisOutputGrid = analysisObject.grid;
+                      analysisOutputGrid.analysis_id = analysisResult.id;
 
-                  // check for add analysis grid
-                  if (analysisTypeResult.id === Enums.AnalysisType.GRID) {
-                    var analysisOutputGrid = analysisObject.grid;
-                    analysisOutputGrid.analysis_id = analysisResult.id;
-
-                    models.db.AnalysisOutputGrid.create(analysisOutputGrid).then(function(analysisOutGridResult) {
-                      var obj = analysisOutGridResult.get();
-
-                      self.getAnalysisOutputGrid({id: analysisOutGridResult.id}).then(function(output_grid) {
+                      self.addAnalysisOutputGrid(analysisOutputGrid).then(function(output_grid) {
                         analysisInstance.outputGrid = output_grid;
                         _savePromises();
+                      }).catch(function(err) {
+                        Utils.rollbackPromises([
+                          self.removeAnalysis({id: analysisResult.id})
+                        ], err, reject);
                       });
-                    }).catch(function(err) {
-                      console.log(err);
-                      Utils.rollbackPromises([
-                        self.removeDataSerie({id: dataSeriesResult.id}),
-                        self.removeSchedule({id: scheduleResult.id})
-                      ], new exceptions.AnalysisError("Could not save analysis output grid " + err.toString()), reject);
-                    });
-                  } else { _savePromises(); } // end if
+                    } else { _savePromises(); } // end if
+                  }); // end get analysis tyoe
                 }).catch(function(err) {
                   // rollback analysis metadata
                   Utils.rollbackPromises([
-                    self.removeDataSerie({id: dataSeriesResult.id}),
-                    self.removeSchedule({id: scheduleResult.id})
-                  ], new exceptions.AnalysisError("Could not save analysis while retrieving analysis type " + err.toString()), reject);
+                    self.removeAnalysis({id: analysisResult.id})
+                  ], new exceptions.AnalysisError("Could not save analysis metadata " + err.toString()), reject);
                 });
-              }).catch(function(err) {
-                // rollback analysis metadata
-                Utils.rollbackPromises([
-                  self.removeDataSerie({id: dataSeriesResult.id}),
-                  self.removeSchedule({id: scheduleResult.id})
-                ], new exceptions.AnalysisError("Could not save analysis metadata " + err.toString()), reject);
-              });
-            }).catch(function(err) {
-              // rollback data series
-              Utils.rollbackPromises([
-                self.removeDataSerie({id: dataSeriesResult.id}),
-                self.removeSchedule({id: scheduleResult.id})
-              ], new exceptions.AnalysisError("Could not save retrieve analysis script language " + err.toString()), reject);
+              }); // end get script language
             });
-          }).catch(function(err) {
-            // rollback data series
-            Utils.rollbackPromises([
-              self.removeDataSerie({id: dataSeriesResult.id}),
-              self.removeSchedule({id: scheduleResult.id})
-            ], new exceptions.AnalysisError("Could not save analysis " + err.toString()), reject);
           });
-        }).catch(function(err) {
-          // schedule
-          Utils.rollbackPromises([self.removeDataSerie({id: dataSeriesResult.id})], new exceptions.AnalysisError("Could not save analysis schedule"), reject);
         });
-      }).catch(function(err) { // data series
+      }).catch(function(err) {
+        // rollback data series
         console.log(err);
-        reject(err);
+        reject(new exceptions.AnalysisError("Could not save analysis " + err.toString()));
       });
     });
   },

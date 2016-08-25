@@ -16,6 +16,11 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
+      },
+      collector: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        default: false
       }
     },
     {

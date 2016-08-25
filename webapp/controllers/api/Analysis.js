@@ -5,6 +5,7 @@ var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
 var TcpManager = require("../../core/TcpManager");
 var AnalysisError = require("./../../core/Exceptions").AnalysisError;
+var AnalysisFacade = require("./../../core/facade/Analysis");
 
 module.exports = function(app) {
   return {
@@ -13,12 +14,8 @@ module.exports = function(app) {
       var restriction = analysisId ? {id: analysisId} : {};
       restriction.project_id = app.locals.activeProject.id;
 
-      DataManager.listAnalyses(restriction).then(function(analyses) {
-        var output = [];
-        analyses.forEach(function(analysis) {
-          output.push(analysis.rawObject());
-        });
-        return response.json(output);
+      AnalysisFacade.list(restriction).then(function(analysis) {
+        return response.json(analysis);
       }).catch(function(err) {
         response.status(400);
         response.json({status: 400, message: err.message});
@@ -53,8 +50,8 @@ module.exports = function(app) {
           ]
         };
 
-        DataManager.addAnalysis(analysisObject, scheduleObject, dataSeries).then(function(analysisResult) {
-          DataManager.listServiceInstances().then(function(services) {
+        AnalysisFacade.save(analysisObject, scheduleObject, dataSeries).then(function(analysisResult) {
+          DataManager.listServiceInstances({}).then(function(services) {
             services.forEach(function(service) {
               try {
                 TcpManager.emit('sendData', service, {

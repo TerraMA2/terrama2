@@ -286,8 +286,16 @@ var Utils = {
           case Enums.Operators.IN: // $in: [a,b,c...d]
             return obj[key].indexOf(target) !== -1;
           default:
-            return self.matchObject(obj[key], target[key]);
+            if (target instanceof Array) {
+              return self.filter(target, obj);
+            } else {
+              return self.matchObject(obj[key], target[key]);
+            }
         }
+      }
+
+      if (target instanceof Array) {
+        return self.find(target, obj);
       }
 
       switch (key) {
@@ -328,7 +336,10 @@ var Utils = {
    * @return {?} An element of array.
    */
   find: function(where, restriction) {
-    return this.filter(where, restriction)[0];
+    var self = this;
+    return where.find(function(entry) {
+      return self.matchObject(restriction, entry);;
+    });
   },
 
   /**

@@ -8,7 +8,7 @@ module.exports = function(app) {
   return {
     "get": function analysesController(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
-      response.render("configuration/analyses", parameters);
+      response.render("configuration/analyses", Object.assign({"Enums": Enums}, parameters));
     },
     "new": function newAnalyseController(request, response) {
       response.render("configuration/analysis", { Enums: Enums });

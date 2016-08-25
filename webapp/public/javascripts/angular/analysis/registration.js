@@ -268,7 +268,15 @@ angular.module('terrama2.analysis.registration', [
     });
 
     DataSeriesSemanticsFactory.list().success(function(semanticsList) {
-      $scope.dataSeriesSemantics = semanticsList;
+      var semanticsListFiltered = [];
+      semanticsList.forEach(function(element) {
+        // Skipping semantics for only collector
+        if (!element.collector) {
+          semanticsListFiltered.push(element);
+        }
+      })
+
+      $scope.dataSeriesSemantics = semanticsListFiltered;
 
       DataProviderFactory.get().success(function(dataProviders) {
         $scope.dataProvidersList = dataProviders;
