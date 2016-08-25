@@ -1761,6 +1761,7 @@ var DataManager = {
           }).catch(function(err) {
             // rollback data series
             console.log("rollback data series in out");
+            console.log(err);
             Utils.rollbackPromises([
               self.removeDataSerie(dataSeriesResultOutput),
               self.removeDataSerie(dataSeriesResult)
