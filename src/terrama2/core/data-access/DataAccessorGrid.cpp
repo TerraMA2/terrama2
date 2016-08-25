@@ -30,7 +30,6 @@
 #include "DataAccessorGrid.hpp"
 #include "GridSeries.hpp"
 #include "../data-model/DataSetGrid.hpp"
-#include "../utility//Logger.hpp"
 #include "../Shared.hpp"
 
 //QT
