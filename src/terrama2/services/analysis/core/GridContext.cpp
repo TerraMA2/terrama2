@@ -33,6 +33,7 @@
 #include "Utils.hpp"
 #include "PythonInterpreter.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/utility/Verify.hpp"
 #include "../../../core/data-model/DataSetGrid.hpp"
 
 #include <terralib/raster/Raster.h>
@@ -368,7 +369,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
 
           box->Union(*geomBox->getMBR());
         }
-        catch(terrama2::core::NoDataException e)
+        catch(const terrama2::core::NoDataException&)
         {
           continue;
         }
@@ -396,7 +397,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
         box->Union(*raster->getExtent());
         srid = raster->getSRID();
       }
-      catch(terrama2::core::NoDataException e)
+      catch(const terrama2::core::NoDataException&)
       {
       }
 
@@ -410,17 +411,11 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
     }
   }
 
+  terrama2::core::verify::srid(srid);
+
   outputRasterInfo["MEM_RASTER_SRID"] = std::to_string(srid);
   outputRasterInfo["MEM_RASTER_MIN_X"] = std::to_string(box->getLowerLeftX());
   outputRasterInfo["MEM_RASTER_MIN_Y"] = std::to_string(box->getLowerLeftY());
   outputRasterInfo["MEM_RASTER_MAX_X"] = std::to_string(box->getUpperRightX());
   outputRasterInfo["MEM_RASTER_MAX_Y"] = std::to_string(box->getUpperRightY());
-}
-
-std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::GridContext::resampleRaster(std::shared_ptr<te::rst::Raster> raster)
-{
-  auto outputGridConfig = getOutputRasterInfo();
-  auto resampledRaster = terrama2::services::analysis::core::resampleRaster(raster, outputGridConfig, analysis_->outputGridPtr->interpolationMethod);
-
-  return resampledRaster;
 }

@@ -31,6 +31,8 @@
 #include "MonitoredObjectContext.hpp"
 #include "GridContext.hpp"
 
+#include "../../../core/utility/Logger.hpp"
+
 void terrama2::services::analysis::core::ContextManager::addMonitoredObjectContext(const AnalysisHashCode analysisHashCode, MonitoredObjectContextPtr context)
 {
   auto it = monitoredObjectContextMap_.find(analysisHashCode);
@@ -86,11 +88,17 @@ void terrama2::services::analysis::core::ContextManager::clearContext(const Anal
 {
   auto itm = monitoredObjectContextMap_.find(analysisHashCode);
   if(itm != monitoredObjectContextMap_.cend())
+  {
+    TERRAMA2_LOG_INFO() << QObject::tr("Clearing monitored object analysis context.\nUses: %1").arg(itm->second.use_count());
     monitoredObjectContextMap_.erase(itm);
+  }
 
   auto itg = gridContextMap_.find(analysisHashCode);
   if(itg != gridContextMap_.cend())
+  {
+    TERRAMA2_LOG_INFO() << QObject::tr("Clearing grid analysis context.\nUses: %1").arg(itg->second.use_count());
     gridContextMap_.erase(itg);
+  }
 
   auto ita = analysisMap_.find(analysisHashCode);
   if(ita != analysisMap_.cend())
