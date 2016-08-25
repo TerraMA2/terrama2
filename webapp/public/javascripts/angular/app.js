@@ -39,6 +39,25 @@ terrama2Application.factory("MakeMetadata", function() {
   }
 });
 
+/**
+ * It parses a string into a object.
+ * @example
+ * var person = {name: "Person", address: {zip: 15478}};
+ * console.log(MetaDotReader(person, 'address.zip'));
+ * >> 15478
+ */
+terrama2Application.factory("MetaDotReader", function() {
+  return function(object, value) {
+    var parts = value.split('.');
+    var output = null;
+    for(var i = 0; i < parts.length; ++i) {
+      output = object[parts[i]];
+      object = output;
+    }
+    return output;
+  }
+})
+
 // Helper for display invalid fields from form
 terrama2Application.factory('FormHelper', function() {
   return function(form) {
