@@ -1141,11 +1141,12 @@ angular.module('terrama2.dataseries.registration', [
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
-          if ($scope.dataSeries.semantics === globals.enums.DataSeriesFormat.GRADS) {
+          if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.title = "Data Series";
             $scope.alertBox.message = "A GRADS Data Series must have a Store";
             $scope.display = true;
+            return;
           }
           var dataObject = _save();
 
