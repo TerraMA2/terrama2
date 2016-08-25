@@ -17,7 +17,7 @@
         <select class="form-control"
                 name="semantics"
                 ng-model="dataSeries.semantics"
-                ng-options="semantics.name for semantics in dataSeriesSemantics | filter: { collector: false }" 
+                ng-options="semantics.name for semantics in dataSeriesSemantics" 
                 ng-disabled="isUpdating"
                 ng-change="onDataSemanticsChange();" required>
         </select>

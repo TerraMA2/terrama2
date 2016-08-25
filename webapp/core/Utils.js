@@ -212,7 +212,7 @@ var Utils = {
 
             dataProvidersResult.some(function(dprovider) {
               return dataSeriesResult.some(function(dseries) {
-                if (dprovider.id == dseries.data_provider_id && collector.input_data_series == dseries.id) {
+                if (dprovider.id == dseries.data_provider_id && collector.data_series_input == dseries.id) {
                   //getting project id
                   collector.project_id = dprovider.project_id;
                   return true;
