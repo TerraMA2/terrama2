@@ -281,8 +281,8 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
   }
 
   if(json.contains("value_comparison_operation")
-     && !json.value("value_comparison_operation").isNull()
-     && !json.value("by_value").isNull())
+      && !json.value("value_comparison_operation").isNull()
+      && !json.value("by_value").isNull())
   {
     filter.value = std::make_shared<double>(json["by_value"].toDouble());
     // filter.discard_before = json["value_comparison_operation"].toString();//TODO: filter by value operation
@@ -417,22 +417,22 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-//  if(!(json.contains("id")
-//      && json.contains("frequency")
-//      && json.contains("frequency_unit")
-//      && json.contains("frequency_start_time")
-//      && json.contains("schedule")
-//      && json.contains("schedule_time")
-//      && json.contains("schedule_unit")
-//      && json.contains("schedule_retry")
-//      && json.contains("schedule_retry_unit")
-//      && json.contains("schedule_timeout")
-//      && json.contains("schedule_timeout_unit")))
-//  {
-//    QString errMsg = QObject::tr("Invalid Schedule JSON object.");
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
-//  }
+  if(!(json.contains("id")
+       && json.contains("frequency")
+       && json.contains("frequency_unit")
+       && json.contains("frequency_start_time")
+       && json.contains("schedule")
+       && json.contains("schedule_time")
+       && json.contains("schedule_unit")
+       && json.contains("schedule_retry")
+       && json.contains("schedule_retry_unit")
+       && json.contains("schedule_timeout")
+       && json.contains("schedule_timeout_unit")))
+  {
+    QString errMsg = QObject::tr("Invalid Schedule JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
 
   terrama2::core::Schedule schedule;
   schedule.id = json["id"].toInt();
