@@ -1004,7 +1004,7 @@ angular.module('terrama2.dataseries.registration', [
             case "minutes":
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time.toDate();
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time.toISOString();
               break;
             case "weeks":
             case "monthly":

@@ -284,7 +284,8 @@ var DataManager = {
             code: semanticsElement.code,
             name: semanticsElement.name,
             data_format_name: semanticsElement.format,
-            data_series_type_name: semanticsElement.type
+            data_series_type_name: semanticsElement.type,
+            collector: semanticsElement.collector || false
           }));
         });
 
@@ -607,31 +608,39 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       self.getProject(restriction).then(function(projectResult) {
         self.listCollectors().then(function(collectors) {
-          if (collectors.length === 0) {
-            return Promise.resolve();
-          }
-          var scheduleIds = [];
-          collectors.forEach(function(collector) {
-            if (collector.dataSeriesOutput && collector.dataSeriesOutput.dataProvider.project_id === projectResult.id) {
-              scheduleIds.push(collector.schedule.id);
+          self.listAnalyses().then(function(analysisList) {
+            if (collectors.length === 0 || analysisList.length === 0) {
+              return Promise.resolve();
             }
-          });
 
-          return self.removeSchedule({id: {$in: scheduleIds}})
-        }).finally(function() {
-          models.db.Project.destroy({
-            where: {
-              id: projectResult.id
-            }
-          }).then(function() {
-            var project = Utils.remove(self.data.projects, {id: projectResult.id});
-            // remove children from memory
-            Utils.removeAll(self.data.dataProviders, {project_id: project.id});
-            Utils.removeAll(self.data.dataSeries, {dataProvider: {project_id: project.id}});
-            resolve();
-          }).catch(function(err) {
-            console.log("Remove Project: ", err);
-            reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
+            var scheduleIds = [];
+            collectors.forEach(function(collector) {
+              if (collector.dataSeriesOutput && collector.dataSeriesOutput.dataProvider.project_id === projectResult.id) {
+                scheduleIds.push(collector.schedule.id);
+              }
+            });
+
+            // pushing analysis schedules into scheduleIds
+            Array.prototype.push.apply(scheduleIds, analysisList.map(function(analysis) {
+              return analysis.schedule.id;
+            }));
+
+            return self.removeSchedule({id: {$in: scheduleIds}})
+          }).finally(function() {
+            models.db.Project.destroy({
+              where: {
+                id: projectResult.id
+              }
+            }).then(function() {
+              var project = Utils.remove(self.data.projects, {id: projectResult.id});
+              // remove children from memory
+              Utils.removeAll(self.data.dataProviders, {project_id: project.id});
+              Utils.removeAll(self.data.dataSeries, {dataProvider: {project_id: project.id}});
+              resolve();
+            }).catch(function(err) {
+              console.log("Remove Project: ", err);
+              reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
+            });
           });
         });
       }).catch(function(err) {

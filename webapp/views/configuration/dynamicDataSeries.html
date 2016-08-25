@@ -37,13 +37,13 @@
     },
     iconFn: function(object) {
       switch(object.data_series_semantics.data_series_type_name) {
-        case "Monitored":
+        case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
           return "/images/monitored-object.png";
           break;
-        case "Grid":
+        case globals.enums.DataSeriesType.GRID:
           return "/images/grid-small.png";
           break;
-        case "Occurrence":
+        case globals.enums.DataSeriesType.OCCURRENCE:
           return "/images/map-display.png";
           break;
         default:
@@ -71,7 +71,7 @@
 
 {% block content %}
 <div ng-controller="ListController">
-  <terrama2-box title="'{[ __('Dynamic Data Series') ]}'">
+  <terrama2-box title-header="'{[ __('Dynamic Data Series') ]}'">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">

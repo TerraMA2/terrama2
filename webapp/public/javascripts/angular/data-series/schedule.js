@@ -36,7 +36,7 @@ angular.module("terrama2.schedule", ['terrama2'])
             // initializing with current date and s
 
             try {
-              var date = new Date();
+              var date = new moment();
               var time = scheduleObject.schedule_time;
               var splitDate = time.split(":");
 
@@ -44,9 +44,9 @@ angular.module("terrama2.schedule", ['terrama2'])
               var minutes = splitDate[1];
               var seconds = splitDate[2];
 
-              date.setMinutes(minutes);
-              date.setHours(hours);
-              date.setSeconds(seconds);
+              date.minute(minutes);
+              date.hour(hours);
+              date.second(seconds);
 
               $scope.model.schedule_time = date;
             } catch (e) {
