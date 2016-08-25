@@ -9,7 +9,7 @@
             <select id="storageFormat" class="form-control" name="format" ng-model="storager.format"
                     ng-disabled="isUpdating"
                     ng-change="onStoragerFormatChange()"
-                    ng-options="format.name for format in storagerFormats" ng-required="dataSeries.access == 'COLLECT'">
+                    ng-options="format.name for format in storagerFormats | filter: { collector: false }" ng-required="dataSeries.access == 'COLLECT'">
           </select>
         </div>
       </div>

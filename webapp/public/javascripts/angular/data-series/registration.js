@@ -870,6 +870,7 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.save = function() {
+        $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
         $scope.display = false;
         $scope.alertBox.title = "Data Series";
@@ -992,10 +993,10 @@ angular.module('terrama2.dataseries.registration', [
 
           // adjusting time without timezone
           var filterValues = Object.assign({}, $scope.filter);
-          if (filterValues.region) {
+          if (filterValues.region || $scope.filter.area) {
             filterValues.region = Polygon.build($scope.filter.area || {});
           }
-          delete filterValues.area;
+          // delete filterValues.area;
 
           var scheduleValues = Object.assign({}, $scope.schedule);
           switch(scheduleValues.scheduleHandler) {
@@ -1140,6 +1141,13 @@ angular.module('terrama2.dataseries.registration', [
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
+          if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
+            $scope.alertLevel = "alert-danger";
+            $scope.alertBox.title = "Data Series";
+            $scope.alertBox.message = "A GRADS Data Series must have a Store";
+            $scope.display = true;
+            return;
+          }
           var dataObject = _save();
 
           if ($scope.isDynamic) {
