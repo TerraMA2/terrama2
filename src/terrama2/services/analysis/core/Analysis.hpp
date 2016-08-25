@@ -191,7 +191,7 @@ namespace terrama2
             {
               terrama2::core::verify::date(startDate);
             }
-            catch (...)
+            catch (const terrama2::core::VerifyException&)
             {
               throw InvalidParameterException() << ErrorDescription(QObject::tr("Analysis %1 : Start date not set.").arg(id));
             }

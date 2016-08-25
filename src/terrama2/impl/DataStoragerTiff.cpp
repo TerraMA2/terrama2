@@ -104,7 +104,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
     {
       verify::date(dateTime);
     }
-    catch (...)
+    catch (const VerifyException&)
     {
       return mask;
     }
@@ -126,7 +126,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
     {
       verify::date(dateTime);
     }
-    catch (...)
+    catch (const VerifyException&)
     {
       return mask;
     }
