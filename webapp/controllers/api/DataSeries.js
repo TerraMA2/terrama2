@@ -213,26 +213,19 @@ module.exports = function(app) {
                   };
 
                   if (collector.filter.id) {
-                    DataManager.updateFilter(collector.filter.id, filterObject).then(function() {
+                    var filterUpdate = Object.assign(collector.filter.toObject(), filterObject);
+                    if (!filterObject.region) {
+                      filterUpdate.region = null;
+                    }
+                    DataManager.updateFilter(collector.filter.id, filterUpdate).then(function() {
                       DataManager.getFilter({id: collector.filter.id}).then(function(filter) {
                         collector.filter = filter;
                         _processIntersection();
                       });
                     }).catch(_handleError);
                   } else {
-                    if (_.isEmpty(filterObject.date)) {
-                      // // checking to update intersection
-                      // if (collector.intersection.length > 0) {
-                      //   // TODO: implement and call _continue(collector)
-                      //   DataManager.updateIntersections(
-                      //       collector.intersection.map(function(elm){ return elm.id; }),
-                      //       collector.intersection)
-                      //       .then(function() {
-                      //         _continue(collector);
-                      //       }).catch(_handleError);
-                      // } else {
+                    if (_.isEmpty(filterObject.date) || !filterObject.region) {
                       _processIntersection();
-                      // }
                     } else {
                       filterObject.collector_id = collector.id;
 

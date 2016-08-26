@@ -332,9 +332,17 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.alertLevel = "";
 
-      $scope.filterArea = '1';
+      // filter values
+      $scope.filter = {date: {}, area: {srid: 4326}};
+      $scope.radioPreAnalysis = {};
+      $scope.handlePreAnalysisFilter = function(selected) {
+        $scope.filter.pre_analysis = {};
+        $scope.radioPreAnalysis = selected;
+      };
+
+      $scope.filter.filterArea = $scope.filterTypes.NO_FILTER.value;
       $scope.$on('updateFilterArea', function(event, filterValue) {
-        $scope.filterArea = filterValue;
+        $scope.filter.filterArea = filterValue;
       });
 
       // terrama2 messagebox
@@ -588,8 +596,11 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       $scope.onFilterRegion = function() {
-        console.log($scope.filterArea);
-        $scope.filter.area={srid: 4326};
+        if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
+          $scope.filter.area = {};
+        } else {
+          $scope.filter.area={srid: 4326};
+        }
       };
 
       // storager
@@ -661,14 +672,6 @@ angular.module('terrama2.dataseries.registration', [
       $scope.dcps = [];
 
       $scope.updatingDcp = false;
-
-      // filter values
-      $scope.filter = {date: {}, area: {srid: 4326}};
-      $scope.radioPreAnalysis = {};
-      $scope.handlePreAnalysisFilter = function(selected) {
-        $scope.filter.pre_analysis = {};
-        $scope.radioPreAnalysis = selected;
-      };
 
       // fill out interface with values
       $scope.parametersData = configuration.parametersData || {};
@@ -1019,7 +1022,7 @@ angular.module('terrama2.dataseries.registration', [
           }
         }
 
-        if ($scope.filterArea == '2') {
+        if ($scope.filter.filterArea == $scope.filterTypes.AREA.value) {
           var boundedForm = angular.element('form[name="boundedForm"]').scope().boundedForm;
           if (boundedForm.$invalid) {
             // TODO: change it
