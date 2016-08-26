@@ -88,13 +88,18 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     {
       std::lock_guard<std::mutex> lock(mutex_);
 
+
       auto lastProcess = logger_->getLastProcessTimestamp(analysis->id);
       terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
       timers_.emplace(analysisId, timer);
+
+      //TODO: Should use the timer and pass the right time of execution
+      // add to queue to run now
+      addToQueue(analysisId);
+
+
     }
 
-    // add to queue to run now
-    addToQueue(analysisId);
   }
   catch(const terrama2::core::InvalidFrequencyException&)
   {
@@ -205,12 +210,24 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
       return;
     }
 
-    auto startTime = terrama2::core::TimeUtils::nowUTC();
+    if(analysis->reprocessingHistoricalData)
+    {
+      double secondsToStart = terrama2::core::TimeUtils::calculateSecondsToStart(analysis->schedule);
+      while(secondsToStart > 0.)
+      {
 
-    analysisQueue_.push_back(std::make_pair(analysisId, startTime));
+      }
+    }
+    else
+    {
+      auto startTime = terrama2::core::TimeUtils::nowUTC();
 
-    //wake loop thread
-    mainLoopCondition_.notify_one();
+      analysisQueue_.push_back(std::make_pair(analysisId, startTime));
+
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
+
   }
   catch(std::exception& e)
   {
