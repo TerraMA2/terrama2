@@ -2,6 +2,39 @@
 
 var terrama2Application = angular.module("terrama2", ['i18n']);
 
+/**
+ * TerraMA2 Front end Log Decorator
+ */
+terrama2Application.config(["$provide", function($provide) {
+  $provide.decorator("$log", [
+    "$delegate",
+    function $logDecorator($delegate) {
+      var helper = function(context, msg) {
+        // TODO: expand it. Use supplant/replace/format
+        return "TerraMA² <" + context + "> [" + new Date().toString() + "]: "  + msg;
+      };
+      // Warn
+      var warn = $delegate.warn;
+      $delegate.warn = function() {
+        var args = [].slice.call(arguments);
+        args[0] = helper("warn", args[0]);
+
+        warn.apply(null, args);
+      };
+      // debug
+      var debug = $delegate.debug;
+      $delegate.debug = function() {
+        var args = [].slice.call(arguments);
+        args[0] = helper("debug", args[0]);
+
+        debug.apply(null, args);
+      };
+
+      return $delegate;
+    }
+  ])
+}]);
+
 // setting caches
 terrama2Application.run(function($templateCache) {
   // TerraMA2 Box
