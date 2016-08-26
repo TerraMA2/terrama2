@@ -42,8 +42,8 @@ angular.module('terrama2.dataseries.registration', [
     editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
   })
 
-  .controller('StoragerController', ['$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'Polygon',
-    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, Polygon) {
+  .controller('StoragerController', ['$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'Polygon', 'DateParser',
+    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, Polygon, DateParser) {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
@@ -207,18 +207,10 @@ angular.module('terrama2.dataseries.registration', [
             // fill filter
             var filter = collector.filter || {};
 
-            var _processDate = function(stringDate) {
-              var minus = stringDate.lastIndexOf('-');
-              var plus = stringDate.lastIndexOf('+');
-              var timezone = parseInt(minus > -1 ? stringDate.substring(minus+1, minus+3) : stringDate.substring(plus+1, plus+3));
-
-              return moment(stringDate).utc((minus > -1 ? timezone : -timezone));
-            };
-
             if (filter.discard_before)
-              $scope.filter.date.beforeDate = _processDate(filter.discard_before);
+              $scope.filter.date.beforeDate = DateParser(filter.discard_before);
             if (filter.discard_after)
-              $scope.filter.date.afterDate = _processDate(filter.discard_after);
+              $scope.filter.date.afterDate = DateParser(filter.discard_after);
 
             // filter geometry field
             if (filter.region) {
@@ -1118,9 +1110,12 @@ angular.module('terrama2.dataseries.registration', [
 
           // adjusting time without timezone
           var filterValues = Object.assign({}, $scope.filter);
-          if (filterValues.region || ($scope.filter.area && Object.keys($scope.filter.area).length > 0)) {
+          if ($scope.filter.filterArea === $scope.filterTypes.AREA.value) {
             filterValues.region = Polygon.build($scope.filter.area || {});
           }
+          // if (filterValues.region || ($scope.filter.area && Object.keys($scope.filter.area).length > 0)) {
+          //   filterValues.region = Polygon.build($scope.filter.area || {});
+          // }
           // delete filterValues.area;
 
           var scheduleValues = Object.assign({}, $scope.schedule);

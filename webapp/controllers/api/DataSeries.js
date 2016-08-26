@@ -213,7 +213,7 @@ module.exports = function(app) {
                   };
 
                   if (collector.filter.id) {
-                    var filterUpdate = Object.assign(collector.filter.toObject(), filterObject);
+                    var filterUpdate = Object.assign(collector.filter.rawObject(), filterObject);
                     if (!filterObject.region) {
                       filterUpdate.region = null;
                     }
