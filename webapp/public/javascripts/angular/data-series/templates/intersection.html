@@ -7,27 +7,38 @@
             <tbody class="terrama2-table-tbody">
               <th>{{ i18n.__('Name') }}</th>
               <th>{{ i18n.__('Type') }}</th>
-              <th>{{ i18n.__('Selected') }}</th>
+              <th></th>
 
               <tr class="terrama2-table-tr"
-                  ng-repeat="ds in dataSeriesList | filter:intersectionDataSeries"
+                  ng-repeat="ds in intersectionDataSeriesList"
                   ng-click="onIntersectionDataSeriesClick(ds)"
                   style="cursor:pointer;"
                   ng-class="{'active': selectedIntersection && selectedIntersection.id === ds.id}">
                 <td>{{ ds.name }}</td>
                 <td>{{ ds.data_series_semantics.name }}</td>
-                <td>
-                  <input type="checkbox"
-                         ng-model="intersection[ds.id].selected"
-                         ng-change="onIntersectionCheck(ds, intersection[ds.id].selected)"
-                         ng-checked="intersection[ds.id].attributes.length > 0">
+                <td class="pull-cell-left">
+                  <button type="button"
+                          class="btn btn-danger btn-sm"
+                          data-toggle="tooltip"
+                          data-placement="top"
+                          title='{{ i18n.__("Remove") }}'
+                          name="button"
+                          data-ng-click="removeDataSeries(ds, $index);">
+                        {{ i18n.__("Remove") }}
+                  </button>
+                </td>
+              </tr>
+
+              <tr class="terrama2-table-tr" ng-show="intersectionDataSeriesList.length === 0">
+                <td colspan="3">
+                  {{ i18n.__("No intersection data series selected"); }}
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div class="col-md-12">
+        <div class="col-md-12" ng-show="selectedIntersection && !selectedIntersection.isGrid">
           <div class="col-md-12 terrama2-nopadding-box">
             <div class="box box-default box-solid">
               <div class="box-header with-border">
