@@ -32,6 +32,7 @@
 #include "../core/utility/Utils.hpp"
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Raii.hpp"
+#include "../core/utility/Unpack.hpp"
 
 //TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
@@ -92,7 +93,8 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   std::string mask = getCtlFilename(dataset);
   std::string uri = dataRetriever->retrieveData(mask, filter);
 
-  auto gradsDescriptor = readDataDescriptor(uri);
+  QUrl url(QString::fromStdString(uri));
+  auto gradsDescriptor = readDataDescriptor(url.path().toStdString()+"/"+mask);
 
   std::string datasetMask = gradsDescriptor.datasetFilename_;
   if (gradsDescriptor.datasetFilename_[0] == '^')
@@ -224,12 +226,31 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     timezone = "UTC+00";
   }
 
-
-  bool first = true;
-  for (const auto& fileInfo : fileInfoList)
+  //fill file list
+  QFileInfoList newFileInfoList;
+  for(const auto& fileInfo : fileInfoList)
   {
     std::string name = fileInfo.fileName().toStdString();
-    std::string baseName = fileInfo.baseName().toStdString();
+    std::string folderPath = dir.absolutePath().toStdString();
+    if(terrama2::core::Unpack::verifyCompressFile(folderPath+ "/" + name))
+    {
+      //unpack files
+      std::string tempFolderPath = terrama2::core::Unpack::unpackList(folderPath+ "/" + name);
+      QDir tempDir(QString::fromStdString(tempFolderPath));
+      QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+
+      newFileInfoList.append(fileList);
+    }
+    else
+    {
+      newFileInfoList.append(fileInfo);
+    }
+  }
+
+  bool first = true;
+  for (const auto& fileInfo : newFileInfoList)
+  {
+    std::string name = fileInfo.fileName().toStdString();
 
     std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
 
@@ -254,7 +275,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     datasetMask = replaceMask(datasetMask.c_str()).toStdString();
 
 
-    for (const auto& dataFileInfo : fileInfoList)
+    for (const auto& dataFileInfo : newFileInfoList)
     {
       std::string name = dataFileInfo.fileName().toStdString();
       std::string baseName = dataFileInfo.baseName().toStdString();
