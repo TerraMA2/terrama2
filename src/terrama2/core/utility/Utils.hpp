@@ -120,6 +120,8 @@ namespace terrama2
     bool isValidColumn(size_t value);
 
     std::string getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors = true);
+
+    std::shared_ptr<te::gm::Geometry> ewktToGeom(const std::string& ewkt);
   } // end namespace core
 }   // end namespace terrama2
 
