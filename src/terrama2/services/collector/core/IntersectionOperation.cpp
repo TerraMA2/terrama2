@@ -400,7 +400,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     {
       auto currGeom = collectedData->getGeometry(i, geomPropertyPos);
 
-      te::mem::DataSetItem* item = new te::mem::DataSetItem(outputDs.get());
+      std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(outputDs.get()));
 
       item->setGeometry(geomProperty->getName(), dynamic_cast<te::gm::Geometry*>(currGeom.get()->clone()));
 
@@ -454,9 +454,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       std::size_t aux = te::da::GetFirstSpatialPropertyPos(outputDs.get());
 
       if(!item->isNull(aux))
-        outputDs->add(item);
-      else
-        delete item;
+        outputDs->add(item.release());
     }
   }
 
