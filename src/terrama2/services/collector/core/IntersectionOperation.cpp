@@ -91,10 +91,10 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
 }
 
 terrama2::core::DataSetSeries terrama2::services::collector::core::processVectorIntersection(DataManagerPtr dataManager,
-                                                                                             core::IntersectionPtr intersection,
-                                                                                             terrama2::core::DataSetSeries collectedDataSetSeries,
-                                                                                             std::vector<std::string>& vecAttributes,
-                                                                                             terrama2::core::DataSeriesPtr intersectionDataSeries)
+    core::IntersectionPtr intersection,
+    terrama2::core::DataSetSeries collectedDataSetSeries,
+    std::vector<std::string>& vecAttributes,
+    terrama2::core::DataSeriesPtr intersectionDataSeries)
 {
 
 
@@ -287,8 +287,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 }
 
 te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::da::DataSetType* collectedDST,
-                                                                            te::da::DataSetType* intersectionDST,
-                                                                            std::vector<te::dt::Property*> intersectionDSProperties)
+    te::da::DataSetType* intersectionDST,
+    std::vector<te::dt::Property*> intersectionDSProperties)
 {
   te::da::DataSetType* outputDt = new te::da::DataSetType(collectedDST->getName());
 
@@ -315,9 +315,9 @@ te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::
 }
 
 terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIntersection(DataManagerPtr dataManager,
-                                                                                           core::IntersectionPtr intersection,
-                                                                                           terrama2::core::DataSetSeries collectedDataSetSeries,
-                                                                                           terrama2::core::DataSeriesPtr intersectionDataSeries)
+    core::IntersectionPtr intersection,
+    terrama2::core::DataSetSeries collectedDataSetSeries,
+    terrama2::core::DataSeriesPtr intersectionDataSeries)
 {
   if(intersectionDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
@@ -334,12 +334,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   std::shared_ptr<te::da::DataSetType> outputDt;
 
   std::vector<te::dt::Property*> collectedProperties = collectedDataSetType->getProperties();
-  std::vector<te::dt::Property*> interProperties;
-
-
-
   auto dataProvider = dataManager->findDataProvider(intersectionDataSeries->dataProviderId);
-
 
   auto geomProperty = te::da::GetFirstGeomProperty(collectedDataSetType.get());
   auto geomPropertyPos = collectedDataSetType->getPropertyPosition(geomProperty);
@@ -437,7 +432,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
         currGeom->transform(raster->getSRID());
 
       // Gets the respective row and column for the occurrence coordinate
-      double row, col, value;
+      double row, col;
       te::gm::Coord2D coord = te::sa::GetCentroidCoord(currGeom.get());
       double x = coord.getX();
       double y = coord.getY();
@@ -449,6 +444,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       {
         for(unsigned int band = 0; band < raster->getNumberOfBands(); ++band)
         {
+          double value;
           raster->getValue(col, row, value, band);
           item->setDouble(intersectionDataSeries->name + "_band_" + std::to_string(band), value);
         }
@@ -459,6 +455,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
 
       if(!item->isNull(aux))
         outputDs->add(item);
+      else
+        delete item;
     }
   }
 
