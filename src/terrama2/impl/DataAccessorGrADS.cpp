@@ -92,6 +92,19 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   std::string mask = getCtlFilename(dataset);
   std::string uri = dataRetriever->retrieveData(mask, filter);
 
+  auto gradsDescriptor = readDataDescriptor(uri);
+
+  std::string datasetMask = gradsDescriptor.datasetFilename_;
+  if (gradsDescriptor.datasetFilename_[0] == '^')
+  {
+    gradsDescriptor.datasetFilename_.erase(0, 1);
+    datasetMask = gradsDescriptor.datasetFilename_;
+  }
+
+  datasetMask = replaceMask(datasetMask.c_str()).toStdString();
+
+  uri = dataRetriever->retrieveData(datasetMask, filter);
+
   return uri;
 }
 
@@ -231,12 +244,15 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
     // Reads the dataset name from CTL
 
-    std::string datasetMask;
+    std::string datasetMask = gradsDescriptor.datasetFilename_;
     if (gradsDescriptor.datasetFilename_[0] == '^')
     {
       gradsDescriptor.datasetFilename_.erase(0, 1);
-      datasetMask = replaceMask(QString::fromStdString(gradsDescriptor.datasetFilename_)).toStdString();
+      datasetMask = gradsDescriptor.datasetFilename_;
     }
+
+    datasetMask = replaceMask(datasetMask.c_str()).toStdString();
+
 
     for (const auto& dataFileInfo : fileInfoList)
     {
