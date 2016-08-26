@@ -96,11 +96,11 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     // add to queue to run now
     addToQueue(analysisId);
   }
-  catch(terrama2::core::InvalidFrequencyException&)
+  catch(const terrama2::core::InvalidFrequencyException&)
   {
     // invalid schedule, already logged
   }
-  catch(terrama2::Exception&)
+  catch(const terrama2::Exception&)
   {
 
   }

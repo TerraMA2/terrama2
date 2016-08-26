@@ -48,6 +48,7 @@
 #include <terralib/sa/core/Utils.h>
 #include <terralib/srs/SpatialReferenceSystemManager.h>
 #include <terralib/srs/SpatialReferenceSystem.h>
+#include <terralib/geometry/WKTReader.h>
 
 #include <ctime>
 #include <unordered_map>
@@ -267,13 +268,13 @@ void terrama2::core::enableLogger()
 int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
 {
    te::gm::Coord2D coord = te::sa::GetCentroidCoord(geom);
-  
+
    // Calculates the UTM zone for the given coordinate
    int zoneNumber = floor((coord.getX() + 180)/6) + 1;
-  
+
    if(coord.getY() >= 56.0 && coord.getY() < 64.0 && coord.getX() >= 3.0 && coord.getX() < 12.0)
      zoneNumber = 32;
-  
+
   // Special zones for Svalbard
   if(coord.getY() >= 72.0 && coord.getY() < 84.0)
   {
@@ -378,4 +379,18 @@ std::string terrama2::core::getProperty(DataSetPtr dataSet, DataSeriesPtr dataSe
   }
 
   return property;
+}
+
+std::shared_ptr<te::gm::Geometry> terrama2::core::ewktToGeom(const std::string& ewkt)
+{
+  auto pos = ewkt.find(";")+1;
+  auto wkt = ewkt.substr(pos);
+  auto sridStr = ewkt.substr(0, pos-1);
+  pos = sridStr.find("=")+1;
+  int srid = std::stoi(sridStr.substr(pos));
+
+  auto geom = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(wkt.c_str()));
+  geom->setSRID(srid);
+
+  return geom;
 }

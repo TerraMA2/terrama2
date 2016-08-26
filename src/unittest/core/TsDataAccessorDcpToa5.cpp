@@ -144,7 +144,7 @@ void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -168,7 +168,7 @@ void TsDataAccessorDcpToa5::TestFailDataProviderNull()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -192,7 +192,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesNull()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -219,7 +219,7 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesSemanticsInvalid()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::SemanticsException& e)
+  catch(const terrama2::core::SemanticsException& e)
   {
 
   }
@@ -340,7 +340,7 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
       terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
       QFAIL("Exception expected!");
     }
-    catch(terrama2::core::NotRetrivableException&)
+    catch(const terrama2::core::NotRetrivableException&)
     {
 
     }

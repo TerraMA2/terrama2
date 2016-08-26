@@ -408,10 +408,12 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt);
   uk->add(geomIdProp);
   uk->add(dateProp);
+  dt->add(uk);
 
   //create index on date column
   te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt);
   indexDate->add(dateProp);
+  dt->add(indexDate);
 
   for(std::string attribute : attributes)
   {
@@ -450,7 +452,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   {
     storager->store(series, dataset);
   }
-  catch(terrama2::Exception /*e*/)
+  catch(const terrama2::Exception /*e*/)
   {
     QString errMsg = QObject::tr("Could not store the result of the analysis.");
     throw Exception() << ErrorDescription(errMsg);
@@ -680,7 +682,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::servi
     terrama2::core::DataStoragerTiff storager(dataProvider);
     storager.store(series, dataset);
   }
-  catch(terrama2::Exception /*e*/)
+  catch(const terrama2::Exception& /*e*/)
   {
     QString errMsg = QObject::tr("Could not store the result of the analysis.");
     throw Exception() << ErrorDescription(errMsg);

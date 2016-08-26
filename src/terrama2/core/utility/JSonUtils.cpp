@@ -35,14 +35,12 @@
 #include "../data-model/DataSetOccurrence.hpp"
 #include "../utility/SemanticsManager.hpp"
 #include "../utility/TimeUtils.hpp"
+#include "../utility/Utils.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/Verify.hpp"
 #include "../Exception.hpp"
 
 #include "JSonUtils.hpp"
-
-//Terralib
-#include <terralib/geometry/WKTReader.h>
 
 //Qt
 #include <QJsonDocument>
@@ -200,8 +198,8 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  std::string wkt = json["position"].toString().toStdString();
-  auto geom = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(wkt.c_str()));
+  std::string ewkt = json["position"].toString().toStdString();
+  auto geom = ewktToGeom(ewkt);
   auto point = std::dynamic_pointer_cast<te::gm::Point>(geom);
 
   if(!point.get())
@@ -276,7 +274,9 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
 
   if(json.contains("region") && !json.value("region").isNull())
   {
-    filter.region = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(json["region"].toString().toStdString().c_str()));
+    auto ewkt = json["region"].toString().toStdString();
+    filter.region = ewktToGeom(ewkt);
+
     verify::srid(filter.region->getSRID());
   }
 
@@ -378,17 +378,16 @@ QJsonObject terrama2::core::toJson(const terrama2::core::DataSeriesRisk& risk)
 
 QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
 {
-  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
   QJsonObject obj;
   obj.insert("class", QString("Filter"));
   if(filter.discardBefore.get())
   {
-    std::string discardBefore = TimeUtils::boostLocalTimeToString(filter.discardBefore->getTimeInstantTZ(), timestampFacet);
+    std::string discardBefore = TimeUtils::boostLocalTimeToString(filter.discardBefore->getTimeInstantTZ(), TimeUtils::webgui_timefacet);
     obj.insert("discard_before", QString::fromStdString(discardBefore));
   }
   if(filter.discardAfter.get())
   {
-    std::string discardAfter = TimeUtils::boostLocalTimeToString(filter.discardAfter->getTimeInstantTZ(), timestampFacet);
+    std::string discardAfter = TimeUtils::boostLocalTimeToString(filter.discardAfter->getTimeInstantTZ(), TimeUtils::webgui_timefacet);
     obj.insert("discard_after", QString::fromStdString(discardAfter));
   }
 

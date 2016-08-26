@@ -159,7 +159,7 @@ void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
         timers_.emplace(view->id, timer);
       }
     }
-    catch(terrama2::core::InvalidFrequencyException&)
+    catch(const terrama2::core::InvalidFrequencyException&)
     {
       // invalid schedule, already logged
     }

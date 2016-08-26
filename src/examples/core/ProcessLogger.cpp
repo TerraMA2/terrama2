@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
     std::cout << mLog.timestamp->toString() << std::endl;
 */
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     std::cout << "Error in Process Logger example: " << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;
   }

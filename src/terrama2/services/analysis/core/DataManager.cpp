@@ -63,7 +63,7 @@ void terrama2::services::analysis::core::DataManager::addJSon(const QJsonObject&
         add(dataPtr);
     }
   }
-  catch(terrama2::Exception& /*e*/)
+  catch(const terrama2::Exception& /*e*/)
   {
     // logged on throw...
   }

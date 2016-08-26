@@ -32,6 +32,7 @@
 #include "Utils.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
+#include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 // Qt
@@ -40,7 +41,6 @@
 #include <QObject>
 
 // TerraLib
-#include <terralib/geometry/WKTReader.h>
 #include <terralib/geometry/Utils.h>
 
 terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::core::fromAnalysisJson(const QJsonObject& json)
@@ -284,8 +284,8 @@ terrama2::services::analysis::core::AnalysisOutputGridPtr terrama2::services::an
   outputGrid->interestAreaType = ToInterestAreaType(json["area_of_interest_type"].toInt());
   if(!json["area_of_interest_box"].isNull())
   {
-    std::string wkt = json["area_of_interest_box"].toString().toStdString();
-    outputGrid->interestAreaBox.reset(te::gm::WKTReader::read(wkt.c_str()));
+    std::string ewkt = json["area_of_interest_box"].toString().toStdString();
+    outputGrid->interestAreaBox = terrama2::core::ewktToGeom(ewkt);
   }
 
   return outputGridPtr;
