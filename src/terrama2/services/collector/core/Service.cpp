@@ -268,7 +268,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
         timers_.emplace(collector->id, timer);
       }
     }
-    catch(terrama2::core::InvalidFrequencyException&)
+    catch(const terrama2::core::InvalidFrequencyException&)
     {
       // invalid schedule, already logged
     }

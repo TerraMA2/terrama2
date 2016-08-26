@@ -158,7 +158,7 @@ void terrama2::services::alert::core::Service::addAlert(AlertPtr alert) noexcept
         timers_.emplace(alert->id, timer);
       }
     }
-    catch(terrama2::core::InvalidFrequencyException&)
+    catch(const terrama2::core::InvalidFrequencyException&)
     {
       // invalid schedule, already logged
     }

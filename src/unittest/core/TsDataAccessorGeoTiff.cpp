@@ -82,7 +82,7 @@ void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -106,7 +106,7 @@ void TsDataAccessorGeoTiff::TestFailDataProviderNull()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -130,7 +130,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesNull()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -157,7 +157,7 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesSemanticsInvalid()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::SemanticsException& e)
+  catch(const terrama2::core::SemanticsException& e)
   {
 
   }
@@ -276,7 +276,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
       terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
       QFAIL("Exception expected!");
     }
-    catch(terrama2::core::NotRetrivableException&)
+    catch(const terrama2::core::NotRetrivableException&)
     {
 
     }

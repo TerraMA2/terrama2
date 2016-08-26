@@ -52,7 +52,7 @@ void TsDataSetTimer::TestNullDataSet()
 
     QFAIL(UNEXPECTED_BEHAVIOR);
   }
-  catch(terrama2::collector::InvalidDataSetException& e)
+  catch(const terrama2::collector::InvalidDataSetException& e)
   {
   }
   catch(boost::exception& e)
@@ -74,7 +74,7 @@ void TsDataSetTimer::TestNullDataSet()
 
     QFAIL(UNEXPECTED_BEHAVIOR);
   }
-  catch(terrama2::collector::InvalidDataSetException& e)
+  catch(const terrama2::collector::InvalidDataSetException& e)
   {
   }
   catch(boost::exception& e)

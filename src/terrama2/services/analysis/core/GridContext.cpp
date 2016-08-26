@@ -194,7 +194,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
         resX = raster->getResolutionX();
         resY = raster->getResolutionY();
       }
-      catch(terrama2::core::NoDataException e)
+      catch(const terrama2::core::NoDataException e)
       {
       }
 
@@ -246,7 +246,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
             }
           }
         }
-        catch(terrama2::core::NoDataException e)
+        catch(const terrama2::core::NoDataException e)
         {
           continue;
         }
@@ -298,7 +298,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
             }
           }
         }
-        catch(terrama2::core::NoDataException e)
+        catch(const terrama2::core::NoDataException e)
         {
           continue;
         }

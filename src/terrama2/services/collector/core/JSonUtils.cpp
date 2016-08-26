@@ -33,9 +33,6 @@
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 
-// Terralib
-#include <terralib/geometry/WKTReader.h>
-
 // Qt
 #include <QJsonDocument>
 #include <QJsonArray>
