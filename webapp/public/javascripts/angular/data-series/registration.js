@@ -1238,12 +1238,19 @@ angular.module('terrama2.dataseries.registration', [
                 var attributes = $scope.intersection[k].attributes;
                 var dataseries_id = $scope.intersection[k].data_series.id;
 
+                // grid
+                if (attributes.length === 0) {
+                  intersectionValues.push({
+                    dataseries_id: dataseries_id
+                  })
+                }
+
                 attributes.forEach(function(attribute) {
                   intersectionValues.push({
                     attribute: attribute,
                     dataseries_id: dataseries_id
-                  })
-                })
+                  });
+                });
               }
             }
 
