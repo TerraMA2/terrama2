@@ -378,17 +378,16 @@ QJsonObject terrama2::core::toJson(const terrama2::core::DataSeriesRisk& risk)
 
 QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
 {
-  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
   QJsonObject obj;
   obj.insert("class", QString("Filter"));
   if(filter.discardBefore.get())
   {
-    std::string discardBefore = TimeUtils::boostLocalTimeToString(filter.discardBefore->getTimeInstantTZ(), timestampFacet);
+    std::string discardBefore = TimeUtils::boostLocalTimeToString(filter.discardBefore->getTimeInstantTZ(), TimeUtils::webgui_timefacet);
     obj.insert("discard_before", QString::fromStdString(discardBefore));
   }
   if(filter.discardAfter.get())
   {
-    std::string discardAfter = TimeUtils::boostLocalTimeToString(filter.discardAfter->getTimeInstantTZ(), timestampFacet);
+    std::string discardAfter = TimeUtils::boostLocalTimeToString(filter.discardAfter->getTimeInstantTZ(), TimeUtils::webgui_timefacet);
     obj.insert("discard_after", QString::fromStdString(discardAfter));
   }
 
