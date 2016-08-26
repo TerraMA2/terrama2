@@ -445,7 +445,7 @@ var DataManager = {
 
         models.db.DataProvider.findAll({ include: [ models.db.DataProviderType ] }).then(function(dataProviders) {
           dataProviders.forEach(function(dataProvider) {
-            self.data.dataProviders.push(dataProvider);
+            self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
           });
           // find all data series, providers
           models.db.DataSeries.findAll({
@@ -460,7 +460,16 @@ var DataManager = {
                 include: [
                   {
                     model: models.db.DataSetDcp,
-                    attributes: ['position'],
+                    attributes: [
+                      // retrieving GeoJSON. Its is important because Sequelize
+                      // orm does not retrieve SRID even geometry has. The "2"
+                      // in arguments is to retrieve entire representation.
+                      // It retrieves as string. Once GeoJSON retrieved,
+                      // you must parse it. "JSON.parse(geoJsonStr)"
+                      [orm.fn('ST_AsGeoJSON', orm.col('position'), 0, 2), 'position'],
+                      // EWKT representation
+                      [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
+                    ],
                     required: false
                   },
                   {
@@ -480,10 +489,6 @@ var DataManager = {
               }
             ]
           }).then(function(dataSeries) {
-            var _setWKT = function(data, wkt) {
-              data.positionWkt = wkt;
-              self.data.dataSets.push(data);
-            };
             dataSeries.forEach(function(dSeries) {
               var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
 
@@ -491,11 +496,7 @@ var DataManager = {
               builtDataSeries.setDataProvider(provider);
 
               builtDataSeries.dataSets.forEach(function(dSet) {
-                if (dSet.position) {
-                  self.getWKT(dSet.position).then(function(wktPosition) {
-                    _setWKT(dSet, wktPosition);
-                  }).catch(_rejectClean);
-                } else { self.data.dataSets.push(dSet); }
+                self.data.dataSets.push(dSet);
               });
 
               self.data.dataSeries.push(builtDataSeries);
@@ -1344,20 +1345,8 @@ var DataManager = {
               self.getDataProvider({id: dataSerie.data_provider_id}).then(function(dProvider) {
                 dataSeriesInstance.setDataProvider(dProvider);
 
-                var promises = [];
-
-                dataSets.forEach(function(dSet) {
-                  promises.push(self.getDataSet({id: dSet.id}, Enums.Format.WKT));
-                });
-
-                Promise.all(promises).then(function(wktDataSets) {
-                  output.dataSets = wktDataSets;
-
-                  // resolving promise
-                  resolve(output);
-                }).catch(function(err) {
-                  reject(new exceptions.DataSetError("Could not retrieve data set dcp as wkt format. ", err));
-                });
+                // resolving promise
+                resolve(dataSeriesInstance);
               });
             }).catch(function(err) {
               rollback(err);
@@ -1452,7 +1441,7 @@ var DataManager = {
    *   "data_series_id" : INT,
    *   "active" : BOOL,
    *   "format" : {...},
-   *   "position" : STRING::WKT
+   *   "position" : GeoJSON object syntax
    * }
    *
    * @param {string} dataSeriesSemantic - A string value representing DataSet type. (dcp, occurrence, grid).
@@ -1536,7 +1525,20 @@ var DataManager = {
                 data_set_id: dataSet.id,
                 position: dataSetObject.position
               };
-              models.db.DataSetDcp.create(dataSetDcp).then(onSuccess).catch(onError);
+              models.db.DataSetDcp.create(dataSetDcp).then(function(dSetDcp) {
+                // TODO: reuse it. It retrieving entire GeoJSON representation (with SRID)
+                models.db.DataSetDcp.findOne({
+                  attributes: [
+                    "id",
+                    "data_set_id",
+                    [orm.fn('ST_AsGeoJSON', orm.col('position'), 0, 2), 'position'],
+                    [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
+                  ],
+                  where: {
+                    id: dSetDcp.id
+                  }
+                }).then(onSuccess).catch(onError);
+              }).catch(onError);
               break;
             case DataSeriesType.OCCURRENCE:
               models.db.DataSetOccurrence.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);

@@ -488,6 +488,16 @@ var Utils = {
   },
 
   /**
+   * It checks if a argument is instance of javascript string
+   *
+   * @param {?} arg - A value
+   * @return {Boolean} A boolean result
+   */
+  isString: function(arg) {
+    return typeof(arg) == 'string' || arg instanceof String;
+  },
+
+  /**
    * It creates a copy of object.
    * @param {Object} object - a object to be copied
    * @param {DataModel} model - a TerraMA2 model (optional)
