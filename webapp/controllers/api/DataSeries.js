@@ -192,20 +192,23 @@ module.exports = function(app) {
               DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output).then(function() {
                 DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
                   var _processIntersection = function() {
+                    // temp: remove all and insert. TODO: sequelize upsert / delete
                     if (_.isEmpty(intersection)) {
                       DataManager.removeIntersection({collector_id: collector.id}).then(function() {
                         collector.setIntersection([]);
                         _continue(collector);
                       }).catch(_handleError);
                     } else {
-                      intersection.forEach(function(intersect) {
-                        intersect.collector_id = collector.id;
-                      });
+                      DataManager.removeIntersection({collector_id: collector.id}).finally(function() {
+                        intersection.forEach(function(intersect) {
+                          intersect.collector_id = collector.id;
+                        });
 
-                      DataManager.addIntersection(intersection).then(function(intersectionResult) {
-                        collector.setIntersection(intersectionResult);
-                        _continue(collector);
-                      }).catch(_handleError);
+                        DataManager.addIntersection(intersection).then(function(intersectionResult) {
+                          collector.setIntersection(intersectionResult);
+                          _continue(collector);
+                        }).catch(_handleError);
+                      });
                     }
                   };
 
@@ -217,20 +220,19 @@ module.exports = function(app) {
                       });
                     }).catch(_handleError);
                   } else {
-
                     if (_.isEmpty(filterObject.date)) {
-                      // checking to update intersection
-                      if (collector.intersection.length > 0) {
-                        // TODO: implement and call _continue(collector)
-                        DataManager.updateIntersections(
-                            collector.intersection.map(function(elm){ return elm.id; }),
-                            collector.intersection)
-                            .then(function() {
-                              _continue(collector);
-                            }).catch(_handleError);
-                      } else {
-                        _processIntersection();
-                      }
+                      // // checking to update intersection
+                      // if (collector.intersection.length > 0) {
+                      //   // TODO: implement and call _continue(collector)
+                      //   DataManager.updateIntersections(
+                      //       collector.intersection.map(function(elm){ return elm.id; }),
+                      //       collector.intersection)
+                      //       .then(function() {
+                      //         _continue(collector);
+                      //       }).catch(_handleError);
+                      // } else {
+                      _processIntersection();
+                      // }
                     } else {
                       filterObject.collector_id = collector.id;
 

@@ -1,8 +1,38 @@
+<!-- DataSeries Modal -->
+<div class="modal fade" id="dataSeriesModal" tabindex="-1" role="dialog" aria-labelledby="dataSeriesModalLabel">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="dataSeriesModalLabel">{[ __('Select DataSeries') ]}</h4>
+      </div>
+      <div class="modal-body">
+
+        <treecontrol class="tree-light"
+           tree-model="dataSeriesGroups"
+           options="treeOptions"
+           selected-nodes="nodesDataSeries">
+           {{node.name}}
+        </treecontrol>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="addDataSeries()">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row">
   <div class="col-dm-12">
     <div class="col-md-12">
       <form name="forms.intersectionForm" novalidate>
         <div class="col-md-12">
+          <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
+            <i class="fa fa-plus"></i>
+          </button>
+
           <table class="table table-bordered table-hover terrama2-table">
             <tbody class="terrama2-table-tbody">
               <th>{{ i18n.__('Name') }}</th>
@@ -10,12 +40,12 @@
               <th></th>
 
               <tr class="terrama2-table-tr"
-                  ng-repeat="ds in intersectionDataSeriesList"
-                  ng-click="onIntersectionDataSeriesClick(ds)"
+                  ng-repeat="(dsId, inter) in intersection"
+                  ng-click="onIntersectionDataSeriesClick(inter.data_series)"
                   style="cursor:pointer;"
                   ng-class="{'active': selectedIntersection && selectedIntersection.id === ds.id}">
-                <td>{{ ds.name }}</td>
-                <td>{{ ds.data_series_semantics.name }}</td>
+                <td>{{ inter.data_series.name }}</td>
+                <td>{{ inter.data_series.data_series_semantics.name }}</td>
                 <td class="pull-cell-left">
                   <button type="button"
                           class="btn btn-danger btn-sm"
@@ -23,13 +53,13 @@
                           data-placement="top"
                           title='{{ i18n.__("Remove") }}'
                           name="button"
-                          data-ng-click="removeDataSeries(ds, $index);">
+                          data-ng-click="removeDataSeries(dsId, $index);">
                         {{ i18n.__("Remove") }}
                   </button>
                 </td>
               </tr>
 
-              <tr class="terrama2-table-tr" ng-show="intersectionDataSeriesList.length === 0">
+              <tr class="terrama2-table-tr" ng-show="isIntersectionEmpty()">
                 <td colspan="3">
                   {{ i18n.__("No intersection data series selected"); }}
                 </td>
