@@ -453,7 +453,7 @@ angular.module('terrama2.dataseries.registration', [
           $scope.intersection[ds.id] = $scope.intersection[ds.id] || {
             data_series: ds,
             attributes: [],
-            selected: false
+            selected: true
           };
 
           if (ds.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
@@ -523,6 +523,8 @@ angular.module('terrama2.dataseries.registration', [
           intersection.attributes = [];
           intersection.selected = false;
         }
+
+        $scope.forms.intersectionForm.$setPristine();
       };
 
       $scope.isIntersectionEmpty = function() {
@@ -1037,11 +1039,16 @@ angular.module('terrama2.dataseries.registration', [
 
               // checking GRID. Grid does not need attribute
               if (dsIntersection.data_series_semantics.data_series_type_name !== globals.enums.DataSeriesType.GRID) {
-                if ($scope.intersection[k].attributes.length == 0) {
-                  if ($scope.forms.intersectionForm.$invalid) {
-                    FormHelper($scope.forms.intersectionForm);
-                    return;
-                  }
+                if ($scope.intersection[k].attributes.length === 0) {
+                  $scope.alertBox.message = "Invalid intersection. Static data series must have at least a attribute.";
+                  $scope.alertLevel = "alert-danger";
+                  $scope.display = true;
+                  return;
+
+                  // if ($scope.forms.intersectionForm.$invalid) {
+                  //   FormHelper($scope.forms.intersectionForm);
+                  //   return;
+                  // }
                 }
               }
             }

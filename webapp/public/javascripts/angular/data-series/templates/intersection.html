@@ -4,7 +4,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="dataSeriesModalLabel">{[ __('Select DataSeries') ]}</h4>
+        <h4 class="modal-title" id="dataSeriesModalLabel">{{ i18n.__('Select DataSeries') }}</h4>
       </div>
       <div class="modal-body">
 
@@ -68,7 +68,7 @@
           </table>
         </div>
 
-        <div class="col-md-12" ng-show="selectedIntersection && !selectedIntersection.isGrid">
+        <div class="col-md-12">
           <div class="col-md-12 terrama2-nopadding-box">
             <div class="box box-default box-solid">
               <div class="box-header with-border">
@@ -83,7 +83,7 @@
                            class="form-control"
                            name="attribute"
                            ng-model="attribute"
-                           ng-disabled="!selectedIntersection"
+                           ng-disabled="!selectedIntersection || selectedIntersection.isGrid"
                            ng-required="selectedIntersection">
 
                     <label class="help-block text-danger"
@@ -104,7 +104,7 @@
                       <button class="btn btn-default pull-right"
                               style="margin-top: 24px;"
                               ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attribute); attribute='';"
-                              ng-disabled="!selectedIntersection">
+                              ng-disabled="!selectedIntersection || selectedIntersection.isGrid">
                         <i class="fa fa-plus"></i>
                       </button>
                     </div>
