@@ -103,7 +103,7 @@ void TsFactory::TestMakeParser()
 
       QFAIL(NO_EXCEPTION_THROWN);
     }
-    catch(terrama2::collector::ConflictingParserTypeSchemeException& e)
+    catch(const terrama2::collector::ConflictingParserTypeSchemeException& e)
     {
 
     }
@@ -129,7 +129,7 @@ void TsFactory::TestMakeStorager()
 
       QFAIL(NO_EXCEPTION_THROWN);
     }
-    catch(terrama2::collector::UnableToCreateStoragerException& e)
+    catch(const terrama2::collector::UnableToCreateStoragerException& e)
     {
 
     }

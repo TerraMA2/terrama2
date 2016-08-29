@@ -30,6 +30,7 @@
 #include "DataStoragerTiff.hpp"
 #include "../core/utility/TimeUtils.hpp"
 #include "../core/utility/Utils.hpp"
+#include "../core/utility/Verify.hpp"
 #include "../core/data-model/DataProvider.hpp"
 
 //terralib
@@ -99,9 +100,14 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   {
     auto dateTime = std::dynamic_pointer_cast<te::dt::TimeInstant>(timestamp);
     //invalid date type
-    if(dateTime->getTimeInstant().is_not_a_date_time())
+    try
+    {
+      verify::date(dateTime);
+    }
+    catch (const VerifyException&)
+    {
       return mask;
-
+    }
 
     auto date = dateTime->getDate();
     year = date.getYear();
@@ -116,10 +122,14 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   else if(timestamp->getDateTimeType() == te::dt::TIME_INSTANT_TZ)
   {
     auto dateTime = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(timestamp);
-    auto boostLocalTime = dateTime->getTimeInstantTZ();
-    //invalid date type
-    if(boostLocalTime.is_not_a_date_time())
+    try
+    {
+      verify::date(dateTime);
+    }
+    catch (const VerifyException&)
+    {
       return mask;
+    }
 
     std::string timezone;
     try
@@ -133,6 +143,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
       timezone = "UTC+00";
     }
 
+    auto boostLocalTime = dateTime->getTimeInstantTZ();
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     auto localTime = boostLocalTime.local_time_in(zone);
     auto date = localTime.date();

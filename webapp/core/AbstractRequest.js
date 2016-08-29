@@ -1,3 +1,5 @@
+'use strict';
+
 var UriBuilder = require("./UriBuilder");
 var Enums = require("./Enums");
 var UriPattern = Enums.Uri;
@@ -18,7 +20,7 @@ var AbstractRequest = function(params) {
     var splitHost = (params[this.syntax().HOST] || "").split("://");
     if (splitHost.length > 1)
       params[this.syntax().HOST] = splitHost[1];
-    
+
     this.params = params;
     this.uri = UriBuilder.buildUri(params, this.syntax());
   }

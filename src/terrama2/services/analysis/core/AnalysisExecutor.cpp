@@ -151,10 +151,6 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       QString errMsg = QObject::tr("Analysis %1 finished successfully.").arg(analysis->id);
       TERRAMA2_LOG_INFO() << errMsg;
     }
-
-
-    // Clears context
-    ContextManager::getInstance().clearContext(analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {
@@ -169,6 +165,9 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
     QString errMsg = QObject::tr("An unknown exception occurred.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
   }
+
+  // Clears context
+  ContextManager::getInstance().clearContext(analysisHashCode);
 }
 
 void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
@@ -409,10 +408,12 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt);
   uk->add(geomIdProp);
   uk->add(dateProp);
+  dt->add(uk);
 
   //create index on date column
   te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt);
   indexDate->add(dateProp);
+  dt->add(indexDate);
 
   for(std::string attribute : attributes)
   {
@@ -451,7 +452,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   {
     storager->store(series, dataset);
   }
-  catch(terrama2::Exception /*e*/)
+  catch(const terrama2::Exception /*e*/)
   {
     QString errMsg = QObject::tr("Could not store the result of the analysis.");
     throw Exception() << ErrorDescription(errMsg);
@@ -559,11 +560,6 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
-  catch(const std::exception& e)
-  {
-    context->addError(e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
-  }
   catch(const boost::python::error_already_set&)
   {
     std::string errMsg = terrama2::services::analysis::core::python::extractException();
@@ -573,6 +569,11 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   catch(const boost::exception& e)
   {
     context->addError(boost::diagnostic_information(e));
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
   catch(...)
@@ -666,6 +667,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::servi
   te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
   std::size_t rpos = te::da::GetFirstPropertyPos(ds.get(), te::dt::RASTER_TYPE);
 
+  //REVIEW: should clone be used? why not the self raster?
   dsItem->setRaster(rpos, dynamic_cast<te::rst::Raster*>(raster->clone()));
   ds->add(dsItem);
 
@@ -680,7 +682,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::servi
     terrama2::core::DataStoragerTiff storager(dataProvider);
     storager.store(series, dataset);
   }
-  catch(terrama2::Exception /*e*/)
+  catch(const terrama2::Exception& /*e*/)
   {
     QString errMsg = QObject::tr("Could not store the result of the analysis.");
     throw Exception() << ErrorDescription(errMsg);

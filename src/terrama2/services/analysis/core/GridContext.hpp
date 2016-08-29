@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_CONTEXT_HPP__
-#define __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_CONTEXT_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_CONTEXT_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_CONTEXT_HPP__
 
 #include "Analysis.hpp"
 #include "BaseContext.hpp"
@@ -91,7 +91,6 @@ namespace terrama2
             std::map<std::string, std::string> getOutputRasterInfo();
             void addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
             void addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
-            virtual std::shared_ptr<te::rst::Raster> resampleRaster(std::shared_ptr<te::rst::Raster> raster);
 
             std::shared_ptr<te::rst::Raster> outputRaster_;
             std::map<std::string, std::string> outputRasterInfo_;
@@ -101,4 +100,4 @@ namespace terrama2
   }
 }
 
-#endif //__TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_CONTEXT_HPP__
+#endif //__TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_CONTEXT_HPP__

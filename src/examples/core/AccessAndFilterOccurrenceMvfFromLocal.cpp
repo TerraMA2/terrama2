@@ -12,9 +12,6 @@
 
 #include <iostream>
 
-//TerraLib
-#include <terralib/geometry/WKTReader.h>
-
 int main(int argc, char* argv[])
 {
   terrama2::core::initializeTerraMA();

@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module("terrama2.schedule", ['terrama2'])
   .directive("terrama2Schedule", function() {
     return {
@@ -23,10 +25,11 @@ angular.module("terrama2.schedule", ['terrama2'])
         ];
 
         $scope.tryParseInt = function(value) {
-          if (isNaN(value))
+          if (isNaN(value)) {
             return value;
+          }
           return parseInt(value);
-        }
+        };
 
         $scope.$on("updateSchedule", function(event, scheduleObject) {
           if (scheduleObject.schedule_unit) {
@@ -55,11 +58,13 @@ angular.module("terrama2.schedule", ['terrama2'])
           }else if (scheduleObject.frequency_unit) {
             $scope.model.frequency = scheduleObject.frequency;
             $scope.model.frequency_unit = scheduleObject.frequency_unit;
-            $scope.model.frequency_start_time = new moment(scheduleObject.frequency_start_time);
+            if (scheduleObject.frequency_start_time) {
+              $scope.model.frequency_start_time = new moment(scheduleObject.frequency_start_time);
+            }
             $scope.model.scheduleHandler = scheduleObject.frequency_unit;
           }
 
-          $scope.onScheduleChange($scope.model.scheduleHandler)
+          $scope.onScheduleChange($scope.model.scheduleHandler);
         });
 
         $scope.onScheduleChange = function(value) {
@@ -113,5 +118,5 @@ angular.module("terrama2.schedule", ['terrama2'])
           }
         };
       }]
-    }
+    };
   });

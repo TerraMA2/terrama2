@@ -134,7 +134,7 @@ void terrama2::services::view::core::DataManager::addJSon(const QJsonObject& obj
         add(dataPtr);
     }
   }
-  catch(terrama2::Exception& /*e*/)
+  catch(const terrama2::Exception& /*e*/)
   {
     // loggend on throw...
   }
@@ -166,7 +166,7 @@ void terrama2::services::view::core::DataManager::removeJSon(const QJsonObject& 
 
     terrama2::core::DataManager::DataManager::removeJSon(obj);
   }
-  catch(terrama2::Exception& /*e*/)
+  catch(const terrama2::Exception& /*e*/)
   {
     // loggend on throw...
   }

@@ -52,8 +52,12 @@ function _processFilter(filterObject) {
   var filterValues = Object.assign({}, filterObject);
   // checking filter by date
   if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
-    if (filterObject.date.beforeDate) { filterValues.discard_before = new Date(filterObject.date.beforeDate); }
-    if (filterObject.date.afterDate) { filterValues.discard_after = new Date(filterObject.date.afterDate); }
+    if (filterObject.date.beforeDate) {
+      filterValues.discard_before = new Date(filterObject.date.beforeDate);
+    }
+    if (filterObject.date.afterDate) {
+      filterValues.discard_after = new Date(filterObject.date.afterDate);
+    }
   }
 
   return filterValues;
@@ -1763,6 +1767,7 @@ var DataManager = {
           }).catch(function(err) {
             // rollback data series
             console.log("rollback data series in out");
+            console.log(err);
             Utils.rollbackPromises([
               self.removeDataSerie(dataSeriesResultOutput),
               self.removeDataSerie(dataSeriesResult)
@@ -1825,7 +1830,7 @@ var DataManager = {
           return resolve(new DataModel.Schedule(schedule.get()));
         }
         reject(new exceptions.ScheduleError("Could not find schedule"));
-      })
+      });
     });
   },
 
