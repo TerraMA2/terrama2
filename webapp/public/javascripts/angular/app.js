@@ -30,6 +30,30 @@ terrama2Application.factory("TryCaster", function() {
   }
 });
 
+/**
+ * It parses a terrama2 date to a moment date object.
+ * It requires "moment" library
+ * @param {string} stringDate - A javascript string with date format
+ * @return {Moment} a moment date object
+ */
+terrama2Application.factory("DateParser", function() {
+  return function(stringDate) {
+    var minus = stringDate.lastIndexOf('-');
+    var plus = stringDate.lastIndexOf('+');
+    var timezone = null;
+    var momentDate = null;
+    // if (minus > -1) {
+    //   timezone = stringDate.substring(minus+1, minus+3);
+    //   momentDate = moment(stringDate.substring(0, minus)).utc(- parseInt(timezone) * 2);
+    // } else {
+    //   timezone = stringDate.substring(plus+1, plus+3);
+    //   momentDate = moment(stringDate.substring(0, plus)).utc(- parseInt(timezone) * 2);
+    // }
+    // return momentDate;
+    return moment.parseZone(stringDate);
+  };
+});
+
 terrama2Application.factory("MakeMetadata", function() {
   return function(metadataArray) {
     var output = {};
