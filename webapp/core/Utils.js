@@ -489,6 +489,16 @@ var Utils = {
   },
 
   /**
+   * It checks if a argument is a function
+   *
+   * @param {?} arg - A value
+   * @return {Boolean} A boolean result
+   */
+  isFunction: function(arg) {
+    return typeof arg === "function";
+  },
+
+  /**
    * It checks if a argument is instance of javascript string
    *
    * @param {?} arg - A value

@@ -1,8 +1,18 @@
+'use strict';
+
+// dependencies
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var Filter = require('./Filter');
 var Intersection = require('./Intersection');
+var isFunction = require("./../Utils").isFunction;
 
+/**
+ * A TerraMA² Collector representation
+ * 
+ * @constructor
+ * @inherits AbstractData
+ */
 var Collector = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Collector'});
   this.id = params.id;
@@ -13,32 +23,41 @@ var Collector = module.exports = function(params) {
 
   this.dataSeriesOutput = params.dataSeriesOutput || {};
 
-  if (params.CollectorInputOutputs)
+  if (params.CollectorInputOutputs) {
     this.setInputOutputMap(params.CollectorInputOutputs);
-  else
+  } else {
     this.input_output_map = params.input_output_map || [];
+  }
 
-  if (params.Schedule)
+  if (params.Schedule) {
     this.schedule = new Schedule(params.Schedule.get() || {});
-  else
+  } else {
     this.schedule = params.schedule || {};
+  }
 
-  if (params.Filter)
+  if (params.Filter) {
     this.filter = new Filter(params.Filter.get() || {});
-  else
+  } else {
     this.filter = params.filter || {};
+  }
 
-  if (params.Intersections)
+  if (params.Intersections) {
     this.setIntersection(params.Intersections);
-  else
+  } else {
     this.intersection = params.intersection || [];
+  }
 
   this.active = params.active;
 };
 
+// javascript inherits model
 Collector.prototype = Object.create(BaseClass.prototype);
 Collector.prototype.constructor = Collector;
 
+/**
+ * It prepares intersection to TerraMA² standard. 
+ * @param {Array|Intersection} intersection - The intersection values. It may be either from orm style or Intersection class.
+ */
 Collector.prototype.setIntersection = function (intersection) {
   if (intersection instanceof Array) {
     var output = [];
@@ -53,15 +72,18 @@ Collector.prototype.setIntersection = function (intersection) {
     this.intersection = intersection || [];
 };
 
+/**
+ * It prepares Collector Input Output maps to send via TCP
+ * @param {Array} inputOutputModel - A input output values
+ */
 Collector.prototype.setInputOutputMap = function (inputOutputModel) {
   var output = [];
   inputOutputModel.forEach(function(element) {
-    // TODO: fix it
-    if (typeof element.get === "function") {
+    if (isFunction(element.get)) {
       output.push({input: element.input_dataset, output: element.output_dataset});
-    }
-    else
+    } else {
       output.push(element);
+    }
   })
   this.input_output_map = output;
 };
@@ -99,8 +121,9 @@ Collector.prototype.toObject = function() {
       intersectionOutput.attribute_map[intersectionInstance.dataseries_id].push(intersectionInstance.attribute);
   });
 
-  if (Object.keys(intersectionOutput).length > 0)
+  if (Object.keys(intersectionOutput).length > 0) {
     intersectionOutput.class = "Intersection";
+  }
 
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,

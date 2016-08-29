@@ -1,3 +1,6 @@
+'use strict';
+
+// dependencies
 var DataSetError = require('./../Exceptions').DataSetError;
 var DataSetDcp = require('./DataSetDcp');
 var DataSetOccurrence = require('./DataSetOccurrence');
@@ -6,6 +9,11 @@ var DataSetMonitored = require('./DataSetMonitored');
 var DataSet = require("./DataSet");
 
 
+/**
+ * It builds a DataSet from given parameters
+ * @param {Object} params - A javascript object with values to build
+ * @return {DataSet} A data set object
+ */
 function build(params) {
   // checking if there a position key for DCP
   if (params.hasOwnProperty("position")) {

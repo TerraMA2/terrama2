@@ -1,6 +1,11 @@
+'use strict';
+
+// base class
 var DataSet = require('./DataSet');
 
-
+/**
+ * It defines a DataSetMonitored model representation.
+ */
 function DataSetMonitored(params) {
   DataSet.call(this, params);
   this.geometry_column = params.geometry_column;
@@ -9,10 +14,14 @@ function DataSetMonitored(params) {
   this.srid = params.srid;
 }
 
+// javascript inherits model
 DataSetMonitored.prototype = Object.create(DataSet.prototype);
 DataSetMonitored.prototype.constructor = DataSetMonitored;
 
-
+/**
+ * It retrieves a TerraMA² real representation (database)
+ * @inherits DataSet:rawObject
+ */
 DataSetMonitored.prototype.toObject = function() {
   return Object.assign(DataSet.prototype.toObject.call(this), {
     geometry_column: this.geometry_column,
