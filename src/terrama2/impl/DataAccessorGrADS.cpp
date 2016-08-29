@@ -368,12 +368,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       std::unique_ptr<te::rst::Raster> flippedRaster(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
 
 
-      for (unsigned int band = 0; band < raster->getNumberOfBands(); ++band)
+      for (size_t band = 0; band < raster->getNumberOfBands(); ++band)
       {
-        for (int row = 0; row < raster->getNumberOfRows(); ++row)
+        for (size_t row = 0; row < raster->getNumberOfRows(); ++row)
         {
-          int flippedRow = raster->getNumberOfRows() - row -1;
-          for (int col = 0; col < raster->getNumberOfColumns(); ++col)
+          size_t flippedRow = raster->getNumberOfRows() - row -1;
+          for (size_t col = 0; col < raster->getNumberOfColumns(); ++col)
           {
             double value;
             raster->getValue(col, row, value);
