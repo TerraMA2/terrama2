@@ -438,8 +438,9 @@ var Utils = {
 
   formatDateToTimezone: function(dateValue) {
     var timeZone = dateValue.getTimezoneOffset() / 60;
+    var dateOffSetTimezone = new Date(dateValue.getTime() - (dateValue.getTimezoneOffset() * 60000));
     var timezoneIndex = dateValue.toISOString().lastIndexOf("Z");
-    var dateWithoutTimezone = dateValue.toISOString().slice(0, timezoneIndex);
+    var dateWithoutTimezone = dateOffSetTimezone.toISOString().slice(0, timezoneIndex);
 
     var tzStr;
     if (timeZone > 0) {

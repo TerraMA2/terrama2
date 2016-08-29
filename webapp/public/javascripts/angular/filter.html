@@ -19,15 +19,18 @@
             <div class='col-md-12'>
               <div class="form-group">
                 <label>{{ i18n.__('Select the filter area type') }}:</label>
-                <select class="form-control" id="filterAreaCombobox" name="filterAreaType" ng-model="filterArea" ng-change="onFilterRegion();">
-                  <option value="1">Do not filter</option>
-                  <option value="2">Filter by limits</option>
+                <select class="form-control"
+                        id="filterAreaCombobox"
+                        name="filterAreaType"
+                        ng-model="filter.filterArea"
+                        ng-change="onFilterRegion();"
+                        ng-options="v.value as v.name for (k, v) in filterTypes">
                 </select>
               </div>
             </div>
 
-            <div class="col-md-12 terrama2-nopadding-box" ng-if="filterArea == '2'">
-              <terrama2-bounded-box ng-model="filter.area" is-required="filterArea == '2'">
+            <div class="col-md-12 terrama2-nopadding-box" ng-if="filter.filterArea == filterTypes.AREA.value">
+              <terrama2-bounded-box ng-model="filter.area" is-required="filter.filterArea == filterTypes.AREA.value">
               </terrama2-bounded-box>
             </div>
           </div>

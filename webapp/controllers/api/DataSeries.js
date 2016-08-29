@@ -192,45 +192,40 @@ module.exports = function(app) {
               DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output).then(function() {
                 DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
                   var _processIntersection = function() {
+                    // temp: remove all and insert. TODO: sequelize upsert / delete
                     if (_.isEmpty(intersection)) {
                       DataManager.removeIntersection({collector_id: collector.id}).then(function() {
                         collector.setIntersection([]);
                         _continue(collector);
                       }).catch(_handleError);
                     } else {
-                      intersection.forEach(function(intersect) {
-                        intersect.collector_id = collector.id;
-                      });
+                      DataManager.removeIntersection({collector_id: collector.id}).finally(function() {
+                        intersection.forEach(function(intersect) {
+                          intersect.collector_id = collector.id;
+                        });
 
-                      DataManager.addIntersection(intersection).then(function(intersectionResult) {
-                        collector.setIntersection(intersectionResult);
-                        _continue(collector);
-                      }).catch(_handleError);
+                        DataManager.addIntersection(intersection).then(function(intersectionResult) {
+                          collector.setIntersection(intersectionResult);
+                          _continue(collector);
+                        }).catch(_handleError);
+                      });
                     }
                   };
 
                   if (collector.filter.id) {
-                    DataManager.updateFilter(collector.filter.id, filterObject).then(function() {
+                    var filterUpdate = Object.assign(collector.filter.rawObject(), filterObject);
+                    if (!filterObject.region) {
+                      filterUpdate.region = null;
+                    }
+                    DataManager.updateFilter(collector.filter.id, filterUpdate).then(function() {
                       DataManager.getFilter({id: collector.filter.id}).then(function(filter) {
                         collector.filter = filter;
                         _processIntersection();
                       });
                     }).catch(_handleError);
                   } else {
-
-                    if (_.isEmpty(filterObject.date)) {
-                      // checking to update intersection
-                      if (collector.intersection.length > 0) {
-                        // TODO: implement and call _continue(collector)
-                        DataManager.updateIntersections(
-                            collector.intersection.map(function(elm){ return elm.id; }),
-                            collector.intersection)
-                            .then(function() {
-                              _continue(collector);
-                            }).catch(_handleError);
-                      } else {
-                        _processIntersection();
-                      }
+                    if (_.isEmpty(filterObject.date) || !filterObject.region) {
+                      _processIntersection();
                     } else {
                       filterObject.collector_id = collector.id;
 

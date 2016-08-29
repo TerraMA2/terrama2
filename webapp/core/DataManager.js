@@ -52,8 +52,12 @@ function _processFilter(filterObject) {
   var filterValues = Object.assign({}, filterObject);
   // checking filter by date
   if (filterObject.hasOwnProperty('date') && !_.isEmpty(filterObject.date)) {
-    if (filterObject.date.beforeDate) { filterValues.discard_before = new Date(filterObject.date.beforeDate); }
-    if (filterObject.date.afterDate) { filterValues.discard_after = new Date(filterObject.date.afterDate); }
+    if (filterObject.date.beforeDate) {
+      filterValues.discard_before = new Date(filterObject.date.beforeDate);
+    }
+    if (filterObject.date.afterDate) {
+      filterValues.discard_after = new Date(filterObject.date.afterDate);
+    }
   }
 
   return filterValues;
