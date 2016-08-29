@@ -1360,7 +1360,7 @@ var DataManager = {
         });
       }).catch(function(err){
         console.log(err);
-        reject(new exceptions.DataSeriesError("Could not save data series " + err.message));
+        reject(new exceptions.DataSeriesError("Could not save data series due: ", err.errors || []));
       });
     });
   },
@@ -1396,10 +1396,10 @@ var DataManager = {
             reject(err);
           });
         }).catch(function(err) {
-          reject(new exceptions.DataSeriesError("Could not update data series ", err));
+          reject(new exceptions.DataSeriesError("Could not update data series ", err.errors));
         });
       } else {
-        reject(new exceptions.DataSeriesError("Data series not found. "));
+        reject(new exceptions.DataSeriesError("Data series not found. ", []));
       }
     });
   },

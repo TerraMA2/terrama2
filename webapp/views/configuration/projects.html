@@ -11,6 +11,7 @@
 {% block javascripts %}
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<!-- FileSaver JS -->
 <script type="text/javascript" src="/externals/filesaver.js">
 
 </script>
@@ -22,8 +23,9 @@
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript">
   angular.module("terrama2.projects", ['terrama2', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.services'])
-    .controller("ProjectController", function($scope, $http, Socket, FileDialog, SaveAs) {
+    .controller("ProjectController", function($scope, $http, Socket, FileDialog, SaveAs, $log) {
       $scope.model = [];
+      $log.warn("initializing");
       var socket = Socket;
       $scope.linkToAdd = "/configuration/projects/new";
       $scope.fields = [
@@ -52,7 +54,10 @@
 
       socket.on("exportResponse", function(result) {
         $scope.extra.isExporting = false;
+        $scope.display = result.err ? true : false;
         if (result.err) {
+          $scope.alertLevel = "alert-danger";
+          $scope.alertBox.message = result.err;
           console.log("Err ", result.err);
           return;
         }
@@ -75,9 +80,26 @@
         $scope.alertLevel = "alert-success";
 
         var msg = result.data.Projects.length + " projects has been imported. ";
-        result.data.Projects.forEach(function (p) {
-          $scope.model.push(p);
-        })
+        var canPush = [];
+
+        for(var i = 0; i < result.data.Projects.length; ++i) {
+          var p = result.data.Projects[i];
+          var cont = 0;
+          for(var j = 0; j < $scope.model.length; ++j) {
+            var modelProject = $scope.model[j];
+            if (p.name === modelProject.name) {
+              // skip it
+              break;
+            }
+            ++cont;
+          }
+          if (cont === $scope.model.length) {
+            // push
+            $scope.model.push(p);
+          }
+          cont = 0;
+        }
+
         $scope.alertBox.message = msg;
       });
 
@@ -118,7 +140,11 @@
             FileDialog.readAsJSON(input.files[0], function(error, json) {
               $scope.extra.isImporting = true;
               if (error) {
+                $scope.alertLevel = "alert-danger";
+                $scope.alertBox.title = "TerraMA2 File Error";
                 $scope.alertBox.message = error.toString();
+                console.log(error);
+                $scope.display = true;
                 return;
               } else {
                 $scope.display = false;

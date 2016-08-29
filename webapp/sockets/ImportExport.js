@@ -55,8 +55,12 @@ var ImportExport = function(io) {
         var projects = json.Projects || [];
         output.Projects = [];
         projects.forEach(function(project) {
-          promises.push(DataManager.addProject(project).then(function(proj) {
+          promises.push(DataManager.getProject({name: project.name}).then(function(proj) {
             output.Projects.push(Object.assign({ $id: project.$id }, proj));
+          }).catch(function(err) {
+            return DataManager.addProject(project).then(function(proj) {
+              output.Projects.push(Object.assign({ $id: project.$id }, proj));
+            });
           }));
         });
       }
@@ -72,13 +76,21 @@ var ImportExport = function(io) {
         promises = [];
 
         if (json.DataProviders) {
-          var dataProviders = json.DataProviders ||  [];
+          var dataProviders = json.DataProviders || [];
           output.DataProviders = [];
           dataProviders.forEach(function(dataProvider) {
-            dataProvider.data_provider_type_id = dataProvider.data_provider_type.id;
-            dataProvider.project_id = Utils.find(output.Projects, {$id: dataProvider.project_id}).id;
-            promises.push(DataManager.addDataProvider(dataProvider).then(function(dProvider) {
+            // check if there is a data provider with same name
+            promises.push(DataManager.getDataProvider({name: dataProvider.name}).then(function(dProvider) {
+              // found. // set ID
               output.DataProviders.push(_updateID(dataProvider, dProvider));
+            }).catch(function(err) {
+              // not found. #insert
+              console.log("DOES NOT EXISTS");
+              dataProvider.data_provider_type_id = dataProvider.data_provider_type.id;
+              dataProvider.project_id = Utils.find(output.Projects, {$id: dataProvider.project_id}).id;
+              return DataManager.addDataProvider(dataProvider).then(function(dProvider) {
+                output.DataProviders.push(_updateID(dataProvider, dProvider));
+              });
             }));
           });
         }
@@ -89,21 +101,39 @@ var ImportExport = function(io) {
             var dataSeries = json.DataSeries ||  [];
             output.DataSeries = [];
 
-            dataSeries.forEach(function(dSeries) {
-              dSeries.data_series_semantic_id = dSeries.data_series_semantics.id;
-              dSeries.data_provider_id = Utils.find(output.DataProviders, {$id: dSeries.data_provider_id}).id;
-              dSeries.dataSets.forEach(function(dSet) {
-                dSet.$id = dSet.id;
-                delete dSet.id;
+            /** 
+             * Helper for matching id with $id
+             * @param {DataSeries} dSeries - A data series from json
+             * @param {DataSeries} dSeriesResult - A data series retrieved from database
+             */
+            var _processDataSeriesAndDataSets = function(dSeries, dSeriesResult) {
+              var oldDataSets = dSeries.dataSets;
+              dSeriesResult.dataSets.forEach(function(dataSet, index) {
+                dataSet.$id = oldDataSets[index].$id;
               });
+              dSeriesResult.$id = dSeries.$id;
+              output.DataSeries.push(dSeriesResult);
+            };
 
-              promises.push(DataManager.addDataSeries(dSeries).then(function(dSeriesResult) {
-                var oldDataSets = dSeries.dataSets;
-                dSeriesResult.dataSets.forEach(function(dataSet, index) {
-                  dataSet.$id = oldDataSets[index].$id;
+            dataSeries.forEach(function(dSeries) {
+              // find or create DataSeries
+              promises.push(DataManager.getDataSeries({name: dSeries.name}).then(function(dSeriesResult) {
+                // call helper to add IDs in output.DataSeries
+                _processDataSeriesAndDataSets(dSeries, dSeriesResult);
+              }).catch(function(err) {
+                // preparing to insert in DataBase
+                dSeries.data_series_semantic_id = dSeries.data_series_semantics.id;
+                dSeries.data_provider_id = Utils.find(output.DataProviders, {$id: dSeries.data_provider_id}).id;
+                dSeries.dataSets.forEach(function(dSet) {
+                  dSet.$id = dSet.id;
+                  delete dSet.id;
                 });
-                dSeriesResult.$id = dSeries.$id;
-                output.DataSeries.push(dSeriesResult);
+
+                // return Promise
+                return DataManager.addDataSeries(dSeries).then(function(dSeriesResult) {
+                  // call helper to add IDs in output.DataSeries
+                  _processDataSeriesAndDataSets(dSeries, dSeriesResult);
+                })
               }));
             });
           }
@@ -114,20 +144,27 @@ var ImportExport = function(io) {
 
               collectors.forEach(function(collector) {
                 collector.data_series_input = Utils.find(output.DataSeries, {$id: collector.input_data_series}).id;
-                collector.data_series_output = Utils.find(output.DataSeries, {$id: collector.output_data_series}).id;
-                promises.push(DataManager.addSchedule(collector.schedule).then(function(scheduleResult) {
-                  collector.schedule_id = scheduleResult.id;
-                }));
+
+                var dsOutput = Utils.find(output.DataSeries, {$id: collector.output_data_series});
+                collector.data_series_output = dsOutput.id;
+                promises.push(DataManager.getCollector({data_series_output: dsOutput.id}).catch(function(err) {
+                  // on error, try add
+                  return DataManager.addSchedule(collector.schedule).then(function(scheduleResult) {
+                    collector.schedule_id = scheduleResult.id;
+                    return DataManager.addCollector(collector, collector.filter);
+                  });
+                })
+                );
               });
             }
 
             Promise.all(promises).then(function() {
               promises = [];
-              if (json.Collectors) {
-                json.Collectors.forEach(function(collector) {
-                  promises.push(DataManager.addCollector(collector, collector.filter));
-                });
-              }
+              // if (json.Collectors) {
+              //   json.Collectors.forEach(function(collector) {
+              //     promises.push(DataManager.addCollector(collector, collector.filter));
+              //   });
+              // }
 
               Promise.all(promises).then(function() {
                 promises = [];

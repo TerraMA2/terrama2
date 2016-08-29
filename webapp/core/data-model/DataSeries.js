@@ -91,7 +91,7 @@ DataSeries.prototype.rawObject = function() {
   var dSets = [];
   this.dataSets.forEach(function(dSet) {
     if (dSet instanceof BaseClass) {
-      dSets.push(dSet.toObject());
+      dSets.push(dSet.rawObject());
     } else {
       dSets.push(dSet);
     }
