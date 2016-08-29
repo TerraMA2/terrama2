@@ -36,6 +36,7 @@
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Utils.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-access/DataAccessorGrid.hpp"
 #include "../../../core/data-access/GridSeries.hpp"
@@ -44,6 +45,9 @@
 // QT
 #include <QString>
 #include <QObject>
+
+//STL
+#include <algorithm>
 
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -378,6 +382,11 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     }
 
 
+    auto tableNameStr = intersectionDataSeries->name;
+    terrama2::core::simplifyString(tableNameStr);
+    tableNameStr+="_band_%1";
+    auto tableName = QString::fromStdString(tableNameStr);
+
     if(!outputDt)
     {
       outputDt.reset(dynamic_cast<te::da::DataSetType*>(collectedDataSetType.get()->clone()));
@@ -387,7 +396,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       // Creates one property for each raster band
       for(size_t band = 0; band < nbands; ++band)
       {
-        te::dt::Property* property = new te::dt::SimpleProperty(intersectionDataSeries->name + "_band_" + std::to_string(band), te::dt::DOUBLE_TYPE);
+        te::dt::Property* property = new te::dt::SimpleProperty(tableName.arg(band).toStdString() , te::dt::DOUBLE_TYPE);
         outputDt->add(property);
       }
 
@@ -446,7 +455,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
         {
           double value;
           raster->getValue(col, row, value, band);
-          item->setDouble(intersectionDataSeries->name + "_band_" + std::to_string(band), value);
+          item->setDouble(tableName.arg(band).toStdString() , value);
         }
       }
 
