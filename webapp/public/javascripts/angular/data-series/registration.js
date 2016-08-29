@@ -635,13 +635,15 @@ angular.module('terrama2.dataseries.registration', [
       if ($scope.isUpdating) {
         $scope.options = {formDefaults: {readonly: true}};
         // checking input dataseries is static
-        if (inputDataSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA)
+        if (inputDataSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA ||
+            !outputDataseries || Object.keys(outputDataseries).length === 0) {
           inputName = inputDataSeries.name;
-        else
+        } else {
           inputName = inputDataSeries.name.slice(0, inputDataSeries.name.lastIndexOf('_input'));
-      }
-      else
+        }
+      } else {
         $scope.options = {};
+      }
 
       $scope.dataSeries = {
         data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
