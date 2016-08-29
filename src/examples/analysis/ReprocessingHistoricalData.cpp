@@ -26,6 +26,7 @@
 #include <QTimer>
 #include <QCoreApplication>
 #include <QUrl>
+#include "../../terrama2/services/analysis/core/AnalysisLogger.hpp"
 
 using namespace terrama2::services::analysis::core;
 
@@ -104,7 +105,7 @@ int main(int argc, char* argv[])
 
   analysis->id = 1;
   analysis->name = "Analysis";
-  analysis->active = false;
+  analysis->active = true;
 
   std::string script = "moBuffer = Buffer()\n"
           "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
@@ -206,8 +207,8 @@ int main(int argc, char* argv[])
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis->schedule.frequency = 30;
-  analysis->schedule.frequencyUnit = "sec";
+  analysis->schedule.frequency = 6;
+  analysis->schedule.frequencyUnit = "h";
 
   auto reprocessingHistoricalData = new ReprocessingHistoricalData();
   ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);
@@ -215,15 +216,15 @@ int main(int argc, char* argv[])
 
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
 
-  std::string dateTime = "2016-01-01 08:00:00";
-  boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
-  boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
-  reprocessingHistoricalData->startDate = std::make_shared<te::dt::TimeInstantTZ>(date);
+  std::string startDate = "2016-01-01 08:00:00";
+  boost::posix_time::ptime startBoostDate(boost::posix_time::time_from_string(startDate));
+  boost::local_time::local_date_time lstartDate(startBoostDate.date(), startBoostDate.time_of_day(), zone, true);
+  reprocessingHistoricalData->startDate = std::make_shared<te::dt::TimeInstantTZ>(lstartDate);
 
-  std::string dateTime = "2016-02-01 08:00:00";
-  boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
-  boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
-  reprocessingHistoricalData->endDate = std::make_shared<te::dt::TimeInstantTZ>(date);
+  std::string endDate = "2016-01-02 08:00:00";
+  boost::posix_time::ptime endBoostDate(boost::posix_time::time_from_string(endDate));
+  boost::local_time::local_date_time lendDate(endBoostDate.date(), endBoostDate.time_of_day(), zone, true);
+  reprocessingHistoricalData->endDate = std::make_shared<te::dt::TimeInstantTZ>(lendDate);
 
   analysis->reprocessingHistoricalData = reprocessingHistoricalDataPtr;
 

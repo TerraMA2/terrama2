@@ -217,6 +217,8 @@ double terrama2::core::TimeUtils::convertTimeString(const std::string& time, std
 
 double terrama2::core::TimeUtils::frequencySeconds(const Schedule& dataSchedule)
 {
+  if(dataSchedule.frequencyUnit.empty())
+    return 0.;
   te::common::UnitOfMeasurePtr uom = te::common::UnitsOfMeasureManager::getInstance().find(dataSchedule.frequencyUnit);
 
   if(!uom)
@@ -233,6 +235,9 @@ double terrama2::core::TimeUtils::frequencySeconds(const Schedule& dataSchedule)
 
 double terrama2::core::TimeUtils::scheduleSeconds(const Schedule& dataSchedule, std::shared_ptr < te::dt::TimeInstantTZ > baseTime)
 {
+  if(dataSchedule.scheduleUnit.empty())
+    return 0.;
+
   te::common::UnitOfMeasurePtr uom = te::common::UnitsOfMeasureManager::getInstance().find(dataSchedule.scheduleUnit);
 
   if(!uom)

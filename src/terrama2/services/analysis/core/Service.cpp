@@ -86,18 +86,20 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 
     if(analysis->active)
     {
-      std::lock_guard<std::mutex> lock(mutex_);
 
+      if(!analysis->reprocessingHistoricalData)
+      {
+        std::lock_guard<std::mutex> lock(mutex_);
 
-      auto lastProcess = logger_->getLastProcessTimestamp(analysis->id);
-      terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
-      timers_.emplace(analysisId, timer);
+        auto lastProcess = logger_->getLastProcessTimestamp(analysis->id);
+        terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
+        timers_.emplace(analysisId, timer);
+
+      }
 
       //TODO: Should use the timer and pass the right time of execution
       // add to queue to run now
       addToQueue(analysisId);
-
-
     }
 
   }
@@ -212,10 +214,39 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
     if(analysis->reprocessingHistoricalData)
     {
-      double secondsToStart = terrama2::core::TimeUtils::calculateSecondsToStart(analysis->schedule);
-      while(secondsToStart > 0.)
+      auto reprocessingHistoricalData = analysis->reprocessingHistoricalData;
+
+      auto executionDate = reprocessingHistoricalData->startDate;
+      boost::local_time::local_date_time endDate = terrama2::core::TimeUtils::nowBoostLocal();
+
+      if(analysis->reprocessingHistoricalData->endDate)
+        endDate = analysis->reprocessingHistoricalData->endDate->getTimeInstantTZ();
+
+      boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
+
+      double frequencySeconds = terrama2::core::TimeUtils::frequencySeconds(analysis->schedule);
+      double scheduleSeconds = terrama2::core::TimeUtils::scheduleSeconds(analysis->schedule);
+
+      std::cout << "End date: " << endDate.to_string() << std::endl;
+
+      while(titz <= endDate)
       {
 
+        std::cout << "Execution date: " << titz.to_string() << std::endl;
+        analysisQueue_.push_back(std::make_pair(analysisId, executionDate));
+
+        //wake loop thread
+        mainLoopCondition_.notify_one();
+
+        if(frequencySeconds > 0.)
+        {
+          titz += boost::posix_time::seconds(frequencySeconds);
+        }
+        else if(scheduleSeconds > 0.)
+        {
+          titz += boost::posix_time::seconds(scheduleSeconds);
+        }
+        executionDate.reset(new te::dt::TimeInstantTZ(titz));
       }
     }
     else
@@ -228,6 +259,10 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
       mainLoopCondition_.notify_one();
     }
 
+  }
+  catch(const terrama2::Exception& e)
+  {
+    //logged on throw
   }
   catch(std::exception& e)
   {
