@@ -1281,7 +1281,7 @@ angular.module('terrama2.dataseries.registration', [
           if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = "A GRADS Data Series must have a Store";
+            $scope.alertBox.message = i18n.__("Unconfigured GraDs Data Series storage");
             $scope.display = true;
             return;
           }
