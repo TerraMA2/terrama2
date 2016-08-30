@@ -62,9 +62,11 @@
           return;
         }
 
-        var blob = new Blob([JSON.stringify(result.data, null, 2)], {type: "application/json;charset=utf-8"});
-        // TODO: add FileSaver in externals
-        saveAs(blob, result.data.Projects[0].name + ".terrama2");
+        SaveAs(result.data, result.data.Projects[0].name + ".terrama2");
+
+        // var blob = new Blob([JSON.stringify(result.data, null, 2)], {type: "application/json;charset=utf-8"});
+        // // TODO: add FileSaver in externals
+        // saveAs(blob, result.data.Projects[0].name + ".terrama2");
       });
 
       socket.on("importResponse", function(result) {

@@ -2467,7 +2467,20 @@ var DataManager = {
           },
           {
             model: models.db.AnalysisOutputGrid,
-            attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
+            attributes: [
+              'interpolation_dummy',
+              'resolution_x',
+              'resolution_y',
+              'srid',
+              'analysis_id',
+              'area_of_interest_type',
+              'resolution_type',
+              'interpolation_method',
+              'resolution_data_series_id',
+              'area_of_interest_data_series_id',
+              [orm.fn('ST_AsGeoJSON', orm.col('area_of_interest_box'), 0, 2), 'area_of_interest_box'],
+              [orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box'] // extra field
+            ],
             required: false
           },
           models.db.AnalysisMetadata,

@@ -263,17 +263,25 @@ angular.module("terrama2.services", ['terrama2'])
     return dialogs;
   }])
 
+  /**
+   * It saves a javascript object as JSON file.
+   * 
+   * @throws {Error} When data is an invalid JSON
+   * @param {Object} data - A javascript object to be saved
+   * @param {string} fileName - A file name output
+   */
   .factory("SaveAs", function() {
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
     return function (data, fileName) {
-      var json = JSON.stringify(data),
-          blob = new Blob([json], {type: "octet/stream"}),
-          url = window.URL.createObjectURL(blob);
-      a.href = url;
-      a.download = fileName;
+      var json = JSON.stringify(data, null, 2);
+
+      var blob = new Blob([json], {type: "application/json"});
+      var url  = URL.createObjectURL(blob);
+
+      a.download    = fileName;
+      a.href        = url;
       a.click();
-      window.URL.revokeObjectURL(url);
     };
   });
