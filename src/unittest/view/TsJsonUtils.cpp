@@ -175,6 +175,91 @@ te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType)
   return style;
 }
 
+void TsJsonUtils::testToJSon()
+{
+  try
+  {
+    terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
+    terrama2::services::view::core::ViewPtr viewPtr(view);
+
+    view->id = 1;
+    view->projectId = 1;
+    view->serviceInstanceId = 1;
+    view->active = true;
+    view->imageName = "ImageName";
+    view->imageType = te::map::ImageType(2);
+    view->imageResolutionWidth = 800;
+    view->imageResolutionHeight = 600;
+    view->srid = 4326;
+
+    terrama2::core::Schedule schedule;
+    schedule.id = 1;
+    schedule.frequency = 2;
+    schedule.frequencyUnit = "min";
+
+    view->schedule = schedule;
+
+    terrama2::core::Filter filter;
+    filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:39:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
+    filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:45:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
+
+    view->filtersPerDataSeries.emplace(1, filter);
+    view->filtersPerDataSeries.emplace(2, filter);
+    view->filtersPerDataSeries.emplace(3, filter);
+    view->filtersPerDataSeries.emplace(4, filter);
+
+    view->dataSeriesList.push_back(1);
+    view->dataSeriesList.push_back(2);
+    view->dataSeriesList.push_back(3);
+    view->dataSeriesList.push_back(4);
+
+    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
+
+    std::vector< int > values{0,1,2,3,4};
+
+    te::map::Grouping* group = new te::map::Grouping("RESULT", te::map::GroupingType::EQUAL_STEPS);
+    std::vector< te::map::GroupingItem *> legend;
+
+    te::map::GroupingByEqualSteps(values.begin(), values.end(), values.size(), legend, 0);
+    std::vector <std::string> colorVec {"#f08080" , "#174a63", "#ffa700", "#ff0066", "#9500d8"};
+    int i = 0;
+    for(auto& it : legend)
+    {
+      std::vector<te::se::Symbolizer*> symbVec;
+
+      te::se::Symbolizer* s = te::se::CreateSymbolizer(te::gm::PolygonType, colorVec.at(i++));
+
+      symbVec.push_back(s);
+
+      it->setSymbolizers(symbVec);
+    }
+
+    group->setGroupingItems(legend);
+
+    view->legendPerDataSeries.emplace(1, std::unique_ptr< te::map::Grouping >(group));
+
+    QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
+
+  }
+  catch(const terrama2::Exception& e)
+  {
+    QString message(*boost::get_error_info<terrama2::ErrorDescription>(e));
+    QFAIL(message.toStdString().c_str());
+  }
+  catch(boost::exception& e)
+  {
+    QFAIL(boost::diagnostic_information(e).c_str());
+  }
+  catch(std::exception& e)
+  {
+    QFAIL(e.what());
+  }
+  catch(...)
+  {
+    QFAIL("Unknow exception!");
+  }
+}
+
 void TsJsonUtils::testGoNBackJSon()
 {
   try
