@@ -95,7 +95,9 @@ angular.module("terrama2.services", ['terrama2'])
   }]).
 
   factory("Socket", function($rootScope) {
-    var socket = io.connect(window.location.origin);
+    var socket = io.connect(window.location.origin, {
+      reconnect: false // it avoids to socket io reconnect automatically. 
+    });
 
     return {
       on: function(name, callback) {
@@ -173,5 +175,105 @@ angular.module("terrama2.services", ['terrama2'])
     return function() {
       var unique = new generator();
       return unique.generate();
+    };
+  })
+
+  .factory("ProjectFactory", function() {
+    var url = "/api/Project/"
+    return {
+      delete: function(projectId) {
+        $http.delete(url+projectId+"/delete", {});
+      }
+    }
+  })
+
+  .factory('FileDialog', [function(){
+    var callDialog = function(dialog, callback) {
+      dialog.addEventListener('change', function(event) {
+        var result = dialog.value;
+        // var reader = new FileReader();
+        // reader.onload = function(file) {
+        //   callback(null, )
+        //   debugger;
+        //   console.log(reader);
+        //   console.log(file);
+        // }
+
+        if (dialog.files && dialog.files.length > 0) {
+          // reader.readAsText(dialog.files[0]);
+          callback(null, dialog);
+        } else {
+          callback(new Error("No file"));
+        }
+      }, false);
+      dialog.click();
+    };
+
+    var dialogs = {};
+
+    dialogs.saveAs = function(callback, defaultFilename, acceptTypes) {
+      var dialog = document.createElement('input');
+      dialog.type = 'file';
+      dialog.nwsaveas = defaultFilename || '';
+      if (angular.isArray(acceptTypes)) {
+        dialog.accept = acceptTypes.join(',');
+      } else if (angular.isString(acceptTypes)) {
+        dialog.accept = acceptTypes;
+      }
+      callDialog(dialog, callback);
+    };
+
+    dialogs.openFile = function(callback, multiple, acceptTypes) {
+      var dialog = document.createElement('input');
+      dialog.type = 'file';
+      if (multiple === true) {
+        dialog.multiple = 'multiple';
+      }
+      if (angular.isArray(acceptTypes)) {
+        dialog.accept = acceptTypes.join(',');
+      } else if (angular.isString(acceptTypes)) {
+        dialog.accept = acceptTypes;
+      }
+      callDialog(dialog, callback);
+    };
+
+    dialogs.openDir = function(callback) {
+      var dialog = document.createElement('input');
+      dialog.type = 'file';
+      dialog.nwdirectory = 'nwdirectory';
+      callDialog(dialog, callback);
+    };
+
+    dialogs.readAsJSON = function(fileBlob, callback) {
+      if (!fileBlob) {
+        return callback(new Error("Invalid file"));
+      }
+      var reader = new FileReader();
+      reader.onload = function(file) {
+        try {
+          callback(null, JSON.parse(reader.result));
+        } catch (e) {
+          callback(new Error("Invalid file: " + e.toString()));
+        }
+      }
+
+      reader.readAsText(fileBlob);
+    }
+
+    return dialogs;
+  }])
+
+  .factory("SaveAs", function() {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    return function (data, fileName) {
+      var json = JSON.stringify(data),
+          blob = new Blob([json], {type: "octet/stream"}),
+          url = window.URL.createObjectURL(blob);
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
     };
   });

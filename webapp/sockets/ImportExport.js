@@ -66,6 +66,7 @@ var ImportExport = function(io) {
       }
 
       var _emitError = function(err) {
+        // TODO: rollback
         client.emit("importResponse", {
           status: 400,
           err: err.toString()
@@ -147,42 +148,30 @@ var ImportExport = function(io) {
 
                 var dsOutput = Utils.find(output.DataSeries, {$id: collector.output_data_series});
                 collector.data_series_output = dsOutput.id;
-                promises.push(DataManager.getCollector({data_series_output: dsOutput.id}).catch(function(err) {
-                  // on error, try add
-                  return DataManager.addSchedule(collector.schedule).then(function(scheduleResult) {
-                    collector.schedule_id = scheduleResult.id;
-                    return DataManager.addCollector(collector, collector.filter);
-                  });
-                })
+                promises.push(
+                  DataManager.getCollector({data_series_output: dsOutput.id}).catch(function(err) {
+                    // on error, try add
+                    return DataManager.addSchedule(collector.schedule).then(function(scheduleResult) {
+                      collector.schedule_id = scheduleResult.id;
+                      return DataManager.addCollector(collector, collector.filter);
+                    });
+                  })
                 );
               });
             }
 
             Promise.all(promises).then(function() {
               promises = [];
-              // if (json.Collectors) {
-              //   json.Collectors.forEach(function(collector) {
-              //     promises.push(DataManager.addCollector(collector, collector.filter));
-              //   });
-              // }
 
-              Promise.all(promises).then(function() {
-                promises = [];
-
-                if (json.Analysis) {
-                  var analysisList = json.Analysis || [];
-                  analysisList.forEach(function(analysis) {
-                    promises.push(DataManager.addSchedule(analysis.schedule).then(function(schedule) {
+              if (json.Analysis) {
+                var analysisList = json.Analysis || [];
+                analysisList.forEach(function(analysis) {
+                  DataManager.getAnalysis({name: analysis.name}).then(function() {
+                    output.Analysis.push(analysis);
+                  }).catch(function(err) {
+                    return DataManager.addSchedule(analysis.schedule).then(function(schedule) {
                       analysis.schedule_id = schedule.id;
-                    }));
-                  });
-                }
 
-                Promise.all(promises).then(function() {
-                  promises = [];
-
-                  if (json.Analysis) {
-                    json.Analysis.forEach(function(analysis) {
                       analysis.analysisDataSeries = analysis.analysis_dataseries_list;
                       for(var i = 0; i < analysis.analysisDataSeries.length; ++i) {
                         var ds = analysis.analysisDataSeries[i];
@@ -197,7 +186,7 @@ var ImportExport = function(io) {
                       }
 
                       analysis.type_id = analysis.type.id;
-                      console.log(analysis.type);
+
                       analysis.instance_id = analysis.service_instance_id;
                       analysis.project_id = Utils.find(output.Projects, {$id: analysis.project_id}).id;
                       analysis.script_language_id = analysis.script_language;
@@ -214,17 +203,17 @@ var ImportExport = function(io) {
                         analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
                       }
 
-                      promises.push(DataManager.addAnalysis(analysis));
+                      return DataManager.addAnalysis(analysis);
                     });
-                  }
+                  });
+                });
+              }
 
-                  Promise.all(promises).then(function() {
-                    client.emit("importResponse", {
-                      status: 200,
-                      data: output
-                    });
-                  }).catch(_emitError);
-                }).catch(_emitError);
+              Promise.all(promises).then(function() {
+                client.emit("importResponse", {
+                  status: 200,
+                  data: output
+                });
               }).catch(_emitError);
             }).catch(_emitError);
           }).catch(_emitError);

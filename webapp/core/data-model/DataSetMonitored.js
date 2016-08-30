@@ -19,8 +19,8 @@ DataSetMonitored.prototype = Object.create(DataSet.prototype);
 DataSetMonitored.prototype.constructor = DataSetMonitored;
 
 /**
- * It retrieves a TerraMA² real representation (database)
- * @inherits DataSet:rawObject
+ * It retrieves a TerraMA² standard representation to send via TCP
+ * @inherits DataSet:toObject
  */
 DataSetMonitored.prototype.toObject = function() {
   return Object.assign(DataSet.prototype.toObject.call(this), {
@@ -30,5 +30,13 @@ DataSetMonitored.prototype.toObject = function() {
     id_column: this.id_column
   });
 };
+
+/**
+ * It retrieves a TerraMA² real representation (database)
+ * @inherits DataSet:rawObject
+ */
+DataSetMonitored.prototype.rawObject = function() {
+  return this.toObject();
+}
 
 module.exports = DataSetMonitored;
