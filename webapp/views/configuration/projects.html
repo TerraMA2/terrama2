@@ -38,7 +38,7 @@
       };
 
       $scope.link = function(object) {
-        return "/configuration/projects/" + object.name + "/activate";
+        return "/configuration/projects/edit/" + object.name;
       };
       $scope.iconProperties = {};
 
@@ -63,10 +63,6 @@
         }
 
         SaveAs(result.data, result.data.Projects[0].name + ".terrama2");
-
-        // var blob = new Blob([JSON.stringify(result.data, null, 2)], {type: "application/json;charset=utf-8"});
-        // // TODO: add FileSaver in externals
-        // saveAs(blob, result.data.Projects[0].name + ".terrama2");
       });
 
       socket.on("importResponse", function(result) {
@@ -119,6 +115,12 @@
           $scope.alertBox.message = data.name + " removed";
         },
 
+        project: {
+          activate: function(element) {
+            return "/configuration/projects/" + element.name + "/activate"; 
+          }
+        },
+
         export: function(element) {
           if (!element) {
             console.log("no element selected");
@@ -139,7 +141,6 @@
             $scope.alertBox.message = err.toString();
             $scope.extra.isImporting = false;
           } 
-
 
           FileDialog.openFile(function(err, input) {
             if (err) {

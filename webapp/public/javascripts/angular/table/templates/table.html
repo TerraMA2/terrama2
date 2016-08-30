@@ -106,6 +106,12 @@
             <!--{{ element[field] }}-->
           </td>
 
+          <td ng-if="extra.project" class="pull-cell-left">
+            <a ng-href="{{ extra.project.activate(element) }}" class="btn btn-primary btn-sm">
+              <i class="fa fa-magic"></i> {{ i18n.__("Activate") }}
+            </button>
+          </td>
+
           <td ng-if="extra.service" class="pull-cell-left">
             <!-- loading  -->
             <span ng-if="element.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
