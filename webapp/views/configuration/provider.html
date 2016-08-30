@@ -47,7 +47,7 @@
 {% block content %}
 
 <div ng-controller="RegisterController">
-  <terrama2-box title-header="'{[ __("Data Provider Registration") ]}'" handler="serviceX">
+  <terrama2-box title="'{[ __("Data Provider Registration") ]}'" handler="serviceX">
     <terrama2-message-box error-found="errorFound" title="alertBox.title" message="alertBox.message" close="resetState()"  handler="serviceX"></terrama2-message-box>
     <div class="row">
       <form name="forms.dataProviderForm">
@@ -101,7 +101,7 @@
         </div>
       </form>
 
-      <terrama2-box title-header="'{[ __('Host') ]}'" css="css" ng-show="dataProvider.protocol && dataProvider.protocol !== ''">
+      <terrama2-box title="'{[ __('Host') ]}'" css="css" ng-show="dataProvider.protocol && dataProvider.protocol !== ''">
         <div class="row">
           <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
         </div>

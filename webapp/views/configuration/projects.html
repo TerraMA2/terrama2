@@ -131,6 +131,16 @@
         import: function() {
           $scope.alertBox.title = "Data Import";
           $scope.display = false;
+          $scope.extra.isImporting = false;
+
+          var setError = function(err) {
+            $scope.display = true;
+            $scope.alertLevel = "alert-danger";
+            $scope.alertBox.message = err.toString();
+            $scope.extra.isImporting = false;
+          } 
+
+
           FileDialog.openFile(function(err, input) {
             if (err) {
               $scope.display = true;
@@ -140,19 +150,27 @@
 
             $scope.loading = true;
             FileDialog.readAsJSON(input.files[0], function(error, json) {
-              $scope.extra.isImporting = true;
-              if (error) {
-                $scope.alertLevel = "alert-danger";
-                $scope.alertBox.title = "TerraMA2 File Error";
-                $scope.alertBox.message = error.toString();
-                console.log(error);
-                $scope.display = true;
-                return;
-              } else {
-                $scope.display = false;
-              }
-              socket.emit("import", json);
-            })
+              // applying angular scope..
+              $scope.$apply(function() {
+                $scope.extra.isImporting = true;
+                if (error) {
+                  setError(error);
+                  console.log(error);
+                  return;
+                } else {
+                  $scope.display = false;
+                }
+
+                if (!json.hasOwnProperty("Projects") || 
+                    !json.hasOwnProperty("DataSeries") || 
+                    !json.hasOwnProperty("DataProviders") ||
+                    !json.hasOwnProperty("Analysis")) {
+                  setError(new Error("Invalid configuration file"));
+                  return;
+                }
+                socket.emit("import", json);
+              });
+            });
           }, false, ".terrama2, .json, application/json");
         }
       };
@@ -174,7 +192,7 @@
 
 {% block content %}
 <div ng-controller="ProjectController">
-  <terrama2-box title-header="'{[ __('Projects') ]}'">
+  <terrama2-box title="'{[ __('Projects') ]}'">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
@@ -187,11 +205,11 @@
     </div>
     <!-- ./row -->
 
-    <terrama2-overlay>
+    <!--<terrama2-overlay>
       <div class="overlay" ng-show="loading">
         <i class="fa fa-refresh fa-spin"></i>
       </div>
-    </terrama2-overlay>
+    </terrama2-overlay>-->
   </terrama2-box>
 </div>
 

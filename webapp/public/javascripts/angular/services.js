@@ -191,19 +191,12 @@ angular.module("terrama2.services", ['terrama2'])
     var callDialog = function(dialog, callback) {
       dialog.addEventListener('change', function(event) {
         var result = dialog.value;
-        // var reader = new FileReader();
-        // reader.onload = function(file) {
-        //   callback(null, )
-        //   debugger;
-        //   console.log(reader);
-        //   console.log(file);
-        // }
 
         if (dialog.files && dialog.files.length > 0) {
           // reader.readAsText(dialog.files[0]);
-          callback(null, dialog);
+          return callback(null, dialog);
         } else {
-          callback(new Error("No file"));
+          return callback(new Error("No file"));
         }
       }, false);
       dialog.click();
@@ -234,7 +227,7 @@ angular.module("terrama2.services", ['terrama2'])
       } else if (angular.isString(acceptTypes)) {
         dialog.accept = acceptTypes;
       }
-      callDialog(dialog, callback);
+      return callDialog(dialog, callback);
     };
 
     dialogs.openDir = function(callback) {
@@ -253,7 +246,7 @@ angular.module("terrama2.services", ['terrama2'])
         try {
           callback(null, JSON.parse(reader.result));
         } catch (e) {
-          callback(new Error("Invalid file: " + e.toString()));
+          callback(new Error("Invalid configuration file: " + e.toString()));
         }
       }
 

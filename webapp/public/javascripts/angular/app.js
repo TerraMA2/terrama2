@@ -32,7 +32,7 @@ terrama2Application.config(["$provide", function($provide) {
 
       return $delegate;
     }
-  ])
+  ]);
 }]);
 
 // setting caches
@@ -54,6 +54,12 @@ terrama2Application.run(function($templateCache) {
   '</div>');
 });
 
+/**
+ * It tries to parse a value to number/int
+ * 
+ * @param {?} value - A javascript value
+ * @return {number | ?} a number value or same value if it is a number
+ */
 terrama2Application.factory("TryCaster", function() {
   return function(value) {
     if (isNaN(value))
@@ -253,13 +259,25 @@ terrama2Application.directive('terrama2ShowErrors', function() {
   };
 });
 
+/**
+ * A generic component for displays a TerraMA² boxes.
+ * 
+ * @example
+ * <terrama2-box title="'Data Provider'" css="{boxType: 'box-solid'}">
+ *   <h1>Data Provider Registration</h1>
+ * 
+ *   <fieldset>
+ *     ...
+ *   </fieldset>
+ * </terrama2-box>
+ */
 terrama2Application.directive('terrama2Box', function($parse, $templateCache) {
   return {
     restrict: 'E',
     transclude: true,
     templateUrl: 'box.html', // template cache
     scope: {
-      titleHeader: '=titleHeader',
+      titleHeader: '=title',
       helper: '=?helper',
       extra: '=?',
       css: '=?'
@@ -380,6 +398,19 @@ terrama2Application.directive('terrama2Datetime', function($timeout) {
   };
 });
 
+/**
+ * Directive for handling Server errors and display them into input
+ * 
+ * @example
+ * // HTML
+ * <form name="providerForm">
+ *   <input type="text" name="name" ng-model="provider.name" terrama2-server-errors="serverErrorsVar">
+ * </form> 
+ * 
+ * // JS
+ * ... // validation
+ * $scope.serverErrorsVar = {"name": "Name is already taken"}
+ */
 terrama2Application.directive("terrama2ServerErrors", function($parse) {
   return {
     restrict: "A",
@@ -402,15 +433,6 @@ terrama2Application.directive("terrama2ServerErrors", function($parse) {
         }
         return;
       });
-
-      // scope.errors = errors;
-
-      // ngModel.$parsers.unshift(function($viewValue) {
-      //   console.log("Errors - ", scope.errors);
-      //   var errors = scope.errors || {};
-      //
-      //   ngModel.$setValidity("terrama2Error", Object.keys(errors).length === 0);
-      // });
     }
   };
 });
