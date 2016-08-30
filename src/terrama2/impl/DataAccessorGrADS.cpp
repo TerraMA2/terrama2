@@ -279,16 +279,17 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     {
       std::string name = dataFileInfo.fileName().toStdString();
       std::string baseName = dataFileInfo.baseName().toStdString();
+      std::string extension = dataFileInfo.suffix().toStdString();
 
       // Verify if the file name matches the datasetMask
       if (!isValidDataSetName(datasetMask, filter, timezone, name, thisFileTimestamp))
         continue;
 
-      boost::replace_last(name, "bin", "vrt");
+      boost::replace_last(name, extension, "vrt");
 
       QString binFilename = dataFileInfo.absoluteFilePath();
       QString vrtFilename = dataFileInfo.absoluteFilePath();
-      vrtFilename.replace("bin", "vrt");
+      vrtFilename.replace(QString::fromStdString(extension), "vrt");
 
 
       writeVRTFile(gradsDescriptor, binFilename.toStdString(), vrtFilename.toStdString());
@@ -389,18 +390,11 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       dstp->add(rstp);
       std::shared_ptr<te::mem::DataSet> flippedDataset(new te::mem::DataSet(dstp));
 
-
-
       // Adds the raster to the memory dataset
       std::size_t rasterColumn = te::da::GetFirstPropertyPos(flippedDataset.get(), te::dt::RASTER_TYPE);
       te::mem::DataSetItem* item = new te::mem::DataSetItem(flippedDataset.get());
       item->setRaster(rasterColumn, flippedRaster.release());
       flippedDataset->add(item);
-
-
-
-
-
 
       addToCompleteDataSet(completeDataset, flippedDataset, thisFileTimestamp);
 
@@ -909,7 +903,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     unsigned int lineOffset = 0;
     unsigned int imageOffset = 0;
 
-    for (unsigned int bandIdx = 0; bandIdx < descriptor.zDef_->numValues_; ++bandIdx)
+    for (unsigned int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
     {
 
       // BSQ (Band sequential) interleave
