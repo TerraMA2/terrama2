@@ -121,12 +121,7 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
   const auto& oldPropertiesList = newDataSetType->getProperties();
   for(const auto & property : datasetType->getProperties())
   {
-    auto it = std::find_if(oldPropertiesList.cbegin(), oldPropertiesList.cend(), [property]
-                                                                                 (te::dt::Property* oldMember)
-                                                                                 {
-                                                                                   return property->getName() == oldMember->getName()
-                                                                                          && property->getType() == oldMember->getType();
-                                                                                 });
+    auto it = std::find_if(oldPropertiesList.cbegin(), oldPropertiesList.cend(), std::bind(&terrama2::core::DataStoragerPostGis::isPropertyEqual, this, property, std::placeholders::_1));
     if(it == oldPropertiesList.cend())
       transactorDestination->addProperty(newDataSetType->getName(), property);
   }
@@ -155,4 +150,26 @@ std::string terrama2::core::DataStoragerPostGis::getDataSetTableName(DataSetPtr 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
+}
+
+bool terrama2::core::DataStoragerPostGis::isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const
+{
+  std::string newPropertyName = newProperty->getName();
+  std::transform(newPropertyName.begin(), newPropertyName.end(), newPropertyName.begin(), ::tolower);
+
+  std::string oldPropertyName = oldMember->getName();
+  std::transform(oldPropertyName.begin(), oldPropertyName.end(), oldPropertyName.begin(), ::tolower);
+
+  bool noEqual = newPropertyName == oldPropertyName;
+  if(!noEqual)
+    return false;
+
+  if(newProperty->getType() != oldMember->getType())
+  {
+    QString errMsg = QObject::tr("Wrong column type: %1").arg(QString::fromStdString(newProperty->getName()));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataStoragerException() << ErrorDescription(errMsg);
+  }
+
+  return true;
 }

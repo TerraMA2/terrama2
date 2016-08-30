@@ -126,12 +126,12 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     return;
   }
 
+  RegisterId logId = 0;
+  if(logger.get())
+    logId = logger->start(collectorId);
+
   try
   {
-    RegisterId logId = 0;
-    if(logger.get())
-      logId = logger->start(collectorId);
-
     TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
     //////////////////////////////////////////////////////////
@@ -184,13 +184,13 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     auto inputOutputMap = collectorPtr->inputOutputMap;
     auto dataSetLst = outputDataSeries->datasetList;
-    auto dataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
-    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries->semantics.dataFormat, dataProvider);
+    auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeries->semantics.dataFormat, outputDataProvider);
     for(auto& item : dataMap)
     {
       // intersection
       if(collectorPtr->intersection)
       {
+        //FIXME: the datamanager is beeing used outside the lock
         item.second = processIntersection(dataManager, collectorPtr->intersection, item.second);
       }
 
@@ -208,22 +208,37 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch(const terrama2::Exception&)
   {
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
+    QString errMsg = tr("Collection for collector %1 finished with error(s).").arg(collectorId);
+    TERRAMA2_LOG_INFO() << errMsg;
+
+    if(logger.get())
+      logger->error(errMsg.toStdString(), logId);
   }
   catch(const boost::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
+
+    if(logger.get())
+      logger->error(errMsg.toStdString(), logId);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
+
+    if(logger.get())
+      logger->error(e.what(), logId);
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << tr("Unkown error.");
+    QString errMsg = tr("Unkown error.");
+    TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
+
+    if(logger.get())
+      logger->error(errMsg.toStdString(), logId);
   }
 }
 
