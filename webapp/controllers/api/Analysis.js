@@ -29,7 +29,9 @@ module.exports = function(app) {
 
       AnalysisFacade.save(analysisObject, storager, scheduleObject, app.locals.activeProject.id)
         .then(function(analysisResult) {
-          response.json({status: 200, result: analysisResult.toObject(), token: token});
+          var token = Utils.generateToken(app, TokenCode.SAVE, analysisResult.name);
+
+          return response.json({status: 200, result: analysisResult.toObject(), token: token});
         }).catch(function(err) {
           console.log(err);
           Utils.handleRequestError(response, err, 400);
