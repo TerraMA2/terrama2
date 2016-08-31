@@ -865,8 +865,8 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     if ((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
     {
       vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
-              << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] - descriptor.yDef_->numValues_ * descriptor.yDef_->values_[1] << ",0,"
-              << (descriptor.yDef_->values_[1])
+              << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] << ",0,"
+              << descriptor.yDef_->values_[1]
               << "</GeoTransform>";
     }
 
