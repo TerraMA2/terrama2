@@ -3,7 +3,8 @@
 var Enums = require("./Enums");
 var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
-var cloneDeep = require("lodash").cloneDeep;
+var _ = require("lodash");
+var cloneDeep = _.cloneDeep;
 var crypto = require('crypto');
 var exceptions = require('./Exceptions');
 var Signals = require('./Signals');
@@ -519,6 +520,17 @@ var Utils = {
     } else {
       return Object.assign({}, object);
     }
+  },
+
+  /**
+   * It performs a extend object from given parameters
+   * 
+   * @param {Object} nodeA - A first node
+   * @param {Object} nodeB - A second node
+   * @return {Object} An extended object with A and B
+   */
+  extend: function(nodeA, nodeB) {
+    return _.extend(nodeA || {}, nodeB || {});
   }
 };
 

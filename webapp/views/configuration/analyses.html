@@ -27,6 +27,9 @@
   angular.module('terrama2.analyses', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
     .controller("ListController", ['$scope', '$http', 'AnalysisFactory', function($scope, $http, AnalysisFactory) {
       $scope.model = [];
+      var restriction = {
+        project_id: "{[ currentProject.id ]}"
+      }
 
       $scope.iconProperties = {
         type: "img"
@@ -81,7 +84,7 @@
         }
       };
 
-      AnalysisFactory.get().success(function(analysis) {
+      AnalysisFactory.get(restriction).success(function(analysis) {
         $scope.model = analysis;
       }).error(function(err) {
         console.log("Err in retrieving Analysis " + err);
