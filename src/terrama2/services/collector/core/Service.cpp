@@ -127,12 +127,12 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
 
   RegisterId logId = 0;
-  if(logger.get())
-    logId = logger->start(collectorId);
-
   try
   {
     TERRAMA2_LOG_DEBUG() << tr("Starting collector");
+
+    if(logger.get())
+      logId = logger->start(collectorId);
 
     //////////////////////////////////////////////////////////
     //  aquiring metadata
@@ -211,7 +211,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     QString errMsg = tr("Collection for collector %1 finished with error(s).").arg(collectorId);
     TERRAMA2_LOG_INFO() << errMsg;
 
-    if(logger.get())
+    if(logger.get() && logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
   catch(const boost::exception& e)
@@ -220,7 +220,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
-    if(logger.get())
+    if(logger.get() && logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
   catch(const std::exception& e)
@@ -228,7 +228,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
-    if(logger.get())
+    if(logger.get() && logId != 0)
       logger->error(e.what(), logId);
   }
   catch(...)
@@ -237,7 +237,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
-    if(logger.get())
+    if(logger.get() && logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
 }
