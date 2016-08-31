@@ -226,17 +226,17 @@ std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > t
       series.emplace(dataset, tempSeries);
 
 
-      // TODO: possible concurrency problems here, temp folder is the same and it's removed while others are reading #582
-      if(removeFolder)
-      {
-        QUrl url(uri.c_str());
-        QDir dir(url.path());
-        if(!dir.removeRecursively())
-        {
-          QString errMsg = QObject::tr("Data folder could not be removed.\n%1").arg(url.path());
-          TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-        }
-      }
+      // FIXME: concurrency problems here, temp folder is the same and it's removed while others are reading #582
+      // if(removeFolder)
+      // {
+      //   QUrl url(uri.c_str());
+      //   QDir dir(url.path());
+      //   if(!dir.removeRecursively())
+      //   {
+      //     QString errMsg = QObject::tr("Data folder could not be removed.\n%1").arg(url.path());
+      //     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+      //   }
+      // }
     }//for each dataset
   }
   catch(const terrama2::Exception&)

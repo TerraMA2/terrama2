@@ -71,6 +71,10 @@ void terrama2::core::CurlPtr::init()
 {
   curl_easy_cleanup(curl_);
   curl_ = curl_easy_init();
+
+  // solve curl bug
+  // http://stackoverflow.com/questions/9191668/error-longjmp-causes-uninitialized-stack-frame
+  curl_easy_setopt(curl_, CURLOPT_NOSIGNAL, 1);
 }
 
 CURL* terrama2::core::CurlPtr::fcurl() const

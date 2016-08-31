@@ -163,7 +163,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
             if (res != CURLE_OK)
             {
-              QString errMsg = QObject::tr("Could not perform the download! \n\n");
+              QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(file));
               errMsg.append(curl_easy_strerror(res));
 
               TERRAMA2_LOG_ERROR() << errMsg;
@@ -174,15 +174,19 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       }
       else
       {
-        QString errMsg = QObject::tr("Could not found files! \n\n");
+        QString errMsg = QObject::tr("No files found.");
         TERRAMA2_LOG_ERROR() << errMsg;
         throw DataRetrieverException() << ErrorDescription(errMsg);
       }
     }
   }
+  catch(const DataRetrieverException&)
+  {
+    throw;
+  }
   catch(const std::exception& e)
   {
-    QString errMsg = QObject::tr("Could not perform the download files! \n\n Details: \n");
+    QString errMsg = QObject::tr("Error during download.\n");
     errMsg.append(e.what());
 
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -190,7 +194,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   }
   catch(...)
   {
-    throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error, Could not perform the download files!"));
+    throw DataRetrieverException() << ErrorDescription(QObject::tr("Unknown Error."));
   }
 
   // returns the absolute path of the folder that contains the files that have been made the download.
