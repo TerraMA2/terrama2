@@ -166,8 +166,8 @@ module.exports = function(app) {
 
       var _continue = function(collector) {
         // output
-        DataManager.getDataSeries({id: collector.output_data_series}).then(function(dataSeriesOutput) {
-          DataManager.getDataSeries({id: collector.input_data_series}).then(function(dataSeriesInput) {
+        DataManager.getDataSeries({id: collector.data_series_output}).then(function(dataSeriesOutput) {
+          DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeriesInput) {
             collector.project_id = app.locals.activeProject.id;
             var output = {
               "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
@@ -189,48 +189,43 @@ module.exports = function(app) {
           DataManager.updateCollector(collector.id, collector).then(function() {
             // input
             DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input).then(function() {
-              DataManager.updateDataSeries(parseInt(collector.output_data_series), dataSeriesObject.output).then(function() {
+              DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output).then(function() {
                 DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
                   var _processIntersection = function() {
+                    // temp: remove all and insert. TODO: sequelize upsert / delete
                     if (_.isEmpty(intersection)) {
                       DataManager.removeIntersection({collector_id: collector.id}).then(function() {
                         collector.setIntersection([]);
                         _continue(collector);
                       }).catch(_handleError);
                     } else {
-                      intersection.forEach(function(intersect) {
-                        intersect.collector_id = collector.id;
-                      });
+                      DataManager.removeIntersection({collector_id: collector.id}).finally(function() {
+                        intersection.forEach(function(intersect) {
+                          intersect.collector_id = collector.id;
+                        });
 
-                      DataManager.addIntersection(intersection).then(function(intersectionResult) {
-                        collector.setIntersection(intersectionResult);
-                        _continue(collector);
-                      }).catch(_handleError);
+                        DataManager.addIntersection(intersection).then(function(intersectionResult) {
+                          collector.setIntersection(intersectionResult);
+                          _continue(collector);
+                        }).catch(_handleError);
+                      });
                     }
                   };
 
                   if (collector.filter.id) {
-                    DataManager.updateFilter(collector.filter.id, filterObject).then(function() {
+                    var filterUpdate = Object.assign(collector.filter.rawObject(), filterObject);
+                    if (!filterObject.region) {
+                      filterUpdate.region = null;
+                    }
+                    DataManager.updateFilter(collector.filter.id, filterUpdate).then(function() {
                       DataManager.getFilter({id: collector.filter.id}).then(function(filter) {
                         collector.filter = filter;
                         _processIntersection();
                       });
                     }).catch(_handleError);
                   } else {
-
-                    if (_.isEmpty(filterObject.date)) {
-                      // checking to update intersection
-                      if (collector.intersection.length > 0) {
-                        // TODO: implement and call _continue(collector)
-                        DataManager.updateIntersections(
-                            collector.intersection.map(function(elm){ return elm.id; }),
-                            collector.intersection)
-                            .then(function() {
-                              _continue(collector);
-                            }).catch(_handleError);
-                      } else {
-                        _processIntersection();
-                      }
+                    if (_.isEmpty(filterObject.date) || !filterObject.region) {
+                      _processIntersection();
                     } else {
                       filterObject.collector_id = collector.id;
 
@@ -263,11 +258,11 @@ module.exports = function(app) {
         DataManager.getDataSeries({id: id}).then(function(dataSeriesResult) {
           DataManager.getCollector({data_series_output: id}).then(function(collectorResult) {
             DataManager.removeDataSerie({id: id}).then(function() {
-              DataManager.removeDataSerie({id: collectorResult.input_data_series}).then(function() {
+              DataManager.removeDataSerie({id: collectorResult.data_series_input}).then(function() {
                 DataManager.removeSchedule({id: collectorResult.schedule.id}).then(function() {
                   var objectToSend = {
                     "Collectors": [collectorResult.id],
-                    "DataSeries": [collectorResult.input_data_series, collectorResult.output_data_series],
+                    "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
                     "Schedule": [collectorResult.schedule.id]
                   };
 

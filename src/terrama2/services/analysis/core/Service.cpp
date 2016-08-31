@@ -96,11 +96,11 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
     // add to queue to run now
     addToQueue(analysisId);
   }
-  catch(terrama2::core::InvalidFrequencyException&)
+  catch(const terrama2::core::InvalidFrequencyException&)
   {
     // invalid schedule, already logged
   }
-  catch(terrama2::Exception&)
+  catch(const terrama2::Exception&)
   {
 
   }
@@ -232,6 +232,8 @@ void terrama2::services::analysis::core::Service::connectDataManager()
 
 void terrama2::services::analysis::core::Service::start(size_t threadNumber)
 {
+  //FIXME: thread number fixed to 1. Concurrency problems.
+  threadNumber = 1;
   terrama2::core::Service::start(threadNumber);
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }

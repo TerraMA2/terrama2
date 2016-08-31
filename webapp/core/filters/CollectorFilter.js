@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 // BaseClass
 var Filter = require("./Filter");
@@ -35,12 +35,11 @@ CollectorFilter.prototype.match = function(collectors, extra) {
   var output = [];
 
   copyDataSeries.forEach(function(element, index) {
-    console.log(element.name);
     collectors.some(function(collector) {
       // collect
-      if (collector.output_data_series === element.id) {
+      if (collector.data_series_output === element.id) {
         return true;
-      } else if (collector.input_data_series === element.id) {
+      } else if (collector.data_series_input === element.id) {
         // removing input data series. TODO: improve this approach
         delete copyDataSeries[index];
         return true;

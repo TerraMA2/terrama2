@@ -35,13 +35,12 @@
 #include "../data-model/DataSetOccurrence.hpp"
 #include "../utility/SemanticsManager.hpp"
 #include "../utility/TimeUtils.hpp"
+#include "../utility/Utils.hpp"
 #include "../utility/Logger.hpp"
+#include "../utility/Verify.hpp"
 #include "../Exception.hpp"
 
 #include "JSonUtils.hpp"
-
-//Terralib
-#include <terralib/geometry/WKTReader.h>
 
 //Qt
 #include <QJsonDocument>
@@ -199,8 +198,8 @@ terrama2::core::DataSetPtr terrama2::core::fromDataSetDcpJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  std::string wkt = json["position"].toString().toStdString();
-  auto geom = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(wkt.c_str()));
+  std::string ewkt = json["position"].toString().toStdString();
+  auto geom = ewktToGeom(ewkt);
   auto point = std::dynamic_pointer_cast<te::gm::Point>(geom);
 
   if(!point.get())
@@ -264,21 +263,26 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
   {
     std::string dateTime = json.value("discard_before").toString().toStdString();
     filter.discardBefore = TimeUtils::stringToTimestamp(dateTime, timestampFacet);
+    verify::date(filter.discardBefore);
   }
   if(json.contains("discard_after") && !json.value("discard_after").isNull())
   {
     std::string dateTime = json["discard_after"].toString().toStdString();
     filter.discardAfter = TimeUtils::stringToTimestamp(dateTime, timestampFacet);
+    verify::date(filter.discardAfter);
   }
 
   if(json.contains("region") && !json.value("region").isNull())
   {
-    filter.region = std::shared_ptr<te::gm::Geometry>(te::gm::WKTReader::read(json["region"].toString().toStdString().c_str()));
+    auto ewkt = json["region"].toString().toStdString();
+    filter.region = ewktToGeom(ewkt);
+
+    verify::srid(filter.region->getSRID());
   }
 
   if(json.contains("value_comparison_operation")
-     && !json.value("value_comparison_operation").isNull()
-     && !json.value("by_value").isNull())
+      && !json.value("value_comparison_operation").isNull()
+      && !json.value("by_value").isNull())
   {
     filter.value = std::make_shared<double>(json["by_value"].toDouble());
     // filter.discard_before = json["value_comparison_operation"].toString();//TODO: filter by value operation
@@ -374,17 +378,16 @@ QJsonObject terrama2::core::toJson(const terrama2::core::DataSeriesRisk& risk)
 
 QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
 {
-  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
   QJsonObject obj;
   obj.insert("class", QString("Filter"));
   if(filter.discardBefore.get())
   {
-    std::string discardBefore = TimeUtils::boostLocalTimeToString(filter.discardBefore->getTimeInstantTZ(), timestampFacet);
+    std::string discardBefore = TimeUtils::boostLocalTimeToString(filter.discardBefore->getTimeInstantTZ(), TimeUtils::webgui_timefacet);
     obj.insert("discard_before", QString::fromStdString(discardBefore));
   }
   if(filter.discardAfter.get())
   {
-    std::string discardAfter = TimeUtils::boostLocalTimeToString(filter.discardAfter->getTimeInstantTZ(), timestampFacet);
+    std::string discardAfter = TimeUtils::boostLocalTimeToString(filter.discardAfter->getTimeInstantTZ(), TimeUtils::webgui_timefacet);
     obj.insert("discard_after", QString::fromStdString(discardAfter));
   }
 
@@ -414,15 +417,16 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   }
 
   if(!(json.contains("id")
-      && json.contains("frequency")
-      && json.contains("frequency_unit")
-      && json.contains("schedule")
-      && json.contains("schedule_time")
-      && json.contains("schedule_unit")
-      && json.contains("schedule_retry")
-      && json.contains("schedule_retry_unit")
-      && json.contains("schedule_timeout")
-      && json.contains("schedule_timeout_unit")))
+       && json.contains("frequency")
+       && json.contains("frequency_unit")
+       && json.contains("frequency_start_time")
+       && json.contains("schedule")
+       && json.contains("schedule_time")
+       && json.contains("schedule_unit")
+       && json.contains("schedule_retry")
+       && json.contains("schedule_retry_unit")
+       && json.contains("schedule_timeout")
+       && json.contains("schedule_timeout_unit")))
   {
     QString errMsg = QObject::tr("Invalid Schedule JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -433,6 +437,7 @@ terrama2::core::Schedule terrama2::core::fromScheduleJson(QJsonObject json)
   schedule.id = json["id"].toInt();
   schedule.frequency = json["frequency"].toInt();
   schedule.frequencyUnit = json["frequency_unit"].toString().toStdString();
+  schedule.frequencyStartTime = json["frequency_start_time"].toString().toStdString();
   schedule.schedule = json["schedule"].toInt();
   schedule.scheduleTime = json["schedule_time"].toString().toStdString();
   schedule.scheduleUnit = json["schedule_unit"].toString().toStdString();
@@ -542,7 +547,7 @@ QJsonObject terrama2::core::toJson(Schedule schedule)
   obj.insert("id", static_cast<int32_t>(schedule.id));
   obj.insert("frequency",static_cast<int32_t>(schedule.frequency));
   obj.insert("frequency_unit", QString::fromStdString(schedule.frequencyUnit));
-
+  obj.insert("frequency_start_time", QString::fromStdString(schedule.frequencyStartTime));
   obj.insert("schedule",static_cast<int32_t>(schedule.schedule));
   obj.insert("schedule_time",QString::fromStdString(schedule.scheduleTime));
   obj.insert("schedule_unit",QString::fromStdString(schedule.scheduleUnit));

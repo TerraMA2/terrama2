@@ -78,7 +78,8 @@ module.exports = {
     CSV: 'CSV',
     POSTGIS: 'POSTGIS',
     OGR: 'OGR',
-    GEOTIFF: 'GEOTIFF'
+    GEOTIFF: 'GEOTIFF',
+    GRADS: 'GRADS'
   },
 
   DataSeriesSemantics: {
@@ -276,5 +277,6 @@ module.exports = {
     NOT_EQUAL: "$ne",
     LESS_THAN: "$lt",
     LESS_EQUAL: "$le",
+    IN: "$in"
   }
 };

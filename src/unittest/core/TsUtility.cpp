@@ -156,6 +156,53 @@ void TsUtility::testFrequencyTimer()
   }
 }
 
+void TsUtility::testFrequencyTimerBase()
+{
+  try
+  {
+    terrama2::core::Schedule schedule;
+    schedule.id = 0;
+    schedule.frequency = 30;
+    schedule.frequencyUnit = "minute";
+    schedule.frequencyStartTime = "2016-08-17T03:00:00.000-03:00";
+
+    terrama2::core::MockProcessLogger logger;
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    auto lastTime = logger.getLastProcessTimestamp(1);
+    terrama2::core::Timer timer(schedule, 1, lastTime);
+
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here!");
+  }
+}
+
+void TsUtility::testFrequencyTimerBase2()
+{
+  try
+  {
+    terrama2::core::Schedule schedule;
+    schedule.id = 0;
+    schedule.frequency = 30;
+    schedule.frequencyUnit = "minute";
+
+    auto day = terrama2::core::TimeUtils::nowUTC();
+    terrama2::core::TimeUtils::addDay(day, 2);
+    schedule.frequencyStartTime = terrama2::core::TimeUtils::boostLocalTimeToString(day->getTimeInstantTZ(), terrama2::core::TimeUtils::webgui_timefacet);
+
+    terrama2::core::MockProcessLogger logger;
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));
+    auto lastTime = logger.getLastProcessTimestamp(1);
+    terrama2::core::Timer timer(schedule, 1, lastTime);
+
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here!");
+  }
+}
+
 void TsUtility::testScheduleTimer()
 {
   try
@@ -287,6 +334,30 @@ void TsUtility::testValidDataSetName()
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
 
   if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
+    QFAIL("Should not be here!");
+}
+
+void TsUtility::testValidDataSetNameCompress()
+{
+  std::string name = "file2016-04-19153726.tar.gz";
+  std::string mask = "fileyyyy-MM-ddhhmmss";
+  std::string timezone = "00";
+  terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(!terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
+    QFAIL("Should not be here!");
+}
+
+void TsUtility::testValidDataSetNameCompressError()
+{
+  std::string name = "file2016-04-19153726.tar.error";
+  std::string mask = "fileyyyy-MM-ddhhmmss";
+  std::string timezone = "00";
+  terrama2::core::Filter filter;
+  std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
+
+  if(terrama2::core::isValidDataSetName(mask, filter, timezone, name, fileTimestamp))
     QFAIL("Should not be here!");
 }
 

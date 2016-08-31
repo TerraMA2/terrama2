@@ -9,6 +9,7 @@ module.exports = function(sequelize, DataTypes) {
       },
       frequency: DataTypes.INTEGER,
       frequency_unit: DataTypes.STRING,
+      frequency_start_time: DataTypes.STRING,
       schedule: DataTypes.INTEGER,
       schedule_time: DataTypes.STRING,
       schedule_unit: DataTypes.STRING,

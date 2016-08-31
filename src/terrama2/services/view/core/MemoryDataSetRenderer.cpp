@@ -64,8 +64,6 @@ void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,
     te::se::Rule* rule = style->getRule(i);
     assert(rule);
 
-    // TODO: Should be verified the MinScaleDenominator and MaxScaleDenominator. Where will we put the current scale information? Method parameter?
-
     if (!(scale >= rule->getMinScaleDenominator() && scale < rule->getMaxScaleDenominator()))
     {
       continue;
@@ -91,7 +89,7 @@ void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,
     te::common::TaskProgress task(message, te::common::TaskProgress::DRAW);
     //task.setTotalSteps(symbolizers.size() * dataset->size()); // Removed! The te::da::DataSet size() method would be too costly to compute.
 
-    // For while, first geometry property. TODO: get which geometry property the symbolizer references
+    // For while, first geometry property.
     std::size_t gpos = te::da::GetPropertyPos(dataSet_.get(), geomPropertyName);
 
     if(symbolizers.empty())

@@ -36,6 +36,7 @@
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Utils.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-access/DataAccessorGrid.hpp"
 #include "../../../core/data-access/GridSeries.hpp"
@@ -44,6 +45,9 @@
 // QT
 #include <QString>
 #include <QObject>
+
+//STL
+#include <algorithm>
 
 // TerraLib
 #include <terralib/dataaccess/dataset/DataSet.h>
@@ -91,10 +95,10 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
 }
 
 terrama2::core::DataSetSeries terrama2::services::collector::core::processVectorIntersection(DataManagerPtr dataManager,
-                                                                                             core::IntersectionPtr intersection,
-                                                                                             terrama2::core::DataSetSeries collectedDataSetSeries,
-                                                                                             std::vector<std::string>& vecAttributes,
-                                                                                             terrama2::core::DataSeriesPtr intersectionDataSeries)
+    core::IntersectionPtr intersection,
+    terrama2::core::DataSetSeries collectedDataSetSeries,
+    std::vector<std::string>& vecAttributes,
+    terrama2::core::DataSeriesPtr intersectionDataSeries)
 {
 
 
@@ -287,8 +291,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 }
 
 te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::da::DataSetType* collectedDST,
-                                                                            te::da::DataSetType* intersectionDST,
-                                                                            std::vector<te::dt::Property*> intersectionDSProperties)
+    te::da::DataSetType* intersectionDST,
+    std::vector<te::dt::Property*> intersectionDSProperties)
 {
   te::da::DataSetType* outputDt = new te::da::DataSetType(collectedDST->getName());
 
@@ -315,9 +319,9 @@ te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::
 }
 
 terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIntersection(DataManagerPtr dataManager,
-                                                                                           core::IntersectionPtr intersection,
-                                                                                           terrama2::core::DataSetSeries collectedDataSetSeries,
-                                                                                           terrama2::core::DataSeriesPtr intersectionDataSeries)
+    core::IntersectionPtr intersection,
+    terrama2::core::DataSetSeries collectedDataSetSeries,
+    terrama2::core::DataSeriesPtr intersectionDataSeries)
 {
   if(intersectionDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
   {
@@ -334,12 +338,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   std::shared_ptr<te::da::DataSetType> outputDt;
 
   std::vector<te::dt::Property*> collectedProperties = collectedDataSetType->getProperties();
-  std::vector<te::dt::Property*> interProperties;
-
-
-
   auto dataProvider = dataManager->findDataProvider(intersectionDataSeries->dataProviderId);
-
 
   auto geomProperty = te::da::GetFirstGeomProperty(collectedDataSetType.get());
   auto geomPropertyPos = collectedDataSetType->getPropertyPosition(geomProperty);
@@ -383,6 +382,11 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     }
 
 
+    auto tableNameStr = intersectionDataSeries->name;
+    terrama2::core::simplifyString(tableNameStr);
+    tableNameStr+="_band_%1";
+    auto tableName = QString::fromStdString(tableNameStr);
+
     if(!outputDt)
     {
       outputDt.reset(dynamic_cast<te::da::DataSetType*>(collectedDataSetType.get()->clone()));
@@ -390,9 +394,9 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       size_t nbands = raster->getNumberOfBands();
 
       // Creates one property for each raster band
-      for(int band = 0; band < nbands; ++band)
+      for(size_t band = 0; band < nbands; ++band)
       {
-        te::dt::Property* property = new te::dt::SimpleProperty(intersectionDataSeries->name + "_band_" + std::to_string(band), te::dt::DOUBLE_TYPE);
+        te::dt::Property* property = new te::dt::SimpleProperty(tableName.arg(band).toStdString() , te::dt::DOUBLE_TYPE);
         outputDt->add(property);
       }
 
@@ -405,7 +409,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     {
       auto currGeom = collectedData->getGeometry(i, geomPropertyPos);
 
-      te::mem::DataSetItem* item = new te::mem::DataSetItem(outputDs.get());
+      std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(outputDs.get()));
 
       item->setGeometry(geomProperty->getName(), dynamic_cast<te::gm::Geometry*>(currGeom.get()->clone()));
 
@@ -437,7 +441,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
         currGeom->transform(raster->getSRID());
 
       // Gets the respective row and column for the occurrence coordinate
-      double row, col, value;
+      double row, col;
       te::gm::Coord2D coord = te::sa::GetCentroidCoord(currGeom.get());
       double x = coord.getX();
       double y = coord.getY();
@@ -449,8 +453,9 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       {
         for(unsigned int band = 0; band < raster->getNumberOfBands(); ++band)
         {
+          double value;
           raster->getValue(col, row, value, band);
-          item->setDouble(intersectionDataSeries->name + "_band_" + std::to_string(band), value);
+          item->setDouble(tableName.arg(band).toStdString() , value);
         }
       }
 
@@ -458,7 +463,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       std::size_t aux = te::da::GetFirstSpatialPropertyPos(outputDs.get());
 
       if(!item->isNull(aux))
-        outputDs->add(item);
+        outputDs->add(item.release());
     }
   }
 

@@ -40,10 +40,15 @@ var SSHConnectionChecker = function(io) {
           var stats = fs.lstatSync(pathToBinary);
 
           // Is it a file?
-          if (stats.isFile())
+          if (stats.isFile()) {
             returnObject.message = "Success";
-          else
+          } else {
+            if (!stats.isDirectory() && (stats.mode & 1)) { //TODO: improve it. When is executable, the current solution is checking mode "x"
+              returnObject.message = "Success";
+            } else {
             throw new Error("Invalid service executable");
+            }
+          }
         }
         catch (e) {
           returnObject.error = true;

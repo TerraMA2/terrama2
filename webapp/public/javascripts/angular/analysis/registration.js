@@ -72,7 +72,10 @@ angular.module('terrama2.analysis.registration', [
     $scope.scheduleOptions = {};
 
     $scope.onScriptChanged = function(editor) {
-      $scope.analysis.script = editor.getSession().getDocument().getValue();
+      var session = editor[1];
+      var document = editor[1].getSession().getDocument();
+
+      $scope.analysis.script = editor[1].getSession().getDocument().getValue();
     };
 
     socket.on('checkPythonScriptResponse', function(result) {
@@ -97,7 +100,15 @@ angular.module('terrama2.analysis.registration', [
 
     $scope.onScriptValidation = function() {
       $scope.testingScript = true;
-      socket.emit('checkPythonScriptRequest', {script: $scope.analysis.script || ""});
+      var split = $scope.analysis.script.split("\n");
+      var wrapScript = "def dummy():\n";
+      split.forEach(function(element) {
+        if (element) {
+          wrapScript += "    " + element + "\n";
+        }
+      })
+      console.log(wrapScript);
+      socket.emit('checkPythonScriptRequest', {script: wrapScript || ""});
     };
 
     // define dataseries selected in modal
@@ -257,7 +268,15 @@ angular.module('terrama2.analysis.registration', [
     });
 
     DataSeriesSemanticsFactory.list().success(function(semanticsList) {
-      $scope.dataSeriesSemantics = semanticsList;
+      var semanticsListFiltered = [];
+      semanticsList.forEach(function(element) {
+        // Skipping semantics for only collector
+        if (!element.collector) {
+          semanticsListFiltered.push(element);
+        }
+      })
+
+      $scope.dataSeriesSemantics = semanticsListFiltered;
 
       DataProviderFactory.get().success(function(dataProviders) {
         $scope.dataProvidersList = dataProviders;
@@ -385,6 +404,42 @@ angular.module('terrama2.analysis.registration', [
       _processBuffers();
     }).error(errorHelper);
 
+    $scope.$watch("targetDataSeries", function(newValue) {
+      var hasNewValue = Object.keys(newValue).length !== 1;
+      if (!hasNewValue) {
+        return;
+      }
+
+      $scope.buffers.static = [];
+      ($scope.dataSeriesList || []).forEach(function(dataSeries) {
+        if (dataSeries.data_series_semantics.data_series_type_name === "STATIC_DATA") {
+          if (dataSeries.id !== newValue.id) {
+            console.log(dataSeries);
+            $scope.buffers.static.push(dataSeries);
+          }
+        }
+      });
+      $scope.dataSeriesGroups[0].children = $scope.buffers.static;
+    });
+
+    $scope.$watch("analysis.grid.area_of_interest_type", function(value) {
+      if (value) {
+        if (value === $scope.interestAreaTypes.CUSTOM.value) {
+          var analysisConfig = (configuration.analysis || {});
+          var value = (analysisConfig.output_grid || {}).srid || 4326;
+          if ($scope.analysis.grid.area_of_interest_bounded) {
+            $scope.analysis.grid.area_of_interest_bounded.srid = value;
+          } else {
+            $scope.analysis.grid.area_of_interest_bounded = {
+              srid: value
+            }
+          }
+        } else {
+
+        }
+      }
+    })
+
     // helpers
     var _processBuffers = function() {
       // clean old data
@@ -410,8 +465,11 @@ angular.module('terrama2.analysis.registration', [
           var semantics = dSeries.data_series_semantics;
 
           if (semantics.data_series_type_name === "STATIC_DATA") {
-            dSeries.isDynamic = false;
-            $scope.buffers.static.push(dSeries);
+            // skip target data series in additional data
+            if ($scope.targetDataSeries && $scope.targetDataSeries.id !== dSeries.id) {
+              dSeries.isDynamic = false;
+              $scope.buffers.static.push(dSeries);
+            }
           }
           else {
             dSeries.isDynamic = true;
@@ -642,6 +700,12 @@ angular.module('terrama2.analysis.registration', [
         // checking geojson
         if ($scope.analysis.grid && $scope.analysis.grid.area_of_interest_bounded &&
             !angular.equals({}, $scope.analysis.grid.area_of_interest_bounded)) {
+
+          var boundedForm = (angular.element('form[name="boundedForm"]').scope() || {boundedForm: {}}).boundedForm;
+          if (boundedForm.$invalid) {
+            return;
+          }
+
           var bounded = $scope.analysis.grid.area_of_interest_bounded;
           var coordinates = [
             [
@@ -658,10 +722,11 @@ angular.module('terrama2.analysis.registration', [
             crs: {
               type: 'name',
               properties : {
-                name: "EPSG:4326"
+                name: "EPSG:" + bounded.srid || "4326"
               }
             }
           };
+          analysisToSend.grid.srid = bounded.srid;
         }
       }
 

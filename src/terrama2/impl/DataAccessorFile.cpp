@@ -34,6 +34,7 @@
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/Utils.hpp"
 #include "../core/utility/Unpack.hpp"
+#include "../core/utility/Verify.hpp"
 
 //STL
 #include <algorithm>
@@ -364,7 +365,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     // get a transactor to interact to the data source
     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-    // Some drivers use tha base name and other use filename with extension
+    // Some drivers use the base name and other use filename with extension
     std::string dataSetName;
     std::vector<std::string> dataSetNames = transactor->getDataSetNames();
     auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
@@ -373,9 +374,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
       dataSetName = baseName;
     else if(itFileName != dataSetNames.cend())
       dataSetName = name;
-    //No valid dataset name found
-    if(dataSetName.empty())
-      continue;
+    else
+      dataSetName = name;
+
+    // TODO: Some raster files (.env) don't appear in the getDataSetNames()
+    // but we can open directly with the file name.
+    // should we check or just continue with the file name?
 
     if(first)
     {
@@ -393,8 +397,9 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
 
     //update lastest file timestamp
-    if(lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
+    if(lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
       lastFileTimestamp = thisFileTimestamp;
+
   }// for each file
 
   if(!completeDataset.get() || completeDataset->isEmpty())
@@ -412,17 +417,17 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
 
   //if both dates are valid
-  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
+  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
+      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
   {
     (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
-  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
   {
     //if only fileTimestamp is valid
     (*lastDateTime_) = *lastFileTimestamp;
   }
-  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special())
   {
     //if only dataTimeStamp is valid
     (*lastDateTime_) = *dataTimeStamp;

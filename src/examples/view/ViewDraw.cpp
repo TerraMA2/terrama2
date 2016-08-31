@@ -382,8 +382,10 @@ int main(int argc, char** argv)
     view->projectId = 1;
     view->serviceInstanceId = 1;
     view->active = true;
-    view->resolutionWidth = 1024;
-    view->resolutionHeight = 768;
+    view->imageName = "ExampleImage";
+    view->imageType = te::map::ImageType(2);
+    view->imageResolutionWidth = 1024;
+    view->imageResolutionHeight = 768;
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;

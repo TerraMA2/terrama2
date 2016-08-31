@@ -8,6 +8,13 @@
 
 {% block javascripts %}
 
+<script type="text/javascript">
+  var globals = {
+    enums: {
+      AnalysisType: {[ Enums.AnalysisType|json|safe ]}
+    }
+  }
+</script>
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
@@ -62,11 +69,11 @@
       };
 
       $scope.icon = function(object) {
-        switch(object.type) {
-          case "Monitored Object":
+        switch(object.type.id) {
+          case globals.enums.AnalysisType.MONITORED:
             return "/images/monitored-object.png";
             break;
-          case "Grid":
+          case globals.enums.AnalysisType.GRID:
             return "/images/grid-small.png";
             break;
           default:

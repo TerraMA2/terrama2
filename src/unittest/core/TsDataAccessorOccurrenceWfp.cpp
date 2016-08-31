@@ -145,7 +145,7 @@ void TsDataAccessorOccurrenceWfp::TestFailAddNullDataAccessorOccurrenceWfp()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -169,7 +169,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataProviderNull()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -193,7 +193,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesNull()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException& e)
   {
 
   }
@@ -220,7 +220,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSeriesSemanticsInvalid()
 
     QFAIL("Exception expected!");
   }
-  catch(terrama2::core::SemanticsException& e)
+  catch(const terrama2::core::SemanticsException& e)
   {
 
   }
@@ -341,7 +341,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
       terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
       QFAIL("Exception expected!");
     }
-    catch(terrama2::core::NotRetrivableException&)
+    catch(const terrama2::core::NotRetrivableException&)
     {
 
     }

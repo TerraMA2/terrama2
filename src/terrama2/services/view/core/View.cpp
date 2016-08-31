@@ -93,7 +93,7 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
       throw Exception() << ErrorDescription(message);
     }
 
-    if(viewPtr->resolutionWidth == 0 ||  viewPtr->resolutionHeight == 0)
+    if(viewPtr->imageResolutionWidth == 0 ||  viewPtr->imageResolutionHeight == 0)
     {
       QString message = QObject::tr("Invalid resolution for View %1.").arg(viewId);
       if(logger.get())
@@ -273,7 +273,7 @@ void terrama2::services::view::core::drawLayersList(ViewPtr viewPtr, std::vector
     double urx = extent.m_urx;
     double ury = extent.m_ury;
 
-    std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(viewPtr->resolutionWidth, viewPtr->resolutionHeight));
+    std::unique_ptr<te::qt::widgets::Canvas> canvas(new te::qt::widgets::Canvas(viewPtr->imageResolutionWidth, viewPtr->imageResolutionHeight));
     canvas->calcAspectRatio(llx, lly, urx, ury);
     canvas->setWindow(llx, lly, urx, ury);
     canvas->setBackgroundColor(te::color::RGBAColor(255, 255, 255, TE_OPAQUE));
@@ -286,8 +286,15 @@ void terrama2::services::view::core::drawLayersList(ViewPtr viewPtr, std::vector
     }
 
     // Save view
-    // VINICIUS: image name
-    canvas->save("GeneratedImage", te::map::PNG);
+    if(!viewPtr->imageName.empty())
+    {
+      canvas->save(viewPtr->imageName.c_str(), viewPtr->imageType);
+    }
+    else
+    {
+      std::string name = "View" + std::to_string(viewPtr->id);
+      canvas->save(name.c_str(), viewPtr->imageType);
+    }
 
     canvas->clear();
   }

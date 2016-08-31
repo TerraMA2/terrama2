@@ -26,8 +26,8 @@ module.exports = function(app) {
         }
       }).then(function(collectorResult) {
         var promises = [];
-        promises.push(DataManager.getDataSeries({id: collectorResult.input_data_series}));
-        promises.push(DataManager.getDataSeries({id: collectorResult.output_data_series}));
+        promises.push(DataManager.getDataSeries({id: collectorResult.data_series_input}));
+        promises.push(DataManager.getDataSeries({id: collectorResult.data_series_output}));
 
         Promise.all(promises).then(function(dataSeriesResults) {
           console.log(dataSeriesResults);

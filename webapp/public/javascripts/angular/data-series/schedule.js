@@ -1,3 +1,5 @@
+'use strict';
+
 angular.module("terrama2.schedule", ['terrama2'])
   .directive("terrama2Schedule", function() {
     return {
@@ -23,10 +25,11 @@ angular.module("terrama2.schedule", ['terrama2'])
         ];
 
         $scope.tryParseInt = function(value) {
-          if (isNaN(value))
+          if (isNaN(value)) {
             return value;
+          }
           return parseInt(value);
-        }
+        };
 
         $scope.$on("updateSchedule", function(event, scheduleObject) {
           if (scheduleObject.schedule_unit) {
@@ -36,7 +39,7 @@ angular.module("terrama2.schedule", ['terrama2'])
             // initializing with current date and s
 
             try {
-              var date = new Date();
+              var date = new moment();
               var time = scheduleObject.schedule_time;
               var splitDate = time.split(":");
 
@@ -44,9 +47,9 @@ angular.module("terrama2.schedule", ['terrama2'])
               var minutes = splitDate[1];
               var seconds = splitDate[2];
 
-              date.setMinutes(minutes);
-              date.setHours(hours);
-              date.setSeconds(seconds);
+              date.minute(minutes);
+              date.hour(hours);
+              date.second(seconds);
 
               $scope.model.schedule_time = date;
             } catch (e) {
@@ -55,10 +58,13 @@ angular.module("terrama2.schedule", ['terrama2'])
           }else if (scheduleObject.frequency_unit) {
             $scope.model.frequency = scheduleObject.frequency;
             $scope.model.frequency_unit = scheduleObject.frequency_unit;
+            if (scheduleObject.frequency_start_time) {
+              $scope.model.frequency_start_time = new moment(scheduleObject.frequency_start_time);
+            }
             $scope.model.scheduleHandler = scheduleObject.frequency_unit;
           }
 
-          $scope.onScheduleChange($scope.model.scheduleHandler)
+          $scope.onScheduleChange($scope.model.scheduleHandler);
         });
 
         $scope.onScheduleChange = function(value) {
@@ -76,6 +82,7 @@ angular.module("terrama2.schedule", ['terrama2'])
             } else if (i == 2) {
               $scope.model.frequency = null;
               $scope.model.frequency_unit = null;
+              $scope.model.frequency_start_time = null;
               $scope.isFrequency = false;
               $scope.isSchedule = true;
             }
@@ -111,5 +118,5 @@ angular.module("terrama2.schedule", ['terrama2'])
           }
         };
       }]
-    }
+    };
   });

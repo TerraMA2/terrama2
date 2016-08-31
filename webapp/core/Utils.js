@@ -212,7 +212,7 @@ var Utils = {
 
             dataProvidersResult.some(function(dprovider) {
               return dataSeriesResult.some(function(dseries) {
-                if (dprovider.id == dseries.data_provider_id && collector.input_data_series == dseries.id) {
+                if (dprovider.id == dseries.data_provider_id && collector.data_series_input == dseries.id) {
                   //getting project id
                   collector.project_id = dprovider.project_id;
                   return true;
@@ -226,6 +226,7 @@ var Utils = {
           // getting analyses
           DataManager.listAnalyses().then(function(analysesResult) {
             var analyses = [];
+
             analysesResult.forEach(function(analysis) {
               analyses.push(analysis.toObject());
             }); // end foreach analysesResult
@@ -281,7 +282,20 @@ var Utils = {
     var self = this;
     return Object.keys(obj).every(function(key) {
       if (self.isObject(obj[key])) {
-        return self.matchObject(obj[key], target[key]);
+        switch(key) {
+          case Enums.Operators.IN: // $in: [a,b,c...d]
+            return obj[key].indexOf(target) !== -1;
+          default:
+            if (target instanceof Array) {
+              return self.filter(target, obj);
+            } else {
+              return self.matchObject(obj[key], target[key]);
+            }
+        }
+      }
+
+      if (target instanceof Array) {
+        return self.find(target, obj);
       }
 
       switch (key) {
@@ -322,7 +336,10 @@ var Utils = {
    * @return {?} An element of array.
    */
   find: function(where, restriction) {
-    return this.filter(where, restriction)[0];
+    var self = this;
+    return where.find(function(entry) {
+      return self.matchObject(restriction, entry);;
+    });
   },
 
   /**
@@ -421,8 +438,9 @@ var Utils = {
 
   formatDateToTimezone: function(dateValue) {
     var timeZone = dateValue.getTimezoneOffset() / 60;
+    var dateOffSetTimezone = new Date(dateValue.getTime() - (dateValue.getTimezoneOffset() * 60000));
     var timezoneIndex = dateValue.toISOString().lastIndexOf("Z");
-    var dateWithoutTimezone = dateValue.toISOString().slice(0, timezoneIndex);
+    var dateWithoutTimezone = dateOffSetTimezone.toISOString().slice(0, timezoneIndex);
 
     var tzStr;
     if (timeZone > 0) {

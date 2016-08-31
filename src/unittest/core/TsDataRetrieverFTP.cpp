@@ -93,7 +93,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
 
       QFAIL("Exception expected!");
     }
-    catch(terrama2::core::DataRetrieverException& e)
+    catch(const terrama2::core::DataRetrieverException& e)
     {
 
     }
@@ -101,7 +101,7 @@ void TsDataRetrieverFTP::TestFailUriInvalid()
     curl_global_cleanup();
 
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
@@ -150,7 +150,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
 
       QFAIL("Exception expected!");
     }
-    catch(terrama2::core::DataRetrieverException& e)
+    catch(const terrama2::core::DataRetrieverException& e)
     {
 
     }
@@ -158,7 +158,7 @@ void TsDataRetrieverFTP::TestFailLoginInvalid()
     curl_global_cleanup();
 
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
@@ -214,7 +214,7 @@ void TsDataRetrieverFTP::TestOkUriAndLoginValid()
     curl_global_cleanup();
 
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
@@ -276,7 +276,7 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
     curl_global_cleanup();
 
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
@@ -339,7 +339,7 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
     curl_global_cleanup();
 
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
@@ -398,7 +398,7 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
     curl_global_cleanup();
 
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }
@@ -457,7 +457,7 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
     curl_global_cleanup();
 
   }
-  catch(terrama2::Exception& e)
+  catch(const terrama2::Exception& e)
   {
     QFAIL(boost::get_error_info< terrama2::ErrorDescription >(e)->toStdString().c_str());
   }

@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
-#define __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
 
 // TerraMA2
 #include "../BufferMemory.hpp"
@@ -57,6 +57,8 @@ namespace terrama2
           */
           double sample(const std::string& dataSeriesName);
 
+          double getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<te::rst::Interpolator> interpolator, double column, double row, size_t bandIdx);
+
 
         }   // end namespace grid
       }     // end namespace core
@@ -64,4 +66,4 @@ namespace terrama2
   }         // end namespace services
 }           // end namespace terrama2
 
-#endif // __TERRAMA2_SERVINCES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_OPERATOR_HPP__
