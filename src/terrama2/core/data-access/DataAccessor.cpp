@@ -226,7 +226,7 @@ std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > t
       series.emplace(dataset, tempSeries);
 
 
-      // TODO: possible concurrency problems here, temp folder is the same and it's removed while others are reading #582
+      // FIXME: concurrency problems here, temp folder is the same and it's removed while others are reading #582
       if(removeFolder)
       {
         QUrl url(uri.c_str());
