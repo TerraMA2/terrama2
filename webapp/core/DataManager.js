@@ -608,12 +608,18 @@ var DataManager = {
     });
   },
 
+  /**
+   * It removes project of database from given restriction. **Note** If there is no restriction specified, it will remove all rows of model
+   * 
+   * @param {Object} restriction - A query restriction object
+   * @return {Promise}
+   */
   removeProject: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getProject(restriction).then(function(projectResult) {
         self.listCollectors().then(function(collectors) {
-          self.listAnalyses().then(function(analysisList) {
+          self.listAnalyses({project_id: projectResult.id}).then(function(analysisList) {
             if (collectors.length === 0 || analysisList.length === 0) {
               return Promise.resolve();
             }
@@ -641,15 +647,15 @@ var DataManager = {
               // remove children from memory
               Utils.removeAll(self.data.dataProviders, {project_id: project.id});
               Utils.removeAll(self.data.dataSeries, {dataProvider: {project_id: project.id}});
-              resolve();
+              return resolve();
             }).catch(function(err) {
               console.log("Remove Project: ", err);
-              reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
+              return reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
             });
           });
         });
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
 
@@ -1241,9 +1247,9 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataSerie = Utils.find(self.data.dataSeries, restriction);
       if (dataSerie) {
-        resolve(new DataModel.DataSeries(dataSerie));
+        return resolve(new DataModel.DataSeries(dataSerie));
       } else {
-        reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
+        return reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
       }
     });
   },

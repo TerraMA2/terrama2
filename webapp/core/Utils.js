@@ -475,6 +475,13 @@ var Utils = {
     });
   },
 
+  /**
+   * It compares two objects if they are same (including attributes).
+   * 
+   * @param {Object} origin
+   * @param {Object} target
+   * @return {boolean} A boolean comparison
+   */
   equal: function(origin, target) {
     return isEqual(origin, target);
   },
