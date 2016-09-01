@@ -4,7 +4,7 @@
 
 {% block ngApp %} ng-app="terrama2.analyses" {% endblock %}
 
-{% block title %} TerraMA² {[ __('Analyses') ]} {% endblock %}
+{% block title %} TerraMA² {[ __('Analysis') ]} {% endblock %}
 
 {% block javascripts %}
 
@@ -99,7 +99,7 @@
 {% block content %}
 
 <div ng-controller="ListController">
-  <terrama2-box title="'{[ __('Analyses') ]}'">
+  <terrama2-box title="'{[ __('Analysis') ]}'">
     <div class="col-md-12">
       <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display">
       </terrama2-alert-box>
