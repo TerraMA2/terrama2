@@ -156,6 +156,14 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
 
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter(DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
+  if(!datasetType.get())
+  {
+    QString errMsg = QObject::tr("Invalid DataSetType.\nDoes the data exists?");
+
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
 
   addColumns(converter, datasetType);

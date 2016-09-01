@@ -66,6 +66,9 @@ namespace terrama2
         //! An exception indicating that an analysis returned an empty result.
         struct EmptyResultException: virtual Exception { };
 
+        //! Base exception for the ContextManager.
+        struct ContextManagerException: virtual Exception { };
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

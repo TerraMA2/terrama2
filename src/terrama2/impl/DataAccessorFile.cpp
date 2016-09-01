@@ -336,6 +336,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   {
     std::string name = fileInfo.fileName().toStdString();
     std::string baseName = fileInfo.baseName().toStdString();
+    std::string completeBaseName = fileInfo.completeBaseName().toStdString();
 
     std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
     // Verify if the file name matches the mask
@@ -368,10 +369,14 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     // Some drivers use the base name and other use filename with extension
     std::string dataSetName;
     std::vector<std::string> dataSetNames = transactor->getDataSetNames();
+
+    auto itCompleteBaseName= std::find(dataSetNames.cbegin(), dataSetNames.cend(), completeBaseName);
     auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
     auto itFileName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), name);
     if(itBaseName != dataSetNames.cend())
       dataSetName = baseName;
+    else if(itCompleteBaseName != dataSetNames.cend())
+      dataSetName = completeBaseName;
     else if(itFileName != dataSetNames.cend())
       dataSetName = name;
     else
@@ -397,7 +402,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
 
     //update lastest file timestamp
-    if(lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
+    if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
       lastFileTimestamp = thisFileTimestamp;
 
   }// for each file

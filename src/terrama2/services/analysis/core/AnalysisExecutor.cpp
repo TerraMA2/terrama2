@@ -392,7 +392,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   assert(dataSeries->datasetList.size() == 1);
 
 
-  te::da::DataSetType* dt = new te::da::DataSetType(datasetName);
+  std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(datasetName);
 
   // first property is the geomId
   te::dt::StringProperty* geomIdProp = new te::dt::StringProperty("geom_id", te::dt::VAR_STRING, 255, true);
@@ -405,15 +405,13 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
   // the unique key is composed by the geomId and the execution date.
   std::string nameuk = datasetName+ "_uk";
-  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt);
+  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt.get());
   uk->add(geomIdProp);
   uk->add(dateProp);
-  dt->add(uk);
 
   //create index on date column
-  te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt);
+  te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt.get());
   indexDate->add(dateProp);
-  dt->add(indexDate);
 
   for(std::string attribute : attributes)
   {
@@ -424,7 +422,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   auto date = terrama2::core::TimeUtils::nowUTC();
 
   // Creates memory dataset and add the items.
-  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dt);
+  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(static_cast<te::da::DataSetType*>(dt->clone()));
   for(auto it = resultMap.begin(); it != resultMap.end(); ++it)
   {
     te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
@@ -445,7 +443,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);
 
   terrama2::core::DataSetSeries series;
-  series.teDataSetType.reset(dt);
+  series.teDataSetType = dt;
   series.syncDataSet.swap(syncDataSet);
 
   try
