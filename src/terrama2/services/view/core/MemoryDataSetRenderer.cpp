@@ -33,8 +33,10 @@
 #include <terralib/maptools/Chart.h>
 #include <terralib/maptools/Utils.h>
 #include <terralib/maptools/GroupingItem.h>
+#include <terralib/maptools/QueryEncoder.h>
 #include <terralib/common/Globals.h>
 #include <terralib/common/STLUtils.h>
+#include <terralib/dataaccess/query_h.h>
 
 
 // TerraMA2
@@ -279,10 +281,59 @@ void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,
       continue;
     }
 
-    if(dataSet_.get() == 0)
+    // Gets the rule filter
+    const te::fe::Filter* filter = rule->getFilter();
+
+    // Let's retrieve the correct dataset
+    std::auto_ptr<te::da::DataSet> dataset;
+
+    if(!filter)
+    {
+      try
+      {
+        // There isn't a Filter expression. Gets the data using only extent spatial restriction...
+        dataset = layer->getData(geomPropertyName, &bbox, te::gm::INTERSECTS);
+      }
+      catch(Exception& e)
+      {
+        throw e;
+      }
+    }
+    else
+    {
+      try
+      {
+        // Gets an enconder
+        te::map::QueryEncoder filter2Query;
+
+        // Converts the Filter expression to a TerraLib Expression!
+        te::da::Expression* exp = filter2Query.getExpression(filter);
+        if(exp == 0)
+          throw Exception(TE_TR("Could not convert the OGC Filter expression to TerraLib expression!"));
+
+        /* 1) Creating the final restriction. i.e. Filter expression + extent spatial restriction */
+
+        // The extent spatial restriction
+        te::da::LiteralEnvelope* lenv = new te::da::LiteralEnvelope(bbox, layer->getSRID());
+        te::da::PropertyName* geometryPropertyName = new te::da::PropertyName(geomPropertyName);
+        te::da::ST_Intersects* intersects = new te::da::ST_Intersects(geometryPropertyName, lenv);
+
+        // Combining the expressions (Filter expression + extent spatial restriction)
+        te::da::And* restriction = new te::da::And(exp, intersects);
+
+        /* 2) Calling the layer query method to get the correct restricted data. */
+        dataset = layer->getData(restriction);
+      }
+      catch(std::exception& /*e*/)
+      {
+        throw Exception((boost::format(TE_TR("Could not retrieve the data set from the layer %1%.")) % layer->getTitle()).str());
+      }
+    }
+
+    if(dataset.get() == 0)
       throw Exception((boost::format(TE_TR("Could not retrieve the data set from the layer %1%.")) % layer->getTitle()).str());
 
-    if(dataSet_->moveFirst() == false)
+    if(dataset->moveFirst() == false)
       continue;
 
     // Gets the set of symbolizers defined on current rule
@@ -300,12 +351,12 @@ void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,
     //task.setTotalSteps(symbolizers.size() * dataset->size()); // Removed! The te::da::DataSet size() method would be too costly to compute.
 
     // For while, first geometry property.
-    std::size_t gpos = te::da::GetPropertyPos(dataSet_.get(), geomPropertyName);
+    std::size_t gpos = te::da::GetPropertyPos(dataset.get(), geomPropertyName);
 
     if(symbolizers.empty())
     {
       // The current rule do not have a symbolizer. Try creates a default based on first geometry of dataset.
-      std::shared_ptr<te::gm::Geometry> g(dataSet_->getGeometry(gpos));
+      std::shared_ptr<te::gm::Geometry> g(dataset->getGeometry(gpos));
       assert(g.get());
 
       te::se::Symbolizer* symbolizer = te::se::CreateSymbolizer(g->getGeomTypeId());
@@ -313,7 +364,7 @@ void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,
 
       rule->push_back(symbolizer);
 
-      dataSet_->moveFirst();
+      dataset->moveFirst();
     }
 
     std::size_t nSymbolizers = symbolizers.size();
@@ -328,12 +379,12 @@ void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,
 
       // Let's draw! for each data set geometry...
       if(j != nSymbolizers - 1)
-        drawDatSetGeometries(dataSet_.get(), gpos, canvas, layer->getSRID(), srid, 0, cancel, &task);
+        drawDatSetGeometries(dataset.get(), gpos, canvas, layer->getSRID(), srid, 0, cancel, &task);
       else
-        drawDatSetGeometries(dataSet_.get(), gpos, canvas, layer->getSRID(), srid, layer->getChart(), cancel, &task); // Here, produces the chart if exists
+        drawDatSetGeometries(dataset.get(), gpos, canvas, layer->getSRID(), srid, layer->getChart(), cancel, &task); // Here, produces the chart if exists
 
       // Prepares to draw the other symbolizer
-      dataSet_->moveFirst();
+      dataset->moveFirst();
 
     } // end for each <Symbolizer>
 

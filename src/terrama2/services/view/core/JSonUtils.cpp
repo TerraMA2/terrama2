@@ -38,12 +38,7 @@
 #include <terralib/xml/ReaderFactory.h>
 #include <terralib/xml/AbstractWriterFactory.h>
 #include <terralib/maptools/serialization/xml/Utils.h>
-
-// TODO: Enable this when Terralib release fix for style serialization
 #include <terralib/se/serialization/xml/Style.h>
-// TODO: Remove this when Terralib release fix for style serialization
-//#include "Style.h"
-
 
 // Qt
 #include <QJsonDocument>
@@ -51,7 +46,7 @@
 #include <QObject>
 #include <QTemporaryFile>
 
-// TODO: Remove this method when Terralib release fix for style serialization
+// TODO: Remove this method when find Grouping serialization use
 te::map::Grouping* ReadLayerGrouping(te::xml::Reader& reader)
 {
   if(reader.getElementLocalName() != "Grouping")
@@ -151,27 +146,29 @@ void writeStyle(const te::se::Style* style, std::string path)
 
   writer->setURI(path);
   writer->writeStartDocument("UTF-8", "no");
+  writer->setRootNamespaceURI("http://www.w3.org/2000/xmlns/se");
 
-  writer->writeStartElement("StyledLayerDescriptor");
+//  writer->writeStartElement("StyledLayerDescriptor");
 
-  writer->writeAttribute("xmlns", "http://www.opengis.net/sld");
-  writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
-  writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
-  writer->writeAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-  writer->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld StyledLayerDescriptor.xsd");
+//  writer->writeAttribute("xmlns", "http://www.opengis.net/sld");
+//  writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
+//  writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
+//  writer->writeAttribute("xmlns:se", "http://www.w3.org/2000/xmlns/se");
+//  writer->writeAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+//  writer->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+//  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld StyledLayerDescriptor.xsd");
 
-  writer->writeAttribute("version", style->getVersion());
+//  writer->writeAttribute("version", style->getVersion());
 
-  writer->writeStartElement("NamedLayer");
-  writer->writeStartElement("UserStyle");
+//  writer->writeStartElement("NamedLayer");
+//  writer->writeStartElement("UserStyle");
 
   te::se::serialize::Style::getInstance().write(style, *writer.get());
 
-  writer->writeEndElement("UserStyle");
-  writer->writeEndElement("NamedLayer");
+//  writer->writeEndElement("UserStyle");
+//  writer->writeEndElement("NamedLayer");
 
-  writer->writeEndElement("StyledLayerDescriptor");
+//  writer->writeEndElement("StyledLayerDescriptor");
   writer->writeToFile();
 
 }
@@ -244,6 +241,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
     obj.insert("styles_per_data_series", array);
   }
 
+  // Grouping Serialization
   {
     QJsonArray array;
     for(auto& it : view->legendPerDataSeries)
@@ -252,8 +250,6 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
       datasetSeriesAndLegend.insert("dataset_series_id", static_cast<int32_t>(it.first));
 
       std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
-      //      writer->writeStartDocument("UTF-8", "no");
-      writer->setRootNamespaceURI("http://www.w3.org/2000/xmlns/se");
 
       QTemporaryFile file;
       if(!file.open())
