@@ -140,6 +140,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
+      std::vector<double> values;
       for(auto raster : rasterList)
       {
         geomResult->transform(raster->getSRID());
@@ -147,7 +148,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
         if(!raster->getExtent()->intersects(*geomResult->getMBR()))
           continue;
 
-        std::vector<double> values;
+
         //TODO: check for other valid types
         auto type = geomResult->getGeomTypeId();
         if(type == te::gm::PolygonType)
@@ -164,15 +165,12 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
             appendValues(raster.get(), polygon, values);
           }
         }
+      }
 
-        if(!values.empty())
-        {
-          terrama2::services::analysis::core::calculateStatistics(values, cache);
-          hasData = true;
-        }
-
-        if(hasData)
-          break;
+      if(!values.empty())
+      {
+        terrama2::services::analysis::core::calculateStatistics(values, cache);
+        hasData = true;
       }
 
       if(hasData)
