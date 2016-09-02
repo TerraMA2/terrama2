@@ -89,6 +89,7 @@ var DataManager = {
   Promise: Promise,
   TcpManager: TcpManager,
   DataModel: DataModel,
+  orm: orm,
 
   /**
    * It initializes DataManager, loading models and database synchronization
@@ -1590,8 +1591,8 @@ var DataManager = {
               }
             }
 
-            return models.db.DataSetFormat.bulkCreate(formatList, {data_set_id: dataSet.id}).then(function () {
-              return models.db.DataSetFormat.findAll({where: {data_set_id: dataSet.id}}).then(function(dataSetFormats) {
+            return models.db.DataSetFormat.bulkCreate(formatList, Utils.extend({data_set_id: dataSet.id}, options)).then(function () {
+              return models.db.DataSetFormat.findAll(Utils.extend({where: {data_set_id: dataSet.id}}, options)).then(function(dataSetFormats) {
                 output.format = {};
                 dataSetFormats.forEach(function(dataSetFormat) {
                   output.format[dataSetFormat.key] = dataSetFormat.value;
@@ -1621,7 +1622,7 @@ var DataManager = {
 
         // rollback data set function if any error occurred
         var rollback = function(dataSet) {
-          dataSet.destroy().then(function() {
+          return dataSet.destroy().then(function() {
             console.log("rollback");
             return reject(new exceptions.DataSetError("Invalid data set type. DataSet destroyed"));
           }).catch(onError);
@@ -2584,7 +2585,7 @@ var DataManager = {
                         console.log(err);
                         // rollback analysis data series
                         Utils.rollbackPromises([
-                          self.removeAnalysis({id: analysisResult.id})
+                          self.removeAnalysis({id: analysisResult.id}, options)
                         ], new exceptions.AnalysisError("Could not save analysis data series " + err.toString()), reject);
                       });
                     };
@@ -2594,12 +2595,12 @@ var DataManager = {
                       var analysisOutputGrid = analysisObject.grid;
                       analysisOutputGrid.analysis_id = analysisResult.id;
 
-                      return self.addAnalysisOutputGrid(analysisOutputGrid).then(function(output_grid) {
+                      return self.addAnalysisOutputGrid(analysisOutputGrid, options).then(function(output_grid) {
                         analysisInstance.outputGrid = output_grid;
                         return _savePromises();
                       }).catch(function(err) {
                         Utils.rollbackPromises([
-                          self.removeAnalysis({id: analysisResult.id})
+                          self.removeAnalysis({id: analysisResult.id}, options)
                         ], err, reject);
                       });
                     } else { return _savePromises(); } // end if
@@ -2607,7 +2608,7 @@ var DataManager = {
                 }).catch(function(err) {
                   // rollback analysis metadata
                   Utils.rollbackPromises([
-                    self.removeAnalysis({id: analysisResult.id})
+                    self.removeAnalysis({id: analysisResult.id}, options)
                   ], new exceptions.AnalysisError("Could not save analysis metadata " + err.toString()), reject);
                 });
               }); // end get script language
@@ -2792,7 +2793,7 @@ var DataManager = {
     });
   },
 
-  getAnalysis: function(restriction) {
+  getAnalysis: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var restrict = Object.assign({}, restriction || {});
@@ -2801,7 +2802,7 @@ var DataManager = {
         dataSetRestriction = restrict.dataSet;
         delete restrict.dataSet;
       }
-      models.db.Analysis.findOne({
+      models.db.Analysis.findOne(Utils.extend({
         where: restrict,
         include: [
           {
@@ -2827,7 +2828,7 @@ var DataManager = {
             where: dataSetRestriction
           }
         ]
-      }).then(function(analysisResult) {
+      }, options)).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
         self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
@@ -2858,34 +2859,33 @@ var DataManager = {
    * It removes Analysis from param. It should be an object containing either id identifier or name identifier.
    *
    * @param {Object} analysisParam - An object containing Analysis identifier to get it.
-   * @param {Boolean} cascade - A bool value to delete on cascade
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with Analysis instance or error callback
    */
-  removeAnalysis: function(analysisParam, cascade) {
+  removeAnalysis: function(analysisParam, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      if(!cascade) { cascade = false; }
-
-      self.getAnalysis({id: analysisParam.id}).then(function(analysisResult) {
-        models.db.Analysis.destroy({where: {id: analysisParam.id}}).then(function() {
-          self.removeDataSerie({id: analysisResult.dataSeries.id}).then(function() {
-            self.removeSchedule({id: analysisResult.schedule.id}).then(function() {
-              resolve();
+      self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
+        return models.db.Analysis.destroy(Utils.extend({where: {id: analysisParam.id}}, options)).then(function() {
+          return self.removeDataSerie({id: analysisResult.dataSeries.id}, options).then(function() {
+            return self.removeSchedule({id: analysisResult.schedule.id}, options).then(function() {
+              return resolve();
             }).catch(function(err) {
               console.log("Could not remove analysis schedule ", err);
-              reject(err);
+              return reject(err);
             });
           }).catch(function(err) {
             console.log("Could not remove output data series ", err);
-            reject(err);
+            return reject(err);
           });
         }).catch(function(err) {
           console.log(err);
-          reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
+          return reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
         });
       }).catch(function(err) {
         console.log(err);
-        reject(err);
+        return reject(err);
       });
     });
   }
