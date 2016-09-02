@@ -409,5 +409,6 @@
 	"Attribute": "Attribute",
 	"Ignores data after": "Ignores data after",
 	"Object Monitored": "Object Monitored",
-	"General": "General"
+	"General": "General",
+	"Are you sure to remove ?": "Are you sure to remove ?"
 }
