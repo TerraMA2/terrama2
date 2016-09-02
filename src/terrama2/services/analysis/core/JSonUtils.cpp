@@ -34,6 +34,7 @@
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 
 // Qt
 #include <QJsonDocument>
@@ -65,7 +66,8 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
        && json.contains("analysis_dataseries_list")
        && json.contains("schedule")
        && json.contains("service_instance_id")
-       && json.contains("output_grid")))
+       && json.contains("output_grid")
+       && json.contains("reprocessing_historical_data")))
   {
     QString errMsg(QObject::tr("Invalid Analysis JSON object."));
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -139,6 +141,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
   analysis->active = json["active"].toBool();
 
   analysis->outputGridPtr = fromAnalysisOutputGrid(json["output_grid"].toObject());
+  analysis->reprocessingHistoricalData = fromAnalysisReprocessingHistoricalData(json["reprocessing_historical_data"].toObject());
 
   return analysisPtr;
 }
@@ -195,6 +198,7 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
   obj.insert("schedule", terrama2::core::toJson(analysis->schedule));
   obj.insert("active", analysis->active);
   obj.insert("output_grid", toJson(analysis->outputGridPtr));
+  obj.insert("reprocessing_historical_data", toJson(analysis->reprocessingHistoricalData));
 
 
   return obj;
@@ -213,8 +217,8 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisOutputGridPtr out
   obj.insert("interpolation_dummy", QJsonValue(outputGrid->interpolationDummy));
   obj.insert("resolution_type", static_cast<qint32>(outputGrid->resolutionType));
   obj.insert("resolution_data_series_id", static_cast<qint32>(outputGrid->resolutionDataSeriesId));
-  obj.insert("resolution_x",  QJsonValue(outputGrid->interpolationDummy));
-  obj.insert("resolution_y",  QJsonValue(outputGrid->interpolationDummy));
+  obj.insert("resolution_x",  QJsonValue(outputGrid->resolutionX));
+  obj.insert("resolution_y",  QJsonValue(outputGrid->resolutionY));
   obj.insert("srid", static_cast<qint32>(outputGrid->resolutionType));
   obj.insert("area_of_interest_data_series_id", static_cast<qint32>(outputGrid->interestAreaDataSeriesId));
   obj.insert("area_of_interest_type", static_cast<qint32>(outputGrid->interestAreaType));
@@ -289,4 +293,70 @@ terrama2::services::analysis::core::AnalysisOutputGridPtr terrama2::services::an
   }
 
   return outputGridPtr;
+}
+
+terrama2::services::analysis::core::ReprocessingHistoricalDataPtr terrama2::services::analysis::core::fromAnalysisReprocessingHistoricalData(
+    const QJsonObject& json)
+{
+  if(json.isEmpty())
+  {
+    return terrama2::services::analysis::core::ReprocessingHistoricalDataPtr();
+  }
+
+  if(json["class"].toString() != "ReprocessingHistoricalData")
+  {
+    QString errMsg(QObject::tr("Invalid ReprocessingHistoricalData JSON object."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!(json.contains("start_date")
+       && json.contains("end_date")))
+  {
+    QString errMsg(QObject::tr("Invalid ReprocessingHistoricalData JSON object."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  ReprocessingHistoricalData* reprocessingHistoricalData = new ReprocessingHistoricalData;
+  ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);
+
+  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
+  if(!json.value("start_date").isNull())
+  {
+    std::string startDate = json["start_date"].toString().toStdString();
+    reprocessingHistoricalData->startDate = terrama2::core::TimeUtils::stringToTimestamp(startDate, timestampFacet);
+  }
+
+  if(!json.value("end_date").isNull())
+  {
+    std::string endDate = json["end_date"].toString().toStdString();
+    reprocessingHistoricalData->endDate = terrama2::core::TimeUtils::stringToTimestamp(endDate, timestampFacet);
+  }
+
+  return reprocessingHistoricalDataPtr;
+}
+
+QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analysis::core::ReprocessingHistoricalDataPtr
+                                                       reprocessingHistoricalDataPtr)
+{
+  QJsonObject obj;
+
+  if(!reprocessingHistoricalDataPtr)
+    return obj;
+
+  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
+  obj.insert("class", QString("ReprocessingHistoricalData"));
+  if(reprocessingHistoricalDataPtr->startDate.get())
+  {
+    std::string startDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->startDate->getTimeInstantTZ(), timestampFacet);
+    obj.insert("start_date", QString::fromStdString(startDate));
+  }
+  if(reprocessingHistoricalDataPtr->endDate.get())
+  {
+    std::string endDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->endDate->getTimeInstantTZ(), timestampFacet);
+    obj.insert("end_date", QString::fromStdString(endDate));
+  }
+
+  return obj;
 }

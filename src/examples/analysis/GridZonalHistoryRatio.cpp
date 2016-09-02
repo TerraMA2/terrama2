@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 
     analysis->id = 1;
     analysis->name = "Analysis";
-    analysis->active = false;
+    analysis->active = true;
 
     std::string script = "x = grid.zonal.history.prec.max(\"geotiff 1\", \"30d\")\n"
                          "add_value(\"max\", x)\n"

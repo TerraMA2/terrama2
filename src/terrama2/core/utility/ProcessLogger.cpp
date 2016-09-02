@@ -124,7 +124,7 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 
   if(tableName_.empty())
   {
-    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    QString errMsg = QObject::tr("Can not find log table name");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }

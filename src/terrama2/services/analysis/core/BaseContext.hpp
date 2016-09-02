@@ -146,7 +146,6 @@ namespace terrama2
 
               \return The python interpreter main thread state.
             */
-            inline PyThreadState* getMainThreadState() const { return mainThreadState_; }
 
             /*!
               \brief Adds an error message to list of errors that occurred in the analysis execution.
@@ -203,7 +202,6 @@ namespace terrama2
             std::shared_ptr<te::dt::TimeInstantTZ> startTime_;
             std::set<std::string> errosSet_;
 
-            PyThreadState* mainThreadState_ = nullptr; //!< Python interpreter main thread state.
 
             std::unordered_map<std::string, terrama2::core::DataSeriesPtr > dataSeriesMap_;
             std::unordered_map<Srid, std::shared_ptr<te::srs::Converter> > converterMap_;

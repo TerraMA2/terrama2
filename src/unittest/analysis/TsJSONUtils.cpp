@@ -55,7 +55,7 @@ void TsJSONUtils::testJSON()
   analysis->script = script;
   analysis->scriptLanguage = PYTHON;
   analysis->type = MONITORED_OBJECT_TYPE;
-  analysis->active = false;
+  analysis->active = true;
 
   AnalysisDataSeries monitoredObjectADS;
   monitoredObjectADS.id = 1;

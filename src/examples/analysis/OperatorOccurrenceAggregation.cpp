@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 
   analysis->id = 1;
   analysis->name = "Analysis";
-  analysis->active = false;
+  analysis->active = true;
 
   std::string script = "moBuffer = Buffer()\n"
           "aggregationBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"

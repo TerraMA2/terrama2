@@ -91,7 +91,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
   if(dataSchedule.frequency > 0)
   {
-    double timerSeconds = frequencySeconds(dataSchedule);
+    double timerSeconds = terrama2::core::TimeUtils::frequencySeconds(dataSchedule);
 
     std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::nowUTC();
 
@@ -128,7 +128,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
   }
   else if(dataSchedule.schedule > 0)
   {
-    secondsToStart = scheduleSeconds(dataSchedule);
+    secondsToStart = terrama2::core::TimeUtils::scheduleSeconds(dataSchedule, terrama2::core::TimeUtils::nowUTC());
   }
   else
   {
@@ -147,56 +147,6 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
    {
      timeoutSlot();
    }
-}
-
-double terrama2::core::Timer::frequencySeconds(const Schedule& dataSchedule)
-{
-  te::common::UnitOfMeasurePtr uom = te::common::UnitsOfMeasureManager::getInstance().find(dataSchedule.frequencyUnit);
-
-  if(!uom)
-  {
-    QString errMsg = QObject::tr("Invalid unit frequency.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
-  }
-
-  double secondsFrequency = dataSchedule.frequency * te::common::UnitsOfMeasureManager::getInstance().getConversion(dataSchedule.frequencyUnit,"second");
-
-  return secondsFrequency;
-}
-
-double terrama2::core::Timer::scheduleSeconds(const Schedule& dataSchedule)
-{
-  te::common::UnitOfMeasurePtr uom = te::common::UnitsOfMeasureManager::getInstance().find(dataSchedule.scheduleUnit);
-
-  if(!uom)
-  {
-    QString errMsg = QObject::tr("Invalid schedule unit.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
-  }
-
-  if(uom->getName() == "WEEK")
-  {
-    std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::nowUTC();
-
-    boost::gregorian::greg_weekday gw(dataSchedule.schedule);
-    boost::gregorian::date d(boost::date_time::next_weekday(nowTZ->getTimeInstantTZ().date(), gw));
-    boost::posix_time::time_duration td(boost::posix_time::duration_from_string(dataSchedule.scheduleTime));
-    boost::posix_time::ptime pt(d, td);
-    boost::local_time::local_date_time dt(pt, nowTZ->getTimeInstantTZ().zone());
-    te::dt::TimeInstantTZ day(dt);
-
-    return day - *nowTZ.get();
-  }
-  else
-  {
-    QString errMsg = QObject::tr("Invalid unit for schedule.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
-  }
-
-  return 0.0;
 }
 
 ProcessId terrama2::core::Timer::processId() const
