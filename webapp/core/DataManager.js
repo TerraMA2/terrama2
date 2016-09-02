@@ -2366,6 +2366,14 @@ var DataManager = {
     });
   },
 
+  /**
+   * It performs a update analysis from given restriction
+   * 
+   * @param {number} analysisId - An analysis identifier
+   * @param {Object} analysisObject - An analysis object to update
+   * @param {Object} scheduleObject - A schedule object to update
+   * @return {Promise} 
+   */
   updateAnalysis: function(analysisId, analysisObject, scheduleObject) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -2411,7 +2419,9 @@ var DataManager = {
             // updating schedule
             self.updateSchedule(analysisInstance.schedule.id, scheduleObject).then(function() {
               if (analysisInstance.type.id === Enums.AnalysisType.GRID) {
-                var gridObject = Object.assign({}, analysisInstance.outputGrid.toObject ? analysisInstance.outputGrid.toObject() : analysisInstance.outputGrid);
+                var gridObject = Object.assign(
+                  {},
+                  analysisInstance.outputGrid.toObject ? analysisInstance.outputGrid.toObject() : analysisInstance.outputGrid);
                 // reset
                 for(var k in gridObject) {
                   if (gridObject.hasOwnProperty(k)) {
