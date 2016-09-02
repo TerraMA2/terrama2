@@ -113,7 +113,8 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   }
 
   // swap in my thread state
-  auto previousState = PyThreadState_Swap(state);
+  auto previousState = PyEval_SaveThread();
+  PyEval_RestoreThread(state);
 
   try
   {
@@ -192,7 +193,8 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   }
 
 
-  state = PyThreadState_Swap(previousState);
+  state = PyEval_SaveThread();
+  PyEval_RestoreThread(previousState);
 }
 
 
@@ -581,7 +583,49 @@ std::string terrama2::services::analysis::core::python::prepareScript(terrama2::
   return formatedScript;
 }
 
+std::mutex terrama2::services::analysis::core::python::GILLock::mutex_;
 
+terrama2::services::analysis::core::python::GILLock::GILLock(bool lock) : lock_(lock)
+{
+  if(lock)
+  {
+    mutex_.lock();
+    state_ = PyGILState_Ensure();
+  }
+}
+
+terrama2::services::analysis::core::python::GILLock::~GILLock()
+{
+  if(lock_)
+  {
+    PyGILState_Release(state_);
+    mutex_.unlock();
+  }
+}
+
+terrama2::services::analysis::core::python::OperatorLock::OperatorLock()
+  : GILLock(false)
+{
+
+}
+
+terrama2::services::analysis::core::python::OperatorLock::~OperatorLock()
+{
+
+}
+
+void terrama2::services::analysis::core::python::OperatorLock::lock()
+{
+  mutex_.lock();
+  PyEval_RestoreThread(save_);
+}
+
+void terrama2::services::analysis::core::python::OperatorLock::unlock()
+{
+  save_ = PyEval_SaveThread();
+  mutex_.unlock();
+}
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
+

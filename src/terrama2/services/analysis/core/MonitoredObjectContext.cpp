@@ -316,7 +316,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
   if(!needToAdd)
     return;
 
-  boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
+  boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
 
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)

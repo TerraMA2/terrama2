@@ -82,19 +82,6 @@ namespace terrama2
        */
       void prepareTimer(const terrama2::core::Schedule& dataSchedule);
 
-      /*!
-       * \brief A method to calculate the seconds for frequency stored in the Schedule
-       * \param dataSchedule The schedule struct with the information for when a process should be executed
-       * \return A double containing the frequency in seconds
-       */
-      double frequencySeconds(const Schedule& dataSchedule);
-
-      /*!
-       * \brief A method to calculate the seconds until the scheduled date and time in stored in the Schedule
-       * \param dataSchedule The schedule struct with the information for when a process should be executed
-       * \return A double containing the seconds until the scheduled timestamp
-       */
-      double scheduleSeconds(const Schedule& dataSchedule);
 
       struct Impl;
       Impl* impl_;

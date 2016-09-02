@@ -71,7 +71,7 @@
 #include <terralib/dataaccess/utils/Utils.h>
 
 
-void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, ThreadPoolPtr threadPool)
+void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   RegisterId logId = 0;
   AnalysisHashCode analysisHashCode = analysis->hashCode(startTime);
@@ -87,17 +87,17 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
     {
       case AnalysisType::MONITORED_OBJECT_TYPE:
       {
-        runMonitoredObjectAnalysis(dataManager, analysis, startTime, threadPool);
+        runMonitoredObjectAnalysis(dataManager, analysis, startTime, threadPool, mainThreadState);
         break;
       }
       case AnalysisType::PCD_TYPE:
       {
-        runDCPAnalysis(dataManager, analysis, startTime, threadPool);
+        runDCPAnalysis(dataManager, analysis, startTime, threadPool, mainThreadState);
         break;
       }
       case AnalysisType::GRID_TYPE:
       {
-        runGridAnalysis(dataManager, analysis, startTime, threadPool);
+        runGridAnalysis(dataManager, analysis, startTime, threadPool, mainThreadState);
         break;
       }
     }
@@ -170,14 +170,13 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   ContextManager::getInstance().clearContext(analysisHashCode);
 }
 
-void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
+void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
   ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
 
   std::vector<std::future<void> > futures;
   std::vector<PyThreadState*> states;
-  PyThreadState * mainThreadState = nullptr;
   try
   {
     context->loadMonitoredObject();
@@ -212,8 +211,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    // Recovers the main thread state
-    mainThreadState = context->getMainThreadState();
     if(mainThreadState == nullptr)
     {
       QString errMsg = QObject::tr("Could not recover python interpreter main thread state");
@@ -309,7 +306,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 }
 
 
-void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
+void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   // TODO: Ticket #433
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
@@ -392,7 +389,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   assert(dataSeries->datasetList.size() == 1);
 
 
-  te::da::DataSetType* dt = new te::da::DataSetType(datasetName);
+  std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(datasetName);
 
   // first property is the geomId
   te::dt::StringProperty* geomIdProp = new te::dt::StringProperty("geom_id", te::dt::VAR_STRING, 255, true);
@@ -405,15 +402,13 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
   // the unique key is composed by the geomId and the execution date.
   std::string nameuk = datasetName+ "_uk";
-  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt);
+  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt.get());
   uk->add(geomIdProp);
   uk->add(dateProp);
-  dt->add(uk);
 
   //create index on date column
-  te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt);
+  te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt.get());
   indexDate->add(dateProp);
-  dt->add(indexDate);
 
   for(std::string attribute : attributes)
   {
@@ -424,7 +419,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   auto date = terrama2::core::TimeUtils::nowUTC();
 
   // Creates memory dataset and add the items.
-  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dt);
+  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(static_cast<te::da::DataSetType*>(dt->clone()));
   for(auto it = resultMap.begin(); it != resultMap.end(); ++it)
   {
     te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
@@ -445,7 +440,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);
 
   terrama2::core::DataSetSeries series;
-  series.teDataSetType.reset(dt);
+  series.teDataSetType = dt;
   series.syncDataSet.swap(syncDataSet);
 
   try
@@ -460,7 +455,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
 }
 
-void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool)
+void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::GridContext>(dataManager, analysis, startTime);
 
@@ -476,7 +471,6 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
   std::vector<std::future<void> > futures;
   std::vector<PyThreadState*> states;
-  PyThreadState * mainThreadState = nullptr;
 
   try
   {
@@ -495,8 +489,6 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    // Recovers the main thread state
-    mainThreadState = context->getMainThreadState();
     if(mainThreadState == nullptr)
     {
       QString errMsg = QObject::tr("Could not recover python interpreter main thread state");
