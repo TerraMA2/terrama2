@@ -263,8 +263,15 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     auto gradsDescriptor = readDataDescriptor(fileInfo.absoluteFilePath().toStdString());;
     gradsDescriptor.srid_ = getSrid(dataSet);
 
-    // Reads the dataset name from CTL
+    //FIXME: temporary restriction of only one band
+    if(gradsDescriptor.tDef_->numValues_ > 1)
+    {
+      QString errMsg = QObject::tr("Invalid number of bands in dataset %1").arg(dataSet->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessException() << ErrorDescription(errMsg);
+    }
 
+    // Reads the dataset name from CTL
     std::string datasetMask = gradsDescriptor.datasetFilename_;
     if (gradsDescriptor.datasetFilename_[0] == '^')
     {
@@ -279,16 +286,17 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     {
       std::string name = dataFileInfo.fileName().toStdString();
       std::string baseName = dataFileInfo.baseName().toStdString();
+      std::string extension = dataFileInfo.suffix().toStdString();
 
       // Verify if the file name matches the datasetMask
       if (!isValidDataSetName(datasetMask, filter, timezone, name, thisFileTimestamp))
         continue;
 
-      boost::replace_last(name, "bin", "vrt");
+      boost::replace_last(name, extension, "vrt");
 
       QString binFilename = dataFileInfo.absoluteFilePath();
       QString vrtFilename = dataFileInfo.absoluteFilePath();
-      vrtFilename.replace("bin", "vrt");
+      vrtFilename.replace(QString::fromStdString(extension), "vrt");
 
 
       writeVRTFile(gradsDescriptor, binFilename.toStdString(), vrtFilename.toStdString());
@@ -355,54 +363,11 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         first = false;
       }
 
-      // Creates flipped raster
-      te::rst::Grid* grid = new te::rst::Grid(*raster->getGrid());
+      addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
+//      // Creates flipped raster
+//      QFile vrtFile(vrtFilename);
+//      vrtFile.remove();
 
-      std::vector<te::rst::BandProperty*> bands;
-      for (unsigned int i = 0; i < raster->getNumberOfBands(); ++i)
-      {
-        te::rst::BandProperty* bandProperty = new te::rst::BandProperty(*raster->getBand(i)->getProperty());
-        bands.push_back(bandProperty);
-      }
-
-      std::unique_ptr<te::rst::Raster> flippedRaster(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
-
-
-      for (size_t band = 0; band < raster->getNumberOfBands(); ++band)
-      {
-        for (size_t row = 0; row < raster->getNumberOfRows(); ++row)
-        {
-          size_t flippedRow = raster->getNumberOfRows() - row -1;
-          for (size_t col = 0; col < raster->getNumberOfColumns(); ++col)
-          {
-            double value;
-            raster->getValue(col, row, value);
-            flippedRaster->setValue(col, flippedRow, value);
-          }
-        }
-      }
-
-      // Creates the memory dataset
-      std::map<std::string, std::string> rinfo;
-      te::rst::RasterProperty* rstp = new te::rst::RasterProperty(grid, bands, rinfo);
-      te::da::DataSetType* dstp = new te::da::DataSetType("raster");
-      dstp->add(rstp);
-      std::shared_ptr<te::mem::DataSet> flippedDataset(new te::mem::DataSet(dstp));
-
-
-
-      // Adds the raster to the memory dataset
-      std::size_t rasterColumn = te::da::GetFirstPropertyPos(flippedDataset.get(), te::dt::RASTER_TYPE);
-      te::mem::DataSetItem* item = new te::mem::DataSetItem(flippedDataset.get());
-      item->setRaster(rasterColumn, flippedRaster.release());
-      flippedDataset->add(item);
-
-
-
-
-
-
-      addToCompleteDataSet(completeDataset, flippedDataset, thisFileTimestamp);
 
       //update last file timestamp
       if (lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
@@ -901,7 +866,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     {
       vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
               << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] << ",0,"
-              << (-1.0 * descriptor.yDef_->values_[1])
+              << descriptor.yDef_->values_[1]
               << "</GeoTransform>";
     }
 
@@ -909,7 +874,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     unsigned int lineOffset = 0;
     unsigned int imageOffset = 0;
 
-    for (unsigned int bandIdx = 0; bandIdx < descriptor.zDef_->numValues_; ++bandIdx)
+    for (unsigned int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
     {
 
       // BSQ (Band sequential) interleave

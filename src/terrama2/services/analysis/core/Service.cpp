@@ -232,6 +232,8 @@ void terrama2::services::analysis::core::Service::connectDataManager()
 
 void terrama2::services::analysis::core::Service::start(size_t threadNumber)
 {
+  //FIXME: thread number fixed to 1. Concurrency problems.
+  threadNumber = 1;
   terrama2::core::Service::start(threadNumber);
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }

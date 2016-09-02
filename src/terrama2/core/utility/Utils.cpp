@@ -394,3 +394,9 @@ std::shared_ptr<te::gm::Geometry> terrama2::core::ewktToGeom(const std::string& 
 
   return geom;
 }
+
+void terrama2::core::simplifyString(std::string& text)
+{
+  text.erase(std::remove_if(text.begin(), text.end(), [](char x){return !(std::isalnum(x) || x == ' ');}), text.end());
+  std::replace(text.begin(), text.end(), ' ', '_');
+}

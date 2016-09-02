@@ -42,7 +42,11 @@ void terrama2::services::analysis::core::ContextManager::addMonitoredObjectConte
     analysisMap_.emplace(analysisHashCode, context->getAnalysis());
   }
   else
-    throw;//TODO: throw here
+  {
+    QString errMsg = QObject::tr("Monitored Object Context already registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ContextManagerException() << ErrorDescription(errMsg);
+  }
 }
 
 void terrama2::services::analysis::core::ContextManager::addGridContext(const AnalysisHashCode analysisHashCode, GridContextPtr context)
@@ -54,7 +58,11 @@ void terrama2::services::analysis::core::ContextManager::addGridContext(const An
     analysisMap_.emplace(analysisHashCode, context->getAnalysis());
   }
   else
-    throw;//TODO: throw here
+  {
+    QString errMsg = QObject::tr("Grid Context already registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ContextManagerException() << ErrorDescription(errMsg);
+  }
 }
 
 terrama2::services::analysis::core::MonitoredObjectContextPtr terrama2::services::analysis::core::ContextManager::getMonitoredObjectContext(const AnalysisHashCode analysisHashCode) const
@@ -63,7 +71,11 @@ terrama2::services::analysis::core::MonitoredObjectContextPtr terrama2::services
   if(it != monitoredObjectContextMap_.cend())
     return it->second;
   else
-    throw;//TODO: throw here
+  {
+    QString errMsg = QObject::tr("Unable to locate Monitored Object Context.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ContextManagerException() << ErrorDescription(errMsg);
+  }
 }
 
 terrama2::services::analysis::core::GridContextPtr terrama2::services::analysis::core::ContextManager::getGridContext(const AnalysisHashCode analysisHashCode) const
@@ -72,7 +84,11 @@ terrama2::services::analysis::core::GridContextPtr terrama2::services::analysis:
   if(it != gridContextMap_.cend())
     return it->second;
   else
-    throw;//TODO: throw here
+  {
+    QString errMsg = QObject::tr("Unable to locate Grid Context.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ContextManagerException() << ErrorDescription(errMsg);
+  }
 }
 
 terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::core::ContextManager::getAnalysis(const AnalysisHashCode analysisHashCode) const
@@ -81,7 +97,11 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
   if(it != analysisMap_.cend())
     return it->second;
   else
-    throw;//TODO: throw here
+  {
+    QString errMsg = QObject::tr("Unable to locate Analysis.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ContextManagerException() << ErrorDescription(errMsg);
+  }
 }
 
 void terrama2::services::analysis::core::ContextManager::clearContext(const AnalysisHashCode analysisHashCode)
