@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 
     analysis->id = 1;
     analysis->name = "Analysis";
-    analysis->active = false;
+    analysis->active = true;
 
     std::string script = "moBuffer = Buffer()\n"
                          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"

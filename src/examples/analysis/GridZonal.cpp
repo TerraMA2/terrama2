@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 
     analysis->id = 1;
     analysis->name = "Analysis";
-    analysis->active = false;
+    analysis->active = true;
 
     std::string script = "x = grid.zonal.count(\"geotiff 1\")\n"
                          "add_value(\"min\", x)\n"

@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
     analysis->script = "return grid.sample(\"geotiff 1\")";
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
-    analysis->active = false;
+    analysis->active = true;
     analysis->outputDataSeriesId = 5;
     analysis->serviceInstanceId = 1;
 
