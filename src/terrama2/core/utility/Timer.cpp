@@ -106,7 +106,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
     }
     else
     {
-      auto startDate = terrama2::core::TimeUtils::stringToTimestamp(dataSchedule.frequencyStartTime, "%Y-%m-%dT%H:%M:%S%F%ZP");
+      auto startDate = terrama2::core::TimeUtils::stringToTimestamp(dataSchedule.frequencyStartTime, terrama2::core::TimeUtils::webgui_timefacet);
       if(startDate->getTimeInstantTZ().date() <= nowTZ->getTimeInstantTZ().date())
       {
         auto now = nowTZ->getTimeInstantTZ().time_of_day();

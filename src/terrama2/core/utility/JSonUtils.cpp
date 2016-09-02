@@ -257,18 +257,17 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
   terrama2::core::Filter filter;
   if(json.contains("discard_before") && !json.value("discard_before").isNull())
   {
     std::string dateTime = json.value("discard_before").toString().toStdString();
-    filter.discardBefore = TimeUtils::stringToTimestamp(dateTime, timestampFacet);
+    filter.discardBefore = TimeUtils::stringToTimestamp(dateTime, terrama2::core::TimeUtils::webgui_timefacet);
     verify::date(filter.discardBefore);
   }
   if(json.contains("discard_after") && !json.value("discard_after").isNull())
   {
     std::string dateTime = json["discard_after"].toString().toStdString();
-    filter.discardAfter = TimeUtils::stringToTimestamp(dateTime, timestampFacet);
+    filter.discardAfter = TimeUtils::stringToTimestamp(dateTime, terrama2::core::TimeUtils::webgui_timefacet);
     verify::date(filter.discardAfter);
   }
 
