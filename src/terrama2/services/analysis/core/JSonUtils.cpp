@@ -66,8 +66,8 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
        && json.contains("analysis_dataseries_list")
        && json.contains("schedule")
        && json.contains("service_instance_id")
-       && json.contains("output_grid")
-       && json.contains("reprocessing_historical_data")))
+       && json.contains("output_grid")))
+      //  && json.contains("reprocessing_historical_data")))
   {
     QString errMsg(QObject::tr("Invalid Analysis JSON object."));
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -321,17 +321,16 @@ terrama2::services::analysis::core::ReprocessingHistoricalDataPtr terrama2::serv
   ReprocessingHistoricalData* reprocessingHistoricalData = new ReprocessingHistoricalData;
   ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);
 
-  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
   if(!json.value("start_date").isNull())
   {
     std::string startDate = json["start_date"].toString().toStdString();
-    reprocessingHistoricalData->startDate = terrama2::core::TimeUtils::stringToTimestamp(startDate, timestampFacet);
+    reprocessingHistoricalData->startDate = terrama2::core::TimeUtils::stringToTimestamp(startDate, terrama2::core::TimeUtils::webgui_timefacet);
   }
 
   if(!json.value("end_date").isNull())
   {
     std::string endDate = json["end_date"].toString().toStdString();
-    reprocessingHistoricalData->endDate = terrama2::core::TimeUtils::stringToTimestamp(endDate, timestampFacet);
+    reprocessingHistoricalData->endDate = terrama2::core::TimeUtils::stringToTimestamp(endDate, terrama2::core::TimeUtils::webgui_timefacet);
   }
 
   return reprocessingHistoricalDataPtr;
@@ -345,16 +344,15 @@ QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analy
   if(!reprocessingHistoricalDataPtr)
     return obj;
 
-  const std::string timestampFacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
   obj.insert("class", QString("ReprocessingHistoricalData"));
   if(reprocessingHistoricalDataPtr->startDate.get())
   {
-    std::string startDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->startDate->getTimeInstantTZ(), timestampFacet);
+    std::string startDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->startDate->getTimeInstantTZ(), terrama2::core::TimeUtils::webgui_timefacet);
     obj.insert("start_date", QString::fromStdString(startDate));
   }
   if(reprocessingHistoricalDataPtr->endDate.get())
   {
-    std::string endDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->endDate->getTimeInstantTZ(), timestampFacet);
+    std::string endDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->endDate->getTimeInstantTZ(), terrama2::core::TimeUtils::webgui_timefacet);
     obj.insert("end_date", QString::fromStdString(endDate));
   }
 
