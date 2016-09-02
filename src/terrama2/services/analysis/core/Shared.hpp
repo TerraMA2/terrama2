@@ -63,7 +63,7 @@ namespace terrama2
         class MonitoredObjectContext;
         typedef std::shared_ptr<terrama2::services::analysis::core::MonitoredObjectContext> MonitoredObjectContextPtr;
 
-        class ReprocessingHistoricalData;
+        struct ReprocessingHistoricalData;
         typedef std::shared_ptr<terrama2::services::analysis::core::ReprocessingHistoricalData> ReprocessingHistoricalDataPtr;
 
       } // end namespace core
