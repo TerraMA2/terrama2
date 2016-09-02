@@ -156,6 +156,14 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
 
 std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getConverter(DataSetPtr dataset, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {
+  if(!datasetType.get())
+  {
+    QString errMsg = QObject::tr("Invalid DataSetType.\nDoes the data exists?");
+
+    TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
   std::shared_ptr<te::da::DataSetTypeConverter> converter(new te::da::DataSetTypeConverter(datasetType.get()));
 
   addColumns(converter, datasetType);
@@ -226,17 +234,17 @@ std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > t
       series.emplace(dataset, tempSeries);
 
 
-      // TODO: possible concurrency problems here, temp folder is the same and it's removed while others are reading #582
-      if(removeFolder)
-      {
-        QUrl url(uri.c_str());
-        QDir dir(url.path());
-        if(!dir.removeRecursively())
-        {
-          QString errMsg = QObject::tr("Data folder could not be removed.\n%1").arg(url.path());
-          TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-        }
-      }
+      // FIXME: concurrency problems here, temp folder is the same and it's removed while others are reading #582
+      // if(removeFolder)
+      // {
+      //   QUrl url(uri.c_str());
+      //   QDir dir(url.path());
+      //   if(!dir.removeRecursively())
+      //   {
+      //     QString errMsg = QObject::tr("Data folder could not be removed.\n%1").arg(url.path());
+      //     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+      //   }
+      // }
     }//for each dataset
   }
   catch(const terrama2::Exception&)

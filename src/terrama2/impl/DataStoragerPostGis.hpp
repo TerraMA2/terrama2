@@ -56,6 +56,11 @@ namespace terrama2
 
       protected:
         std::string getDataSetTableName(DataSetPtr dataSet) const;
+        /*!
+           \brief Check if the two properties have same name and type.
+           \exception DataStoragerException Raise if have the same name and different types
+        */
+        bool isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const;
     };
   }
 }

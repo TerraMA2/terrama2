@@ -120,8 +120,11 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
         }
 
         addRaster(key, dsRaster);
-
-        std::shared_ptr<te::rst::Interpolator> interpolator(new te::rst::Interpolator(dsRaster.get(), static_cast<int>(analysis_->outputGridPtr->interpolationMethod)));
+        //FIXME: configure interpolation method in monitored object analysis grid dataseries
+        auto interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
+        if(interpolationMethod == 0)
+          interpolationMethod = 1;
+        std::shared_ptr<te::rst::Interpolator> interpolator(new te::rst::Interpolator(dsRaster.get(), interpolationMethod));
         interpolatorMap_.emplace(dsRaster, interpolator);
       }
     });

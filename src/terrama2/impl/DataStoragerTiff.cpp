@@ -196,7 +196,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
 
   //if no extension in the mask, add extension
   pos = fileName.find(".tif");
-  if(pos != std::string::npos)
+  if(pos == std::string::npos)
     fileName += ".tif";
   return fileName;
 }
