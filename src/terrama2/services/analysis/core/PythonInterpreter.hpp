@@ -65,21 +65,37 @@ namespace terrama2
               /*!
                 \brief Constructor
               */
-              GILLock()
-              {
-                state_ = PyGILState_Ensure();
-              }
+              GILLock(bool lock = true);
 
               /*!
                 \brief Destructor
               */
-              ~GILLock()
-              {
-                PyGILState_Release(state_);
-              }
+              virtual ~GILLock();
+
+
+              static std::mutex mutex_;
 
             private:
               PyGILState_STATE state_; //!< Python GIL state.
+              bool lock_;
+          };
+
+          struct OperatorLock : public GILLock
+          {
+            public:
+              //! Constructor
+              OperatorLock();
+
+              //! Destructor
+              virtual ~OperatorLock();
+
+              void lock();
+
+              void unlock();
+
+            private:
+              PyThreadState* save_;
+
           };
 
           /*!

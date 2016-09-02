@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
   outputDataSet->active = true;
   outputDataSet->id = 2;
-  outputDataSet->format.emplace("table_name", "occurrence_analysis_result");
+  outputDataSet->format.emplace("table_name", "reprocessing_result");
 
   outputDataSeries->datasetList.emplace_back(outputDataSet);
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   analysis->active = true;
 
   std::string script = "moBuffer = Buffer()\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
+          "x = occurrence.count(\"Occurrence\", moBuffer, \"1d\", \"\")\n"
           "add_value(\"count\", x)\n";
 
 
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis->schedule.frequency = 6;
+  analysis->schedule.frequency = 3;
   analysis->schedule.frequencyUnit = "h";
 
   auto reprocessingHistoricalData = new ReprocessingHistoricalData();
@@ -216,12 +216,12 @@ int main(int argc, char* argv[])
 
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
 
-  std::string startDate = "2016-01-01 08:00:00";
+  std::string startDate = "2016-08-01 00:00:00";
   boost::posix_time::ptime startBoostDate(boost::posix_time::time_from_string(startDate));
   boost::local_time::local_date_time lstartDate(startBoostDate.date(), startBoostDate.time_of_day(), zone, true);
   reprocessingHistoricalData->startDate = std::make_shared<te::dt::TimeInstantTZ>(lstartDate);
 
-  std::string endDate = "2016-01-02 08:00:00";
+  std::string endDate = "2016-08-02 00:00:00";
   boost::posix_time::ptime endBoostDate(boost::posix_time::time_from_string(endDate));
   boost::local_time::local_date_time lendDate(endBoostDate.date(), endBoostDate.time_of_day(), zone, true);
   reprocessingHistoricalData->endDate = std::make_shared<te::dt::TimeInstantTZ>(lendDate);
