@@ -152,6 +152,19 @@ var ImportExport = function(io) {
                   delete collector.schedule.id;
                   promises.push(DataManager.addSchedule(collector.schedule, options).then(function(scheduleResult) {
                     collector.schedule_id = scheduleResult.id;
+
+                    var date = {};
+
+                    if (collector.filter && collector.filter.discard_after) {
+                      date.afterDate = Utils.dateFromFormat(collector.filter.discard_after);
+                    }
+
+                    if (collector.filter && collector.filter.discard_before) {
+                      date.beforeDate = Utils.dateFromFormat(collector.filter.discard_before); 
+                    }
+
+                    collector.filter.date = date;
+
                     return DataManager.addCollector(collector, collector.filter, options);
                   }));
                 });
