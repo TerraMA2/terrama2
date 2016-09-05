@@ -78,7 +78,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
 
   try
   {
-    TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution").arg(analysis->id);
+    TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution: %2").arg(analysis->id).arg(startTime->toString().c_str());
 
     if(logger.get())
       logId = logger->start(analysis->id);
@@ -140,7 +140,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       if(logger.get())
         logger->error(errorStr, logId);
 
-      QString errMsg = QObject::tr("Analysis %1 finished with the following error(s):\n%2").arg(analysis->id).arg(QString::fromStdString(errorStr));
+      QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
     }
     else
@@ -148,7 +148,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
       if(logger.get())
         logger->done(startTime, logId);
 
-      QString errMsg = QObject::tr("Analysis %1 finished successfully.").arg(analysis->id);
+      QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
       TERRAMA2_LOG_INFO() << errMsg;
     }
   }
@@ -180,8 +180,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
   try
   {
     context->loadMonitoredObject();
-
-    auto analysis = context->getAnalysis();
 
     size_t size = 0;
     for(auto analysisDataSeries : analysis->analysisDataSeriesList)
@@ -416,7 +414,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
     dt->add(prop);
   }
 
-  auto date = terrama2::core::TimeUtils::nowUTC();
+  auto date = context->getStartTime();
 
   // Creates memory dataset and add the items.
   std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(static_cast<te::da::DataSetType*>(dt->clone()));

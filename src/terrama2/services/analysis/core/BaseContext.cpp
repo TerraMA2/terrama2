@@ -48,11 +48,13 @@ terrama2::services::analysis::core::BaseContext::~BaseContext()
 
 void terrama2::services::analysis::core::BaseContext::addError(const std::string& errorMessage)
 {
-  errosSet_.insert(errorMessage);
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  errorsSet_.insert(errorMessage);
 }
 
 terrama2::core::DataSeriesPtr terrama2::services::analysis::core::BaseContext::findDataSeries(const std::string& dataSeriesName)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto it = dataSeriesMap_.find(dataSeriesName);
   if(it == dataSeriesMap_.end())
   {
@@ -138,6 +140,7 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
     const std::string& dateDiscardBefore,
     const std::string& dateDiscardAfter)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   ObjectKey key;
   key.objectId_ = dataSeriesId;
   key.dateFilterBegin_ = dateDiscardBefore;
@@ -182,6 +185,7 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
 
 terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFilter(const std::string& dateDiscardBefore, const std::string& dateDiscardAfter)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   terrama2::core::Filter filter;
 
   filter.discardAfter = startTime_;
@@ -189,7 +193,7 @@ terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFi
   {
     if(!dateDiscardBefore.empty())
     {
-      boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
+      boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
       double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
       //TODO: PAULO: review losing precision
       ldt -= boost::posix_time::seconds(seconds);
@@ -199,12 +203,10 @@ terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFi
 
       filter.lastValue = false;
     }
-    else
-      filter.discardBefore = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
 
     if(!dateDiscardAfter.empty())
     {
-      boost::local_time::local_date_time ldt = terrama2::core::TimeUtils::nowBoostLocal();
+      boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
       double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
       ldt -= boost::posix_time::seconds(seconds);
 
@@ -213,8 +215,6 @@ terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFi
 
       filter.lastValue = false;
     }
-    else
-      filter.discardAfter = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
   }
   else
   {
@@ -232,6 +232,7 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
     const std::string& dateDiscardBefore,
     const std::string& dateDiscardAfter)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   ObjectKey key;
   key.objectId_ = dataSeriesId;
   key.dateFilterBegin_ = dateDiscardBefore;
