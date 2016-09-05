@@ -1023,7 +1023,7 @@ var DataManager = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataFormat>} - a 'bluebird' module with DataFormat instance or error callback
    */
-  listDataFormats: function(restriction) {
+  listDataFormats: function(restriction, options) {
     return new Promise(function(resolve, reject) {
       models.db.DataFormat.findAll(Utils.extend({where: restriction}, options)).then(function(dataFormats) {
         var output = [];
