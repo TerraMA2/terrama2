@@ -402,13 +402,17 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
   // the unique key is composed by the geomId and the execution date.
   std::string nameuk = datasetName+ "_uk";
-  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk, dt.get());
+  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk);
   uk->add(geomIdProp);
   uk->add(dateProp);
 
+  dt->add(uk);
+
   //create index on date column
-  te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE, dt.get());
+  te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE);
   indexDate->add(dateProp);
+
+  dt->add(indexDate);
 
   for(std::string attribute : attributes)
   {
