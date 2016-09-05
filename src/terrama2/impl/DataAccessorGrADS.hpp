@@ -163,7 +163,7 @@ namespace terrama2
          \return The URI to retrieved data.
         */
         std::string
-        retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const override;
+        retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const override;
 
         /*
          \brief Returns a smart pointer to a DataAccessorGrADS.

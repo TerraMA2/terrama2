@@ -273,7 +273,8 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
     }
     catch(...)
     {
@@ -329,7 +330,7 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
-    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
+    EXPECT_CALL(*mock_, retrieveData(_,_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
@@ -337,7 +338,8 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NotRetrivableException&)
@@ -401,7 +403,8 @@ void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NoDataException&)
@@ -466,7 +469,8 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NoDataException&)
@@ -517,7 +521,8 @@ void TsDataAccessorDcpToa5::TestOK()
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
 
     assert(dcpSeries->dcpSeriesMap().size() == 1);
 

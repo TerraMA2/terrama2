@@ -97,7 +97,8 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     auto risk = alertPtr->risk;
 
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
-    auto dataMap = dataAccessor->getSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
       if(logger.get())

@@ -67,7 +67,7 @@ namespace terrama2
         DataAccessorDcp& operator=(DataAccessorDcp&& other) { DataAccessor::operator=(std::move(other)); return *this; }
 
         //! Returns a DcpSeries filtered by Filter
-        virtual DcpSeriesPtr getDcpSeries(const Filter& filter);
+        virtual DcpSeriesPtr getDcpSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover);
 
       protected:
         // Doc in base class

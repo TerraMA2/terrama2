@@ -148,8 +148,9 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
 
   terrama2::core::Filter filter;
 
+  auto remover = std::make_shared<terrama2::core::FileRemover>();
   // Reads data
-  auto seriesMap = accessor->getSeries(filter);
+  auto seriesMap = accessor->getSeries(filter, remover);
 
   for(auto it = seriesMap.begin(); it != seriesMap.end(); ++it)
   {
@@ -357,7 +358,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   terrama2::core::Filter filter;
   filter.lastValue = true;
 
-  auto gridSeries = accessorGrid->getGridSeries(filter);
+  auto remover = std::make_shared<terrama2::core::FileRemover>();
+  auto gridSeries = accessorGrid->getGridSeries(filter, remover);
   auto gridMap = gridSeries->gridMap();
 
   for(auto it = gridMap.begin(); it != gridMap.end(); ++it)

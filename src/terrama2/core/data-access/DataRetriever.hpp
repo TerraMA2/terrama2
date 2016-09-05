@@ -34,6 +34,7 @@
 #include "../../Config.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/Filter.hpp"
+#include "../utility/FileRemover.hpp"
 
 //terralib
 #include <terralib/datatype/TimeInstantTZ.h>
@@ -99,7 +100,7 @@ namespace terrama2
 
           \return Uri to the termporary file
         */
-        virtual std::string retrieveData(const std::string& query, const Filter& filter);
+        virtual std::string retrieveData(const std::string& query, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover);
 
         //! Returns the last data timestamp found on last access.
         virtual te::dt::TimeInstantTZ lastDateTime() const;

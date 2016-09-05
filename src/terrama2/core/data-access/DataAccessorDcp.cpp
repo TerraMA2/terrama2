@@ -40,9 +40,9 @@
 //Qt
 #include <QObject>
 
-terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter)
+terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
-  auto series = getSeries(filter);
+  auto series = getSeries(filter, remover);
   DcpSeriesPtr dcpSeries = std::make_shared<DcpSeries>();
   dcpSeries->addDcpSeries(series);
 

@@ -210,7 +210,8 @@ void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
 
     try
     {
-      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
     }
     catch(...)
     {
@@ -265,7 +266,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
-    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
+    EXPECT_CALL(*mock_, retrieveData(_,_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
@@ -273,7 +274,8 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
 
     try
     {
-      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NotRetrivableException&)
@@ -320,7 +322,8 @@ void TsDataAccessorGeoTiff::TestOK()
     terrama2::core::Filter filter;
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
 
     assert(gridSeries->gridMap().size() == 1);
 

@@ -46,6 +46,7 @@
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
+#include "../../../core/utility/FileRemover.hpp"
 
 terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
   : dataManager_(dataManager)
@@ -165,8 +166,9 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     else if(lastCollectedDataTimestamp.get())
       filter.discardBefore = lastCollectedDataTimestamp;
 
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
-    auto dataMap = dataAccessor->getSeries(filter);
+    auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
       if(logger.get())

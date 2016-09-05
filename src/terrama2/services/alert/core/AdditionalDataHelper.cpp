@@ -48,12 +48,13 @@ terrama2::services::alert::core::AdditionalDataHelper::AdditionalDataHelper(Addi
 {
   dataSeries_ = dataManager->findDataSeries(additionalData.id);
   dataProvider_ = dataManager->findDataProvider(dataSeries_->dataProviderId);
+  remover_ = std::make_shared<terrama2::core::FileRemover>();
 }
 
 bool terrama2::services::alert::core::AdditionalDataHelper::prepareData(terrama2::core::Filter filter)
 {
   auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider_, dataSeries_);
-  dataMap_ = dataAccessor->getSeries(filter);
+  dataMap_ = dataAccessor->getSeries(filter, remover_);
   if(dataMap_.empty())
   {
     TERRAMA2_LOG_WARNING() << QObject::tr("No data to available in dataseries %1.").arg(additionalData_.id);

@@ -125,7 +125,7 @@ size_t terrama2::core::DataRetrieverFTP::write_vector(void *ptr, size_t size, si
   return sizeRead;
 }
 
-std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& mask, const terrama2::core::Filter& filter)
+std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& mask, const terrama2::core::Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   curlwrapper_.init();
   try
@@ -160,6 +160,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
             std::string filePath = temporaryFolder_+"/"+file;
 
             CURLcode res = curlwrapper_.getDownloadFiles(uriOrigin, &terrama2::core::DataRetrieverFTP::write_response, filePath);
+            remover->addTemporaryFile(filePath);
 
             if (res != CURLE_OK)
             {

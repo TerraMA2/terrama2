@@ -87,11 +87,10 @@ std::string terrama2::core::DataAccessorGrADS::getCtlFilename(DataSetPtr dataSet
   }
 }
 
-std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset,
-                                                            const Filter& filter) const
+std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<FileRemover> remover) const
 {
   std::string mask = getCtlFilename(dataset);
-  std::string uri = dataRetriever->retrieveData(mask, filter);
+  std::string uri = dataRetriever->retrieveData(mask, filter, remover);
 
   QUrl url(QString::fromStdString(uri));
   auto gradsDescriptor = readDataDescriptor(url.path().toStdString()+"/"+mask);
@@ -105,7 +104,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 
   datasetMask = replaceMask(datasetMask.c_str()).toStdString();
 
-  uri = dataRetriever->retrieveData(datasetMask, filter);
+  uri = dataRetriever->retrieveData(datasetMask, filter, remover);
 
   return uri;
 }

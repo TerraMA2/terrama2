@@ -181,7 +181,8 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
+std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries >
+terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<FileRemover> remover) const
 {
 
   //if data provider is not active, nothing to do
@@ -224,7 +225,7 @@ std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > t
       std::string uri;
       if(dataRetriever->isRetrivable())
       {
-        uri = retrieveData(dataRetriever, dataset, filter);
+        uri = retrieveData(dataRetriever, dataset, filter, remover);
         removeFolder = true;
       }
       else

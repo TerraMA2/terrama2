@@ -68,10 +68,10 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const
+std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
   std::string mask = getMask(dataset);
-  return dataRetriever->retrieveData(mask, filter);
+  return dataRetriever->retrieveData(mask, filter, remover);
 }
 
 std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const

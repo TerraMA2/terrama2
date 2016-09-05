@@ -42,6 +42,7 @@ int main(int argc, char* argv[])
   std::string path;
   std::string mask = "exporta_20160501_0230.csv";
 
+  auto remover = std::make_shared<terrama2::core::FileRemover>();
   {
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -57,7 +58,7 @@ int main(int argc, char* argv[])
     //accessing data
     terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(curlwrapper));
 
-    path = retrieverFTP.retrieveData(mask, filter);
+    path = retrieverFTP.retrieveData(mask, filter, remover);
   }
 
   curl_global_cleanup();
@@ -70,11 +71,6 @@ int main(int argc, char* argv[])
     qDebug() << "Successfully Test!";
   else
     qDebug() << "Test failed!";
-
-  // Remove paste of download files.
-  QDir dir(uriLocal.path());
-  if (dir.exists())
-    dir.removeRecursively();
 
   return 0;
 }
