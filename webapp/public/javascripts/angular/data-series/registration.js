@@ -535,6 +535,8 @@ angular.module('terrama2.dataseries.registration', [
         if (!selected || !attributeValue)
           return;
 
+        var attributes = $scope.intersection[selected.id].attributes;
+
         var found = attributes.filter(function(elm) {
           return elm === attributeValue;
         });
@@ -552,6 +554,9 @@ angular.module('terrama2.dataseries.registration', [
           // reset form to the default state
           $scope.intersection[selected.id].attributes.push(attributeValue);
           form.$setPristine();
+        } else {
+          // TODO: throw error message
+
         }
       };
 
@@ -686,13 +691,15 @@ angular.module('terrama2.dataseries.registration', [
       if ($scope.isUpdating) {
         $scope.options = {formDefaults: {readonly: true}};
         // checking input dataseries is static
-        if (inputDataSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA)
+        if (inputDataSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA ||
+            !outputDataseries || Object.keys(outputDataseries).length === 0) {
           inputName = inputDataSeries.name;
-        else
+        } else {
           inputName = inputDataSeries.name.slice(0, inputDataSeries.name.lastIndexOf('_input'));
-      }
-      else
+        }
+      } else {
         $scope.options = {};
+      }
 
       $scope.dataSeries = {
         data_provider_id: (inputDataSeries.data_provider_id || "").toString(),
@@ -741,6 +748,7 @@ angular.module('terrama2.dataseries.registration', [
           }
 
           intersection.forEach(function(element) {
+            attrs.push(element.attribute);
             $scope.dataSeriesList.some(function(ds) {
               if (ds.id === element.dataseries_id) {
                 $scope.addDataSeries(ds);
@@ -1044,11 +1052,6 @@ angular.module('terrama2.dataseries.registration', [
                   $scope.alertLevel = "alert-danger";
                   $scope.display = true;
                   return;
-
-                  // if ($scope.forms.intersectionForm.$invalid) {
-                  //   FormHelper($scope.forms.intersectionForm);
-                  //   return;
-                  // }
                 }
               }
             }
@@ -1278,7 +1281,7 @@ angular.module('terrama2.dataseries.registration', [
           if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = "A GRADS Data Series must have a Store";
+            $scope.alertBox.message = i18n.__("Unconfigured GraDs Data Series storage");
             $scope.display = true;
             return;
           }

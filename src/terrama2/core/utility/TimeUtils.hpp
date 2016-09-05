@@ -43,7 +43,7 @@ namespace terrama2
     */
     namespace TimeUtils
     {
-      const std::string webgui_timefacet = "%Y-%m-%dT%H:%M:%S%F%Q";
+      const std::string webgui_timefacet = "%Y-%m-%dT%H:%M:%S%F%ZP";
 
       /*!
         \brief Return a TimeInstantTZ with the current time in UTC.

@@ -56,6 +56,7 @@ angular.module('terrama2.table', ['terrama2'])
     return {
       restrict: 'E',
       templateUrl: '/javascripts/angular/table/templates/table.html',
+      replace: true,
       scope: {
         fields: '=fields',
         model: '=model',
@@ -279,22 +280,52 @@ angular.module('terrama2.table', ['terrama2'])
     };
   })
 
-.directive("terrama2MockTable", function(i18n) {
-  return {
-    restrict: 'E',
-    templateUrl: "mockTable.html",
-    transclude: {
-      "filterSlot": "?div",
-      "extraButtonsSlot": "?terrama2Div",
-      "contentSlot": "terrama2TableView"
-    },
-    scope: {
-      title: "=",
-      remove: '&onRemove',
-      target: '='
-    },
-    controller: function($scope) {
-       $scope.i18n = i18n;
+  .directive("terrama2MockTable", function(i18n) {
+    return {
+      restrict: 'E',
+      templateUrl: "mockTable.html",
+      transclude: {
+        "filterSlot": "?div",
+        "extraButtonsSlot": "?terrama2Div",
+        "contentSlot": "terrama2TableView"
+      },
+      scope: {
+        title: "=",
+        remove: '&onRemove',
+        target: '='
+      },
+      controller: function($scope) {
+         $scope.i18n = i18n;
+        }
+    };
+  })
+
+  .directive("terrama2SelectTable", function(i18n) {
+    /**
+     * Defines a selectable table
+     * @param {Object} model - A javascript object with structure. {name: "GroupName", children: NodeArray}
+     * @param {Array<?>} selecteds - A javascript array with
+     * @todo specify a groups via expression like:
+     * <terrama2-select-table model="model" groups="{'GRID': 'node.data_series_semantics.data_series_type_name === \'GRID\''}" attrs>
+     */
+    return {
+      restrict: 'E',
+      templateUrl: '/javascripts/angular/table/templates/selectTable.html',
+      scope: {
+        modelTitle: '=',
+        model: '=model',
+        selecteds: '=',
+        options: '=',
+        onSelected: '&?'
+      },
+      controller: function($scope) {
+        $scope.selectedNode = null;
+        $scope.onConfirm = function() {
+          if ($scope.selectedNode === null) {
+            return;
+          }
+          $scope.onSelected($scope.selectedNode);
+        };
       }
-  };
-});
+    };
+  });

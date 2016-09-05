@@ -21,7 +21,7 @@
 <script type="text/javascript" src="/externals/angular-sanitize/angular-sanitize.js"></script>
 <script type="text/javascript" src="/externals/tv4/tv4.min.js"></script>
 <script type="text/javascript" src="/externals/objectpath/ObjectPath.js"></script>
-<script type="text/javascript" src="/externals/angular-schema-form/schema-form.min.js"></script>
+<script type="text/javascript" src="/externals/angular-schema-form/schema-form.js"></script>
 <script type="text/javascript" src="/externals/bootstrap/js/bootstrap-decorator.min.js"></script>
 
 <script>
@@ -37,6 +37,7 @@
   };
 </script>
 
+<script src="/javascripts/angular/schema-form/app.js"></script>
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script src="/javascripts/angular/data-provider/registration.js"></script>
@@ -57,11 +58,14 @@
                    name="name"
                    ng-model="dataProvider.name"
                    placeholder="{[ __('Data Provider Name') ]}"
-                   type="text" required>
+                   type="text" terrama2-server-errors="serverErrors" required>
 
             <span class="form-control-feedback glyphicon" ng-show="forms.dataProviderForm.name.$dirty" ng-class="{'glyphicon-ok': forms.dataProviderForm.name.$valid, 'glyphicon-remove': forms.dataProviderForm.name.$invalid }"></span>
 
-            <span class="help-block" ng-show="forms.dataProviderForm.name.$dirty && forms.dataProviderForm.name.$invalid" ng-class="{'has-error': forms.dataProviderForm.name.$invalid}">{[ __('Data provider name is required') ]}</span>
+            <span class="help-block" ng-show="forms.dataProviderForm.name.$dirty && forms.dataProviderForm.name.$error.required">{[ __('Data provider name is required') ]}</span>
+            <span class="help-block" ng-show="forms.dataProviderForm.name.$error.terrama2Error">
+              {{ i18n.__("Data Provider") + " " + serverErrors.name.message }}
+            </span>
           </div>
         </div>
         <!-- /.col -->

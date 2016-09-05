@@ -19,7 +19,8 @@
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript">
   angular.module("terrama2.providers", ['terrama2', 'terrama2.services', 'terrama2.components.messagebox', 'terrama2.table'])
-    .controller("DataProviderController", ['$scope', '$http', 'DataProviderFactory', function($scope, $http, DataProviderFactory) {
+    .controller("DataProviderController", ['$scope', '$http', 'DataProviderFactory', 'i18n', function($scope, $http, DataProviderFactory, i18n) {
+      $scope.i18n = i18n;
       $scope.model = [];
       $scope.linkToAdd = "/configuration/providers/new";
       $scope.fields = [

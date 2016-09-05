@@ -4,7 +4,7 @@
 
 {% block ngApp %} ng-app="terrama2.analyses" {% endblock %}
 
-{% block title %} TerraMA² {[ __('Analyses') ]} {% endblock %}
+{% block title %} TerraMA² {[ __('Analysis') ]} {% endblock %}
 
 {% block javascripts %}
 
@@ -27,6 +27,9 @@
   angular.module('terrama2.analyses', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
     .controller("ListController", ['$scope', '$http', 'AnalysisFactory', function($scope, $http, AnalysisFactory) {
       $scope.model = [];
+      var restriction = {
+        project_id: "{[ currentProject.id ]}"
+      }
 
       $scope.iconProperties = {
         type: "img"
@@ -81,7 +84,7 @@
         }
       };
 
-      AnalysisFactory.get().success(function(analysis) {
+      AnalysisFactory.get(restriction).success(function(analysis) {
         $scope.model = analysis;
       }).error(function(err) {
         console.log("Err in retrieving Analysis " + err);
@@ -96,7 +99,7 @@
 {% block content %}
 
 <div ng-controller="ListController">
-  <terrama2-box title="'{[ __('Analyses') ]}'">
+  <terrama2-box title="'{[ __('Analysis') ]}'">
     <div class="col-md-12">
       <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display">
       </terrama2-alert-box>

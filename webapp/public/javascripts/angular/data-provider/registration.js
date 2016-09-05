@@ -5,29 +5,42 @@ var app = angular.module("terrama2.dataprovider.registration", ['terrama2', 'sch
 app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location",
   function($scope, $http, $q, $window, $httpParamSerializer, $location) {
 
-  $scope.model = configuration.dataProvider.uriObject || {};
+  var model = {}
+
+  var conf = configuration;
+  if (conf.dataProvider.uriObject) {
+    for(var k in conf.dataProvider.uriObject) {
+      if (conf.dataProvider.uriObject.hasOwnProperty(k)) {
+        model[k] = decodeURI(conf.dataProvider.uriObject[k]);
+      }
+    }
+  }
+
+  $scope.model = model;
+  $scope.serverErrors = {};
 
   $scope.forms = {};
   $scope.css = {
     boxType: "box-solid"
   }
 
-  if (configuration.fields) {
+  if (conf.fields) {
     $scope.schema = {
     type: "object",
-      properties: configuration.fields.properties,
-      required: configuration.fields.required
+      properties: conf.fields.properties,
+      required: conf.fields.required
     };
 
     $scope.options = {};
   } else
     $scope.schema = {};
 
-  $scope.form = configuration.fields.display || [];
+  $scope.form = conf.fields.display || [];
 
-//  redraw form
-  if ($scope.form)
+  //  redraw form
+  if ($scope.form) {
     $scope.$broadcast('schemaFormRedraw');
+  }
 
   $scope.schemeList = [];
   $http.get("/api/DataProviderType/", {}).success(function(typeList) {
@@ -37,10 +50,10 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   });
 
   var makeRedirectUrl = function(extra) {
-    var redirectUrl = configuration.redirectTo.redirectTo || "/configuration/providers/";
+    var redirectUrl = conf.redirectTo.redirectTo || "/configuration/providers/";
     redirectUrl += (redirectUrl.indexOf('?') === -1) ? '?' : '&';
 
-    var redirectData = Object.assign(configuration.redirectTo, extra instanceof Object ? extra : {});
+    var redirectData = Object.assign(conf.redirectTo, extra instanceof Object ? extra : {});
     delete redirectData.redirectTo;
 
     return redirectUrl + $httpParamSerializer(redirectData);
@@ -49,21 +62,21 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   $scope.redirectUrl = makeRedirectUrl();
 
   $scope.errorFound = false;
-  $scope.isEditing = configuration.isEditing;
+  $scope.isEditing = conf.isEditing;
   $scope.alertBox = {};
   $scope.isChecking = false;
   $scope.message = "";
   $scope.remoteFieldsRequired = false;
   $scope.dataProvider = {
-    name: configuration.dataProvider.name,
-    description: configuration.dataProvider.description,
-    project: configuration.project,
-    active: configuration.dataProvider.active,
-    protocol: configuration.dataProvider.data_provider_type_name
+    name: conf.dataProvider.name,
+    description: conf.dataProvider.description,
+    project: conf.project,
+    active: conf.dataProvider.active,
+    protocol: conf.dataProvider.data_provider_type_name
   };
 
   $scope.initActive = function() {
-    $scope.dataProvider.active = (configuration.dataProvider.active === false || configuration.dataProvider.active) ? configuration.dataProvider.active : true;
+    $scope.dataProvider.active = (conf.dataProvider.active === false || conf.dataProvider.active) ? conf.dataProvider.active : true;
   };
 
   $scope.onSchemeChanged = function(ref) {
@@ -77,10 +90,11 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
           required: dataProviderType.required || []
         };
 
-        if (dataProviderType.display)
+        if (dataProviderType.display) {
           $scope.form = dataProviderType.display;
-        else
+        } else {
           $scope.form = ["*"];
+        }
 
         $scope.$broadcast('schemaFormRedraw');
       }
@@ -88,8 +102,6 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   };
 
   $scope.isValidDataProviderTypeForm = function(form) {
-    $scope.$broadcast('schemaFormValidate');
-
     return $scope.forms.connectionForm.$valid;
   };
 
@@ -101,19 +113,20 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     }
 
     $scope.alertBox.title = "Data Provider Registration";
+    $scope.message = "";
     $scope.errorFound = false;
 
     var formData = $scope.dataProvider;
     formData.uriObject = Object.assign({protocol: $scope.dataProvider.protocol}, $scope.model);
 
     $http({
-      url: configuration.saveConfig.url,
-      method: configuration.saveConfig.method,
+      url: conf.saveConfig.url,
+      method: conf.saveConfig.method,
       data: formData
     }).success(function(data) {
       $scope.isEditing = true;
 
-      var defaultRedirectTo = "/configuration/providers?id=" + data.result.id + "&method=" + configuration.saveConfig.method + "&";
+      var defaultRedirectTo = "/configuration/providers?id=" + data.result.id + "&method=" + conf.saveConfig.method + "&";
 
       var redirectData = makeRedirectUrl({data_provider_id: data.result.id}) + "&token=" + data.token;
 
@@ -124,6 +137,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     }).error(function(err) {
       $scope.errorFound = true;
       $scope.alertBox.message = err.message;
+      $scope.serverErrors = err.errors || {};
       console.log(err);
     });
   };
@@ -134,6 +148,18 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   };
 
   $scope.checkConnection = function(form) {
+    $scope.model = $scope.model;
+    $scope.$broadcast('schemaFormValidate');
+
+    // var tm2Errors = $scope.forms.connectionForm.$error.terrama2Error || [];
+    // // removing terrama2 server error from schema form. TODO: a factory??
+    // while(tm2Errors.length !== 0) {
+    //   var field = tm2Errors[0];
+    //   var schemaformField = "schemaForm.error." + field.$name;
+    //   // pop field error
+    //   $scope.$broadcast(schemaformField, "terrama2Error", true, form.$name);
+    // }
+
     if (!$scope.isValidDataProviderTypeForm(form))
       return;
 
@@ -167,10 +193,11 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       });
 
       httpRequest.error(function(err) {
-        if (expired)
+        if (expired) {
           result.reject({message: "Timeout: Request took longer than " + $scope.timeOutSeconds + " seconds."});
-        else
+        } else {
           result.reject(err);
+        }
       });
 
       return result.promise;
@@ -178,8 +205,9 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
     var request = makeRequest();
 
+    $scope.alertBox.title = "Connection Status";
+
     request.then(function(data) {
-      $scope.alertBox.title = "Connection Status";
       if (data.message){ // error found
         $scope.errorFound = true;
         $scope.alertBox.message = data.message;
@@ -188,9 +216,16 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
         $scope.alertBox.message = "Connection Successful";
       }
     }).catch(function(err) {
-      $scope.alertBox.title = "Connection Status";
       $scope.errorFound = true;
       $scope.alertBox.message = err.message;
+
+      // todo: notify schemaFormFields
+      // var errors = (err.errors || {});
+      // for(var key in errors) {
+      //   if (errors.hasOwnProperty(key)) {
+      //     $scope.$broadcast("schemaForm.error." + key, "terrama2Error", errors[key].message, form.$name);
+      //   }
+      // }
     }).finally(function() {
       $scope.isChecking = false;
     });

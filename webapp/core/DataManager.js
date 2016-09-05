@@ -89,6 +89,7 @@ var DataManager = {
   Promise: Promise,
   TcpManager: TcpManager,
   DataModel: DataModel,
+  orm: orm,
 
   /**
    * It initializes DataManager, loading models and database synchronization
@@ -449,7 +450,7 @@ var DataManager = {
 
         models.db.DataProvider.findAll({ include: [ models.db.DataProviderType ] }).then(function(dataProviders) {
           dataProviders.forEach(function(dataProvider) {
-            self.data.dataProviders.push(dataProvider);
+            self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
           });
           // find all data series, providers
           models.db.DataSeries.findAll({
@@ -464,7 +465,16 @@ var DataManager = {
                 include: [
                   {
                     model: models.db.DataSetDcp,
-                    attributes: ['position'],
+                    attributes: [
+                      // retrieving GeoJSON. Its is important because Sequelize
+                      // orm does not retrieve SRID even geometry has. The "2"
+                      // in arguments is to retrieve entire representation.
+                      // It retrieves as string. Once GeoJSON retrieved,
+                      // you must parse it. "JSON.parse(geoJsonStr)"
+                      [orm.fn('ST_AsGeoJSON', orm.col('position'), 0, 2), 'position'],
+                      // EWKT representation
+                      [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
+                    ],
                     required: false
                   },
                   {
@@ -484,10 +494,6 @@ var DataManager = {
               }
             ]
           }).then(function(dataSeries) {
-            var _setWKT = function(data, wkt) {
-              data.positionWkt = wkt;
-              self.data.dataSets.push(data);
-            };
             dataSeries.forEach(function(dSeries) {
               var provider = new DataModel.DataProvider(dSeries.DataProvider.get());
 
@@ -495,11 +501,7 @@ var DataManager = {
               builtDataSeries.setDataProvider(provider);
 
               builtDataSeries.dataSets.forEach(function(dSet) {
-                if (dSet.position) {
-                  self.getWKT(dSet.position).then(function(wktPosition) {
-                    _setWKT(dSet, wktPosition);
-                  }).catch(_rejectClean);
-                } else { self.data.dataSets.push(dSet); }
+                self.data.dataSets.push(dSet);
               });
 
               self.data.dataSeries.push(builtDataSeries);
@@ -537,22 +539,20 @@ var DataManager = {
   /**
    * It saves Project in database and storage it in memory
    * @param {Object} projectObject - An object containing project values to be saved.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module. The callback is either a {Project} data values or error
    */
-  addProject: function(projectObject) {
+  addProject: function(projectObject, options) {
     var self = this;
     return new Promise(function(resolve, reject){
-      lock.writeLock(function(release) {
-        models.db.Project.create(projectObject).then(function(project){
-          self.data.projects.push(project.get());
-          resolve(Utils.clone(project.get()));
-          release();
-        }).catch(function(e) {
-          var message = "Could not save project: ";
-          if (e.errors) { message += e.errors[0].message; }
-          reject(new exceptions.ProjectError(message));
-          release();
-        });
+      models.db.Project.create(projectObject, Utils.extend({}, options)).then(function(project){
+        self.data.projects.push(project.get());
+        return resolve(Utils.clone(project.get()));
+      }).catch(function(e) {
+        var message = "Could not save project: ";
+        if (e.errors) { message += e.errors[0].message; }
+        return reject(new exceptions.ProjectError(message));
       });
     });
   },
@@ -579,40 +579,50 @@ var DataManager = {
    * It updates a project from given object values.
    *
    * @param {Object} projectObject - an javascript object containing project values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataFormat>} - a 'bluebird' module with DataFormat instance or error callback
    */
-  updateProject: function(projectObject) {
+  updateProject: function(projectObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getProject({id: projectObject.id}).then(function(project) {
 
-        models.db.Project.update(projectObject, {
+        return models.db.Project.update(projectObject, Utils.extend({
           fields: ["name", "description", "version"],
           where: {
             id: project.id
           }
-        }).then(function() {
+        }, options)).then(function() {
           var projectItem = Utils.find(self.data.projects, {id: projectObject.id});
           projectItem.name = projectObject.name;
           projectItem.description = projectObject.description;
           projectItem.version = projectObject.version;
 
-          resolve(Utils.clone(projectItem));
+          return resolve(Utils.clone(projectItem));
         }).catch(function(err) {
-          reject(new exceptions.ProjectError("Could update project " + err.toString()));
+          return reject(new exceptions.ProjectError("Could update project " + err.toString()));
         });
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
 
-  removeProject: function(restriction) {
+  /**
+   * It removes project of database from given restriction. **Note** If there is no restriction specified, it will remove all rows of model
+   * 
+   * @param {Object} restriction - A query restriction object
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeProject: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getProject(restriction).then(function(projectResult) {
-        self.listCollectors().then(function(collectors) {
-          self.listAnalyses().then(function(analysisList) {
+        return self.listCollectors({}, options).then(function(collectors) {
+          return self.listAnalyses({project_id: projectResult.id}, options).then(function(analysisList) {
             if (collectors.length === 0 || analysisList.length === 0) {
               return Promise.resolve();
             }
@@ -629,9 +639,9 @@ var DataManager = {
               return analysis.schedule.id;
             }));
 
-            return self.removeSchedule({id: {$in: scheduleIds}})
+            return self.removeSchedule({id: {$in: scheduleIds}}, options);
           }).finally(function() {
-            models.db.Project.destroy({
+            return models.db.Project.destroy({
               where: {
                 id: projectResult.id
               }
@@ -640,15 +650,15 @@ var DataManager = {
               // remove children from memory
               Utils.removeAll(self.data.dataProviders, {project_id: project.id});
               Utils.removeAll(self.data.dataSeries, {dataProvider: {project_id: project.id}});
-              resolve();
+              return resolve();
             }).catch(function(err) {
               console.log("Remove Project: ", err);
-              reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
+              return reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
             });
           });
         });
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
 
@@ -671,29 +681,31 @@ var DataManager = {
    * It updates a TerraMA2 user instance
    * @param {Object} restriction - A javascript object to identify a user
    * @param {Object} userObject - A javascript object with user values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction 
    * @return {Promise} a bluebird promise
    */
-  updateUser: function(restriction, userObject) {
+  updateUser: function(restriction, userObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      self.getUser(restriction).then(function(user) {
+      self.getUser(restriction, options).then(function(user) {
         if (!userObject.password) {
           userObject.password = user.password;
         } else {
           var salt = user.salt;
           userObject.password = models.db.User.generateHash(userObject.password, salt);
         }
-        models.db.User.update(userObject, {
+        return models.db.User.update(userObject, Utils.extend({
           fields: ['name', 'cellphone', 'administrator', 'email', 'password'],
           where: restriction || {}
-        }).then(function() {
-          resolve();
+        }, options)).then(function() {
+          return resolve();
         }).catch(function(err) {
           console.log(err);
-          reject(new exceptions.UserError("Could not update user.", err.errors));
+          return reject(new exceptions.UserError("Could not update user.", err.errors));
         });
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
@@ -702,14 +714,16 @@ var DataManager = {
    * It retrieves all users in database filtering from given restriction
    *
    * @param {Object} restriction - A javascript object with restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<Array<User>>} a bluebird module with users
    */
-  listUsers: function(restriction) {
+  listUsers: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.User.findAll({where: restriction||{}}).then(function(users) {
-        resolve(users.map(function(userInstance) { return userInstance.get(); }));
+      models.db.User.findAll(Utils.extend({where: restriction || {} }, options)).then(function(users) {
+        return resolve(users.map(function(userInstance) { return userInstance.get(); }));
       }).catch(function(err) {
-        reject(new exceptions.UserError("Could not update user.", err.errors||[]));
+        return reject(new exceptions.UserError("Could not update user.", err.errors||[]));
       });
     });
   },
@@ -718,17 +732,19 @@ var DataManager = {
    * It retrieves a user from given restriction
    *
    * @param {Object} restriction - A javascript object with query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<User>} a bluebird module with user sequelize instance
    */
-  getUser: function(restriction) {
+  getUser: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.User.findOne({where: restriction||{}}).then(function(user) {
+      models.db.User.findOne(Utils.extend({where: restriction || {}}, options)).then(function(user) {
         if (user === null) {
           return reject(new exceptions.UserError("Could not get user.", []));
         }
-        resolve(user);
+        return resolve(user);
       }).catch(function(err) {
-        reject(new exceptions.UserError("Could not update user.", err.errors||[]));
+        return reject(new exceptions.UserError("Could not update user.", err.errors||[]));
       });
     });
   },
@@ -736,34 +752,32 @@ var DataManager = {
   /**
    * It saves ServiceInstance in database and storage it in memory
    * @param {Object} serviceObject - An object containing project values to be saved.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module. The callback is either a {ServiceInstance} data values or error
    */
-  addServiceInstance: function(serviceObject) {
+  addServiceInstance: function(serviceObject, options) {
     return new Promise(function(resolve, reject){
-      lock.writeLock(function(release) {
-        models.db.ServiceInstance.create(serviceObject).then(function(serviceResult){
-          var service = new DataModel.Service(serviceResult);
-          var logObject = serviceObject.log;
-          logObject.service_instance_id = serviceResult.id;
-          models.db.Log.create(logObject).then(function(logResult) {
-            var log = new DataModel.Log(logResult);
-            service.log = log.toObject();
+      models.db.ServiceInstance.create(serviceObject, options).then(function(serviceResult){
+        var service = new DataModel.Service(serviceResult);
+        var logObject = serviceObject.log;
+        logObject.service_instance_id = serviceResult.id;
+        return models.db.Log.create(logObject, options).then(function(logResult) {
+          var log = new DataModel.Log(logResult);
+          service.log = log.toObject();
 
-            resolve(service);
-            release();
-          }).catch(function(err) {
-            console.log(err);
-            Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
-            release();
-          });
-
-        }).catch(function(e) {
-          console.log(e);
-          var message = "Could not save service instance: ";
-          if (e.errors) { message += e.errors[0].message; }
-          reject(new Error(message));
+          resolve(service);
           release();
+        }).catch(function(err) {
+          console.log(err);
+          return Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
         });
+
+      }).catch(function(e) {
+        console.log(e);
+        var message = "Could not save service instance: ";
+        if (e.errors) { message += e.errors[0].message; }
+        return reject(new Error(message));
       });
     });
   },
@@ -771,14 +785,16 @@ var DataManager = {
   /**
    * Retrieves a list of ServiceInstances from restriction
    * @param {Object} restriction - A javascript object with restriction query values.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<ServiceInstance>} A promise with Array of Service Instances
    */
-  listServiceInstances: function(restriction) {
+  listServiceInstances: function(restriction, options) {
     return new Promise(function(resolve, reject){
-      models.db.ServiceInstance.findAll({
+      models.db.ServiceInstance.findAll(Utils.extend({
         where: restriction,
         include: [models.db.Log]
-      }).then(function(services) {
+      }, options)).then(function(services) {
         var output = [];
         services.forEach(function(service){
           var serviceObject = new DataModel.Service(service.get());
@@ -794,72 +810,110 @@ var DataManager = {
     });
   },
 
-  getServiceInstance : function(restriction) {
+  /**
+   * It retrieves a service instance from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<ServiceInstance>} 
+   */
+  getServiceInstance : function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject){
-      self.listServiceInstances(restriction).then(function(result) {
-        if (result.length === 0) { return reject(new Error("No service instances found")); }
+      self.listServiceInstances(restriction, Utils.extend({limit: 1}, options)).then(function(result) {
+        if (result.length === 0) {
+          return reject(new Error("No service instances found"));
+        }
 
-        if (result.length > 1) { return reject(new Error("More than one service instance retrieved")); }
-
-        resolve(result[0]);
+        return resolve(result[0]);
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
 
-  removeServiceInstance: function(restriction) {
+  /**
+   * It performs a remove operation of service from database
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} 
+   */
+  removeServiceInstance: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      self.getServiceInstance(restriction).then(function(serviceResult) {
+      self.getServiceInstance(restriction, options).then(function(serviceResult) {
         // update collectors removing ID and setting them to inactive
-        self.updateCollectors({service_instance_id: serviceResult.id}, {active: false}).then(function() {
-          models.db.ServiceInstance.destroy({where: restriction}).then(function() {
-            resolve();
+        return self.updateCollectors({service_instance_id: serviceResult.id}, {active: false}, options)
+          .then(function() {
+            return models.db.ServiceInstance.destroy(Utils.extend({where: restriction}, options))
+              .then(function() {
+                return resolve();
+              }).catch(function(err) {
+                console.log(err);
+                return reject(new Error("Could not remove service instance. " + err.message));
+              });
           }).catch(function(err) {
-            console.log(err);
-            reject(new Error("Could not remove service instance. " + err.message));
+            return reject(err);
           });
-        }).catch(function(err) {
-          reject(err);
-        });
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
-
     });
   },
 
-  updateServiceInstance: function(serviceId, serviceObject) {
+  /**
+   * It performs a update service instance from given restriction
+   * 
+   * @param {number} serviceId - A service identifier
+   * @param {Object} serviceObject - A service object to update
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  updateServiceInstance: function(serviceId, serviceObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
-        models.db.ServiceInstance.update(serviceObject, {
-          fields: ['name', 'description', 'port', 'numberOfThreads', 'runEnviroment', 'host', 'sshUser', 'sshPort', 'pathToBinary'],
-          where: { id: serviceId }
-        }).then(function() {
-          resolve();
-        }).catch(function(err) {
-          reject(err);
-        });
+        return models.db.ServiceInstance.update(serviceObject, Utils.extend({
+            fields: ['name', 'description', 'port', 
+                     'numberOfThreads', 'runEnviroment', 'host', 
+                     'sshUser', 'sshPort', 'pathToBinary'],
+            where: { id: serviceId }
+          }, options))
+          .then(function() {
+            return resolve();
+          }).catch(function(err) {
+            return reject(new Error("Could not update service due " + err.toString()));
+          });
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
 
-  updateLog: function(logId, logObject) {
+  /**
+   * It performs a update service log from given restriction
+   * 
+   * @param {number} logId - A log identifier
+   * @param {Object} logObject - A log object values to update
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  updateLog: function(logId, logObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Log.update(logObject, {
+      models.db.Log.update(logObject, Utils.extend({
         fields: ['host', 'port', 'user', 'database'],
         where: {
           id: logId
         }
-      }).then(function() {
-        resolve();
+      }, options)).then(function() {
+        return resolve();
       }).catch(function(err) {
-        reject(new Error("Could not update log " + err.toString()));
+        return reject(new Error("Could not update log " + err.toString()));
       });
     });
   },
@@ -868,66 +922,77 @@ var DataManager = {
    * It saves DataProviderType in database.
    *
    * @param {Object} dataProviderTypeObject - An object containing needed values to create DataProviderType object.
-   * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<Object>} - a 'bluebird' module with semantics instance or error callback.
    */
-  addDataProviderType: function(dataProviderTypeObject) {
+  addDataProviderType: function(dataProviderTypeObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.create(dataProviderTypeObject).then(function(result) {
-        resolve(Utils.clone(result.get()));
+      models.db.DataProviderType.create(dataProviderTypeObject, options).then(function(result) {
+        return resolve(Utils.clone(result.get()));
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
 
   /**
    * It retrieves a DataProviderType list object from database.
-   *
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataProviderType>} - a 'bluebird' module with DataProviderType instance or error callback
    */
-  listDataProviderType: function() {
+  listDataProviderType: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.findAll({}).then(function(result) {
+      models.db.DataProviderType.findAll(Utils.extend(restriction, options)).then(function(result) {
         var output = [];
         result.forEach(function(element) {
           output.push(Utils.clone(element.get()));
         });
 
-        resolve(output);
+        return resolve(output);
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
 
   /**
    * It retrieves a DataProviderType object from database.
-   *
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataProviderType>} - a 'bluebird' module with DataProviderType instance or error callback
    */
-  getDataProviderType: function(restriction) {
+  getDataProviderType: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.findOne({where: restriction}).then(function(typeResult) {
-        resolve(typeResult.get());
+      models.db.DataProviderType.findOne(Utils.extend({where: restriction}, options)).then(function(typeResult) {
+        return resolve(typeResult.get());
       }).catch(function(err) {
         console.log(err);
-        reject(new Error("Could not retrieve DataProviderType " + err.message));
+        return reject(new Error("Could not retrieve DataProviderType " + err.message));
       });
     });
   },
 
   /**
    * It retrieves a DataProviderIntent object from database.
-   *
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataProviderIntent>} - a 'bluebird' module with DataProviderIntent instance or error callback
    */
-  getDataProviderIntent: function(restriction) {
+  getDataProviderIntent: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderIntent.findOne({where: restriction}).then(function(intentResult) {
-        resolve(intentResult.get());
+      models.db.DataProviderIntent.findOne(Utils.extend({where: restriction}, options)).then(function(intentResult) {
+        return resolve(intentResult.get());
       }).catch(function(err) {
         console.log(err);
-        reject(new Error("Could not retrieve DataProviderIntent " + err.message));
+        return reject(new Error("Could not retrieve DataProviderIntent " + err.message));
       });
     });
   },
@@ -936,14 +1001,16 @@ var DataManager = {
    * It saves DataFormat in database.
    *
    * @param {Object} dataFormatObject - An object containing needed values to create DataFormatObject object.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with semantics instance or error callback.
    */
-  addDataFormat: function(dataFormatObject) {
+  addDataFormat: function(dataFormatObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataFormat.create(dataFormatObject).then(function(result) {
-        resolve(Utils.clone(result.get()));
+      models.db.DataFormat.create(dataFormatObject, options).then(function(result) {
+        return resolve(Utils.clone(result.get()));
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
@@ -951,20 +1018,23 @@ var DataManager = {
   /**
    * It retrieves a DataFormats list object from database.
    *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataFormat>} - a 'bluebird' module with DataFormat instance or error callback
    */
-  listDataFormats: function() {
+  listDataFormats: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataFormat.findAll({}).then(function(dataFormats) {
+      models.db.DataFormat.findAll(Utils.extend({where: restriction}, options)).then(function(dataFormats) {
         var output = [];
 
         dataFormats.forEach(function(dataFormat){
           output.push(Utils.clone(dataFormat.get()));
         });
 
-        resolve(output);
+        return resolve(output);
       }).catch(function(err) {
-        reject(new exceptions.DataFormatError("Could not retrieve data format", err));
+        return reject(new exceptions.DataFormatError("Could not retrieve data format", err));
       });
     });
   },
@@ -973,14 +1043,16 @@ var DataManager = {
    * It saves DataSeriesSemantics in database.
    *
    * @param {Object} semanticsObject - An object containing needed values to create DataSeriesSemantics object.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<Object>} - a 'bluebird' module with semantics instance or error callback.
    */
-  addDataSeriesSemantics: function(semanticsObject) {
+  addDataSeriesSemantics: function(semanticsObject, options) {
     return new Promise(function(resolve, reject){
-      models.db.DataSeriesSemantics.create(semanticsObject).then(function(semantics){
-        resolve(Utils.clone(semantics.get()));
+      models.db.DataSeriesSemantics.create(semanticsObject, options).then(function(semantics){
+        return resolve(Utils.clone(semantics.get()));
       }).catch(function(e) {
-        reject(e);
+        return reject(e);
       });
     });
   },
@@ -990,18 +1062,22 @@ var DataManager = {
    * name identifier. This operation must retrieve only a row.
    *
    * @param {Object} restriction - An object containing DataSeriesSemantics identifier to get it.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataSeriesSemantics>} - a 'bluebird' module with DataSeriesSemantics instance or error callback
    */
-  getDataSeriesSemantics: function(restriction) {
+  getDataSeriesSemantics: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      self.listDataSeriesSemantics(restriction).then(function(semanticsList) {
-        if (semanticsList.length === 1) { return resolve(semanticsList[0]); }
+      self.listDataSeriesSemantics(restriction, options).then(function(semanticsList) {
+        if (semanticsList.length === 1) {
+          return resolve(semanticsList[0]);
+        }
 
         // error getting more than one or none
         return reject(new exceptions.DataSeriesSemanticsError("DataSeriesSemantics not found"));
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
@@ -1010,6 +1086,8 @@ var DataManager = {
    * It retrieves a DataSeriesSemantics list object from restriction.
    *
    * @param {Object} restriction - An optional object containing DataSeriesSemantics identifier to filter it.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataSeriesSemantics>} - a 'bluebird' module with DataSeriesSemantics instance or error callback
    */
   listDataSeriesSemantics: function(restriction) {
@@ -1021,43 +1099,53 @@ var DataManager = {
           output.push(Utils.clone(semantics.get()));
         });
 
-        resolve(output);
+        return resolve(output);
       }).catch(function(err) {
-        reject(new exceptions.DataSeriesSemanticsError("Could not retrieve data series semantics ", err));
-      });
-    });
-  },
-
-  listSemanticsProvidersType: function(restriction) {
-    return new Promise(function(resolve, reject) {
-      models.db.SemanticsProvidersType.findAll({where: restriction}).then(function(semanticsProvidersResult) {
-        var output = [];
-        semanticsProvidersResult.forEach(function(element) {
-          output.push(element.get());
-        });
-        resolve(output);
-      }).catch(function(err) {
-        console.log(err);
-        reject(err);
+        return reject(new exceptions.DataSeriesSemanticsError("Could not retrieve data series semantics " + err.toString()));
       });
     });
   },
 
   /**
+   * It retrieves binding between Semantics and Data Provider types
+   * 
+   * @param {Object} restriction - a query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<Array<Object>>} 
+   */
+  listSemanticsProvidersType: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.SemanticsProvidersType.findAll(Utils.extend({where: restriction}, options))
+        .then(function(semanticsProvidersResult) {
+          var output = [];
+          semanticsProvidersResult.forEach(function(element) {
+            output.push(element.get());
+          });
+          return resolve(output);
+        }).catch(function(err) {
+          console.log(err);
+          return reject(err);
+        });
+    });
+  },
+
+  /**
    * It saves DataProvider in database and load it in memory
+   * 
    * @param {Object} dataProviderObject - An object containing needed values to create DataProvider object.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataProvider>} - a 'bluebird' module with DataProvider instance or error callback
    */
-  addDataProvider: function(dataProviderObject) {
+  addDataProvider: function(dataProviderObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.DataProvider.create(dataProviderObject).then(function(dataProvider){
-        dataProvider.getDataProviderType().then(function(dataProviderType) {
+      models.db.DataProvider.create(dataProviderObject, options).then(function(dataProvider){
+        return dataProvider.getDataProviderType().then(function(dataProviderType) {
           var dProvider = new DataModel.DataProvider(dataProvider.get());
           dProvider.data_provider_type = dataProviderType.get();
           self.data.dataProviders.push(dProvider);
-
-          resolve(dProvider);
 
           var d = new DataModel.DataProvider(dProvider);
 
@@ -1073,11 +1161,13 @@ var DataManager = {
               }
             });
           }).catch(function(err) {
-            reject(err);
+            console.log(err);
           });
+          
+          return resolve(dProvider);
         }).catch(function(err) {
           console.log(err);
-          reject(err);
+          return reject(err);
         });
       }).catch(function(err){
         var message = "Could not save data provider due: ";
@@ -1087,7 +1177,7 @@ var DataManager = {
         } else {
           message += err.message;
         }
-        reject(new exceptions.DataProviderError(message, err.errors));
+        return reject(new exceptions.DataProviderError(message, err.errors));
       });
     });
   },
@@ -1103,9 +1193,11 @@ var DataManager = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataProvider = Utils.find(self.data.dataProviders, restriction);
-      if (dataProvider) { resolve(new DataModel.DataProvider(dataProvider)); }
-      else {
-        reject(new exceptions.DataProviderError("Could not find a data provider: " + restriction[Object.keys(restriction)[0]]));
+      if (dataProvider) { 
+        return resolve(new DataModel.DataProvider(dataProvider));
+      } else {
+        return reject(new exceptions.DataProviderError(
+          "Could not find a data provider: " + restriction[Object.keys(restriction)[0]]));
       }
     });
   },
@@ -1134,20 +1226,22 @@ var DataManager = {
    *
    * @param {int} dataProviderId - A DataProvider identifier to get it.
    * @param {Object} dataProviderObject - An object containing DataProvider to update.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
-  updateDataProvider: function(dataProviderId, dataProviderObject) {
+  updateDataProvider: function(dataProviderId, dataProviderObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataProvider = Utils.find(self.data.dataProviders, {id: dataProviderId});
 
       if (dataProvider) {
-        models.db.DataProvider.update(dataProviderObject, {
+        models.db.DataProvider.update(dataProviderObject, Utils.extend({
           fields: ["name", "description", "uri", "active"],
           where: {
             id: dataProvider.id
           }
-        }).then(function() {
+        }, options)).then(function() {
           if (dataProviderObject.name) { dataProvider.name = dataProviderObject.name; }
 
           if (dataProviderObject.description) { dataProvider.description = dataProviderObject.description; }
@@ -1156,7 +1250,7 @@ var DataManager = {
 
           dataProvider.active = dataProviderObject.active;
 
-          self.listServiceInstances().then(function(services) {
+          self.listServiceInstances({}, options).then(function(services) {
             services.forEach(function(service) {
               try {
                 console.log("Sending Add_signal to update");
@@ -1169,9 +1263,9 @@ var DataManager = {
             });
           }).catch(function(err) { });
 
-          resolve(new DataModel.DataProvider(dataProvider));
+          return resolve(new DataModel.DataProvider(dataProvider));
         }).catch(function(err) {
-          reject(new exceptions.DataProviderError("Could not update data provider ", err));
+          return reject(new exceptions.DataProviderError("Could not update data provider ", err));
         });
       } else { reject(new exceptions.DataProviderError("Data provider not found")); }
     });
@@ -1183,21 +1277,23 @@ var DataManager = {
    *
    * @param {Object} dataProviderParam - An object containing DataProvider identifier to get it.
    * @param {Boolean} cascade - A bool value to delete on cascade
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataProvider instance or error callback
    */
-  removeDataProvider: function(dataProviderParam, cascade) {
+  removeDataProvider: function(dataProviderParam, cascade, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       if (!cascade) { cascade = false; }
 
       var provider = Utils.remove(self.data.dataProviders, dataProviderParam);
       if (provider) {
-        models.db.DataProvider.destroy({where: {id: provider.id}}).then(function() {
+        models.db.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
           var objectToSend = {
             "DataProvider": [provider.id],
             "DataSeries": []
           };
-          self.listServiceInstances({}).then(function(services) {
+          return self.listServiceInstances({}, options).then(function(services) {
             // remove data series
             var dataSeriesList = Utils.removeAll(self.data.dataSeries, {data_provider_id: provider.id});
             dataSeriesList.forEach(function(dataSeries) {
@@ -1213,17 +1309,17 @@ var DataManager = {
               }
             });
 
-            resolve();
+            return resolve();
           }).catch(function(err) {
             console.log(err);
-            reject(err);
+            return reject(err);
           });
         }).catch(function(err) {
           console.log(err);
-          reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
+          return reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
         });
       } else {
-        reject(new exceptions.DataManagerError("DataProvider not found"));
+        return reject(new exceptions.DataManagerError("DataProvider not found"));
       }
     });
   },
@@ -1240,9 +1336,9 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       var dataSerie = Utils.find(self.data.dataSeries, restriction);
       if (dataSerie) {
-        resolve(new DataModel.DataSeries(dataSerie));
+        return resolve(new DataModel.DataSeries(dataSerie));
       } else {
-        reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
+        return reject(new exceptions.DataSeriesError("Could not find a data series: " + restriction[Object.keys(restriction)]));
       }
     });
   },
@@ -1251,9 +1347,11 @@ var DataManager = {
    * It retrieves DataSeries loaded in memory.
    *
    * @param {Object} restriction - an object to filter result
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<Array<DataSeries>>} - An array with DataSeries available/loaded in memory.
    */
-  listDataSeries: function(restriction) {
+  listDataSeries: function(restriction, options) {
     var self = this;
     if (!restriction) { restriction = {}; }
 
@@ -1262,9 +1360,9 @@ var DataManager = {
       if (restriction.hasOwnProperty("schema")) {
         if (restriction.schema === "all") {
           self.listDataSeries({"Collector": restriction}).then(function(data) {
-            self.listDataSeries({
+            return self.listDataSeries({
               data_series_semantics: { data_series_type_name: Enums.DataSeriesType.STATIC_DATA }
-            }).then(function(staticData) {
+            }, options).then(function(staticData) {
               var output = [];
               data.forEach(function(d) {
                 output.push(d);
@@ -1275,15 +1373,15 @@ var DataManager = {
 
               return resolve(output);
             }).catch(function(err) {
-              reject(err);
+              return reject(err);
             });
           }).catch(function(err) {
-            reject(err);
+            return reject(err);
           });
         }
       } else if (restriction && restriction.hasOwnProperty("Collector")) {
         // collector restriction
-        self.listCollectors({}).then(function(collectorsResult) {
+        self.listCollectors({}, options).then(function(collectorsResult) {
           var collectorFilter = new Filters.CollectorFilter();
           var output = collectorFilter.match(collectorsResult, {
             dataSeries: self.data.dataSeries
@@ -1310,18 +1408,20 @@ var DataManager = {
    * It saves a DataSeries object in database. It also saves DataSet if there are.
    *
    * @param {Object} dataSeriesObject - An object containing DataSeries values to save it.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  addDataSeries: function(dataSeriesObject, analysisType) {
+  addDataSeries: function(dataSeriesObject, analysisType, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var output;
-      models.db.DataSeries.create(dataSeriesObject).then(function(dataSerie){
+      models.db.DataSeries.create(dataSeriesObject, options).then(function(dataSerie){
         var obj = dataSerie.get();
 
         var rollback = function(err) {
           dataSerie.destroy().then(function () {
-            reject(err);
+            return reject(err);
           });
         };
 
@@ -1336,46 +1436,34 @@ var DataManager = {
             for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
               var dSet = dataSeriesObject.dataSets[i];
               dSet.data_series_id = dataSerie.id;
-              dataSets.push(self.addDataSet(dataSemantics.get(), dSet, analysisType));
+              dataSets.push(self.addDataSet(dataSemantics.get(), dSet, analysisType, options));
             }
 
-            Promise.all(dataSets).then(function(dataSets){
+            return Promise.all(dataSets).then(function(dataSets){
               var dataSeriesInstance = new DataModel.DataSeries(output);
               dataSeriesInstance.dataSets = dataSets;
               self.data.dataSeries.push(dataSeriesInstance);
 
               // get DataProvider object
-              self.getDataProvider({id: dataSerie.data_provider_id}).then(function(dProvider) {
+              return self.getDataProvider({id: dataSerie.data_provider_id}).then(function(dProvider) {
                 dataSeriesInstance.setDataProvider(dProvider);
 
-                var promises = [];
-
-                dataSets.forEach(function(dSet) {
-                  promises.push(self.getDataSet({id: dSet.id}, Enums.Format.WKT));
-                });
-
-                Promise.all(promises).then(function(wktDataSets) {
-                  output.dataSets = wktDataSets;
-
-                  // resolving promise
-                  resolve(output);
-                }).catch(function(err) {
-                  reject(new exceptions.DataSetError("Could not retrieve data set dcp as wkt format. ", err));
-                });
+                // resolving promise
+                return resolve(dataSeriesInstance);
               });
             }).catch(function(err) {
-              rollback(err);
+              return rollback(err);
             });
           } else {
             // rollback data series
-            rollback(new exceptions.DataSeriesError("Could not save DataSeries without any data set."));
+            return rollback(new exceptions.DataSeriesError("Could not save DataSeries without any data set."));
           }
         }).catch(function(err) {
-          rollback(err);
+          return rollback(err);
         });
       }).catch(function(err){
         console.log(err);
-        reject(new exceptions.DataSeriesError("Could not save data series " + err.message));
+        reject(new exceptions.DataSeriesError("Could not save data series due: ", err.errors || []));
       });
     });
   },
@@ -1386,35 +1474,37 @@ var DataManager = {
    *
    * @param {Number} dataSeriesId - A DataSeries id
    * @param {Object} dataSeriesObject - An object containing DataSeries identifier to get it.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  updateDataSeries: function(dataSeriesId, dataSeriesObject) {
+  updateDataSeries: function(dataSeriesId, dataSeriesObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataSeries = Utils.find(self.data.dataSeries, {id: dataSeriesId});
 
       if (dataSeries) {
-        models.db.DataSeries.update(dataSeriesObject, {
+        models.db.DataSeries.update(dataSeriesObject, Utils.extend({
           fields: ['name', 'description', 'data_provider_id'],
           where: {
             id: dataSeriesId
           }
-        }).then(function() {
-          self.getDataProvider({id: parseInt(dataSeriesObject.data_provider_id)}).then(function(dataProvider) {
+        }, options)).then(function() {
+          return self.getDataProvider({id: parseInt(dataSeriesObject.data_provider_id)}).then(function(dataProvider) {
             dataSeries.name = dataSeriesObject.name;
             dataSeries.description = dataSeriesObject.description;
             dataSeries.data_provider_id = dataProvider.id;
 
-            resolve(new DataModel.DataSeries(dataSeries));
+            return resolve(new DataModel.DataSeries(dataSeries));
           }).catch(function(err) {
             console.log(err);
-            reject(err);
+            return reject(err);
           });
         }).catch(function(err) {
-          reject(new exceptions.DataSeriesError("Could not update data series ", err));
+          return reject(new exceptions.DataSeriesError("Could not update data series ", err.errors));
         });
       } else {
-        reject(new exceptions.DataSeriesError("Data series not found. "));
+        return reject(new exceptions.DataSeriesError("Data series not found. ", []));
       }
     });
   },
@@ -1424,26 +1514,28 @@ var DataManager = {
    * and model values.
    *
    * @param {Object} dataSeriesParam - An object containing DataSeries identifier to remove it.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  removeDataSerie: function(dataSeriesParam) {
+  removeDataSerie: function(dataSeriesParam, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataSeries = Utils.remove(self.data.dataSeries, dataSeriesParam);
 
       if (dataSeries) {
-        models.db.DataSeries.destroy({where: {
+        models.db.DataSeries.destroy(Utils.extend({where: {
           id: dataSeries.id
-        }}).then(function (status) {
+        }}, options)).then(function (status) {
           // Removing data set from memory. Its not necessary to remove in database, since on remove cascade is enabled.
           Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
-          resolve(status);
+          return resolve(status);
         }).catch(function (err) {
           console.log(err);
-          reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
+          return reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
         });
       } else {
-        reject(new exceptions.DataSeriesError("Data series not found"));
+        return reject(new exceptions.DataSeriesError("Data series not found"));
       }
     });
   },
@@ -1456,20 +1548,23 @@ var DataManager = {
    *   "data_series_id" : INT,
    *   "active" : BOOL,
    *   "format" : {...},
-   *   "position" : STRING::WKT
+   *   "position" : GeoJSON object syntax
    * }
    *
    * @param {string} dataSeriesSemantic - A string value representing DataSet type. (dcp, occurrence, grid).
    * @param {Array<Object>} dataSetObject - An object containing DataSet values to save it.
+   * @param {string} analysisType - 
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  addDataSet: function(dataSeriesSemantic, dataSetObject, analysisType) {
+  addDataSet: function(dataSeriesSemantic, dataSetObject, analysisType, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       models.db.DataSet.create({
         active: dataSetObject.active,
         data_series_id: dataSetObject.data_series_id
-      }).then(function(dataSet) {
+      }, options).then(function(dataSet) {
 
         var onSuccess = function(dSet) {
           var output;
@@ -1496,8 +1591,8 @@ var DataManager = {
               }
             }
 
-            models.db.DataSetFormat.bulkCreate(formatList, {data_set_id: dataSet.id}).then(function () {
-              models.db.DataSetFormat.findAll({where: {data_set_id: dataSet.id}}).then(function(dataSetFormats) {
+            return models.db.DataSetFormat.bulkCreate(formatList, Utils.extend({data_set_id: dataSet.id}, options)).then(function () {
+              return models.db.DataSetFormat.findAll(Utils.extend({where: {data_set_id: dataSet.id}}, options)).then(function(dataSetFormats) {
                 output.format = {};
                 dataSetFormats.forEach(function(dataSetFormat) {
                   output.format[dataSetFormat.key] = dataSetFormat.value;
@@ -1508,28 +1603,28 @@ var DataManager = {
                   output.format.monitored_object_dataseries_id = analysisType.data_series_id;
                 }
                 self.data.dataSets.push(output);
-                resolve(output);
+                return resolve(output);
               });
             }).catch(function (err) {
               console.log(err);
-              reject(new exceptions.DataFormatError("Could not save data format: ", err));
+              return reject(new exceptions.DataFormatError("Could not save data format: ", err));
             });
           } else {// todo: validate it
             self.data.dataSets.push(output);
-            resolve(output);
+            return resolve(output);
           }
         };
 
         var onError = function(err) {
           console.log(err);
-          reject(new exceptions.DataSetError("Could not save data set." + err.message));
+          return reject(new exceptions.DataSetError("Could not save data set." + err.message));
         };
 
         // rollback data set function if any error occurred
         var rollback = function(dataSet) {
-          dataSet.destroy().then(function() {
+          return dataSet.destroy().then(function() {
             console.log("rollback");
-            reject(new exceptions.DataSetError("Invalid data set type. DataSet destroyed"));
+            return reject(new exceptions.DataSetError("Invalid data set type. DataSet destroyed"));
           }).catch(onError);
         };
 
@@ -1540,28 +1635,43 @@ var DataManager = {
                 data_set_id: dataSet.id,
                 position: dataSetObject.position
               };
-              models.db.DataSetDcp.create(dataSetDcp).then(onSuccess).catch(onError);
+              models.db.DataSetDcp.create(dataSetDcp, options).then(function(dSetDcp) {
+                // TODO: reuse it. It retrieving entire GeoJSON representation (with SRID)
+                models.db.DataSetDcp.findOne(Utils.extend({
+                  attributes: [
+                    "id",
+                    "data_set_id",
+                    [orm.fn('ST_AsGeoJSON', orm.col('position'), 0, 2), 'position'],
+                    [orm.fn('ST_AsEwkt', orm.col('position')), 'positionWkt']
+                  ],
+                  where: {
+                    id: dSetDcp.id
+                  }
+                }, options)).then(onSuccess).catch(onError);
+              }).catch(onError);
               break;
             case DataSeriesType.OCCURRENCE:
-              models.db.DataSetOccurrence.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
+              models.db.DataSetOccurrence.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             case DataSeriesType.STATIC_DATA:
               onSuccess(dataSet);
               break;
             case DataSeriesType.GRID:
-              models.db.DataSetGrid.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
+              models.db.DataSetGrid.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-              models.db.DataSetMonitored.create({data_set_id: dataSet.id}).then(onSuccess).catch(onError);
+              models.db.DataSetMonitored.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             default:
-              rollback(dataSet);
+              if (!options && !options.transaction) {
+                rollback(dataSet);
+              }
           }
         } else {
           rollback(dataSet);
         }
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
@@ -1578,9 +1688,11 @@ var DataManager = {
    *
    * @param {Object} restriction - An object containing DataSet identifier to get it and type of DataSet.
    * @param {Format} format - A format to describe which format should be retrieve. Default: GeoJSON.
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  getDataSet: function(restriction, format) {
+  getDataSet: function(restriction, format, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       // setting default format
@@ -1589,30 +1701,24 @@ var DataManager = {
       if (format !== Enums.Format.GEOJSON && format !== Enums.Format.WKT) {
         return reject(new exceptions.DataSetError("Invalid output format while retrieving dataset"));
       }
+      var dataSet = Utils.find(self.data.dataSets, restriction);
+      if (dataSet) {
+        var output = DataModel.DataSetFactory.build(dataSet);
 
-      lock.readLock(function (release) {
-        var dataSet = Utils.find(self.data.dataSets, restriction);
-        if (dataSet) {
-          var output = DataModel.DataSetFactory.build(dataSet);
-
-          if (output.position && format === Enums.Format.WKT) {
-            // Getting wkt representation of Point from GeoJSON
-            self.getWKT(output.position).then(function (wktGeom) {
-              output.positionWkt = wktGeom;
-              resolve(output);
-            }).catch(function (err) {
-              reject(err);
-            }).finally(function() { release(); });
-          } else {
-            resolve(output);
-            release();
-          }
+        if (output.position && format === Enums.Format.WKT) {
+          // Getting wkt representation of Point from GeoJSON
+          self.getWKT(output.position).then(function (wktGeom) {
+            output.positionWkt = wktGeom;
+            return resolve(output);
+          }).catch(function (err) {
+            return reject(err);
+          });
+        } else {
+          return resolve(output);
         }
-        else {
-          reject(new exceptions.DataSetError("Could not find a data set: ", restriction));
-        }
-        release();
-      });
+      } else {
+        return reject(new exceptions.DataSetError("Could not find a data set: ", restriction));
+      }
     });
   },
 
@@ -1781,67 +1887,110 @@ var DataManager = {
     });
   },
 
-  addSchedule: function(scheduleObject) {
+  /**
+   * It performs a add schedule in database
+   * 
+   * @param {Object} scheduleObject - A query values to insert
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<Schedule>}
+   */
+  addSchedule: function(scheduleObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.create(scheduleObject).then(function(schedule) {
-        resolve(new DataModel.Schedule(schedule.get()));
+      models.db.Schedule.create(scheduleObject, options).then(function(schedule) {
+        return resolve(new DataModel.Schedule(schedule.get()));
       }).catch(function(err) {
         // todo: improve error message
-        reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
+        return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
       });
     });
   },
 
-  updateSchedule: function(scheduleId, scheduleObject) {
+  /**
+   * It performs update schedule from given restriction
+   * 
+   * @param {number} scheduleId - A schedule identifier
+   * @param {Object} scheduleObject - A query values to update
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} 
+   */
+  updateSchedule: function(scheduleId, scheduleObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.update(scheduleObject, {
+      models.db.Schedule.update(scheduleObject, Utils.extend({
         fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency', 'frequency_start_time'],
         where: {
           id: scheduleId
         }
-      }).then(function() {
-        resolve();
-      }).catch(function(err) {
-        reject(new exceptions.ScheduleError("Could not update schedule " + err.toString()));
-      });
+      }, options))
+        .then(function() {
+          return resolve();
+        }).catch(function(err) {
+          return reject(new exceptions.ScheduleError("Could not update schedule " + err.toString()));
+        });
     });
   },
 
-  removeSchedule: function(restriction) {
+  /**
+   * It performs delete schedule from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise} 
+   */
+  removeSchedule: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.destroy({where: {id: restriction.id}}).then(function() {
-        resolve();
+      models.db.Schedule.destroy(Utils.extend({where: {id: restriction.id}}, options)).then(function() {
+        return resolve();
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
+        return reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
       });
     });
   },
 
-  getSchedule: function(restriction) {
+  /**
+   * It retrieves a schedule from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Schedule>} 
+   */
+  getSchedule: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.findOne({
+      models.db.Schedule.findOne(Utils.extend({
         where: restriction || {}
-      }).then(function(schedule) {
+      }, options)).then(function(schedule) {
         if (schedule) {
           return resolve(new DataModel.Schedule(schedule.get()));
         }
-        reject(new exceptions.ScheduleError("Could not find schedule"));
+        return reject(new exceptions.ScheduleError("Could not find schedule"));
       });
     });
   },
 
-  addCollector: function(collectorObject, filterObject) {
+  /**
+   * It performs add collector in database
+   * 
+   * @param {Object} collectorObject - A javascript object with collector values
+   * @param {Object} filterObject - A javascript object with filter values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Collector>} 
+   */
+  addCollector: function(collectorObject, filterObject, options) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      models.db.Collector.create(collectorObject).then(function(collectorResult) {
+      models.db.Collector.create(collectorObject, options).then(function(collectorResult) {
         var collector = new DataModel.Collector(collectorResult.get());
 
-        self.getSchedule({id: collectorResult.schedule_id}).then(function(schedule) {
-          self.getDataSeries({id: collectorResult.data_series_input}).then(function(dataSeriesInput) {
-            self.getDataSeries({id: collectorResult.data_series_output}).then(function(dataSeriesOutput) {
+        return self.getSchedule({id: collectorResult.schedule_id}, options).then(function(schedule) {
+          return self.getDataSeries({id: collectorResult.data_series_input}).then(function(dataSeriesInput) {
+            return self.getDataSeries({id: collectorResult.data_series_output}).then(function(dataSeriesOutput) {
               var inputOutputArray = [];
 
               for(var i = 0; i < dataSeriesInput.dataSets.length; ++i) {
@@ -1860,7 +2009,7 @@ var DataManager = {
                 });
               }
 
-              models.db.CollectorInputOutput.bulkCreate(inputOutputArray).then(function(bulkInputOutputResult) {
+              return models.db.CollectorInputOutput.bulkCreate(inputOutputArray, options).then(function(bulkInputOutputResult) {
                 var input_output_map = [];
                 bulkInputOutputResult.forEach(function(bulkResult) {
                   input_output_map.push({
@@ -1880,44 +2029,65 @@ var DataManager = {
                 } else {
                   filterObject.collector_id = collectorResult.id;
 
-                  self.addFilter(filterObject).then(function(filterResult) {
-                    collector.filter = filterResult;
-                    resolve(collector);
-                  }).catch(function(err) {
-                    console.log(err);
-                    reject(new exceptions.CollectorError("Could not save collector filter: " + err.toString()));
-                  });
+                  return self.addFilter(filterObject, options)
+                    .then(function(filterResult) {
+                      collector.filter = filterResult;
+                      return resolve(collector);
+                    }).catch(function(err) {
+                      console.log(err);
+                      return reject(new exceptions.CollectorError("Could not save collector filter: " + err.toString()));
+                    });
                 }
               }).catch(function(err) {
                 console.log(err);
-                reject(new exceptions.CollectorError("Could not save collector input/output " + err.toString()));
+                return reject(new exceptions.CollectorError("Could not save collector input/output " + err.toString()));
               });
             });
           });
         });
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.CollectorError("Could not save collector: ", err));
+        return reject(new exceptions.CollectorError("Could not save collector: ", err));
       });
     });
   },
 
-  updateCollectors: function(restriction, values, extra) {
+  /**
+   * It performs multiple update collector from given restriction
+   * 
+   * @param {Object} restriction - A query restriction 
+   * @param {Object} values - A collector object to update
+   * @param {Object} extra - A extra query options like fields
+   * @param {Array<string>} extra.fields - An array of field to update
+   * @param {Object} options - A orm options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise} 
+   */
+  updateCollectors: function(restriction, values, extra, options) {
     return new Promise(function(resolve, reject) {
-      var options = Object.assign({
+      var opts = Utils.extend(Object.assign({
         where: restriction
-      }, extra instanceof Object ? extra : {});
+      }, extra instanceof Object ? extra : {}), options);
 
-      models.db.Collector.update(values, options).then(function() {
-        resolve();
+      models.db.Collector.update(values, opts).then(function() {
+        return resolve();
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.CollectorError("Could not update collector" + err.message));
+        return reject(new exceptions.CollectorError("Could not update collector " + err.toString()));
       });
     });
   },
 
-  updateCollector: function(collectorId, collectorObject) {
+  /**
+   * It performs update collector from identifier
+   * 
+   * @param {number} collectorId - A collector identifier
+   * @param {Object} collectorObject - A collector object values to update
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  updateCollector: function(collectorId, collectorObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var fields = [
@@ -1929,26 +2099,35 @@ var DataManager = {
         'collector_type'
       ];
 
-      self.updateCollectors({id: collectorId}, collectorObject, {fields: fields}).then(function() {
-        resolve();
+      self.updateCollectors({id: collectorId}, collectorObject, {fields: fields}, options).then(function() {
+        return resolve();
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
 
-  listCollectorInputOutput: function(restriction) {
+  /**
+   * It retrieves all collector input output matches
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Array<Object>>} 
+   */
+  listCollectorInputOutput: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.CollectorInputOutput.findAll({where: restriction || {}}).then(function(inputOutputResult) {
-        var output = [];
-        inputOutputResult.forEach(function(element) {
-          output.push(element.get());
+      models.db.CollectorInputOutput.findAll(Utils.extend({where: restriction || {}}, options))
+        .then(function(inputOutputResult) {
+          var output = [];
+          inputOutputResult.forEach(function(element) {
+            output.push(element.get());
+          });
+          return resolve(output);
+        }).catch(function(err) {
+          return reject(err);
         });
-        resolve(output);
-      }).catch(function(err) {
-        reject(err);
-      });
     });
   },
 
@@ -2016,7 +2195,15 @@ var DataManager = {
     });
   },
 
-  getCollector: function(restriction) {
+  /**
+   * It retrieves a collector of database from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Collector>} 
+   */
+  getCollector: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var restrictionOutput = {};
@@ -2025,7 +2212,7 @@ var DataManager = {
         delete restriction.output;
       }
 
-      models.db.Collector.findOne({
+      models.db.Collector.findOne(Utils.extend({
         where: restriction,
         include: [
           {
@@ -2048,54 +2235,73 @@ var DataManager = {
             required: false
           }
         ]
-      }).then(function(collectorResult) {
+      }, options)).then(function(collectorResult) {
         if (collectorResult) {
           var collectorInstance = new DataModel.Collector(collectorResult.get());
 
-          self.getDataSeries({id: collectorResult.data_series_output}).then(function(dataSeries) {
-            collectorInstance.dataSeriesOutput = dataSeries;
-            resolve(collectorInstance);
-          }).catch(function(err) {
-            console.log("Retrieved null while getting collector");
-            reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
-          });
+          return self.getDataSeries({id: collectorResult.data_series_output})
+            .then(function(dataSeries) {
+              collectorInstance.dataSeriesOutput = dataSeries;
+              return resolve(collectorInstance);
+            }).catch(function(err) {
+              console.log("Retrieved null while getting collector");
+              return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
+            });
         } else {
           console.log("Retrieved null while getting collector");
-          reject(new exceptions.CollectorError("Could not find collector. "));
+          return reject(new exceptions.CollectorError("Could not find collector. "));
         }
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
+        return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
       });
     });
   },
 
-  addIntersection: function(intersectionArray) {
+  /**
+   * It performs a save intersection in database. It accepts multiple insertions
+   * 
+   * @param {Array<Object>} intersectionArray - An javascript array with intersection values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Array<DataModel.Intersection>>}
+   */
+  addIntersection: function(intersectionArray, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Intersection.bulkCreate(intersectionArray, {returning: true}).then(function(intesectionList) {
-        var output = [];
-        intesectionList.forEach(function(element) {
-          output.push(new DataModel.Intersection(element.get()));
+      models.db.Intersection.bulkCreate(intersectionArray, Utils.extend({returning: true}, options))
+        .then(function(intesectionList) {
+          var output = [];
+          intesectionList.forEach(function(element) {
+            output.push(new DataModel.Intersection(element.get()));
+          });
+          return resolve(output);
+        }).catch(function(err) {
+          return reject(new Error("Could not save intersection. " + err.toString()));
         });
-        resolve(output);
-      }).catch(function(err) {
-        reject(new Error("Could not save intersection. " + err.toString()));
-      });
     });
   },
 
-  updateIntersection: function(intersectionId, intersectionObject) {
+  /**
+   * It performs update intersection from identifier
+   * 
+   * @param {number} intersectionId - An intersection identifier
+   * @param {Object} intersectionObject - An intersection object to update
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+  */
+  updateIntersection: function(intersectionId, intersectionObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Intersection.update(intersectionObject, {
+      models.db.Intersection.update(intersectionObject, Utils.extend({
         fields: ['attribute'],
         where: {
           id: intersectionId
         }
-      }).then(function() {
-        resolve();
-      }).catch(function(err) {
-        reject(new Error("Could not update intersection " + err.toString()));
-      });
+      }, options))
+        .then(function() {
+          return resolve();
+        }).catch(function(err) {
+          return reject(new Error("Could not update intersection " + err.toString()));
+        });
     });
   },
 
@@ -2138,7 +2344,15 @@ var DataManager = {
     });
   },
 
-  addFilter: function(filterObject) {
+  /**
+   * It performs save filter in database
+   * 
+   * @param {Object} filterObject - A filter object values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Filter>}
+  */
+  addFilter: function(filterObject, options) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
@@ -2147,29 +2361,37 @@ var DataManager = {
       Object.assign(filterValues, _processFilter(filterObject));
 
       // checking filter
-      models.db.Filter.create(filterValues).then(function(filterResult) {
+      models.db.Filter.create(filterValues, options).then(function(filterResult) {
         if (filterResult.region) {
-          self.getFilter({id: filterResult.id}).then(function(filterEwkt) {
-            resolve(filterEwkt);
+          return self.getFilter({id: filterResult.id}, options).then(function(filterEwkt) {
+            return resolve(filterEwkt);
           });
         } else {
-          resolve(new DataModel.Filter(filterResult.get()));
+          return resolve(new DataModel.Filter(filterResult.get()));
         }
       }).catch(function(err) {
         // todo: improve error message
         console.log(err);
-        reject(new Error("Could not save filter. " + err.toString()));
+        return reject(new Error("Could not save filter. " + err.toString()));
       });
     });
   },
 
-  getFilter: function(restriction) {
+  /**
+   * It retrieves a filter instance of database from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Filter>}
+   */
+  getFilter: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Filter.findOne({
+      models.db.Filter.findOne(Utils.extend({
         attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt']]},
         where: restriction
-      }).then(function(filter) {
+      }, options)).then(function(filter) {
         if (filter === null) {
           return reject(new exceptions.FilterError("Could not get filter, retrieved null"));
         }
@@ -2177,70 +2399,105 @@ var DataManager = {
         var output = new DataModel.Filter(filter.get());
         output.region_wkt = filter.dataValues.region_wkt;
 
-        resolve(output);
+        return resolve(output);
       }).catch(function(err) {
-        reject(new exceptions.FilterError("Could not retrieve filter " + err.toString()));
+        return reject(new exceptions.FilterError("Could not retrieve filter " + err.toString()));
       });
     });
   },
 
-  updateFilter: function(filterId, filterObject) {
+  /**
+   * It performs an update filter from given restriction
+   * 
+   * @param {number} filterId - A filter identifier
+   * @param {Object} filterObject - A filter values to update
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  updateFilter: function(filterId, filterObject, options) {
     return new Promise(function(resolve, reject) {
       var filterValues = _processFilter(filterObject);
-      models.db.Filter.update(filterValues, {
+      models.db.Filter.update(filterValues, Utils.extend({
         fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value'],
         where: {
           id: filterId
         }
-      }).then(function() {
-        resolve();
+      }, options)).then(function() {
+        return resolve();
       }).catch(function(err) {
         console.log(err);
-        reject(new Error("Could not update filter " + err.toString()));
+        return reject(new Error("Could not update filter " + err.toString()));
       });
     });
   },
 
-  addAnalysisDataSeries: function(analysisDataSeriesObject) {
+
+  /**
+   * It performs save analysis data series in database
+   * 
+   * @param {Object} analysisDataSeriesObject - An analysis data series object to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<AnalysisDataSeries>}
+   */
+  addAnalysisDataSeries: function(analysisDataSeriesObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.AnalysisDataSeries.create(analysisDataSeriesObject, {
+      models.db.AnalysisDataSeries.create(analysisDataSeriesObject, Utils.extend({
         include: [models.db.AnalysisDataSeriesMetadata]
-      }).then(function(result) {
-        var output = new DataModel.AnalysisDataSeries(result);
-        resolve(output);
-      }).catch(function(err) {
-        reject(new exceptions.AnalysisError("Could not save analysis data series " + err.toString()));
-      });
+      }, options))
+        .then(function(result) {
+          var output = new DataModel.AnalysisDataSeries(result);
+          return resolve(output);
+        }).catch(function(err) {
+          return reject(new exceptions.AnalysisError("Could not save analysis data series " + err.toString()));
+        });
     });
   },
 
-  addAnalysisOutputGrid: function(addAnalysisOutputGridObject) {
+  /**
+   * It performs save analysis output grid in database
+   * 
+   * @param {Object} addAnalysisOutputGridObject - An analysis output grid values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<AnalysisOutputGrid>}
+   */
+  addAnalysisOutputGrid: function(addAnalysisOutputGridObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.AnalysisOutputGrid.create(addAnalysisOutputGridObject).then(function(analysisOutGridResult) {
-        self.getAnalysisOutputGrid({id: analysisOutGridResult.id}).then(function(outputGrid) {
-          resolve(outputGrid);
-        });
+      models.db.AnalysisOutputGrid.create(addAnalysisOutputGridObject, options).then(function(analysisOutGridResult) {
+        return self.getAnalysisOutputGrid({id: analysisOutGridResult.id}, options)
+          .then(function(outputGrid) {
+            return resolve(outputGrid);
+          });
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.AnalysisError("Could not save analysis output grid " + err.toString()));
+        return reject(new exceptions.AnalysisError("Could not save analysis output grid " + err.toString()));
       });
     });
   },
 
-  getAnalysisOutputGrid: function(restriction) {
+  /**
+   * It retrieves a analysis output grid from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<AnalysisOutputGrid>}
+   */
+  getAnalysisOutputGrid: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.AnalysisOutputGrid.findOne({
+      models.db.AnalysisOutputGrid.findOne(Utils.extend({
         attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
         where: restriction
-      }).then(function(outputGrid) {
+      }, options)).then(function(outputGrid) {
         if (outputGrid === null) {
           return reject(new Error("Analysis output grid not found"));
         }
 
         var output = new DataModel.AnalysisOutputGrid(outputGrid.get());
         output.areaOfInterestBoxWKT = outputGrid.dataValues.interest_box;
-        resolve(output);
+        return resolve(output);
       }).catch(function(err) {
         console.log(err);
         return reject(new Error("Analysis output grid not found " + err.toString()));
@@ -2248,13 +2505,21 @@ var DataManager = {
     });
   },
 
-  addAnalysis: function(analysisObject) {
+  /**
+   * It performs save analysis in database
+   * 
+   * @param {Object} analysisObject - An analysis values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Analysis>}
+   */
+  addAnalysis: function(analysisObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Analysis.create(analysisObject).then(function(analysisResult) {
-        self.getDataSet({id: analysisResult.dataset_output}).then(function(dataSet) {
-          self.getDataSeries({id: dataSet.data_series_id}).then(function(dataSeries) {
-            self.getSchedule({id: analysisResult.schedule_id}).then(function(scheduleResult) {
+      models.db.Analysis.create(analysisObject, options).then(function(analysisResult) {
+        return self.getDataSet({id: analysisResult.dataset_output}).then(function(dataSet) {
+          return self.getDataSeries({id: dataSet.data_series_id}).then(function(dataSeries) {
+            return self.getSchedule({id: analysisResult.schedule_id}, options).then(function(scheduleResult) {
               analysisResult.getScriptLanguage().then(function(scriptLanguageResult) {
                 // creating a variable to make visible in closure
                 var analysisDataSeriesArray = Utils.clone(analysisObject.analysisDataSeries);
@@ -2270,7 +2535,7 @@ var DataManager = {
                   }
                 }
 
-                models.db.AnalysisMetadata.bulkCreate(analysisMetadata).then(function(bulkAnalysisMetadata) {
+                models.db.AnalysisMetadata.bulkCreate(analysisMetadata, options).then(function(bulkAnalysisMetadata) {
                   var analysisMetadataOutput = {};
                   bulkAnalysisMetadata.forEach(function(bulkMetadata) {
                     analysisMetadataOutput[bulkMetadata.key] = bulkMetadata.value;
@@ -2295,7 +2560,7 @@ var DataManager = {
                     delete analysisDS.metadata;
                     analysisDS.AnalysisDataSeriesMetadata = metadata;
 
-                    promises.push(self.addAnalysisDataSeries(analysisDS));
+                    promises.push(self.addAnalysisDataSeries(analysisDS, options));
                   });
 
                   var analysisInstance = new DataModel.Analysis(analysisResult);
@@ -2308,19 +2573,19 @@ var DataManager = {
                     analysisInstance.type = analysisTypeResult.get();
 
                     var _savePromises = function() {
-                      Promise.all(promises).then(function(results) {
+                      return Promise.all(promises).then(function(results) {
                         results.forEach(function(result) {
                           var analysisDataSeries = result;
 
                           analysisInstance.addAnalysisDataSeries(analysisDataSeries);
                         });
 
-                        resolve(analysisInstance);
+                        return resolve(analysisInstance);
                       }).catch(function(err) {
                         console.log(err);
                         // rollback analysis data series
                         Utils.rollbackPromises([
-                          self.removeAnalysis({id: analysisResult.id})
+                          self.removeAnalysis({id: analysisResult.id}, options)
                         ], new exceptions.AnalysisError("Could not save analysis data series " + err.toString()), reject);
                       });
                     };
@@ -2330,20 +2595,20 @@ var DataManager = {
                       var analysisOutputGrid = analysisObject.grid;
                       analysisOutputGrid.analysis_id = analysisResult.id;
 
-                      self.addAnalysisOutputGrid(analysisOutputGrid).then(function(output_grid) {
+                      return self.addAnalysisOutputGrid(analysisOutputGrid, options).then(function(output_grid) {
                         analysisInstance.outputGrid = output_grid;
-                        _savePromises();
+                        return _savePromises();
                       }).catch(function(err) {
                         Utils.rollbackPromises([
-                          self.removeAnalysis({id: analysisResult.id})
+                          self.removeAnalysis({id: analysisResult.id}, options)
                         ], err, reject);
                       });
-                    } else { _savePromises(); } // end if
+                    } else { return _savePromises(); } // end if
                   }); // end get analysis tyoe
                 }).catch(function(err) {
                   // rollback analysis metadata
                   Utils.rollbackPromises([
-                    self.removeAnalysis({id: analysisResult.id})
+                    self.removeAnalysis({id: analysisResult.id}, options)
                   ], new exceptions.AnalysisError("Could not save analysis metadata " + err.toString()), reject);
                 });
               }); // end get script language
@@ -2353,7 +2618,7 @@ var DataManager = {
       }).catch(function(err) {
         // rollback data series
         console.log(err);
-        reject(new exceptions.AnalysisError("Could not save analysis " + err.toString()));
+        return reject(new exceptions.AnalysisError("Could not save analysis " + err.toString()));
       });
     });
   },
@@ -2465,7 +2730,20 @@ var DataManager = {
           },
           {
             model: models.db.AnalysisOutputGrid,
-            attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
+            attributes: [
+              'interpolation_dummy',
+              'resolution_x',
+              'resolution_y',
+              'srid',
+              'analysis_id',
+              'area_of_interest_type',
+              'resolution_type',
+              'interpolation_method',
+              'resolution_data_series_id',
+              'area_of_interest_data_series_id',
+              [orm.fn('ST_AsGeoJSON', orm.col('area_of_interest_box'), 0, 2), 'area_of_interest_box'],
+              [orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box'] // extra field
+            ],
             required: false
           },
           models.db.AnalysisMetadata,
@@ -2515,7 +2793,7 @@ var DataManager = {
     });
   },
 
-  getAnalysis: function(restriction) {
+  getAnalysis: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var restrict = Object.assign({}, restriction || {});
@@ -2524,7 +2802,7 @@ var DataManager = {
         dataSetRestriction = restrict.dataSet;
         delete restrict.dataSet;
       }
-      models.db.Analysis.findOne({
+      models.db.Analysis.findOne(Utils.extend({
         where: restrict,
         include: [
           {
@@ -2550,7 +2828,7 @@ var DataManager = {
             where: dataSetRestriction
           }
         ]
-      }).then(function(analysisResult) {
+      }, options)).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
         self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
@@ -2581,34 +2859,33 @@ var DataManager = {
    * It removes Analysis from param. It should be an object containing either id identifier or name identifier.
    *
    * @param {Object} analysisParam - An object containing Analysis identifier to get it.
-   * @param {Boolean} cascade - A bool value to delete on cascade
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with Analysis instance or error callback
    */
-  removeAnalysis: function(analysisParam, cascade) {
+  removeAnalysis: function(analysisParam, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      if(!cascade) { cascade = false; }
-
-      self.getAnalysis({id: analysisParam.id}).then(function(analysisResult) {
-        models.db.Analysis.destroy({where: {id: analysisParam.id}}).then(function() {
-          self.removeDataSerie({id: analysisResult.dataSeries.id}).then(function() {
-            self.removeSchedule({id: analysisResult.schedule.id}).then(function() {
-              resolve();
+      self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
+        return models.db.Analysis.destroy(Utils.extend({where: {id: analysisParam.id}}, options)).then(function() {
+          return self.removeDataSerie({id: analysisResult.dataSeries.id}, options).then(function() {
+            return self.removeSchedule({id: analysisResult.schedule.id}, options).then(function() {
+              return resolve();
             }).catch(function(err) {
               console.log("Could not remove analysis schedule ", err);
-              reject(err);
+              return reject(err);
             });
           }).catch(function(err) {
             console.log("Could not remove output data series ", err);
-            reject(err);
+            return reject(err);
           });
         }).catch(function(err) {
           console.log(err);
-          reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
+          return reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
         });
       }).catch(function(err) {
         console.log(err);
-        reject(err);
+        return reject(err);
       });
     });
   }

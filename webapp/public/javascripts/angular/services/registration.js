@@ -130,7 +130,12 @@ angular.module('terrama2.administration.services.registration',
           }
         });
 
-        socket.emit('testDbConnection', $scope.log);
+        var logCredentials = Object.assign({}, $scope.log);
+        if (logCredentials && (logCredentials.host === "localhost" || logCredentials.host.startsWith("127."))) {
+          logCredentials.host = $scope.service.host || logCredentials.host;
+        }
+
+        socket.emit('testDbConnection', logCredentials);
         socket.on('testDbConnectionResponse', function(result) {
           $scope.db.isLoading = false;
           if (result.error) {

@@ -1,5 +1,16 @@
+'use strict';
+
+// base class
 var AbstractClass = require("./AbstractData");
 
+/**
+ * A generic representation of DataSet
+ * 
+ * @property id
+ * @property data_series_id
+ * @property active
+ * @property format
+ */
 function DataSet(params) {
   AbstractClass.call(this, {'class': 'DataSet'});
   
@@ -13,9 +24,14 @@ function DataSet(params) {
     this.format = params.format || {};
 }
 
+// javascript inherits model
 DataSet.prototype = Object.create(AbstractClass.prototype);
 DataSet.prototype.constructor = DataSet;
 
+/**
+ * It prepares a object from format specified. 
+ * @param {Array<Object>|Object} formats - format values
+ */
 DataSet.prototype.setFormat = function(formats) {
   var formatOutput = {};
   if (formats instanceof Array) {
@@ -29,6 +45,10 @@ DataSet.prototype.setFormat = function(formats) {
   this.format = formatOutput;
 };
 
+/**
+ * It retrieves a TerraMA² standard representation of DataSet to send via TCP
+ * @inherits AbstractData:toObject
+ */
 DataSet.prototype.toObject = function() {
   return Object.assign(AbstractClass.prototype.toObject.call(this), {
     id: this.id,

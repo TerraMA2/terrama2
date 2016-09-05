@@ -1,19 +1,45 @@
 "use strict";
 
+// dependencies
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
 var isObject = require("./../Utils").isObject;
 
+/**
+ * Analysis model representation
+ * 
+ * @param {Analysis | Object} params - A javascript object with values to build an analysis
+ */
 var Analysis = module.exports = function(params) {
   BaseClass.call(this, {'class': 'Analysis'});
+  /**
+   * @name Analysis#id
+   * @type {number}
+   */
   this.id = params.id;
+  /**
+   * @name Analysis#project_id
+   * @type {number}
+   */
   this.project_id = params.project_id;
+  /**
+   * @name Analysis#script
+   * @type {string}
+   */
   this.script = params.script;
 
   if (params.ScriptLanguage) {
+    /**
+     * @name Analysis#script_language
+     * @type {Object}
+     */    
     this.script_language = params.ScriptLanguage.get();
   } else {
+    /**
+     * @name Analysis#script_language
+     * @type {Object}
+     */
     this.script_language = params.script_language || {};
   }
 
@@ -23,9 +49,25 @@ var Analysis = module.exports = function(params) {
     this.type = params.type || {};
   }
 
+  /**
+   * @name Analysis#name
+   * @type {string}
+   */
   this.name = params.name;
+  /**
+   * @name Analysis#description
+   * @type {string=}
+   */
   this.description = params.description;
+  /**
+   * @name Analysis#active
+   * @type {boolean}
+   */
   this.active = params.active;
+  /**
+   * @name Analysis#dataset_output
+   * @type {number}
+   */
   this.dataset_output = params.dataset_output;
 
   if (params.AnalysisMetadata) {
@@ -33,7 +75,10 @@ var Analysis = module.exports = function(params) {
   } else {
     this.metadata = params.metadata || {};
   }
-
+  /**
+   * @name Analysis#analysis_dataseries_list
+   * @type {Array<Object>}
+   */
   this.analysis_dataseries_list = [];
 
   if (params.Schedule) {
@@ -42,6 +87,10 @@ var Analysis = module.exports = function(params) {
     this.schedule = params.schedule;
   }
 
+  /**
+   * @name Analysis#instance_id
+   * @type {number}
+   */
   this.instance_id = params.instance_id;
   this.dataSeries = {};
 
@@ -55,6 +104,11 @@ var Analysis = module.exports = function(params) {
 Analysis.prototype = Object.create(BaseClass.prototype);
 Analysis.prototype.constructor = Analysis;
 
+/**
+ * It appends a analysis data series to the list
+ * 
+ * @param {AnalysisDataSeries} analysisDataSeries - An analysis data series object
+ */
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
   this.analysis_dataseries_list.push(analysisDataSeries);
 };

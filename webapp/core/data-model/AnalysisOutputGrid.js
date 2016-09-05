@@ -1,8 +1,15 @@
 "use strict";
 
+// dependencies
 var BaseClass = require("./AbstractData");
 var Utils = require('./../Utils');
 
+/**
+ * AnalysisOutputGrid representation
+ * 
+ * @class AnalysisOutputGrid
+ * @param {AnalysisOutputGrid | Object} params - A params to fill analysis output grid 
+ */
 var AnalysisOutputGrid = module.exports = function(params) {
   BaseClass.call(this, {'class': "AnalysisOutputGrid"});
 
@@ -16,7 +23,9 @@ var AnalysisOutputGrid = module.exports = function(params) {
   this.srid = params.srid;
   this.analysis = params.analysis || {id: params.analysis_id};
   this.areaOfInterestType = params.areaOfInterestType || params.area_of_interest_type;
-  this.areaOfInterestBox = params.areaOfInterestBox || params.area_of_interest_box || params.interest_box || null;
+
+  this.setAreaOfInterestBox(params.areaOfInterestBox || params.area_of_interest_box);
+
   this.areaOfInterestBoxWKT = params.interest_box || null;
   this.areaOfInterestDataSeries = params.areaOfInterestDataSeries || {id: params.area_of_interest_data_series_id};
   this.resolutionX = params.resolutionX || params.resolution_x;
@@ -25,9 +34,27 @@ var AnalysisOutputGrid = module.exports = function(params) {
   this.resolutionDataSeries = params.resolutionDataSeries || {id: params.resolution_data_series_id};
 };
 
+// javascript inherits model
 AnalysisOutputGrid.prototype = Object.create(BaseClass.prototype);
 AnalysisOutputGrid.prototype.constructor = AnalysisOutputGrid;
 
+/**
+ * It prepares and set area of interest box in property
+ * 
+ * @param {string | Object} areaOfInterestBox - An area of interest box retrieved from database. It may be a GeoJSON string to be parsed or a javascript object
+ */
+AnalysisOutputGrid.prototype.setAreaOfInterestBox = function(areaOfInterestBox) {
+  if (Utils.isString(areaOfInterestBox)) {
+    try {
+      this.areaOfInterestBox = JSON.parse(areaOfInterestBox);
+    } catch (e) {
+      console.log("Error during AreaOfInterestBox parse. " + e.toString());
+      this.areaOfInterestBox = areaOfInterestBox;
+    }
+  } else {
+    this.areaOfInterestBox = areaOfInterestBox;
+  }
+};
 
 AnalysisOutputGrid.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
