@@ -1,10 +1,13 @@
-"use strict";
+'use strict';
 
+// dependencies
 var BaseClass = require('./AbstractData');
 var DataSetFactory = require('./DataSetFactory');
 var DataProvider = require("./DataProvider");
 
-
+/**
+ * A TerraMA² DataSeries representation
+ */
 var DataSeries = function(params) {
   BaseClass.call(this, {'class': 'DataSeries'});
 
@@ -35,9 +38,14 @@ var DataSeries = function(params) {
   }
 };
 
+// javascript inherits model
 DataSeries.prototype = Object.create(BaseClass.prototype);
 DataSeries.prototype.constructor = DataSeries;
 
+/**
+ * It sets DataProvider to the property. The dataprovider may be a ORM instance or DataProvider object
+ * @param {DataProvider|Object} dataProvider - A data provider values
+ */
 DataSeries.prototype.setDataProvider = function(dataProvider) {
   var provider = {};
   if (dataProvider instanceof BaseClass) {
@@ -49,6 +57,10 @@ DataSeries.prototype.setDataProvider = function(dataProvider) {
   this.dataProvider = provider;
 };
 
+/**
+ * It sets DataSet to the property.
+ * @param {Array<DataSet>|Array<Object>} dataSets - a data set array with values
+ */
 DataSeries.prototype.setDataSets = function(dataSets) {
   var output = [];
   dataSets.forEach(function(dataSet) {
@@ -91,7 +103,7 @@ DataSeries.prototype.rawObject = function() {
   var dSets = [];
   this.dataSets.forEach(function(dSet) {
     if (dSet instanceof BaseClass) {
-      dSets.push(dSet.toObject());
+      dSets.push(dSet.rawObject());
     } else {
       dSets.push(dSet);
     }

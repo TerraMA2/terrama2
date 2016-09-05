@@ -17,7 +17,7 @@ module.exports = function(app) {
     edit: function(request, response) {
       var analysisId = request.params.id;
 
-      DataManager.getAnalysis({id: analysisId}).then(function(analysisResult) {
+      DataManager.getAnalysis({id: analysisId, project_id: app.locals.activeProject.id}).then(function(analysisResult) {
         response.render("configuration/analysis", {
           Enums: Enums,
           analysis: analysisResult.rawObject()

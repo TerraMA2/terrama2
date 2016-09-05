@@ -1,147 +1,194 @@
-<div class="col-md-12">
-  <!-- Modal -->
-  <div ng-if="isFunction(remove)" class="modal fade modal-danger" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog modal-sm" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">{{ i18n.__('Removal Confirmation') }}</h4>
+<div>
+  <div class="col-md-12">
+    <!-- Modal -->
+    <div ng-if="isFunction(remove)" class="modal fade modal-danger" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">{{ i18n.__('Removal Confirmation') }}</h4>
+          </div>
+          <div class="modal-body">
+            {{ i18n.__('Are you sure?') }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="resetObjectToRemove()">Cancel</button>
+            <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="removeOperation()">OK</button>
+          </div>
         </div>
-        <div class="modal-body">
-          {{ i18n.__('Are you sure?') }}
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="col-md-8">
+        <div class="form-group">
+          <input class="form-control" id="searchNameInput" ng-model="searchInput" style="margin-top: 24px;" placeholder="{{ i18n.__('Type to search') }}" type="text">
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="resetObjectToRemove()">Cancel</button>
-          <button type="button" class="btn btn-outline" data-dismiss="modal" ng-click="removeOperation()">OK</button>
+      </div>
+
+      <div class="col-md-4">
+        <div class="form-group">
+          <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>{{ i18n.__('Advanced') }}</button>
         </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 terrama2-nopadding-box" ng-show="linkToAdd">
+      <div class="form-group">
+        <button ng-show="extra.service && extra.service.hasServiceOffline() && model.length > 0"
+                class="btn btn-primary"
+                ng-disabled="extra.service.starting"
+                ng-click="extra.service.startAll()"
+                style="margin-top: 24px;"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="{{ i18n.__('Start all services') }}">
+                <i class="fa fa-magic" style="margin-right: 5px;"></i>
+                {{ i18n.__('Start all') }}
+        </button>
+        <button ng-show="extra.service && !extra.service.hasServiceOffline() && model.length > 0"
+                class="btn btn-danger"
+                ng-disabled="extra.service.stoping"
+                ng-click="extra.service.stopAll()"
+                style="margin-top: 24px;"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="{{ i18n.__('Stop all services') }}">
+                <i class="fa fa-power-off" style="margin-right: 5px;"></i>
+                {{ i18n.__('Stop all') }}
+        </button>
+
+        <a ng-href="{{ linkToAdd }}"
+           class="btn btn-default pull-right"
+           data-toggle="tooltip"
+           data-placement="top"
+           title='{{ i18n.__("Add new") }}'
+           style="margin-top: 24px;">
+           <i class="fa fa-plus"></i>
+         </a>
+         <button class="btn btn-default pull-right"
+                 ng-show="extra.import"
+                 style="margin-top: 24px; margin-right: 10px;"
+                 data-toggle="tooltip"
+                 data-placement="top"
+                 title='{{ i18n.__("Import") }}'
+                 ng-click="extra.import()"
+                 ng-disabled="extra.isImporting">
+           <span class="loading ng-hide" ng-show="extra.isImporting">
+             <i class="fa fa-refresh fa-spin"></i>
+           </span>
+           <i class="fa fa-upload"></i>
+         </button>
       </div>
     </div>
   </div>
 
-  <div class="col-md-7">
-    <div class="form-group">
-      <input class="form-control" id="searchNameInput" ng-model="searchInput" style="margin-top: 24px;" placeholder="{{ i18n.__('Type to search') }}" type="text">
-    </div>
-  </div>
+  <div class="col-md-12">
+    <table class="table table-hover">
+      <tbody id="searchList">
+        <!-- header -->
+        <tr style="font-weight: bold;">
+          <td ng-show="isFunction(icon()) && model.length > 0"></td>
+          <td ng-repeat="field in displayFields">{{ field }}</td>
+          <td ng-if="extra.service">Status</td>
+          <td ng-if="extra.export"></td>
+          <td ng-if="isFunction(remove)">
+        </tr>
+        <tr ng-repeat="element in model | filter:searchInput | orderBy: 'last_process_timestamp' track by $index">
+          <td ng-show="isFunction(icon())" style="width: 50px;">
+            <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
+            <span ng-if="iconProperties.type === 'icon'" class="label">
+              <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
+            </span>
+          </td>
+          <td ng-repeat="field in identityFields ">
+            <a ng-href="{{ makeLink(element) }}" ng-if="link">{{ processField(field, element) }}</a>
+            <!--{{ element[field] }}-->
+          </td>
 
-  <div class="col-md-3">
-    <div class="form-group">
-      <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>{{ i18n.__('Advanced') }}</button>
-    </div>
-  </div>
+          <td ng-if="extra.project" class="pull-cell-left">
+            <a ng-href="{{ extra.project.activate(element) }}" class="btn btn-primary btn-sm">
+              <i class="fa fa-magic"></i> {{ i18n.__("Activate") }}
+            </button>
+          </td>
 
-  <div class="col-md-2 terrama2-nopadding-box" ng-show="linkToAdd">
-    <div class="form-group">
-      <button ng-show="extra.service && extra.service.hasServiceOffline() && model.length > 0"
-              class="btn btn-primary"
-              ng-disabled="extra.service.starting"
-              ng-click="extra.service.startAll()"
-              style="margin-top: 24px;"
-              data-toggle="tooltip"
-              data-placement="bottom"
-              title="{{ i18n.__('Start all services') }}">
+          <td ng-if="extra.service" class="pull-cell-left">
+            <!-- loading  -->
+            <span ng-if="element.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+
+            <i ng-show="!element.loading"
+               title="{{ element.online ? element.requestingForClose ? 'Finalizing...' : 'Online' : 'Offline' }}"
+               class="fa fa-circle"
+               style="color: {{ element.online ? 'green' : 'red' }}"></i>
+
+            <button class="btn btn-primary btn-sm"
+                    ng-show="!element.online && !element.loading"
+                    style="margin-left: 20px;"
+                    ng-click="extra.service.handler(element)"
+                    ng-disabled="element.loading">
+              <i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Start') }}
+            </button>
+            <button type="button"
+                    ng-if="!element.checking && element.loading && !element.online"
+                    class="btn btn-primary btn-sm"
+                    ng-disabled="element.loading"
+                    style="margin-left: 19px">
               <i class="fa fa-magic" style="margin-right: 5px;"></i>
-              {{ i18n.__('Start all') }}
-      </button>
-      <button ng-show="extra.service && !extra.service.hasServiceOffline() && model.length > 0"
-              class="btn btn-danger"
-              ng-disabled="extra.service.stoping"
-              ng-click="extra.service.stopAll()"
-              style="margin-top: 24px;"
-              data-toggle="tooltip"
-              data-placement="bottom"
-              title="{{ i18n.__('Stop all services') }}">
+              {{ i18n.__("Starting...") }}
+            </button>
+            <button type="button"
+                    ng-if="element.checking"
+                    class="btn btn-primary btn-sm"
+                    ng-disabled="element.loading"
+                    style="margin-left: 19px">
+              <i class="glyphicon glyphicon-info-sign" style="margin-right: 5px;"></i>
+              {{ i18n.__("Checking...") }}
+            </button>
+
+            <button class="btn btn-danger btn-sm"
+                    ng-show="element.online && !element.loading"
+                    style="margin-left: 20px;"
+                    ng-click="extra.service.handler(element)"
+                    ng-disabled="element.loading">
+              <i class="fa fa-power-off" style="margin-right: 5px;"></i>{{ i18n.__('Stop') }}
+            </button>
+            <button type="button"
+                    ng-if="!element.checking && element.loading && element.online"
+                    class="btn btn-danger btn-sm"
+                    ng-disabled="element.loading"
+                    style="margin-left: 19px">
               <i class="fa fa-power-off" style="margin-right: 5px;"></i>
-              {{ i18n.__('Stop all') }}
-      </button>
-      <a ng-href="{{ linkToAdd }}" class="btn btn-default pull-right" style="margin-top: 24px;"><i class="fa fa-plus"></i></a>
-    </div>
+              {{ i18n.__("Finalizing...") }}
+            </button>
+          </td>
+
+          <td ng-if="extra.export" class="pull-cell-left">
+            <button class="btn btn-default btn-sm"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    ng-click="extra.export(element)"
+                    ng-disabled="extra.isExporting"
+                    title='{{ i18n.__("Export") }}'>
+              <span class="loading ng-hide" ng-show="extra.isExporting">
+                <i class="fa fa-refresh fa-spin"></i>
+              </span>
+              <i class="fa fa-download" ng-show="!extra.isExporting"></i>
+            </button>
+          </td>
+
+          <td ng-if="isFunction(remove)" class="pull-cell-left">
+            <button class="btn btn-sm btn-danger" ng-click="confirmRemoval(element)">
+              <span class="glyphicon glyphicon-remove"></span>
+              <span class="hidden-xs">{{ i18n.__('Remove') }}</span>
+            </button>
+          </td>
+        </tr>
+
+        <tr ng-show="!model.length">
+          <td colspan="2">{{ i18n.__(emptyMessage) }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-</div>
 
-<div class="col-md-12">
-  <table class="table table-hover">
-    <tbody id="searchList">
-      <!-- header -->
-      <tr style="font-weight: bold;">
-        <td ng-show="isFunction(icon()) && model.length > 0"></td>
-        <td ng-repeat="field in displayFields">{{ field }}</td>
-        <td ng-if="extra.service">Status</td>
-        <td ng-if="isFunction(remove)">
-      </tr>
-      <tr ng-repeat="element in model | filter:searchInput | orderBy: 'last_process_timestamp' track by $index">
-        <td ng-show="isFunction(icon())" style="width: 50px;">
-          <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
-          <span ng-if="iconProperties.type === 'icon'" class="label">
-            <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
-          </span>
-        </td>
-        <td ng-repeat="field in identityFields ">
-          <a ng-href="{{ makeLink(element) }}" ng-if="link">{{ processField(field, element) }}</a>
-          <!--{{ element[field] }}-->
-        </td>
-
-        <td ng-if="extra.service" class="pull-cell-left">
-          <!-- loading  -->
-          <span ng-if="element.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-
-          <i ng-show="!element.loading"
-             title="{{ element.online ? element.requestingForClose ? 'Finalizing...' : 'Online' : 'Offline' }}"
-             class="fa fa-circle"
-             style="color: {{ element.online ? 'green' : 'red' }}"></i>
-
-          <button class="btn btn-primary btn-sm"
-                  ng-show="!element.online && !element.loading"
-                  style="margin-left: 20px;"
-                  ng-click="extra.service.handler(element)"
-                  ng-disabled="element.loading">
-            <i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Start') }}
-          </button>
-          <button type="button"
-                  ng-if="!element.checking && element.loading && !element.online"
-                  class="btn btn-primary btn-sm"
-                  ng-disabled="element.loading"
-                  style="margin-left: 19px">
-            <i class="fa fa-magic" style="margin-right: 5px;"></i>
-            {{ i18n.__("Starting...") }}
-          </button>
-          <button type="button"
-                  ng-if="element.checking"
-                  class="btn btn-primary btn-sm"
-                  ng-disabled="element.loading"
-                  style="margin-left: 19px">
-            <i class="glyphicon glyphicon-info-sign" style="margin-right: 5px;"></i>
-            {{ i18n.__("Checking...") }}
-          </button>
-
-          <button class="btn btn-danger btn-sm"
-                  ng-show="element.online && !element.loading"
-                  style="margin-left: 20px;"
-                  ng-click="extra.service.handler(element)"
-                  ng-disabled="element.loading">
-            <i class="fa fa-power-off" style="margin-right: 5px;"></i>{{ i18n.__('Stop') }}
-          </button>
-          <button type="button"
-                  ng-if="!element.checking && element.loading && element.online"
-                  class="btn btn-danger btn-sm"
-                  ng-disabled="element.loading"
-                  style="margin-left: 19px">
-            <i class="fa fa-power-off" style="margin-right: 5px;"></i>
-            {{ i18n.__("Finalizing...") }}
-          </button>
-        </td>
-
-        <td ng-if="isFunction(remove)" class="pull-cell-left">
-          <button class="btn btn-sm btn-danger" ng-click="confirmRemoval(element)">
-            <span class="glyphicon glyphicon-remove"></span>
-            <span class="hidden-xs">{{ i18n.__('Remove') }}</span>
-          </button>
-        </td>
-      </tr>
-
-      <tr ng-show="!model.length">
-        <td colspan="2">{{ i18n.__(emptyMessage) }}</td>
-      </tr>
-    </tbody>
-  </table>
 </div>

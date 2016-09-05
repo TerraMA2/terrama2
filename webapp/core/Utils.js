@@ -3,7 +3,8 @@
 var Enums = require("./Enums");
 var FormField = Enums.Form.Field;
 var UriPattern = Enums.Uri;
-var cloneDeep = require("lodash").cloneDeep;
+var _ = require("lodash");
+var cloneDeep = _.cloneDeep;
 var crypto = require('crypto');
 var exceptions = require('./Exceptions');
 var Signals = require('./Signals');
@@ -453,6 +454,41 @@ var Utils = {
     return dateWithoutTimezone + tzStr;
   },
 
+  /**
+   * It performs a data creation from given date string terrama2 format
+   * 
+   * @example
+   * "2016-09-05T08:00:00.000-03:00" => Date
+   * @throws {Error} When a date is not a string
+   * @param {string} dateString - A TerraMA² date format string
+   * @returns {Date}
+   */
+  dateFromFormat: function(dateString) {
+    if (this.isString(dateString)) {
+      var stringLen = dateString.length;
+      var timezone = parseInt(dateString.substr(stringLen - 6, stringLen - 3));
+      var dateWithoutTimezone = dateString.substr(0, stringLen - 6);
+      var date = new Date(dateWithoutTimezone);
+
+      date.setUTCHours(date.getUTCHours() - (timezone));
+      return date;
+    }
+    throw new Error("Date must be a string");
+  },
+
+  /**
+   * It formats a database metadata (key, value) to a javascript object.
+   * 
+   * @example 
+   * var dbMetadata = [
+   *   {id: 1, key: "foo", value: "bar"},
+   *   {id: 2, key: "foo2", value: "bar2"},
+   * ]
+   * 
+   * Utils.formatMetadataFromDB(dbMetadata) -> {"foo": "bar", "foo2": "bar2"}
+   * @param {Array<String>} values - An array of metadata values 
+   * @returns {Object}
+   */
   formatMetadataFromDB: function(values) {
     var metadata = {};
     values.forEach(function(meta) {
@@ -474,6 +510,13 @@ var Utils = {
     });
   },
 
+  /**
+   * It compares two objects if they are same (including attributes).
+   * 
+   * @param {Object} origin
+   * @param {Object} target
+   * @return {boolean} A boolean comparison
+   */
   equal: function(origin, target) {
     return isEqual(origin, target);
   },
@@ -489,6 +532,26 @@ var Utils = {
   },
 
   /**
+   * It checks if a argument is a function
+   *
+   * @param {?} arg - A value
+   * @return {Boolean} A boolean result
+   */
+  isFunction: function(arg) {
+    return typeof arg === "function";
+  },
+
+  /**
+   * It checks if a argument is instance of javascript string
+   *
+   * @param {?} arg - A value
+   * @return {Boolean} A boolean result
+   */
+  isString: function(arg) {
+    return typeof(arg) == 'string' || arg instanceof String;
+  },
+
+  /**
    * It creates a copy of object.
    * @param {Object} object - a object to be copied
    * @param {DataModel} model - a TerraMA2 model (optional)
@@ -499,6 +562,17 @@ var Utils = {
     } else {
       return Object.assign({}, object);
     }
+  },
+
+  /**
+   * It performs a extend object from given parameters
+   * 
+   * @param {Object} nodeA - A first node
+   * @param {Object} nodeB - A second node
+   * @return {Object} An extended object with A and B
+   */
+  extend: function(nodeA, nodeB) {
+    return _.extend(nodeA || {}, nodeB || {});
   }
 };
 

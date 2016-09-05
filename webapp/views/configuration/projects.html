@@ -9,15 +9,22 @@
 {% block title %} TerraMA² {[ __('Projects') ]} {% endblock %}
 
 {% block javascripts %}
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+</script>
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
+<script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript">
-  angular.module("terrama2.projects", ['terrama2', 'terrama2.table', 'terrama2.components.messagebox'])
-    .controller("ProjectController", function($scope, $http) {
+  angular.module("terrama2.projects", ['terrama2', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.services'])
+    .controller("ProjectController", function($scope, $http, Socket, FileDialog, SaveAs, $log) {
       $scope.model = [];
+      $log.warn("initializing");
+      var socket = Socket;
       $scope.linkToAdd = "/configuration/projects/new";
       $scope.fields = [
         {key: "name", as: "Name"},
@@ -29,7 +36,7 @@
       };
 
       $scope.link = function(object) {
-        return "/configuration/projects/" + object.name + "/activate";
+        return "/configuration/projects/edit/" + object.name;
       };
       $scope.iconProperties = {};
 
@@ -43,6 +50,55 @@
       };
       $scope.resetState = function() { $scope.display = false; };
 
+      socket.on("exportResponse", function(result) {
+        $scope.extra.isExporting = false;
+        $scope.display = result.err ? true : false;
+        if (result.err) {
+          $scope.alertLevel = "alert-danger";
+          $scope.alertBox.message = result.err;
+          console.log("Err ", result.err);
+          return;
+        }
+
+        SaveAs(result.data, result.data.Projects[0].name + ".terrama2");
+      });
+
+      socket.on("importResponse", function(result) {
+        $scope.loading = false;
+        $scope.display = true;
+        $scope.extra.isImporting = false;
+        if (result.err) {
+          $scope.alertLevel = "alert-danger";
+          console.log("Err ", result.err);
+          $scope.alertBox.message = result.err;
+          return;
+        }
+        $scope.alertLevel = "alert-success";
+
+        var msg = result.data.Projects.length + " projects has been imported. ";
+        var canPush = [];
+
+        for(var i = 0; i < result.data.Projects.length; ++i) {
+          var p = result.data.Projects[i];
+          var cont = 0;
+          for(var j = 0; j < $scope.model.length; ++j) {
+            var modelProject = $scope.model[j];
+            if (p.name === modelProject.name) {
+              // skip it
+              break;
+            }
+            ++cont;
+          }
+          if (cont === $scope.model.length) {
+            // push
+            $scope.model.push(p);
+          }
+          cont = 0;
+        }
+
+        $scope.alertBox.message = msg;
+      });
+
       // callback after remove operation
       $scope.extra = {
         removeOperationCallback: function(err, data) {
@@ -55,6 +111,66 @@
 
           $scope.alertLevel = "alert-success";
           $scope.alertBox.message = data.name + " removed";
+        },
+
+        project: {
+          activate: function(element) {
+            return "/configuration/projects/" + element.name + "/activate"; 
+          }
+        },
+
+        export: function(element) {
+          if (!element) {
+            console.log("no element selected");
+            return;
+          }
+          $scope.extra.isExporting = true;
+          socket.emit("export", {"Projects": [element]});
+        },
+
+        import: function() {
+          $scope.alertBox.title = "Data Import";
+          $scope.display = false;
+          $scope.extra.isImporting = false;
+
+          var setError = function(err) {
+            $scope.display = true;
+            $scope.alertLevel = "alert-danger";
+            $scope.alertBox.message = err.toString();
+            $scope.extra.isImporting = false;
+          } 
+
+          FileDialog.openFile(function(err, input) {
+            if (err) {
+              $scope.display = true;
+              $scope.alertBox.message = err.toString();
+              return;
+            }
+
+            $scope.loading = true;
+            FileDialog.readAsJSON(input.files[0], function(error, json) {
+              // applying angular scope..
+              $scope.$apply(function() {
+                $scope.extra.isImporting = true;
+                if (error) {
+                  setError(error);
+                  console.log(error);
+                  return;
+                } else {
+                  $scope.display = false;
+                }
+
+                if (!json.hasOwnProperty("Projects") || 
+                    !json.hasOwnProperty("DataSeries") || 
+                    !json.hasOwnProperty("DataProviders") ||
+                    !json.hasOwnProperty("Analysis")) {
+                  setError(new Error("Invalid configuration file"));
+                  return;
+                }
+                socket.emit("import", json);
+              });
+            });
+          }, false, ".terrama2, .json, application/json");
         }
       };
 
@@ -78,7 +194,6 @@
   <terrama2-box title="'{[ __('Projects') ]}'">
     <div class="row">
       <div class="col-md-12">
-
         <div class="col-md-12">
           <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
         </div>
@@ -89,9 +204,11 @@
     </div>
     <!-- ./row -->
 
-    <div class="overlay" ng-show="loading">
-      <i class="fa fa-refresh fa-spin"></i>
-    </div>
+    <!--<terrama2-overlay>
+      <div class="overlay" ng-show="loading">
+        <i class="fa fa-refresh fa-spin"></i>
+      </div>
+    </terrama2-overlay>-->
   </terrama2-box>
 </div>
 

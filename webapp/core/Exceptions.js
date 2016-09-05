@@ -61,10 +61,8 @@ errors.ValidationError = function(message, errs) {
   this.name = 'ValidationError';
 
   this.errors = errs || [];
-  if (message) {
-    this.message = message;
-  } else if (this.errors.length > 0 && this.errors[0].message) {
-    this.message = this.errors.map(function(err){
+  if (this.errors.length > 0 && this.errors[0].message) {
+    this.message = this.message + " " + this.errors.map(function(err){
       return err.path + ": " + err.message;
     }).join(',\n');
   }

@@ -1,5 +1,6 @@
 'use strict';
 
+// Dependencies
 var AbstractRequest = require('./AbstractRequest');
 var FtpRequest = require("./FtpRequest");
 var HttpRequest = require("./HttpRequest");
@@ -10,6 +11,14 @@ var ConnectionError = require("./Exceptions").ConnectionError;
 var PluginLoader = require('./PluginLoader');
 
 
+/**
+ * Request Helper: It prepares entire supported protocols e applies a switch to build the respective Request
+ * @see {@link UriBuilder}
+ * @throws {ConnectionError} When invalid protocol received.
+ * @param {string} protocol - An URI protocol
+ * @param {Object} requestParameters - A javascript object withing URI format.
+ * @return {AbstractRequest} a request module
+ */
 function requestHelper(protocol, requestParameters) {
   switch (protocol) {
     case "ftp":
@@ -23,6 +32,7 @@ function requestHelper(protocol, requestParameters) {
     case "wcs":
       return new WcsRequest(requestParameters);
     default:
+      // Check in all loaded plugins
       for(var key in PluginLoader.plugin.plugins) {
         if (PluginLoader.plugin.plugins.hasOwnProperty(key)) {
           var klass = PluginLoader.plugin.plugins[key].object;
@@ -39,8 +49,18 @@ function requestHelper(protocol, requestParameters) {
   }
 }
 
-
+/**
+ * It defines a Request factory helpers
+ * @type {Object}
+ */
 var RequestFactory = {
+  /**
+   * It builds a Request module from given URI object parameters
+   * 
+   * @throws {ConnectionError} When request type is not found or is not a string.
+   * @param {Object} requestParameters - A javascript object within URI format
+   * @return {AbstractRequest} A request module
+   */
   build: function(requestParameters) {
     if (typeof requestParameters.protocol === "string") {
       var protocol = requestParameters.protocol.toLocaleLowerCase();
@@ -49,6 +69,13 @@ var RequestFactory = {
     throw new ConnectionError("Request type not found");
   },
 
+  /**
+   * It builds a Request module from given URI string
+   *
+   * @throws {ConnectionError} When request type is not found or is not a string.
+   * @param {Object} requestParameters - A javascript object within URI format
+   * @return {AbstractRequest} A request module 
+   */
   buildFromUri: function(uri) {
     if (typeof uri === "string") {
       var protocol = uri.split("://")[0];
@@ -58,6 +85,12 @@ var RequestFactory = {
     throw new ConnectionError("Request type not found");
   },
 
+  /**
+   * It retrieves entire supported request protocols fields
+   * 
+   * @todo add plugin support. Currently it is commented
+   * @return {Array<Object>} An array of fields of each one request
+   */
   listAll: function() {
     var array = [];
 

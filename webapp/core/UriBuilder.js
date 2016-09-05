@@ -1,8 +1,17 @@
 'use strict';
 
+// Dependencies
 var Util = require('util');
 var URL = require("url");
 
+/**
+ * It builds a URI from object.
+ * @see {@link Enums:URI} for syntax information
+ * 
+ * @param {Object} uriObjectGiven - A javascript object with uri values
+ * @param {Object} uriSyntax - A javascript object with URI syntax
+ * @return {string} An URI representation
+ */
 function buildUri(uriObjectGiven, uriSyntax) {
   var uriObject = {
     hostname: uriObjectGiven[uriSyntax.HOST],
@@ -27,6 +36,14 @@ function buildUri(uriObjectGiven, uriSyntax) {
   return output;
 }
 
+/**
+ * It builds a URI from string.
+ * @see {@link Enums:URI} for syntax information
+ * 
+ * @param {Object} uriString - A javascript object with uri values
+ * @param {Object} uriSyntax - A javascript object with URI syntax
+ * @return {string} An URI representation
+ */
 function buildObject(uriString, uriSyntax) {
   var uriObject = URL.parse(uriString);
 

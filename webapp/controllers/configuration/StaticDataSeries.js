@@ -1,10 +1,15 @@
+'use strict';
+
+// dependencies
 var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
-
+/**
+ * It exports a object with StaticDataSeries controllers (get/new/edit)
+ * @return {Object} A object with controllers with http method as key (get/new/edit)
+ */
 module.exports = function(app) {
-
   return {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
@@ -25,5 +30,4 @@ module.exports = function(app) {
       })
     }
   };
-
 };
