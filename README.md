@@ -181,6 +181,7 @@ We have the following branches:
 
 - **b-4.0.0-alpha:** This will be the first branch in TerraMA²'s codebase for the generation 4.
 - **b-4.0.0-alpha2:** Minimal working version with web user interface. Services: Collector and Analysis.
+- **b-4.0.0-alpha3:** Analysis of monitored objects and grid.
 
 To switch to one of the branches listed above, use the checkout command and create a local branch to track the remote branch. The syntax of "git checkout" is:
 
