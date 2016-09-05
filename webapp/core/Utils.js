@@ -454,6 +454,41 @@ var Utils = {
     return dateWithoutTimezone + tzStr;
   },
 
+  /**
+   * It performs a data creation from given date string terrama2 format
+   * 
+   * @example
+   * "2016-09-05T08:00:00.000-03:00" => Date
+   * @throws {Error} When a date is not a string
+   * @param {string} dateString - A TerraMA² date format string
+   * @returns {Date}
+   */
+  dateFromFormat: function(dateString) {
+    if (this.isString(dateString)) {
+      var stringLen = dateString.length;
+      var timezone = parseInt(dateString.substr(stringLen - 6, stringLen - 3));
+      var dateWithoutTimezone = dateString.substr(0, stringLen - 6);
+      var date = new Date(dateWithoutTimezone);
+
+      date.setUTCHours(date.getUTCHours() - (timezone));
+      return date;
+    }
+    throw new Error("Date must be a string");
+  },
+
+  /**
+   * It formats a database metadata (key, value) to a javascript object.
+   * 
+   * @example 
+   * var dbMetadata = [
+   *   {id: 1, key: "foo", value: "bar"},
+   *   {id: 2, key: "foo2", value: "bar2"},
+   * ]
+   * 
+   * Utils.formatMetadataFromDB(dbMetadata) -> {"foo": "bar", "foo2": "bar2"}
+   * @param {Array<String>} values - An array of metadata values 
+   * @returns {Object}
+   */
   formatMetadataFromDB: function(values) {
     var metadata = {};
     values.forEach(function(meta) {
