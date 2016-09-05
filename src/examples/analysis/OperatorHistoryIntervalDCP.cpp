@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
   analysis->scriptLanguage = ScriptLanguage::PYTHON;
   analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
   analysis->outputDataSeriesId = 3;
-  analysis->active = false;
+  analysis->active = true;
   analysis->serviceInstanceId = 1;
 
 

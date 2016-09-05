@@ -159,6 +159,9 @@ int main(int argc, char* argv[])
     // service context
     // this is needed for calling the destructor of the service before finalizing terralib
     {
+      TERRAMA2_LOG_INFO() << QObject::tr("Initializing TerraMA2 service...");
+      TERRAMA2_LOG_INFO() << QObject::tr("Starting %1 service.").arg(QString::fromStdString(serviceType));
+
       // Must initialize the python interpreter before creating any thread.
       terrama2::services::analysis::core::python::initInterpreter();
 

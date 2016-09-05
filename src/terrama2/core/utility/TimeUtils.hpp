@@ -32,6 +32,7 @@
 
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
+#include "../data-model/Schedule.hpp"
 
 namespace terrama2
 {
@@ -104,6 +105,22 @@ namespace terrama2
       boost::local_time::local_date_time stringToBoostLocalTime(const std::string& dateTime, const std::string& mask);
 
       std::string boostLocalTimeToString(const boost::local_time::local_date_time& dateTime, const std::string& mask);
+
+
+      /*!
+       \brief A method to calculate the seconds for frequency stored in the Schedule
+       \param dataSchedule The schedule struct with the information for when a process should be executed
+       \return A double containing the frequency in seconds
+       */
+      double frequencySeconds(const Schedule& dataSchedule);
+
+      /*!
+       \brief A method to calculate the seconds until the scheduled date and time in stored in the Schedule
+       \param dataSchedule The schedule struct with the information for when a process should be executed
+       \param baseTime The time to be used to calculate how many seconds until the scheduled time, if null it will use the current time.
+       \return A double containing the seconds until the scheduled timestamp
+       */
+      double scheduleSeconds(const Schedule& dataSchedule, std::shared_ptr < te::dt::TimeInstantTZ > baseTime = std::shared_ptr < te::dt::TimeInstantTZ >());
 
     }
   }

@@ -63,6 +63,19 @@ namespace terrama2
         */
         QJsonObject toJson(AnalysisOutputGridPtr outputGrid);
 
+        /*!
+          \brief Creates an ReprocessingHistoricalData object from a QJsonObject.
+          \see [ReprocessingHistoricalData at Trac](https://trac.dpi.inpe.br/terrama2/wiki/programmersguide/architecture/services/analysis/ReprocessingHistoricalData) for more information.
+        */
+        ReprocessingHistoricalDataPtr fromAnalysisReprocessingHistoricalData(const QJsonObject& json);
+
+
+        /*!
+          \brief Creates a QJsonObject from an ReprocessingHistoricalData.
+        */
+        QJsonObject toJson(ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr);
+
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

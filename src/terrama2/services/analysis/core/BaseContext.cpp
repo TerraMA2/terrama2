@@ -40,7 +40,6 @@ terrama2::services::analysis::core::BaseContext::BaseContext(terrama2::services:
     analysis_(analysis),
     startTime_(startTime)
 {
-  mainThreadState_ = PyThreadState_Get();
 }
 
 terrama2::services::analysis::core::BaseContext::~BaseContext()

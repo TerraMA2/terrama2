@@ -134,12 +134,14 @@ namespace terrama2
 
 
 
+            PyThreadState* mainThreadState_; //!< Main thread state from Python interpreter.
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
             std::vector<std::pair<AnalysisId, std::shared_ptr<te::dt::TimeInstantTZ> > > analysisQueue_; //!< Analysis queue.
             std::shared_ptr<AnalysisLogger> logger_; //!< Analysis process logger.
             DataManagerPtr dataManager_; //!< Data manager.
             std::shared_ptr<ThreadPool> threadPool_; //!< Pool of thread to run the analysis.
 
+            void erasePreviousResult(DataSeriesId dataSeriesId);
         };
 
       } // end namespace core

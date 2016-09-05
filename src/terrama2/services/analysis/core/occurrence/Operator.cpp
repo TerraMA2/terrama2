@@ -109,8 +109,10 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     }
 
 
-    // Save thread state before entering multi-thread zone
-    Py_BEGIN_ALLOW_THREADS
+    //////////////////////////////////////////////////////////////////////////////////////
+    // Save thread state and unlock python interpreter before entering multi-thread zone
+    terrama2::services::analysis::core::python::OperatorLock operatorLock;
+    operatorLock.unlock();
 
     std::shared_ptr<ContextDataSeries> contextDataSeries;
 
@@ -285,7 +287,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     }
 
     // All operations are done, acquires the GIL and set the return value
-    Py_END_ALLOW_THREADS
+    operatorLock.lock();
 
     if(exceptionOccurred)
       return NAN;

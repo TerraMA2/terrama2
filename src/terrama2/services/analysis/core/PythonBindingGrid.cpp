@@ -97,6 +97,7 @@ void terrama2::services::analysis::core::python::Grid::registerGridHistoryInterv
   // set the current scope to the new sub-module
   scope gridHistoryIntervalScope = gridHistoryIntervalModule;
 
+  def("sum", terrama2::services::analysis::core::grid::history::interval::sum);
   def("min", terrama2::services::analysis::core::grid::history::interval::min);
   def("max", terrama2::services::analysis::core::grid::history::interval::max);
   def("mean", terrama2::services::analysis::core::grid::history::interval::mean);
