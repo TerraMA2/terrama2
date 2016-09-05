@@ -46,129 +46,36 @@
 #include <QObject>
 #include <QTemporaryFile>
 
-// TODO: Remove this method when find Grouping serialization use
-te::map::Grouping* ReadLayerGrouping(te::xml::Reader& reader)
-{
-  if(reader.getElementLocalName() != "Grouping")
-    return 0;
 
-  /* Property Name */
-  reader.next();
-  assert(reader.getNodeType() == te::xml::START_ELEMENT);
-  assert(reader.getElementLocalName() == "PropertyName");
-  reader.next();
-  assert(reader.getNodeType() == te::xml::VALUE);
-  std::string propertyName = reader.getElementValue();
-  reader.next();
-  assert(reader.getNodeType() == te::xml::END_ELEMENT);
-
-  /* Property Data Type */
-  reader.next();
-  assert(reader.getNodeType() == te::xml::START_ELEMENT);
-  assert(reader.getElementLocalName() == "PropertyDataType");
-  reader.next();
-  assert(reader.getNodeType() == te::xml::VALUE);
-  int propertyType = reader.getElementValueAsInt32();
-  reader.next();
-  assert(reader.getNodeType() == te::xml::END_ELEMENT);
-
-  /* Grouping Type */
-  reader.next();
-  assert(reader.getNodeType() == te::xml::START_ELEMENT);
-  assert(reader.getElementLocalName() == "Type");
-  reader.next();
-  assert(reader.getNodeType() == te::xml::VALUE);
-  std::string type = reader.getElementValue();
-  reader.next();
-  assert(reader.getNodeType() == te::xml::END_ELEMENT);
-
-  /* Precision */
-  reader.next();
-  assert(reader.getNodeType() == te::xml::START_ELEMENT);
-  assert(reader.getElementLocalName() == "Precision");
-  reader.next();
-  assert(reader.getNodeType() == te::xml::VALUE);
-  std::size_t precision = static_cast<std::size_t>(reader.getElementValueAsInt32());
-  reader.next();
-  assert(reader.getNodeType() == te::xml::END_ELEMENT);
-
-  std::auto_ptr<te::map::Grouping> g(new te::map::Grouping(propertyName, te::map::serialize::GetGroupingType(type), precision));
-  g->setPropertyType(propertyType);
-
-  /* Summary */
-  reader.next();
-  if(reader.getElementLocalName() == "Summary")
-  {
-    assert(reader.getNodeType() == te::xml::START_ELEMENT);
-    reader.next();
-    assert(reader.getNodeType() == te::xml::VALUE);
-    std::string summary = reader.getElementValue();
-    reader.next();
-    assert(reader.getNodeType() == te::xml::END_ELEMENT);
-    g->setSummary(summary);
-    reader.next();
-  }
-
-  if(reader.getElementLocalName() == "StandardDeviation")
-  {
-    assert(reader.getNodeType() == te::xml::START_ELEMENT);
-    reader.next();
-    assert(reader.getNodeType() == te::xml::VALUE);
-    double stdDeviation = reader.getElementValueAsDouble();
-    reader.next();
-    assert(reader.getNodeType() == te::xml::END_ELEMENT);
-
-    g->setStdDeviation(stdDeviation);
-
-    reader.next();
-  }
-
-  /* Grouping Items */
-  std::vector<te::map::GroupingItem*> items;
-  while(reader.getNodeType() == te::xml::START_ELEMENT &&
-        reader.getElementLocalName() == "GroupingItem")
-  {
-    items.push_back(te::map::serialize::ReadGroupingItem(reader));
-  }
-
-  assert(reader.getNodeType() == te::xml::END_ELEMENT || reader.getNodeType() == te::xml::END_DOCUMENT);
-  reader.next();
-
-  g->setGroupingItems(items);
-
-  return g.release();
-}
-
-void writeStyle(const te::se::Style* style, std::string path)
+void writeStyleGeoserverXML(const te::se::Style* style, std::string path)
 {
 
   std::auto_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
 
   writer->setURI(path);
   writer->writeStartDocument("UTF-8", "no");
-  writer->setRootNamespaceURI("http://www.w3.org/2000/xmlns/se");
 
-//  writer->writeStartElement("StyledLayerDescriptor");
+  writer->writeStartElement("StyledLayerDescriptor");
 
-//  writer->writeAttribute("xmlns", "http://www.opengis.net/sld");
-//  writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
-//  writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
-//  writer->writeAttribute("xmlns:se", "http://www.w3.org/2000/xmlns/se");
-//  writer->writeAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-//  writer->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-//  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld StyledLayerDescriptor.xsd");
+  writer->writeAttribute("xmlns", "http://www.opengis.net/sld");
+  writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
+  writer->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+  writer->writeAttribute("version", style->getVersion());
+  writer->writeAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd");
+  writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
 
-//  writer->writeAttribute("version", style->getVersion());
-
-//  writer->writeStartElement("NamedLayer");
-//  writer->writeStartElement("UserStyle");
+  writer->writeStartElement("NamedLayer");
+  writer->writeElement("se:Name", "Layer");
+  writer->writeStartElement("UserStyle");
+  writer->writeElement("se:Name", "Style");
 
   te::se::serialize::Style::getInstance().write(style, *writer.get());
 
-//  writer->writeEndElement("UserStyle");
-//  writer->writeEndElement("NamedLayer");
+  writer->writeEndElement("UserStyle");
+  writer->writeEndElement("NamedLayer");
 
-//  writer->writeEndElement("StyledLayerDescriptor");
+  writer->writeEndElement("StyledLayerDescriptor");
   writer->writeToFile();
 
 }
@@ -224,7 +131,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
       if(!file.open())
         throw Exception() << ErrorDescription("Could not create XML file!");
 
-      writeStyle(it.second->clone(), file.fileName().toStdString());
+      writeStyleGeoserverXML(it.second.get(), file.fileName().toStdString());
 
       QByteArray content = file.readAll();
       if(content.isEmpty())
@@ -239,43 +146,6 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
       array.push_back(datasetSeriesAndStyle);
     }
     obj.insert("styles_per_data_series", array);
-  }
-
-  // Grouping Serialization
-  {
-    QJsonArray array;
-    for(auto& it : view->legendPerDataSeries)
-    {
-      QJsonObject datasetSeriesAndLegend;
-      datasetSeriesAndLegend.insert("dataset_series_id", static_cast<int32_t>(it.first));
-
-      std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
-
-      QTemporaryFile file;
-      if(!file.open())
-        throw Exception() << ErrorDescription("Could not create XML file!");
-
-      writer->setURI(file.fileName().toStdString());
-      te::map::serialize::WriteLayerGrouping(new te::map::Grouping(*it.second), *writer.get());
-
-      writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
-      writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
-
-      writer->writeToFile();
-
-      QByteArray content = file.readAll();
-      if(content.isEmpty())
-      {
-        QString errMsg = QObject::tr("Could not create XML file!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-
-      datasetSeriesAndLegend.insert("dataset_series_view_legend", QString(content));
-
-      array.push_back(datasetSeriesAndLegend);
-    }
-    obj.insert("legends_per_data_series", array);
   }
 
   return obj;
@@ -409,47 +279,6 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
 
       view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()),
           std::unique_ptr<te::se::Style>(style.release()));
-    }
-  }
-
-  {
-    auto datasetSeriesArray = json["legends_per_data_series"].toArray();
-    auto it = datasetSeriesArray.begin();
-    for(; it != datasetSeriesArray.end(); ++it)
-    {
-      auto obj = (*it).toObject();
-
-      QTemporaryFile file;
-
-      if(!file.open())
-      {
-        QString errMsg = QObject::tr("Could not load the XML file!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-
-      file.write(obj["dataset_series_view_legend"].toString().toUtf8());
-      file.flush();
-
-      std::unique_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
-      reader->setValidationScheme(false);
-
-      reader->read(file.fileName().toStdString());
-
-      if(!reader->next())
-      {
-        QString errMsg = QObject::tr("Could not read the XML file!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-
-      // TODO: Remove when Terralib fix Grouping serialization
-      view->legendPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()),
-          std::unique_ptr<te::map::Grouping>(ReadLayerGrouping(*reader.get())));
-
-      // TODO: Enable when Terralib fix Grouping serialization
-      //      view->legendPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()),
-      //          std::unique_ptr<te::map::Grouping>(te::map::serialize::ReadLayerGrouping(*reader.get())));
     }
   }
 

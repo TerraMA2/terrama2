@@ -105,8 +105,8 @@ te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType, std::string 
     case te::gm::MultiSurfaceZType:
     case te::gm::MultiSurfaceZMType:
     {
-      te::se::Fill* fill = CreateFill(color, "100");
-      te::se::Stroke* stroke = CreateStroke("#FFFF00", "1", "", "", "", "");
+      te::se::Fill* fill = CreateFill(color, "0.9");
+      te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
       te::se::PolygonSymbolizer* symbolizer = new te::se::PolygonSymbolizer;
       symbolizer->setFill(fill);
       symbolizer->setStroke(stroke);
@@ -122,7 +122,7 @@ te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType, std::string 
     case te::gm::MultiLineStringZType:
     case te::gm::MultiLineStringZMType:
     {
-      te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+      te::se::Stroke* stroke = CreateStroke(color, "1", "", "", "", "");
       te::se::LineSymbolizer* symbolizer = new te::se::LineSymbolizer;
       symbolizer->setStroke(stroke);
       return symbolizer;
@@ -155,29 +155,99 @@ te::se::Symbolizer* getSymbolizer(const te::gm::GeomType& geomType, std::string 
 te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType)
 {
   te::se::FeatureTypeStyle* style = new te::se::FeatureTypeStyle;
-  te::se::Rule* rule = new te::se::Rule;
 
-  te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#174a63");
+  {
+    te::se::Rule* rule = new te::se::Rule;
 
-  if(symbolizer != 0)
-    rule->push_back(symbolizer);
+    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#00c290");
 
-//  te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
-//  te::fe::Literal* value = new te::fe::Literal("3");
-//  te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
+    if(symbolizer != 0)
+      rule->push_back(symbolizer);
 
-//  te::fe::Filter* filter = new te::fe::Filter;
-//  filter->setOp(stateEqual);
+    style->push_back(rule);
+  }
 
-//  rule->setFilter(filter);
+  {
+    te::se::Rule* rule = new te::se::Rule;
 
-  style->push_back(rule);
+    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#88f6ff");
+
+    if(symbolizer != 0)
+      rule->push_back(symbolizer);
+
+    te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
+    te::fe::Literal* value = new te::fe::Literal("1");
+    te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
+
+    te::fe::Filter* filter = new te::fe::Filter;
+    filter->setOp(stateEqual);
+
+    rule->setFilter(filter);
+
+    style->push_back(rule);
+  }
+
+  {
+    te::se::Rule* rule = new te::se::Rule;
+
+    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#fdcc00");
+
+    if(symbolizer != 0)
+      rule->push_back(symbolizer);
+
+    te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
+    te::fe::Literal* value = new te::fe::Literal("2");
+    te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
+
+    te::fe::Filter* filter = new te::fe::Filter;
+    filter->setOp(stateEqual);
+
+    rule->setFilter(filter);
+
+    style->push_back(rule);
+  }
+
+  {
+    te::se::Rule* rule = new te::se::Rule;
+
+    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#ff7400");
+
+    if(symbolizer != 0)
+      rule->push_back(symbolizer);
+
+    te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
+    te::fe::Literal* value = new te::fe::Literal("3");
+    te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
+
+    te::fe::Filter* filter = new te::fe::Filter;
+    filter->setOp(stateEqual);
+
+    rule->setFilter(filter);
+
+    style->push_back(rule);
+  }
+
+  {
+    te::se::Rule* rule = new te::se::Rule;
+
+    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#FF0000");
+
+    if(symbolizer != 0)
+      rule->push_back(symbolizer);
+
+    te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
+    te::fe::Literal* value = new te::fe::Literal("4");
+    te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
+
+    te::fe::Filter* filter = new te::fe::Filter;
+    filter->setOp(stateEqual);
+
+    rule->setFilter(filter);
+
+    style->push_back(rule);
+  }
 
   style->setName(new std::string("Style 1"));
-//  style->setDescription("description");
-  style->setFeatureTypeName(new std::string("Featuretypemname"));
-  std::string version = "1.0.0";
-  style->setVersion(version);
 
   return style;
 

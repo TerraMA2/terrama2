@@ -116,7 +116,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
           startTime += boost::posix_time::seconds(timerSeconds);
 
         auto td = (startTime - now);
-        secondsToStart = td.total_seconds();;
+        secondsToStart = td.total_seconds();
       }
       else
       {

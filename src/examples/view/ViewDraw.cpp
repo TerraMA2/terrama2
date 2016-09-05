@@ -97,45 +97,21 @@ int main(int argc, char** argv)
 
     view->schedule = schedule;
 
-//    view->dataSeriesList.push_back(1);
+    view->dataSeriesList.push_back(1);
     view->dataSeriesList.push_back(2);
-//    view->dataSeriesList.push_back(3);
+    view->dataSeriesList.push_back(3);
 
     terrama2::core::Filter filter;
 
-//    view->filtersPerDataSeries.emplace(1, filter);
+    view->filtersPerDataSeries.emplace(1, filter);
     view->filtersPerDataSeries.emplace(2, filter);
-//    view->filtersPerDataSeries.emplace(3, filter);
+    view->filtersPerDataSeries.emplace(3, filter);
 
-//    view->stylesPerDataSeries.emplace(1, std::unique_ptr<te::se::Style>(MONO_0_Style()));
-
-
-//    std::vector< int > values{0,1,2,3,4};
-
-//    te::map::Grouping* group = new te::map::Grouping("RESULT", te::map::GroupingType::EQUAL_STEPS);
-//    std::vector< te::map::GroupingItem *> legend;
-
-//    te::map::GroupingByEqualSteps(values.begin(), values.end(), values.size(), legend, 0);
-//    std::vector <std::string> colorVec {"#f08080" , "#174a63", "#ffa700", "#ff0066", "#9500d8"};
-//    int i = 0;
-//    for(auto& it : legend)
-//    {
-//      std::vector<te::se::Symbolizer*> symbVec;
-
-//      te::se::Symbolizer* s = te::se::CreateSymbolizer(te::gm::PolygonType, colorVec.at(i++));
-
-//      symbVec.push_back(s);
-
-//      it->setSymbolizers(symbVec);
-//    }
-
-//    group->setGroupingItems(legend);
-
-//    view->legendPerDataSeries.emplace(2, std::unique_ptr< te::map::Grouping >(group));
+    view->stylesPerDataSeries.emplace(1, std::unique_ptr<te::se::Style>(MONO_0_Style()));
 
     view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
 
-//    view->stylesPerDataSeries.emplace(3, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::LineStringType)));
+    view->stylesPerDataSeries.emplace(3, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::LineStringType)));
 
     dataManager->add(viewPtr);
 

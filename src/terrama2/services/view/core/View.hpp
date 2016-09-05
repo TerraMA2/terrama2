@@ -73,7 +73,6 @@ namespace terrama2
           std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
 
           std::unordered_map< DataSeriesId, std::unique_ptr<te::se::Style> > stylesPerDataSeries; //!< List of base styles by DataSeries ID.
-          std::unordered_map< DataSeriesId, std::unique_ptr<te::map::Grouping> > legendPerDataSeries; // List of legends by DataSeries ID.
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
 

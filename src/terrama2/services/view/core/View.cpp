@@ -198,11 +198,6 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
 
             geomLayer->setStyle(viewPtr->stylesPerDataSeries.at(dataSeriesId)->clone());
 
-            if(viewPtr->legendPerDataSeries.find(dataSeriesId) != viewPtr->legendPerDataSeries.end())
-            {
-              geomLayer->setGrouping(new te::map::Grouping(*viewPtr->legendPerDataSeries.at(dataSeriesId).get()));
-            }
-
             layersList.push_back(geomLayer);
           }
         }

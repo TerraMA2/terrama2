@@ -32,7 +32,6 @@
 
 // TerraLib
 #include <terralib/se.h>
-#include <terralib/maptools/GroupingAlgorithms.h>
 #include <terralib/fe.h>
 
 // TerraMA2

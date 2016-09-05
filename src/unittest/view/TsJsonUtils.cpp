@@ -78,29 +78,6 @@ void TsJsonUtils::testToJSon()
 
     view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
 
-    std::vector< int > values{0,1,2,3,4};
-
-    te::map::Grouping* group = new te::map::Grouping("RESULT", te::map::GroupingType::EQUAL_STEPS);
-    std::vector< te::map::GroupingItem *> legend;
-
-    te::map::GroupingByEqualSteps(values.begin(), values.end(), values.size(), legend, 0);
-    std::vector <std::string> colorVec {"#f08080" , "#174a63", "#ffa700", "#ff0066", "#9500d8"};
-    int i = 0;
-    for(auto& it : legend)
-    {
-      std::vector<te::se::Symbolizer*> symbVec;
-
-      te::se::Symbolizer* s = te::se::CreateSymbolizer(te::gm::PolygonType, colorVec.at(i++));
-
-      symbVec.push_back(s);
-
-      it->setSymbolizers(symbVec);
-    }
-
-    group->setGroupingItems(legend);
-
-    view->legendPerDataSeries.emplace(1, std::unique_ptr< te::map::Grouping >(group));
-
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
   }
@@ -163,29 +140,6 @@ void TsJsonUtils::testGoNBackJSon()
 
     view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
 
-    std::vector< int > values{0,1,2,3,4};
-
-    te::map::Grouping* group = new te::map::Grouping("RESULT", te::map::GroupingType::EQUAL_STEPS);
-    std::vector< te::map::GroupingItem *> legend;
-
-    te::map::GroupingByEqualSteps(values.begin(), values.end(), values.size(), legend, 0);
-    std::vector <std::string> colorVec {"#f08080" , "#174a63", "#ffa700", "#ff0066", "#9500d8"};
-    int i = 0;
-    for(auto& it : legend)
-    {
-      std::vector<te::se::Symbolizer*> symbVec;
-
-      te::se::Symbolizer* s = te::se::CreateSymbolizer(te::gm::PolygonType, colorVec.at(i++));
-
-      symbVec.push_back(s);
-
-      it->setSymbolizers(symbVec);
-    }
-
-    group->setGroupingItems(legend);
-
-    view->legendPerDataSeries.emplace(1, std::unique_ptr< te::map::Grouping >(group));
-
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
     terrama2::services::view::core::ViewPtr viewBackPtr = terrama2::services::view::core::fromViewJson(obj);
@@ -226,21 +180,6 @@ void TsJsonUtils::testGoNBackJSon()
       QCOMPARE(*viewBackPtr->stylesPerDataSeries.at(it.first)->getName(), *it.second->getName());
       QCOMPARE(viewBackPtr->stylesPerDataSeries.at(it.first)->getVersion(), it.second->getVersion());
     }
-
-    QCOMPARE(viewBackPtr->legendPerDataSeries.size(), viewPtr->legendPerDataSeries.size());
-
-    for(auto& it : viewPtr->legendPerDataSeries)
-    {
-      QCOMPARE(viewBackPtr->legendPerDataSeries.at(it.first)->getPropertyName(), it.second->getPropertyName());
-      QCOMPARE(viewBackPtr->legendPerDataSeries.at(it.first)->getType(), it.second->getType());
-      QCOMPARE(viewBackPtr->legendPerDataSeries.at(it.first)->getPrecision(), it.second->getPrecision());
-      QCOMPARE(viewBackPtr->legendPerDataSeries.at(it.first)->getNumSlices(), it.second->getNumSlices());
-      QCOMPARE(viewBackPtr->legendPerDataSeries.at(it.first)->getGroupingItems().size(), it.second->getGroupingItems().size());
-      QCOMPARE(viewBackPtr->legendPerDataSeries.at(it.first)->isVisible(), it.second->isVisible());
-      QCOMPARE(viewBackPtr->legendPerDataSeries.at(it.first)->getSummary(), it.second->getSummary());
-    }
-
-
   }
   catch(const terrama2::Exception& e)
   {
