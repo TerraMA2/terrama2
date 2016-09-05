@@ -55,7 +55,7 @@ module.exports = function(app) {
 
               return response.json(output);
             }).catch(function(err) {
-              return Utils.handleRequestError(response, err, 400);
+               return Utils.handleRequestError(response, err, 400);
             })
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);

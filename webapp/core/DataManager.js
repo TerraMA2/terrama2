@@ -1114,7 +1114,7 @@ var DataManager = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<Array<Object>>} 
    */
-  listSemanticsProvidersType: function(restriction) {
+  listSemanticsProvidersType: function(restriction, options) {
     return new Promise(function(resolve, reject) {
       models.db.SemanticsProvidersType.findAll(Utils.extend({where: restriction}, options))
         .then(function(semanticsProvidersResult) {
@@ -1236,7 +1236,7 @@ var DataManager = {
       var dataProvider = Utils.find(self.data.dataProviders, {id: dataProviderId});
 
       if (dataProvider) {
-        models.db.DataProvider.update(dataProviderObject, Object.extend({
+        models.db.DataProvider.update(dataProviderObject, Utils.extend({
           fields: ["name", "description", "uri", "active"],
           where: {
             id: dataProvider.id
@@ -1250,7 +1250,7 @@ var DataManager = {
 
           dataProvider.active = dataProviderObject.active;
 
-          self.listServiceInstances(options).then(function(services) {
+          self.listServiceInstances({}, options).then(function(services) {
             services.forEach(function(service) {
               try {
                 console.log("Sending Add_signal to update");
@@ -1478,7 +1478,7 @@ var DataManager = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  updateDataSeries: function(dataSeriesId, dataSeriesObject) {
+  updateDataSeries: function(dataSeriesId, dataSeriesObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataSeries = Utils.find(self.data.dataSeries, {id: dataSeriesId});

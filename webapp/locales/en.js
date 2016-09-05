@@ -352,5 +352,77 @@
 	"Removal Confirmation": "Removal Confirmation",
 	"Advanced": "Advanced",
 	"No project found": "No project found",
-	"Are you sure?": "Are you sure?"
+	"Are you sure?": "Are you sure?",
+	"Add new": "Add new",
+	"No data found": "No data found",
+	"No data provider found": "No data provider found",
+	"No analysis found": "No analysis found",
+	"Do not filter": "Do not filter",
+	"Filter by limits": "Filter by limits",
+	"Next": "Next",
+	"Previous": "Previous",
+	"Data series name is required": "Data series name is required",
+	"Format is required": "Format is required",
+	"No dcp available": {
+		" Please add at least one dcp": {
+			"": "No dcp available. Please add at least one dcp."
+		}
+	},
+	"Data Store is required": "Data Store is required",
+	"Service": "Service",
+	"Service is required": "Service is required",
+	"No intersection data series selected": "No intersection data series selected",
+	"Attributes": "Attributes",
+	"Attribute Name": "Attribute Name",
+	"Attribute name is required": "Attribute name is required",
+	"Attribute name cannot be same": "Attribute name cannot be same",
+	"Attribute": "Attribute",
+	"Sunday": "Sunday",
+	"Monday": "Monday",
+	"Tuesday": "Tuesday",
+	"Wednesday": "Wednesday",
+	"Thursday": "Thursday",
+	"Friday": "Friday",
+	"Saturday": "Saturday",
+	"Seconds": "Seconds",
+	"Minutes": "Minutes",
+	"Hours": "Hours",
+	"Weekly": "Weekly",
+	"Ignores data after": "Ignores data after",
+	"Are you sure to remove ?": "Are you sure to remove ?",
+	"Frequency": "Frequency",
+	"Frequency value is required": "Frequency value is required",
+	"Frequency value is invalid": "Frequency value is invalid",
+	"Start Time": "Start Time",
+	"Start": "Start",
+	"Stop": "Stop",
+	"Starting": {
+		"": {
+			"": {
+				"": "Starting..."
+			}
+		}
+	},
+	"Finalizing": {
+		"": {
+			"": {
+				"": "Finalizing..."
+			}
+		}
+	},
+	"X min": "X min",
+	"MinX is required": "MinX is required",
+	"MinX is invalid": "MinX is invalid",
+	"MaxX is required": "MaxX is required",
+	"MaxX is invalid": "MaxX is invalid",
+	"MinY is invalid": "MinY is invalid",
+	"MaxY is invalid": "MaxY is invalid",
+	"MaxY is required": "MaxY is required",
+	"MinY is required": "MinY is required",
+	"Type a projetion": {
+		"": "Type a projetion."
+	},
+	"SRID is required": "SRID is required",
+	"SRID is invalid": "SRID is invalid",
+	"Object Monitored": "Object Monitored"
 }
