@@ -346,7 +346,7 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
   {
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {

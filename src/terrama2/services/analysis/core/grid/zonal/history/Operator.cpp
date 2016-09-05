@@ -47,7 +47,7 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
   {
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {
@@ -147,7 +147,7 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
   {
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {

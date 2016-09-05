@@ -63,7 +63,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
   {
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {

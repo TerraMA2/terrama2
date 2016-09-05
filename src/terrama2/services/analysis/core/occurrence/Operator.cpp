@@ -62,14 +62,13 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
   {
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     return NAN;
   }
-
 
   try
   {

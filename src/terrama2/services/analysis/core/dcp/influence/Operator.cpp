@@ -61,7 +61,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byAtt
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
   {
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {
@@ -189,7 +189,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byRul
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
   {
-    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {
