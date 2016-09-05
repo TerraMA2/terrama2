@@ -30,7 +30,11 @@
 #ifndef __TERRAMA2_CORE_UTILITY_FILE_REMOVER_HPP__
 #define __TERRAMA2_CORE_UTILITY_FILE_REMOVER_HPP__
 
+//STL
 #include <set>
+
+//QT
+#include <QFile>
 
 namespace terrama2
 {
@@ -41,7 +45,16 @@ namespace terrama2
       public:
         FileRemover() {}
 
-        ~FileRemover() = default;
+        ~FileRemover()
+        {
+          for (auto filePath : fileList)
+          {
+            QFile file(QString::fromStdString(filePath));
+            if(file.exists())
+              file.remove();
+          }
+        }
+
         FileRemover(const FileRemover& other) = delete;
         FileRemover(FileRemover&& other) = default;
         FileRemover& operator=(const FileRemover& other) = delete;
