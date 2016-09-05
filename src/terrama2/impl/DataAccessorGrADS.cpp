@@ -179,7 +179,8 @@ QString terrama2::core::DataAccessorGrADS::replaceMask(QString mask) const
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const std::string& uri,
                                                                            const terrama2::core::Filter& filter,
-                                                                           terrama2::core::DataSetPtr dataSet) const
+                                                                           terrama2::core::DataSetPtr dataSet,
+                                                                           std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
   QUrl url;
   try
@@ -231,10 +232,10 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   {
     std::string name = fileInfo.fileName().toStdString();
     std::string folderPath = dir.absolutePath().toStdString();
-    if(terrama2::core::Unpack::verifyCompressFile(folderPath+ "/" + name))
+    if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
     {
       //unpack files
-      std::string tempFolderPath = terrama2::core::Unpack::unpackList(folderPath+ "/" + name);
+      std::string tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover);
       QDir tempDir(QString::fromStdString(tempFolderPath));
       QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 

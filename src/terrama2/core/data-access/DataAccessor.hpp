@@ -222,7 +222,7 @@ namespace terrama2
            \note Updates lastDateTime
            \return Filtered dataset
          */
-        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const = 0;
 
         /*!
           \brief Verifies if the DataSet intersects the Filter area.

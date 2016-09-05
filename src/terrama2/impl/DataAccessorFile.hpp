@@ -58,7 +58,7 @@ namespace terrama2
         // Doc in base class
         virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
         // Doc in base class
-        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const override;
+        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
         //! Recover file mask
         virtual std::string getMask(DataSetPtr dataset) const;
 

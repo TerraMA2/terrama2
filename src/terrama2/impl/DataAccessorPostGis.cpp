@@ -61,7 +61,7 @@
 #include <QObject>
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
-    terrama2::core::DataSetPtr dataSet) const
+    terrama2::core::DataSetPtr dataSet, std::shared_ptr<FileRemover> /*remover*/) const
 {
   QUrl url(uri.c_str());
 

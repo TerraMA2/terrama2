@@ -59,7 +59,7 @@ namespace terrama2
 
         using terrama2::core::DataAccessor::getSeries;
         // Doc in base class
-        virtual DataSetSeries getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet) const override;
+        virtual DataSetSeries getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
       protected:
         // Doc in base class

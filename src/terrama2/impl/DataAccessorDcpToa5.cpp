@@ -176,7 +176,7 @@ void terrama2::core::DataAccessorDcpToa5::addColumns(std::shared_ptr<te::da::Dat
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(const std::string& uri,
                                                                    const terrama2::core::Filter& filter,
-                                                                   terrama2::core::DataSetPtr dataSet) const
+                                                                   terrama2::core::DataSetPtr dataSet, std::shared_ptr<FileRemover> remover) const
 
 {
   std::string mask = getMask(dataSet);
@@ -229,7 +229,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   file.close();
   tempFile.close();
 
-  auto dataSeries = terrama2::core::DataAccessorFile::getSeries(tempUri, filter, dataSet);
+  auto dataSeries = terrama2::core::DataAccessorFile::getSeries(tempUri, filter, dataSet, remover);
 
   return dataSeries;
 }

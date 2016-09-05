@@ -193,7 +193,8 @@ namespace terrama2
 
         terrama2::core::DataSetSeries getSeries(const std::string& uri,
                                                 const terrama2::core::Filter& filter,
-                                                terrama2::core::DataSetPtr dataSet) const override;
+                                                terrama2::core::DataSetPtr dataSet,
+                                                std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
 
         QString replaceMask(QString qString) const;
