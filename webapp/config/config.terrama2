@@ -1,10 +1,22 @@
 {
-  "username": "postgres",
-  "password": "postgres",
-  "database": "nodejs",
-  "host": "127.0.0.1",
-  "dialect": "postgres",
-  "define": {
-    "schema": "terrama2"
+  "default": {
+    "username": "postgres",
+    "password": "postgres",
+    "database": "nodejs",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "define": {
+      "schema": "terrama2"
+    }
+  },
+  "tests": {
+    "username": "postgres",
+    "password": "postgres",
+    "database": "terrama2_web_unittest",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "define": {
+      "schema": "terrama2"
+    }
   }
 }
