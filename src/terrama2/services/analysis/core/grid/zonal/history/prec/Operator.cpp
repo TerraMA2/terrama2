@@ -37,6 +37,8 @@
 #include "../../../../MonitoredObjectContext.hpp"
 
 #include "../../../../../../../core/data-model/Filter.hpp"
+#include "../../../../../../../core/utility/Logger.hpp"
+
 
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -85,7 +87,18 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
   // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
-  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+
+  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  try
+  {
+    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return NAN;
+  }
+
 
   try
   {

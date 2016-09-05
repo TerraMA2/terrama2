@@ -40,6 +40,7 @@
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/data-access/DataSetSeries.hpp"
 #include "../../../../../core/data-model/DataSetDcp.hpp"
+#include "../../../../../core/utility/Logger.hpp"
 #include "../../Exception.hpp"
 
 // TerraLib
@@ -56,7 +57,18 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byAtt
 
   OperatorCache cache;
   python::readInfoFromDict(cache);
-  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+
+  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  try
+  {
+    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return vecIds;
+  }
+
 
   // In case an error has already occurred, there is nothing to be done
   if(!context->getErrors().empty())
@@ -173,7 +185,18 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byRul
 
   OperatorCache cache;
   python::readInfoFromDict(cache);
-  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+
+  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  try
+  {
+    auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return vecIds;
+  }
+
 
   // In case an error has already occurred, there is nothing to be done
   if(!context->getErrors().empty())
