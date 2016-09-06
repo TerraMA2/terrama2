@@ -44,7 +44,7 @@ void terrama2::services::analysis::core::ContextManager::addMonitoredObjectConte
   }
   else
   {
-    QString errMsg = QObject::tr("Monitored Object Context already registered for hascode: %1.").arg(analysisHashCode);
+    QString errMsg = QObject::tr("Monitored Object Context already registered.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
   }
@@ -61,7 +61,7 @@ void terrama2::services::analysis::core::ContextManager::addGridContext(const An
   }
   else
   {
-    QString errMsg = QObject::tr("Grid Context already registered for hascode: %1.").arg(analysisHashCode);
+    QString errMsg = QObject::tr("Grid Context already registered.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
   }
@@ -75,7 +75,7 @@ terrama2::services::analysis::core::MonitoredObjectContextPtr terrama2::services
     return it->second;
   else
   {
-    QString errMsg = QObject::tr("Unable to locate Monitored Object Context for hashcode %1.").arg(analysisHashCode);
+    QString errMsg = QObject::tr("Unable to locate Monitored Object Context.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
   }
@@ -89,7 +89,7 @@ terrama2::services::analysis::core::GridContextPtr terrama2::services::analysis:
     return it->second;
   else
   {
-    QString errMsg = QObject::tr("Unable to locate Grid Context for hashcode: %1.").arg(analysisHashCode);
+    QString errMsg = QObject::tr("Unable to locate Grid Context");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
   }
@@ -103,7 +103,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
     return it->second;
   else
   {
-    QString errMsg = QObject::tr("Unable to locate Analysis hashcode: %1.").arg(analysisHashCode);
+    QString errMsg = QObject::tr("Unable to locate Analysis");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
   }

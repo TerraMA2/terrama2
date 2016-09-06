@@ -240,9 +240,9 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
-  /*QTimer timer;
+  QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(100000);*/
+  timer.start(100000);
   app.exec();
 
   terrama2::services::analysis::core::python::finalizeInterpreter();

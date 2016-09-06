@@ -76,6 +76,12 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   RegisterId logId = 0;
   AnalysisHashCode analysisHashCode = analysis->hashCode(startTime);
 
+  if(!startTime)
+  {
+    ContextManager::getInstance().addError(analysisHashCode, QObject::tr("Invalid start time").toStdString());
+    return;
+  }
+
   try
   {
     TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution: %2").arg(analysis->id).arg(startTime->toString().c_str());
