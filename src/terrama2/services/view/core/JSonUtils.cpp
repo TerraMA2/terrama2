@@ -162,20 +162,104 @@ std::unique_ptr<te::se::Style> readStyle(std::string path)
   reader->read(path);
   reader->next();
 
-  if ((reader->getNodeType() == te::xml::START_ELEMENT) &&
-      (reader->getElementLocalName() == "StyledLayerDescriptor"))
-    reader->next();
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "StyledLayerDescriptor"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
 
-  if ((reader->getNodeType() == te::xml::START_ELEMENT) &&
-      (reader->getElementLocalName() == "NamedLayer"))
-    reader->next();
+  reader->next();
 
-  if ((reader->getNodeType() == te::xml::START_ELEMENT) &&
-      (reader->getElementLocalName() == "UserStyle"))
-    reader->next();
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "NamedLayer"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
 
-  if ((reader->getNodeType() == te::xml::START_ELEMENT) &&
-      (reader->getElementLocalName() == "FeatureTypeStyle"))
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::VALUE) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::END_ELEMENT) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "UserStyle"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::VALUE) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::END_ELEMENT) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "FeatureTypeStyle"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+  else
   {
     if (reader->getNodeType() == te::xml::START_ELEMENT)
       style.reset(te::se::serialize::Style::getInstance().read(*reader.get()));
@@ -205,8 +289,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("srid")
      || !json.contains("data_series_list")
      || !json.contains("filters_per_data_series")
-     || !json.contains("styles_per_data_series")
-     || !json.contains("legends_per_data_series"))
+     || !json.contains("styles_per_data_series"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -269,13 +352,6 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
       file.flush();
 
       std::unique_ptr<te::se::Style> style = readStyle(file.fileName().toStdString());
-
-      if(!style)
-      {
-        QString errMsg = QObject::tr("Could not read the XML file!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
 
       view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()),
           std::unique_ptr<te::se::Style>(style.release()));
