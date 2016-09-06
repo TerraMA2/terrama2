@@ -109,9 +109,9 @@ int main(int argc, char** argv)
 
     view->stylesPerDataSeries.emplace(1, std::unique_ptr<te::se::Style>(MONO_0_Style()));
 
-    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
+    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType, "#00c290")));
 
-    view->stylesPerDataSeries.emplace(3, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::LineStringType)));
+    view->stylesPerDataSeries.emplace(3, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::LineStringType, "#aff585")));
 
     dataManager->add(viewPtr);
 
