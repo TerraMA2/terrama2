@@ -80,7 +80,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
 
 
-  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
 
@@ -129,8 +129,11 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
     std::shared_ptr<ContextDataSeries> dcpContextDataSeries;
 
-    // Frees the GIL, from now on can not use the interpreter
-    Py_BEGIN_ALLOW_THREADS
+    // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
+    // In case an exception is thrown, we need to catch it and set a flag.
+    // Once the code left the lock is acquired we should return NAN.
+    terrama2::services::analysis::core::python::OperatorLock operatorLock;
+    operatorLock.unlock();
 
     try
     {
@@ -250,7 +253,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
 
 
     // All operations are done, acquires the GIL and set the return value
-    Py_END_ALLOW_THREADS
+    operatorLock.lock();
 
     if(exceptionOccurred)
       return NAN;
