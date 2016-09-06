@@ -285,7 +285,7 @@ void te::map::MemoryDataSetRenderer::drawLayerGeometries(AbstractLayer* layer,
     const te::fe::Filter* filter = rule->getFilter();
 
 
-    // TODO:
+    // TODO: draw dataset like it does in grouping
 /*
  * // Let's retrieve the correct dataset
     std::auto_ptr<te::da::DataSet> dataSet_
