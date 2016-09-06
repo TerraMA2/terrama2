@@ -40,6 +40,7 @@ class TsJsonUtils : public QObject
 
 private slots:
 
+  void testToJSon();
   void testGoNBackJSon();
 
 };

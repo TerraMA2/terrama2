@@ -72,8 +72,7 @@ namespace terrama2
           std::vector< DataSeriesId > dataSeriesList; // Ordened list of DataSeries ID that compose this view
           std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
 
-          // VINICIUS: dataset in a DataSeries could have more than one drawable object, differents ViewStyle for each one?
-          std::unordered_map< DataSeriesId, std::unique_ptr<te::se::Style> > stylesPerDataSeries; //!< List of styles by DataSeries ID.
+          std::unordered_map< DataSeriesId, std::unique_ptr<te::se::Style> > stylesPerDataSeries; //!< List of base styles by DataSeries ID.
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
 

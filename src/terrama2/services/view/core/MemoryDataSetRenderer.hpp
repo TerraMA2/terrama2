@@ -63,6 +63,12 @@ namespace te
 
       virtual ~MemoryDataSetRenderer() = default;
 
+      void drawLayerGroupingMem(AbstractLayer* layer,
+                                const std::string& geomPropertyName,
+                                Canvas* canvas,
+                                const te::gm::Envelope& bbox,
+                                int srid,
+                                const double& scale, bool* cancel) override;
 
       void drawLayerGeometries(AbstractLayer* layer,
                                const std::string& geomPropertyName,
