@@ -87,7 +87,7 @@ void terrama2::core::Timer::timeoutSlot() noexcept
 
 void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 {
-  double secondsToStart = 0;
+  uint32_t secondsToStart = 0;
 
   if(dataSchedule.frequency > 0)
   {
@@ -116,16 +116,16 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
           startTime += boost::posix_time::seconds(timerSeconds);
 
         auto td = (startTime - now);
-        secondsToStart = td.total_seconds();;
+        secondsToStart = td.total_seconds();
       }
       else
       {
-        secondsToStart = startDate.get() - nowTZ.get();
+        secondsToStart = *startDate - *nowTZ;
       }
-
 
     }
   }
+
   else if(dataSchedule.schedule > 0)
   {
     secondsToStart = terrama2::core::TimeUtils::scheduleSeconds(dataSchedule, terrama2::core::TimeUtils::nowUTC());
