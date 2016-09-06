@@ -204,6 +204,10 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
   }
 ]);
 
+/**
+ * It compares values two bind variables
+ *  
+ */
 terrama2Application.directive('terrama2CompareTo', function() {
   return {
     restrict: 'A',
@@ -459,4 +463,19 @@ terrama2Application.directive("terrama2Content", function() {
       scope.divClass = attrs.class || "row";
     }
   }
+});
+
+terrama2Application.directive('terrama2Fluid', function($window) {
+    return {
+      restrict: "A",
+      link: function(scope, element, attrs) {
+        angular.element($window).bind('scroll', function() {
+          if (this.pageYOffset > 200) {
+            element.addClass("terrama2-fluid");
+          } else {
+            element.removeClass("terrama2-fluid");
+          }
+        });
+      }
+    };
 });
