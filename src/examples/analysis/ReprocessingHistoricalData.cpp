@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "estados_2010.shp");
+  dataSet->format.emplace("mask", "sjc.shp");
   dataSet->format.emplace("srid", "4326");
   dataSet->id = 1;
   dataSet->dataSeriesId = 1;
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "nome";
+  monitoredObjectADS.metadata["identifier"] = "NOME";
 
 
   //DataProvider information
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-  analysis->schedule.frequency = 3;
+  analysis->schedule.frequency = 6;
   analysis->schedule.frequencyUnit = "h";
 
   auto reprocessingHistoricalData = new ReprocessingHistoricalData();
@@ -216,12 +216,12 @@ int main(int argc, char* argv[])
 
   boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
 
-  std::string startDate = "2016-08-01 00:00:00";
+  std::string startDate = "2016-04-30 00:00:00";
   boost::posix_time::ptime startBoostDate(boost::posix_time::time_from_string(startDate));
   boost::local_time::local_date_time lstartDate(startBoostDate.date(), startBoostDate.time_of_day(), zone, true);
   reprocessingHistoricalData->startDate = std::make_shared<te::dt::TimeInstantTZ>(lstartDate);
 
-  std::string endDate = "2016-08-02 00:00:00";
+  std::string endDate = "2016-05-01 00:00:00";
   boost::posix_time::ptime endBoostDate(boost::posix_time::time_from_string(endDate));
   boost::local_time::local_date_time lendDate(endBoostDate.date(), endBoostDate.time_of_day(), zone, true);
   reprocessingHistoricalData->endDate = std::make_shared<te::dt::TimeInstantTZ>(lendDate);

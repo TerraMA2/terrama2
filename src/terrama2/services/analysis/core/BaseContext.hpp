@@ -128,7 +128,7 @@ namespace terrama2
             BaseContext& operator=(const BaseContext& other) = default;
             BaseContext& operator=(BaseContext&& other) = default;
 
-            inline std::set<std::string> getErrors() const { return errosSet_; }
+            inline std::set<std::string> getErrors() const { return errorsSet_; }
 
             /*!
               \brief Returns a weak pointer to the data manager.
@@ -201,7 +201,7 @@ namespace terrama2
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
             AnalysisPtr analysis_;
             std::shared_ptr<te::dt::TimeInstantTZ> startTime_;
-            std::set<std::string> errosSet_;
+            std::set<std::string> errorsSet_;
             std::shared_ptr<terrama2::core::FileRemover> remover_;
 
             std::unordered_map<std::string, terrama2::core::DataSeriesPtr > dataSeriesMap_;

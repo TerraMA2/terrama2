@@ -31,6 +31,7 @@
 #include "Operator.hpp"
 #include "../Operator.hpp"
 #include "../../../ContextManager.hpp"
+#include "../../../../../../core/utility/Logger.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -40,9 +41,20 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
 
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+
+  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  try
+  {
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return NAN;
+  }
+
 
   try
   {
@@ -129,9 +141,19 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
 
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+
+  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  try
+  {
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return {};
+  }
 
   try
   {

@@ -57,6 +57,7 @@ terrama2::services::analysis::core::MonitoredObjectContext::MonitoredObjectConte
 
 void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredObject()
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
   {

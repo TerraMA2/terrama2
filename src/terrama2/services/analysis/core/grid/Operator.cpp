@@ -30,6 +30,7 @@
 #include "Operator.hpp"
 #include "../ContextManager.hpp"
 #include "../../../../core/data-model/DataSetGrid.hpp"
+#include "../../../../core/utility/Logger.hpp"
 #include "../Utils.hpp"
 #include "../GridContext.hpp"
 #include "../PythonInterpreter.hpp"
@@ -58,7 +59,16 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
-  auto context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
+  terrama2::services::analysis::core::GridContextPtr context;
+  try
+  {
+    context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return NAN;
+  }
 
   try
   {
