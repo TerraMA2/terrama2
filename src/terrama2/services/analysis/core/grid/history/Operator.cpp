@@ -33,6 +33,7 @@
 #include "../Operator.hpp"
 #include "../../ContextManager.hpp"
 #include "../../../../../core/data-model/DataSetGrid.hpp"
+#include "../../../../../core/utility/Logger.hpp"
 #include "../../Utils.hpp"
 
 // TerraLib
@@ -42,10 +43,20 @@
 // STD
 #include <numeric>
 
+
 std::vector<double> terrama2::services::analysis::core::grid::history::sample(const OperatorCache& cache, const std::string& dataSeriesName, const std::string& dateFilterBegin,
 const std::string& dateFilterEnd)
 {
-  auto context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
+  terrama2::services::analysis::core::GridContextPtr context;
+  try
+  {
+    context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return {};
+  }
 
   try
   {
@@ -141,10 +152,20 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
-  auto context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
+
+  terrama2::services::analysis::core::GridContextPtr context;
+  try
+  {
+    context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return NAN;
+  }
 
   try
   {
@@ -156,8 +177,11 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
 
     bool hasData = false;
 
-    // Save thread state before entering multi-thread zone
-    Py_BEGIN_ALLOW_THREADS
+    // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
+    // In case an exception is thrown, we need to catch it and set a flag.
+    // Once the code left the lock is acquired we should return NAN.
+    terrama2::services::analysis::core::python::OperatorLock operatorLock;
+    operatorLock.unlock();
 
     try
     {
@@ -176,7 +200,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
     }
 
     // All operations are done, acquires the GIL and set the return value
-    Py_END_ALLOW_THREADS
+    operatorLock.lock();
 
     if(exceptionOccurred)
       return NAN;

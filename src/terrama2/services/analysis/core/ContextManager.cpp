@@ -35,6 +35,7 @@
 
 void terrama2::services::analysis::core::ContextManager::addMonitoredObjectContext(const AnalysisHashCode analysisHashCode, MonitoredObjectContextPtr context)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto it = monitoredObjectContextMap_.find(analysisHashCode);
   if(it == monitoredObjectContextMap_.cend())
   {
@@ -51,6 +52,7 @@ void terrama2::services::analysis::core::ContextManager::addMonitoredObjectConte
 
 void terrama2::services::analysis::core::ContextManager::addGridContext(const AnalysisHashCode analysisHashCode, GridContextPtr context)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto it = gridContextMap_.find(analysisHashCode);
   if(it == gridContextMap_.cend())
   {
@@ -67,6 +69,7 @@ void terrama2::services::analysis::core::ContextManager::addGridContext(const An
 
 terrama2::services::analysis::core::MonitoredObjectContextPtr terrama2::services::analysis::core::ContextManager::getMonitoredObjectContext(const AnalysisHashCode analysisHashCode) const
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto it = monitoredObjectContextMap_.find(analysisHashCode);
   if(it != monitoredObjectContextMap_.cend())
     return it->second;
@@ -80,12 +83,13 @@ terrama2::services::analysis::core::MonitoredObjectContextPtr terrama2::services
 
 terrama2::services::analysis::core::GridContextPtr terrama2::services::analysis::core::ContextManager::getGridContext(const AnalysisHashCode analysisHashCode) const
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto it = gridContextMap_.find(analysisHashCode);
   if(it != gridContextMap_.cend())
     return it->second;
   else
   {
-    QString errMsg = QObject::tr("Unable to locate Grid Context.");
+    QString errMsg = QObject::tr("Unable to locate Grid Context");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
   }
@@ -93,12 +97,13 @@ terrama2::services::analysis::core::GridContextPtr terrama2::services::analysis:
 
 terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::core::ContextManager::getAnalysis(const AnalysisHashCode analysisHashCode) const
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto it = analysisMap_.find(analysisHashCode);
   if(it != analysisMap_.cend())
     return it->second;
   else
   {
-    QString errMsg = QObject::tr("Unable to locate Analysis.");
+    QString errMsg = QObject::tr("Unable to locate Analysis");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
   }
@@ -106,17 +111,16 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
 
 void terrama2::services::analysis::core::ContextManager::clearContext(const AnalysisHashCode analysisHashCode)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto itm = monitoredObjectContextMap_.find(analysisHashCode);
   if(itm != monitoredObjectContextMap_.cend())
   {
-    TERRAMA2_LOG_INFO() << QObject::tr("Clearing monitored object analysis context.\nUses: %1").arg(itm->second.use_count());
     monitoredObjectContextMap_.erase(itm);
   }
 
   auto itg = gridContextMap_.find(analysisHashCode);
   if(itg != gridContextMap_.cend())
   {
-    TERRAMA2_LOG_INFO() << QObject::tr("Clearing grid analysis context.\nUses: %1").arg(itg->second.use_count());
     gridContextMap_.erase(itg);
   }
 
@@ -127,16 +131,20 @@ void terrama2::services::analysis::core::ContextManager::clearContext(const Anal
 
 void terrama2::services::analysis::core::ContextManager::addError(const AnalysisHashCode analysisHashCode, const std::string& error)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto& errorList = analysisErrorMap_[analysisHashCode];
   errorList.insert(error);
 }
+
 void terrama2::services::analysis::core::ContextManager::addError(const std::string& error)
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   contextError_.insert(error);
 }
 
 std::set<std::string> terrama2::services::analysis::core::ContextManager::getErrors(const AnalysisHashCode analysisHashCode) const
 {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   std::set<std::string> errors;
   auto it = analysisErrorMap_.find(analysisHashCode);
   if(it != analysisErrorMap_.cend())

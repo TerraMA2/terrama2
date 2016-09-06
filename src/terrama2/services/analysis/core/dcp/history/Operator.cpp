@@ -40,6 +40,7 @@
 #include "../../../../../core/data-model/Filter.hpp"
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/Shared.hpp"
+#include "../../../../../core/utility/Logger.hpp"
 #include "../../PythonUtils.hpp"
 
 
@@ -58,8 +59,19 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
-  // Inside Py_BEGIN_ALLOW_THREADS it's not allowed to return any value because it doesn' have the interpreter lock.
+
+  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  try
+  {
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return NAN;
+  }
+
+  // After the lock is released it's not allowed to return any value because it doesn't have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
 
@@ -93,8 +105,12 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 
     std::vector<double> values;
 
-    // Frees the GIL, from now on can not use the interpreter
-    Py_BEGIN_ALLOW_THREADS
+    // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
+    // In case an exception is thrown, we need to catch it and set a flag.
+    // Once the code left the lock is acquired we should return NAN.
+    terrama2::services::analysis::core::python::OperatorLock operatorLock;
+    operatorLock.unlock();
+
     try
     {
 
@@ -201,7 +217,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 
 
     // All operations are done, acquires the GIL and set the return value
-    Py_END_ALLOW_THREADS
+    operatorLock.lock();
 
     if(values.empty() && statisticOperation != StatisticOperation::COUNT)
       return NAN;
