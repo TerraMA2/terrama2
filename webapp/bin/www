@@ -9,7 +9,7 @@
 var Database = require('./../config/Database');
 
 /**
- * It defines which context nodejs should initialize. The available contexts are available in {@link config/config.terrama2}
+ * It defines which context nodejs should initialize. The context names are available in {@link config/config.terrama2}
  * @typeof {string}
  */
 var nodeContext = process.argv[2];
