@@ -33,7 +33,7 @@ npm install # It install backend web dependencies
 
 Note: TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipulation. Make sure you have PostgreSQL database and PostGIS spatial extension installed before.
 
-In order to execute, check available contexts names in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2) (Feel free to add a new one following ).
+In order to execute, check available contexts names in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2) (Feel free to add a new one following section [Configuration File](#configuration-file)).
 
 After that, run ```npm start ContextName``` where **ContextName** is a key pointing to context credentials. 
 Example:
@@ -48,15 +48,14 @@ Remember that context name is optional. By default, TerraMA² will use ```defaul
 ## Configuration File
 The TerraMA² Web settings can be found in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2).
 
-Syntax:
-|    |            |
-|----------|:-------------:|
-| db |  Database credentials |
-| db.username | username |
-| db.password | password |
-| db.host | host of database |
-| db.port | database port number |
-| db.dialect | dialect database (postgres/mysql). **Only postgres supported.** |
-| db.define | It represents a extra properties along database |
-| db.define.schema | A database schema |
-| port | A TerraMA² Application Port Number |
+Key               | Description
+----------------- | -----------------------------------------------------------------
+ db               | Database credentials 
+ db.username      | username
+ db.password      | password 
+ db.host          | host of database 
+ db.port          | database port number 
+ db.dialect       | dialect database (postgres/mysql). **Only postgres supported.** 
+ db.define        | It represents a extra properties along database 
+ db.define.schema | A database schema 
+ port             | A TerraMA² Application Port Number 
