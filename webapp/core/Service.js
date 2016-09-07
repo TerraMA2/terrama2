@@ -37,9 +37,18 @@ function parseByteArray(byteArray) {
   };
 }
 
-
+/**
+ * It handles a tcp service connection via TCP
+ * 
+ * @class Service
+ * @param {Service} serviceInstance - A TerraMA² service instance
+ */
 var Service = module.exports = function(serviceInstance) {
   EventEmitter.call(this);
+  /**
+   * It defines a TerraMA² service instance
+   * @type {Service}
+   */
   this.service = serviceInstance;
 
   var self = this;
@@ -60,6 +69,11 @@ var Service = module.exports = function(serviceInstance) {
     }
   };
 
+  /**
+   * It checks if there is already a listener registered
+   * 
+   * @returns {boolean}
+   */
   self.isRegistered = function() {
     // TODO: better implementation
     // checking a event

@@ -62,6 +62,7 @@ angular.module('terrama2.table', ['terrama2'])
         model: '=model',
         link: '&',
         icon: '&',
+        orderElementby: '=?orderBy',
         iconProperties: '=?iconProperties',
         linkToAdd: '=?linkToAdd',
         context: '=context',
