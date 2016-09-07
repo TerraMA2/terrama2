@@ -66,14 +66,7 @@
 using ::testing::Return;
 using ::testing::_;
 
-te::da::MockDataSet* create_MockDataSet()
-{
-  te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
-
-  ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(false));
-
-  return mockDataSet;
-}
+//FIXME: using a real dir, can be improved using some mock access
 
 void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
 {
@@ -240,7 +233,7 @@ void TsDataAccessorDcpInpe::TestFailDataSourceInvalid()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    //TODO: using a real dir, can be improved using some mock access
+
     dataProvider->uri = "file://";
     dataProvider->uri+=TERRAMA2_DATA_DIR;
     dataProvider->uri+="/PCD_serrmar_INPE";
@@ -302,7 +295,7 @@ void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    //TODO: using a real dir, can be improved using some mock access
+
     dataProvider->uri = "file://";
     dataProvider->uri+=TERRAMA2_DATA_DIR;
     dataProvider->uri+="/PCD_serrmar_INPE";
@@ -332,12 +325,17 @@ void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
     std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
     std::unique_ptr<te::da::MockDataSourceTransactor> mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
 
+    std::unique_ptr<te::da::MockDataSet> mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
+    EXPECT_CALL(*mockDataSet, moveNext()).WillOnce(::testing::Return(false));
+
+    auto create_MockDataSet = [](te::da::MockDataSet* mockDataSet)->te::da::MockDataSet* { return mockDataSet; };
+
     std::string name = "mock";
     std::vector<std::string> dataSetNames = {name};
 
     EXPECT_CALL(*mockDataSourceTransactor, getDataSetNames()).WillOnce(::testing::Return(dataSetNames));
     EXPECT_CALL(*mockDataSourceTransactor, DataSetTypePtrReturn()).WillOnce(::testing::Return(new te::da::DataSetType(name)));
-    ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&create_MockDataSet));
+    EXPECT_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillOnce(::testing::Invoke(std::bind(create_MockDataSet, mockDataSet.release())));
 
     auto create_MockDataSourceTransactor = [](te::da::MockDataSourceTransactor* mockTransactor)->te::da::MockDataSourceTransactor* { return mockTransactor; };
 
@@ -382,9 +380,7 @@ void TsDataAccessorDcpInpe::TestOK()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/PCD_serrmar_INPE";
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/PCD_serrmar_INPE";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
