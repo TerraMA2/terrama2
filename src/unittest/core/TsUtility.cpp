@@ -164,7 +164,7 @@ void TsUtility::testFrequencyTimerBase()
     schedule.id = 0;
     schedule.frequency = 30;
     schedule.frequencyUnit = "minute";
-    schedule.frequencyStartTime = "2016-08-17T03:00:00.000-03:00";
+    schedule.frequencyStartTime = "2016-08-17T03:00:00.123-03:00";
 
     terrama2::core::MockProcessLogger logger;
     EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(terrama2::core::TimeUtils::nowUTC()));

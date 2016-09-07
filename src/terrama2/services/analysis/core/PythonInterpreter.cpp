@@ -343,7 +343,16 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
 
   std::string attrName = boost::to_lower_copy(attribute);
 
-  auto context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+  try
+  {
+    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    return;
+  }
 
   auto dataManagerPtr = context->getDataManager().lock();
   if(!dataManagerPtr)
@@ -628,4 +637,3 @@ void terrama2::services::analysis::core::python::OperatorLock::unlock()
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
-

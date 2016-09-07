@@ -37,18 +37,236 @@
 #include <terralib/se/Style.h>
 #include <terralib/xml/ReaderFactory.h>
 #include <terralib/xml/AbstractWriterFactory.h>
-
-// TODO: Enable this when Terralib release fix for style serialization
-//#include <terralib/se/serialization/xml/Style.h>
-// TODO: Remove this when Terralib release fix for style serialization
-#include "Style.h"
-
+#include <terralib/maptools/serialization/xml/Utils.h>
+#include <terralib/se/serialization/xml/Style.h>
 
 // Qt
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QObject>
 #include <QTemporaryFile>
+
+
+void writeStyleGeoserverXML(const te::se::Style* style, std::string path)
+{
+
+  std::auto_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
+
+  writer->setURI(path);
+  writer->writeStartDocument("UTF-8", "no");
+
+  writer->writeStartElement("StyledLayerDescriptor");
+
+  writer->writeAttribute("xmlns", "http://www.opengis.net/sld");
+  writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
+  writer->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+  writer->writeAttribute("version", style->getVersion());
+  writer->writeAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd");
+  writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
+
+  writer->writeStartElement("NamedLayer");
+  writer->writeElement("se:Name", "Layer");
+  writer->writeStartElement("UserStyle");
+  writer->writeElement("se:Name", "Style");
+
+  te::se::serialize::Style::getInstance().write(style, *writer.get());
+
+  writer->writeEndElement("UserStyle");
+  writer->writeEndElement("NamedLayer");
+
+  writer->writeEndElement("StyledLayerDescriptor");
+  writer->writeToFile();
+
+}
+
+
+QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
+{
+  QJsonObject obj;
+  obj.insert("class", QString("View"));
+  obj.insert("id", static_cast<int32_t>(view->id));
+  obj.insert("project_id", static_cast<int32_t>(view->projectId));
+  obj.insert("service_instance_id", static_cast<int32_t>(view->serviceInstanceId));
+  obj.insert("active", view->active);
+  obj.insert("imageName", QString(view->imageName.c_str()));
+  obj.insert("imageType", static_cast<int32_t>(view->imageType));
+  obj.insert("imageResolutionWidth", static_cast<int32_t>(view->imageResolutionWidth));
+  obj.insert("imageResolutionHeight", static_cast<int32_t>(view->imageResolutionHeight));
+  obj.insert("schedule", terrama2::core::toJson(view->schedule));
+  obj.insert("srid", static_cast<int32_t>(view->srid));
+
+  {
+    QJsonArray array;
+    for(auto& it : view->dataSeriesList)
+    {
+      QJsonObject datasetSeries;
+      datasetSeries.insert("dataset_series_id", static_cast<int32_t>(it));
+      array.push_back(datasetSeries);
+    }
+    obj.insert("data_series_list", array);
+  }
+
+  {
+    QJsonArray array;
+    for(auto& it : view->filtersPerDataSeries)
+    {
+      QJsonObject datasetSeriesAndFilter;
+      datasetSeriesAndFilter.insert("dataset_series_id", static_cast<int32_t>(it.first));
+      datasetSeriesAndFilter.insert("dataset_series_filter", terrama2::core::toJson(it.second));
+      array.push_back(datasetSeriesAndFilter);
+    }
+    obj.insert("filters_per_data_series", array);
+  }
+
+  // Style serialization
+  {
+    QJsonArray array;
+    for(auto& it : view->stylesPerDataSeries)
+    {
+      QJsonObject datasetSeriesAndStyle;
+      datasetSeriesAndStyle.insert("dataset_series_id", static_cast<int32_t>(it.first));
+
+      QTemporaryFile file;
+      if(!file.open())
+        throw Exception() << ErrorDescription("Could not create XML file!");
+
+      writeStyleGeoserverXML(it.second.get(), file.fileName().toStdString());
+
+      QByteArray content = file.readAll();
+      if(content.isEmpty())
+      {
+        QString errMsg = QObject::tr("Could not create XML file!");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw Exception() << ErrorDescription(errMsg);
+      }
+
+      datasetSeriesAndStyle.insert("dataset_series_view_style", QString(content));
+
+      array.push_back(datasetSeriesAndStyle);
+    }
+    obj.insert("styles_per_data_series", array);
+  }
+
+  return obj;
+}
+
+
+std::unique_ptr<te::se::Style> readStyle(std::string path)
+{
+  std::unique_ptr<te::se::Style> style;
+
+  std::auto_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
+  reader->setValidationScheme(false);
+
+  reader->read(path);
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "StyledLayerDescriptor"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "NamedLayer"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::VALUE) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::END_ELEMENT) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "UserStyle"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::VALUE) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::END_ELEMENT) ||
+      (reader->getElementLocalName() != "Name"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+
+  reader->next();
+
+  if ((reader->getNodeType() != te::xml::START_ELEMENT) ||
+      (reader->getElementLocalName() != "FeatureTypeStyle"))
+  {
+    QString errMsg = QObject::tr("Wrong XML format!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+  }
+  else
+  {
+    if (reader->getNodeType() == te::xml::START_ELEMENT)
+      style.reset(te::se::serialize::Style::getInstance().read(*reader.get()));
+  }
+
+  return style;
+}
 
 terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromViewJson(QJsonObject json)
 {
@@ -113,6 +331,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
     }
   }
 
+  // Read Style
   {
     auto datasetSeriesArray = json["styles_per_data_series"].toArray();
     auto it = datasetSeriesArray.begin();
@@ -132,99 +351,12 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
       file.write(obj["dataset_series_view_style"].toString().toUtf8());
       file.flush();
 
-      std::unique_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
-      reader->setValidationScheme(false);
-
-      reader->read(file.fileName().toStdString());
-
-      if(!reader->next())
-      {
-        QString errMsg = QObject::tr("Could not read the XML file!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
+      std::unique_ptr<te::se::Style> style = readStyle(file.fileName().toStdString());
 
       view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()),
-          std::unique_ptr<te::se::Style>(te::se::serialize::Style::getInstance().read(*reader.get())));
+          std::unique_ptr<te::se::Style>(style.release()));
     }
   }
 
   return viewPtr;
-}
-
-
-QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
-{
-  QJsonObject obj;
-  obj.insert("class", QString("View"));
-  obj.insert("id", static_cast<int32_t>(view->id));
-  obj.insert("project_id", static_cast<int32_t>(view->projectId));
-  obj.insert("service_instance_id", static_cast<int32_t>(view->serviceInstanceId));
-  obj.insert("active", view->active);
-  obj.insert("imageName", QString(view->imageName.c_str()));
-  obj.insert("imageType", static_cast<int32_t>(view->imageType));
-  obj.insert("imageResolutionWidth", static_cast<int32_t>(view->imageResolutionWidth));
-  obj.insert("imageResolutionHeight", static_cast<int32_t>(view->imageResolutionHeight));
-  obj.insert("schedule", terrama2::core::toJson(view->schedule));
-  obj.insert("srid", static_cast<int32_t>(view->srid));
-
-  {
-    QJsonArray array;
-    for(auto& it : view->dataSeriesList)
-    {
-      QJsonObject datasetSeries;
-      datasetSeries.insert("dataset_series_id", static_cast<int32_t>(it));
-      array.push_back(datasetSeries);
-    }
-    obj.insert("data_series_list", array);
-  }
-
-  {
-    QJsonArray array;
-    for(auto& it : view->filtersPerDataSeries)
-    {
-      QJsonObject datasetSeriesAndFilter;
-      datasetSeriesAndFilter.insert("dataset_series_id", static_cast<int32_t>(it.first));
-      datasetSeriesAndFilter.insert("dataset_series_filter", terrama2::core::toJson(it.second));
-      array.push_back(datasetSeriesAndFilter);
-    }
-    obj.insert("filters_per_data_series", array);
-  }
-
-  {
-    QJsonArray array;
-    for(auto& it : view->stylesPerDataSeries)
-    {
-      QJsonObject datasetSeriesAndStyle;
-      datasetSeriesAndStyle.insert("dataset_series_id", static_cast<int32_t>(it.first));
-
-      std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
-      writer->writeStartDocument("UTF-8", "no");
-      writer->setRootNamespaceURI("http://www.w3.org/2000/xmlns/se");
-
-      QTemporaryFile file;
-      if(!file.open())
-        throw Exception() << ErrorDescription("Could not create XML file!");
-
-      writer->setURI(file.fileName().toStdString());
-      te::se::serialize::Style::getInstance().write(it.second->clone(), *writer.get());
-
-      writer->writeToFile();
-
-      QByteArray content = file.readAll();
-      if(content.isEmpty())
-      {
-        QString errMsg = QObject::tr("Could not create XML file!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-
-      datasetSeriesAndStyle.insert("dataset_series_view_style", QString(content));
-
-      array.push_back(datasetSeriesAndStyle);
-    }
-    obj.insert("styles_per_data_series", array);
-  }
-
-  return obj;
 }

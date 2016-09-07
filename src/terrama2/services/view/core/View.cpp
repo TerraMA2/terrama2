@@ -54,6 +54,7 @@
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 
+
 void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager)
 {
   auto dataManager = weakDataManager.lock();

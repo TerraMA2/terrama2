@@ -39,6 +39,7 @@
 //STL
 #include <unordered_map>
 #include <set>
+#include <mutex>
 
 namespace terrama2
 {
@@ -77,6 +78,7 @@ namespace terrama2
 
             std::unordered_map<AnalysisHashCode, std::set<std::string> > analysisErrorMap_;
             std::set<std::string> contextError_;
+            mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
         };
       }
     }
