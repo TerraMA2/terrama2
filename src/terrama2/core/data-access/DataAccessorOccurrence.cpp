@@ -40,9 +40,9 @@
 //Qt
 #include <QObject>
 
-terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getOccurrenceSeries(const Filter& filter)
+terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getOccurrenceSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
-  auto series = getSeries(filter);
+  auto series = getSeries(filter, remover);
   OccurrenceSeriesPtr occurrenceSeries = std::make_shared<OccurrenceSeries>();
   occurrenceSeries->addOccurrences(series);
 

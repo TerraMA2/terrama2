@@ -41,6 +41,7 @@
 #include "../data-model/DataSeriesSemantics.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/Filter.hpp"
+#include "../utility/FileRemover.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
@@ -118,7 +119,7 @@ namespace terrama2
           \exception DataProviderException Raised if internal DataProvider isn't active.
           \exception DataProviderException Raised if the Filter date result in an empty time range.
         */
-        virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter) const;
+        virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter, std::shared_ptr<FileRemover> remover) const;
 
         //! Utility function for converting string to double in the te::da::DataSet contruction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
@@ -212,7 +213,7 @@ namespace terrama2
            Retrieved data is subjetc to filter.
 
          */
-        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter) const = 0;
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const = 0;
 
         /*!
            \brief Get a memory dataset do core::DataSet.
@@ -221,7 +222,7 @@ namespace terrama2
            \note Updates lastDateTime
            \return Filtered dataset
          */
-        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet) const = 0;
+        virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const = 0;
 
         /*!
           \brief Verifies if the DataSet intersects the Filter area.

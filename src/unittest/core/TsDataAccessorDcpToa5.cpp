@@ -49,6 +49,7 @@
 #include "MockDataSource.hpp"
 #include "MockDataSourceTransactor.hpp"
 #include "MockDataSet.hpp"
+#include "Utils.hpp"
 
 // QT
 #include <QObject>
@@ -63,77 +64,6 @@
 
 using ::testing::Return;
 using ::testing::_;
-
-class RaiiTsDataAccessorDcpToa5
-{
-  public:
-
-    RaiiTsDataAccessorDcpToa5(const std::string& dataProviderType,
-                              const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
-      : dataProviderType_(dataProviderType), f_(f)
-    {
-      terrama2::core::DataRetrieverFactory::getInstance().add(dataProviderType_, f_);
-    }
-
-    ~RaiiTsDataAccessorDcpToa5()
-    {
-      terrama2::core::DataRetrieverFactory::getInstance().remove(dataProviderType_);
-    }
-
-  private:
-    std::string dataProviderType_;
-    terrama2::core::DataRetrieverFactory::FactoryFnctType f_;
-};
-
-class RaiiDataSourceTsDataAccessorDcpToa5
-{
-  public:
-    RaiiDataSourceTsDataAccessorDcpToa5(const std::string& type,
-                                        const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
-    {
-      if(te::da::DataSourceFactory::find(type_))
-      {
-        te::da::DataSourceFactory::remove(type_);
-        te::da::DataSourceFactory::add(type_,ft_);
-      }
-      else te::da::DataSourceFactory::add(type_,ft_);
-    }
-
-    ~RaiiDataSourceTsDataAccessorDcpToa5()
-    {
-      te::da::DataSourceFactory::remove(type_);
-    }
-
-  private:
-    std::string type_;
-    te::da::DataSourceFactory::FactoryFnctType ft_;
-};
-
-
-te::da::MockDataSet* create_MockDataSetDcpToa5()
-{
-  te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
-
-  ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(false));
-
-  return mockDataSet;
-}
-
-te::da::MockDataSourceTransactor* create_MockDataSourceTransactorDcpToa5()
-{
-  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
-
-  std::vector<std::string> dataSetNames;
-  dataSetNames.push_back("GRM_slow_2014_01_02_1713");
-  std::string name = "GRM_slow_2014_01_02_1713";
-
-  EXPECT_CALL(*mockDataSourceTransactor, getDataSetNames()).WillOnce(::testing::Return(dataSetNames));
-  EXPECT_CALL(*mockDataSourceTransactor, DataSetTypePtrReturn()).WillOnce(::testing::Return(new te::da::DataSetType(name)));
-  ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&create_MockDataSetDcpToa5));
-
-  return mockDataSourceTransactor;
-}
-
 
 void TsDataAccessorDcpToa5::TestFailAddNullDataAccessorDcpToa5()
 {
@@ -269,11 +199,12 @@ void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorDcpToa5 raiiDataRetriever("MOCK",makeMock);
+    DataRetrieverFactoryRaii raiiDataRetriever("MOCK",makeMock);
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
     }
     catch(...)
     {
@@ -329,15 +260,16 @@ void TsDataAccessorDcpToa5::TestFailDataRetrieverInvalid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
-    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
+    EXPECT_CALL(*mock_, retrieveData(_,_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorDcpToa5 raiiDataRetriever("MOCK",makeMock);
+    DataRetrieverFactoryRaii raiiDataRetriever("MOCK",makeMock);
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NotRetrivableException&)
@@ -397,11 +329,12 @@ void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
 
-    RaiiDataSourceTsDataAccessorDcpToa5 raiiDataSource("OGR",makeMock);
+    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NoDataException&)
@@ -425,6 +358,7 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    //TODO: using a real dir, can be improved using some mock access
     dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
@@ -440,8 +374,6 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
     dataSet->format.emplace("mask", "GRM_slow_2014_01_02_1713.dat");
-
-    dataSet->format.emplace("timezone", "+00");
     dataSet->format.emplace("folder", "GRM");
 
     dataSeries->datasetList.emplace_back(dataSet);
@@ -454,19 +386,35 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
 
     std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
-    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
-    EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
-    EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*mock_, DataSourceTransactoPtrReturn()).WillRepeatedly(::testing::Invoke(&create_MockDataSourceTransactorDcpToa5));
-    EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
+    std::unique_ptr<te::da::MockDataSourceTransactor> mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
+    std::string name = "GRM_slow_2014_01_02_1713";
+    std::vector<std::string> dataSetNames= {name};
+
+    std::unique_ptr<te::da::MockDataSet> mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
+    EXPECT_CALL(*mockDataSet, moveNext()).WillOnce(::testing::Return(false));
+
+    auto create_MockDataSet = [](te::da::MockDataSet* mockDataSet)->te::da::MockDataSet* { return mockDataSet; };
+
+    EXPECT_CALL(*mockDataSourceTransactor, getDataSetNames()).WillOnce(::testing::Return(dataSetNames));
+    EXPECT_CALL(*mockDataSourceTransactor, DataSetTypePtrReturn()).WillOnce(::testing::Return(new te::da::DataSetType(name)));
+    EXPECT_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillOnce(::testing::Invoke(std::bind(create_MockDataSet, mockDataSet.release())));
+
+    auto create_MockDataSourceTransactor = [](te::da::MockDataSourceTransactor* mockDataSourceTransactor)-> te::da::MockDataSourceTransactor* {return mockDataSourceTransactor;};
+
+    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillOnce(Return());
+    EXPECT_CALL(*mock_, open()).WillOnce(Return());
+    EXPECT_CALL(*mock_, isOpened()).WillOnce(Return(true));
+    EXPECT_CALL(*mock_, DataSourceTransactoPtrReturn()).WillOnce(::testing::Invoke(std::bind(create_MockDataSourceTransactor, mockDataSourceTransactor.release())));
+    EXPECT_CALL(*mock_, close()).WillOnce(Return());
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
 
-    RaiiDataSourceTsDataAccessorDcpToa5 raiiDataSource("OGR",makeMock);
+    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
 
     try
     {
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NoDataException&)
@@ -487,10 +435,14 @@ void TsDataAccessorDcpToa5::TestOK()
 {
   try
   {
-    te::da::DataSourceFactory::add(OGR_DRIVER_IDENTIFIER, te::ogr::Build);
+    // add OGR build to the factory if not present
+    if(!te::da::DataSourceFactory::find(OGR_DRIVER_IDENTIFIER))
+      te::da::DataSourceFactory::add(OGR_DRIVER_IDENTIFIER, te::ogr::Build);
+
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    //TODO: using a real dir, can be improved using some mock access
     dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/pcd_toa5";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
@@ -517,7 +469,8 @@ void TsDataAccessorDcpToa5::TestOK()
 
     //accessing data
     terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
 
     assert(dcpSeries->dcpSeriesMap().size() == 1);
 
@@ -527,21 +480,16 @@ void TsDataAccessorDcpToa5::TestOK()
     std::string mask = dataSet->format.at("mask");
     std::string folder = dataSet->format.at("folder");
 
-    QUrl url((uri+"/"+folder+"/"+mask).c_str());
+    QUrl url(QString::fromStdString(uri+"/"+folder+"/"+mask));
     QFileInfo originalInfo(url.path());
     QFile file(originalInfo.absoluteFilePath());
-    QString errMsg;
-    QFileDevice::FileError err = QFileDevice::NoError;
-    if (!file.open(QIODevice::ReadOnly))
-    {
+
+    if(!file.open(QIODevice::ReadOnly))
       QFAIL("Unexpected Exception!");
-      errMsg = file.errorString();
-      err = file.error();
-    }
 
     int numberLinesOriginalFile = -4; // ignore header lines
     // Get Number Lines Original File.
-    while (!file.atEnd())
+    while(!file.atEnd())
     {
       file.readLine();
       ++numberLinesOriginalFile;

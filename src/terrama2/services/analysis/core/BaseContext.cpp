@@ -40,6 +40,7 @@ terrama2::services::analysis::core::BaseContext::BaseContext(terrama2::services:
     analysis_(analysis),
     startTime_(startTime)
 {
+  remover_ = std::make_shared<terrama2::core::FileRemover>();
 }
 
 terrama2::services::analysis::core::BaseContext::~BaseContext()
@@ -167,7 +168,7 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
     }
 
     terrama2::core::Filter filter = createFilter(dateDiscardBefore, dateDiscardAfter);
-    auto gridSeries = accessorGrid->getGridSeries(filter);
+    auto gridSeries = accessorGrid->getGridSeries(filter, remover_);
 
     if(!gridSeries)
     {
@@ -256,7 +257,7 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
     std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
 
     terrama2::core::Filter filter = createFilter(dateDiscardBefore, dateDiscardAfter);
-    auto gridSeries = accessorGrid->getGridSeries(filter);
+    auto gridSeries = accessorGrid->getGridSeries(filter, remover_);
 
     if(!gridSeries)
     {

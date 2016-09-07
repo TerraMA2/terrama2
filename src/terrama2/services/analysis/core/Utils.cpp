@@ -147,7 +147,7 @@ terrama2::services::analysis::core::InterestAreaType terrama2::services::analysi
 }
 
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId)
+terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
   if(!dataSeriesPtr)
@@ -162,7 +162,7 @@ terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataS
   std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
   terrama2::core::Filter filter;
   filter.lastValue = true;
-  auto gridSeries = accessorGrid->getGridSeries(filter);
+  auto gridSeries = accessorGrid->getGridSeries(filter, remover);
 
   if(!gridSeries)
   {

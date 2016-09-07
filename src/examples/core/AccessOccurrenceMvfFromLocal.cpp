@@ -44,7 +44,8 @@ int main(int argc, char* argv[])
     terrama2::core::Filter filter;
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter, remover);
 
     std::cout << "Last data timestamp: " << accessor.lastDateTime()->toString() << std::endl;
 

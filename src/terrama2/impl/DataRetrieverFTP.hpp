@@ -90,7 +90,7 @@ namespace terrama2
        * \exception DataRetrieverException when could not perform the download files.
        * \exception DataRetrieverException when Unknown error, Could not perform the download files.
       */
-      virtual std::string retrieveData(const std::string& mask, const Filter& filter) override;
+      virtual std::string retrieveData(const std::string& mask, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) override;
 
       /*!
        * \brief write_response - data to be written in file.

@@ -72,7 +72,7 @@ namespace terrama2
         DataAccessorOccurrence& operator=(DataAccessorOccurrence&& other) { DataAccessor::operator=(std::move(other)); return *this; }
 
         //! Returns a OccurrenceSeries filtered by Filter
-        virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter);
+        virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover);
     };
   }
 }

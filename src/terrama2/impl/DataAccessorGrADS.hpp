@@ -163,7 +163,7 @@ namespace terrama2
          \return The URI to retrieved data.
         */
         std::string
-        retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const override;
+        retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const override;
 
         /*
          \brief Returns a smart pointer to a DataAccessorGrADS.
@@ -193,7 +193,8 @@ namespace terrama2
 
         terrama2::core::DataSetSeries getSeries(const std::string& uri,
                                                 const terrama2::core::Filter& filter,
-                                                terrama2::core::DataSetPtr dataSet) const override;
+                                                terrama2::core::DataSetPtr dataSet,
+                                                std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
 
         QString replaceMask(QString qString) const;

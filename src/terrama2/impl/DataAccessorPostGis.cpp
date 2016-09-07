@@ -61,7 +61,7 @@
 #include <QObject>
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
-    terrama2::core::DataSetPtr dataSet) const
+    terrama2::core::DataSetPtr dataSet, std::shared_ptr<FileRemover> /*remover*/) const
 {
   QUrl url(uri.c_str());
 
@@ -145,7 +145,7 @@ std::string terrama2::core::DataAccessorPostGis::getDataSetTableName(DataSetPtr 
   }
 }
 
-std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr /*dataRetriever*/, DataSetPtr /*dataSet*/, const Filter& /*filter*/) const
+std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr /*dataRetriever*/, DataSetPtr /*dataSet*/, const Filter& /*filter*/, std::shared_ptr<terrama2::core::FileRemover> /*remover*/) const
 {
   QString errMsg = QObject::tr("Non retrievable DataProvider.");
   TERRAMA2_LOG_ERROR() << errMsg;

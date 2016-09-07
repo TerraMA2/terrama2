@@ -65,7 +65,7 @@ namespace terrama2
         DataAccessorGrid& operator=(DataAccessorGrid&& other) { DataAccessor::operator=(std::move(other)); return *this; }
 
         //! Returns a GridSeries filtered by Filter
-        virtual GridSeriesPtr getGridSeries(const Filter& filter);
+        virtual GridSeriesPtr getGridSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover);
 
       protected:
         // Doc in base class

@@ -41,7 +41,8 @@ int main(int argc, char* argv[])
 
   //accessing data
   terrama2::core::DataAccessorDcpToa5 accessor(dataProviderPtr, dataSeriesPtr);
-  terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+  auto remover = std::make_shared<terrama2::core::FileRemover>();
+  terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
 
   assert(dcpSeries->dcpSeriesMap().size() == 1);
 
