@@ -14,6 +14,14 @@ var Database = require('./../config/Database');
  */
 var nodeContext = process.argv[2];
 
+/**
+ * It defines which port nodejs should use. When this variables is used, it overrides port number from {@link config/config.terrama2}
+ */
+var nodeContextPort = process.argv[3];
+
+// setting currentContext
+Database.setCurrentContext(nodeContext);
+
 Database.init(nodeContext).then(function (sequelize) {
   var app = require('../app');
   var io = require('../io');
@@ -24,6 +32,17 @@ Database.init(nodeContext).then(function (sequelize) {
   var PluginLoader = require("../core/PluginLoader");
   var DataManager = require("../core/DataManager");
   var TcpManager = require("../core/TcpManager");
+  var PortScanner = require("./../core/PortScanner");
+
+  var currentContext = Database.getContextConfig();
+
+  var debugMessage = "";
+
+  if (PortScanner.isValidPort(currentContext.port)) {
+    portNumber = currentContext.port;
+  } else {
+    debugMessage = "No valid port found. The default port " + portNumber + " will be used";
+  }
 
   /**
    * Get port from environment and store in Express.
@@ -48,7 +67,11 @@ Database.init(nodeContext).then(function (sequelize) {
         process.exit(1);
         return;
       }
-      console.log("Initializing TerraMA2");
+
+      if (debugMessage) {
+        console.log(debugMessage);
+      }
+      console.log("Initializing TerraMA2 on port " + port);
       /**
        * Listen on provided port, on all network interfaces.
        */

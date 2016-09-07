@@ -26,6 +26,13 @@ var Database = function(pathToConfig) {
    * @type {Object} config
    */
   this.config = JSON.parse(fs.readFileSync(pathToConfig, 'utf-8'));
+
+  /**
+   * It defines a current context key
+   * 
+   * @type {string}
+   */
+  this.currentContext = "default";
 };
 
 /**
@@ -47,37 +54,55 @@ Database.prototype.getORM = function() {
 };
 
 /**
+ * It retrieves a current context config
+ * 
+ * @returns {Object}
+ */
+Database.prototype.getContextConfig = function() {
+  return this.config[this.currentContext];
+}
+
+/**
+ * It sets current terrama2 context
+ *
+ * @throws {Error} When a contexts is not in config.terrama2 
+ * @param {string} context
+ * @returns {void}
+ */
+Database.prototype.setCurrentContext = function(context) {
+  if (!context) {
+    return;
+  }
+  // checking if there is a context in configuration file
+  if (this.config && !this.config.hasOwnProperty(context)) {
+    var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/config.terrama2\"", context);
+    throw new Error(msg);
+  }
+
+  this.currentContext = context;
+}
+
+/**
  * It initializes database, creating database, schema and postgis support. Once prepared, it retrieves a ORM instance
  * 
- * @param {string?} context - It represents which config context should be initialized. {@link webapp/config/config.terrama2}
  * @returns {Promise<Connection>}
  */
-Database.prototype.init = function(context) {
+Database.prototype.init = function() {
   var self = this;
-
-  // If there is no context, set to "default"
-  if (!context) {
-    console.info("No context selected. It will use \"default\". To change it, call npm start mycustomcontext. Be sure that your custom context exists in config/config.terrama2")
-    context = "default";
-  }
 
   return new Promise(function(resolve, reject) {
     if (self.isInitialized()) {
       return resolve(sequelize);
     }
 
-    // checking if there is a context in configuration file
-    if (self.config && !self.config.hasOwnProperty(context)) {
-      var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/config.terrama2\"", context);
-      return reject(new Error(msg));
-    }
+    var currentContext = self.getContextConfig();
 
     /**
      * Current database configuration context
      * 
      * @type {Object}
      */
-    var contextConfig = self.config[context];
+    var contextConfig = currentContext.db;
 
     var schema = contextConfig.define.schema;
     var databaseName = contextConfig.database;
