@@ -5,7 +5,7 @@ module.exports = function(sequelize, DataTypes) {
       frequency_unit: DataTypes.STRING,
       discard_before: DataTypes.DATE,
       discard_after: DataTypes.DATE,
-      region: DataTypes.GEOMETRY('POLYGON', 4326),
+      region: DataTypes.GEOMETRY('POLYGON'),
       by_value: DataTypes.DECIMAL
     },
     {
