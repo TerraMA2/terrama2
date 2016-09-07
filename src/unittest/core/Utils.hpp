@@ -30,6 +30,9 @@
 #ifndef __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
 #define __TERRAMA2_UNITTEST_CORE_UTILS_HPP__
 
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terrama2/core/utility/DataRetrieverFactory.hpp>
+
 class DataRetrieverFactoryRaii
 {
   public:
@@ -54,8 +57,7 @@ class DataRetrieverFactoryRaii
 class DataSourceFactoryRaii
 {
   public:
-    DataSourceFactoryRaii(const std::string& type,
-                                        const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
+    DataSourceFactoryRaii(const std::string& type, const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
     {
       if(te::da::DataSourceFactory::find(type_))
       {
