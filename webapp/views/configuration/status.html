@@ -56,7 +56,7 @@
 
         <terrama2-table-header link="linkToAdd"></terrama2-table-header>
 
-        <terrama2-table-view expression="element in model | filter:searchInput track by $index">
+        <terrama2-table-view expression="element in model | filter:searchInput | orderBy: 'last_process_timestamp' track by $index">
           <terrama2-td title="">
             <img ng-if="iconFn(element)" ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
           </terrama2-td>
