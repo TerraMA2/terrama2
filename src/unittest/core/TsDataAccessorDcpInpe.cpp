@@ -49,6 +49,7 @@
 #include "MockDataSource.hpp"
 #include "MockDataSourceTransactor.hpp"
 #include "MockDataSet.hpp"
+#include "Utils.hpp"
 
 // QT
 #include <QObject>
@@ -65,52 +66,6 @@
 using ::testing::Return;
 using ::testing::_;
 
-class RaiiTsDataAccessorDcpInpe
-{
-  public:
-
-    RaiiTsDataAccessorDcpInpe(const std::string& dataProviderType,
-                              const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
-      : dataProviderType_(dataProviderType), f_(f)
-    {
-      terrama2::core::DataRetrieverFactory::getInstance().add(dataProviderType_, f_);
-    }
-
-    ~RaiiTsDataAccessorDcpInpe()
-    {
-      terrama2::core::DataRetrieverFactory::getInstance().remove(dataProviderType_);
-    }
-
-  private:
-    std::string dataProviderType_;
-    terrama2::core::DataRetrieverFactory::FactoryFnctType f_;
-};
-
-class RaiiDataSourceTsDataAccessorDcpInpe
-{
-  public:
-    RaiiDataSourceTsDataAccessorDcpInpe(const std::string& type,
-                                        const te::da::DataSourceFactory::FactoryFnctType& ft ) : type_(type), ft_(ft)
-    {
-      if(te::da::DataSourceFactory::find(type_))
-      {
-        te::da::DataSourceFactory::remove(type_);
-        te::da::DataSourceFactory::add(type_,ft_);
-      }
-      else te::da::DataSourceFactory::add(type_,ft_);
-    }
-
-    ~RaiiDataSourceTsDataAccessorDcpInpe()
-    {
-      te::da::DataSourceFactory::remove(type_);
-    }
-
-  private:
-    std::string type_;
-    te::da::DataSourceFactory::FactoryFnctType ft_;
-};
-
-
 te::da::MockDataSet* create_MockDataSet()
 {
   te::da::MockDataSet* mockDataSet(new ::testing::NiceMock<te::da::MockDataSet>());
@@ -118,21 +73,6 @@ te::da::MockDataSet* create_MockDataSet()
   ON_CALL(*mockDataSet, moveNext()).WillByDefault(::testing::Return(false));
 
   return mockDataSet;
-}
-
-te::da::MockDataSourceTransactor* create_MockDataSourceTransactor()
-{
-  te::da::MockDataSourceTransactor* mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
-
-  std::vector<std::string> dataSetNames;
-  dataSetNames.push_back("30885");
-  std::string name = "30885";
-
-  EXPECT_CALL(*mockDataSourceTransactor, getDataSetNames()).WillOnce(::testing::Return(dataSetNames));
-  EXPECT_CALL(*mockDataSourceTransactor, DataSetTypePtrReturn()).WillOnce(::testing::Return(new te::da::DataSetType(name)));
-  ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&create_MockDataSet));
-
-  return mockDataSourceTransactor;
 }
 
 void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
@@ -144,7 +84,7 @@ void TsDataAccessorDcpInpe::TestFailAddNullDataAccessorDcpInpe()
 
     QFAIL("Exception expected!");
   }
-  catch(const terrama2::core::DataAccessorException& e)
+  catch(const terrama2::core::DataAccessorException&)
   {
 
   }
@@ -159,136 +99,75 @@ void TsDataAccessorDcpInpe::TestFailDataProviderNull()
 {
   try
   {
-    //DataSeries information
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-
-    //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(nullptr, dataSeriesPtr);
-
-    QFAIL("Exception expected!");
-  }
-  catch(const terrama2::core::DataAccessorException& e)
-  {
-
-  }
-  catch(...)
-  {
-    QFAIL("Unexpected exception!");
-  }
-  return;
-}
-
-void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
-{
-  try
-  {
-    //DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-
-    //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, nullptr);
-
-    QFAIL("Exception expected!");
-  }
-  catch(const terrama2::core::DataAccessorException& e)
-  {
-
-  }
-  catch(...)
-  {
-    QFAIL("Unexpected exception!");
-  }
-  return;
-}
-
-void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
-{
-  try
-  {
-    //DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-
-    //DataSeries information
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("DCP");
-
-    QFAIL("Exception expected!");
-  }
-  catch(const terrama2::core::SemanticsException& e)
-  {
-
-  }
-  catch(...)
-  {
-    QFAIL("Unexpected exception!");
-  }
-  return;
-}
-
-void TsDataAccessorDcpInpe::TestOKDataRetrieverValid()
-{
-  try
-  {
-    //DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri+=TERRAMA2_DATA_DIR;
-    dataProvider->uri+="/PCD_serrmar_INPE";
-
-    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "MOCK";
-    dataProvider->active = true;
-
-    //DataSeries information
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-    dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
-
-    terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
-    dataSet->active = true;
-    dataSet->format.emplace("mask", "30885.txt");
-    dataSet->format.emplace("timezone", "+00");
-
-    dataSeries->datasetList.emplace_back(dataSet);
-
-    //empty filter
-    terrama2::core::Filter filter;
-
-    //accessing data
-    terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
-
-    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
-
-    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
-
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
-
-    RaiiTsDataAccessorDcpInpe raiiDataRetriever("MOCK",makeMock);
+    terrama2::core::DataSeriesPtr dataSeriesPtr(new terrama2::core::DataSeries());
 
     try
     {
-      auto remover = std::make_shared<terrama2::core::FileRemover>();
-      terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
+      terrama2::core::DataAccessorDcpInpe accessor(nullptr, dataSeriesPtr);
+      QFAIL("Exception expected!");
+    }
+    catch(const terrama2::core::DataAccessorException&)
+    {
+
     }
     catch(...)
     {
       QFAIL("Unexpected exception!");
     }
   }
-  catch(...)
+  catch (...)
   {
-    QFAIL("Unexpected exception not related to the method getDcpSeries!");
+    QFAIL("Unexpected exception!");
   }
 
-  return;
+}
 
+void TsDataAccessorDcpInpe::TestFailDataSeriesNull()
+{
+  try
+  {
+    terrama2::core::DataProviderPtr dataProviderPtr(new terrama2::core::DataProvider());
+
+    try
+    {
+      terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, nullptr);
+      QFAIL("Exception expected!");
+    }
+    catch(const terrama2::core::DataAccessorException&)
+    {
+
+    }
+    catch(...)
+    {
+      QFAIL("Unexpected exception!");
+    }
+  }
+  catch (...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+
+}
+
+void TsDataAccessorDcpInpe::TestFailDataSeriesSemanticsInvalid()
+{
+  //FIXME: move this test to the semantics test
+  try
+  {
+    auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
+    semanticsManager.getSemantics("DCP");
+
+    QFAIL("Exception expected!");
+  }
+  catch(const terrama2::core::SemanticsException&)
+  {
+
+  }
+  catch(...)
+  {
+    QFAIL("Unexpected exception!");
+  }
+  return;
 }
 
 void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
@@ -312,16 +191,16 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "30885.txt");
-    dataSet->format.emplace("timezone", "+00");
+    dataSet->format.emplace("mask", "mockMask");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
     //empty filter
     terrama2::core::Filter filter;
 
-    QString errMsg = QObject::tr("Non retrievable DataRetriever.");
     terrama2::core::NotRetrivableException exceptionMock;
+
+    QString errMsg = QObject::tr("Non retrievable DataRetriever.");
     exceptionMock << terrama2::ErrorDescription(errMsg);
 
     //accessing data
@@ -334,11 +213,12 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock);
 
-    RaiiTsDataAccessorDcpInpe raiiDataRetriever("MOCK",makeMock);
+    DataRetrieverFactoryRaii raiiDataRetriever("MOCK",makeMock);
+
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
 
     try
     {
-      auto remover = std::make_shared<terrama2::core::FileRemover>();
       terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
@@ -351,9 +231,6 @@ void TsDataAccessorDcpInpe::TestFailDataRetrieverInvalid()
   {
     QFAIL("Unexpected exception!");
   }
-
-  return;
-
 }
 
 void TsDataAccessorDcpInpe::TestFailDataSourceInvalid()
@@ -363,6 +240,7 @@ void TsDataAccessorDcpInpe::TestFailDataSourceInvalid()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    //TODO: using a real dir, can be improved using some mock access
     dataProvider->uri = "file://";
     dataProvider->uri+=TERRAMA2_DATA_DIR;
     dataProvider->uri+="/PCD_serrmar_INPE";
@@ -380,7 +258,6 @@ void TsDataAccessorDcpInpe::TestFailDataSourceInvalid()
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
     dataSet->format.emplace("mask", "30885.txt");
-    dataSet->format.emplace("timezone", "+00");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -392,18 +269,18 @@ void TsDataAccessorDcpInpe::TestFailDataSourceInvalid()
 
     std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
-    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
-    EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
-    EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(false));
-    EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
+    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillOnce(Return());
+    EXPECT_CALL(*mock_, open()).WillOnce(Return());
+    EXPECT_CALL(*mock_, isOpened()).WillOnce(Return(false));
+    EXPECT_CALL(*mock_, close()).WillOnce(Return());
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
+    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
 
-    RaiiDataSourceTsDataAccessorDcpInpe raiiDataSource("OGR",makeMock);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
 
     try
     {
-      auto remover = std::make_shared<terrama2::core::FileRemover>();
       terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
@@ -416,9 +293,6 @@ void TsDataAccessorDcpInpe::TestFailDataSourceInvalid()
   {
     QFAIL("Unexpected exception!");
   }
-
-  return;
-
 }
 
 void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
@@ -428,6 +302,7 @@ void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
+    //TODO: using a real dir, can be improved using some mock access
     dataProvider->uri = "file://";
     dataProvider->uri+=TERRAMA2_DATA_DIR;
     dataProvider->uri+="/PCD_serrmar_INPE";
@@ -445,7 +320,6 @@ void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
     dataSet->format.emplace("mask", "30885.txt");
-    dataSet->format.emplace("timezone", "+00");
 
     dataSeries->datasetList.emplace_back(dataSet);
 
@@ -456,20 +330,30 @@ void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
     terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
 
     std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
+    std::unique_ptr<te::da::MockDataSourceTransactor> mockDataSourceTransactor(new ::testing::NiceMock<te::da::MockDataSourceTransactor>());
 
-    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
-    EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
-    EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*mock_, DataSourceTransactoPtrReturn()).WillRepeatedly(::testing::Invoke(&create_MockDataSourceTransactor));
-    EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
+    std::string name = "mock";
+    std::vector<std::string> dataSetNames = {name};
+
+    EXPECT_CALL(*mockDataSourceTransactor, getDataSetNames()).WillOnce(::testing::Return(dataSetNames));
+    EXPECT_CALL(*mockDataSourceTransactor, DataSetTypePtrReturn()).WillOnce(::testing::Return(new te::da::DataSetType(name)));
+    ON_CALL(*mockDataSourceTransactor, DataSetPtrReturn()).WillByDefault(::testing::Invoke(&create_MockDataSet));
+
+    auto create_MockDataSourceTransactor = [](te::da::MockDataSourceTransactor* mockTransactor)->te::da::MockDataSourceTransactor* { return mockTransactor; };
+
+    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillOnce(Return());
+    EXPECT_CALL(*mock_, open()).WillOnce(Return());
+    EXPECT_CALL(*mock_, isOpened()).WillOnce(Return(true));
+    EXPECT_CALL(*mock_, DataSourceTransactoPtrReturn()).WillOnce(::testing::Invoke(std::bind(create_MockDataSourceTransactor, mockDataSourceTransactor.release())));
+    EXPECT_CALL(*mock_, close()).WillOnce(Return());
 
     auto makeMock = std::bind(te::da::MockDataSource::makeMockDataSource, mock_.release());
+    DataSourceFactoryRaii raiiDataSource("OGR",makeMock);
 
-    RaiiDataSourceTsDataAccessorDcpInpe raiiDataSource("OGR",makeMock);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
 
     try
     {
-      auto remover = std::make_shared<terrama2::core::FileRemover>();
       terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
       QFAIL("Exception expected!");
     }
@@ -491,7 +375,10 @@ void TsDataAccessorDcpInpe::TestOK()
 {
   try
   {
-    te::da::DataSourceFactory::add(OGR_DRIVER_IDENTIFIER, te::ogr::Build);
+    // add OGR build to the factory if not present
+    if(!te::da::DataSourceFactory::find(OGR_DRIVER_IDENTIFIER))
+      te::da::DataSourceFactory::add(OGR_DRIVER_IDENTIFIER, te::ogr::Build);
+
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -555,13 +442,14 @@ void TsDataAccessorDcpInpe::TestOK()
 
     file.close();
 
-    // Get Number Properties New File.
-    int numberPropertiesNewFile = teDataSet->getNumProperties();
 
-    // Get Number Lines New File.
+
+    // compare number of lines of the file and of the dataset
     int numberLinesNewFile = teDataSet->size();
-
     QCOMPARE(numberLinesOriginalFile,numberLinesNewFile);
+
+    // compare number of properties of the file and of the dataset
+    int numberPropertiesNewFile = teDataSet->getNumProperties();
     QCOMPARE(numberPropertiesOriginalFile.size(),numberPropertiesNewFile);
 
   }
