@@ -490,6 +490,21 @@ angular.module('terrama2.analysis.registration', [
       });
     };
 
+    $scope.onAreaOfInterestChange = function() {
+      // resetting area of interest values
+      $scope.analysis.grid.area_of_interest_bounded = {};
+      $scope.analysis.grid.area_of_interest_data_series_id = null;
+    };
+
+    /**
+     * It is triggered when a resolution combobox has been changed. It aims to clear the resolution values from scope model.
+     */
+    $scope.onResolutionChanged = function() {
+      $scope.analysis.grid.resolution_data_series_id = null;
+      $scope.analysis.grid.resolution_x = null;
+      $scope.analysis.grid.resolution_y = null;
+    };
+
     var makeDialog = function(level, bodyMessage, show, title) {
       $scope.alertBox.title = title || "Analysis Registration";
       $scope.alertBox.message = bodyMessage;
@@ -648,6 +663,10 @@ angular.module('terrama2.analysis.registration', [
         var form = $scope.forms.influenceForm;
         if (form.$invalid) {
           formErrorDisplay(form);
+          return;
+        }
+      } else if ($scope.analysis.type_id == globals.enums.AnalysisType.GRID) {
+        if ($scope.forms.gridForm.$invalid) {
           return;
         }
       }

@@ -196,7 +196,7 @@
   line-height: 1.428571429 !important;
 }
 
-.ace_editor { height: 305px !important; }
+.ace_editor { height: 320px !important; }
 
 .terrama2-schema-form {
 }
@@ -220,3 +220,11 @@
   /*background-color: blue;*/
   /*display: none;*/
 /*}*/
+
+.terrama2-fluid {
+  position: fixed !important;
+  z-index: 1050 !important;
+  width: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+}

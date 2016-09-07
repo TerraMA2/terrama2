@@ -1,10 +1,10 @@
 'use strict';
 
-angular.module("terrama2.components.messagebox", [])
+angular.module("terrama2.components.messagebox", ['terrama2'])
   .run(function($templateCache) {
     // <terrama2-alert-box>
     $templateCache.put('message-box.html',
-    '<div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel">' +
+    '<div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel" terrama2-fluid>' +
       '<button type="button" class="close" ng-click="close()">×</button>' +
       '<h4><i class="icon fa" ng-class="alertIcon()"></i> {{ title }}</h4>' +
       '<div class="row">' +

@@ -58,27 +58,29 @@
                 {{ i18n.__('Stop all') }}
         </button>
 
-        <a ng-href="{{ linkToAdd }}"
-           class="btn btn-default pull-right"
-           data-toggle="tooltip"
-           data-placement="top"
-           title='{{ i18n.__("Add new") }}'
-           style="margin-top: 24px;">
-           <i class="fa fa-plus"></i>
-         </a>
-         <button class="btn btn-default pull-right"
+        <button class="btn btn-default pull-right"
                  ng-show="extra.import"
-                 style="margin-top: 24px; margin-right: 10px;"
+                 style="margin-top: 24px;"
                  data-toggle="tooltip"
                  data-placement="top"
                  title='{{ i18n.__("Import") }}'
                  ng-click="extra.import()"
                  ng-disabled="extra.isImporting">
-           <span class="loading ng-hide" ng-show="extra.isImporting">
-             <i class="fa fa-refresh fa-spin"></i>
-           </span>
-           <i class="fa fa-upload"></i>
-         </button>
+          <span class="loading ng-hide" ng-show="extra.isImporting">
+            <i class="fa fa-refresh fa-spin"></i>
+          </span>
+          <i class="fa fa-upload"></i>
+        </button>
+        
+        <a ng-href="{{ linkToAdd }}"
+           class="btn btn-default pull-right"
+           data-toggle="tooltip"
+           data-placement="top"
+           title='{{ i18n.__("Add new") }}'
+           style="margin-top: 24px;margin-right: 10px;">
+           <i class="fa fa-plus"></i>
+         </a>
+         
       </div>
     </div>
   </div>
@@ -94,7 +96,7 @@
           <td ng-if="extra.export"></td>
           <td ng-if="isFunction(remove)">
         </tr>
-        <tr ng-repeat="element in model | filter:searchInput | orderBy: 'last_process_timestamp' track by $index">
+        <tr ng-repeat="element in model | filter:searchInput | orderBy: orderElementby track by $index">
           <td ng-show="isFunction(icon())" style="width: 50px;">
             <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" width="{{ width }}" height="{{ height }}"/>
             <span ng-if="iconProperties.type === 'icon'" class="label">
@@ -107,8 +109,8 @@
           </td>
 
           <td ng-if="extra.project" class="pull-cell-left">
-            <a ng-href="{{ extra.project.activate(element) }}" class="btn btn-primary btn-sm">
-              <i class="fa fa-magic"></i> {{ i18n.__("Activate") }}
+            <a ng-href="{{ extra.project.edit(element) }}" class="btn btn-default btn-sm">
+              <i class="fa fa-pencil"></i> {{ i18n.__("Edit") }}
             </button>
           </td>
 

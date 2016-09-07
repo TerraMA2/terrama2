@@ -36,7 +36,7 @@
       };
 
       $scope.link = function(object) {
-        return "/configuration/projects/edit/" + object.name;
+        return "/configuration/projects/" + object.name + "/activate";
       };
       $scope.iconProperties = {};
 
@@ -114,8 +114,8 @@
         },
 
         project: {
-          activate: function(element) {
-            return "/configuration/projects/" + element.name + "/activate"; 
+          edit: function(element) {
+            return "/configuration/projects/edit/" + element.name;
           }
         },
 

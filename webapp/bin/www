@@ -1,12 +1,28 @@
 #!/usr/bin/env node
 
+'use strict';
+
 /**
  * Module dependencies.
  */
 
 var Database = require('./../config/Database');
 
-Database.init().then(function (sequelize) {
+/**
+ * It defines which context nodejs should initialize. The context names are available in {@link config/config.terrama2}
+ * @typeof {string}
+ */
+var nodeContext = process.argv[2];
+
+/**
+ * It defines which port nodejs should use. When this variables is used, it overrides port number from {@link config/config.terrama2}
+ */
+var nodeContextPort = process.argv[3];
+
+// setting currentContext
+Database.setCurrentContext(nodeContext);
+
+Database.init(nodeContext).then(function (sequelize) {
   var app = require('../app');
   var io = require('../io');
   var debug = require('debug')('webapp:server');
@@ -16,18 +32,27 @@ Database.init().then(function (sequelize) {
   var PluginLoader = require("../core/PluginLoader");
   var DataManager = require("../core/DataManager");
   var TcpManager = require("../core/TcpManager");
+  var PortScanner = require("./../core/PortScanner");
+
+  var currentContext = Database.getContextConfig();
+
+  var debugMessage = "";
+
+  if (PortScanner.isValidPort(currentContext.port)) {
+    portNumber = currentContext.port;
+  } else {
+    debugMessage = "No valid port found. The default port " + portNumber + " will be used";
+  }
 
   /**
    * Get port from environment and store in Express.
    */
-
   var port = normalizePort(process.env.PORT || portNumber);
   app.set('port', port);
 
   /**
    * Create HTTP server.
    */
-
   var server = http.createServer(app);
 
   PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
@@ -42,7 +67,11 @@ Database.init().then(function (sequelize) {
         process.exit(1);
         return;
       }
-      console.log("Initializing TerraMA2");
+
+      if (debugMessage) {
+        console.log(debugMessage);
+      }
+      console.log("Initializing TerraMA2 on port " + port);
       /**
        * Listen on provided port, on all network interfaces.
        */
@@ -90,7 +119,6 @@ Database.init().then(function (sequelize) {
   /**
    * Normalize a port into a number, string, or false.
    */
-
   function normalizePort(val) {
     var port = parseInt(val, 10);
 
@@ -110,7 +138,6 @@ Database.init().then(function (sequelize) {
   /**
    * Event listener for HTTP server "error" event.
    */
-
   function onError(error) {
     if (error.syscall !== 'listen') {
       throw error;
@@ -145,7 +172,6 @@ Database.init().then(function (sequelize) {
   /**
    * Event listener for HTTP server "listening" event.
    */
-
   function onListening() {
     var addr = server.address();
     var bind = typeof addr === 'string'

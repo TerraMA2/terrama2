@@ -18,8 +18,9 @@ Plugin.prototype.initialize = function(pluginsPath) {
       try {
         fs.mkdirSync(path.join(__dirname, "../plugins"));
       } catch(e) {
-        if (e.code !== 'EEXIST')
+        if (e.code !== 'EEXIST') {
           console.log("Failed while creating plugins folder: " + e);
+        }
       }
 
       var unparsedDirectories = fs.readdirSync(pluginsPath);
@@ -38,10 +39,11 @@ Plugin.prototype.initialize = function(pluginsPath) {
               var json = JSON.parse(data);
 
               if (json.name && !self.plugin.plugins[json.name]) {
-                if (json.PluginClass)
+                if (json.PluginClass) {
                   self.plugin.load(dirPath, json);
-                else
+                } else {
                   console.log("Err: package.json does not have PluginClass. Skipping plugin " + dirPath);
+                }
               }
               else {
                 console.log("Err: package.json does not have name. Skipping plugin " + dirPath);
@@ -53,7 +55,7 @@ Plugin.prototype.initialize = function(pluginsPath) {
     } catch (e) {
       console.log("Exception occurred: " + e);
     } finally {
-      resolve();
+      return resolve();
     }
   });
 };

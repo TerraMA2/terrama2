@@ -26,23 +26,36 @@ Note: This repository contain the entire TerraMA², if you want just the web API
 
 - Access the webapp folder and run the following nodejs command:
 
-```
+```bash
 cd webapp
-npm install
+npm install # It install backend web dependencies
 ```
 
 Note: TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipulation. Make sure you have PostgreSQL database and PostGIS spatial extension installed before.
 
-By default, the ORM will use database settings located in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2). Edit it if necessary.
+In order to execute, check available contexts names in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2) (Feel free to add a new one following section [Configuration File](#configuration-file)).
 
-- Run the following command:
+After that, run ```npm start ContextName``` where **ContextName** is a key pointing to context credentials. 
+Example:
 
-```
-npm start
+```bash
+npm start # it will use default credentials
+npm start tests # it will use credentials of tests context
 ```
 
-- By default the API will run in the port 36000, you can change this in the file terrama2/webapp/bin/www:
+Remember that context name is optional. By default, TerraMA² will use ```default``` credentials;
 
-```
-var portNumber = '36000';
-```
+## Configuration File
+The TerraMA² Web settings can be found in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2).
+
+Key               | Description
+----------------- | -----------------------------------------------------------------
+ db               | Database credentials 
+ db.username      | username
+ db.password      | password 
+ db.host          | host of database 
+ db.port          | database port number 
+ db.dialect       | dialect database (postgres/mysql). **Only postgres supported.** 
+ db.define        | It represents a extra properties along database 
+ db.define.schema | A database schema 
+ port             | A TerraMA² Application Port Number 

@@ -20,7 +20,7 @@ angular.module('terrama2.ace', ['terrama2'])
 
         attrs.$observe('readonly', function (value) {
           editor.setReadOnly(!!value || value === '');
-        });
+        }); 
 
         var editorOptions = Object.assign({}, options);
         // defaults
