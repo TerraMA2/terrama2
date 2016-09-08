@@ -32,7 +32,7 @@
 // TerraMA2
 #include "Analysis.hpp"
 #include "DataManager.hpp"
-#include "PythonInterpreter.hpp"
+#include "python/PythonInterpreter.hpp"
 #include "Shared.hpp"
 
 // Python

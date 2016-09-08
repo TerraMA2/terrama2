@@ -35,7 +35,7 @@
 
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
-#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
 
 #include <terrama2/services/view/core/Service.hpp>
 #include <terrama2/services/view/core/DataManager.hpp>

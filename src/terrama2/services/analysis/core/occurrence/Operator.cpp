@@ -30,7 +30,7 @@
 
 // TerraMA2
 #include "Operator.hpp"
-#include "../Utils.hpp"
+#include "../utility/Utils.hpp"
 #include "../ContextManager.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/data-model/Filter.hpp"

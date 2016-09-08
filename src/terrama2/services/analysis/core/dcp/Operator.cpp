@@ -30,10 +30,10 @@
 
 
 #include "Operator.hpp"
-#include "../Utils.hpp"
+#include "../utility/Utils.hpp"
 #include "../Exception.hpp"
 #include "../ContextManager.hpp"
-#include "../PythonUtils.hpp"
+#include "../python/PythonUtils.hpp"
 #include "../../../../core/data-model/DataSetDcp.hpp"
 #include "../../../../core/data-model/Filter.hpp"
 #include "../../../../core/data-access/SynchronizedDataSet.hpp"

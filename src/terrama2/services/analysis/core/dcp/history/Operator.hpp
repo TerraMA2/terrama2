@@ -32,7 +32,7 @@
 #define __TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_OPERATOR_HPP__
 
 #include "../../BufferMemory.hpp"
-#include "../../PythonInterpreter.hpp"
+#include "../../python/PythonInterpreter.hpp"
 #include "../../Shared.hpp"
 
 // STL

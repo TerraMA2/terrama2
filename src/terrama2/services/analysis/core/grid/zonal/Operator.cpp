@@ -30,8 +30,8 @@
 
 
 #include "Operator.hpp"
-#include "../../Utils.hpp"
-#include "../../PythonInterpreter.hpp"
+#include "../../utility/Utils.hpp"
+#include "../../python/PythonInterpreter.hpp"
 #include "../../ContextManager.hpp"
 #include "../../MonitoredObjectContext.hpp"
 

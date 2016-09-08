@@ -36,7 +36,7 @@
 #include "../../Typedef.hpp"
 #include "../../Shared.hpp"
 #include "../../DataManager.hpp"
-#include "../../PythonInterpreter.hpp"
+#include "../../python/PythonInterpreter.hpp"
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/data-access/DataSetSeries.hpp"
 #include "../../../../../core/data-model/DataSetDcp.hpp"

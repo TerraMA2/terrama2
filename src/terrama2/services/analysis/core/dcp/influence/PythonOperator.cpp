@@ -29,7 +29,7 @@
 
 #include "PythonOperator.hpp"
 #include "Operator.hpp"
-#include "../../PythonUtils.hpp"
+#include "../../python/PythonUtils.hpp"
 
 boost::python::list terrama2::services::analysis::core::dcp::influence::python::byAttribute(const std::string& dataSeriesName, boost::python::list attributeList)
 {

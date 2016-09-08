@@ -31,7 +31,7 @@
 
 #include "Operator.hpp"
 #include "../Operator.hpp"
-#include "../../Utils.hpp"
+#include "../../utility/Utils.hpp"
 #include "../../ContextManager.hpp"
 
 
@@ -41,7 +41,7 @@
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/Shared.hpp"
 #include "../../../../../core/utility/Logger.hpp"
-#include "../../PythonUtils.hpp"
+#include "../../python/PythonUtils.hpp"
 
 
 // TerraLib

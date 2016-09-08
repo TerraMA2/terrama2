@@ -31,13 +31,13 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_PYTHONINTERPRETER_HPP__
 
-#include "Analysis.hpp"
-#include "OperatorCache.hpp"
-#include "BaseContext.hpp"
-#include "GridContext.hpp"
-#include "MonitoredObjectContext.hpp"
-#include "Typedef.hpp"
-#include "Utils.hpp"
+#include "../Analysis.hpp"
+#include "../OperatorCache.hpp"
+#include "../BaseContext.hpp"
+#include "../GridContext.hpp"
+#include "../MonitoredObjectContext.hpp"
+#include "../Typedef.hpp"
+#include "../utility/Utils.hpp"
 
 // STL
 #include <vector>

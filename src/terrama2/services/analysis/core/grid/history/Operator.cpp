@@ -34,7 +34,7 @@
 #include "../../ContextManager.hpp"
 #include "../../../../../core/data-model/DataSetGrid.hpp"
 #include "../../../../../core/utility/Logger.hpp"
-#include "../../Utils.hpp"
+#include "../../utility/Utils.hpp"
 
 // TerraLib
 #include <terralib/raster/Grid.h>

@@ -33,7 +33,7 @@
 
 // TerraMA2
 #include "../../Analysis.hpp"
-#include "../../Utils.hpp"
+#include "../../utility/Utils.hpp"
 #include "../../BufferMemory.hpp"
 
 // STL

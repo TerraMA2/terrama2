@@ -32,7 +32,7 @@
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_HISTORY_OPERATOR_HPP__
 
 // TerraMA2
-#include "../../PythonInterpreter.hpp"
+#include "../../python/PythonInterpreter.hpp"
 #include "../../Analysis.hpp"
 
 // STL

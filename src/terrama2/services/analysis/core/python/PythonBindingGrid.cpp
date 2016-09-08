@@ -28,15 +28,15 @@
 */
 
 #include "PythonBindingGrid.hpp"
-#include "grid/Operator.hpp"
-#include "grid/history/Operator.hpp"
-#include "grid/history/interval/Operator.hpp"
-#include "grid/forecast/Operator.hpp"
-#include "grid/forecast/interval/Operator.hpp"
-#include "grid/zonal/Operator.hpp"
-#include "grid/zonal/history/Operator.hpp"
-#include "grid/zonal/history/ratio/Operator.hpp"
-#include "grid/zonal/history/prec/Operator.hpp"
+#include "../grid/Operator.hpp"
+#include "../grid/history/Operator.hpp"
+#include "../grid/history/interval/Operator.hpp"
+#include "../grid/forecast/Operator.hpp"
+#include "../grid/forecast/interval/Operator.hpp"
+#include "../grid/zonal/Operator.hpp"
+#include "../grid/zonal/history/Operator.hpp"
+#include "../grid/zonal/history/ratio/Operator.hpp"
+#include "../grid/zonal/history/prec/Operator.hpp"
 
 void terrama2::services::analysis::core::python::Grid::registerFunctions()
 {

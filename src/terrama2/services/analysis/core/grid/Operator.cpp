@@ -31,9 +31,9 @@
 #include "../ContextManager.hpp"
 #include "../../../../core/data-model/DataSetGrid.hpp"
 #include "../../../../core/utility/Logger.hpp"
-#include "../Utils.hpp"
+#include "../utility/Utils.hpp"
 #include "../GridContext.hpp"
-#include "../PythonInterpreter.hpp"
+#include "../python/PythonInterpreter.hpp"
 
 #include <terralib/raster/Band.h>
 #include <terralib/raster/BandProperty.h>
@@ -56,17 +56,22 @@ double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rs
 
 double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName)
 {
+  auto& contextManager = ContextManager::getInstance();
+
+
+
+
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
   terrama2::services::analysis::core::GridContextPtr context;
   try
   {
-    context = ContextManager::getInstance().getGridContext(cache.analysisHashCode);
+    context = contextManager.getGridContext(cache.analysisHashCode);
   }
   catch(const terrama2::Exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    contextManager.addError(cache.analysisHashCode, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return NAN;
   }
 

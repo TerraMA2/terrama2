@@ -30,7 +30,7 @@
 // TerraMA2
 
 #include "AnalysisExecutor.hpp"
-#include "PythonInterpreter.hpp"
+#include "python/PythonInterpreter.hpp"
 #include "DataManager.hpp"
 #include "ThreadPool.hpp"
 #include "ContextManager.hpp"
