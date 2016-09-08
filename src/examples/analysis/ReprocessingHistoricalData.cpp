@@ -107,9 +107,8 @@ int main(int argc, char* argv[])
   analysis->name = "Analysis";
   analysis->active = true;
 
-  std::string script = "if analysis == 0: print(\"Analysis bugada\")\n"
-          "moBuffer = Buffer()\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"1d\", \"\")\n"
+  std::string script = "moBuffer = Buffer()\n"
+          "x = occurrence.count(\"Occurrence\", moBuffer, \"6h\", \"\")\n"
           "add_value(\"count\", x)\n";
 
 
