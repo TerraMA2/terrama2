@@ -32,6 +32,7 @@
 #include "../../../../core/data-model/DataSetGrid.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../utility/Utils.hpp"
+#include "../utility/Verify.hpp"
 #include "../GridContext.hpp"
 #include "../python/PythonInterpreter.hpp"
 
@@ -56,13 +57,20 @@ double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rs
 
 double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName)
 {
-  auto& contextManager = ContextManager::getInstance();
-
-
-
-
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+
+  try
+  {
+    terrama2::core::verify::analysisGrid(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return NAN;
+  }
 
   terrama2::services::analysis::core::GridContextPtr context;
   try

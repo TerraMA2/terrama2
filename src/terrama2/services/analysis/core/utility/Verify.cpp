@@ -36,12 +36,27 @@
 #include <QObject>
 #include <QString>
 
-void terrama2::core::verify::analysisType( terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType)
+void terrama2::core::verify::analysisType(terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType)
 {
   if(analysis->type != analysisType)
   {
-    QString errMsg = QObject::tr("Use of invalid operator for this analysis.");
+    QString errMsg = QObject::tr("Wrong analysis type.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw VerifyException() << terrama2::ErrorDescription(errMsg);
   }
+}
+
+void terrama2::core::verify::analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis)
+{
+  analysisType(analysis, terrama2::services::analysis::core::AnalysisType::GRID_TYPE);
+}
+
+void terrama2::core::verify::analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis)
+{
+  analysisType(analysis, terrama2::services::analysis::core::AnalysisType::MONITORED_OBJECT_TYPE);
+}
+
+void terrama2::core::verify::analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis)
+{
+  analysisType(analysis, terrama2::services::analysis::core::AnalysisType::DCP_TYPE);
 }

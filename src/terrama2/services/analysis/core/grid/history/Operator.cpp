@@ -47,6 +47,19 @@
 std::vector<double> terrama2::services::analysis::core::grid::history::sample(const OperatorCache& cache, const std::string& dataSeriesName, const std::string& dateFilterBegin,
 const std::string& dateFilterEnd)
 {
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+
+  try
+  {
+    terrama2::core::verify::analysisGrid(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return NAN;
+  }
+
   terrama2::services::analysis::core::GridContextPtr context;
   try
   {
@@ -156,6 +169,19 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
 
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+
+  try
+  {
+    terrama2::core::verify::analysisGrid(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return NAN;
+  }
+  
   terrama2::services::analysis::core::GridContextPtr context;
   try
   {
