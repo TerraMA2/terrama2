@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
   outputDataSet->active = true;
   outputDataSet->id = 2;
   outputDataSet->format.emplace("table_name", "reprocessing_result");
-
+  outputDataSet->dataSeriesId = outputDataSeries->id;
   outputDataSeries->datasetList.emplace_back(outputDataSet);
 
 
@@ -107,7 +107,8 @@ int main(int argc, char* argv[])
   analysis->name = "Analysis";
   analysis->active = true;
 
-  std::string script = "moBuffer = Buffer()\n"
+  std::string script = "if analysis == 0: print(\"Analysis bugada\")\n"
+          "moBuffer = Buffer()\n"
           "x = occurrence.count(\"Occurrence\", moBuffer, \"1d\", \"\")\n"
           "add_value(\"count\", x)\n";
 
@@ -144,7 +145,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "sjc.shp");
+  dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
   dataSet->id = 1;
   dataSet->dataSeriesId = 1;
@@ -156,7 +157,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "NOME";
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   //DataProvider information
@@ -240,9 +241,9 @@ int main(int argc, char* argv[])
   service.start();
   service.addAnalysis(1);
 
-  QTimer timer;
+  /*QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(100000);
+  timer.start(100000);*/
   app.exec();
 
   terrama2::services::analysis::core::python::finalizeInterpreter();

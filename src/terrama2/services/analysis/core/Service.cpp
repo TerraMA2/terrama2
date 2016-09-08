@@ -33,18 +33,12 @@
 #include "AnalysisExecutor.hpp"
 #include "PythonInterpreter.hpp"
 #include "MonitoredObjectContext.hpp"
-#include "../../../core/utility/Raii.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
-#include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/StoragerManager.hpp"
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/utility/Logger.hpp"
 
-// QT
-#include <QUrl>
-
-// TerraLib
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
@@ -52,6 +46,8 @@ terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 {
   connectDataManager();
   mainThreadState_ = PyThreadState_Get();
+
+  storagerManager_ = std::make_shared<terrama2::core::StoragerManager>(dataManager_);
 }
 
 terrama2::services::analysis::core::Service::~Service()
@@ -198,7 +194,7 @@ void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysi
   try
   {
     auto analysisPtr = dataManager_->findAnalysis(analysisId);
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, logger_, startTime, analysisPtr, threadPool_, mainThreadState_));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, storagerManager_, logger_, startTime, analysisPtr, threadPool_, mainThreadState_));
   }
   catch(std::exception& e)
   {
@@ -223,7 +219,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
     if(analysis->reprocessingHistoricalData)
     {
-      //erasePreviousResult(analysis->outputDataSeriesId);
+      //erasePreviousResult(dataManager_, analysis->outputDataSeriesId);
 
       auto reprocessingHistoricalData = analysis->reprocessingHistoricalData;
 
@@ -291,74 +287,6 @@ void terrama2::services::analysis::core::Service::connectDataManager()
 
 void terrama2::services::analysis::core::Service::start(size_t threadNumber)
 {
-  terrama2::core::Service::start(threadNumber);
+  terrama2::core::Service::start(1);
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
-}
-
-void terrama2::services::analysis::core::Service::erasePreviousResult(DataSeriesId dataSeriesId)
-{
-  auto outputDataSeries = dataManager_->findDataSeries(dataSeriesId);
-  if(!outputDataSeries)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data series for analysis %1.").arg(dataSeriesId);
-    return;
-  }
-  auto outputDataProvider = dataManager_->findDataProvider(outputDataSeries->dataProviderId);
-  if(!outputDataProvider)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data provider for analysis %1.").arg(dataSeriesId);
-    return;
-  }
-
-  if(outputDataProvider->dataProviderType == "POSTGIS")
-  {
-    auto dataset = outputDataSeries->datasetList[0];
-    std::string tableName;
-
-    try
-    {
-      tableName = dataset->format.at("table_name");
-    }
-    catch(...)
-    {
-      QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataset->id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
-    }
-
-
-    QUrl url(outputDataProvider->uri.c_str());
-
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS"));
-
-    std::map<std::string, std::string> connInfo {{"PG_HOST", url.host().toStdString()},
-                                                 {"PG_PORT", std::to_string(url.port())},
-                                                 {"PG_USER", url.userName().toStdString()},
-                                                 {"PG_PASSWORD", url.password().toStdString()},
-                                                 {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
-                                                 {"PG_CONNECT_TIMEOUT", "4"},
-                                                 {"PG_CLIENT_ENCODING", "UTF-8"}
-    };
-
-
-    // RAII for open/closing the datasource
-    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-
-    if(!datasource->isOpened())
-    {
-      QString errMsg = QObject::tr("DataProvider could not be opened.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-
-    // get a transactor to interact to the data source
-    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-
-
-    if(transactor->dataSetExists(tableName))
-    {
-      transactor->dropDataSet(tableName);
-    }
-  }
-
 }

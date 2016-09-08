@@ -59,40 +59,45 @@ namespace terrama2
           \param analysis The analysis to be executed.
           \param threadPool Smart pointer to the thread pool.
         */
-        void runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, ThreadPoolPtr threadPool, PyThreadState* mainThreadState);
+        void runAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, ThreadPoolPtr threadPool, PyThreadState* mainThreadState);
 
         /*!
           \brief Prepare the context for a monitored object analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
+
           \param threadPool Smart pointer to the thread pool.
         */
-        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState);
+        void runMonitoredObjectAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState);
 
         /*!
           \brief Prepare the context for a DCP analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
+          \param startTime Start time of analysis execution.
+          \param analysis The analysis to be executed.
           \param threadPool Smart pointer to the thread pool.
         */
-        void runDCPAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState);
+        void runDCPAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState);
 
         /*!
           \brief Prepare the context for a grid analysis and run the analysis.
           \param dataManager A smart pointer to the data manager.
+          \param startTime Start time of analysis execution.
+          \param analysis The analysis to be executed.
           \param threadPool Smart pointer to the thread pool.
         */
-        void runGridAnalysis(DataManagerPtr shared_ptr, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime , ThreadPoolPtr threadPool, PyThreadState* mainThreadState);
+        void runGridAnalysis(DataManagerPtr shared_ptr, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime , ThreadPoolPtr threadPool, PyThreadState* mainThreadState);
 
         /*!
           \brief Reads the analysis result from context and stores it to the configured output dataset.
           \param dataManager A smart pointer to the data manager.
         */
-        void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, MonitoredObjectContextPtr context);
+        void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context);
 
         /*!
           \brief Reads the analysis result from context and stores it to the configured output dataset.
           \param dataManager A smart pointer to the data manager.
         */
-        void storeGridAnalysisResult(terrama2::services::analysis::core::GridContextPtr context);
+        void storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context);
 
 
       } // end namespace core
