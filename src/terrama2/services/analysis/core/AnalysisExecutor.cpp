@@ -38,11 +38,8 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
-#include "../../../core/utility/DataStoragerFactory.hpp"
-#include "../../../core/data-access/DataStorager.hpp"
+#include "../../../core/utility/StoragerManager.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
-#include "../../../impl/DataStoragerPostGis.hpp"
-#include "../../../impl/DataStoragerTiff.hpp"
 #include "GridContext.hpp"
 #include "MonitoredObjectContext.hpp"
 
@@ -62,8 +59,6 @@
 #include <terralib/memory/DataSet.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/dataaccess/dataset/UniqueKey.h>
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Raster.h>
 #include <terralib/raster/Grid.h>
@@ -71,7 +66,7 @@
 #include <terralib/dataaccess/utils/Utils.h>
 
 
-void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   RegisterId logId = 0;
   AnalysisHashCode analysisHashCode = analysis->hashCode(startTime);
@@ -93,17 +88,17 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
     {
       case AnalysisType::MONITORED_OBJECT_TYPE:
       {
-        runMonitoredObjectAnalysis(dataManager, analysis, startTime, threadPool, mainThreadState);
+        runMonitoredObjectAnalysis(dataManager, storagerManager, analysis, startTime, threadPool, mainThreadState);
         break;
       }
       case AnalysisType::PCD_TYPE:
       {
-        runDCPAnalysis(dataManager, analysis, startTime, threadPool, mainThreadState);
+        runDCPAnalysis(dataManager, storagerManager, analysis, startTime, threadPool, mainThreadState);
         break;
       }
       case AnalysisType::GRID_TYPE:
       {
-        runGridAnalysis(dataManager, analysis, startTime, threadPool, mainThreadState);
+        runGridAnalysis(dataManager, storagerManager, analysis, startTime, threadPool, mainThreadState);
         break;
       }
     }
@@ -176,7 +171,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   ContextManager::getInstance().clearContext(analysisHashCode);
 }
 
-void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
   ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
@@ -271,7 +266,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
 
 
-    storeMonitoredObjectAnalysisResult(dataManager, context);
+    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
   }
   catch(const terrama2::Exception& e)
   {
@@ -310,7 +305,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 }
 
 
-void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   // TODO: Ticket #433
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
@@ -318,7 +313,7 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
   throw Exception() << ErrorDescription(errMsg);
 }
 
-void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, MonitoredObjectContextPtr context)
+void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context)
 {
 
   auto errors = context->getErrors();
@@ -379,13 +374,6 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   {
     //TODO Paulo: Implement storager file
     throw terrama2::Exception() << ErrorDescription("NOT IMPLEMENTED YET");
-  }
-
-  auto storager = terrama2::core::DataStoragerFactory::getInstance().make(dataSeries->semantics.dataFormat, dataProvider);
-  if(!storager)
-  {
-    QString errMsg = QObject::tr("Could not create a DataStorager.");
-    throw terrama2::core::DataStoragerException() << ErrorDescription(errMsg);
   }
 
   auto attributes = context->getAttributes();
@@ -453,7 +441,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
   try
   {
-    storager->store(series, dataset);
+    storagerManager->store(series, dataset);
   }
   catch(const terrama2::Exception /*e*/)
   {
@@ -463,7 +451,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
 }
 
-void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::GridContext>(dataManager, analysis, startTime);
 
@@ -553,7 +541,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
     auto errors = context->getErrors();
     if(errors.empty())
-      storeGridAnalysisResult(context);
+      storeGridAnalysisResult(storagerManager, context);
   }
   catch(const terrama2::Exception& e)
   {
@@ -602,7 +590,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   PyEval_ReleaseLock();
 }
 
-void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::services::analysis::core::GridContextPtr context)
+void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context)
 {
   auto analysis = context->getAnalysis();
   if(!analysis)
@@ -679,8 +667,7 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::servi
 
   try
   {
-    terrama2::core::DataStoragerTiff storager(dataProvider);
-    storager.store(series, dataset);
+    storagerManager->store(series, dataset);
   }
   catch(const terrama2::Exception& /*e*/)
   {

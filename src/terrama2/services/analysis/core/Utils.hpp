@@ -164,6 +164,10 @@ namespace terrama2
         */
         double getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation);
 
+        /*!
+          \brief Erase content from previous analysis execution
+        */
+        void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId);
 
       } // end namespace core
     }   // end namespace analysis

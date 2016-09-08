@@ -72,6 +72,8 @@ namespace terrama2
         */
         virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const = 0;
 
+        virtual std::string getCompleteURI(DataSetPtr outputDataSet) const = 0;
+
       protected:
         DataProviderPtr dataProvider_;//!< Destination server information.
     };

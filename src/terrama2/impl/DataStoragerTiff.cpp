@@ -256,3 +256,9 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     te::rp::Copy2DiskRaster(*raster, output);
   }
 }
+
+std::string terrama2::core::DataStoragerTiff::getCompleteURI(DataSetPtr outputDataSet) const
+{
+  std::string mask = getMask(outputDataSet);
+  return dataProvider_->uri + "/" + mask;
+}

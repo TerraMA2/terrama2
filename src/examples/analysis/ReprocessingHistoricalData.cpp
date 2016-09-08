@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
   outputDataSet->active = true;
   outputDataSet->id = 2;
   outputDataSet->format.emplace("table_name", "reprocessing_result");
-
+  outputDataSet->dataSeriesId = outputDataSeries->id;
   outputDataSeries->datasetList.emplace_back(outputDataSet);
 
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   analysis->active = true;
 
   std::string script = "moBuffer = Buffer()\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"1d\", \"\")\n"
+          "x = occurrence.count(\"Occurrence\", moBuffer, \"6h\", \"\")\n"
           "add_value(\"count\", x)\n";
 
 
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "sjc.shp");
+  dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
   dataSet->id = 1;
   dataSet->dataSeriesId = 1;
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
   monitoredObjectADS.id = 1;
   monitoredObjectADS.dataSeriesId = dataSeriesPtr->id;
   monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "NOME";
+  monitoredObjectADS.metadata["identifier"] = "nome";
 
 
   //DataProvider information

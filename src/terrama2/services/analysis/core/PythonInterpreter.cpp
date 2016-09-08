@@ -354,78 +354,99 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
     return;
   }
 
-  auto dataManagerPtr = context->getDataManager().lock();
-  if(!dataManagerPtr)
+  try
   {
-    QString errMsg(QObject::tr("Invalid data manager."));
+    auto dataManagerPtr = context->getDataManager().lock();
+    if(!dataManagerPtr)
+    {
+      QString errMsg(QObject::tr("Invalid data manager."));
+      context->addError(errMsg.toStdString());
+      return;
+    }
+
+    AnalysisPtr analysis = context->getAnalysis();
+    if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
+    {
+      std::shared_ptr<ContextDataSeries> moDsContext;
+      terrama2::core::DataSetPtr datasetMO;
+
+      // Reads the object monitored
+      bool found = false;
+      auto analysisDataSeriesList = analysis->analysisDataSeriesList;
+      for(auto analysisDataSeries : analysisDataSeriesList)
+      {
+        if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+        {
+          found = true;
+          auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
+          assert(dataSeries->datasetList.size() == 1);
+          datasetMO = dataSeries->datasetList[0];
+
+          if(!context->exists(datasetMO->id))
+          {
+            QString errMsg(QObject::tr("Could not recover monitored object dataset."));
+            context->addError(errMsg.toStdString());
+            return;
+          }
+
+          moDsContext = context->getContextDataset(datasetMO->id);
+
+          if(moDsContext->identifier.empty())
+          {
+            QString errMsg(QObject::tr("Monitored object identifier is empty."));
+            context->addError(errMsg.toStdString());
+            return;
+          }
+
+          if(!moDsContext->series.teDataSetType)
+          {
+            QString errMsg(QObject::tr("Invalid dataset type."));
+            context->addError(errMsg.toStdString());
+            return;
+          }
+
+          if(moDsContext->series.teDataSetType->getProperty(moDsContext->identifier) == nullptr)
+          {
+            QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
+            context->addError(errMsg.toStdString());
+            return;
+          }
+
+          // Stores the result in the context
+          std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
+          assert(!geomId.empty());
+
+          context->addAttribute(attrName);
+          context->setAnalysisResult(geomId, attrName, value);
+        }
+      }
+
+      if(!found)
+      {
+        QString errMsg(QObject::tr("Could not find a monitored data series in this analysis."));
+        context->addError(errMsg.toStdString());
+        return;
+      }
+    }
+  }
+  catch(const terrama2::Exception& e)
+  {
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    return;
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
+    return;
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
     return;
   }
 
-  AnalysisPtr analysis = context->getAnalysis();
-  if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
-  {
-    std::shared_ptr<ContextDataSeries> moDsContext;
-    terrama2::core::DataSetPtr datasetMO;
 
-    // Reads the object monitored
-    bool found = false;
-    auto analysisDataSeriesList = analysis->analysisDataSeriesList;
-    for(auto analysisDataSeries : analysisDataSeriesList)
-    {
-      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
-      {
-        found = true;
-        auto dataSeries = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
-        assert(dataSeries->datasetList.size() == 1);
-        datasetMO = dataSeries->datasetList[0];
-
-        if(!context->exists(datasetMO->id))
-        {
-          QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-          context->addError(errMsg.toStdString());
-          return;
-        }
-
-        moDsContext = context->getContextDataset(datasetMO->id);
-
-        if(moDsContext->identifier.empty())
-        {
-          QString errMsg(QObject::tr("Monitored object identifier is empty."));
-          context->addError(errMsg.toStdString());
-          return;
-        }
-
-        if(!moDsContext->series.teDataSetType)
-        {
-          QString errMsg(QObject::tr("Invalid dataset type."));
-          context->addError(errMsg.toStdString());
-          return;
-        }
-
-        if(moDsContext->series.teDataSetType->getProperty(moDsContext->identifier) == nullptr)
-        {
-          QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
-          context->addError(errMsg.toStdString());
-          return;
-        }
-
-        // Stores the result in the context
-        std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
-        assert(!geomId.empty());
-
-        context->addAttribute(attrName);
-        context->setAnalysisResult(geomId, attrName, value);
-      }
-    }
-
-    if(!found)
-    {
-      QString errMsg(QObject::tr("Could not find a monitored data series in this analysis."));
-      context->addError(errMsg.toStdString());
-      return;
-    }
-  }
 }
 
 BOOST_PYTHON_MODULE(terrama2)
