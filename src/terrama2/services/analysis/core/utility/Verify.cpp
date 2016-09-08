@@ -41,7 +41,6 @@ void terrama2::core::verify::analysisType(terrama2::services::analysis::core::An
   if(analysis->type != analysisType)
   {
     QString errMsg = QObject::tr("Wrong analysis type.");
-    TERRAMA2_LOG_ERROR() << errMsg;
     throw VerifyException() << terrama2::ErrorDescription(errMsg);
   }
 }

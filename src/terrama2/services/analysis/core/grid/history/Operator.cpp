@@ -35,6 +35,7 @@
 #include "../../../../../core/data-model/DataSetGrid.hpp"
 #include "../../../../../core/utility/Logger.hpp"
 #include "../../utility/Utils.hpp"
+#include "../../utility/Verify.hpp"
 
 // TerraLib
 #include <terralib/raster/Grid.h>
@@ -57,7 +58,7 @@ const std::string& dateFilterEnd)
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return NAN;
+    return {};
   }
 
   terrama2::services::analysis::core::GridContextPtr context;
@@ -181,7 +182,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
     return NAN;
   }
-  
+
   terrama2::services::analysis::core::GridContextPtr context;
   try
   {
