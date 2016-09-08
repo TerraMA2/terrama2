@@ -39,13 +39,79 @@
 #include "../../../../../../../core/data-model/Filter.hpp"
 #include "../../../../../../../core/utility/Logger.hpp"
 
-
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/vp/BufferMemory.h>
 #include <terralib/geometry/MultiPolygon.h>
 #include <terralib/geometry/Utils.h>
+#include <terralib/geometry/Enums.h>
 #include <terralib/raster/PositionIterator.h>
+
+void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Geometry* geom,
+    const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+    std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap)
+{
+  //TODO: check for other valid types
+  auto type = geom->getGeomTypeId();
+
+  switch(type)
+  {
+    case te::gm::PolygonType:
+    {
+      auto polygon = static_cast<te::gm::Polygon*>(geom);
+      appendValues(polygon, rasterList, valuesMap);
+      break;
+    }
+    case te::gm::MultiPolygonType:
+    {
+      auto multiPolygon = static_cast<te::gm::MultiPolygon*>(geom);
+      for(auto geom : multiPolygon->getGeometries())
+      {
+        auto polygon = static_cast<te::gm::Polygon*>(geom);
+        appendValues(polygon, rasterList, valuesMap);
+      }
+      break;
+    }
+    case te::gm::LineStringType:
+    {
+      auto line = static_cast<te::gm::Line*>(geom);
+      appendValues(line, rasterList, valuesMap);
+      break;
+    }
+    case te::gm::MultiLineStringType:
+    {
+      auto multiLine = static_cast<te::gm::MultiLineString*>(geom);
+      for(auto geom : multiLine->getGeometries())
+      {
+        auto line = static_cast<te::gm::Line*>(geom);
+        appendValues(line, rasterList, valuesMap);
+      }
+      break;
+    }
+    case te::gm::PointType:
+    {
+      auto point = static_cast<te::gm::Point*>(geom);
+      appendValues({point}, rasterList, valuesMap);
+      break;
+    }
+    case te::gm::MultiPointType:
+    {
+      auto multiPoint = static_cast<te::gm::MultiPoint*>(geom);
+      std::vector<te::gm::Point*> pointSet;
+      for(auto geom : multiPoint->getGeometries())
+      {
+        auto point = static_cast<te::gm::Point*>(geom);
+        pointSet.push_back(point);
+      }
+
+      appendValues(pointSet, rasterList, valuesMap);
+      break;
+    }
+    default:
+      TERRAMA2_LOG_ERROR() << QObject::tr("Unrecognized geometry type: %1").arg(type);
+      break;
+  }
+}
 
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Polygon* polygon,
     const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
@@ -53,13 +119,75 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
 {
   auto firstRaster = rasterList.front();
   //raster values can always be read as double
-  auto it = te::rst::PolygonIterator<double>::begin(firstRaster.get(), polygon);
+  auto rasterIt = te::rst::PolygonIterator<double>::begin(firstRaster.get(), polygon);
   auto end = te::rst::PolygonIterator<double>::end(firstRaster.get(), polygon);
 
-  for(; it != end; ++it)
+  for(; rasterIt != end; ++rasterIt)
   {
-    auto column = it.getColumn();
-    auto row = it.getRow();
+    auto column = rasterIt.getColumn();
+    auto row = rasterIt.getRow();
+    for(const auto& raster : rasterList)
+    {
+      double value;
+      raster->getValue(column, row, value);
+
+      auto key = std::make_pair(column, row);
+      auto it = valuesMap.find(key);
+      if(it == valuesMap.end())
+        valuesMap[key] = std::make_pair(value, 1);
+      else
+      {
+        it->second.first += value;
+        it->second.second++;
+      }
+    }
+  }
+}
+
+void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Line* line,
+    const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+    std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap)
+{
+  auto firstRaster = rasterList.front();
+  //raster values can always be read as double
+  auto rasterIt = te::rst::LineIterator<double>::begin(firstRaster.get(), line);
+  auto end = te::rst::LineIterator<double>::end(firstRaster.get(), line);
+
+  for(; rasterIt != end; ++rasterIt)
+  {
+    auto column = rasterIt.getColumn();
+    auto row = rasterIt.getRow();
+    for(const auto& raster : rasterList)
+    {
+      double value;
+      raster->getValue(column, row, value);
+
+      auto key = std::make_pair(column, row);
+      auto it = valuesMap.find(key);
+      if(it == valuesMap.end())
+        valuesMap[key] = std::make_pair(value, 1);
+      else
+      {
+        it->second.first += value;
+        it->second.second++;
+      }
+    }
+  }
+}
+
+void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(std::vector<te::gm::Point*> pointSet,
+    const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+    std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap)
+{
+  auto firstRaster = rasterList.front();
+  //raster values can always be read as double
+  auto rasterIt = te::rst::PointSetIterator<double>::begin(firstRaster.get(), pointSet);
+  auto end = te::rst::PointSetIterator<double>::end(firstRaster.get(), pointSet);
+
+  for(; rasterIt != end; ++rasterIt)
+  {
+    auto column = rasterIt.getColumn();
+    auto row = rasterIt.getRow();
     for(const auto& raster : rasterList)
     {
       double value;
@@ -171,23 +299,7 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
         continue;
 
       geomResult->transform(firstRaster->getSRID());
-
-      //TODO: check for other valid types
-      auto type = geomResult->getGeomTypeId();
-      if(type == te::gm::PolygonType)
-      {
-        auto polygon = std::static_pointer_cast<te::gm::Polygon>(geomResult);
-        appendValues(polygon.get(), rasterList, valuesMap);
-      }
-      else if(type == te::gm::MultiPolygonType)
-      {
-        auto multiPolygon = std::static_pointer_cast<te::gm::MultiPolygon>(geomResult);
-        for(auto geom : multiPolygon->getGeometries())
-        {
-          auto polygon = static_cast<te::gm::Polygon*>(geom);
-          appendValues(polygon, rasterList, valuesMap);
-        }
-      }
+      appendValues(geomResult.get(), rasterList, valuesMap);
 
       if(!valuesMap.empty())
       {
