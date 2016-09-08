@@ -17,6 +17,7 @@ angular.module('terrama2.datetimepicker', ['terrama2'])
       restrict: 'EA',
       templateUrl: '/javascripts/angular/datetimepicker/templates/filterdatetimepicker.html',
       scope: {
+        ngModel: "=",
         beforeDatetime: '=beforeDatetime',
         afterDatetime: '=afterDatetime',
         options: '=?'
@@ -27,7 +28,8 @@ angular.module('terrama2.datetimepicker', ['terrama2'])
           format: "YYYY/MM/DD HH:mm:ss",
           sideBySide: true,
           toolbarPlacement: 'top',
-          allowInputToggle: true
+          allowInputToggle: false,
+          useCurrent: false
         }, $scope.options);
 
         $scope.beforeOptions = angular.extend({}, $scope.options, {maxDate: $scope.afterDatetime});
