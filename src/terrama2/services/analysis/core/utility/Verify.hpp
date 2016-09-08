@@ -41,6 +41,9 @@ namespace terrama2
     namespace verify
     {
       void analysisType(const terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType);
+      void analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis){analysisType(analysis, terrama2::services::analysis::core::AnalysisType::GRID_TYPE);}
+      void analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis){analysisType(analysis, terrama2::services::analysis::core::AnalysisType::MONITORED_OBJECT_TYPE);}
+      void analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis){analysisType(analysis, terrama2::services::analysis::core::AnalysisType::DCP_TYPE);}
     } /* verify */
   } /* core */
 } /* terrama2 */

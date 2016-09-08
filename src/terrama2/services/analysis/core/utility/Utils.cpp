@@ -59,7 +59,7 @@ terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::c
   switch(type)
   {
     case 1:
-      return AnalysisType::PCD_TYPE;
+      return AnalysisType::DCP_TYPE;
     case 2:
       return AnalysisType::MONITORED_OBJECT_TYPE;
     case 3:

@@ -91,7 +91,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
         runMonitoredObjectAnalysis(dataManager, storagerManager, analysis, startTime, threadPool, mainThreadState);
         break;
       }
-      case AnalysisType::PCD_TYPE:
+      case AnalysisType::DCP_TYPE:
       {
         runDCPAnalysis(dataManager, storagerManager, analysis, startTime, threadPool, mainThreadState);
         break;

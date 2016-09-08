@@ -93,7 +93,7 @@ void TsDataSetTimer::TestTimerSignalEmit()
 {
   try
   {
-    terrama2::core::DataSet dataSet("dummy", terrama2::core::DataSet::PCD_TYPE, 1);
+    terrama2::core::DataSet dataSet("dummy", terrama2::core::DataSet::DCP_TYPE, 1);
     te::dt::TimeDuration freq(0,0,5);
     dataSet.setDataFrequency(freq);
     terrama2::collector::DataSetTimer dataSetTimer(dataSet);
@@ -118,7 +118,7 @@ void TsDataSetTimer::TestSchedulerSignalEmit()
 {
   try
   {
-    terrama2::core::DataSet dataSet("dummy", terrama2::core::DataSet::PCD_TYPE, 1);
+    terrama2::core::DataSet dataSet("dummy", terrama2::core::DataSet::DCP_TYPE, 1);
     boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
     te::dt::TimeDuration schedule(now.time_of_day().hours(), now.time_of_day().minutes()+1, 0);

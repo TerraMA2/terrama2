@@ -63,7 +63,7 @@ namespace terrama2
         */
         enum class AnalysisType
         {
-          PCD_TYPE = 1, //!< Analysis for DCP.
+          DCP_TYPE = 1, //!< Analysis for DCP.
           MONITORED_OBJECT_TYPE = 2, //!< Analysis for monitored objects.
           GRID_TYPE = 3, //!< Analysis for grids.
         };
@@ -89,7 +89,7 @@ namespace terrama2
 
         /*!
           \brief Defines the type of use of a DataSeries in the analysis.
-          Analysis of type PCD_TYPE requires an DATASERIES_PCD_TYPE in the analysis DataSeries list.
+          Analysis of type DCP_TYPE requires an DATASERIES_PCD_TYPE in the analysis DataSeries list.
           Analysis of type MONITORED_OBJECT_TYPE requires an DATASERIES_MONITORED_OBJECT_TYPE in the analysis DataSeries list.
           Analysis of type GRID_TYPE requires an DATASERIES_GRID_TYPE in the analysis DataSeries list.
 

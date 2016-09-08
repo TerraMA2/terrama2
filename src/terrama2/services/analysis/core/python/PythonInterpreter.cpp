@@ -543,7 +543,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
 
   switch(analysis->type)
   {
-    case AnalysisType::PCD_TYPE:
+    case AnalysisType::DCP_TYPE:
       break;
     case AnalysisType::MONITORED_OBJECT_TYPE:
     {
@@ -605,7 +605,7 @@ std::string terrama2::services::analysis::core::python::prepareScript(terrama2::
     case AnalysisType::MONITORED_OBJECT_TYPE:
       formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, index):\n" + formatedScript;
       break;
-    case AnalysisType::PCD_TYPE:
+    case AnalysisType::DCP_TYPE:
       formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode):\n" + formatedScript;
       break;
   }
