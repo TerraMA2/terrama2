@@ -50,7 +50,6 @@ const std::string& dateFilterEnd)
 {
   auto& contextManager = ContextManager::getInstance();
   auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
-
   try
   {
     terrama2::core::verify::analysisGrid(analysis);
