@@ -173,3 +173,9 @@ bool terrama2::core::DataStoragerPostGis::isPropertyEqual(te::dt::Property* newP
 
   return true;
 }
+
+std::string terrama2::core::DataStoragerPostGis::getCompleteURI(DataSetPtr outputDataSet) const
+{
+  std::string destinationDataSetName = getDataSetTableName(outputDataSet);
+  return dataProvider_->uri + "/" + destinationDataSetName;
+}

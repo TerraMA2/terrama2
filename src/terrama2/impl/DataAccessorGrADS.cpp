@@ -431,7 +431,7 @@ void terrama2::core::GrADSDataDescriptor::addVar(const std::string& strVar)
     var->units_ = tokens[2].toStdString();
 
     // Description may have spaces, need to concatenate all pieces
-    for (unsigned int i = 3; i < tokens.size(); ++i)
+    for (int i = 3; i < tokens.size(); ++i)
     {
       if (!var->description_.empty())
         var->description_ += " ";
@@ -874,7 +874,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     unsigned int lineOffset = 0;
     unsigned int imageOffset = 0;
 
-    for (unsigned int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
+    for(int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
     {
 
       // BSQ (Band sequential) interleave
