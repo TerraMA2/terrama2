@@ -224,7 +224,7 @@ module.exports = function(app) {
                       });
                     }).catch(_handleError);
                   } else {
-                    if (_.isEmpty(filterObject.date) || !filterObject.region) {
+                    if (_.isEmpty(filterObject.date)) {
                       _processIntersection();
                     } else {
                       filterObject.collector_id = collector.id;
