@@ -421,19 +421,35 @@ terrama2Application.directive('formatDatetime', function ($window) {
         element.value = formatter(ngModel.$modelValue);
       });
 
+      /**
+       * It performs a parser string to check if it is a valid date
+       * @param {string | Date} value - A date value
+       * @return {boolean} 
+       */
       function parser(value) {
         var m = moment(value);
         var valid = m.isValid();
-        ngModel.$setValidity('datetime', valid);
-        if (valid) return m.valueOf();
-        else return value;
+        // ngModel.$setValidity('datetime', valid);
+        if (valid) {
+          return m.valueOf();
+        } else {
+          return value;
+        }
       }
 
+      /**
+       * It performs a input formatter
+       * @param {string | Date} value - A date value
+       * @return {string}
+       */
       function formatter(value) {
         var m = moment(value || null);
         var valid = m.isValid();
-        if (valid) return m.format(fmt || "LLLL");
-        else return value;
+        if (valid) {
+          return m.format(fmt || "LLLL");
+        } else {
+          return value;
+        }
       }
     } //link
   };

@@ -2417,7 +2417,7 @@ var DataManager = {
   updateFilter: function(filterId, filterObject, options) {
     return new Promise(function(resolve, reject) {
       var filterValues = _processFilter(filterObject);
-      models.db.Filter.update(filterValues, Utils.extend({
+      return models.db.Filter.update(filterValues, Utils.extend({
         fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value'],
         where: {
           id: filterId
