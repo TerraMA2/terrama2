@@ -28,7 +28,7 @@
 */
 
 #include "DataManager.hpp"
-#include "JSonUtils.hpp"
+#include "utility/JSonUtils.hpp"
 #include "Analysis.hpp"
 #include "../../../Exception.hpp"
 #include "../../../core/utility/Logger.hpp"

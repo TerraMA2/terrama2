@@ -29,8 +29,8 @@
 
 #include "MonitoredObjectContext.hpp"
 #include "DataManager.hpp"
-#include "Utils.hpp"
-#include "PythonInterpreter.hpp"
+#include "utility/Utils.hpp"
+#include "python/PythonInterpreter.hpp"
 
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"

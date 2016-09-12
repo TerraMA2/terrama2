@@ -33,23 +33,23 @@
 
 #include <QTextStream>
 
-#include "Exception.hpp"
-#include "ContextManager.hpp"
-#include "GridContext.hpp"
-#include "MonitoredObjectContext.hpp"
+#include "../Exception.hpp"
+#include "../ContextManager.hpp"
+#include "../GridContext.hpp"
+#include "../MonitoredObjectContext.hpp"
 #include "PythonBindingGrid.hpp"
 #include "PythonBindingMonitoredObject.hpp"
-#include "dcp/Operator.hpp"
-#include "dcp/history/Operator.hpp"
-#include "grid/Operator.hpp"
-#include "grid/history/Operator.hpp"
-#include "grid/history/interval/Operator.hpp"
-#include "grid/forecast/Operator.hpp"
-#include "grid/forecast/interval/Operator.hpp"
-#include "occurrence/Operator.hpp"
-#include "occurrence/aggregation/Operator.hpp"
-#include "../../../core/utility/Logger.hpp"
-#include "../../../core/data-model/Filter.hpp"
+#include "../dcp/Operator.hpp"
+#include "../dcp/history/Operator.hpp"
+#include "../grid/Operator.hpp"
+#include "../grid/history/Operator.hpp"
+#include "../grid/history/interval/Operator.hpp"
+#include "../grid/forecast/Operator.hpp"
+#include "../grid/forecast/interval/Operator.hpp"
+#include "../occurrence/Operator.hpp"
+#include "../occurrence/aggregation/Operator.hpp"
+#include "../../../../core/utility/Logger.hpp"
+#include "../../../../core/data-model/Filter.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -543,7 +543,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
 
   switch(analysis->type)
   {
-    case AnalysisType::PCD_TYPE:
+    case AnalysisType::DCP_TYPE:
       break;
     case AnalysisType::MONITORED_OBJECT_TYPE:
     {
@@ -605,7 +605,7 @@ std::string terrama2::services::analysis::core::python::prepareScript(terrama2::
     case AnalysisType::MONITORED_OBJECT_TYPE:
       formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, index):\n" + formatedScript;
       break;
-    case AnalysisType::PCD_TYPE:
+    case AnalysisType::DCP_TYPE:
       formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode):\n" + formatedScript;
       break;
   }

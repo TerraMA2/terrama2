@@ -13,7 +13,7 @@
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
-#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
 #include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>

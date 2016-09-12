@@ -31,7 +31,7 @@
 #define __TERRAMA2_ANALYSIS_CORE_BUFFERMEMORY_HPP__
 
 
-#include "PythonInterpreter.hpp"
+#include "python/PythonInterpreter.hpp"
 
 // STL
 #include <memory>

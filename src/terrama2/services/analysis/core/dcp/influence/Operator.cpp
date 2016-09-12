@@ -36,7 +36,8 @@
 #include "../../Typedef.hpp"
 #include "../../Shared.hpp"
 #include "../../DataManager.hpp"
-#include "../../PythonInterpreter.hpp"
+#include "../../utility/Verify.hpp"
+#include "../../python/PythonInterpreter.hpp"
 #include "../../../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../../../core/data-access/DataSetSeries.hpp"
 #include "../../../../../core/data-model/DataSetDcp.hpp"
@@ -57,6 +58,18 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byAtt
 
   OperatorCache cache;
   python::readInfoFromDict(cache);
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  try
+  {
+    terrama2::core::verify::analysisDCP(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return {};
+  }
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try

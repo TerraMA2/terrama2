@@ -28,7 +28,7 @@
 */
 
 #include "BaseContext.hpp"
-#include "PythonInterpreter.hpp"
+#include "python/PythonInterpreter.hpp"
 #include "../../../core/data-model/DataSetGrid.hpp"
 #include "../../../core/data-access/GridSeries.hpp"
 #include "../../../core/data-access/DataAccessorGrid.hpp"

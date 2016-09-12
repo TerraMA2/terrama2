@@ -33,7 +33,7 @@
 
 // TerraMA2
 #include "../../BufferMemory.hpp"
-#include "../../PythonInterpreter.hpp"
+#include "../../python/PythonInterpreter.hpp"
 
 // STL
 #include <string>

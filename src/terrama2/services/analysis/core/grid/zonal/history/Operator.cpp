@@ -32,6 +32,7 @@
 #include "../Operator.hpp"
 #include "../../../ContextManager.hpp"
 #include "../../../../../../core/utility/Logger.hpp"
+#include "../../../utility/Verify.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -43,6 +44,19 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+
+  try
+  {
+    terrama2::core::verify::analysisMonitoredObject(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return NAN;
+  }
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try
@@ -143,6 +157,19 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+
+  try
+  {
+    terrama2::core::verify::analysisMonitoredObject(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return {};
+  }
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
   try

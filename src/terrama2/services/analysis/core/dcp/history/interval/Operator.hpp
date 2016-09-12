@@ -31,7 +31,7 @@
 #ifndef __TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_INTERVAL_OPERATOR_HPP__
 #define __TERRAMA2_ANALYSIS_CORE_DCP_HISTORY_INTERVAL_OPERATOR_HPP__
 
-#include "../../../Utils.hpp"
+#include "../../../utility/Utils.hpp"
 #include "../../../Shared.hpp"
 
 // STL

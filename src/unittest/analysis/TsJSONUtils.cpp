@@ -31,7 +31,7 @@
 #include "TsJSONUtils.hpp"
 
 //TerraMA2
-#include <terrama2/services/analysis/core/JSonUtils.hpp>
+#include <terrama2/services/analysis/core/utility/JSonUtils.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
 
 using namespace terrama2::services::analysis::core;

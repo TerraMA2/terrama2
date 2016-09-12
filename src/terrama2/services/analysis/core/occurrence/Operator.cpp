@@ -30,7 +30,8 @@
 
 // TerraMA2
 #include "Operator.hpp"
-#include "../Utils.hpp"
+#include "../utility/Utils.hpp"
+#include "../utility/Verify.hpp"
 #include "../ContextManager.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/data-model/Filter.hpp"
@@ -55,6 +56,19 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
+
+  auto& contextManager = ContextManager::getInstance();
+  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  try
+  {
+    terrama2::core::verify::analysisMonitoredObject(analysis);
+  }
+  catch (const terrama2::core::VerifyException&)
+  {
+    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+    return {};
+  }
+
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;

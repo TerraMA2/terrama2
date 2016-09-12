@@ -15,7 +15,7 @@
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/impl/Utils.hpp>
 
-#include <terrama2/services/analysis/core/JSonUtils.hpp>
+#include <terrama2/services/analysis/core/utility/JSonUtils.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
@@ -39,7 +39,7 @@
 #include <QDataStream>
 #include <QtTest/QTest>
 
-#include <terrama2/services/analysis/core/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
 #include <Python.h>
 
 // Boost

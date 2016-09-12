@@ -32,10 +32,10 @@
 
 // TerraMA2
 
-#include "Analysis.hpp"
-#include "OperatorCache.hpp"
-#include "../../../core/Shared.hpp"
-#include "../../../core/utility/FileRemover.hpp"
+#include "../Analysis.hpp"
+#include "../OperatorCache.hpp"
+#include "../../../../core/Shared.hpp"
+#include "../../../../core/utility/FileRemover.hpp"
 
 // TerraLib
 #include <terralib/raster/Raster.h>
