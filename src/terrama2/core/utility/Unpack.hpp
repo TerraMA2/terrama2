@@ -33,9 +33,9 @@
 // STL
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
-//Boost
-#include <boost/noncopyable.hpp>
+#include "FileRemover.hpp"
 
 // QT
 #include <QFileInfo>
@@ -51,18 +51,18 @@ namespace terrama2
     namespace Unpack
     {
       /*!
-         * \brief unpackList - the descompressing a file gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
-         * \param uri - It contains absolute file path.
-         * \param Returns the path of the temporary folder where the files uncompressed.
+         * \brief Descompress a file gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
+         * \param Absolute file path to the compressed file.
+         * \param Returns the path of the temporary folder whith the content of the compressed file.
          */
-      std::string unpackList(std::string uri);
+      std::string decompress(std::string uri, std::shared_ptr<terrama2::core::FileRemover> remover);
 
       /*!
-         * \brief verifyCompressFile - checks if the file is compressed or not.
+         * \brief checks if the file is compressed or not.
          * \param uri - It contains absolute file path.
-         * \return Returns true if the file compressed, or false if the file uncompressed.
+         * \return Returns true if the file compressed, or false if the file decompressed.
          */
-      bool verifyCompressFile(std::string uri);
+      bool isCompressed(std::string uri);
 
       /*!
          * \brief isGzipCompress - Verify is a file with extension gz.
@@ -89,11 +89,11 @@ namespace terrama2
          */
       bool isZipCompress(const QFileInfo fileinfo);
       /*!
-         * \brief nameFileUncompressed - Name file uncompressed.
+         * \brief nameFileDecompressed - Name file decompressed.
          * \param fileinfo - Compressed file.
-         * \return Returns the name of the uncompressed file.
+         * \return Returns the name of the decompressed file.
          */
-      QString nameFileUncompressed(const QFileInfo fileinfo);
+      QString nameFileDecompressed(const QFileInfo fileinfo);
 
       /*!
          * \brief parseOct - Parse an octal number, ignoring leading and trailing nonsense.
@@ -108,12 +108,7 @@ namespace terrama2
          * \return Returns true if this is 512 zero bytes.
          */
       int isEndOfArchive(const char *p);
-      /*!
-         * \brief createDir - Create a directory, including parent directories as necessary.
-         * \param pathname - It contains the file path.
-         * \param mode - It contains the building permission mode directory.
-         */
-      void createDir(char *pathname, int mode);
+      
       /*!
          * \brief createFile - Create a file, including parent directory as necessary.
          * \param pathname - It contains the file path.
@@ -122,7 +117,7 @@ namespace terrama2
          * \param vFiles - vector with the name of the unpack files.
          * \return Returns Create file.
          */
-      FILE* createFile(char *pathname, int mode, std::string savePath);
+      FILE* createFile(std::string savePath, int mode);
       /*!
          * \brief verifyChecksum - Verify the tar checksum.
          * \param p - Number of bytes.
@@ -135,28 +130,28 @@ namespace terrama2
          * \param path - It contains the path of the compressed file.
          *
         */
-      void untar(QFileInfo fileInfo, QString temporaryFolder);
+      void untar(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
       /*!
-         * \brief uncompressGz - Uncompress a GZ file.
-         * \param saveName - It contains the absolute path where the file uncompressed is saved.
+         * \brief decompressGz - Decompress a GZ file.
+         * \param saveName - It contains the absolute path where the file decompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          * \return Returns - The name of the unpack files.
         */
-      QString uncompressGz(QFileInfo fileInfo, QString temporaryFolder);
+      QString decompressGz(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
       /*!
-         * \brief uncompressBzip - Uncompress a Bzip2 file.
-         * \param saveName - It contains the absolute path where the file uncompressed is saved.
+         * \brief decompressBzip - Decompress a Bzip2 file.
+         * \param saveName - It contains the absolute path where the file decompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          * \return Returns - The name of the unpack files.
         */
-      QString uncompressBzip(QFileInfo fileInfo, QString temporaryFolder);
+      QString decompressBzip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
       /*!
-         * \brief uncompressZip - Uncompress a Zip file.
-         * \param saveName - It contains the absolute path where the file uncompressed is saved.
+         * \brief decompressZip - Decompress a Zip file.
+         * \param saveName - It contains the absolute path where the file decompressed is saved.
          * \param fileName - It contains the absolute path of file compressed.
          *
          */
-      void uncompressZip(QFileInfo fileInfo, QString temporaryFolder);
+      void decompressZip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover);
     }
   } // end namespace core
 }   // end namespace terrama2

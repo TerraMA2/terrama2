@@ -41,6 +41,7 @@ void terrama2::services::analysis::core::ContextManager::addMonitoredObjectConte
   {
     monitoredObjectContextMap_.emplace(analysisHashCode, context);
     analysisMap_.emplace(analysisHashCode, context->getAnalysis());
+    TERRAMA2_LOG_DEBUG() << QObject::tr("Adding context for Analysis with hashcode: %1").arg(analysisHashCode);
   }
   else
   {
@@ -103,6 +104,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
     return it->second;
   else
   {
+    TERRAMA2_LOG_DEBUG() << QObject::tr("Unable to locate Analysis with hashcode: %1").arg(analysisHashCode);
     QString errMsg = QObject::tr("Unable to locate Analysis");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
@@ -111,6 +113,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
 
 void terrama2::services::analysis::core::ContextManager::clearContext(const AnalysisHashCode analysisHashCode)
 {
+  TERRAMA2_LOG_DEBUG() << QObject::tr("Clearing context for Analysis with hashcode: %1").arg(analysisHashCode);
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto itm = monitoredObjectContextMap_.find(analysisHashCode);
   if(itm != monitoredObjectContextMap_.cend())

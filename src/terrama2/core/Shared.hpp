@@ -86,6 +86,14 @@ namespace terrama2
     class Timer;
     //! Shared smart pointer for Timer
     typedef std::shared_ptr<const terrama2::core::Timer> TimerPtr;
+
+    class DataManager;
+    //! Shared smart pointer for DataManager
+    typedef std::shared_ptr<terrama2::core::DataManager> DataManagerPtr;
+
+    class StoragerManager;
+    //! Shared smart pointer for StoragerManager
+    typedef std::shared_ptr<terrama2::core::StoragerManager> StoragerManagerPtr;
   }
 }
 

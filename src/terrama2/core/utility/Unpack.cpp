@@ -75,9 +75,9 @@
 #include <boost/iostreams/filter/bzip2.hpp>
 
 
-QString terrama2::core::Unpack::uncompressGz(QFileInfo fileInfo, QString temporaryFolder)
+QString terrama2::core::Unpack::decompressGz(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
-  QString saveName = temporaryFolder+"/"+nameFileUncompressed(fileInfo);
+  QString saveName = temporaryFolder+"/"+nameFileDecompressed(fileInfo);
 
   std::ifstream inFile(fileInfo.absoluteFilePath().toStdString(), std::ios_base::in);
   std::ofstream outFile(saveName.toStdString(), std::ios_base::out);
@@ -89,9 +89,9 @@ QString terrama2::core::Unpack::uncompressGz(QFileInfo fileInfo, QString tempora
   return saveName;
 }
 
-QString terrama2::core::Unpack::uncompressBzip(QFileInfo fileInfo, QString temporaryFolder)
+QString terrama2::core::Unpack::decompressBzip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
-  QString saveName = temporaryFolder+"/"+nameFileUncompressed(fileInfo);
+  QString saveName = temporaryFolder+"/"+nameFileDecompressed(fileInfo);
 
   std::ifstream inFile(fileInfo.absoluteFilePath().toStdString(), std::ios_base::in);
   std::ofstream outFile(saveName.toStdString(), std::ios_base::out);
@@ -103,12 +103,12 @@ QString terrama2::core::Unpack::uncompressBzip(QFileInfo fileInfo, QString tempo
   return saveName;
 }
 
-void terrama2::core::Unpack::uncompressZip(QFileInfo fileInfo, QString temporaryFolder)
+void terrama2::core::Unpack::decompressZip(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   JlCompress::extractDir(fileInfo.absoluteFilePath(), temporaryFolder);
 }
 
-bool terrama2::core::Unpack::verifyCompressFile(std::string uri)
+bool terrama2::core::Unpack::isCompressed(std::string uri)
 {
   QUrl url(uri.c_str());
   QFileInfo fileInfo(url.path());
@@ -120,7 +120,7 @@ bool terrama2::core::Unpack::verifyCompressFile(std::string uri)
 
 }
 
-std::string terrama2::core::Unpack::unpackList(std::string uri)
+std::string terrama2::core::Unpack::decompress(std::string uri, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
 
   QString temporaryFolder = "/tmp/terrama2-unpack";
@@ -138,24 +138,24 @@ std::string terrama2::core::Unpack::unpackList(std::string uri)
 
     if (isGzipCompress(filePath))
     {
-      filePath = uncompressGz(fileInfo, temporaryFolder);
+      filePath = decompressGz(fileInfo, temporaryFolder, remover);
       fileInfo.setFile(filePath);
     }
 
     if (isBzipCompress(filePath))
     {
-      filePath = uncompressBzip(fileInfo, temporaryFolder);
+      filePath = decompressBzip(fileInfo, temporaryFolder, remover);
       fileInfo.setFile(filePath);
     }
 
     if (isZipCompress(filePath))
     {
-      uncompressZip(fileInfo, temporaryFolder);
+      decompressZip(fileInfo, temporaryFolder, remover);
     }
 
     if (isTarCompress(filePath))
     {
-      untar(fileInfo, temporaryFolder);
+      untar(fileInfo, temporaryFolder, remover);
     }
 
   }
@@ -195,7 +195,7 @@ bool terrama2::core::Unpack::isZipCompress(const QFileInfo fileinfo)
   return fileinfo.absoluteFilePath().endsWith("zip");
 }
 
-QString terrama2::core::Unpack::nameFileUncompressed(const QFileInfo fileinfo)
+QString terrama2::core::Unpack::nameFileDecompressed(const QFileInfo fileinfo)
 {
   if (isGzipCompress(fileinfo) || isBzipCompress(fileinfo))
   {
@@ -239,57 +239,20 @@ int terrama2::core::Unpack::isEndOfArchive(const char *p)
   return 1;
 }
 
-// Create a directory, including parent directories as necessary.
-void terrama2::core::Unpack::createDir(char *pathname, int mode)
-{
-  char *p;
-  int r;
-
-  // Strip trailing '/'
-  if (pathname[strlen(pathname) - 1] == '/')
-    pathname[strlen(pathname) - 1] = '\0';
-
-  // Try creating the directory.
-  r = mkdir(pathname, mode); // pathname
-
-  if (r != 0)
-  {
-    // On failure, try creating parent directory.
-    p = strrchr(pathname, '/'); // pathname
-    if (p != nullptr)
-    {
-      *p = '\0';
-      createDir(pathname, 0755); //pathname
-      *p = '/';
-      r = mkdir(pathname, mode); // pathname
-    }
-  }
-  if (r != 0)
-  {
-    QString errMsg = QObject::tr("Could not create directory %1").arg(pathname);
-    TERRAMA2_LOG_DEBUG() << errMsg;
-  }
-}
-
 // Create a file, including parent directory as necessary.
-std::FILE* terrama2::core::Unpack::createFile(char *pathname, int mode, std::string savePath)
+std::FILE* terrama2::core::Unpack::createFile(std::string savePath, int mode)
 {
-  std::FILE *newFile;
-
-  char *absolutePath = const_cast <char*> ((savePath+"/"+pathname).c_str());
-
-  newFile = std::fopen((savePath+"/"+pathname).c_str(), "w+");
+  std::FILE *newFile = std::fopen(savePath.c_str(), "w+");
 
   if (newFile == nullptr)
   {
-    // Try creating parent dir and then creating file.
-    char *p = strrchr(absolutePath, '/');
-    if (p != nullptr)
+    auto pos = savePath.find_last_of('/');
+    if (pos != std::string::npos)
     {
-      *p = '\0';
-      createDir(absolutePath, 0755);
-      *p = '/';
-      newFile = std::fopen((savePath+"/"+pathname).c_str(), "w+");
+      auto folder = savePath.substr(0, savePath.size()-pos);
+      QDir dir(QString::fromStdString(folder));
+      dir.mkdir(".");
+      newFile = std::fopen(savePath.c_str(), "w+");
     }
   }
 
@@ -314,21 +277,18 @@ int terrama2::core::Unpack::verifyChecksum(const char *p)
 }
 
 // Extract a tar archive.
-void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
+void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   std::string path = fileInfo.absoluteFilePath().toStdString();
   char buff[512];
-  std::FILE *fileUncompressed = nullptr;
-  size_t bytesRead;
-  int fileSize;
+  std::FILE *fileDecompressed = nullptr;
 
   FilePtr fileCompressed(path.c_str(),"r");
-
   std::string savePath = temporaryFolder.toStdString();
 
   for (;;)
   {
-    bytesRead = std::fread(buff, 1, 512, fileCompressed.file());
+    size_t bytesRead = std::fread(buff, 1, 512, fileCompressed.file());
 
     if (bytesRead < 512)
     {
@@ -351,7 +311,7 @@ void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
       return;
     }
 
-    fileSize = parseOct(buff + 124, 12);
+    int fileSize = parseOct(buff + 124, 12);
 
     switch (buff[156])
     {
@@ -396,7 +356,8 @@ void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
       {
         QString errMsg = QObject::tr("Extracting file %1").arg(buff);
         TERRAMA2_LOG_DEBUG() << errMsg;
-        fileUncompressed = createFile(buff, parseOct(buff + 100, 8), savePath);
+        std::string filePath = savePath+"/"+buff;
+        fileDecompressed = createFile(filePath, parseOct(buff + 100, 8));
         break;
       }
     }
@@ -414,23 +375,23 @@ void terrama2::core::Unpack::untar(QFileInfo fileInfo, QString temporaryFolder)
       if (fileSize < 512)
         bytesRead = fileSize;
 
-      if (fileUncompressed != nullptr)
+      if (fileDecompressed != nullptr)
       {
-        if (std::fwrite(buff, 1, bytesRead, fileUncompressed) != bytesRead)
+        if (std::fwrite(buff, 1, bytesRead, fileDecompressed) != bytesRead)
         {
           QString errMsg = QObject::tr("Failed write.\n");
           TERRAMA2_LOG_ERROR() << errMsg;
-          std::fclose(fileUncompressed);
-          fileUncompressed = nullptr;
+          std::fclose(fileDecompressed);
+          fileDecompressed = nullptr;
         }
       }
       fileSize -= bytesRead;
     }
 
-    if (fileUncompressed != nullptr)
+    if (fileDecompressed != nullptr)
     {
-      std::fclose(fileUncompressed);
-      fileUncompressed = nullptr;
+      std::fclose(fileDecompressed);
+      fileDecompressed = nullptr;
     }
   }
 }

@@ -23,22 +23,22 @@ int main(int argc, char* argv[])
   uri += TERRAMA2_DATA_DIR;
   uri += "/PCD_serrmar_INPE/";
   uri += "SetoresCubatao_UTM_sad69.zip";
-  //uri += "30885.txt";
 
-  if(!terrama2::core::Unpack::verifyCompressFile(uri))
+  if(!terrama2::core::Unpack::isCompressed(uri))
   {
     qDebug() << "File not compressed!";
   }
   else
   {
-    path = terrama2::core::Unpack::unpackList(uri);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    path = terrama2::core::Unpack::decompress(uri, remover);
     qDebug() << "File descompressed!";
 
     QUrl uriLocal(path.c_str());
     QDir dir(uriLocal.path());
 
     dir.setNameFilters(QStringList()<<"*.*");
-    QStringList fileList = dir.entryList();
+    QStringList fileList = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
 
     if (fileList.empty())
       qDebug() << "Test failed!";

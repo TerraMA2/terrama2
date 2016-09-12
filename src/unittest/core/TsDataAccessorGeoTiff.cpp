@@ -37,6 +37,7 @@
 
 #include "TsDataAccessorGeoTiff.hpp"
 #include "MockDataRetriever.hpp"
+#include "Utils.hpp"
 
 // QT
 #include <QObject>
@@ -52,26 +53,7 @@
 using ::testing::Return;
 using ::testing::_;
 
-class RaiiTsDataAccessorGeoTiff
-{
-  public:
-
-    RaiiTsDataAccessorGeoTiff(const std::string& dataProviderType,
-                              const terrama2::core::DataRetrieverFactory::FactoryFnctType& f)
-      : dataProviderType_(dataProviderType), f_(f)
-    {
-      terrama2::core::DataRetrieverFactory::getInstance().add(dataProviderType_, f_);
-    }
-
-    ~RaiiTsDataAccessorGeoTiff()
-    {
-      terrama2::core::DataRetrieverFactory::getInstance().remove(dataProviderType_);
-    }
-
-  private:
-    std::string dataProviderType_;
-    terrama2::core::DataRetrieverFactory::FactoryFnctType f_;
-};
+//FIXME: using a real dir, can be improved using some mock access
 
 void TsDataAccessorGeoTiff::TestFailAddNullDataAccessorGeoTiff()
 {
@@ -165,65 +147,6 @@ void TsDataAccessorGeoTiff::TestFailDataSeriesSemanticsInvalid()
   {
     QFAIL("Unexpected exception!");
   }
-  return;
-}
-
-void TsDataAccessorGeoTiff::TestOKDataRetrieverValid()
-{
-  try
-  {
-    //DataProvider information
-    terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
-    terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/geotiff";
-
-    dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
-    dataProvider->dataProviderType = "MOCK";
-    dataProvider->active = true;
-
-    //DataSeries information
-    terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
-    terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-    dataSeries->semantics.code = "GRID-geotiff";
-
-    terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
-    dataSet->active = true;
-    dataSet->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
-
-    dataSeries->datasetList.emplace_back(dataSet);
-
-    //empty filter
-    terrama2::core::Filter filter;
-
-    //accessing data
-    terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
-
-    auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
-
-    EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(false));
-
-    auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
-
-    RaiiTsDataAccessorGeoTiff raiiDataRetriever("MOCK",makeMock);
-
-    try
-    {
-      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
-    }
-    catch(...)
-    {
-      QFAIL("Unexpected exception!");
-    }
-  }
-  catch(...)
-  {
-    QFAIL("Unexpected exception not related to the method getGridSeries!");
-  }
-
-  return;
-
 }
 
 void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
@@ -233,9 +156,7 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/geotiff";
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/geotiff";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "MOCK";
@@ -265,15 +186,15 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
-    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
+    EXPECT_CALL(*mock_, retrieveData(_,_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
-    RaiiTsDataAccessorGeoTiff raiiDataRetriever("MOCK",makeMock);
-
+    DataRetrieverFactoryRaii raiiDataRetriever("MOCK",makeMock);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
     try
     {
-      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+      terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NotRetrivableException&)
@@ -285,9 +206,6 @@ void TsDataAccessorGeoTiff::TestFailDataRetrieverInvalid()
   {
     QFAIL("Unexpected exception!");
   }
-
-  return;
-
 }
 
 void TsDataAccessorGeoTiff::TestOK()
@@ -297,9 +215,7 @@ void TsDataAccessorGeoTiff::TestOK()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/geotiff";
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/geotiff";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -320,10 +236,10 @@ void TsDataAccessorGeoTiff::TestOK()
     terrama2::core::Filter filter;
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
 
-    assert(gridSeries->gridMap().size() == 1);
-
+    QVERIFY2(gridSeries->gridMap().size() == 1, "Wrong number of DataSet");
   }
   catch(...)
   {

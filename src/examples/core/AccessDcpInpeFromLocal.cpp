@@ -46,9 +46,10 @@ int main(int argc, char* argv[])
   //empty filter
   terrama2::core::Filter filter;
 
+  auto remover = std::make_shared<terrama2::core::FileRemover>();
   //accessing data
   terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
-  terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+  terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
 
   assert(dcpSeries->dcpSeriesMap().size() == 1);
 

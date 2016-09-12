@@ -35,6 +35,7 @@
 #include <memory>
 
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/utility/FileRemover.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/Shared.hpp"
 #include "DataManager.hpp"
@@ -201,7 +202,7 @@ namespace terrama2
             AnalysisPtr analysis_;
             std::shared_ptr<te::dt::TimeInstantTZ> startTime_;
             std::set<std::string> errorsSet_;
-
+            std::shared_ptr<terrama2::core::FileRemover> remover_;
 
             std::unordered_map<std::string, terrama2::core::DataSeriesPtr > dataSeriesMap_;
             std::unordered_map<Srid, std::shared_ptr<te::srs::Converter> > converterMap_;

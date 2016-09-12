@@ -114,7 +114,8 @@ void terrama2::services::view::core::makeView(ViewId viewId, std::shared_ptr< te
       auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
 
       terrama2::core::Filter filter(viewPtr->filtersPerDataSeries.at(dataSeriesId));
-      SeriesMap series = dataAccessor->getSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      SeriesMap series = dataAccessor->getSeries(filter, remover);
 
       for(auto& serie : series)
       {
@@ -307,5 +308,3 @@ void terrama2::services::view::core::drawLayersList(ViewPtr viewPtr, std::vector
     throw Exception() << ErrorDescription(message);
   }
 }
-
-

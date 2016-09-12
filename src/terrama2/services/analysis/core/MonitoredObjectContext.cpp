@@ -29,8 +29,8 @@
 
 #include "MonitoredObjectContext.hpp"
 #include "DataManager.hpp"
-#include "Utils.hpp"
-#include "PythonInterpreter.hpp"
+#include "utility/Utils.hpp"
+#include "python/PythonInterpreter.hpp"
 
 #include "../../../core/data-model/DataSetDcp.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
@@ -81,7 +81,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
 
       //accessing data
       terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
-      auto seriesMap = accessor->getSeries(filter);
+      auto seriesMap = accessor->getSeries(filter, remover_);
       auto series = seriesMap[dataset];
 
       std::string identifier = analysisDataSeries.metadata["identifier"];
@@ -119,7 +119,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
 
         //accessing data
         terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
-        auto seriesMap = accessor->getSeries(filter);
+        auto seriesMap = accessor->getSeries(filter, remover_);
         auto series = seriesMap[dataset];
 
         std::string identifier = analysisDataSeries.metadata["identifier"];
@@ -212,7 +212,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
-  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
+  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter, remover_);
 
   if(seriesMap.empty())
   {
@@ -345,7 +345,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
-  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter);
+  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter, remover_);
 
 
   if(seriesMap.empty())

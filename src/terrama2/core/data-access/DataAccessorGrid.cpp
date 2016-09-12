@@ -36,9 +36,9 @@
 #include <QString>
 #include <QObject>
 
-terrama2::core::GridSeriesPtr terrama2::core::DataAccessorGrid::getGridSeries(const Filter& filter)
+terrama2::core::GridSeriesPtr terrama2::core::DataAccessorGrid::getGridSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
-  auto series = getSeries(filter);
+  auto series = getSeries(filter, remover);
   GridSeriesPtr gridSeries = std::make_shared<GridSeries>();
   gridSeries->addGridSeries(series);
 

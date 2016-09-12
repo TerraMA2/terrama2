@@ -68,10 +68,10 @@ std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter) const
+std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
   std::string mask = getMask(dataset);
-  return dataRetriever->retrieveData(mask, filter);
+  return dataRetriever->retrieveData(mask, filter, remover);
 }
 
 std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
@@ -266,7 +266,8 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
     const terrama2::core::Filter& filter,
-    terrama2::core::DataSetPtr dataSet) const
+    terrama2::core::DataSetPtr dataSet,
+    std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
   QUrl url;
   try
@@ -316,10 +317,10 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   {
     std::string name = fileInfo.fileName().toStdString();
     std::string folderPath = dir.absolutePath().toStdString();
-    if(terrama2::core::Unpack::verifyCompressFile(folderPath+ "/" + name))
+    if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
     {
       //unpack files
-      std::string tempFolderPath = terrama2::core::Unpack::unpackList(folderPath+ "/" + name);
+      std::string tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover);
       QDir tempDir(QString::fromStdString(tempFolderPath));
       QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 

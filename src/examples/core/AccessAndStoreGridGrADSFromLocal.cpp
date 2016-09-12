@@ -50,7 +50,8 @@ int main(int argc, char* argv[])
 
     //accessing data
     terrama2::core::DataAccessorGrADS accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter, remover);
 
     assert(gridSeries->gridMap().size() == 1);
 

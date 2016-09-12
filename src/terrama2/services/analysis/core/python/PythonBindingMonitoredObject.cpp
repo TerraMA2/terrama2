@@ -1,11 +1,11 @@
 
 #include "PythonBindingMonitoredObject.hpp"
-#include "dcp/Operator.hpp"
-#include "dcp/history/Operator.hpp"
-#include "dcp/history/interval/Operator.hpp"
-#include "dcp/influence/PythonOperator.hpp"
-#include "occurrence/Operator.hpp"
-#include "occurrence/aggregation/Operator.hpp"
+#include "../dcp/Operator.hpp"
+#include "../dcp/history/Operator.hpp"
+#include "../dcp/history/interval/Operator.hpp"
+#include "../dcp/influence/PythonOperator.hpp"
+#include "../occurrence/Operator.hpp"
+#include "../occurrence/aggregation/Operator.hpp"
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
@@ -209,4 +209,3 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
       occurrenceAggregationVariance_overloads(args("dataSeriesName", "buffer", "dateFilter", "aggregationBuffer", "restriction"),
                                               "Variance operator for occurrence aggregation"));
 }
-

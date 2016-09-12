@@ -48,7 +48,8 @@ int main(int argc, char* argv[])
     terrama2::core::Filter filter;
     //accessing data
     terrama2::core::DataAccessorGeoTiff accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::GridSeriesPtr gridSeries = accessor.getGridSeries(filter,remover);
 
     assert(gridSeries->gridMap().size() == 1);
 

@@ -62,7 +62,8 @@ int main(int argc, char* argv[])
     //empty filter
     terrama2::core::Filter filter;
     filter.lastValue = true;
-    terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
     std::cout << "\nLast data timestamp: " << accessor.lastDateTime()->toString() << std::endl;
 
     assert(dcpSeries->dcpSeriesMap().size() == 1);

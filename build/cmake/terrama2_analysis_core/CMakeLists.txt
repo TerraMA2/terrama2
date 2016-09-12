@@ -31,6 +31,12 @@
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/*.hpp)
 
+file(GLOB TERRAMA2_UTILITY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/utility/*.cpp)
+file(GLOB TERRAMA2_UTILITY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/utility/*.hpp)
+
+file(GLOB TERRAMA2_PYTHON_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/python/*.cpp)
+file(GLOB TERRAMA2_PYTHON_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/python/*.hpp)
+
 file(GLOB TERRAMA2_DCP_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/*.cpp)
 file(GLOB TERRAMA2_DCP_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/dcp/*.hpp)
 
@@ -80,6 +86,10 @@ file(GLOB TERRAMA2_GRID_FORECAST_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
+source_group("Source Files\\utility"  FILES ${TERRAMA2_UTILITY_SRC_FILES})
+source_group("Header Files\\utility"  FILES ${TERRAMA2_UTILITY_HDR_FILES})
+source_group("Source Files\\python"  FILES ${TERRAMA2_PYTHON_SRC_FILES})
+source_group("Header Files\\python"  FILES ${TERRAMA2_PYTHON_HDR_FILES})
 source_group("Source Files\\dcp"  FILES ${TERRAMA2_DCP_SRC_FILES})
 source_group("Header Files\\dcp"  FILES ${TERRAMA2_DCP_HDR_FILES})
 source_group("Source Files\\dcp\\history"  FILES ${TERRAMA2_DCP_HISTORY_SRC_FILES})
@@ -125,6 +135,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_HDR_FILES}
+                                          ${TERRAMA2_UTILITY_SRC_FILES}
+                                          ${TERRAMA2_UTILITY_HDR_FILES}
+                                          ${TERRAMA2_PYTHON_SRC_FILES}
+                                          ${TERRAMA2_PYTHON_HDR_FILES}
                                           ${TERRAMA2_DCP_SRC_FILES}
                                           ${TERRAMA2_DCP_HDR_FILES}
                                           ${TERRAMA2_DCP_HISTORY_SRC_FILES}
@@ -170,7 +184,7 @@ target_link_libraries(terrama2_analysis_core  terrama2_core
                                               ${Boost_PYTHON_LIBRARY})
 
 
-PYTHON_ADD_MODULE(terrama2 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/PythonInterpreter.cpp)
+PYTHON_ADD_MODULE(terrama2 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/python/PythonInterpreter.cpp)
 
 qt5_use_modules(terrama2 Core)
 

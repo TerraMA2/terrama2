@@ -38,15 +38,15 @@ class MockDataRetriever: public terrama2::core::DataRetriever
   public:
 
     MockDataRetriever(terrama2::core::DataProviderPtr dataProvider) :
-      DataRetriever(dataProvider) {};
+      DataRetriever(dataProvider) {}
 
-    MOCK_METHOD2(retrieveData,std::string(const std::string& query, const terrama2::core::Filter& filter));
+    MOCK_METHOD3(retrieveData,std::string(const std::string& query, const terrama2::core::Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover));
 
     MOCK_CONST_METHOD0(lastDateTime,te::dt::TimeInstantTZ());
 
     MOCK_CONST_METHOD0(isRetrivable,bool());
 
-    static terrama2::core::DataRetrieverPtr makeMockDataRetriever(terrama2::core::DataProviderPtr dataProvider, std::shared_ptr<MockDataRetriever> mock)
+    static terrama2::core::DataRetrieverPtr makeMockDataRetriever(terrama2::core::DataProviderPtr /*dataProvider*/, std::shared_ptr<MockDataRetriever> mock)
     {
       return mock;
     }

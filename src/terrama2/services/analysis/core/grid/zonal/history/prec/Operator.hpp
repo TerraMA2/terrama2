@@ -62,9 +62,26 @@ namespace terrama2
                   }
                 };
 
+                /*!
+                  \brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the geometry.
+
+                  This method will call the geometry type especific method.
+                */
+                void appendValues(te::gm::Geometry* geom,
+                                  const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap);
+                //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the polygon.
                 void appendValues(te::gm::Polygon* polygon,
                                   const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
                                   std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& values);
+                //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the line.
+                void appendValues(te::gm::Line* line,
+                                  const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap);
+                //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the point set.
+                void appendValues(std::vector<te::gm::Point*> pointSet,
+                                  const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap);
 
                 /*!
                   \brief Implementation of grid zonal operator.
@@ -96,7 +113,8 @@ namespace terrama2
                 /*!
                   \brief Calculates the mean of zonal grid data.
 
-                  In case of an error or no data available it will return NAN(Not A Number).
+
+                In case of an error or no data available it will return NAN(Not A Number).
 
                   \param dataSeriesName DataSeries name.
                   \param dateFilter Time filter for the data.

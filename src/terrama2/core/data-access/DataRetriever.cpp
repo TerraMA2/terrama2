@@ -46,7 +46,7 @@ terrama2::core::DataRetriever::DataRetriever(DataProviderPtr dataProvider)
   }
 }
 
-std::string terrama2::core::DataRetriever::retrieveData(const std::string& query, const Filter& filter)
+std::string terrama2::core::DataRetriever::retrieveData(const std::string& query, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   QString errMsg = QObject::tr("Non retrievable DataRetriever.");
   throw NotRetrivableException() << ErrorDescription(errMsg);

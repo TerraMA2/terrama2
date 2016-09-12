@@ -16,39 +16,45 @@
 */
 
 /*!
-  \file terrama2/unittest/core/TsDataAccessorGeoTiff.hpp
-  \brief Tests for Class DataAccessorGeoTiff
-  \author Evandro Delatin
+  \file terrama2/core/utility/StoragerManager.hpp
+  \brief
+  \author Paulo R. M. Oliveira
 */
 
-#ifndef __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_GEO_TIFF_HPP__
-#define __TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_GEO_TIFF_HPP__
 
+#ifndef __TERRAMA2_CORE_STORAGER_MANAGER_HPP__
+#define __TERRAMA2_CORE_STORAGER_MANAGER_HPP__
 
-#include <terrama2/impl/DataAccessorGeoTiff.hpp>
-#include <QtTest>
+#include "../Typedef.hpp"
+#include "../Shared.hpp"
+#include "../data-access/DataSetSeries.hpp"
 
+// STL
+#include <vector>
+#include <map>
+#include <mutex>
+#include <condition_variable>
 
-class TsDataAccessorGeoTiff: public QObject
+namespace terrama2
 {
-    Q_OBJECT
+  namespace core
+  {
+    class StoragerManager
+    {
+      public:
+        StoragerManager(terrama2::core::DataManagerPtr dataManager);
 
-  private slots:
+        void store(DataSetSeries series, DataSetPtr outputDataSet);
 
-    void initTestCase(){} // Run before all tests
-    void cleanupTestCase(){} // Run after all tests
+      private:
+        terrama2::core::DataManagerPtr dataManager_;
+        std::vector<std::string> vecURIs_;
+        std::mutex mutex_;
+        std::condition_variable conditionVariable_;
+    };
 
-    void init(){ } //run before each test
-    void cleanup(){ } //run before each test
 
-    //******Test functions********
+  }
+}
 
-    void TestFailAddNullDataAccessorGeoTiff();
-    void TestFailDataProviderNull();
-    void TestFailDataSeriesNull();
-    void TestFailDataSeriesSemanticsInvalid();
-    void TestFailDataRetrieverInvalid();
-    void TestOK();
-};
-
-#endif //__TERRAMA2_UNITTEST_CORE_DATA_ACCESSOR_GEO_TIFF_HPP__
+#endif //__TERRAMA2_CORE_STORAGER_MANAGER_HPP__

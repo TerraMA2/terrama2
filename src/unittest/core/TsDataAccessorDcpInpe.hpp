@@ -44,14 +44,43 @@ class TsDataAccessorDcpInpe: public QObject
 
     //******Test functions********
 
+    /*!
+      Test behavior of the DataAccessor if receive a null DataProvider and
+      DataSeries as parameters in the constructor.
+    */
     void TestFailAddNullDataAccessorDcpInpe();
+
+    /*!
+      Test behavior of the DataAccessor if receive a null DataProvider
+      as parameters in the constructor.
+    */
     void TestFailDataProviderNull();
+
+    /*!
+      Test behavior of the DataAccessor if receive a DataSeries
+      as parameters in the constructor.
+    */
     void TestFailDataSeriesNull();
+
+    /*!
+      Test behavior of the SemanticsManager if requested an unexisting semantics.
+    */
     void TestFailDataSeriesSemanticsInvalid();
-    void TestOKDataRetrieverValid();
+
+    /*!
+      Test behavior of the DataAccessor the DataRetriever raise an exception.
+    */
     void TestFailDataRetrieverInvalid();
+
+    /*!
+      Test behavior of the DataAccessor if unable to open the terralib DataSource.
+    */
     void TestFailDataSourceInvalid();
-    void TestFailDataSetInvalid(); // TestFailDataSetEmpty()
+
+
+    void TestFailDataSetInvalid();
+
+    //! Access a file via DataAccessor and compare the result with the original file.
     void TestOK();
 
 };

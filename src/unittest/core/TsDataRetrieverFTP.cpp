@@ -265,7 +265,8 @@ void TsDataRetrieverFTP::TestFailVectorFileEmpty()
     try
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
-      path = retrieverFTP.retrieveData(mask, filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      path = retrieverFTP.retrieveData(mask, filter, remover);
 
     }
     catch(...)
@@ -328,7 +329,8 @@ void TsDataRetrieverFTP::TestOKVectorWithFiles()
     try
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
-      path = retrieverFTP.retrieveData(mask, filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      path = retrieverFTP.retrieveData(mask, filter, remover);
 
     }
     catch(...)
@@ -388,7 +390,8 @@ void TsDataRetrieverFTP::TestFailDownloadFile()
     try
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
-      path = retrieverFTP.retrieveData(mask, filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      path = retrieverFTP.retrieveData(mask, filter, remover);
     }
     catch(...)
     {
@@ -447,7 +450,8 @@ void TsDataRetrieverFTP::TestOKDownloadFile()
     try
     {
       terrama2::core::DataRetrieverFTP retrieverFTP(dataProviderPtr, std::move(mock_));
-      path = retrieverFTP.retrieveData(mask, filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      path = retrieverFTP.retrieveData(mask, filter, remover);
     }
     catch(...)
     {

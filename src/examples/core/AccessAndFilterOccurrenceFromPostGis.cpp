@@ -75,7 +75,8 @@ int main(int argc, char* argv[])
 
     filter.region = std::shared_ptr<te::gm::Geometry>(geometry);
 
-    terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter, remover);
 
     assert(occurrenceSeries->occurrencesMap().size() == 1);
 

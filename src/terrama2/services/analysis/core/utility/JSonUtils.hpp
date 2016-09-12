@@ -27,8 +27,8 @@
   \author Paulo R. M. Oliveira
 */
 
-#include "Shared.hpp"
-#include "Analysis.hpp"
+#include "../Shared.hpp"
+#include "../Analysis.hpp"
 
 // Qt
 #include <QJsonObject>

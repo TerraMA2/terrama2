@@ -87,11 +87,10 @@ std::string terrama2::core::DataAccessorGrADS::getCtlFilename(DataSetPtr dataSet
   }
 }
 
-std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset,
-                                                            const Filter& filter) const
+std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<FileRemover> remover) const
 {
   std::string mask = getCtlFilename(dataset);
-  std::string uri = dataRetriever->retrieveData(mask, filter);
+  std::string uri = dataRetriever->retrieveData(mask, filter, remover);
 
   QUrl url(QString::fromStdString(uri));
   auto gradsDescriptor = readDataDescriptor(url.path().toStdString()+"/"+mask);
@@ -105,7 +104,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 
   datasetMask = replaceMask(datasetMask.c_str()).toStdString();
 
-  uri = dataRetriever->retrieveData(datasetMask, filter);
+  uri = dataRetriever->retrieveData(datasetMask, filter, remover);
 
   return uri;
 }
@@ -180,7 +179,8 @@ QString terrama2::core::DataAccessorGrADS::replaceMask(QString mask) const
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const std::string& uri,
                                                                            const terrama2::core::Filter& filter,
-                                                                           terrama2::core::DataSetPtr dataSet) const
+                                                                           terrama2::core::DataSetPtr dataSet,
+                                                                           std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
   QUrl url;
   try
@@ -232,10 +232,10 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   {
     std::string name = fileInfo.fileName().toStdString();
     std::string folderPath = dir.absolutePath().toStdString();
-    if(terrama2::core::Unpack::verifyCompressFile(folderPath+ "/" + name))
+    if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
     {
       //unpack files
-      std::string tempFolderPath = terrama2::core::Unpack::unpackList(folderPath+ "/" + name);
+      std::string tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover);
       QDir tempDir(QString::fromStdString(tempFolderPath));
       QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 
@@ -431,7 +431,7 @@ void terrama2::core::GrADSDataDescriptor::addVar(const std::string& strVar)
     var->units_ = tokens[2].toStdString();
 
     // Description may have spaces, need to concatenate all pieces
-    for (unsigned int i = 3; i < tokens.size(); ++i)
+    for (int i = 3; i < tokens.size(); ++i)
     {
       if (!var->description_.empty())
         var->description_ += " ";
@@ -874,7 +874,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     unsigned int lineOffset = 0;
     unsigned int imageOffset = 0;
 
-    for (unsigned int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
+    for(int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
     {
 
       // BSQ (Band sequential) interleave

@@ -46,6 +46,7 @@
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
+#include "../../../core/utility/FileRemover.hpp"
 
 terrama2::services::collector::core::Service::Service(std::weak_ptr<terrama2::services::collector::core::DataManager> dataManager)
   : dataManager_(dataManager)
@@ -131,8 +132,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   {
     TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
-    if(logger.get())
-      logId = logger->start(collectorId);
+    logId = logger->start(collectorId);
 
     //////////////////////////////////////////////////////////
     //  aquiring metadata
@@ -156,9 +156,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     terrama2::core::Filter filter = collectorPtr->filter;
     //update filter based on last collected data timestamp
-    std::shared_ptr<te::dt::TimeInstantTZ> lastCollectedDataTimestamp;
-    if(logger.get())
-      lastCollectedDataTimestamp = logger->getDataLastTimestamp(logId);
+    std::shared_ptr<te::dt::TimeInstantTZ> lastCollectedDataTimestamp = logger->getDataLastTimestamp(logId);
 
     if(lastCollectedDataTimestamp.get() && filter.discardBefore.get())
     {
@@ -168,8 +166,9 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     else if(lastCollectedDataTimestamp.get())
       filter.discardBefore = lastCollectedDataTimestamp;
 
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
-    auto dataMap = dataAccessor->getSeries(filter);
+    auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
       if(logger.get())
@@ -203,15 +202,14 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
 
-    if(logger.get())
-      logger->done(lastDateTime, logId);
+    logger->done(lastDateTime, logId);
   }
   catch(const terrama2::Exception&)
   {
     QString errMsg = tr("Collection for collector %1 finished with error(s).").arg(collectorId);
     TERRAMA2_LOG_INFO() << errMsg;
 
-    if(logger.get() && logId != 0)
+    if(logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
   catch(const boost::exception& e)
@@ -220,7 +218,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
-    if(logger.get() && logId != 0)
+    if(logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
   catch(const std::exception& e)
@@ -228,7 +226,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_ERROR() << e.what();
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
-    if(logger.get() && logId != 0)
+    if(logId != 0)
       logger->error(e.what(), logId);
   }
   catch(...)
@@ -237,7 +235,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
-    if(logger.get() && logId != 0)
+    if(logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
 }

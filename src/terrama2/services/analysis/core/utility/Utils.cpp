@@ -27,23 +27,28 @@
   \author Paulo R. M. Oliveira
 */
 
-#include "DataManager.hpp"
+#include "../DataManager.hpp"
 #include "Utils.hpp"
-#include "../../../core/Exception.hpp"
-#include "../../../core/data-model/Filter.hpp"
-#include "../../../core/utility/DataAccessorFactory.hpp"
-#include "../../../core/data-access/DataAccessor.hpp"
-#include "../../../core/data-access/DataAccessorGrid.hpp"
-#include "../../../core/data-access/GridSeries.hpp"
+#include "../../../../core/Exception.hpp"
+#include "../../../../core/data-model/Filter.hpp"
+#include "../../../../core/utility/DataAccessorFactory.hpp"
+#include "../../../../core/utility/Logger.hpp"
+#include "../../../../core/utility/Raii.hpp"
+#include "../../../../core/data-access/DataAccessor.hpp"
+#include "../../../../core/data-access/DataAccessorGrid.hpp"
+#include "../../../../core/data-access/GridSeries.hpp"
 
 // TerraLib
 #include <terralib/common/StringUtils.h>
 #include <terralib/raster/Reprojection.h>
 #include <terralib/memory/Raster.h>
 #include <terralib/rp/Functions.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 // QT
 #include <QObject>
+#include <QUrl>
 
 //STL
 #include <cmath>
@@ -54,7 +59,7 @@ terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::c
   switch(type)
   {
     case 1:
-      return AnalysisType::PCD_TYPE;
+      return AnalysisType::DCP_TYPE;
     case 2:
       return AnalysisType::MONITORED_OBJECT_TYPE;
     case 3:
@@ -147,7 +152,7 @@ terrama2::services::analysis::core::InterestAreaType terrama2::services::analysi
 }
 
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId)
+terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
   auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
   if(!dataSeriesPtr)
@@ -162,7 +167,7 @@ terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataS
   std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
   terrama2::core::Filter filter;
   filter.lastValue = true;
-  auto gridSeries = accessorGrid->getGridSeries(filter);
+  auto gridSeries = accessorGrid->getGridSeries(filter, remover);
 
   if(!gridSeries)
   {

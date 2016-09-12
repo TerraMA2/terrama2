@@ -274,7 +274,8 @@ void TsDataAccessorOccurrenceWfp::TestOKDataRetrieverValid()
 
     try
     {
-      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter, remover);
     }
     catch(...)
     {
@@ -330,7 +331,7 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
     auto mock_ = std::make_shared<MockDataRetriever>(dataProviderPtr);
 
     EXPECT_CALL(*mock_, isRetrivable()).WillOnce(Return(true));
-    EXPECT_CALL(*mock_, retrieveData(_,_)).WillOnce(testing::Throw(exceptionMock));
+    EXPECT_CALL(*mock_, retrieveData(_,_,_)).WillOnce(testing::Throw(exceptionMock));
 
     auto makeMock = std::bind(MockDataRetriever::makeMockDataRetriever, std::placeholders::_1, mock_);
 
@@ -338,7 +339,8 @@ void TsDataAccessorOccurrenceWfp::TestFailDataRetrieverInvalid()
 
     try
     {
-      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NotRetrivableException&)
@@ -401,7 +403,8 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSourceInvalid()
 
     try
     {
-      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NoDataException&)
@@ -465,7 +468,8 @@ void TsDataAccessorOccurrenceWfp::TestFailDataSetInvalid()
 
     try
     {
-      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+      auto remover = std::make_shared<terrama2::core::FileRemover>();
+      terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter, remover);
       QFAIL("Exception expected!");
     }
     catch(const terrama2::core::NoDataException&)
@@ -514,7 +518,8 @@ void TsDataAccessorOccurrenceWfp::TestOK()
     terrama2::core::Filter filter;
     //accessing data
     terrama2::core::DataAccessorOccurrenceWfp accessor(dataProviderPtr, dataSeriesPtr);
-    terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter);
+    auto remover = std::make_shared<terrama2::core::FileRemover>();
+    terrama2::core::OccurrenceSeriesPtr occurrenceSeries = accessor.getOccurrenceSeries(filter, remover);
 
     assert(occurrenceSeries->occurrencesMap().size() == 1);
 

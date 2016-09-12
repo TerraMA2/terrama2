@@ -181,7 +181,8 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > terrama2::core::DataAccessor::getSeries(const Filter& filter) const
+std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries >
+terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<FileRemover> remover) const
 {
 
   //if data provider is not active, nothing to do
@@ -217,34 +218,17 @@ std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > t
       if(!intersects(dataset, filter))
         continue;
 
-      bool removeFolder = false;
       // if this data retriever is a remote server that allows to retrieve data to a file,
       // download the file to a temporary location
       // if not, just get the DataProvider uri
       std::string uri;
       if(dataRetriever->isRetrivable())
-      {
-        uri = retrieveData(dataRetriever, dataset, filter);
-        removeFolder = true;
-      }
+        uri = retrieveData(dataRetriever, dataset, filter, remover);
       else
         uri = dataProvider_->uri;
 
-      DataSetSeries tempSeries = getSeries(uri, filter, dataset);
+      DataSetSeries tempSeries = getSeries(uri, filter, dataset, remover);
       series.emplace(dataset, tempSeries);
-
-
-      // FIXME: concurrency problems here, temp folder is the same and it's removed while others are reading #582
-      // if(removeFolder)
-      // {
-      //   QUrl url(uri.c_str());
-      //   QDir dir(url.path());
-      //   if(!dir.removeRecursively())
-      //   {
-      //     QString errMsg = QObject::tr("Data folder could not be removed.\n%1").arg(url.path());
-      //     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-      //   }
-      // }
     }//for each dataset
   }
   catch(const terrama2::Exception&)

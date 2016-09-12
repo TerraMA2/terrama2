@@ -94,6 +94,7 @@ namespace terrama2
             AdditionalData additionalData_;//!< AdditionalData to be included in the Alert Report.
             terrama2::core::DataSeriesPtr dataSeries_;//!< DataSeries of the AdditionalData
             terrama2::core::DataProviderPtr dataProvider_;//!< DataProvider of the AdditionalData
+            std::shared_ptr<terrama2::core::FileRemover> remover_; //Temporary files remover.
 
             std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> dataMap_;//!< DataSetSeries map of the AdditionalData
             std::unordered_map<terrama2::core::DataSetPtr, std::shared_ptr<terrama2::core::DataSetMapper> > mapperMap_;//!< DataSetMapper map of the AdditionalData
