@@ -20,19 +20,17 @@
 */
 
 /*!
-  \file src/terrama2/services/view/core/JSonUtils.hpp
+  \file terrama2/services/view/data-access/Geoserver.hpp
 
-  \brief Methods to convertion between a View and JSon object
+  \brief Communication class between View service and GeoServer
 
   \author Vinicius Campanha
 */
 
-// TerraMa2
-#include "View.hpp"
-#include "Shared.hpp"
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
 
-// Qt
-#include <QJsonObject>
+#include <string>
 
 namespace terrama2
 {
@@ -40,25 +38,35 @@ namespace terrama2
   {
     namespace view
     {
-      namespace core
+      namespace data_access
       {
-        /*!
-          \brief Creates a View from a QJsonObject.
-          \see View for json structure
-          */
-        ViewPtr fromViewJson(QJsonObject json);
+        class GeoServer
+        {
 
-        /*!
-          \brief Creates a Json object from a View
-        */
-        QJsonObject toJson(ViewPtr view);
+        public:
 
-        /*!
-          \brief Creates a style XML file compatible with GeoServer
-        */
-        void writeStyleGeoserverXML(const te::se::Style* style, std::string path);
+          GeoServer(std::string address,
+                    std::string port,
+                    std::string user,
+                    std::string password);
 
-      } // end namespace core
-    }   // end namespace view
-  }     // end namespace services
-}       // end namespace terrama2
+          ~GeoServer() = default;
+
+          void registerStyle(std::string name, std::string style);
+
+        private:
+
+          std::string address_ = "";
+          std::string port_ = "";
+          std::string user_ = "";
+          std::string password_ = "";
+
+        };
+      }
+    }
+  }
+}
+
+
+
+#endif //__TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__

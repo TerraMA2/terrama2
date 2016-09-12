@@ -28,8 +28,8 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-file(GLOB_RECURSE TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/view/core/*.cpp)
-file(GLOB_RECURSE TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/view/core/*.hpp)
+file(GLOB_RECURSE TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/view/*.cpp)
+file(GLOB_RECURSE TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/view/*.hpp)
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
 source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
