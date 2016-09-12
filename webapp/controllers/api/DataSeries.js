@@ -217,6 +217,18 @@ module.exports = function(app) {
                     if (!filterObject.region) {
                       filterUpdate.region = null;
                     }
+
+                    if (!_.isEmpty(filterObject.date)) {
+                      if (!filterObject.date.beforeDate) {
+                        filterUpdate.discard_before = null;
+                        delete filterUpdate.date.beforeDate;
+                      }
+                      if (!filterObject.date.afterDate) {
+                        filterUpdate.discard_after = null;
+                        delete filterUpdate.date.afterDate;
+                      }
+                    }
+
                     DataManager.updateFilter(collector.filter.id, filterUpdate).then(function() {
                       DataManager.getFilter({id: collector.filter.id}).then(function(filter) {
                         collector.filter = filter;
@@ -224,7 +236,7 @@ module.exports = function(app) {
                       });
                     }).catch(_handleError);
                   } else {
-                    if (_.isEmpty(filterObject.date) || !filterObject.region) {
+                    if (_.isEmpty(filterObject.date)) {
                       _processIntersection();
                     } else {
                       filterObject.collector_id = collector.id;

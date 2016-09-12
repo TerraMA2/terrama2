@@ -207,10 +207,12 @@ angular.module('terrama2.dataseries.registration', [
             // fill filter
             var filter = collector.filter || {};
 
-            if (filter.discard_before)
+            if (filter.discard_before) {
               $scope.filter.date.beforeDate = DateParser(filter.discard_before);
-            if (filter.discard_after)
+            }
+            if (filter.discard_after) {
               $scope.filter.date.afterDate = DateParser(filter.discard_after);
+            }
 
             // filter geometry field
             if (filter.region) {
@@ -227,7 +229,7 @@ angular.module('terrama2.dataseries.registration', [
             if ($scope.hasCollector) {
               outputDataseries.dataSets.forEach(function(dataset) {
                 $scope.dcpsStorager.push(dataset.format);
-              })
+              });
             } else {
               (args.dcps || []).forEach(function(dataSetDcp) {
                 $scope._addDcpStorager(Object.assign({}, dataSetDcp));
