@@ -165,7 +165,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     terrama2::core::Filter filter = collectorPtr->filter;
     //update filter based on last collected data timestamp
-    std::shared_ptr<te::dt::TimeInstantTZ> lastCollectedDataTimestamp = logger->getDataLastTimestamp(logId);
+    std::shared_ptr<te::dt::TimeInstantTZ> lastCollectedDataTimestamp = logger->getDataLastTimestamp(collectorId);
 
     if(lastCollectedDataTimestamp.get() && filter.discardBefore.get())
     {
