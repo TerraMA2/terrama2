@@ -118,12 +118,21 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
   }
 }
 
-void terrama2::services::collector::core::Service::collect(CollectorId collectorId, std::shared_ptr< terrama2::services::collector::core::CollectorLogger > logger, std::weak_ptr<DataManager> weakDataManager)
+void terrama2::services::collector::core::Service::collect(CollectorId collectorId,
+                                                           std::shared_ptr< terrama2::services::collector::core::CollectorLogger > logger,
+                                                           std::weak_ptr<DataManager> weakDataManager)
 {
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
   {
     TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
+    return;
+  }
+
+  if(!logger.get())
+  {
+    QString errMsg = QObject::tr("Unable to access Logger class in collector %1").arg(collectorId);
+    TERRAMA2_LOG_ERROR() << errMsg;
     return;
   }
 

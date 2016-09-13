@@ -76,6 +76,14 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   RegisterId logId = 0;
   AnalysisHashCode analysisHashCode = analysis->hashCode(startTime);
 
+  if(!logger.get())
+  {
+    QString errMsg = QObject::tr("Unable to access Logger class in analysis");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    ContextManager::getInstance().addError(analysisHashCode,  errMsg.toStdString());
+    return;
+  }
+
   if(!startTime)
   {
     ContextManager::getInstance().addError(analysisHashCode, QObject::tr("Invalid start time").toStdString());
