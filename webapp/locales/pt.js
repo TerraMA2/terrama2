@@ -182,5 +182,12 @@
 	"Influence radius is required": "Influence radius is required",
 	"Influence data series is required": "Influence data series is required",
 	"Influence attribute name is required": "Influence attribute name is required",
-	"Profile": "Profile"
+	"Profile": "Profile",
+	"Name is required": "Name is required",
+	"Username is required": "Username is required",
+	"Password is required": "Password is required",
+	"Confirm password is required": "Confirm password is required",
+	"Confirm password must be same password": "Confirm password must be same password",
+	"Email is required": "Email is required",
+	"Alert Registration": "Alert Registration"
 }

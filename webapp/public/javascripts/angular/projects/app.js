@@ -1,1 +1,1 @@
-angular.module('terrama2.projects', ['terrama2']);
+angular.module('terrama2.projects', ['terrama2', 'terrama2.components.messagebox']);
