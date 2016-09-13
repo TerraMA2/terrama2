@@ -60,7 +60,7 @@ Database.prototype.getORM = function() {
  */
 Database.prototype.getContextConfig = function() {
   return this.config[this.currentContext];
-}
+};
 
 /**
  * It sets current terrama2 context
@@ -80,7 +80,7 @@ Database.prototype.setCurrentContext = function(context) {
   }
 
   this.currentContext = context;
-}
+};
 
 /**
  * It initializes database, creating database, schema and postgis support. Once prepared, it retrieves a ORM instance
@@ -167,8 +167,9 @@ Database.prototype.init = function() {
 Database.prototype.finalize = function() {
   var self = this;
   return new Promise(function(resolve, reject) {
-    if (self.isInitialized())
+    if (self.isInitialized()) {
       sequelize.close();
+    }
 
     resolve();
   })

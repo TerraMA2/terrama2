@@ -165,6 +165,12 @@ var Utils = {
     throw new Error("Invalid analysis id");
   },
 
+  /**
+   * It retrieves a TCP signal from given value
+   * 
+   * @param {number} value - A tcp signal number
+   * @returns {Signals}
+   */
   getTcpSignal: function(value) {
     switch(value) {
       case Signals.TERMINATE_SERVICE_SIGNAL:
@@ -181,6 +187,11 @@ var Utils = {
     }
   },
 
+  /**
+   * It retrieves a user home directory (win32/linux/mac)
+   * 
+   * @returns {string}
+   */
   getUserHome: function() {
     return process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
   },
@@ -339,7 +350,7 @@ var Utils = {
   find: function(where, restriction) {
     var self = this;
     return where.find(function(entry) {
-      return self.matchObject(restriction, entry);;
+      return self.matchObject(restriction, entry);
     });
   },
 

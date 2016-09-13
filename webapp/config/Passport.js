@@ -23,7 +23,7 @@ var _handlePermission = function(condition, request, response, next) {
     request.flash('error', 'You have to be logged in to access the page.');
     response.redirect('/');
   }
-}
+};
 
 var isAdministrator = function(req, res, next) {
   _handlePermission(req.user && req.user.administrator, req, res, next);
@@ -31,7 +31,7 @@ var isAdministrator = function(req, res, next) {
 
 var isCommonUser = function(request, response, next) {
   _handlePermission(request.user && !request.user.administrator, request, response, next);
-}
+};
 
 var setupPassport = function(app) {
   app.use(passport.initialize());
@@ -48,7 +48,7 @@ var setupPassport = function(app) {
           'username': username
         }
       }).then(function(userObj) {
-        if(userObj == null) {
+        if(userObj === null) {
           return done(null, false, { message: 'Incorrect credentials.' });
         }
 
@@ -59,12 +59,12 @@ var setupPassport = function(app) {
         }
 
         return done(null, false, { message: 'Incorrect credentials.' });
-      })
+      });
     }
   ));
 
   passport.serializeUser(function(userObj, done) {
-    done(null, userObj.id);
+    return done(null, userObj.id);
   });
 
   passport.deserializeUser(function(id, done) {
@@ -73,11 +73,11 @@ var setupPassport = function(app) {
         'id': id
       }
     }).then(function(user) {
-      if (user == null) {
-        done(new Error('Wrong user id.'));
+      if (user === null) {
+        return done(new Error('Wrong user id.'));
       }
 
-      done(null, user);
+      return done(null, user);
     });
   });
 };
