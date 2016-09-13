@@ -290,6 +290,11 @@ angular.module('terrama2.dataseries.registration', [
       $scope.form = [];
       $scope.model = {};
 
+      // defining box
+      $scope.cssBoxSolid = {
+        boxType: "box-solid"
+      };
+
       // consts
       $scope.filterTypes = {
         NO_FILTER: {

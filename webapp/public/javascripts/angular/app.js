@@ -2,6 +2,7 @@
 
 var terrama2Application = angular.module("terrama2", ['i18n']);
 
+
 /**
  * TerraMA2 Front end Log Decorator
  */
@@ -76,18 +77,6 @@ terrama2Application.factory("TryCaster", function() {
  */
 terrama2Application.factory("DateParser", function() {
   return function(stringDate) {
-    var minus = stringDate.lastIndexOf('-');
-    var plus = stringDate.lastIndexOf('+');
-    var timezone = null;
-    var momentDate = null;
-    // if (minus > -1) {
-    //   timezone = stringDate.substring(minus+1, minus+3);
-    //   momentDate = moment(stringDate.substring(0, minus)).utc(- parseInt(timezone) * 2);
-    // } else {
-    //   timezone = stringDate.substring(plus+1, plus+3);
-    //   momentDate = moment(stringDate.substring(0, plus)).utc(- parseInt(timezone) * 2);
-    // }
-    // return momentDate;
     return moment.parseZone(stringDate);
   };
 });

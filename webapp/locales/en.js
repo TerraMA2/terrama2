@@ -407,23 +407,8 @@
 	"Attribute name is required": "Attribute name is required",
 	"Attribute name cannot be same": "Attribute name cannot be same",
 	"Attribute": "Attribute",
-	"Sunday": "Sunday",
-	"Monday": "Monday",
-	"Tuesday": "Tuesday",
-	"Wednesday": "Wednesday",
-	"Thursday": "Thursday",
-	"Friday": "Friday",
-	"Saturday": "Saturday",
-	"Seconds": "Seconds",
-	"Minutes": "Minutes",
-	"Hours": "Hours",
-	"Weekly": "Weekly",
 	"Ignores data after": "Ignores data after",
 	"Are you sure to remove ?": "Are you sure to remove ?",
-	"Frequency": "Frequency",
-	"Frequency value is required": "Frequency value is required",
-	"Frequency value is invalid": "Frequency value is invalid",
-	"Start Time": "Start Time",
 	"Start": "Start",
 	"Stop": "Stop",
 	"Starting": {
@@ -440,19 +425,7 @@
 			}
 		}
 	},
-	"X min": "X min",
-	"MinX is required": "MinX is required",
-	"MinX is invalid": "MinX is invalid",
-	"MaxX is required": "MaxX is required",
-	"MaxX is invalid": "MaxX is invalid",
-	"MinY is invalid": "MinY is invalid",
-	"MaxY is invalid": "MaxY is invalid",
-	"MaxY is required": "MaxY is required",
-	"MinY is required": "MinY is required",
-	"Type a projetion": {
-		"": "Type a projetion."
-	},
-	"SRID is required": "SRID is required",
-	"SRID is invalid": "SRID is invalid",
-	"Object Monitored": "Object Monitored"
+	"Object Monitored": "Object Monitored",
+	"General": "General",
+	"Filters": "Filters"
 }
