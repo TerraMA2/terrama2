@@ -180,8 +180,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      if(logger.get())
-        logger->done(nullptr, logId);
+      logger->done(nullptr, logId);
       TERRAMA2_LOG_WARNING() << tr("No data to collect.");
       return;
     }
