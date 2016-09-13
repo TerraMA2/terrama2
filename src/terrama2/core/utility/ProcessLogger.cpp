@@ -108,7 +108,7 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 
 void terrama2::core::ProcessLogger::closeConnection()
 {
-  if(dataSource_)
+  if(dataSource_ && dataSource_->isOpened())
     dataSource_->close();
 }
 

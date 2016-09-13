@@ -132,12 +132,14 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
 
+    auto myThreadState = PyThreadState_Swap(NULL);
 
     //////////////////////////////////////////////////////////////////////////////////////
     // Save thread state and unlock python interpreter before entering multi-thread zone
     terrama2::services::analysis::core::python::OperatorLock operatorLock;
     operatorLock.unlock();
 
+    std::cout << "releasing lock inside operator: " << cache.analysisHashCode << ": " << cache.index << std::endl;
     std::shared_ptr<ContextDataSeries> contextDataSeries;
 
     try
@@ -310,8 +312,28 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
       exceptionOccurred = true;
     }
 
+
     // All operations are done, acquires the GIL and set the return value
     operatorLock.lock();
+
+
+    if(myThreadState == NULL)
+    {
+      context->addError(QObject::tr("Invalid thread state.").toStdString());
+      return NAN;
+    }
+
+    PyThreadState_Swap(myThreadState);
+
+
+    std::cout << "acquired lock inside operator: " << cache.analysisHashCode << ": " << cache.index << std::endl;
+    terrama2::services::analysis::core::python::readInfoFromDict(cache);
+    std::cout << "acquired lock inside operator: " << cache.analysisHashCode << ": " << cache.index << std::endl;
+    if(cache.index == -1)
+    {
+      context->addError(QObject::tr("Bugou - Invalid thread state.").toStdString());
+      return NAN;
+    }
 
     if(exceptionOccurred)
       return NAN;

@@ -302,21 +302,16 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
 
   // grab the lock
-  PyEval_AcquireLock();
+  terrama2::services::analysis::core::python::GILLock lock;
+  PyThreadState_Swap(NULL);
+
   for(auto state : states)
   {
-    // swap my thread state out of the interpreter
-    PyThreadState_Swap(NULL);
     // clear out any cruft from thread state object
     PyThreadState_Clear(state);
     // delete my thread state object
     PyThreadState_Delete(state);
   }
-
-  PyThreadState_Swap(mainThreadState);
-
-  // release the lock
-  PyEval_ReleaseLock();
 }
 
 
@@ -591,23 +586,17 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
 
-
   // grab the lock
-  PyEval_AcquireLock();
+  terrama2::services::analysis::core::python::GILLock lock;
+  PyThreadState_Swap(mainThreadState);
+
   for(auto state : states)
   {
-    // swap my thread state out of the interpreter
-    PyThreadState_Swap(NULL);
     // clear out any cruft from thread state object
     PyThreadState_Clear(state);
     // delete my thread state object
     PyThreadState_Delete(state);
   }
-
-  PyThreadState_Swap(mainThreadState);
-
-  // release the lock
-  PyEval_ReleaseLock();
 }
 
 void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context)

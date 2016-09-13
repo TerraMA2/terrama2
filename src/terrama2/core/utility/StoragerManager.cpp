@@ -80,7 +80,14 @@ void terrama2::core::StoragerManager::store(terrama2::core::DataSetSeries series
       ul.unlock();
     }
 
-    dataStorager->store(series, outputDataSet);
+    try
+    {
+      dataStorager->store(series, outputDataSet);
+    }
+    catch(...)
+    {
+      // should be logged on throw
+    }
 
     std::lock_guard<std::mutex> lockGuard(mutex_);
 

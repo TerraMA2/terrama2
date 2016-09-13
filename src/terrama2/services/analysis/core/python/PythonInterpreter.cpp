@@ -108,14 +108,11 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   {
     QString errMsg = QObject::tr("Invalid thread state for python interpreter.");
     context->addError(errMsg.toStdString());
-    PyEval_ReleaseLock();
     return;
   }
 
   // swap in my thread state
-  auto previousState = PyEval_SaveThread();
-  PyEval_RestoreThread(state);
-
+  PyThreadState_Swap(state);
   try
   {
     AnalysisPtr analysis = context->getAnalysis();
@@ -191,10 +188,6 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
   }
-
-
-  state = PyEval_SaveThread();
-  PyEval_RestoreThread(previousState);
 }
 
 
@@ -206,7 +199,6 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
   {
     QString errMsg = QObject::tr("Invalid thread state for python interpreter.");
     context->addError(errMsg.toStdString());
-    PyEval_ReleaseLock();
     return;
   }
 
@@ -339,7 +331,10 @@ void terrama2::services::analysis::core::python::runScriptDCPAnalysis(PyThreadSt
 void terrama2::services::analysis::core::python::addValue(const std::string& attribute, double value)
 {
   OperatorCache cache;
+
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
+  std::cout << "add value: " << cache.index << " " << cache.analysisHashCode << " attr: " << attribute << " value: " << value << std::endl;
+
 
   std::string attrName = boost::to_lower_copy(attribute);
 
@@ -516,7 +511,7 @@ void terrama2::services::analysis::core::python::initInterpreter()
 void terrama2::services::analysis::core::python::finalizeInterpreter()
 {
   // shut down the interpreter
-  PyEval_AcquireLock();
+  GILLock lock;
   Py_Finalize();
 }
 
@@ -554,6 +549,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
       {
         cache.index = PyInt_AsLong(geomIdPy);
       }
+      break;
     }
     case AnalysisType::GRID_TYPE:
     {
@@ -572,6 +568,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
       {
         cache.column = PyInt_AsLong(columnValue);
       }
+      break;
     }
 
   }
@@ -620,7 +617,7 @@ terrama2::services::analysis::core::python::GILLock::GILLock(bool lock) : lock_(
   if(lock)
   {
     mutex_.lock();
-    state_ = PyGILState_Ensure();
+    PyEval_AcquireLock();
   }
 }
 
@@ -628,7 +625,7 @@ terrama2::services::analysis::core::python::GILLock::~GILLock()
 {
   if(lock_)
   {
-    PyGILState_Release(state_);
+    PyEval_ReleaseLock();
     mutex_.unlock();
   }
 }
@@ -647,12 +644,12 @@ terrama2::services::analysis::core::python::OperatorLock::~OperatorLock()
 void terrama2::services::analysis::core::python::OperatorLock::lock()
 {
   mutex_.lock();
-  PyEval_RestoreThread(save_);
+  PyEval_AcquireLock();
 }
 
 void terrama2::services::analysis::core::python::OperatorLock::unlock()
 {
-  save_ = PyEval_SaveThread();
+  PyEval_ReleaseLock();
   mutex_.unlock();
 }
 
