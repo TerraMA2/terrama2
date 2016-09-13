@@ -106,9 +106,13 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   };
 
   $scope.save = function() {
+    $scope.resetState();
     $scope.$broadcast('formFieldValidation');
     var isConnectionFormValid = $scope.isValidDataProviderTypeForm($scope.forms.connectionForm);
     if (!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
+      $scope.alertBox.title = "Data Provider Registration";
+      $scope.alertBox.message = "There are invalid fields on form";
+      $scope.errorFound = true;
       return;
     }
 

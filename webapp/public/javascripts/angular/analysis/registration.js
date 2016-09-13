@@ -593,24 +593,37 @@ angular.module('terrama2.analysis.registration', [
 
     // save function
     $scope.save = function() {
+
+      $scope.close();
       $scope.$broadcast('formFieldValidation');
 
       $scope.analysis_script_error = false;
       if ($scope.forms.generalDataForm.$invalid) {
+        makeDialog("alert-danger", "There are invalid fields on form", true);
         return;
       }
 
       if ($scope.forms.storagerDataForm.$invalid || $scope.forms.storagerForm.$invalid) {
+        makeDialog("alert-danger", "There are invalid fields on form", true);
         return;
       }
 
       // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
       var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
-      if (scheduleForm.$invalid) { return; }
+      if (scheduleForm.$invalid) { 
+        makeDialog("alert-danger", "There are invalid fields on form", true);
+        return;
+      }
 
-      if ($scope.forms.targetDataSeriesForm.$invalid) { return; }
+      if ($scope.forms.targetDataSeriesForm.$invalid) { 
+        makeDialog("alert-danger", "There are invalid fields on form", true);
+        return;
+      }
 
-      if ($scope.forms.scriptForm.$invalid) { return; }
+      if ($scope.forms.scriptForm.$invalid) {
+        makeDialog("alert-danger", "There are invalid fields on form", true);
+        return;
+      }
 
       // checking script form if there any "add_value"
       var typeId = parseInt($scope.analysis.type_id);
