@@ -47,7 +47,7 @@ var TcpSocket = function(io) {
 
     var onStatusReceivedData = function(service, response){
       var flagObject = dataSentFlags[service.id];
-      if (flagObject && !flagObject.isDataSent) {
+      if (flagObject && flagObject.isDataSent === false) {
         console.log("sendind data");
         Utils.prepareAddSignalMessage(DataManager).then(function(data) {
           TcpManager.emit('sendData', service, data);
@@ -60,6 +60,7 @@ var TcpSocket = function(io) {
     };
 
     var onStatusReceived = function(service, response) {
+      dataSentFlags[service.id].answered = true;
       client.emit('statusResponse', {
         status: 200,
         service: service.id,
@@ -105,6 +106,18 @@ var TcpSocket = function(io) {
       })
     };
 
+    /**
+     * It is used to handling lazy tcp response.
+     * Once status sent, the c++ service should emit a service metadata running. At first time,
+     * a status response should send data to services using ADD_SIGNAL.
+     * To handle it, this object stores a service id poiting to object with following syntax:
+     * serviceId => {
+     *   isDataSent: boolean,
+     *   answered: boolean,
+     *   id: number
+     * }
+     * 
+     */
     var dataSentFlags = {};
 
     // register listeners
@@ -172,6 +185,20 @@ var TcpSocket = function(io) {
     // end client start listener
 
     client.on('status', function(json) {
+      /**
+       * Helper for handling error callbacks. It notifies client listeners.
+       * 
+       * @param {Error} err - A threw callback error
+       */
+      var _emitError = function(err) {
+        client.emit('statusResponse', {
+          status: 400,
+          online: false,
+          loading: false,
+          service: json.service
+        });
+      };
+
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
         // notify every one with loading
         iosocket.emit('statusResponse', {
@@ -181,7 +208,26 @@ var TcpSocket = function(io) {
           service: instance.id
         });
 
-        TcpManager.emit('statusService', instance);
+        var serviceFlag = dataSentFlags[instance.id] || {};
+        serviceFlag.id = instance.id;
+        serviceFlag.answered = false;
+        dataSentFlags[instance.id] = serviceFlag;
+
+        TcpManager.connect(instance).then(function() {
+          TcpManager.emit('statusService', instance);
+
+          setTimeout(function() {
+            if (!serviceFlag.answered) {
+              serviceFlag.isDataSent = false;
+
+              TcpManager.updateService(instance);
+
+              setTimeout(function() {
+                TcpManager.emit('statusService', instance);
+              }, 1000);
+            }
+          }, 1000);
+        }).catch(_emitError);
       }).catch(function(err) {
         console.log(err);
         client.emit('statusResponse', {
@@ -189,7 +235,7 @@ var TcpSocket = function(io) {
           online: false,
           loading: false,
           service: json.service
-        })
+        });
       });
     });
     // end client status listener
@@ -209,10 +255,10 @@ var TcpSocket = function(io) {
         client.emit('errorResponse', {
           status: 400,
           message: err.toString(),
-          service: service.id
+          service: json.service.id
         })
       });
-    });
+    }); // end client stop listener
 
     client.on('log', function(json) {
       var begin = json.begin || 0,
@@ -223,7 +269,7 @@ var TcpSocket = function(io) {
         client.emit('errorResponse', {
           status: 400,
           message: err.toString()
-        })
+        });
       };
 
       DataManager.listServiceInstances().then(function(services) {
@@ -261,7 +307,7 @@ var TcpSocket = function(io) {
           }).catch(_handleError)
         }).catch(_handleError)
       }).catch(_handleError)
-    });
+    }); // end log listener
 
     client.on('disconnect', function() {
       // removing clients listeners of TcpManager instance
