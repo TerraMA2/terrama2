@@ -49,6 +49,7 @@
 #include <terralib/srs/SpatialReferenceSystemManager.h>
 #include <terralib/srs/SpatialReferenceSystem.h>
 #include <terralib/geometry/WKTReader.h>
+#include <terralib/geometry/MultiPolygon.h>
 
 #include <ctime>
 #include <unordered_map>
@@ -267,7 +268,7 @@ void terrama2::core::enableLogger()
 
 int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
 {
-   te::gm::Coord2D coord = te::sa::GetCentroidCoord(geom);
+   te::gm::Coord2D coord = GetCentroidCoord(geom);
 
    // Calculates the UTM zone for the given coordinate
    int zoneNumber = floor((coord.getX() + 180)/6) + 1;
@@ -301,6 +302,41 @@ int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
     QString msg(QObject::tr("Could not determine the SRID for a UTM projection"));
     throw InvalidSRIDException() << terrama2::ErrorDescription(msg);
   }
+}
+
+te::gm::Coord2D terrama2::core::GetCentroidCoord(te::gm::Geometry* geom)
+{
+  assert(geom);
+
+  te::gm::Coord2D coord;
+
+  if(geom->getGeomTypeId() == te::gm::PointType)
+  {
+    te::gm::Point* p = ((te::gm::Point*)geom);
+
+    coord.x = p->getX();
+    coord.y = p->getY();
+  }
+  else if(geom->getGeomTypeId() == te::gm::PolygonType)
+  {
+    te::gm::Point* p = ((te::gm::Polygon*)geom)->getCentroid();
+
+    coord.x = p->getX();
+    coord.y = p->getY();
+
+    delete p;
+  }
+  else if(geom->getGeomTypeId() == te::gm::MultiPolygonType)
+  {
+    te::gm::Point* p = ((te::gm::MultiPolygon*)geom)->getCentroid();
+
+    coord.x = p->getX();
+    coord.y = p->getY();
+
+    delete p;
+  }
+
+  return coord;
 }
 
 double terrama2::core::convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit)

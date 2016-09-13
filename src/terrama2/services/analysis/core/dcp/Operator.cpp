@@ -439,7 +439,7 @@ bool terrama2::services::analysis::core::dcp::verifyDCPInfluence(InfluenceType i
   }
   else if(influenceType == InfluenceType::RADIUS_CENTER)
   {
-    //TODO: use method from terralib_mod_sa_core
+    //TODO: use method from terralib_mod_sa_core :: Check for terrama2::core::Utils methods before!
     std::string geomType = geom->getGeometryType();
     if(geomType == "MultiPolygon")
     {
