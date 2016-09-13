@@ -67,8 +67,8 @@ const std::string viewType = "view";
 bool checkServiceType(const std::string& serviceType)
 {
   if(serviceType == collectorType
-     || serviceType == analysisType
-     || serviceType == viewType)
+      || serviceType == analysisType
+      || serviceType == viewType)
     return true;
 
   return false;
@@ -172,7 +172,8 @@ int main(int argc, char* argv[])
       std::shared_ptr<terrama2::core::ProcessLogger> logger;
       std::tie(dataManager, service, logger) = createService(serviceType);
       if(!service.get()
-          || !dataManager.get())
+          || !dataManager.get()
+          || !logger.get())
         return SERVICE_LOAD_ERROR;
 
       auto tcpManager = std::make_shared<terrama2::core::TcpManager>(dataManager, logger);
