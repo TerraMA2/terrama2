@@ -66,10 +66,23 @@
 #include <terralib/dataaccess/utils/Utils.h>
 
 
-void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, std::shared_ptr<te::dt::TimeInstantTZ> startTime, AnalysisPtr analysis, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
+                                                     terrama2::core::StoragerManagerPtr storagerManager,
+                                                     std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger,
+                                                     std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                     AnalysisPtr analysis, ThreadPoolPtr threadPool,
+                                                     PyThreadState* mainThreadState)
 {
   RegisterId logId = 0;
   AnalysisHashCode analysisHashCode = analysis->hashCode(startTime);
+
+  if(!logger.get())
+  {
+    QString errMsg = QObject::tr("Unable to access Logger class in analysis");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    ContextManager::getInstance().addError(analysisHashCode,  errMsg.toStdString());
+    return;
+  }
 
   if(!startTime)
   {
@@ -81,8 +94,7 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   {
     TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution: %2").arg(analysis->id).arg(startTime->toString().c_str());
 
-    if(logger.get())
-      logId = logger->start(analysis->id);
+    logId = logger->start(analysis->id);
 
     switch(analysis->type)
     {
@@ -138,16 +150,14 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
         errorStr += error + "\n";
       }
 
-      if(logger.get())
-        logger->error(errorStr, logId);
+      logger->error(errorStr, logId);
 
       QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
     }
     else
     {
-      if(logger.get())
-        logger->done(startTime, logId);
+      logger->done(startTime, logId);
 
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
       TERRAMA2_LOG_INFO() << errMsg;
@@ -171,7 +181,12 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
   ContextManager::getInstance().clearContext(analysisHashCode);
 }
 
-void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager,
+                                                                    terrama2::core::StoragerManagerPtr storagerManager,
+                                                                    AnalysisPtr analysis,
+                                                                    std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                                    ThreadPoolPtr threadPool,
+                                                                    PyThreadState* mainThreadState)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
   ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
@@ -217,7 +232,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     }
 
     // get a reference to the PyInterpreterState
-    PyInterpreterState * mainInterpreterState = mainThreadState->interp;
+    PyInterpreterState* mainInterpreterState = mainThreadState->interp;
     if(mainInterpreterState == nullptr)
     {
       QString errMsg = QObject::tr("Could not recover python interpreter thread state");
@@ -241,11 +256,11 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
 
     //Starts collection threads
-    for (size_t i = 0; i < threadNumber; ++i)
+    for(size_t i = 0; i < threadNumber; ++i)
     {
 
       std::vector<uint32_t> indexes;
-       // The last package takes the rest of the division.
+      // The last package takes the rest of the division.
       if(i == threadNumber - 1)
         packageSize += mod;
 
@@ -256,33 +271,33 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
 
       // create a thread state object for this thread
-      PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
+      PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
       futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::python::runMonitoredObjectScript, myThreadState, context, indexes));
 
       begin += packageSize;
     }
 
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
 
 
     storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError( boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
 
 
@@ -389,7 +404,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
 
   //second property: analysis execution date
-  te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty( "execution_date", te::dt::TIME_INSTANT_TZ, true);
+  te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty("execution_date", te::dt::TIME_INSTANT_TZ, true);
   dt->add(dateProp);
 
   // the unique key is composed by the geomId and the execution date.
@@ -451,7 +466,12 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
 }
 
-void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager,
+                                                         terrama2::core::StoragerManagerPtr storagerManager,
+                                                         AnalysisPtr analysis,
+                                                         std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                         ThreadPoolPtr threadPool,
+                                                         PyThreadState* mainThreadState)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::GridContext>(dataManager, analysis, startTime);
 
@@ -492,7 +512,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
     }
 
     // get a reference to the PyInterpreterState
-    PyInterpreterState * mainInterpreterState = mainThreadState->interp;
+    PyInterpreterState* mainInterpreterState = mainThreadState->interp;
     if(mainInterpreterState == nullptr)
     {
       QString errMsg = QObject::tr("Could not recover python interpreter thread state");
@@ -515,7 +535,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
     uint32_t begin = 0;
 
     //Starts collection threads
-    for (size_t i = 0; i < threadNumber; ++i)
+    for(size_t i = 0; i < threadNumber; ++i)
     {
 
       std::vector<uint32_t> indexes;
@@ -530,14 +550,14 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
 
       // create a thread state object for this thread
-      PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
+      PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
       states.push_back(myThreadState);
       futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::python::runScriptGridAnalysis, myThreadState, context, indexes));
 
       begin += packageSize;
     }
 
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
 
     auto errors = context->getErrors();
     if(errors.empty())
@@ -546,29 +566,29 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(const boost::python::error_already_set&)
   {
     std::string errMsg = terrama2::services::analysis::core::python::extractException();
     context->addError(errMsg);
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(const boost::exception& e)
   {
     context->addError(boost::diagnostic_information(e));
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
 
 
