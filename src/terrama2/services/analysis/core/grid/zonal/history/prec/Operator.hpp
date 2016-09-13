@@ -37,6 +37,17 @@
 // STL
 #include <string>
 
+namespace te
+{
+  namespace gm
+  {
+    class Geometry;
+    class Polygon;
+    class Point;
+    class Line;
+  } /* gm */
+} /* te */
+
 namespace terrama2
 {
   namespace services
