@@ -161,9 +161,9 @@ var TcpSocket = function(io) {
 
               setTimeout(function() {
                 TcpManager.emit('statusService', instance);
-              }, 2000);
+              }, 1000);
             }).catch(_handleErr);
-          }, 2000);
+          }, 3000);
         }).catch(_handleErr);
       }).catch(function(err) {
         console.log(err);
