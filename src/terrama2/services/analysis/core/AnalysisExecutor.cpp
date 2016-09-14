@@ -548,6 +548,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
       // create a thread state object for this thread
       PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
+      myThreadState->dict = PyDict_New();
       states.push_back(myThreadState);
       futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::python::runScriptGridAnalysis, myThreadState, context, indexes));
 
@@ -585,7 +586,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
 
   // grab the lock
