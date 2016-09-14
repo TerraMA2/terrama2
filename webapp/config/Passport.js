@@ -73,7 +73,7 @@ var setupPassport = function(app) {
         'id': id
       }
     }).then(function(user) {
-      if (user === null) {
+      if (!user) {
         return done(new Error('Wrong user id.'));
       }
 
