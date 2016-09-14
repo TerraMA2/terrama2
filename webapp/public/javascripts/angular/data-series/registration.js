@@ -290,6 +290,11 @@ angular.module('terrama2.dataseries.registration', [
       $scope.form = [];
       $scope.model = {};
 
+      // defining box
+      $scope.cssBoxSolid = {
+        boxType: "box-solid"
+      };
+
       // consts
       $scope.filterTypes = {
         NO_FILTER: {
@@ -1034,6 +1039,7 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.isDynamic) {
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
           if (scheduleForm.$invalid) {
+            makeDialog("alert-danger", "There are invalid fields on form", true);
             return;
           }
         }

@@ -9,7 +9,7 @@
   </div>
 
   <wizard on-finish="save()" template="/javascripts/angular/templates/terrama2-wizard.html">
-    <wz-step wz-title="General" canexit="isFirstStepValid" wz-data="wizard.general">
+    <wz-step wz-title="{{ i18n.__('General') }}" canexit="isFirstStepValid" wz-data="wizard.general">
       <div class="col-md-12">
         <form name="forms.generalDataForm">
           <div ng-include="'/javascripts/angular/generalData.html'"></div>
@@ -24,7 +24,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="Parameters" canexit="isSecondStepValid" wz-data="wizard.parameters">
+    <wz-step wz-title="{{ i18n.__('Parameters') }}" canexit="isSecondStepValid" wz-data="wizard.parameters">
       <div class="col-md-12">
 
         <div class="col-md-12">
@@ -50,7 +50,7 @@
 
     </wz-step>
 
-    <wz-step wz-title="Store" canexit="isThirdStepValid" ng-if="isDynamic" wz-data="wizard.store">
+    <wz-step wz-title="{{ i18n.__('Store') }}" canexit="isThirdStepValid" ng-if="isDynamic" wz-data="wizard.store">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
       </div>
@@ -63,7 +63,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="Filter" ng-if="isDynamic">
+    <wz-step wz-title="{{ i18n.__('Filters') }}" ng-if="isDynamic">
       <div class="col-md-12">
 
         <div ng-include="'/javascripts/angular/filter.html'"></div>
@@ -78,7 +78,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="Intersection" ng-if="isDynamic">
+    <wz-step wz-title="{{ i18n.__('Intersection') }}" ng-if="isDynamic">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/intersection.html'">
         </div>

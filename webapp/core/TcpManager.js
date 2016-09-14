@@ -322,16 +322,20 @@ TcpManager.prototype.connect = function(serviceInstance) {
     try {
       var client = _getClient(serviceInstance);
 
+      if (client.isOpen()) {
+        return resolve();
+      }
+
       client.connect().then(function() {
         // preparing socket listeners
         self.initialize(client);
+        return resolve();
       }).catch(function(err) {
         console.log(err);
-      }).finally(function() {
-        resolve();
+        return reject(err);
       });
     } catch (e) {
-      reject(e);
+      return reject(e);
     }
   });
 };
