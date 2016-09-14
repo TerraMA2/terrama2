@@ -170,6 +170,9 @@ int main(int argc, char* argv[])
       addOutput(dataManager);
 
       terrama2::services::collector::core::Service service(dataManager);
+      auto logger = std::make_shared<terrama2::services::collector::core::CollectorLogger>();
+      logger->setConnectionInfo(connInfo);
+      service.setLogger(logger);
       service.start();
 
       terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
@@ -186,7 +189,7 @@ int main(int argc, char* argv[])
 
       QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-      timer.start(30000);
+      timer.start(10000);
       app.exec();
 
       service.stopService();
