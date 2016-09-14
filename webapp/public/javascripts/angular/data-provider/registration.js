@@ -16,6 +16,11 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     }
   }
 
+  // forcing port value to number
+  if (model.port) {
+    model.port = parseInt(model.port);
+  }
+
   $scope.model = model;
   $scope.serverErrors = {};
 
@@ -106,9 +111,17 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   };
 
   $scope.save = function() {
+    $scope.resetState();
     $scope.$broadcast('formFieldValidation');
+
+    // calling auto generate form validation
+    $scope.$broadcast('schemaFormValidate');
+
     var isConnectionFormValid = $scope.isValidDataProviderTypeForm($scope.forms.connectionForm);
     if (!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
+      $scope.alertBox.title = "Data Provider Registration";
+      $scope.alertBox.message = "There are invalid fields on form";
+      $scope.errorFound = true;
       return;
     }
 

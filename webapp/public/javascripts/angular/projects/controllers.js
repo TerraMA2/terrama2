@@ -9,8 +9,27 @@ angular.module('terrama2.projects')
     $scope.project = configuration.project || {};
     $scope.project.version = 4;
 
+    $scope.alertBox = {};
+    $scope.display = false;
+    $scope.alertLevel = null;
+    $scope.close = function() {
+      $scope.display = false;
+    };
+
+    var makeDialog = function(level, bodyMessage, show, title) {
+      $scope.alertBox.title = title || "Project Registration";
+      $scope.alertBox.message = bodyMessage;
+      $scope.alertLevel = level;
+      $scope.display = show;
+    };
+
     $scope.save = function(frm) {
+      $scope.close();
       $scope.$broadcast('formFieldValidation');
+
+      if ($scope.forms.projectForm.$invalid){
+        makeDialog("alert-danger", "There are invalid fields on form", true);
+      }
 
       if ($scope.forms.projectForm.$valid) {
         $scope.isSubmiting = true;

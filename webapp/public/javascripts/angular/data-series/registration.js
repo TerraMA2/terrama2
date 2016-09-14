@@ -290,6 +290,11 @@ angular.module('terrama2.dataseries.registration', [
       $scope.form = [];
       $scope.model = {};
 
+      // defining box
+      $scope.cssBoxSolid = {
+        boxType: "box-solid"
+      };
+
       // consts
       $scope.filterTypes = {
         NO_FILTER: {
@@ -996,8 +1001,19 @@ angular.module('terrama2.dataseries.registration', [
         }
       };
 
-      $scope.changeDataProvider = function() {
+      $scope.changeDataProvider = function() {  
         console.log($scope.dataSeries);
+      };
+
+      var makeDialog = function(level, bodyMessage, show, title) {
+        $scope.alertBox.title = title || "Data Registration";
+        $scope.alertBox.message = bodyMessage;
+        $scope.alertLevel = level;
+        $scope.display = show;
+      };
+
+      $scope.close = function() {
+        $scope.display = false;
       };
 
       $scope.save = function() {
@@ -1012,6 +1028,7 @@ angular.module('terrama2.dataseries.registration', [
         }
 
         if($scope.forms.generalDataForm.$invalid) {
+          makeDialog("alert-danger", "There are invalid fields on form", true);
           return;
         }
         // checking parameters form (semantics) is invalid
@@ -1022,6 +1039,7 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.isDynamic) {
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
           if (scheduleForm.$invalid) {
+            makeDialog("alert-danger", "There are invalid fields on form", true);
             return;
           }
         }

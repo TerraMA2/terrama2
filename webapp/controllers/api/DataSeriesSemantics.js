@@ -20,7 +20,7 @@ module.exports = function(app) {
     get: function(request, response) {
       var semanticsName = request.params.name;
       var metadata = request.query.metadata == 'true';
-      var semanticsType = request.query['type'];
+      var semanticsType = request.query.type;
 
       var queryParams = {};
 
@@ -36,7 +36,7 @@ module.exports = function(app) {
 
       // get just one semantics
       if (semanticsName) {
-        queryParams['code'] = semanticsName;
+        queryParams.code = semanticsName;
 
         try {
 
@@ -56,10 +56,10 @@ module.exports = function(app) {
               return response.json(output);
             }).catch(function(err) {
                return Utils.handleRequestError(response, err, 400);
-            })
+            });
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
-          })
+          });
         } catch (err) {
           return Utils.handleRequestError(response, new DataSeriesSemanticsError(semanticsName + " is not available"), 400);
         }
@@ -70,13 +70,13 @@ module.exports = function(app) {
           if (metadata) {
             semanticsList.forEach(function(semantics) {
               semantics.metadata = makeMetadata(semantics.code);
-            })
+            });
           }
 
           return response.json(semanticsList);
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
-        })
+        });
       }
     }
   };

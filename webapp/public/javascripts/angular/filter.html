@@ -1,168 +1,31 @@
 <div class="row">
-  <div class="col-md-12">
-    <div class="col-md-12">
-      <ul class="nav nav-tabs" data-tabs="tabs">
-        <li class="active"><a data-toggle="tab" href="#filterDateTab">{{ i18n.__('Date') }}</a></li>
-        <li><a data-toggle="tab" href="#filterAreaTab">{{ i18n.__('Area') }}</a></li>
-        <li><a data-toggle="tab" href="#filterPreAnalysisTab" ng-if="false">{{ i18n.__('Pre-Analysis') }}</a></li>
-        <li><a data-toggle="tab" href="#filterBandTab" ng-if="false">{{ i18n.__('Bands') }}</a></li>
-      </ul>
-      <div class="tab-content">
-        <div class="tab-pane active" id="filterDateTab">
-          <div class="col-md-12" style="padding-top: 20px">
-            <terrama2-filter-datetime-picker before-datetime="filter.date.beforeDate" after-datetime="filter.date.afterDate"></terrama2-filter-datetime-picker>
+  <div class="col-md-12" style="padding-top: 20px">
+    <terrama2-box title="i18n.__('Date')" css="cssBoxSolid">
+      <terrama2-filter-datetime-picker before-datetime="filter.date.beforeDate" after-datetime="filter.date.afterDate"></terrama2-filter-datetime-picker>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Area')" css="cssBoxSolid">
+      <div class="col-md-12">
+        <p></p>
+        <div class='col-md-12'>
+          <div class="form-group">
+            <label>{{ i18n.__('Select the filter area type') }}:</label>
+            <select class="form-control"
+                    id="filterAreaCombobox"
+                    name="filterAreaType"
+                    ng-model="filter.filterArea"
+                    ng-change="onFilterRegion();"
+                    ng-options="v.value as v.name for (k, v) in filterTypes">
+            </select>
           </div>
         </div>
-        <div class="tab-pane" id="filterAreaTab">
-          <div class="col-md-12">
-            <p></p>
-            <div class='col-md-12'>
-              <div class="form-group">
-                <label>{{ i18n.__('Select the filter area type') }}:</label>
-                <select class="form-control"
-                        id="filterAreaCombobox"
-                        name="filterAreaType"
-                        ng-model="filter.filterArea"
-                        ng-change="onFilterRegion();"
-                        ng-options="v.value as v.name for (k, v) in filterTypes">
-                </select>
-              </div>
-            </div>
 
-            <div class="col-md-12 terrama2-nopadding-box" ng-if="filter.filterArea == filterTypes.AREA.value">
-              <terrama2-bounded-box ng-model="filter.area" is-required="filter.filterArea == filterTypes.AREA.value">
-              </terrama2-bounded-box>
-            </div>
-          </div>
-          <!-- ./col-md-12 -->
-        </div>
-        <div class="tab-pane" id="filterPreAnalysisTab" ng-if="false">
-          <div class="col-md-12">
-            <p></p>
-            <div class='col-md-12'>
-
-              <div class="form-group">
-                <div class="radio">
-                  <label>
-                    <input name="optionsRadios" id="doNotMakePreAnalysis" ng-disabled="isUpdating" ng-model="radioPreAnalysis.doNotMake" value="option1" ng-init="radioPreAnalysis={'doNotMake':true};" type="radio" data-ng-click="handlePreAnalysisFilter({'doNotMake': radioPreAnalysis.doNotMake})">
-                    {{ i18n.__('Do not make pre-analysis') }}
-                  </label>
-                </div>
-              </div>
-
-            </div>
-            <!-- ./col-md-12 -->
-
-            <div class="col-md-8">
-              <div class="form-group">
-                <div class="radio">
-                  <label>
-                    <input name="optionsRadios" id="cutByArea" value="option1" type="radio" ng-disabled="isUpdating" ng-model="radioPreAnalysis.lessThan" data-ng-click="handlePreAnalysisFilter({'lessThan': radioPreAnalysis.lessThan})">
-                    {{ i18n.__('Ignores all data LESS than') }}:
-                  </label>
-                </div>
-              </div>
-            </div>
-            <!-- ./col-md-8 -->
-
-            <div class="col-md-4">
-              <div class="form-group">
-                <input class="form-control" id="name" placeholder="" type="text" ng-disabled="isUpdating" ng-model="filter.pre_analysis.less_than" ng-disabled="!radioPreAnalysis.lessThan">
-              </div>
-            </div>
-            <!-- ./col-md-4 -->
-
-            <div class='col-md-8'>
-              <div class="form-group">
-                <div class="radio">
-                  <label>
-                    <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-disabled="isUpdating" ng-model="radioPreAnalysis.greaterThan" data-ng-click="handlePreAnalysisFilter({'greaterThan': radioPreAnalysis.greaterThan})">
-                    {{ i18n.__('Ignores all data GREATER than') }}:
-                  </label>
-                </div>
-              </div>
-            </div>
-            <!-- ./col-md-8 -->
-
-            <div class="col-md-4">
-              <div class="form-group">
-                <input class="form-control" name="greater_than" ng-disabled="isUpdating" ng-model="filter.pre_analysis.greater_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.greaterThan">
-              </div>
-            </div>
-            <!-- ./col-md-4 -->
-
-            <div class='col-md-8'>
-              <div class="form-group">
-                <div class="radio">
-                  <label>
-                    <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-disabled="isUpdating" ng-model="radioPreAnalysis.avgLessThan" data-ng-click="handlePreAnalysisFilter({'avgLessThan': radioPreAnalysis.avgLessThan})">
-                    {{ i18n.__('Ignores if average is LESS than') }}:
-                  </label>
-                </div>
-              </div>
-            </div>
-            <!-- ./col-md-8 -->
-
-            <div class="col-md-4">
-              <div class="form-group">
-                <input class="form-control" name="less_than" ng-disabled="isUpdating" ng-model="filter.pre_analysis.less_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.avgLessThan">
-              </div>
-            </div>
-            <!-- ./col-md-4 -->
-
-            <div class='col-md-8'>
-              <div class="form-group">
-                <div class="radio">
-                  <label>
-                    <input name="optionsRadios" id="cutByLimits" value="option1" type="radio" ng-disabled="isUpdating" ng-model="radioPreAnalysis.avgGreaterThan" data-ng-click="handlePreAnalysisFilter({'avgGreaterThan': radioPreAnalysis.avgGreaterThan})">
-                    {{ i18n.__('Ignores if average is GREATER than') }}:
-                  </label>
-                </div>
-              </div>
-            </div>
-            <!-- ./col-md-8 -->
-
-            <div class="col-md-4">
-              <div class="form-group">
-                <input class="form-control" name="avg_greater_than" ng-disabled="isUpdating" ng-model="filter.pre_analysis.avg_greater_than" placeholder="" type="text" ng-disabled="!radioPreAnalysis.avgGreaterThan">
-              </div>
-            </div>
-            <!-- ./col-md-4 -->
-
-            <div class='col-md-12'>
-              <div class="form-group">
-                <label>
-                  <input name="optionsRadios" id="cutByLimits" value="option1" ng-disabled="isUpdating" type="checkbox">
-                  {{ i18n.__('Analysis only data inside selected plan') }}:
-                </label>
-              </div>
-            </div>
-            <!-- ./col-md-12 -->
-
-            <div class='col-md-12'>
-              <div class="form-group">
-                <textarea class="form-control" name="plan" ng-disabled="isUpdating" ng-model="filter.pre_analysis.plan" id="selectPlans"></textarea>
-              </div>
-            </div>
-            <!-- ./col-md-12 -->
-          </div>
-          <!-- /.col-md-12 -->
-        </div>
-        <div class="tab-pane" id="filterBandTab" ng-if="false">
-          <div class="col-md-12">
-            <p></p>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>{{ i18n.__('Bands to be skipped') }}:</label>
-                <input class="form-control" id="bands" name="bands" ng-disabled="isUpdating" ng-model="filter.bands.name" type="text">
-              </div>
-            </div>
-          </div>
-          <!-- ./col-md-12 -->
+        <div class="col-md-12 terrama2-nopadding-box" ng-if="filter.filterArea == filterTypes.AREA.value">
+          <terrama2-bounded-box ng-model="filter.area" is-required="filter.filterArea == filterTypes.AREA.value">
+          </terrama2-bounded-box>
         </div>
       </div>
-      <!-- ./tab-content -->
-    </div>
+    </terrama2-box>
   </div>
   <!-- ./col-md-12 -->
 </div>
