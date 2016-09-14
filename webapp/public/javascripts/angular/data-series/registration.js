@@ -1039,6 +1039,7 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.isDynamic) {
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
           if (scheduleForm.$invalid) {
+            makeDialog("alert-danger", "There are invalid fields on form", true);
             return;
           }
         }
