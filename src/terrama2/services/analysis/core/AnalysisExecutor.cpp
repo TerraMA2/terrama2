@@ -272,6 +272,8 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
       // create a thread state object for this thread
       PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
+      myThreadState->dict = PyDict_New();
+
       states.push_back(myThreadState);
       futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::python::runMonitoredObjectScript, myThreadState, context, indexes));
 
@@ -303,7 +305,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
   // grab the lock
   terrama2::services::analysis::core::python::GILLock lock;
-  PyThreadState_Swap(NULL);
+  PyThreadState_Swap(mainThreadState);
 
   for(auto state : states)
   {

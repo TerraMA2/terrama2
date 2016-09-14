@@ -143,20 +143,17 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
     AnalysisHashCode analysisHashCode = analysis->hashCode(context->getStartTime());
 
     auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
+    auto isHashSet = PyDict_SetItemString(state->dict, "analysisHashCode", pValueAnalysis);
 
     for(uint32_t index : indexes)
     {
       auto pValueIndex = PyInt_FromLong(index);
+      auto isindexSet = PyDict_SetItemString(state->dict, "index", pValueIndex);
 
-      PyObject* poDict = PyDict_New();
-
-      auto isHashSet = PyDict_SetItemString(poDict, "analysisHashCode", pValueAnalysis);
-      auto isindexSet = PyDict_SetItemString(poDict, "index", pValueIndex);
       if(isHashSet == 0 && isindexSet == 0)
       {
-        state->dict = poDict;
         //TODO: read the return value
-        analysisFunction(analysisHashCode, index);
+        analysisFunction();
       }
       else
       {
@@ -164,7 +161,6 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
         throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg.c_str());
       }
 
-      Py_DECREF(poDict);
     }
 
     Py_DECREF(pModule);
@@ -244,6 +240,8 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
 
     auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
 
+    PyDict_SetItemString(state->dict, "analysisHashCode", pValueAnalysis);
+
     for(int row : rows)
     {
       for(int col = 0; col < nCols; ++col)
@@ -251,12 +249,8 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
         auto pValueRow = PyInt_FromLong(row);
         auto pValueColumn = PyInt_FromLong(col);
 
-        PyObject* poDict = PyDict_New();
-
-        PyDict_SetItemString(poDict, "analysisHashCode", pValueAnalysis);
-        PyDict_SetItemString(poDict, "row", pValueRow);
-        PyDict_SetItemString(poDict, "column", pValueColumn);
-        state->dict = poDict;
+        PyDict_SetItemString(state->dict, "row", pValueRow);
+        PyDict_SetItemString(state->dict, "column", pValueColumn);
 
 
         boost::python::object result = analysisFunction(analysisHashCode, row, col);
@@ -266,7 +260,6 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
         else
           outputRaster->setValue(col, row, value);
 
-        Py_DECREF(poDict);
       }
     }
 
@@ -333,8 +326,6 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
   OperatorCache cache;
 
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  std::cout << "add value: " << cache.index << " " << cache.analysisHashCode << " attr: " << attribute << " value: " << value << std::endl;
-
 
   std::string attrName = boost::to_lower_copy(attribute);
 
@@ -592,20 +583,7 @@ std::string terrama2::services::analysis::core::python::prepareScript(terrama2::
 
   // Adds indent to the first line
   formatedScript = "    "  + formatedScript;
-
-  // Adds the function declaration
-  switch(analysis->type)
-  {
-    case AnalysisType::GRID_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, row, col):\n" + formatedScript;
-      break;
-    case AnalysisType::MONITORED_OBJECT_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode, index):\n" + formatedScript;
-      break;
-    case AnalysisType::DCP_TYPE:
-      formatedScript = "from terrama2 import *\ndef analysis(analysisHashCode):\n" + formatedScript;
-      break;
-  }
+  formatedScript = "from terrama2 import *\ndef analysis():\n" + formatedScript;
 
   return formatedScript;
 }
@@ -633,12 +611,14 @@ terrama2::services::analysis::core::python::GILLock::~GILLock()
 terrama2::services::analysis::core::python::OperatorLock::OperatorLock()
   : GILLock(false)
 {
-
+  save_ =  PyEval_SaveThread();
+  mutex_.unlock();
 }
 
 terrama2::services::analysis::core::python::OperatorLock::~OperatorLock()
 {
-
+  mutex_.lock();
+  PyEval_RestoreThread(save_);
 }
 
 void terrama2::services::analysis::core::python::OperatorLock::lock()

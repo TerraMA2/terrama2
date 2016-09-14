@@ -75,8 +75,7 @@ namespace terrama2
 
               static std::mutex mutex_;
 
-            private:
-              PyGILState_STATE state_; //!< Python GIL state.
+            protected:
               bool lock_;
           };
 
