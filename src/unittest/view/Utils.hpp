@@ -170,7 +170,7 @@ te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType)
   {
     te::se::Rule* rule = new te::se::Rule;
 
-    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#88f6ff");
+    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#4935CB");
 
     if(symbolizer != 0)
       rule->push_back(symbolizer);
