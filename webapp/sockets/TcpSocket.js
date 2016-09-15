@@ -60,7 +60,7 @@ var TcpSocket = function(io) {
     };
 
     var onStatusReceived = function(service, response) {
-      dataSentFlags[service.id].answered = true;
+      (dataSentFlags[service.id] || {}).answered = true;
       client.emit('statusResponse', {
         status: 200,
         service: service.id,
