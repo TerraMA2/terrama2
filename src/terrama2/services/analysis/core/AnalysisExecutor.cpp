@@ -272,6 +272,8 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
       // create a thread state object for this thread
       PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
+      myThreadState->dict = PyDict_New();
+
       states.push_back(myThreadState);
       futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::python::runMonitoredObjectScript, myThreadState, context, indexes));
 
@@ -279,7 +281,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
     }
 
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
-
 
     storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
   }
@@ -302,21 +303,17 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
 
   // grab the lock
-  PyEval_AcquireLock();
+  terrama2::services::analysis::core::python::GILLock lock;
+  PyThreadState_Swap(mainThreadState);
+
   for(auto state : states)
   {
-    // swap my thread state out of the interpreter
-    PyThreadState_Swap(NULL);
+    Py_DecRef(state->dict);
     // clear out any cruft from thread state object
     PyThreadState_Clear(state);
     // delete my thread state object
     PyThreadState_Delete(state);
   }
-
-  PyThreadState_Swap(mainThreadState);
-
-  // release the lock
-  PyEval_ReleaseLock();
 }
 
 
@@ -551,6 +548,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
 
       // create a thread state object for this thread
       PyThreadState* myThreadState = PyThreadState_New(mainInterpreterState);
+      myThreadState->dict = PyDict_New();
       states.push_back(myThreadState);
       futures.push_back(threadPool->enqueue(&terrama2::services::analysis::core::python::runScriptGridAnalysis, myThreadState, context, indexes));
 
@@ -588,26 +586,20 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
 
-
   // grab the lock
-  PyEval_AcquireLock();
+  terrama2::services::analysis::core::python::GILLock lock;
+  PyThreadState_Swap(mainThreadState);
+
   for(auto state : states)
   {
-    // swap my thread state out of the interpreter
-    PyThreadState_Swap(NULL);
     // clear out any cruft from thread state object
     PyThreadState_Clear(state);
     // delete my thread state object
     PyThreadState_Delete(state);
   }
-
-  PyThreadState_Swap(mainThreadState);
-
-  // release the lock
-  PyEval_ReleaseLock();
 }
 
 void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context)

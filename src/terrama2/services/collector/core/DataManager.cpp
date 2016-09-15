@@ -133,7 +133,7 @@ void terrama2::services::collector::core::DataManager::addJSon(const QJsonObject
   }
   catch(const terrama2::Exception& /*e*/)
   {
-    // loggend on throw...
+    // logged on throw...
   }
   catch(boost::exception& e)
   {

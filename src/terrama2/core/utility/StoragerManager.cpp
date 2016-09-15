@@ -80,15 +80,45 @@ void terrama2::core::StoragerManager::store(terrama2::core::DataSetSeries series
       ul.unlock();
     }
 
-    dataStorager->store(series, outputDataSet);
+    try
+    {
+      dataStorager->store(series, outputDataSet);
+    }
+    catch(const terrama2::Exception& /*e*/)
+    {
+      removeUriFromQueue(uri);
+      throw;
+    }
+    catch(boost::exception& e)
+    {
+      removeUriFromQueue(uri);
+      TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
+      throw DataStoragerException() << ErrorDescription(boost::diagnostic_information(e).c_str());
+    }
+    catch(std::exception& e)
+    {
+      removeUriFromQueue(uri);
+      TERRAMA2_LOG_ERROR() << e.what();
+      throw DataStoragerException() << ErrorDescription(e.what());
+    }
+    catch(...)
+    {
+      removeUriFromQueue(uri);
+      TERRAMA2_LOG_ERROR() << QObject::tr("Could not store the dataset");
+      throw DataStoragerException() << ErrorDescription(QObject::tr("Could not store the dataset"));
+    }
 
-    std::lock_guard<std::mutex> lockGuard(mutex_);
-
-    auto it = std::find(vecURIs_.begin(), vecURIs_.end(), uri);
-    vecURIs_.erase(it);
-    conditionVariable_.notify_all();
+    removeUriFromQueue(uri);
     break;
-
   }
 
+}
+
+void terrama2::core::StoragerManager::removeUriFromQueue(const std::string& uri)
+{
+  std::lock_guard<std::mutex> lockGuard(mutex_);
+
+  auto it = std::find(vecURIs_.begin(), vecURIs_.end(), uri);
+  vecURIs_.erase(it);
+  conditionVariable_.notify_all();
 }

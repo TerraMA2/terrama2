@@ -75,8 +75,7 @@ namespace terrama2
 
               static std::mutex mutex_;
 
-            private:
-              PyGILState_STATE state_; //!< Python GIL state.
+            protected:
               bool lock_;
           };
 
@@ -89,9 +88,6 @@ namespace terrama2
               //! Destructor
               virtual ~OperatorLock();
 
-              void lock();
-
-              void unlock();
 
             private:
               PyThreadState* save_;
