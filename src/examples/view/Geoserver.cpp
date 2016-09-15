@@ -48,8 +48,9 @@ int main(int argc, char** argv)
   {
     std::unique_ptr<te::se::Style> style(CreateFeatureTypeStyle(te::gm::PolygonType, "#00c290"));
 
-    // Make sure to have a geoServer running on the port 8080
-    terrama2::services::view::data_access::GeoServer geoserver("http://localhost", "8080", "admin", "geoserver");
+    // Make sure to have a geoServer with the below configuration
+    te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver/rest/styles");
+    terrama2::services::view::data_access::GeoServer geoserver(uri);
 
     QTemporaryFile file;
     if(!file.open())
@@ -65,10 +66,11 @@ int main(int argc, char** argv)
     {
       std::cout << std::endl << "Could not create XML file!" << std::endl;
       return EXIT_FAILURE;
-
     }
 
-    geoserver.registerStyle("aname", QString(content).toStdString());
+    geoserver.registerStyle("a_example", file.fileName().toStdString());
+
+//    geoserver.registerStyle("a_another_example", style);
 
   }
   catch(const std::exception& e)
