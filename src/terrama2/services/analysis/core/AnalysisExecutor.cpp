@@ -282,7 +282,6 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
 
-
     storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
   }
   catch(const terrama2::Exception& e)
@@ -309,6 +308,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 
   for(auto state : states)
   {
+    Py_DecRef(state->dict);
     // clear out any cruft from thread state object
     PyThreadState_Clear(state);
     // delete my thread state object

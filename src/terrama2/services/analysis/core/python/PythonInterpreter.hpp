@@ -88,9 +88,6 @@ namespace terrama2
               //! Destructor
               virtual ~OperatorLock();
 
-              void lock();
-
-              void unlock();
 
             private:
               PyThreadState* save_;

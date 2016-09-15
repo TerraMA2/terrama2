@@ -621,17 +621,6 @@ terrama2::services::analysis::core::python::OperatorLock::~OperatorLock()
   PyEval_RestoreThread(save_);
 }
 
-void terrama2::services::analysis::core::python::OperatorLock::lock()
-{
-  mutex_.lock();
-  PyEval_AcquireLock();
-}
-
-void terrama2::services::analysis::core::python::OperatorLock::unlock()
-{
-  PyEval_ReleaseLock();
-  mutex_.unlock();
-}
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
