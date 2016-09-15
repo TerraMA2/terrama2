@@ -145,129 +145,130 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
     // In case an exception is thrown, we need to catch it and set a flag.
     // Once the code left the lock is acquired we should return NAN.
-    terrama2::services::analysis::core::python::OperatorLock operatorLock;
-    operatorLock.unlock();
 
-    try
     {
+      terrama2::services::analysis::core::python::OperatorLock operatorLock;
 
-      auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
-      if(!dataSeries)
+
+      try
       {
-        QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-        errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
 
-      context->addDCPDataSeries(dataSeries, "", "", true);
+        auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
-      // For DCP operator count returns the number of DCP that influence the monitored object
-      uint32_t influenceCount = 0;
-
-
-      for(DataSetId dcpId : vecDCPIds)
-      {
-        bool found = false;
-        for(auto dataset : dataSeries->datasetList)
+        if(!dataSeries)
         {
-          if(dataset->id == dcpId)
+          QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
+          errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
+          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+        }
+
+        context->addDCPDataSeries(dataSeries, "", "", true);
+
+        // For DCP operator count returns the number of DCP that influence the monitored object
+        uint32_t influenceCount = 0;
+
+
+        for(DataSetId dcpId : vecDCPIds)
+        {
+          bool found = false;
+          for(auto dataset : dataSeries->datasetList)
           {
-            found = true;
-
-            // recover dataset from context
-            dcpContextDataSeries = context->getContextDataset(dataset->id);
-
-            ++influenceCount;
-
-            auto dcpSyncDs = dcpContextDataSeries->series.syncDataSet;
-
-            int attributeType = 0;
-            if(!attribute.empty())
+            if(dataset->id == dcpId)
             {
-              auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
+              found = true;
 
-              // only operation COUNT can be done without attribute.
-              if(!property && statisticOperation != StatisticOperation::COUNT)
+              // recover dataset from context
+              dcpContextDataSeries = context->getContextDataset(dataset->id);
+
+              ++influenceCount;
+
+              auto dcpSyncDs = dcpContextDataSeries->series.syncDataSet;
+
+              int attributeType = 0;
+              if(!attribute.empty())
               {
-                QString errMsg(QObject::tr("Invalid attribute name"));
-                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
-              }
-              attributeType = property->getType();
-            }
+                auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
 
-            uint32_t countValues = 0;
-
-            if(dcpSyncDs->size() == 0)
-              continue;
-
-            // fills the vector with values
-            std::vector<double> values;
-            for(unsigned int i = 0; i < dcpSyncDs->size(); ++i)
-            {
-              try
-              {
-                if(!attribute.empty() && !dcpSyncDs->isNull(i, attribute))
+                // only operation COUNT can be done without attribute.
+                if(!property && statisticOperation != StatisticOperation::COUNT)
                 {
-                  hasData = true;
-                  double value = getValue(dcpSyncDs, attribute, i, attributeType);
-                  if(std::isnan(value))
-                    continue;
-                  countValues++;
-                  values.push_back(value);
+                  QString errMsg(QObject::tr("Invalid attribute name"));
+                  throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
+                }
+                attributeType = property->getType();
+              }
+
+              uint32_t countValues = 0;
+
+              if(dcpSyncDs->size() == 0)
+                continue;
+
+              // fills the vector with values
+              std::vector<double> values;
+              for(unsigned int i = 0; i < dcpSyncDs->size(); ++i)
+              {
+                try
+                {
+                  if(!attribute.empty() && !dcpSyncDs->isNull(i, attribute))
+                  {
+                    hasData = true;
+                    double value = getValue(dcpSyncDs, attribute, i, attributeType);
+                    if(std::isnan(value))
+                      continue;
+                    countValues++;
+                    values.push_back(value);
+                  }
+                }
+                catch(...)
+                {
+                  // In case the DCP doesn't have the specified column
+                  continue;
                 }
               }
-              catch(...)
-              {
-                // In case the DCP doesn't have the specified column
+
+              if(countValues == 0)
                 continue;
-              }
+
+              // Statistics are calculated based on the number of values
+              // but the operator count for DCP returns the number of DCPs that influence the monitored object
+
+              cache.count = countValues;
+
+              calculateStatistics(values, cache);
             }
+          }
 
-            if(countValues == 0)
-              continue;
-
-            // Statistics are calculated based on the number of values
-            // but the operator count for DCP returns the number of DCPs that influence the monitored object
-
-            cache.count = countValues;
-
-            calculateStatistics(values, cache);
+          if(!found)
+          {
+            QString errMsg(QObject::tr("Invalid DCP identifier"));
+            throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
           }
         }
 
-        if(!found)
-        {
-          QString errMsg(QObject::tr("Invalid DCP identifier"));
-          throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
-        }
+        // Set the number of DCPs that influence the monitored object
+        cache.count = influenceCount;
+
+      }
+      catch(const terrama2::Exception& e)
+      {
+        context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+        exceptionOccurred = true;
+      }
+      catch(const std::exception& e)
+      {
+        context->addError(e.what());
+        exceptionOccurred = true;
+      }
+      catch(...)
+      {
+        QString errMsg = QObject::tr("An unknown exception occurred.");
+        context->addError(errMsg.toStdString());
+        exceptionOccurred = true;
       }
 
-      // Set the number of DCPs that influence the monitored object
-      cache.count = influenceCount;
-
+    // Destroy the OperatorLock object and acquires the lock
     }
-    catch(const terrama2::Exception& e)
-    {
-      context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-      exceptionOccurred = true;
-    }
-    catch(const std::exception& e)
-    {
-      context->addError(e.what());
-      exceptionOccurred = true;
-    }
-    catch(...)
-    {
-      QString errMsg = QObject::tr("An unknown exception occurred.");
-      context->addError(errMsg.toStdString());
-      exceptionOccurred = true;
-    }
-
-
-    // All operations are done, acquires the GIL and set the return value
-    operatorLock.lock();
-
     if(exceptionOccurred)
       return NAN;
 

@@ -121,116 +121,115 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
     // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
     // In case an exception is thrown, we need to catch it and set a flag.
     // Once the code left the lock is acquired we should return NAN.
-    terrama2::services::analysis::core::python::OperatorLock operatorLock;
-    operatorLock.unlock();
-
-    try
     {
+      terrama2::services::analysis::core::python::OperatorLock operatorLock;
 
-      std::shared_ptr <ContextDataSeries> contextDataSeries;
-      auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
-
-      if(!dataSeries)
+      try
       {
-        QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-        errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-        throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-      }
 
-      context->addDCPDataSeries(dataSeries, dateFilterBegin, dateFilterEnd, false);
+        std::shared_ptr<ContextDataSeries> contextDataSeries;
+        auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
-
-      for(DataSetId dcpId : vecDCPIds)
-      {
-        for(auto dataset : dataSeries->datasetList)
+        if(!dataSeries)
         {
-          if(dataset->id != dcpId)
-            continue;
+          QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
+          errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
+          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+        }
 
-          contextDataSeries = context->getContextDataset(dataset->id, dateFilterBegin, dateFilterEnd);
+        context->addDCPDataSeries(dataSeries, dateFilterBegin, dateFilterEnd, false);
 
-          terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
-                  dataset);
-          if(!dcpDataset)
+
+        for(DataSetId dcpId : vecDCPIds)
+        {
+          for(auto dataset : dataSeries->datasetList)
           {
-            QString errMsg(QObject::tr("Could not recover DCP dataset: %1.").arg(dataset->id));
-            throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-          }
+            if(dataset->id != dcpId)
+              continue;
 
-          if(dcpDataset->position == nullptr)
-          {
-            QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
-            throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-          }
+            contextDataSeries = context->getContextDataset(dataset->id, dateFilterBegin, dateFilterEnd);
 
-          auto syncDs = contextDataSeries->series.syncDataSet;
-          int attributeType = 0;
-
-          if(!attribute.empty())
-          {
-            auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
-
-            // only operation COUNT can be done without attribute.
-            if(!property && statisticOperation != StatisticOperation::COUNT)
+            terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
+                dataset);
+            if(!dcpDataset)
             {
-              QString errMsg(QObject::tr("Invalid attribute name"));
-              throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
+              QString errMsg(QObject::tr("Could not recover DCP dataset: %1.").arg(dataset->id));
+              throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
             }
-            attributeType = property->getType();
-          }
 
-
-          if(syncDs->size() == 0)
-            continue;
-
-
-          for(unsigned int i = 0; i < syncDs->size(); ++i)
-          {
-            try
+            if(dcpDataset->position == nullptr)
             {
-              if(!attribute.empty() && !syncDs->isNull(i, attribute))
+              QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
+              throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
+            }
+
+            auto syncDs = contextDataSeries->series.syncDataSet;
+            int attributeType = 0;
+
+            if(!attribute.empty())
+            {
+              auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
+
+              // only operation COUNT can be done without attribute.
+              if(!property && statisticOperation != StatisticOperation::COUNT)
               {
-                hasData = true;
-                double value = getValue(syncDs, attribute, i, attributeType);
-                if(std::isnan(value))
-                  continue;
-                values.push_back(value);
+                QString errMsg(QObject::tr("Invalid attribute name"));
+                throw InvalidParameterException() << terrama2::ErrorDescription(errMsg);
+              }
+              attributeType = property->getType();
+            }
+
+
+            if(syncDs->size() == 0)
+              continue;
+
+
+            for(unsigned int i = 0; i < syncDs->size(); ++i)
+            {
+              try
+              {
+                if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                {
+                  hasData = true;
+                  double value = getValue(syncDs, attribute, i, attributeType);
+                  if(std::isnan(value))
+                    continue;
+                  values.push_back(value);
+                }
+              }
+              catch(...)
+              {
+                // In case the DCP doesn't have the specified column
+                continue;
               }
             }
-            catch(...)
-            {
-              // In case the DCP doesn't have the specified column
-              continue;
-            }
+
+
           }
-
-
         }
+
+        calculateStatistics(values, cache);
+
+      }
+      catch(const terrama2::Exception& e)
+      {
+        context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+        exceptionOccurred = true;
+      }
+      catch(const std::exception& e)
+      {
+        context->addError(e.what());
+        exceptionOccurred = true;
+      }
+      catch(...)
+      {
+        QString errMsg = QObject::tr("An unknown exception occurred.");
+        context->addError(errMsg.toStdString());
+        exceptionOccurred = true;
       }
 
-      calculateStatistics(values, cache);
-
+    // Destroy the OperatorLock object and acquires the lock
     }
-    catch(const terrama2::Exception& e)
-    {
-      context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-      exceptionOccurred = true;
-    }
-    catch(const std::exception& e)
-    {
-      context->addError(e.what());
-      exceptionOccurred = true;
-    }
-    catch(...)
-    {
-      QString errMsg = QObject::tr("An unknown exception occurred.");
-      context->addError(errMsg.toStdString());
-      exceptionOccurred = true;
-    }
-
-
-    // All operations are done, acquires the GIL and set the return value
-    operatorLock.lock();
 
     if(values.empty() && statisticOperation != StatisticOperation::COUNT)
       return NAN;

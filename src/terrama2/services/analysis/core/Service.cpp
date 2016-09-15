@@ -38,6 +38,7 @@
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/Utils.hpp"
 
 
 terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)

@@ -113,7 +113,7 @@ namespace terrama2
         {
           bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            return lhs.objectId_ == rhs.objectId_&& lhs.objectId_ == rhs.objectId_;
+            return lhs.objectId_ == rhs.objectId_&& lhs.dateFilterBegin_ == rhs.dateFilterBegin_ && lhs.dateFilterEnd_ == rhs.dateFilterEnd_;
           }
         };
 
