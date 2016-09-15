@@ -190,6 +190,36 @@ angular.module('terrama2.table', ['terrama2'])
     return makeHeader();
   })
 
+  .directive('terrama2ModalMessages', function(i18n){
+    return {
+      transclude: true,
+      link: function(scope, element, attrs, transclude){
+      },
+      restrict: 'E',
+      priority: 1100,
+      replace: true,
+      template: function(tElm, tAttrs) {
+        var template = ""+
+          '<div id="messagesModal" class="modal fade" role="dialog">' + 
+            '<div class="modal-dialog">'+
+
+              '<div class="modal-content">' +
+                '<div class="modal-header">' +
+                  '<button type="button" class="close" data-dismiss="modal">&times;</button>' +
+                  '<h4 class="modal-title">'+ i18n.__("Messages")+ '</h4>' +
+                '</div>'+
+                '<div class="modal-body" ng-transclude></div>'+
+                '<div class="modal-footer">'+
+                  '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>';
+        return template;
+      }
+    }
+  })
+
   .directive('terrama2TableView', function(i18n) {
     return {
       restrict: 'E',
@@ -209,7 +239,14 @@ angular.module('terrama2.table', ['terrama2'])
             content = "<a ng-href='" + lnk.value + "'>" + content + "</a>";
           }
           th = th + "<th class='" + klass + "'>" + column.title + "</th>";
-          td = td + "<td class='" + klass + "'>" + content + "</td>";
+          if (column.attributes.showMoreInfo){
+            var fillModalFunction = column.attributes.fillModal.textContent;
+            td = td + "<td class='" + klass + "'> <a href='' data-toggle='modal' data-target='#messagesModal' ng-click='" + fillModalFunction + "'>" + content +"</a></td>";  
+          }
+          else {
+            td = td + "<td class='" + klass + "'>" + content + "</td>";
+          }
+          
           ++counter;
         });
 
