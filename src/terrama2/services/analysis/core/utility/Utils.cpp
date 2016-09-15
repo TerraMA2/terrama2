@@ -369,6 +369,7 @@ void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr data
                                                  {"PG_CONNECT_TIMEOUT", "4"},
                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
     };
+    datasource->setConnectionInfo(connInfo);
 
 
     // RAII for open/closing the datasource
