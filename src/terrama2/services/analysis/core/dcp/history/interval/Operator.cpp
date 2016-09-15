@@ -51,7 +51,7 @@ double terrama2::services::analysis::core::dcp::history::interval::mean(const st
 
 double terrama2::services::analysis::core::dcp::history::interval::min(const std::string& dataSeriesName,
                                                                        const std::string& attribute,
-                                                                       const std::string& dateFilterBegin,
+                                                                     const std::string& dateFilterBegin,
                                                                        const std::string& dateFilterEnd,
                                                                        boost::python::list ids)
 {

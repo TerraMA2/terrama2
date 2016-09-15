@@ -46,6 +46,8 @@ namespace terrama2
 
         void store(DataSetSeries series, DataSetPtr outputDataSet);
 
+        void removeUriFromQueue(const std::string& uri);
+
       private:
         terrama2::core::DataManagerPtr dataManager_;
         std::vector<std::string> vecURIs_;

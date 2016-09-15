@@ -323,3 +323,72 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
       return NAN;
   }
 }
+
+
+void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId)
+{
+  auto outputDataSeries = dataManager->findDataSeries(dataSeriesId);
+  if(!outputDataSeries)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data series for analysis %1.").arg(dataSeriesId);
+    return;
+  }
+  auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
+  if(!outputDataProvider)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data provider for analysis %1.").arg(dataSeriesId);
+    return;
+  }
+
+  if(outputDataProvider->dataProviderType == "POSTGIS")
+  {
+    auto dataset = outputDataSeries->datasetList[0];
+    std::string tableName;
+
+    try
+    {
+      tableName = dataset->format.at("table_name");
+    }
+    catch(...)
+    {
+      QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
+    }
+
+
+    QUrl url(outputDataProvider->uri.c_str());
+
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS"));
+
+    std::map<std::string, std::string> connInfo {{"PG_HOST", url.host().toStdString()},
+                                                 {"PG_PORT", std::to_string(url.port())},
+                                                 {"PG_USER", url.userName().toStdString()},
+                                                 {"PG_PASSWORD", url.password().toStdString()},
+                                                 {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
+                                                 {"PG_CONNECT_TIMEOUT", "4"},
+                                                 {"PG_CLIENT_ENCODING", "UTF-8"}
+    };
+
+
+    // RAII for open/closing the datasource
+    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
+
+    if(!datasource->isOpened())
+    {
+      QString errMsg = QObject::tr("DataProvider could not be opened.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    // get a transactor to interact to the data source
+    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+
+
+    if(transactor->dataSetExists(tableName))
+    {
+      transactor->dropDataSet(tableName);
+    }
+  }
+
+}

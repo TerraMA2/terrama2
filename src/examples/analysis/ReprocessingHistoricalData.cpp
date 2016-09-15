@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(100000);
+  timer.start(10000);
   app.exec();
 
   terrama2::services::analysis::core::python::finalizeInterpreter();

@@ -98,7 +98,7 @@ var DataManager = {
   init: function(callback) {
     var self = this;
 
-      var dbConfig = Database.config;
+      var dbConfig = Database.getContextConfig().db;
 
       models = modelsFn();
       models.load(orm);
@@ -766,8 +766,7 @@ var DataManager = {
           var log = new DataModel.Log(logResult);
           service.log = log.toObject();
 
-          resolve(service);
-          release();
+          return resolve(service);
         }).catch(function(err) {
           console.log(err);
           return Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
