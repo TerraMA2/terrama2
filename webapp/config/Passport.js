@@ -4,18 +4,25 @@ var passport = require('passport'),
     Database = require('./Database'),
     User = Database.getORM().import('../models/User.js');
 
+/**
+ * Middleware to check if current user is authenticated and redirect him to correct path
+ * 
+ * @param {Request} req - Express request instance
+ * @param {Response} res - Express response instance
+ */
 var isAuthenticated = function(req, res, next) {
-  if(req.isAuthenticated())
+  if(req.isAuthenticated()) {
     return next();
+  }
   req.flash('error', 'You have to be logged in to access the page.');
   res.redirect('/');
 };
 
 var _handlePermission = function(condition, request, response, next) {
   if (request.isAuthenticated()) {
-    if (condition)
+    if (condition) {
       return next();
-    else {
+    } else {
       request.flash('error', 'You don\'t have permission to access this page.');
       response.redirect('/');
     }
