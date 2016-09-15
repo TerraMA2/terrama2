@@ -27,115 +27,63 @@
   \author Vinicius Campanha
 */
 
-// TODO: only in linux?
-#include <sys/stat.h>
+// Qt
+#include <QTemporaryFile>
 
-// cURL
-#include <curl/curl.h>
+// TerraLib
+#include <terralib/ws/core/CurlWrapper.h>
 
 // TerraMA2
 #include "Geoserver.hpp"
-
-//TODO: remove
-#include <iostream>
+#include "../core/JSonUtils.hpp"
 
 
-terrama2::services::view::data_access::GeoServer::GeoServer(std::string address,
-                                                            std::string port,
-                                                            std::string user,
-                                                            std::string password)
-  : address_(address), port_(port), user_(user), password_(password)
+terrama2::services::view::data_access::GeoServer::GeoServer(te::core::URI uri)
+  : uri_(uri)
 {
 
 }
 
 
-void terrama2::services::view::data_access::GeoServer::registerStyle(std::string name, std::string style)
+void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string& name, const std::string styleFilePath)
 {
-  CURL* curl;
+  te::ws::core::CurlWrapper cURLwrapper;
 
-  //  Register a style
+  // Register style
+  cURLwrapper.post(uri_, "<style><name>" + name + "</name><filename>" + name + ".sld</filename></style>", "Content-Type: text/xml");
+
+
+  te::core::URI uriPut(uri_.uri() + "/" + name);
+
+  // Upload Style file
+  cURLwrapper.putFile(uriPut, styleFilePath, "Content-type: application/vnd.ogc.se+xml");
+}
+
+
+void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string &name, const std::unique_ptr<te::se::Style> &style)
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  // Register style
+  cURLwrapper.post(uri_, "<style><name>" + name + "</name><filename>" + name + ".sld</filename></style>", "Content-Type: text/xml");
+
+  te::core::URI uriPut(uri_.uri() + "/" + name);
+
+  QTemporaryFile file;
+  if(!file.open())
   {
-    curl = curl_easy_init();
-
-    if(curl)
-    {
-      std::string url = address_ + ":" + port_ + "/geoserver/rest/styles";
-      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_USERNAME, user_.c_str());
-      curl_easy_setopt(curl, CURLOPT_PASSWORD, password_.c_str());
-
-      struct curl_slist* headers= nullptr;
-      headers = curl_slist_append(headers, "Content-Type: text/xml");
-      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-
-      std::string name = "<style><name>example_style</name><filename>example.sld</filename></style>";
-      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, name.c_str());
-
-      CURLcode res;
-      res = curl_easy_perform(curl);
-
-      curl_slist_free_all(headers);
-
-      if(res != CURLE_OK)
-      {
-        //        curl_easy_strerror(res)
-      }
-    }
-
-    curl_easy_cleanup(curl);
+//    std::cout << std::endl << "Could not create XML file!" << std::endl;
   }
 
-  // Load the sld
+  // VINICIUS: move all serialization from json utils to another file
+  terrama2::services::view::core::writeStyleGeoserverXML(style.get(), file.fileName().toStdString());
+
+  QByteArray content = file.readAll();
+  if(content.isEmpty())
   {
-    curl = curl_easy_init();
-
-    if(curl)
-    {
-      std::string url = address_ + ":" + port_ + "/geoserver/rest/styles/example_style.sld";
-      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_USERNAME, user_.c_str());
-      curl_easy_setopt(curl, CURLOPT_PASSWORD, password_.c_str());
-
-      struct curl_slist* headers= nullptr;
-      headers = curl_slist_append(headers, "Content-type: application/vnd.ogc.se+xml");
-      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-      FILE *file;
-      struct stat file_info;
-
-      file = fopen("/home/vinicius/example_style.sld", "rb");
-
-      if(!file)
-      {
-
-      }
-
-      if(fstat(fileno(file), &file_info) != 0)
-      {
-
-      }
-
-      curl_easy_setopt(curl, CURLOPT_UPLOAD, true);
-
-      curl_easy_setopt(curl, CURLOPT_READDATA, file);
-
-      curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size);
-
-      CURLcode res;
-      res = curl_easy_perform(curl);
-
-      curl_slist_free_all(headers);
-
-      if(res != CURLE_OK)
-      {
-        std::cout << curl_easy_strerror(res) << std::endl;
-      }
-    }
-
-    fclose(file);
-    curl_easy_cleanup(curl);
+//    std::cout << std::endl << "Could not create XML file!" << std::endl;
   }
 
+  // Upload Style file
+  cURLwrapper.put(uriPut, content.data(), "Content-type: application/vnd.ogc.se+xml");
 }

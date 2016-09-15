@@ -30,7 +30,12 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
 
+// STL
 #include <string>
+
+// TerraLib
+#include <terralib/core/uri/URI.h>
+#include <terralib/se/Style.h>
 
 namespace terrama2
 {
@@ -45,21 +50,17 @@ namespace terrama2
 
         public:
 
-          GeoServer(std::string address,
-                    std::string port,
-                    std::string user,
-                    std::string password);
+          GeoServer(te::core::URI uri);
 
           ~GeoServer() = default;
 
-          void registerStyle(std::string name, std::string style);
+          void registerStyle(const std::string& name, const std::string styleFilePath);
+
+          void registerStyle(const std::string& name, const std::unique_ptr<te::se::Style> &style);
 
         private:
 
-          std::string address_ = "";
-          std::string port_ = "";
-          std::string user_ = "";
-          std::string password_ = "";
+          te::core::URI uri_;
 
         };
       }

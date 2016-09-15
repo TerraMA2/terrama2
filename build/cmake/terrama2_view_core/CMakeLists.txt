@@ -51,7 +51,8 @@ qt5_use_modules(terrama2_view_core Core)
 
 target_link_libraries(terrama2_view_core terrama2_core
                                         terralib_mod_maptools
-                                        terralib_mod_qt_widgets)
+                                        terralib_mod_qt_widgets
+                                        terralib_mod_ws_core)
 
 set_target_properties(terrama2_view_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}
@@ -66,5 +67,3 @@ install(TARGETS terrama2_view_core
 
 install(FILES ${TERRAMA2_HDR_FILES}
         DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/view COMPONENT devel)
-
-export(TARGETS terrama2_view_core APPEND FILE ${CMAKE_BINARY_DIR}/terrama2-exports.cmake)
