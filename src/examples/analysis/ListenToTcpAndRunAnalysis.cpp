@@ -12,6 +12,7 @@
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/impl/Utils.hpp>
 
@@ -52,7 +53,7 @@ int main(int argc, char* argv[])
   try
   {
 
-    terrama2::core::initializeTerraMA();
+    terrama2::core::TerraMA2Init terramaRaii;
 
     terrama2::core::registerFactories();
 
@@ -293,7 +294,7 @@ int main(int argc, char* argv[])
   }
 
   terrama2::services::analysis::core::python::finalizeInterpreter();
-  terrama2::core::finalizeTerraMA();
+  
 
   return 0;
 }

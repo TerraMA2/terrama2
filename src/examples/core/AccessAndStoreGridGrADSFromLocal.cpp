@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 
 #include <terrama2/core/data-model/DataProvider.hpp>
@@ -17,7 +18,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
 
   {
     //DataProvider information
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
     dataStorager.store(series, outputDataSetPtr);
   }
 
-  terrama2::core::finalizeTerraMA();
+  
 
   return 0;
 }

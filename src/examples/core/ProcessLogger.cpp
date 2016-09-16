@@ -1,6 +1,7 @@
 
 // TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/ProcessLogger.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 
@@ -55,7 +56,7 @@ public:
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
 
   try
   {
@@ -145,5 +146,5 @@ int main(int argc, char* argv[])
     std::cout << "Error in Process Logger example!" << std::endl;
   }
 
-  terrama2::core::finalizeTerraMA();
+  
 }
