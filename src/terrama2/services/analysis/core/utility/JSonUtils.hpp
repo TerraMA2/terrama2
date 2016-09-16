@@ -27,6 +27,9 @@
   \author Paulo R. M. Oliveira
 */
 
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_JSON_UTILS_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_JSON_UTILS_HPP__
+
 #include "../Shared.hpp"
 #include "../Analysis.hpp"
 
@@ -80,3 +83,5 @@ namespace terrama2
     }   // end namespace analysis
   }     // end namespace services
 }       // end namespace terrama2
+
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_JSON_UTILS_HPP__
