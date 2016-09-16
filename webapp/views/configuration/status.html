@@ -63,12 +63,14 @@
           <terrama2-td title="Service">{{ element.service }}</terrama2-td>
           <terrama2-td title="Type">{{ element.type }}</terrama2-td>
           <terrama2-td title="Name">{{ element.name }}</terrama2-td>
-          <terrama2-td title="Message">{{ element.message }}</terrama2-td>
+          <terrama2-td title="Message" showMoreInfo="true" fillModal="setModalMessages(element.message)">{{ (element.message.length > 15) ? ((element.message | limitTo:15) + "...") : element.message }}</terrama2-td>
           <terrama2-td title="Date">{{ element.date }}</terrama2-td>
         </terrama2-table-view>
       </div>
 
     </div><!-- /.box-body -->
+    <!-- Modal to show messages-->
+    <terrama2-modal-messages>{{modalMessages}}</terrama2-modal-messages>
 
     <div class="overlay" ng-show="loading">
       <i class="fa fa-refresh fa-spin"></i>
