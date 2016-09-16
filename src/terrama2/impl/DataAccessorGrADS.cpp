@@ -57,6 +57,9 @@
 #include <QUrl>
 #include <QDir>
 
+//Boost
+#include <boost/filesystem/operations.hpp>
+
 
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
                                                      const Filter& filter)
@@ -263,14 +266,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     auto gradsDescriptor = readDataDescriptor(fileInfo.absoluteFilePath().toStdString());;
     gradsDescriptor.srid_ = getSrid(dataSet);
 
-    //FIXME: temporary restriction of only one band
-    if(gradsDescriptor.tDef_->numValues_ > 1)
-    {
-      QString errMsg = QObject::tr("Invalid number of bands in dataset %1").arg(dataSet->id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw DataAccessException() << ErrorDescription(errMsg);
-    }
-
     // Reads the dataset name from CTL
     std::string datasetMask = gradsDescriptor.datasetFilename_;
     if (gradsDescriptor.datasetFilename_[0] == '^')
@@ -294,12 +289,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
       boost::replace_last(name, extension, "vrt");
 
-      QString binFilename = dataFileInfo.absoluteFilePath();
-      QString vrtFilename = dataFileInfo.absoluteFilePath();
-      vrtFilename.replace(QString::fromStdString(extension), "vrt");
+      std::string binFilename = dataFileInfo.absoluteFilePath().toStdString();
+      std::string vrtFilename = dataFileInfo.absoluteFilePath().toStdString();
+      boost::replace_last(vrtFilename, extension, "vrt");
 
 
-      writeVRTFile(gradsDescriptor, binFilename.toStdString(), vrtFilename.toStdString());
+      writeVRTFile(gradsDescriptor, binFilename, vrtFilename, dataSet);
 
       // creates a DataSource to the data and filters the dataset,
       // also joins if the DCP comes from separated files
@@ -364,9 +359,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       }
 
       addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
-//      // Creates flipped raster
-//      QFile vrtFile(vrtFilename);
-//      vrtFile.remove();
 
 
       //update last file timestamp
@@ -831,7 +823,8 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
 
 void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDescriptor descriptor,
                                                      const std::string& binFilename,
-                                                     const std::string& vrtFilename) const
+                                                     const std::string& vrtFilename,
+                                                     DataSetPtr dataset) const
 {
 
   std::ofstream vrtfile;
@@ -862,25 +855,54 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
       }
     }
 
-    if ((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
+    // In case 'yrev' option is given, we need to flip the image
+    auto itYRev = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV");
+    if(itYRev != descriptor.vecOptions_.end())
+    {
+      /// Uses a transformation to flip the image
+      if ((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
+      {
+        vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
+                << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] << ",0,"
+                << descriptor.yDef_->values_[1]
+                << "</GeoTransform>";
+      }
+    }
+    else
     {
       vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
-              << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] << ",0,"
-              << descriptor.yDef_->values_[1]
+              << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] + descriptor.yDef_->numValues_ * descriptor.yDef_->values_[1] << ",0,"
+              << -descriptor.yDef_->values_[1]
               << "</GeoTransform>";
     }
 
     unsigned int pixelOffset = 0;
     unsigned int lineOffset = 0;
     unsigned int imageOffset = 0;
+    unsigned int dataTypeSizeBytes = 4; // Float32
 
     for(int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
     {
+      auto it = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "SEQUENTIAL");
+      if(it == descriptor.vecOptions_.end())
+      {
 
-      // BSQ (Band sequential) interleave
-      pixelOffset = 4; // Float32
-      lineOffset = pixelOffset * descriptor.xDef_->numValues_;
-      imageOffset = bandIdx * lineOffset * descriptor.xDef_->numValues_;
+        pixelOffset = dataTypeSizeBytes  * descriptor.tDef_->numValues_;
+        lineOffset = pixelOffset * descriptor.xDef_->numValues_;
+        imageOffset = bandIdx * dataTypeSizeBytes + getBytesBefore(dataset);
+      }
+      else
+      {
+        // BSQ (Band sequential) interleave
+        pixelOffset = dataTypeSizeBytes;
+        lineOffset = pixelOffset * descriptor.xDef_->numValues_;
+        imageOffset = bandIdx * lineOffset * descriptor.xDef_->numValues_ + getBytesBefore(dataset);
+      }
+
+      if(bandIdx != 0)
+      {
+        imageOffset += getBytesAfter(dataset);
+      }
 
       vrtfile
           << std::endl
@@ -889,7 +911,8 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
           << "<SourceFilename relativetoVRT=\"1\">" << binFilename << "</SourceFilename>" << std::endl
           << "<ImageOffset>" << imageOffset << "</ImageOffset>" << std::endl
           << "<PixelOffset>" << pixelOffset << "</PixelOffset>" << std::endl
-          << "<LineOffset>" << lineOffset << "</LineOffset>";
+          << "<LineOffset>" << lineOffset << "</LineOffset>" << std::endl
+          << "<NoDataValue>" << descriptor.undef_ << "</NoDataValue>" << std::endl;
 
       vrtfile << std::endl << "</VRTRasterBand>";
     }
@@ -897,6 +920,34 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     vrtfile << std::endl << "</VRTDataset>" << std::endl;
   }
 
+}
+
+double terrama2::core::DataAccessorGrADS::getBytesBefore(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return std::atof(dataset->format.at("bytes_before").c_str());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for bytes before in dataset: %1.").arg(dataset->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+double terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return std::atof(dataset->format.at("bytes_after").c_str());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for bytes after in dataset: %1.").arg(dataset->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
 }
 
 
