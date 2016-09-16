@@ -46,32 +46,17 @@ int main(int argc, char** argv)
 
   try
   {
-    std::unique_ptr<te::se::Style> style(CreateFeatureTypeStyle(te::gm::PolygonType, "#00c290"));
-
     // Make sure to have a geoServer with the below configuration
-    te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver/rest/styles");
+    te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver");
     terrama2::services::view::data_access::GeoServer geoserver(uri);
 
-    QTemporaryFile file;
-    if(!file.open())
-    {
-      std::cout << std::endl << "Could not create XML file!" << std::endl;
-      return EXIT_FAILURE;
-    }
+    geoserver.registerWorkspace("exampleworkspace");
 
-    terrama2::services::view::core::writeStyleGeoserverXML(style.get(), file.fileName().toStdString());
+    geoserver.uploadVectorFile("example", "/home/vinicius/MyDevel/terrama2/build-debug/data/shapefile/shapefile.zip");
 
-    QByteArray content = file.readAll();
-    if(content.isEmpty())
-    {
-      std::cout << std::endl << "Could not create XML file!" << std::endl;
-      return EXIT_FAILURE;
-    }
+    std::unique_ptr<te::se::Style> style(CreateFeatureTypeStyle(te::gm::PolygonType, "#00c290"));
 
-    geoserver.registerStyle("a_example", file.fileName().toStdString());
-
-//    geoserver.registerStyle("a_another_example", style);
-
+//    geoserver.registerStyle("an_another_example", style);
   }
   catch(const std::exception& e)
   {

@@ -50,17 +50,22 @@ namespace terrama2
 
         public:
 
-          GeoServer(te::core::URI uri);
+          GeoServer(const te::core::URI uri, const std::string workspace = std::string());
 
           ~GeoServer() = default;
 
-          void registerStyle(const std::string& name, const std::string styleFilePath);
+          void registerWorkspace(const std::string& name);
+
+          void uploadVectorFile(const std::string& name, const std::string& shpPath);
+
+          void registerStyle(const std::string& name, const std::string& styleFilePath);
 
           void registerStyle(const std::string& name, const std::unique_ptr<te::se::Style> &style);
 
         private:
 
           te::core::URI uri_;
+          std::string workspace_;
 
         };
       }

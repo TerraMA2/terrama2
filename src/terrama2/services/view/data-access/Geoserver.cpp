@@ -35,25 +35,82 @@
 
 // TerraMA2
 #include "Geoserver.hpp"
+#include "Exception.hpp"
 #include "../core/JSonUtils.hpp"
+#include "../../../core/utility/Logger.hpp"
 
 
-terrama2::services::view::data_access::GeoServer::GeoServer(te::core::URI uri)
-  : uri_(uri)
+terrama2::services::view::data_access::GeoServer::GeoServer(const te::core::URI uri, const std::string workspace)
+  : uri_(uri), workspace_(workspace)
 {
 
 }
 
 
-void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string& name, const std::string styleFilePath)
+void terrama2::services::view::data_access::GeoServer::registerWorkspace(const std::string& name)
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
+  workspace_ = name;
+
+  te::core::URI uriPost(uri_.uri() + "/rest/workspaces");
+
+  if(!uriPost.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+  }
+
   // Register style
-  cURLwrapper.post(uri_, "<style><name>" + name + "</name><filename>" + name + ".sld</filename></style>", "Content-Type: text/xml");
+  cURLwrapper.post(uriPost, "<workspace><name>" + workspace_ + "</name></workspace>", "Content-Type: text/xml");
+}
 
 
-  te::core::URI uriPut(uri_.uri() + "/" + name);
+void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const std::string& name, const std::string& shpPath)
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+//  http://localhost:8080/geoserver/rest/workspaces/acme/datastores/roads/file.shp
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + name + "/file.shp");
+
+//  application/octet-stream
+  if(!uriPut.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+  }
+  // Upload Style file
+  cURLwrapper.putFile(uriPut, shpPath, "Content-type: application/zip");
+}
+
+
+void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string& name, const std::string& styleFilePath)
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriPost(uri_.uri() + "/rest/styles");
+
+  if(!uriPost.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+  }
+
+  // Register style
+  cURLwrapper.post(uriPost, "<style><name>" + name + "</name><filename>" + name + ".sld</filename></style>", "Content-Type: text/xml");
+
+
+  te::core::URI uriPut(uri_.uri() + "/rest/styles/" + name);
+
+  if(!uriPut.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+  }
 
   // Upload Style file
   cURLwrapper.putFile(uriPut, styleFilePath, "Content-type: application/vnd.ogc.se+xml");
@@ -62,28 +119,25 @@ void terrama2::services::view::data_access::GeoServer::registerStyle(const std::
 
 void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string &name, const std::unique_ptr<te::se::Style> &style)
 {
-  te::ws::core::CurlWrapper cURLwrapper;
-
-  // Register style
-  cURLwrapper.post(uri_, "<style><name>" + name + "</name><filename>" + name + ".sld</filename></style>", "Content-Type: text/xml");
-
-  te::core::URI uriPut(uri_.uri() + "/" + name);
-
   QTemporaryFile file;
   if(!file.open())
   {
-//    std::cout << std::endl << "Could not create XML file!" << std::endl;
+    QString errMsg = QObject::tr("Can't open the file.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
+  std::string filePath = file.fileName().toStdString();
   // VINICIUS: move all serialization from json utils to another file
-  terrama2::services::view::core::writeStyleGeoserverXML(style.get(), file.fileName().toStdString());
+  terrama2::services::view::core::writeStyleGeoserverXML(style.get(), filePath);
 
   QByteArray content = file.readAll();
   if(content.isEmpty())
   {
-//    std::cout << std::endl << "Could not create XML file!" << std::endl;
+    QString errMsg = QObject::tr("Can't read the SLD file.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  // Upload Style file
-  cURLwrapper.put(uriPut, content.data(), "Content-type: application/vnd.ogc.se+xml");
+  registerStyle(name, filePath);
 }
