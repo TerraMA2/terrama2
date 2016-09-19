@@ -1,5 +1,6 @@
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
@@ -178,7 +179,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
   terrama2::core::registerFactories();
   terrama2::services::alert::core::registerFactories();
 
@@ -197,7 +198,7 @@ int main(int argc, char* argv[])
     terrama2::services::alert::core::runAlert(std::make_pair(alert->id, now), nullptr, dataManager);
   }
 
-  terrama2::core::finalizeTerraMA();
+  
 
   return 0;
 }

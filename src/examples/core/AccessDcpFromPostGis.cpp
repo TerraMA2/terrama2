@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
@@ -13,7 +14,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
 
   {
     QUrl uri;
@@ -107,7 +108,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  terrama2::core::finalizeTerraMA();
+  
 
   return 0;
 }

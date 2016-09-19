@@ -31,6 +31,7 @@
 #include <terrama2/core/Shared.hpp>
 
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
@@ -186,7 +187,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    terrama2::core::initializeTerraMA();
+    terrama2::core::TerraMA2Init terramaRaii;
     terrama2::core::registerFactories();
 
 
@@ -243,7 +244,7 @@ int main(int argc, char* argv[])
       service.stopService();
     }
 
-    terrama2::core::finalizeTerraMA();
+    
   }
   catch(...)
   {

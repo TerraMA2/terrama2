@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/Raii.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 
@@ -21,7 +22,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
 
   std::cout << "NOT WORKING" << std::endl;
   return 1;
@@ -119,7 +120,7 @@ int main(int argc, char* argv[])
     std::cout << "dataset size: " << teDataSet->size() << std::endl;
   }
 
-  terrama2::core::finalizeTerraMA();
+  
 
   return 0;
 }

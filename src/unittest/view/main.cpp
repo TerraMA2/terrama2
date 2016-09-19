@@ -37,6 +37,8 @@
 
 // TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/Exception.hpp>
 
 #include "TsJsonUtils.hpp"
@@ -51,7 +53,7 @@ int main(int argc, char** argv)
     ::testing::GTEST_FLAG(throw_on_failure) = true;
     ::testing::InitGoogleMock(&argc, argv);
 
-    terrama2::core::initializeTerraMA();
+    terrama2::core::TerraMA2Init terramaRaii;
     terrama2::core::disableLogger();
 
     try
@@ -63,8 +65,6 @@ int main(int argc, char** argv)
     {
 
     }
-
-    terrama2::core::finalizeTerraMA();
   }
   catch (const terrama2::Exception& e)
   {

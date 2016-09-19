@@ -64,9 +64,6 @@
 #include <QJsonArray>
 #include <QString>
 
-// Curl
-#include <curl/curl.h>
-
 namespace te
 {
   namespace common
@@ -201,53 +198,6 @@ void terrama2::core::initializeTerralib()
 void terrama2::core::finalizeTerralib()
 {
   TerraLib::getInstance().finalize();
-
-
-}
-
-void terrama2::core::initializeTerraMA()
-{
-  curl_global_init(CURL_GLOBAL_ALL);
-  terrama2::core::initializeTerralib();
-
-  terrama2::core::initializeLogger("terrama2.log");
-
-
-  auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-
-  //read semantics from json file
-  std::string semanticsPath = FindInTerraMA2Path("share/terrama2/semantics.json");
-  QFile semantcisFile(QString::fromStdString(semanticsPath));
-  semantcisFile.open(QFile::ReadOnly);
-  QByteArray bytearray = semantcisFile.readAll();
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray);
-  auto array = jsonDoc.array();
-  for(const auto& json : array)
-  {
-    auto obj = json.toObject();
-    auto jsonProvidersTypes = obj["providers_type_list"].toArray();
-    std::vector<DataProviderType> providersTypes;
-    for(const auto& providerType : jsonProvidersTypes)
-      providersTypes.push_back(providerType.toString().toStdString());
-
-    auto jsonMetadata = obj["metadata"].toObject();
-    std::unordered_map<std::string, std::string> metadata;
-    for(auto it = jsonMetadata.constBegin(); it != jsonMetadata.constEnd(); ++it)
-      metadata.emplace(it.key().toStdString(), it.value().toString().toStdString()) ;
-
-    semanticsManager.addSemantics(obj["code"].toString().toStdString(),
-                                  obj["name"].toString().toStdString(),
-                                  dataSeriesTypeFromString(obj["type"].toString().toStdString()),
-                                  obj["format"].toString().toStdString(),
-                                  providersTypes,
-                                  metadata);
-  }
-}
-
-void terrama2::core::finalizeTerraMA()
-{
-  terrama2::core::finalizeTerralib();
-  curl_global_cleanup();
 }
 
 void terrama2::core::initializeLogger(const std::string& pathFile)
