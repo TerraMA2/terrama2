@@ -10,7 +10,19 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
-      response.render('configuration/dynamicDataSeries', Object.assign({}, parameters, {"Enums": Enums}));
+      DataManager.listCollectors().then(function(collectors){
+        DataManager.listAnalyses().then(function(analysis){
+          response.render('configuration/dynamicDataSeries', Object.assign({}, parameters, {"Enums": Enums, "collectors": collectors.map(
+            function(element){
+              return element.toObject();
+            }
+          ), "analysis": analysis.map(
+            function(element){
+              return element.rawObject();
+            }
+          )}));
+        })
+      });
     },
 
     new: function(request, response) {
