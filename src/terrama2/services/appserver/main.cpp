@@ -35,7 +35,7 @@
 
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 
 #include <terrama2/services/view/core/Service.hpp>
 #include <terrama2/services/view/core/DataManager.hpp>
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
       TERRAMA2_LOG_INFO() << QObject::tr("Starting %1 service.").arg(QString::fromStdString(serviceType));
 
       // Must initialize the python interpreter before creating any thread.
-      terrama2::services::analysis::core::python::initInterpreter();
+      terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
       QCoreApplication app(argc, argv);
 
@@ -200,8 +200,8 @@ int main(int argc, char* argv[])
 
     try
     {
-      terrama2::services::analysis::core::python::finalizeInterpreter();
-      
+
+
 
       //Service closed by load error
       if(!serviceManager.serviceLoaded())

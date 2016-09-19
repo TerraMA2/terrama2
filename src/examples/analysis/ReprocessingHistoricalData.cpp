@@ -15,6 +15,7 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
 
   terrama2::core::registerFactories();
 
-  terrama2::services::analysis::core::python::initInterpreter();
+  terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   std::map<std::string, std::string> connInfo {{"PG_HOST",            TERRAMA2_DATABASE_HOST},
@@ -246,7 +247,7 @@ int main(int argc, char* argv[])
   timer.start(10000);
   app.exec();
 
-  terrama2::services::analysis::core::python::finalizeInterpreter();
+
 
 
   return 0;

@@ -40,7 +40,7 @@
 #include <QDataStream>
 #include <QtTest/QTest>
 
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <Python.h>
 
 // Boost
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     };
     serviceManager.setLogConnectionInfo(connInfo);
 
-    terrama2::services::analysis::core::python::initInterpreter();
+    terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
     QCoreApplication app(argc, argv);
 
@@ -293,8 +293,8 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
-  terrama2::services::analysis::core::python::finalizeInterpreter();
-  
+
+
 
   return 0;
 }

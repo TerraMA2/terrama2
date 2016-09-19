@@ -88,7 +88,10 @@ namespace terrama2
         struct Buffer
         {
           //! Default constructor
-          Buffer() : bufferType(NONE)
+          Buffer()
+           : bufferType(NONE),
+           distance(0),
+           distance2(0)
           { }
 
           /*!
@@ -97,7 +100,7 @@ namespace terrama2
             \param d Distance of the buffer, use negative values for an inside buffer.
             \param u Unit of the distance.
           */
-          Buffer(BufferType type, double d, std::string u) : bufferType(type), distance(d), unit(u)
+          Buffer(BufferType type, double d, std::string u) : bufferType(type), distance(d), unit(u), distance2(0)
           { }
 
           /*!

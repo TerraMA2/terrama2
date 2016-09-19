@@ -37,17 +37,8 @@
 #include "../ContextManager.hpp"
 #include "../GridContext.hpp"
 #include "../MonitoredObjectContext.hpp"
-#include "PythonBindingGrid.hpp"
-#include "PythonBindingMonitoredObject.hpp"
-#include "../dcp/Operator.hpp"
-#include "../dcp/history/Operator.hpp"
-#include "../grid/Operator.hpp"
-#include "../grid/history/Operator.hpp"
-#include "../grid/history/interval/Operator.hpp"
-#include "../grid/forecast/Operator.hpp"
-#include "../grid/forecast/interval/Operator.hpp"
-#include "../occurrence/Operator.hpp"
-#include "../occurrence/aggregation/Operator.hpp"
+#include "../BufferMemory.hpp"
+
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/data-model/Filter.hpp"
 
@@ -285,7 +276,7 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
     context->addError(errMsg.toStdString());
   }
 
-  state = PyThreadState_Swap(previousState);
+  PyThreadState_Swap(previousState);
 }
 
 void terrama2::services::analysis::core::python::runScriptDCPAnalysis(PyThreadState* state, MonitoredObjectContextPtr context)
@@ -485,25 +476,6 @@ extern "C" void INIT_MODULE();
 void terrama2::services::analysis::core::python::populateNamespace()
 {
   INIT_MODULE();
-}
-
-void terrama2::services::analysis::core::python::initInterpreter()
-{
-  PyEval_InitThreads();
-  Py_Initialize();
-
-  populateNamespace();
-  terrama2::services::analysis::core::python::Grid::registerFunctions();
-  terrama2::services::analysis::core::python::MonitoredObject::registerFunctions();
-
-  PyEval_ReleaseLock();
-}
-
-void terrama2::services::analysis::core::python::finalizeInterpreter()
-{
-  // shut down the interpreter
-  GILLock lock;
-  Py_Finalize();
 }
 
 void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache& cache)
