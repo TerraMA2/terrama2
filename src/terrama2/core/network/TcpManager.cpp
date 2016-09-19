@@ -265,7 +265,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
           return;
         }
 
-
         in >> blockSize_;
         TERRAMA2_LOG_DEBUG() << "message size: " << blockSize_;
       }
@@ -287,7 +286,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       //update left blockSize
       blockSize_-=sizeof(TcpSignal);
 
-      if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && !serviceManager_->serviceLoaded())
+      if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && signal != TcpSignal::STATUS_SIGNAL && !serviceManager_->serviceLoaded())
       {
         // wait for TcpSignals::UPDATE_SERVICE_SIGNAL
         return;

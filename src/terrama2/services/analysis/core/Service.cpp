@@ -220,7 +220,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
     if(analysis->reprocessingHistoricalData)
     {
-      //erasePreviousResult(dataManager_, analysis->outputDataSeriesId);
+      erasePreviousResult(dataManager_, analysis->outputDataSeriesId);
 
       auto reprocessingHistoricalData = analysis->reprocessingHistoricalData;
 

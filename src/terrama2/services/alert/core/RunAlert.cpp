@@ -50,8 +50,8 @@
 #include <terralib/dataaccess/dataset/ForeignKey.h>
 
 void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> > alertInfo,
-    std::shared_ptr< AlertLogger > logger,
-    std::weak_ptr<DataManager> weakDataManager)
+                                               std::shared_ptr< AlertLogger > logger,
+                                               std::weak_ptr<DataManager> weakDataManager)
 {
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
@@ -64,8 +64,8 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
   {
     auto alertId = alertInfo.first;
     RegisterId logId = 0;
-    if(logger.get())
-      logId = logger->start(alertId);
+
+    logId = logger->start(alertId);
 
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting alert generation");
 
@@ -101,8 +101,7 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      if(logger.get())
-        logger->done(nullptr, logId);
+      logger->done(nullptr, logId);
       TERRAMA2_LOG_WARNING() << QObject::tr("No data to available.");
       return;
     }
@@ -180,8 +179,7 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
       report->process(alertPtr, dataset, alertInfo.second, alertDataSet);
     }
 
-    if(logger.get())
-      logger->done(alertInfo.second, logId);
+    logger->done(alertInfo.second, logId);
   }
   catch(const terrama2::Exception& e)
   {
