@@ -913,7 +913,6 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
           << "<PixelOffset>" << pixelOffset << "</PixelOffset>" << std::endl
           << "<LineOffset>" << lineOffset << "</LineOffset>" << std::endl
           << "<NoDataValue>" << descriptor.undef_ << "</NoDataValue>" << std::endl;
-
       vrtfile << std::endl << "</VRTRasterBand>";
     }
 
