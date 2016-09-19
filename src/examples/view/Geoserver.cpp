@@ -46,17 +46,20 @@ int main(int argc, char** argv)
 
   try
   {
+    std::unique_ptr<te::se::Style> style(CreateFeatureTypeStyle(te::gm::PolygonType, "#00c290"));
+
     // Make sure to have a geoServer with the below configuration
     te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver");
     terrama2::services::view::data_access::GeoServer geoserver(uri);
 
-    geoserver.registerWorkspace("exampleworkspace");
+    geoserver.registerWorkspace("aworkspace");
 
-    geoserver.uploadVectorFile("example", "/home/vinicius/MyDevel/terrama2/build-debug/data/shapefile/shapefile.zip");
+    geoserver.registerStyle("astyle", style);
 
-    std::unique_ptr<te::se::Style> style(CreateFeatureTypeStyle(te::gm::PolygonType, "#00c290"));
+    geoserver.uploadVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/shapefile.zip", "shp");
 
-//    geoserver.registerStyle("an_another_example", style);
+    geoserver.uploadCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
+
   }
   catch(const std::exception& e)
   {
