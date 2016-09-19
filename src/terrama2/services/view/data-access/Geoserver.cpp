@@ -47,6 +47,12 @@ terrama2::services::view::data_access::GeoServer::GeoServer(const te::core::URI 
 }
 
 
+void terrama2::services::view::data_access::GeoServer::setWorkspace(const std::string& workspace)
+{
+  workspace_ = workspace;
+}
+
+
 void terrama2::services::view::data_access::GeoServer::registerWorkspace(const std::string& name)
 {
   te::ws::core::CurlWrapper cURLwrapper;
@@ -67,22 +73,37 @@ void terrama2::services::view::data_access::GeoServer::registerWorkspace(const s
 }
 
 
-void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const std::string& name, const std::string& shpPath)
+void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const std::string& name, const std::string& shpPath, const std::string& extension)
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-//  http://localhost:8080/geoserver/rest/workspaces/acme/datastores/roads/file.shp
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + name + "/file.shp");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + name + "/file." + extension);
 
-//  application/octet-stream
   if(!uriPut.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
   }
-  // Upload Style file
+  // Upload Vector file
   cURLwrapper.putFile(uriPut, shpPath, "Content-type: application/zip");
+}
+
+
+void terrama2::services::view::data_access::GeoServer::uploadCoverageFile(const std::string& name, const std::string& coverageFilePath, const std::string& extension)
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/" + name + "/file." + extension );
+std::cout << uriPut.uri() << std::endl;
+  if(!uriPut.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+  }
+  // Upload Coverage file
+  cURLwrapper.putFile(uriPut, coverageFilePath, "Content-type: application/zip");
 }
 
 
@@ -90,7 +111,7 @@ void terrama2::services::view::data_access::GeoServer::registerStyle(const std::
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPost(uri_.uri() + "/rest/styles");
+  te::core::URI uriPost(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles");
 
   if(!uriPost.isValid())
   {
@@ -103,7 +124,7 @@ void terrama2::services::view::data_access::GeoServer::registerStyle(const std::
   cURLwrapper.post(uriPost, "<style><name>" + name + "</name><filename>" + name + ".sld</filename></style>", "Content-Type: text/xml");
 
 
-  te::core::URI uriPut(uri_.uri() + "/rest/styles/" + name);
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + name);
 
   if(!uriPut.isValid())
   {

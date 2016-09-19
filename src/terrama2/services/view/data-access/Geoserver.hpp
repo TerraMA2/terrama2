@@ -47,16 +47,19 @@ namespace terrama2
       {
         class GeoServer
         {
-
         public:
 
           GeoServer(const te::core::URI uri, const std::string workspace = std::string());
 
           ~GeoServer() = default;
 
+          void setWorkspace(const std::string& workspace);
+
           void registerWorkspace(const std::string& name);
 
-          void uploadVectorFile(const std::string& name, const std::string& shpPath);
+          void uploadVectorFile(const std::string& name, const std::string& shpPath, const std::string& extension);
+
+          void uploadCoverageFile(const std::string& name, const std::string& styleFilePath, const std::string& extension);
 
           void registerStyle(const std::string& name, const std::string& styleFilePath);
 
@@ -65,14 +68,12 @@ namespace terrama2
         private:
 
           te::core::URI uri_;
-          std::string workspace_;
+          std::string workspace_ = "";
 
         };
       }
     }
   }
 }
-
-
 
 #endif //__TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
