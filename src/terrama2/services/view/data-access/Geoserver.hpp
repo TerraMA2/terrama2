@@ -45,30 +45,75 @@ namespace terrama2
     {
       namespace data_access
       {
+        /*!
+          \brief GeoServer class for working with GeoServer through RESTful.
+
+          This class stores a address to a GeoServer and the workspace in the server.
+        */
         class GeoServer
         {
         public:
 
-          GeoServer(const te::core::URI uri, const std::string workspace = std::string());
+          /*!
+           * \brief GeoServer class constructor
+           * \param uri The address of the GeoServer
+           * \param workspace A workspace to work in GeoServer
+           */
+          GeoServer(const te::core::URI uri, const std::string workspace = "terrama");
 
+          /*!
+           * \brief GeoServer class default destructor
+           */
           ~GeoServer() = default;
 
+          /*!
+           * \brief Set a workspace to work in GeoServer
+           * \param workspace The workspace name
+           */
           void setWorkspace(const std::string& workspace);
 
+          /*!
+           * \brief Register the wanted workspace in GeoServer
+           * \param name The workspace name
+           */
           void registerWorkspace(const std::string& name);
 
-          void uploadVectorFile(const std::string& name, const std::string& shpPath, const std::string& extension);
+          /*!
+           * \brief Method to upload a .zip with the vector files to the GeoServer
+           * \param dataStoreName The name of the store in GeoServer to upload the vector files,
+           *                      if it doesn't exists, will be created.
+           * \param shpPath The full path to the .zip with the vector files
+           * \param extension  Specifies the type of data being uploaded. Supported: shp, properties, h2, spatialite, appschema
+           */
+          void uploadVectorFile(const std::string& dataStoreName, const std::string& shpPath, const std::string& extension);
 
-          void uploadCoverageFile(const std::string& name, const std::string& styleFilePath, const std::string& extension);
+          /*!
+           * \brief Method to upload a .zip with the coverage files to the GeoServer
+           * \param coverageStoreName The name of the store in GeoServer to upload the coverage files,
+           *                            if it doesn't exists, will be created.
+           * \param shpPath The full path to the .zip with the coverage files
+           * \param extension  Specifies the type of data being uploaded. Supported: geotiff, worldimage(JPEG, PNG, TIFF), imagemosaic
+           */
+          void uploadCoverageFile(const std::string& coverageStoreName, const std::string& styleFilePath, const std::string& extension);
 
+          /*!
+           * \brief Method to register a style in the GeoServer from a text file
+           * \param name The name of the style
+           * \param styleFilePath The full path to the txt file
+           */
           void registerStyle(const std::string& name, const std::string& styleFilePath);
 
+          /*!
+           * \brief Method to register a style in the GeoServer from a TerraLib Style object
+           * \param name The name of the style
+           * \param style The Terralib Style object
+           */
           void registerStyle(const std::string& name, const std::unique_ptr<te::se::Style> &style);
 
         private:
 
-          te::core::URI uri_;
-          std::string workspace_ = "";
+          te::core::URI uri_;     /*!< The address of the GeoServer */
+          std::string workspace_; /*!< A workspace to work in GeoServer */
 
         };
       }

@@ -73,11 +73,11 @@ void terrama2::services::view::data_access::GeoServer::registerWorkspace(const s
 }
 
 
-void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const std::string& name, const std::string& shpPath, const std::string& extension)
+void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const std::string& dataStoreName, const std::string& shpPath, const std::string& extension)
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + name + "/file." + extension);
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/file." + extension);
 
   if(!uriPut.isValid())
   {
@@ -90,12 +90,12 @@ void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const st
 }
 
 
-void terrama2::services::view::data_access::GeoServer::uploadCoverageFile(const std::string& name, const std::string& coverageFilePath, const std::string& extension)
+void terrama2::services::view::data_access::GeoServer::uploadCoverageFile(const std::string& coverageStoreName, const std::string& coverageFilePath, const std::string& extension)
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/" + name + "/file." + extension );
-std::cout << uriPut.uri() << std::endl;
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/" + coverageStoreName + "/file." + extension );
+
   if(!uriPut.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
