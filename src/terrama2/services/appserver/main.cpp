@@ -143,15 +143,9 @@ int main(int argc, char* argv[])
 
     int listeningPort = std::stoi(argv[2]);
 
-    try
-    {
-      terrama2::core::TerraMA2Init terramaRaii;
-      terrama2::core::registerFactories();
-    }
-    catch(...)
-    {
-      return TERRAMA2_INITIALIZATION_ERROR;
-    }
+    terrama2::core::TerraMA2Init terramaRaii;
+    terrama2::core::registerFactories();
+
 
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     serviceManager.setServiceType(serviceType);
