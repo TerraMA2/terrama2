@@ -34,14 +34,16 @@
 #include "Utils.hpp"
 
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/services/view/data-access/Geoserver.hpp>
 #include <terrama2/services/view/core/JSonUtils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 
 
 int main(int argc, char** argv)
 {
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
   terrama2::core::registerFactories();
 
   try
@@ -79,8 +81,6 @@ int main(int argc, char** argv)
     std::cout << std::endl << "An unexpected exception has occurred in GeoServer example!" << std::endl;
     return EXIT_FAILURE;
   }
-
-  terrama2::core::finalizeTerraMA();
 
   return EXIT_SUCCESS;
 }
