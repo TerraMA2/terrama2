@@ -53,26 +53,12 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
         })
         return foundCollector || foundAnalysis;
       },
-      run: function(object){
-        var foundCollector = configuration.collectors.find(function(collector){
-          return collector.output_data_series == object.id;
-        });
-        var foundAnalysis = configuration.analysis.find(function(analysi){
-          return analysi.dataSeries.id == object.id;
-        })
-        if (foundCollector){
-          var process_ids = {
-            "Collectors":[object.id],
-            "ProcessType": globals.enums.ServiceType.COLLECTOR
-          };
-          Socket.emit('run', process_ids);
-        } else if (foundAnalysis){
-          var process_ids = {
-            "Analysis":[object.id],
-            "ProcessType": globals.enums.ServiceType.ANALYSIS
-          };
-          Socket.emit('run', process_ids);
-        }
+      run: function(object){        
+        var process_ids = {
+          "ids":[this.canRun(object).id],
+          "ProcessType": globals.enums.ServiceType.COLLECTOR
+        }        
+        Socket.emit('run', process_ids);        
       }
     };
     $scope.method = "{[ method ]}";

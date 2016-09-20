@@ -86,7 +86,7 @@
         canRun: true,
         run: function(object){
           var process_ids = {
-            "Analysis":[object.id],
+            "ids":[object.id],
             "ProcessType": globals.enums.ServiceType.ANALYSIS
           };
           Socket.emit('run', process_ids);
