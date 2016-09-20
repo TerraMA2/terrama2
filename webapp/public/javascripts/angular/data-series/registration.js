@@ -1268,12 +1268,13 @@ angular.module('terrama2.dataseries.registration', [
                   })
                 }
 
-                attributes.forEach(function(attribute) {
+                for(var i = 0; i < attributes.length; ++i) {
+                  var attribute = attributes[i];
                   intersectionValues.push({
                     attribute: attribute,
                     dataseries_id: dataseries_id
                   });
-                });
+                }
               }
             }
 
