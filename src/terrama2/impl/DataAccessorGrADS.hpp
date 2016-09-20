@@ -36,6 +36,10 @@
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorGrid.hpp"
 
+// STL
+#include <map>
+#include <string>
+
 namespace terrama2
 {
   namespace core
@@ -203,12 +207,16 @@ namespace terrama2
 
         std::string getCtlFilename(DataSetPtr dataSet) const;
 
+        double getBytesBefore(DataSetPtr dataset) const;
+
+        double getBytesAfter(DataSetPtr dataset) const;
+
       protected:
         //! Returns the data source type.
         virtual std::string dataSourceType() const override;
 
         void writeVRTFile(GrADSDataDescriptor descriptor, const std::string& binFilename,
-                          const std::string& vrtFilename) const;
+                          const std::string& vrtFilename, DataSetPtr dataset) const;
     };
 
 
@@ -217,3 +225,4 @@ namespace terrama2
 }
 
 #endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRADS_HPP__
+

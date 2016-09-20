@@ -122,6 +122,7 @@ terrama2::core::DataSeriesPtr buildOutputDataSeries()
   terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
   outputDataSet->active = true;
   outputDataSet->id = 2;
+  outputDataSet->dataSeriesId = outputDataSeries->id;
   outputDataSet->format.emplace("table_name", "queimadas");
 
   outputDataSeries->datasetList.emplace_back(outputDataSet);
