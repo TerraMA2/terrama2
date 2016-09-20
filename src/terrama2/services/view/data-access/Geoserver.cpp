@@ -53,7 +53,7 @@ void terrama2::services::view::data_access::GeoServer::setWorkspace(const std::s
 }
 
 
-void terrama2::services::view::data_access::GeoServer::registerWorkspace(const std::string& name)
+void terrama2::services::view::data_access::GeoServer::registerWorkspace(const std::string& name) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -73,7 +73,7 @@ void terrama2::services::view::data_access::GeoServer::registerWorkspace(const s
 }
 
 
-void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const std::string& dataStoreName, const std::string& shpPath, const std::string& extension)
+void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const std::string& dataStoreName, const std::string& shpPath, const std::string& extension) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -90,7 +90,7 @@ void terrama2::services::view::data_access::GeoServer::uploadVectorFile(const st
 }
 
 
-void terrama2::services::view::data_access::GeoServer::uploadCoverageFile(const std::string& coverageStoreName, const std::string& coverageFilePath, const std::string& extension)
+void terrama2::services::view::data_access::GeoServer::uploadCoverageFile(const std::string& coverageStoreName, const std::string& coverageFilePath, const std::string& extension) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -107,7 +107,7 @@ void terrama2::services::view::data_access::GeoServer::uploadCoverageFile(const 
 }
 
 
-void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string& name, const std::string& styleFilePath)
+void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string& name, const std::string& styleFilePath) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -138,7 +138,7 @@ void terrama2::services::view::data_access::GeoServer::registerStyle(const std::
 }
 
 
-void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string &name, const std::unique_ptr<te::se::Style> &style)
+void terrama2::services::view::data_access::GeoServer::registerStyle(const std::string &name, const std::unique_ptr<te::se::Style> &style) const
 {
   QTemporaryFile file;
   if(!file.open())
@@ -161,4 +161,93 @@ void terrama2::services::view::data_access::GeoServer::registerStyle(const std::
   }
 
   registerStyle(name, filePath);
+}
+
+
+void terrama2::services::view::data_access::GeoServer::deleteWorkspace(bool recursive) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_);
+
+  if(!uriDelete.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+  }
+
+  if(recursive)
+  {
+    cURLwrapper.customRequest(uriDelete, "delete&recurse=true");
+  }
+  else
+  {
+    cURLwrapper.customRequest(uriDelete, "delete&recurse=false");
+  }
+}
+
+
+void terrama2::services::view::data_access::GeoServer::deleteVectorFile(const std::string& dataStoreName, const std::string &fileName, bool recursive) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/featuretypes/" + fileName);
+
+  if(!uriDelete.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+  }
+
+  if(recursive)
+  {
+    cURLwrapper.customRequest(uriDelete, "delete&recurse=true");
+  }
+  else
+  {
+    cURLwrapper.customRequest(uriDelete, "delete&recurse=false");
+  }
+}
+
+
+void terrama2::services::view::data_access::GeoServer::deleteCoverageFile(const std::string& coverageStoreName, const std::string& fileName, bool recursive) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/" + coverageStoreName + "/coverages/" + fileName);
+
+  if(!uriDelete.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+  }
+
+  if(recursive)
+  {
+    cURLwrapper.customRequest(uriDelete, "delete&recurse=true");
+  }
+  else
+  {
+    cURLwrapper.customRequest(uriDelete, "delete&recurse=false");
+  }
+}
+
+
+void terrama2::services::view::data_access::GeoServer::deleteStyle(const::std::string& styleName) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriDelete(uri_.uri() + "/rest/styles/" + styleName);
+
+  if(!uriDelete.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+  }
+
+    cURLwrapper.customRequest(uriDelete, "delete&purge=true");
 }

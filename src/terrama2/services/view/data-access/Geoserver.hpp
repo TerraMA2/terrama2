@@ -76,7 +76,7 @@ namespace terrama2
            * \brief Register the wanted workspace in GeoServer
            * \param name The workspace name
            */
-          void registerWorkspace(const std::string& name);
+          void registerWorkspace(const std::string& name) const;
 
           /*!
            * \brief Method to upload a .zip with the vector files to the GeoServer
@@ -85,7 +85,7 @@ namespace terrama2
            * \param shpPath The full path to the .zip with the vector files
            * \param extension  Specifies the type of data being uploaded. Supported: shp, properties, h2, spatialite, appschema
            */
-          void uploadVectorFile(const std::string& dataStoreName, const std::string& shpPath, const std::string& extension);
+          void uploadVectorFile(const std::string& dataStoreName, const std::string& shpPath, const std::string& extension) const;
 
           /*!
            * \brief Method to upload a .zip with the coverage files to the GeoServer
@@ -94,21 +94,29 @@ namespace terrama2
            * \param shpPath The full path to the .zip with the coverage files
            * \param extension  Specifies the type of data being uploaded. Supported: geotiff, worldimage(JPEG, PNG, TIFF), imagemosaic
            */
-          void uploadCoverageFile(const std::string& coverageStoreName, const std::string& styleFilePath, const std::string& extension);
+          void uploadCoverageFile(const std::string& coverageStoreName, const std::string& styleFilePath, const std::string& extension) const;
 
           /*!
            * \brief Method to register a style in the GeoServer from a text file
            * \param name The name of the style
            * \param styleFilePath The full path to the txt file
            */
-          void registerStyle(const std::string& name, const std::string& styleFilePath);
+          void registerStyle(const std::string& name, const std::string& styleFilePath) const;
 
           /*!
            * \brief Method to register a style in the GeoServer from a TerraLib Style object
            * \param name The name of the style
            * \param style The Terralib Style object
            */
-          void registerStyle(const std::string& name, const std::unique_ptr<te::se::Style> &style);
+          void registerStyle(const std::string& name, const std::unique_ptr<te::se::Style> &style) const;
+
+          void deleteWorkspace() const;
+
+          void deleteVectorFile(const std::string& fileName) const;
+
+          void deleteCoverageFile(const std::string& fileName) const;
+
+          void deleteStyle(const::std::string& styleName) const;
 
         private:
 
