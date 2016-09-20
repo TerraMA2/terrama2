@@ -60,6 +60,14 @@ int main(int argc, char** argv)
 
     geoserver.uploadCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
 
+    geoserver.deleteStyle("astyle");
+
+    geoserver.deleteCoverageFile("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
+
+    geoserver.deleteVectorFile("ashape", "Rod_Principais_SP_lin", true);
+
+    geoserver.deleteWorkspace(true);
+
   }
   catch(const std::exception& e)
   {
