@@ -111,12 +111,32 @@ namespace terrama2
            */
           void registerStyle(const std::string& name, const std::unique_ptr<te::se::Style> &style) const;
 
+          /*!
+           * \brief Method to delete a workspace in Geoserver
+           * \param recursive If true will delete all data associated with this workspace in server
+           */
           void deleteWorkspace(bool recursive) const;
 
+          /*!
+           * \brief Method to delete a vector file in Geoserver
+           * \param dataStoreName The store name that is located the file
+           * \param fileName The name of the vector file to delete
+           * \param recursive If true will delete all layers associated with this vetctor file in server
+           */
           void deleteVectorFile(const std::string& dataStoreName, const std::string& fileName, bool recursive) const;
 
+          /*!
+           * \brief Method to delete a coverage file in Geoserver
+           * \param coverageStoreName The store name that is located the file
+           * \param fileName The name of the coverage file to delete
+           * \param recursive If true will delete all layers associated with this coverage file in server
+           */
           void deleteCoverageFile(const std::string& coverageStoreName, const std::string& fileName, bool recursive) const;
 
+          /*!
+           * \brief Method to delete a style file in Geoserver
+           * \param styleName The name of style to delete
+           */
           void deleteStyle(const::std::string& styleName) const;
 
         private:
