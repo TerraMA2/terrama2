@@ -178,6 +178,7 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
   outputDataSet->active = true;
   outputDataSet->id = 2;
+  outputDataSet->dataSeriesId = outputDataSeries->id;
   outputDataSet->format.emplace("table_name", "queimadas_test_table");
 
   outputDataSeries->datasetList.emplace_back(outputDataSet);

@@ -106,6 +106,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
     outputDataSet->active = true;
     outputDataSet->id = 2;
+    outputDataSet->dataSeriesId = outputDataSeries->id;
     outputDataSet->format.emplace("table_name", "analysis_result");
 
     outputDataSeries->datasetList.emplace_back(outputDataSet);
