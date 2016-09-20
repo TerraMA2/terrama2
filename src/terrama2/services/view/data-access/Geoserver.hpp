@@ -73,10 +73,11 @@ namespace terrama2
           void setWorkspace(const std::string& workspace);
 
           /*!
-           * \brief Register the wanted workspace in GeoServer
+           * \brief Register the wanted workspace in GeoServer.
+           *        It will also set the new name to the class workspace
            * \param name The workspace name
            */
-          void registerWorkspace(const std::string& name) const;
+          void registerWorkspace(const std::string& name);
 
           /*!
            * \brief Method to upload a .zip with the vector files to the GeoServer
@@ -110,11 +111,11 @@ namespace terrama2
            */
           void registerStyle(const std::string& name, const std::unique_ptr<te::se::Style> &style) const;
 
-          void deleteWorkspace() const;
+          void deleteWorkspace(bool recursive) const;
 
-          void deleteVectorFile(const std::string& fileName) const;
+          void deleteVectorFile(const std::string& dataStoreName, const std::string& fileName, bool recursive) const;
 
-          void deleteCoverageFile(const std::string& fileName) const;
+          void deleteCoverageFile(const std::string& coverageStoreName, const std::string& fileName, bool recursive) const;
 
           void deleteStyle(const::std::string& styleName) const;
 
