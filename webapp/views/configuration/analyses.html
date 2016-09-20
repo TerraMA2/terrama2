@@ -11,10 +11,14 @@
 <script type="text/javascript">
   var globals = {
     enums: {
-      AnalysisType: {[ Enums.AnalysisType|json|safe ]}
+      AnalysisType: {[ Enums.AnalysisType|json|safe ]},
+      ServiceType: {[ Enums.ServiceType|json|safe ]}
     }
   }
 </script>
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
 <script src="/externals/angular/angular.min.js"></script>
 <script src="/externals/angular/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
@@ -25,8 +29,21 @@
 <script>
 
   angular.module('terrama2.analyses', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
-    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', function($scope, $http, AnalysisFactory) {
+    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', 'Socket', function($scope, $http, AnalysisFactory, Socket) {
       $scope.model = [];
+
+      Socket.on('errorResponse', function(response){
+        $scope.display = true;
+        $scope.alertLevel = "alert-danger";
+        $scope.alertBox.message = response.message;
+      });
+
+      Socket.on('runResponse', function(response){
+        $scope.display = true;
+        $scope.alertLevel = "alert-success";
+        $scope.alertBox.message = "The process was started successfully";
+      })
+
       var restriction = {
         project_id: "{[ currentProject.id ]}"
       }
@@ -64,6 +81,15 @@
 
           $scope.alertLevel = "alert-success";
           $scope.alertBox.message = data.name + " removed";
+        },
+        showRunButton: true,
+        canRun: true,
+        run: function(object){
+          var process_ids = {
+            "ids":[object.id],
+            "ProcessType": globals.enums.ServiceType.ANALYSIS
+          };
+          Socket.emit('run', process_ids);
         }
       };
 
