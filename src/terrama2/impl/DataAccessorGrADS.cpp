@@ -464,7 +464,7 @@ void terrama2::core::GrADSDataDescriptor::setKeyValue(const std::string& key, co
     QStringList tokens = QString::fromStdString(value).split(" ");
     for (QString token : tokens)
     {
-      vecOptions_.push_back(token.toStdString());
+      vecOptions_.push_back(token.toUpper().toStdString());
     }
 
     found = true;
@@ -856,8 +856,8 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     }
 
     // In case 'yrev' option is given, we need to flip the image
-    auto itYRev = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV");
-    if(itYRev != descriptor.vecOptions_.end())
+    bool isYReverse = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end();
+    if(isYReverse)
     {
       /// Uses a transformation to flip the image
       if ((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
@@ -876,33 +876,22 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
               << "</GeoTransform>";
     }
 
-    unsigned int pixelOffset = 0;
-    unsigned int lineOffset = 0;
-    unsigned int imageOffset = 0;
+    bool isSequential = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "SEQUENTIAL") != descriptor.vecOptions_.end();
+
     unsigned int dataTypeSizeBytes = 4; // Float32
+    unsigned int pixelOffset = dataTypeSizeBytes;
+
+    if(!isSequential)
+      pixelOffset *= descriptor.tDef_->numValues_;
+
+    unsigned int lineOffset = pixelOffset * descriptor.xDef_->numValues_;
+    unsigned int bytesAfter = getBytesAfter(dataset);
+    unsigned int bytesBefore = getBytesBefore(dataset);
+    unsigned int imageOffset = 0;
 
     for(int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
     {
-      auto it = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "SEQUENTIAL");
-      if(it == descriptor.vecOptions_.end())
-      {
-
-        pixelOffset = dataTypeSizeBytes  * descriptor.tDef_->numValues_;
-        lineOffset = pixelOffset * descriptor.xDef_->numValues_;
-        imageOffset = bandIdx * dataTypeSizeBytes + getBytesBefore(dataset);
-      }
-      else
-      {
-        // BSQ (Band sequential) interleave
-        pixelOffset = dataTypeSizeBytes;
-        lineOffset = pixelOffset * descriptor.xDef_->numValues_;
-        imageOffset = bandIdx * lineOffset * descriptor.xDef_->numValues_ + getBytesBefore(dataset);
-      }
-
-      if(bandIdx != 0)
-      {
-        imageOffset += getBytesAfter(dataset);
-      }
+      imageOffset += bytesBefore;
 
       vrtfile
           << std::endl
@@ -914,6 +903,19 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
           << "<LineOffset>" << lineOffset << "</LineOffset>" << std::endl
           << "<NoDataValue>" << descriptor.undef_ << "</NoDataValue>" << std::endl;
       vrtfile << std::endl << "</VRTRasterBand>";
+
+
+      if(isSequential)
+      {
+        imageOffset += lineOffset * descriptor.yDef_->numValues_;
+      }
+      else
+      {
+        imageOffset += dataTypeSizeBytes;
+      }
+
+      imageOffset += bytesAfter;
+
     }
 
     vrtfile << std::endl << "</VRTDataset>" << std::endl;
