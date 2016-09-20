@@ -21,3 +21,4 @@ exports.Log = require('./Log');
 exports.Filter = require('./Filter');
 exports.Service = require('./Service');
 exports.Intersection = require('./Intersection');
+exports.ReprocessingHistoricalData = require("./ReprocessingHistoricalData");

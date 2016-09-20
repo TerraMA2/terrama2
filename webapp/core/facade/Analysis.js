@@ -46,56 +46,58 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
         ]
       };
 
-      DataManager.addDataSeries(dataSeries, {
-        data_series_id: analysisObject.data_series_id,
-        type: analysisObject.type
-      }).then(function(dataSeriesResult) {
-        DataManager.addSchedule(scheduleObject).then(function(scheduleResult) {
-          // adding analysis
-          analysisObject.dataset_output = dataSeriesResult.dataSets[0].id;
-          analysisObject.schedule_id = scheduleResult.id;
+      DataManager.orm.transaction(function(t) {
+        var options = {
+          transaction: t
+        };
 
-          DataManager.addAnalysis(analysisObject).then(function(analysisResult) {
-            analysisResult.setSchedule(scheduleResult);
-            analysisResult.setDataSeries(dataSeriesResult);
+        return DataManager.addDataSeries(dataSeries, {
+            data_series_id: analysisObject.data_series_id,
+            type: analysisObject.type
+          }, options)
+          
+          .then(function(dataSeriesResult) {
+            return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult) {
+              // adding analysis
+              analysisObject.dataset_output = dataSeriesResult.dataSets[0].id;
+              analysisObject.schedule_id = scheduleResult.id;
 
-            // send tcp
-            DataManager.listServiceInstances({}).then(function(services) {
-              services.forEach(function(service) {
-                try {
-                  TcpManager.emit('sendData', service, {
+              return DataManager.addAnalysis(analysisObject, options).then(function(analysisResult) {
+                analysisResult.setSchedule(scheduleResult);
+                analysisResult.setDataSeries(dataSeriesResult);
+
+                // send tcp
+                DataManager.listServiceInstances({}, options).then(function(services) {
+                  services.forEach(function(service) {
+                    try {
+                      TcpManager.emit('sendData', service, {
+                        "DataSeries": [analysisResult.dataSeries.toObject()],
+                        "Analysis": [analysisResult.toObject()]
+                      });
+                    } catch (e) {
+                      console.log(e);
+                    }
+                  });
+
+                  console.log(JSON.stringify({
                     "DataSeries": [analysisResult.dataSeries.toObject()],
                     "Analysis": [analysisResult.toObject()]
-                  });
-                } catch (e) {
-                  console.log(e);
-                }
+                  }));
+                }).catch(function(err) {
+                  console.log(err);
+                });
+
+                return analysisResult;
               });
-
-              console.log(JSON.stringify({
-                "DataSeries": [analysisResult.dataSeries.toObject()],
-                "Analysis": [analysisResult.toObject()]
-              }));
-            }).catch(function(err) {
-              console.log(err);
             });
-
-            // resolving promise
-            return resolve(analysisResult);
-          }).catch(function(err) {
-            // rollback analysis
-            Utils.rollbackPromises([
-              DataManager.removeDataSerie({id: dataSeriesResult.id}),
-              DataManager.removeSchedule({id: scheduleResult.id})
-            ], new AnalysisError("Could not save analysis " + err.toString()), reject);
-          });
-        }).catch(function(err) {
-          // schedule
-          Utils.rollbackPromises([
-                DataManager.removeDataSerie({id: dataSeriesResult.id})],
-              new AnalysisError("Could not save analysis schedule " + err.toString()), reject);
         });
-      }).catch(function(err) { // data series
+      })
+
+      .then(function(analysis) {
+        return resolve(analysis);        
+      })
+
+      .catch(function(err) {
         console.log(err);
         return reject(err);
       });
@@ -136,22 +138,30 @@ Analysis.list = function(restriction) {
  */
 Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject) {
   return new PromiseClass(function(resolve, reject) {
-    DataManager.updateAnalysis(analysisId, analysisObject, scheduleObject).then(function() {
-      DataManager.getAnalysis({id: analysisId, project_id: projectId}).then(function(analysisInstance) {
+    DataManager.orm.transaction(function(t) {
+      var options = {
+        transaction: t
+      };
 
-        Utils.sendDataToServices(DataManager, TcpManager, {
-          "DataSeries": [analysisInstance.dataSeries.toObject()],
-          "Analysis": [analysisInstance.toObject()]
+      return DataManager.updateAnalysis(analysisId, analysisObject, scheduleObject, options)
+        .then(function() {
+          return DataManager.getAnalysis({id: analysisId, project_id: projectId}, options);
+        })
+
+        .then(function(analysisInstance) {
+          Utils.sendDataToServices(DataManager, TcpManager, {
+            "DataSeries": [analysisInstance.dataSeries.toObject()],
+            "Analysis": [analysisInstance.toObject()]
+          });
+          return analysisInstance;        
         });
+    })
 
-        // generating token
-        return resolve(analysisInstance);
-      }).catch(function(err) {
-        console.log("Error while retrieving updated analysis");
-        console.log(err);
-        return reject(err);
-      });
-    }).catch(function(err) {
+    .then(function(analysis) {
+      return resolve(analysis);
+    })
+    
+    .catch(function(err) {
       return reject(err);
     });
   });

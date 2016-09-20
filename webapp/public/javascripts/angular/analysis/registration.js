@@ -23,7 +23,8 @@ angular.module('terrama2.analysis.registration', [
       'DataProviderFactory',
       'TryCaster',
       'Socket',
-  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster, Socket) {
+      'DateParser',
+  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster, Socket, DateParser) {
     var socket = Socket;
 
     // injecting i18n module
@@ -290,6 +291,17 @@ angular.module('terrama2.analysis.registration', [
           $scope.analysis.type_id = analysisInstance.type.id.toString();
           $scope.analysis.instance_id = analysisInstance.service_instance_id.toString();
           $scope.analysis.script = analysisInstance.script;
+
+          var historicalData = analysisInstance.reprocessing_historical_data;
+          if (historicalData.startDate) {
+            historicalData.startDate = DateParser(historicalData.startDate);
+          }
+
+          if (historicalData.endDate) {
+            historicalData.endDate = DateParser(historicalData.endDate);
+          }
+
+          $scope.analysis.historical = historicalData;
 
           // schedule update
           $scope.$broadcast("updateSchedule", analysisInstance.schedule);

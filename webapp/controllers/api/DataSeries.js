@@ -18,27 +18,52 @@ module.exports = function(app) {
       var intersection = request.body.intersection;
       var active = request.body.active;
 
-      if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-        DataManager.getServiceInstance({id: serviceId}).then(function(serviceResult) {
-          DataManager.addDataSeriesAndCollector(
-              dataSeriesObject,
-              scheduleObject,
-              filterObject,
-              serviceResult,
-              intersection,
-              active
-          ).then(function(collectorResult) {
-            var collector = collectorResult.collector;
-            collector.project_id = app.locals.activeProject.id;
+      DataManager.orm.transaction(function(t) {
+        var options = {
+          transaction: t
+        };
+        if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+          return DataManager.getServiceInstance({id: serviceId}, options).then(function(serviceResult) {
+            return DataManager.addDataSeriesAndCollector(
+                dataSeriesObject,
+                scheduleObject,
+                filterObject,
+                serviceResult,
+                intersection,
+                active
+            ).then(function(collectorResult) {
+              var collector = collectorResult.collector;
+              collector.project_id = app.locals.activeProject.id;
 
+              var output = {
+                "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
+                "Collectors": [collector.toObject()]
+              };
+
+              console.log("OUTPUT: ", JSON.stringify(output));
+
+              return DataManager.listServiceInstances({}, options).then(function(servicesInstance) {
+                servicesInstance.forEach(function (service) {
+                  try {
+                    TcpManager.emit('sendData', service, output);
+                  } catch (e) {
+                    console.log("Error during send data each service: ", e);
+                  }
+                });
+
+                return collectorResult.output;
+              });
+            });
+          });
+        } else {
+          return DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
             var output = {
-              "DataSeries": [collectorResult.input.toObject(), collectorResult.output.toObject()],
-              "Collectors": [collector.toObject()]
+              "DataSeries": [dataSeriesResult.toObject()]
             };
 
             console.log("OUTPUT: ", JSON.stringify(output));
 
-            DataManager.listServiceInstances().then(function(servicesInstance) {
+            return DataManager.listServiceInstances().then(function(servicesInstance) {
               servicesInstance.forEach(function (service) {
                 try {
                   TcpManager.emit('sendData', service, output);
@@ -47,43 +72,16 @@ module.exports = function(app) {
                 }
               });
 
-              var token = Utils.generateToken(app, TokenCode.SAVE, collectorResult.output.name);
-              return response.json({status: 200, output: output, token: token});
-            }).catch(function(err) {
-              return Utils.handleRequestError(response, err, 400);
+              return dataSeriesResult;
             });
-          }).catch(function(err) {
-            return Utils.handleRequestError(response, err, 400);
           });
-        }).catch(function(err) {
-          return Utils.handleRequestError(response, err, 400);
-        });
-      } else {
-        DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
-          var output = {
-            "DataSeries": [dataSeriesResult.toObject()]
-          };
-
-          console.log("OUTPUT: ", JSON.stringify(output));
-
-          DataManager.listServiceInstances().then(function(servicesInstance) {
-            servicesInstance.forEach(function (service) {
-              try {
-                TcpManager.emit('sendData', service, output);
-              } catch (e) {
-                console.log("Error during send data each service: ", e);
-              }
-            });
-
-            var token = Utils.generateToken(app, TokenCode.SAVE, dataSeriesResult.name);
-            return response.json({status: 200, output: output, token: token});
-          }).catch(function(err) {
-            return Utils.handleRequestError(response, err, 400);
-          });
-        }).catch(function(err) {
-          return Utils.handleRequestError(response, err, 400);
-        });
-      }
+        }
+      }).then(function(dataSeriesResult) {
+        var token = Utils.generateToken(app, TokenCode.SAVE, dataSeriesResult.name);
+        return response.json({status: 200, token: token});
+      }).catch(function(err) {
+        return Utils.handleRequestError(response, err, 400);
+      });
     },
 
     get: function(request, response) {

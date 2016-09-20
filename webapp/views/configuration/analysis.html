@@ -368,6 +368,18 @@
       </div><!--./row-->
     </terrama2-box>
 
+    <terrama2-box title="'{[ __('Reprocessing Historical Data') ]}'" css="css">
+      <div class="row">
+        <form name="forms.historicalForm" novalidate>
+          <terrama2-filter-datetime-picker before-label="'Start Date'" 
+                                           after-label="'End Date'"
+                                           before-datetime="analysis.historical.startDate"
+                                           after-datetime="analysis.historical.endDate">
+          </terrama2-filter-datetime-picker>
+        </form>
+      </div>
+    </terrama2-box>
+
     <terrama2-box title="'{[ __('Grid configuration') ]}'" css="css" ng-show="analysis.type_id == {[ Enums.AnalysisType.GRID ]}">
       <div class="row">
         <form name="forms.gridForm">

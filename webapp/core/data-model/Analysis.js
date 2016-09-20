@@ -4,6 +4,7 @@
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
+var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
 var isObject = require("./../Utils").isObject;
 
 /**
@@ -99,6 +100,17 @@ var Analysis = module.exports = function(params) {
   } else {
     this.setAnalysisOutputGrid(params.outputGrid || {});
   }
+
+  /**
+   * @type {ReprocessingHistoricalData}
+   */
+  this.historicalData = {};
+
+  if (params.ReprocessingHistoricalDatum) {
+    this.setHistoricalData(params.ReprocessingHistoricalDatum);
+  } else {
+    this.setHistoricalData(params.historicalData);
+  }
 };
 
 Analysis.prototype = Object.create(BaseClass.prototype);
@@ -125,6 +137,19 @@ Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
     }
   }
   this.outputGrid = output;
+};
+
+/**
+ * It creates and sets a ReprocessingHistoricalData to historicalData
+ * 
+ * @param {Object | ReprocessingHistoricalData}
+ */
+Analysis.prototype.setHistoricalData = function(historicalData) {
+  if (historicalData instanceof BaseClass) {
+    this.historicalData = historicalData;
+  } else {
+    this.historicalData = new ReprocessingHistoricalData((historicalData || {}).get ? historicalData.get() : {});
+  }
 };
 
 Analysis.prototype.setDataSeries = function(dataSeries) {
@@ -179,6 +204,7 @@ Analysis.prototype.getOutputDataSeries = function() {
 
 Analysis.prototype.toObject = function() {
   var outputDataSeriesList = this.getOutputDataSeries();
+  var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.toObject() : this.historicalData;
 
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
@@ -194,7 +220,8 @@ Analysis.prototype.toObject = function() {
     'analysis_dataseries_list': outputDataSeriesList,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : this.schedule,
     service_instance_id: this.instance_id,
-    output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid
+    output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid,
+    reprocessing_historical_data: historicalData
   });
 };
 
@@ -209,7 +236,10 @@ Analysis.prototype.rawObject = function() {
   });
   var obj = this.toObject();
 
-  obj.schedule = this.schedule instanceof BaseClass ? this.schedule.rawObject() : this.schedule,
+  var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.rawObject() : this.historicalData;
+
+  obj.reprocessing_historical_data = historicalData;
+  obj.schedule = this.schedule instanceof BaseClass ? this.schedule.rawObject() : this.schedule;
   obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
   obj.analysis_dataseries_list = outputDataSeriesList;
   obj.output_grid = this.outputGrid instanceof BaseClass ? this.outputGrid.rawObject() : this.outputGrid;
