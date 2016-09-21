@@ -19,16 +19,21 @@
 
 {% block javascripts %}
 
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script type="text/javascript">
   var globals = {
     enums: {
-      DataSeriesType: {[ Enums.DataSeriesType|json|safe ]}
+      DataSeriesType: {[ Enums.DataSeriesType|json|safe ]},
+      ServiceType: {[ Enums.ServiceType|json|safe ]}
     }
   };
 
   var configuration = {
     message: "{[ message ]}",
     dataSeriesType: 'dynamic',
+    collectors: {[collectors|json|safe]},
+    analysis: {[analysis|json|safe]},
     link: function(object) {
       var typeName = object.data_series_semantics.data_series_type_name;
       // if (typeName === "ANALYSIS_MONITORED_OBJECT")
@@ -52,7 +57,8 @@
     },
     iconProperties: {
       type: "img"
-    }
+    },
+    showRunButton: true
   };
 
   configuration.linkToAdd = "/configuration/dynamic/dataseries/new#wizard";

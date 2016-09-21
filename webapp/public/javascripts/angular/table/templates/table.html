@@ -178,8 +178,21 @@
             </button>
           </td>
 
+          <td ng-if="extra.showRunButton" ng-disabled class="pull-cell-left">
+            <button ng-disabled="!extra.canRun(element)" 
+                    class="btn btn-default btn-sm"
+                    ng-click="extra.run(element)">
+              <span class="glyphicon glyphicon-play"></span>
+              <span class="hidden-xs">{{ i18n.__('Run') }}</span>
+            </button>
+          </td>
+
           <td ng-if="isFunction(remove)" class="pull-cell-left">
-            <button class="btn btn-sm btn-danger" ng-click="confirmRemoval(element)">
+            <button class="btn btn-sm btn-danger" 
+                    ng-click="confirmRemoval(element)"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="{{ i18n.__('Remove data') }}">
               <span class="glyphicon glyphicon-remove"></span>
               <span class="hidden-xs">{{ i18n.__('Remove') }}</span>
             </button>

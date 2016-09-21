@@ -154,6 +154,23 @@ TcpManager.prototype.sendData = function(serviceInstance, data) {
 };
 
 /**
+ This method send a START_PROCESS_SIGNAL with json process ids.
+ @param {ServiceInstance} serviceInstance - a terrama2 service instance
+ @param {Json} data - A Json with type and process ids
+ */
+TcpManager.prototype.startProcess = function(serviceInstance, data){
+  var self = this;
+  try{
+    var buffer = self.makebuffer(Signals.START_PROCESS_SIGNAL, data);
+    var client = _getClient(serviceInstance);
+    client.send(buffer);
+  } catch (e){
+    console.log(e);
+    this.emit('tcpError', serviceInstance, new Error("Could not send data to service", e))
+  }
+}
+
+/**
  This method sends a REMOVE_DATA_SIGNAL with bytearray to tcp socket. It is async
  @param {ServiceInstance} serviceInstance - a terrama2 service instance
  @param {Object} data - a javascript object message to send

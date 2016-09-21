@@ -34,7 +34,6 @@ using namespace terrama2::services::analysis::core;
 
 int main(int argc, char* argv[])
 {
-
   terrama2::core::TerraMA2Init terramaRaii;
 
   terrama2::core::registerFactories();
@@ -246,9 +245,6 @@ int main(int argc, char* argv[])
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
   timer.start(10000);
   app.exec();
-
-
-
 
   return 0;
 }

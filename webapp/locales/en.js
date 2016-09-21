@@ -456,5 +456,7 @@
 	"Mean": "Mean",
 	"Reprocessing Historical Data": "Reprocessing Historical Data",
 	"Start Date": "Start Date",
-	"End Date": "End Date"
+	"End Date": "End Date",
+	"Run": "Run",
+	"Remove data": "Remove data"
 }

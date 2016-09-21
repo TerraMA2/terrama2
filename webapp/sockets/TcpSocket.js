@@ -45,22 +45,7 @@ var TcpSocket = function(io) {
       }, 2000);
     };
 
-    var onStatusReceivedData = function(service, response){
-      var flagObject = dataSentFlags[service.id];
-      if (flagObject && flagObject.isDataSent === false) {
-        console.log("sendind data");
-        Utils.prepareAddSignalMessage(DataManager).then(function(data) {
-          TcpManager.emit('sendData', service, data);
-        });
-
-        flagObject.isDataSent = true;
-      } else {
-        console.log("not sending");
-      }
-    };
-
     var onStatusReceived = function(service, response) {
-      // (dataSentFlags[service.id] || {}).answered = true;
       if (!response.service_loaded) {
         // send updateService and Data
         TcpManager.updateService(service);
@@ -68,10 +53,10 @@ var TcpSocket = function(io) {
         setTimeout(function() {
           Utils.prepareAddSignalMessage(DataManager).then(function(data) {
             TcpManager.emit('sendData', service, data);
+          }).finally(function() {
+            // checking status again
+            TcpManager.emit("statusService", service);
           });
-
-          // checking status again
-          TcpManager.emit("statusService", service);
         }, 1000);
       } else {
         client.emit('statusResponse', {
@@ -84,7 +69,6 @@ var TcpSocket = function(io) {
     };
 
     var onLogReceived = function(service, response) {
-      console.log("RECEBEU");
       client.emit('logResponse', {
         status: 200,
         logs: response,
@@ -93,13 +77,13 @@ var TcpSocket = function(io) {
       });
     };
 
-    var onStop = function(service, response) {
+    var onStop = function(service) {
       client.emit('stopResponse', {
         status: 200,
         online: false,
         loading: false,
         service: service.id
-      })
+      });
     };
 
     var onClose = function(service, response) {
@@ -109,7 +93,7 @@ var TcpSocket = function(io) {
         service: service.id,
         loading: false,
         online: false
-      })
+      });
     };
 
     var onError = function(service, err) {
@@ -117,22 +101,8 @@ var TcpSocket = function(io) {
         status: 400,
         message: err.toString(),
         service: service ? service.id : 0
-      })
+      });
     };
-
-    /**
-     * It is used to handling lazy tcp response.
-     * Once status sent, the c++ service should emit a service metadata running. At first time,
-     * a status response should send data to services using ADD_SIGNAL.
-     * To handle it, this object stores a service id poiting to object with following syntax:
-     * serviceId => {
-     *   isDataSent: boolean,
-     *   answered: boolean,
-     *   id: number
-     * }
-     * 
-     */
-    var dataSentFlags = {};
 
     // register listeners
     DataManager.listServiceInstances().then(function(instances) {
@@ -145,8 +115,6 @@ var TcpSocket = function(io) {
     TcpManager.on('serviceStarted', onServiceStarted);
 
     TcpManager.on('serviceConnected', onServiceConnected);
-
-    // TcpManager.on('statusReceived', onStatusReceivedData);
 
     TcpManager.on('statusReceived', onStatusReceived);
 
@@ -168,7 +136,6 @@ var TcpSocket = function(io) {
             service: instance ? instance.id : 0
           });
         };
-        dataSentFlags[instance.id] = { id: instance.id, isDataSent: false };
 
         // notify every one with loading
         iosocket.emit('statusResponse', {
@@ -184,19 +151,26 @@ var TcpSocket = function(io) {
           }
           setTimeout(function() {
             TcpManager.connect(instance).then(function() {
-          //     TcpManager.updateService(instance);
-
-          //     setTimeout(function() {
-                TcpManager.emit('statusService', instance);
-          //     }, 1000);
+              TcpManager.statusService(instance);
             }).catch(_handleErr);
           }, 3000);
         }).catch(_handleErr);
       }).catch(function(err) {
         console.log(err);
-      })
+      });
     });
     // end client start listener
+
+    client.on('run', function(process_object){
+      var service_instance = process_object.service_instance;
+      delete process_object.service_instance;
+      DataManager.getServiceInstance({id: service_instance}).then(function(instance) {
+        TcpManager.startProcess(instance, process_object);
+        client.emit('runResponse', process_object);
+      }).catch(function(err) {
+        console.log(err);
+      });
+    });
 
     client.on('status', function(json) {
       /**
@@ -208,6 +182,7 @@ var TcpSocket = function(io) {
         client.emit('statusResponse', {
           status: 400,
           online: false,
+          message: err.toString(),
           loading: false,
           service: json.service
         });
@@ -221,11 +196,6 @@ var TcpSocket = function(io) {
           online: false,
           service: instance.id
         });
-
-        var serviceFlag = dataSentFlags[instance.id] || {};
-        serviceFlag.id = instance.id;
-        serviceFlag.answered = false;
-        dataSentFlags[instance.id] = serviceFlag;
 
         TcpManager.connect(instance).then(function() {
           TcpManager.emit('statusService', instance);
@@ -258,7 +228,7 @@ var TcpSocket = function(io) {
           status: 400,
           message: err.toString(),
           service: json.service.id
-        })
+        });
       });
     }); // end client stop listener
 
@@ -305,16 +275,15 @@ var TcpSocket = function(io) {
                 default:
                   _handleError(new Error("Invalid service type"));
               }
-            })
-          }).catch(_handleError)
-        }).catch(_handleError)
-      }).catch(_handleError)
+            });
+          }).catch(_handleError);
+        }).catch(_handleError);
+      }).catch(_handleError);
     }); // end log listener
 
     client.on('disconnect', function() {
       // removing clients listeners of TcpManager instance
       TcpManager.removeListener('statusReceived', onStatusReceived);
-      TcpManager.removeListener('statusReceived', onStatusReceivedData);
       TcpManager.removeListener('logReceived', onLogReceived);
       TcpManager.removeListener('stop', onStop);
       TcpManager.removeListener('close', onClose);
@@ -323,7 +292,7 @@ var TcpSocket = function(io) {
       TcpManager.removeListener('serviceConnected', onServiceConnected);
 
       console.log("DISCONNECTED");
-    })
+    });
   });
 };
 

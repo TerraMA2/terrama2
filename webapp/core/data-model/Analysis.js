@@ -95,6 +95,9 @@ var Analysis = module.exports = function(params) {
    * @type {number}
    */
   this.instance_id = params.instance_id;
+  /**
+   * @type {DataSeries}
+   */
   this.dataSeries = {};
 
   if (params.AnalysisOutputGrid) {

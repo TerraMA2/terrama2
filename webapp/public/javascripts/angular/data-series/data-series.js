@@ -1,7 +1,19 @@
 angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
-  .controller("ListController", ['$scope', 'DataSeriesFactory', function($scope, DataSeriesFactory) {
+  .controller("ListController", ['$scope', 'DataSeriesFactory', 'Socket',function($scope, DataSeriesFactory,Socket) {
     var isDynamic = false;
     var queryParams = {};
+
+    Socket.on('errorResponse', function(response){
+      $scope.display = true;
+      $scope.alertLevel = "alert-danger";
+      $scope.alertBox.message = response.message;
+    });
+
+    Socket.on('runResponse', function(response){
+      $scope.display = true;
+      $scope.alertLevel = "alert-success";
+      $scope.alertBox.message = "The process was started successfully";
+    })
 
     if (configuration.dataSeriesType == "static") {
       $scope.dataSeriesType = configuration.dataSeriesType;
@@ -30,6 +42,24 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
 
         $scope.alertLevel = "alert-success";
         $scope.alertBox.message = data.name + " removed";
+      },
+      showRunButton: configuration.showRunButton,
+      canRun: function(object){
+        var foundCollector = configuration.collectors.find(function(collector){
+          return collector.output_data_series == object.id;
+        });
+        var foundAnalysis = configuration.analysis.find(function(analysi){
+          return analysi.dataSeries.id == object.id;
+        })
+        return foundCollector || foundAnalysis;
+      },
+      run: function(object){        
+        var service_instance = this.canRun(object);
+        var process_ids = {
+          "ids":[service_instance.id],
+          "service_instance": service_instance.service_instance_id
+        }        
+        Socket.emit('run', process_ids);        
       }
     };
     $scope.method = "{[ method ]}";

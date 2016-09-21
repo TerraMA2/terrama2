@@ -803,8 +803,8 @@ var DataManager = {
 
   /**
    * Retrieves a list of ServiceInstances from restriction
-   * @param {Object} restriction - A javascript object with restriction query values.
-   * @param {Object} options - A query options
+   * @param {Object?} restriction - A javascript object with restriction query values.
+   * @param {Object?} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<ServiceInstance>} A promise with Array of Service Instances
    */
@@ -833,7 +833,7 @@ var DataManager = {
    * It retrieves a service instance from given restriction
    * 
    * @param {Object} restriction - A query restriction
-   * @param {Object} options - A query options
+   * @param {Object?} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<ServiceInstance>} 
    */
@@ -2938,9 +2938,10 @@ var DataManager = {
           Promise.all(promises).then(function(dataSeriesList) {
             analysesResult.forEach(function(analysis) {
               var analysisObject = new DataModel.Analysis(analysis.get());
-              dataSets.some(function(dataSet) {
-                return dataSeriesList.some(function(dataSeries) {
-                  if (dataSet.data_series_id === dataSeries.id) {
+
+              dataSeriesList.some(function(dataSeries) {
+                return dataSeries.dataSets.some(function(dSet) {
+                  if (analysis.dataset_output === dSet.id) {
                     analysisObject.setDataSeries(dataSeries);
                     return true;
                   }
