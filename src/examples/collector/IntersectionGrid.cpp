@@ -31,6 +31,7 @@
 #include <terrama2/core/Shared.hpp>
 
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
@@ -177,6 +178,7 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
   outputDataSet->active = true;
   outputDataSet->id = 2;
+  outputDataSet->dataSeriesId = outputDataSeries->id;
   outputDataSet->format.emplace("table_name", "queimadas_test_table");
 
   outputDataSeries->datasetList.emplace_back(outputDataSet);
@@ -186,7 +188,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    terrama2::core::initializeTerraMA();
+    terrama2::core::TerraMA2Init terramaRaii;
     terrama2::core::registerFactories();
 
 
@@ -243,7 +245,7 @@ int main(int argc, char* argv[])
       service.stopService();
     }
 
-    terrama2::core::finalizeTerraMA();
+    
   }
   catch(...)
   {

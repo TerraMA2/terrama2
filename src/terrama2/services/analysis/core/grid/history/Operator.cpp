@@ -206,27 +206,27 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
     // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
     // In case an exception is thrown, we need to catch it and set a flag.
     // Once the code left the lock is acquired we should return NAN.
-    terrama2::services::analysis::core::python::OperatorLock operatorLock;
-    operatorLock.unlock();
 
-    try
     {
-      auto samples = sample(cache, dataSeriesName, dateFilterBegin, dateFilterEnd);
+      terrama2::services::analysis::core::python::OperatorLock operatorLock;
 
-      hasData = !samples.empty();
 
-      if(hasData)
-        terrama2::services::analysis::core::calculateStatistics(samples, cache);
-      else if(statisticOperation == StatisticOperation::COUNT)
-        return 0.;
+      try
+      {
+        auto samples = sample(cache, dataSeriesName, dateFilterBegin, dateFilterEnd);
+
+        hasData = !samples.empty();
+
+        if(hasData)
+          terrama2::services::analysis::core::calculateStatistics(samples, cache);
+        else if(statisticOperation == StatisticOperation::COUNT)
+          return 0.;
+      }
+      catch(...)
+      {
+        exceptionOccurred = true;
+      }
     }
-    catch(...)
-    {
-      exceptionOccurred = true;
-    }
-
-    // All operations are done, acquires the GIL and set the return value
-    operatorLock.lock();
 
     if(exceptionOccurred)
       return NAN;

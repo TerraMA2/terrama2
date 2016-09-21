@@ -12,6 +12,7 @@
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/impl/Utils.hpp>
 
@@ -39,7 +40,7 @@
 #include <QDataStream>
 #include <QtTest/QTest>
 
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <Python.h>
 
 // Boost
@@ -52,7 +53,7 @@ int main(int argc, char* argv[])
   try
   {
 
-    terrama2::core::initializeTerraMA();
+    terrama2::core::TerraMA2Init terramaRaii;
 
     terrama2::core::registerFactories();
 
@@ -67,7 +68,7 @@ int main(int argc, char* argv[])
     };
     serviceManager.setLogConnectionInfo(connInfo);
 
-    terrama2::services::analysis::core::python::initInterpreter();
+    terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
     QCoreApplication app(argc, argv);
 
@@ -105,6 +106,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSet* outputDataSet = new terrama2::core::DataSet();
     outputDataSet->active = true;
     outputDataSet->id = 2;
+    outputDataSet->dataSeriesId = outputDataSeries->id;
     outputDataSet->format.emplace("table_name", "analysis_result");
 
     outputDataSeries->datasetList.emplace_back(outputDataSet);
@@ -292,8 +294,8 @@ int main(int argc, char* argv[])
     TERRAMA2_LOG_ERROR() << errMsg;
   }
 
-  terrama2::services::analysis::core::python::finalizeInterpreter();
-  terrama2::core::finalizeTerraMA();
+
+
 
   return 0;
 }

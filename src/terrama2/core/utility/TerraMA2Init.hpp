@@ -16,47 +16,31 @@
 */
 
 /*!
-  \file terrama2/core/utility/StoragerManager.hpp
-  \brief
-  \author Paulo R. M. Oliveira
+  \file terrama2/core/utility/TerraMA2Init.hpp
+  \brief A Raii initialization class for TerraMA2
+
+  \author Jano Simas
 */
 
-
-#ifndef __TERRAMA2_CORE_STORAGER_MANAGER_HPP__
-#define __TERRAMA2_CORE_STORAGER_MANAGER_HPP__
-
-#include "../Typedef.hpp"
-#include "../Shared.hpp"
-#include "../data-access/DataSetSeries.hpp"
-
-// STL
-#include <vector>
-#include <map>
-#include <mutex>
-#include <condition_variable>
+#ifndef __TERRAMA2_CORE_TERRAMA2_INIT_HPP__
+#define __TERRAMA2_CORE_TERRAMA2_INIT_HPP__
 
 namespace terrama2
 {
   namespace core
   {
-    class StoragerManager
+    class TerraMA2Init
     {
       public:
-        StoragerManager(terrama2::core::DataManagerPtr dataManager);
+        TerraMA2Init();
+        ~TerraMA2Init();
 
-        void store(DataSetSeries series, DataSetPtr outputDataSet);
-
-        void removeUriFromQueue(const std::string& uri);
-
-      private:
-        terrama2::core::DataManagerPtr dataManager_;
-        std::vector<std::string> vecURIs_;
-        std::mutex mutex_;
-        std::condition_variable conditionVariable_;
+        TerraMA2Init(const TerraMA2Init& other) = delete;
+        TerraMA2Init(TerraMA2Init&& other) = delete;
+        TerraMA2Init& operator=(const TerraMA2Init& other) = delete;
+        TerraMA2Init& operator=(TerraMA2Init&& other) = delete;
     };
+  } /* core */
+} /* terrama2 */
 
-
-  }
-}
-
-#endif //__TERRAMA2_CORE_STORAGER_MANAGER_HPP__
+#endif //__TERRAMA2_CORE_TERRAMA2_INIT_HPP__

@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetGrid.hpp>
@@ -15,7 +16,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
 
   {
     //DataProvider information
@@ -65,7 +66,7 @@ auto raster = gridSeries->gridMap().begin()->second;
     std::cout << "Tiff file copied to " << output << std::endl;
   }
 
-  terrama2::core::finalizeTerraMA();
+  
 
   return 0;
 }

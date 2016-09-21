@@ -10,6 +10,7 @@
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/Config.hpp>
 
@@ -90,7 +91,7 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
   QCoreApplication app(argc, argv);
 
   QJsonObject obj;
@@ -157,7 +158,7 @@ int main(int argc, char* argv[])
   timer.start(10000);
   app.exec();
 
-  terrama2::core::finalizeTerraMA();
+  
 
   return 0;
 }

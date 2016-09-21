@@ -96,6 +96,31 @@ void terrama2::core::TcpManager::updateService(const QByteArray& bytearray)
   }
 }
 
+void terrama2::core::TcpManager::sendStartProcess(const QByteArray& bytearray)
+{
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
+  QJsonParseError error;
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+
+  if(error.error != QJsonParseError::NoError)
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+  else
+  {
+    if(jsonDoc.isObject())
+    {
+      auto obj = jsonDoc.object();
+      auto array = obj["ids"].toArray();
+      for(auto value : array)
+      {
+        startProcess(value.toInt());
+      }
+    }
+    else
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
+  }
+}
+
 void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
 {
   TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
@@ -265,7 +290,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
           return;
         }
 
-
         in >> blockSize_;
         TERRAMA2_LOG_DEBUG() << "message size: " << blockSize_;
       }
@@ -287,7 +311,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       //update left blockSize
       blockSize_-=sizeof(TcpSignal);
 
-      if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && !serviceManager_->serviceLoaded())
+      if(signal != TcpSignal::UPDATE_SERVICE_SIGNAL && signal != TcpSignal::STATUS_SIGNAL && !serviceManager_->serviceLoaded())
       {
         // wait for TcpSignals::UPDATE_SERVICE_SIGNAL
         return;
@@ -335,10 +359,8 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::START_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
-          uint32_t dataId;
-          in >> dataId;
-
-          emit startProcess(dataId);
+          QByteArray bytearray = tcpSocket->read(blockSize_);
+          sendStartProcess(bytearray);
 
           break;
         }

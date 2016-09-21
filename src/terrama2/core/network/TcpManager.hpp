@@ -119,6 +119,7 @@ namespace terrama2
         void updateService(const QByteArray& bytearray);
         QJsonObject logToJson(const terrama2::core::ProcessLogger::Log& log);
         void sendTerminateSignal(QTcpSocket* tcpSocket);
+        void sendStartProcess(const QByteArray& bytearray);
 
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.
         std::weak_ptr<terrama2::core::ProcessLogger> logger_;

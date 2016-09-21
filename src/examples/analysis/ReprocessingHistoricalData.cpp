@@ -1,5 +1,6 @@
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
@@ -14,6 +15,7 @@
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/Shared.hpp>
 
 #include <terrama2/impl/Utils.hpp>
@@ -33,23 +35,22 @@ using namespace terrama2::services::analysis::core;
 int main(int argc, char* argv[])
 {
 
-  terrama2::core::initializeTerraMA();
+  terrama2::core::TerraMA2Init terramaRaii;
 
   terrama2::core::registerFactories();
 
+  terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
+
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  std::map<std::string, std::string> connInfo{{"PG_HOST",            TERRAMA2_DATABASE_HOST},
-                                              {"PG_PORT",            TERRAMA2_DATABASE_PORT},
-                                              {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
-                                              {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
-                                              {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
-                                              {"PG_CONNECT_TIMEOUT", "4"},
-                                              {"PG_CLIENT_ENCODING", "UTF-8"}
+  std::map<std::string, std::string> connInfo {{"PG_HOST",            TERRAMA2_DATABASE_HOST},
+    {"PG_PORT",            TERRAMA2_DATABASE_PORT},
+    {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
+    {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
+    {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
+    {"PG_CONNECT_TIMEOUT", "4"},
+    {"PG_CLIENT_ENCODING", "UTF-8"}
   };
   serviceManager.setLogConnectionInfo(connInfo);
-
-  terrama2::services::analysis::core::python::initInterpreter();
-
 
   QCoreApplication app(argc, argv);
 
@@ -108,8 +109,8 @@ int main(int argc, char* argv[])
   analysis->active = true;
 
   std::string script = "moBuffer = Buffer()\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"6h\", \"\")\n"
-          "add_value(\"count\", x)\n";
+                       "x = occurrence.count(\"Occurrence\", moBuffer, \"6h\", \"\")\n"
+                       "add_value(\"count\", x)\n";
 
 
   analysis->script = script;
@@ -144,7 +145,8 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "estados_2010.shp");
+  dataSet->format.emplace("mask", "output.shp");
+  //  dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
   dataSet->id = 1;
   dataSet->dataSeriesId = 1;
@@ -242,11 +244,11 @@ int main(int argc, char* argv[])
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(100000);
+  timer.start(10000);
   app.exec();
 
-  terrama2::services::analysis::core::python::finalizeInterpreter();
-  terrama2::core::finalizeTerraMA();
+
+
 
   return 0;
 }

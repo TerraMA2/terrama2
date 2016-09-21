@@ -11,8 +11,8 @@
 #include <terrama2/core/network/TcpSignals.hpp>
 #include <terrama2/core/utility/JSonUtils.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
-
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/Exception.hpp>
 
 #include <terrama2/services/collector/core/Collector.hpp>
@@ -122,6 +122,7 @@ terrama2::core::DataSeriesPtr buildOutputDataSeries()
   terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
   outputDataSet->active = true;
   outputDataSet->id = 2;
+  outputDataSet->dataSeriesId = outputDataSeries->id;
   outputDataSet->format.emplace("table_name", "queimadas");
 
   outputDataSeries->datasetList.emplace_back(outputDataSet);
@@ -150,7 +151,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    terrama2::core::initializeTerraMA();
+    terrama2::core::TerraMA2Init terramaRaii;
 
     terrama2::core::registerFactories();
 
@@ -227,7 +228,7 @@ int main(int argc, char* argv[])
     std::cout << "\n\nException...\n" << std::endl;
   }
 
-  terrama2::core::finalizeTerraMA();
+  
 
   return 0;
 }

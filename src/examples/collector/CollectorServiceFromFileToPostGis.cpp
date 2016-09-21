@@ -31,6 +31,7 @@
 #include <terrama2/core/Shared.hpp>
 
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/core/utility/DataRetrieverFactory.hpp>
@@ -137,6 +138,7 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   terrama2::core::DataSetOccurrence* outputDataSet = new terrama2::core::DataSetOccurrence();
   outputDataSet->active = true;
   outputDataSet->id = 2;
+  outputDataSet->dataSeriesId = outputDataSeries->id;
   outputDataSet->format.emplace("table_name", "queimadas_test_table");
 
   outputDataSeries->datasetList.emplace_back(outputDataSet);
@@ -146,7 +148,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    terrama2::core::initializeTerraMA();
+    terrama2::core::TerraMA2Init terramaRaii;
     terrama2::core::registerFactories();
 
 
@@ -170,6 +172,9 @@ int main(int argc, char* argv[])
       addOutput(dataManager);
 
       terrama2::services::collector::core::Service service(dataManager);
+      auto logger = std::make_shared<terrama2::services::collector::core::CollectorLogger>();
+      logger->setConnectionInfo(connInfo);
+      service.setLogger(logger);
       service.start();
 
       terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
@@ -186,13 +191,13 @@ int main(int argc, char* argv[])
 
       QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-      timer.start(30000);
+      timer.start(10000);
       app.exec();
 
       service.stopService();
     }
 
-    terrama2::core::finalizeTerraMA();
+    
   }
   catch(...)
   {

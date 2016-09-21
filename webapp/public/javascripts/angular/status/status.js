@@ -54,6 +54,13 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
 
     $scope.loading = true;
 
+    // modal info
+    $scope.modalMessages = "";
+    //Set messages to show in modal
+    $scope.setModalMessages = function(messages){
+      $scope.modalMessages = messages;
+    }
+
     // socket listeners
     $scope.socket.on('closeResponse', function(response) {
       console.log(response);
@@ -122,21 +129,31 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
           var obj = currentProcess[targetKey];
 
           out.name = obj.name;
-
-          switch(logMessage.status) {
-            case globals.enums.StatusLog.DONE:
-              out.message = "done";
-              break;
-            case globals.enums.StatusLog.START:
-              out.message = "started";
-              break;
-            case globals.enums.StatusLog.DOWNLOADED:
-              out.message = "downloaded";
-              break;
-            case globals.enums.StatusLog.ERROR:
-              out.message = "error";
-              break;
+          var messageString = "";
+          if (logMessage.messages && logMessage.messages.length > 0){
+            for (message in logMessage.messages){
+              if (logMessage.messages[message].description)
+                messageString += logMessage.messages[message].description + ". ";
+            }
+            out.message = messageString;
           }
+          else{
+            switch(logMessage.status) {
+              case globals.enums.StatusLog.DONE:
+                out.message = "Done";
+                break;
+              case globals.enums.StatusLog.START:
+                out.message = "Started";
+                break;
+              case globals.enums.StatusLog.DOWNLOADED:
+                out.message = "Downloaded";
+                break;
+              case globals.enums.StatusLog.ERROR:
+                out.message = "Error";
+                break;
+            }
+          }
+
           $scope.model.push(out)
         })
       })

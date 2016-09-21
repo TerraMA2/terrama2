@@ -35,7 +35,7 @@
 
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
-#include <terrama2/services/analysis/core/python/PythonInterpreter.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 
 #include <terrama2/services/view/core/Service.hpp>
 #include <terrama2/services/view/core/DataManager.hpp>
@@ -43,6 +43,7 @@
 
 #include <terrama2/core/network/TcpManager.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/Logger.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/impl/Utils.hpp>
@@ -142,15 +143,9 @@ int main(int argc, char* argv[])
 
     int listeningPort = std::stoi(argv[2]);
 
-    try
-    {
-      terrama2::core::initializeTerraMA();
-      terrama2::core::registerFactories();
-    }
-    catch(...)
-    {
-      return TERRAMA2_INITIALIZATION_ERROR;
-    }
+    terrama2::core::TerraMA2Init terramaRaii;
+    terrama2::core::registerFactories();
+
 
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
     serviceManager.setServiceType(serviceType);
@@ -163,7 +158,7 @@ int main(int argc, char* argv[])
       TERRAMA2_LOG_INFO() << QObject::tr("Starting %1 service.").arg(QString::fromStdString(serviceType));
 
       // Must initialize the python interpreter before creating any thread.
-      terrama2::services::analysis::core::python::initInterpreter();
+      terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
       QCoreApplication app(argc, argv);
 
@@ -199,8 +194,8 @@ int main(int argc, char* argv[])
 
     try
     {
-      terrama2::services::analysis::core::python::finalizeInterpreter();
-      terrama2::core::finalizeTerraMA();
+
+
 
       //Service closed by load error
       if(!serviceManager.serviceLoaded())
