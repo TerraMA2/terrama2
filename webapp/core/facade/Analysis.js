@@ -67,7 +67,7 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
                 analysisResult.setDataSeries(dataSeriesResult);
 
                 // send tcp
-                DataManager.listServiceInstances({}, options).then(function(services) {
+                DataManager.listServiceInstances({}).then(function(services) {
                   services.forEach(function(service) {
                     try {
                       TcpManager.emit('sendData', service, {

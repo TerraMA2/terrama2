@@ -292,7 +292,7 @@ angular.module('terrama2.analysis.registration', [
           $scope.analysis.instance_id = analysisInstance.service_instance_id.toString();
           $scope.analysis.script = analysisInstance.script;
 
-          var historicalData = analysisInstance.reprocessing_historical_data;
+          var historicalData = analysisInstance.reprocessing_historical_data || {};
           if (historicalData.startDate) {
             historicalData.startDate = DateParser(historicalData.startDate);
           }

@@ -563,6 +563,18 @@ var Utils = {
   },
 
   /**
+   * It checks if given parameter is empty.
+   * 
+   * @param {Array | Object}
+   */
+  isEmpty: function(arg) {
+    if (arg instanceof Array) {
+      return arg.length === 0;
+    }
+    return Object.keys(arg).length === 0;
+  },
+
+  /**
    * It creates a copy of object.
    * @param {Object} object - a object to be copied
    * @param {DataModel} model - a TerraMA2 model (optional)

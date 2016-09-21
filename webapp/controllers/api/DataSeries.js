@@ -42,7 +42,7 @@ module.exports = function(app) {
 
               console.log("OUTPUT: ", JSON.stringify(output));
 
-              return DataManager.listServiceInstances({}, options).then(function(servicesInstance) {
+              return DataManager.listServiceInstances({}).then(function(servicesInstance) {
                 servicesInstance.forEach(function (service) {
                   try {
                     TcpManager.emit('sendData', service, output);

@@ -5,7 +5,9 @@ var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
 var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
-var isObject = require("./../Utils").isObject;
+var Utils = require("./../Utils");
+
+var isObject = Utils.isObject;
 
 /**
  * Analysis model representation
@@ -104,7 +106,7 @@ var Analysis = module.exports = function(params) {
   /**
    * @type {ReprocessingHistoricalData}
    */
-  this.historicalData = {};
+  this.historicalData = null;
 
   if (params.ReprocessingHistoricalDatum) {
     this.setHistoricalData(params.ReprocessingHistoricalDatum);
@@ -148,7 +150,11 @@ Analysis.prototype.setHistoricalData = function(historicalData) {
   if (historicalData instanceof BaseClass) {
     this.historicalData = historicalData;
   } else {
-    this.historicalData = new ReprocessingHistoricalData((historicalData || {}).get ? historicalData.get() : {});
+    if (historicalData && !Utils.isEmpty(historicalData)) {
+      this.historicalData = new ReprocessingHistoricalData(historicalData);
+    } else {
+      this.historicalData = {};
+    }
   }
 };
 
@@ -221,7 +227,7 @@ Analysis.prototype.toObject = function() {
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : this.schedule,
     service_instance_id: this.instance_id,
     output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid,
-    reprocessing_historical_data: historicalData
+    reprocessing_historical_data: Utils.isEmpty(historicalData) ? null : historicalData
   });
 };
 
