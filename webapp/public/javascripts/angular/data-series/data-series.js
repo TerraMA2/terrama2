@@ -54,9 +54,10 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
         return foundCollector || foundAnalysis;
       },
       run: function(object){        
+        var service_instance = this.canRun(object);
         var process_ids = {
-          "ids":[this.canRun(object).id],
-          "ProcessType": globals.enums.ServiceType.COLLECTOR
+          "ids":[service_instance.id],
+          "service_instance": service_instance.service_instance_id
         }        
         Socket.emit('run', process_ids);        
       }
