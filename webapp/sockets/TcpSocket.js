@@ -185,9 +185,9 @@ var TcpSocket = function(io) {
     // end client start listener
 
     client.on('run', function(process_object){
-      var process_type = process_object.ProcessType;
-      delete process_object.ProcessType;
-      DataManager.getServiceInstance({service_type_id: process_type}).then(function(instance) {
+      var service_instance = process_object.service_instance;
+      delete process_object.service_instance;
+      DataManager.getServiceInstance({id: service_instance}).then(function(instance) {
         TcpManager.startProcess(instance, process_object);
         client.emit('runResponse', process_object);
       }).catch(function(err) {
@@ -225,11 +225,12 @@ var TcpSocket = function(io) {
         dataSentFlags[instance.id] = serviceFlag;
 
         TcpManager.connect(instance).then(function() {
+          serviceFlag.isDataSent = false;
+          TcpManager.updateService(instance);
           TcpManager.emit('statusService', instance);
 
           setTimeout(function() {
             if (!serviceFlag.answered) {
-              serviceFlag.isDataSent = false;
 
               TcpManager.updateService(instance);
 

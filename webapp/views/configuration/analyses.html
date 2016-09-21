@@ -87,7 +87,7 @@
         run: function(object){
           var process_ids = {
             "ids":[object.id],
-            "ProcessType": globals.enums.ServiceType.ANALYSIS
+            "service_instance": object.service_instace_id
           };
           Socket.emit('run', process_ids);
         }
