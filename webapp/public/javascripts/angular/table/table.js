@@ -67,6 +67,7 @@ angular.module('terrama2.table', ['terrama2'])
         linkToAdd: '=?linkToAdd',
         context: '=context',
         remove: '&?',
+        run: '&?',
         extra: '=?extra'
       },
 

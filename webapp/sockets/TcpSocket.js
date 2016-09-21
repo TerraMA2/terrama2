@@ -184,6 +184,17 @@ var TcpSocket = function(io) {
     });
     // end client start listener
 
+    client.on('run', function(process_object){
+      var service_instance = process_object.service_instance;
+      delete process_object.service_instance;
+      DataManager.getServiceInstance({id: service_instance}).then(function(instance) {
+        TcpManager.startProcess(instance, process_object);
+        client.emit('runResponse', process_object);
+      }).catch(function(err) {
+        console.log(err);
+      })
+    })
+
     client.on('status', function(json) {
       /**
        * Helper for handling error callbacks. It notifies client listeners.
@@ -214,11 +225,12 @@ var TcpSocket = function(io) {
         dataSentFlags[instance.id] = serviceFlag;
 
         TcpManager.connect(instance).then(function() {
+          serviceFlag.isDataSent = false;
+          TcpManager.updateService(instance);
           TcpManager.emit('statusService', instance);
 
           setTimeout(function() {
             if (!serviceFlag.answered) {
-              serviceFlag.isDataSent = false;
 
               TcpManager.updateService(instance);
 
