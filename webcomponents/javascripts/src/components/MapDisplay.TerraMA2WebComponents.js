@@ -789,74 +789,6 @@ define(
     };
 
     /**
-     * Adds a layer group of base layers to the map.
-     * @param {string} id - Layer id
-     * @param {string} name - Layer name
-     * @returns {boolean} layerGroupExists - Indicates if the layer group exists
-     *
-     * @function addBaseLayers
-     * @memberof MapDisplay
-     * @inner
-     */
-    var addBaseLayers = function(id, name) {
-      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', 'terrama2-layerexplorer');
-      var layerGroupExists = layerGroup !== null;
-
-      if(layerGroupExists) {
-        var layers = layerGroup.getLayers();
-
-        var osmSource = new ol.source.OSM();
-        var mqtSource = new ol.source.MapQuest({layer: 'osm'});
-        var satSource = new ol.source.MapQuest({layer: 'sat'});
-
-        if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
-          osmSource.on('tileloadstart', function() { increaseLoading('osm'); });
-          osmSource.on('tileloadend', function() { increaseLoaded('osm'); });
-          osmSource.on('tileloaderror', function() { increaseLoaded('osm'); });
-
-          mqtSource.on('tileloadstart', function() { increaseLoading('mapquest_osm'); });
-          mqtSource.on('tileloadend', function() { increaseLoaded('mapquest_osm'); });
-          mqtSource.on('tileloaderror', function() { increaseLoaded('mapquest_osm'); });
-
-          satSource.on('tileloadstart', function() { increaseLoading('mapquest_sat'); });
-          satSource.on('tileloadend', function() { increaseLoaded('mapquest_sat'); });
-          satSource.on('tileloaderror', function() { increaseLoaded('mapquest_sat'); });
-        }
-
-        layers.push(
-          new ol.layer.Group({
-            layers: [
-              new ol.layer.Tile({
-                source: osmSource,
-                id: 'osm',
-                name: 'Open Street Map',
-                visible: false
-              }),
-              new ol.layer.Tile({
-                source: mqtSource,
-                id: 'mapquest_osm',
-                name: 'MapQuest OSM',
-                visible: false
-              }),
-              new ol.layer.Tile({
-                source: satSource,
-                id: 'mapquest_sat',
-                name: 'MapQuest Sat&eacute;lite',
-                visible: true
-              })
-            ],
-            id: id,
-            name: name
-          })
-        );
-
-        layerGroup.setLayers(layers);
-      }
-
-      return layerGroupExists;
-    };
-
-    /**
      * Adds an OSM layer to a given layer group.
      * @param {string} layerId - Layer id
      * @param {string} layerName - Layer name
@@ -879,53 +811,6 @@ define(
       if(layerGroupExists) {
         var layers = layerGroup.getLayers();
         var source = new ol.source.OSM();
-
-        if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
-          source.on('tileloadstart', function() { increaseLoading(layerId); });
-          source.on('tileloadend', function() { increaseLoaded(layerId); });
-          source.on('tileloaderror', function() { increaseLoaded(layerId); });
-        }
-
-        var newTile = new ol.layer.Tile({
-          source: source,
-          id: layerId,
-          name: layerName,
-          title: layerTitle,
-          visible: layerVisible
-        });
-
-        if(appendAtTheEnd) layers.insertAt(0, newTile);
-        else layers.push(newTile);
-
-        layerGroup.setLayers(layers);
-      }
-
-      return layerGroupExists;
-    };
-
-    /**
-     * Adds a MapQuestOSM layer to a given layer group.
-     * @param {string} layerId - Layer id
-     * @param {string} layerName - Layer name
-     * @param {string} layerTitle - Layer title
-     * @param {boolean} layerVisible - Layer visibility
-     * @param {string} parentGroup - Parent layer group id
-     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
-     * @returns {boolean} layerGroupExists - Indicates if the layer group exists
-     *
-     * @function addMapQuestOSMLayer
-     * @memberof MapDisplay
-     * @inner
-     */
-    var addMapQuestOSMLayer = function(layerId, layerName, layerTitle, layerVisible, parentGroup, appendAtTheEnd) {
-      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
-
-      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
-      var layerGroupExists = layerGroup !== null;
-
-      if(layerGroupExists) {
-        var layers = layerGroup.getLayers();
-        var source = new ol.source.MapQuest({layer: 'osm'});
 
         if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
           source.on('tileloadstart', function() { increaseLoading(layerId); });
@@ -1490,9 +1375,7 @@ define(
       addWMTSLayer: addWMTSLayer,
       addGeoJSONVectorLayer: addGeoJSONVectorLayer,
       removeLayer: removeLayer,
-      addBaseLayers: addBaseLayers,
       addOSMLayer: addOSMLayer,
-      addMapQuestOSMLayer: addMapQuestOSMLayer,
       addMapQuestSatelliteLayer: addMapQuestSatelliteLayer,
       setLayersStartLoadingFunction: setLayersStartLoadingFunction,
       setLayersEndLoadingFunction: setLayersEndLoadingFunction,
