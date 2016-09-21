@@ -222,6 +222,7 @@ var TcpSocket = function(io) {
         });
 
         TcpManager.emit('stopService', instance);
+        TcpManager.statusService(instance);
       }).catch(function(err) {
         console.log(err);
         client.emit('errorResponse', {
