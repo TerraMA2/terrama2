@@ -60,13 +60,27 @@ var TcpSocket = function(io) {
     };
 
     var onStatusReceived = function(service, response) {
-      (dataSentFlags[service.id] || {}).answered = true;
-      client.emit('statusResponse', {
-        status: 200,
-        service: service.id,
-        loading: false,
-        online: Object.keys(response).length > 0
-      });
+      // (dataSentFlags[service.id] || {}).answered = true;
+      if (!response.service_loaded) {
+        // send updateService and Data
+        TcpManager.updateService(service);
+
+        setTimeout(function() {
+          Utils.prepareAddSignalMessage(DataManager).then(function(data) {
+            TcpManager.emit('sendData', service, data);
+          });
+
+          // checking status again
+          TcpManager.emit("statusService", service);
+        }, 1000);
+      } else {
+        client.emit('statusResponse', {
+          status: 200,
+          service: service.id,
+          loading: false,
+          online: Object.keys(response).length > 0
+        });
+      }
     };
 
     var onLogReceived = function(service, response) {
@@ -132,7 +146,7 @@ var TcpSocket = function(io) {
 
     TcpManager.on('serviceConnected', onServiceConnected);
 
-    TcpManager.on('statusReceived', onStatusReceivedData);
+    // TcpManager.on('statusReceived', onStatusReceivedData);
 
     TcpManager.on('statusReceived', onStatusReceived);
 
@@ -170,11 +184,11 @@ var TcpSocket = function(io) {
           }
           setTimeout(function() {
             TcpManager.connect(instance).then(function() {
-              TcpManager.updateService(instance);
+          //     TcpManager.updateService(instance);
 
-              setTimeout(function() {
+          //     setTimeout(function() {
                 TcpManager.emit('statusService', instance);
-              }, 1000);
+          //     }, 1000);
             }).catch(_handleErr);
           }, 3000);
         }).catch(_handleErr);
@@ -215,18 +229,6 @@ var TcpSocket = function(io) {
 
         TcpManager.connect(instance).then(function() {
           TcpManager.emit('statusService', instance);
-
-          setTimeout(function() {
-            if (!serviceFlag.answered) {
-              serviceFlag.isDataSent = false;
-
-              TcpManager.updateService(instance);
-
-              setTimeout(function() {
-                TcpManager.emit('statusService', instance);
-              }, 1000);
-            }
-          }, 1000);
         }).catch(_emitError);
       }).catch(function(err) {
         console.log(err);
