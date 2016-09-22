@@ -114,21 +114,29 @@
 }
 
 .terrama2-layerexplorer-plus {
+  background-image: url('images/plus.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px;
+  margin-right: 3px;
+  margin-top: 1px;
+  max-height: 13px;
+  height: 13px;
+  width: 13px;
   float: left;
-  font-size: 25px;
-  font-weight: bold;
-  margin-top: -8px;
-  max-height: 20px;
-  padding-right: 18px;
 }
 
 .terrama2-layerexplorer-minus {
+  background-image: url('images/minus.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px;
+  margin-right: 3px;
+  margin-top: 1px;
+  max-height: 13px;
+  height: 13px;
+  width: 13px;
   float: left;
-  font-size: 45px;
-  margin-top: -27px;
-  margin-right: -1px;
-  max-height: 30px;
-  padding-right: 18px;
 }
 
 #terrama2-layerexplorer li.parent_li>span { cursor: pointer; }

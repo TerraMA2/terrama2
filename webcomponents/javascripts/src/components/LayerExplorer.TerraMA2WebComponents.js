@@ -49,7 +49,7 @@ define(
      */
     var createLayerGroup = function(id, name, parent, layers, classes) {
       classes = classes !== '' ? ' ' + classes : classes;
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li" + classes + "'><span class='group-name'><div class='terrama2-layerexplorer-plus'>+</div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
+      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li" + classes + "'><span class='group-name'><div class='terrama2-layerexplorer-plus'></div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
     };
 
     /**
@@ -176,11 +176,11 @@ define(
         var children = $(this).parent('li.parent_li').find(' > ul > li');
         if(children.is(":visible")) {
           children.hide('fast');
-          $(this).find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
+          $(this).find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
           $(this).parent('li.parent_li').removeClass('open');
         } else {
           children.show('fast');
-          $(this).find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus').html('-');
+          $(this).find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
           $(this).parent('li.parent_li').addClass('open');
         }
       });
@@ -204,10 +204,10 @@ define(
           var span = $(this).parent('li.parent_li').find(' > span');
           if(children.is(":visible") || !layer.getVisible()) {
             children.hide('fast');
-            span.find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus').html('+');
+            span.find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
           } else {
             children.show('fast');
-            span.find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus').html('-');
+            span.find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
           }
         }
 
