@@ -823,7 +823,7 @@ angular.module('terrama2.analysis.registration', [
       else { request = AnalysisFactory.post(objectToSend); }
 
       request.success(function(data) {
-        window.location = "/configuration/analyses?token=" + data.token;
+        window.location = "/configuration/analysis?token=" + data.token;
       }).error(function(err) {
         console.log(err);
         makeDialog("alert-danger", err.message, true);

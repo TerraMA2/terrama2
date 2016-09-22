@@ -642,7 +642,7 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       self.getProject(restriction).then(function(projectResult) {
         return self.listCollectors({}, options).then(function(collectors) {
-          return self.listAnalyses({project_id: projectResult.id}, options).then(function(analysisList) {
+          return self.listAnalysis({project_id: projectResult.id}, options).then(function(analysisList) {
             if (collectors.length === 0 || analysisList.length === 0) {
               return Promise.resolve();
             }
@@ -2873,7 +2873,7 @@ var DataManager = {
     });
   },
 
-  listAnalyses: function(restriction) {
+  listAnalysis: function(restriction) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var _reject = function(err) {
@@ -2920,11 +2920,11 @@ var DataManager = {
           models.db.Schedule
         ],
         where: restriction || {}
-      }).then(function(analysesResult) {
+      }).then(function(analysisResult) {
         var output = [];
         var promises = [];
 
-        analysesResult.forEach(function(analysis) {
+        analysisResult.forEach(function(analysis) {
           promises.push(self.getDataSet({id: analysis.dataset_output}));
         });
 
@@ -2936,7 +2936,7 @@ var DataManager = {
           });
 
           Promise.all(promises).then(function(dataSeriesList) {
-            analysesResult.forEach(function(analysis) {
+            analysisResult.forEach(function(analysis) {
               var analysisObject = new DataModel.Analysis(analysis.get());
 
               dataSeriesList.some(function(dataSeries) {

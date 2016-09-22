@@ -6,11 +6,11 @@ var DataManager = require('./../../core/DataManager');
 
 module.exports = function(app) {
   return {
-    "get": function analysesController(request, response) {
+    "get": function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
-      response.render("configuration/analyses", Object.assign({"Enums": Enums}, parameters));
+      response.render("configuration/analysis_list", Object.assign({"Enums": Enums}, parameters));
     },
-    "new": function newAnalyseController(request, response) {
+    "new": function(request, response) {
       response.render("configuration/analysis", { Enums: Enums });
     },
 
