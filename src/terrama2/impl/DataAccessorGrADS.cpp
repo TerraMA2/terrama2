@@ -170,7 +170,6 @@ QString terrama2::core::DataAccessorGrADS::replaceMask(QString mask) const
     %n2  - mm    2 digit minute; leading zero if needed
   */
 
-  mask = mask.replace("%y2", "yy");
   mask = mask.replace("%y4", "yyyy");
   mask = mask.replace("%m2", "MM");
   mask = mask.replace("%d2", "dd");
@@ -359,6 +358,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         first = false;
       }
 
+      // If could not find a valid date for the binary file, uses the CTL date.
       if(!thisFileTimestamp)
       {
         if(!ctlFileTimestamp)
@@ -897,8 +897,8 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
       pixelOffset *= descriptor.tDef_->numValues_;
 
     unsigned int lineOffset = pixelOffset * descriptor.xDef_->numValues_;
-    unsigned int bytesAfter = 0;//getBytesAfter(dataset);
-    unsigned int bytesBefore = 0;//getBytesBefore(dataset);
+    unsigned int bytesAfter = getBytesAfter(dataset);
+    unsigned int bytesBefore = getBytesBefore(dataset);
     unsigned int imageOffset = 0;
 
     for(int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
