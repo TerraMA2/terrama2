@@ -35,9 +35,11 @@
 #include <terralib/fe.h>
 
 // TerraMA2
+#include <terrama2/core/data-model/DataSetGrid.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/services/view/core/DataManager.hpp>
+#include <terrama2_config.hpp>
 
 void prepareExample(std::shared_ptr<terrama2::services::view::core::DataManager> dataManager)
 {
@@ -262,7 +264,7 @@ te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType, std::str
   {
     te::se::Rule* rule = new te::se::Rule;
 
-    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#88f6ff");
+    te::se::Symbolizer* symbolizer = getSymbolizer(geomType, "#4935CB");
 
     if(symbolizer != 0)
       rule->push_back(symbolizer);

@@ -47,7 +47,7 @@
 #include <QTemporaryFile>
 
 
-void writeStyleGeoserverXML(const te::se::Style* style, std::string path)
+void terrama2::services::view::core::writeStyleGeoserverXML(const te::se::Style* style, std::string path)
 {
 
   std::auto_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
