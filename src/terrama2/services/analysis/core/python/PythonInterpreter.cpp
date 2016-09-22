@@ -244,7 +244,7 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
         PyDict_SetItemString(state->dict, "column", pValueColumn);
 
 
-        boost::python::object result = analysisFunction(analysisHashCode, row, col);
+        boost::python::object result = analysisFunction();
         double value = boost::python::extract<double>(result);
         if(std::isnan(value))
           outputRaster->setValue(col, row, analysis->outputGridPtr->interpolationDummy);

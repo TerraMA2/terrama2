@@ -255,12 +255,13 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   {
     std::string name = fileInfo.fileName().toStdString();
 
+    std::shared_ptr<te::dt::TimeInstantTZ> ctlFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
     std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
 
     QString ctlMask = getCtlFilename(dataSet).c_str();
 
     // Verify if it is a valid CTL file name
-    if (!isValidDataSetName(ctlMask.toStdString(), filter, timezone, name, thisFileTimestamp))
+    if (!isValidDataSetName(ctlMask.toStdString(), filter, timezone, name, ctlFileTimestamp))
       continue;
 
     auto gradsDescriptor = readDataDescriptor(fileInfo.absoluteFilePath().toStdString());;
@@ -358,12 +359,18 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         first = false;
       }
 
+      // If could not find a valid date for the binary file, uses the CTL date.
+      if(!thisFileTimestamp)
+      {
+        if(ctlFileTimestamp)
+          thisFileTimestamp = ctlFileTimestamp;
+      }
+
       addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
 
 
-      //update last file timestamp
-      if (lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
-        lastFileTimestamp = thisFileTimestamp;
+      if (!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
+          lastFileTimestamp = thisFileTimestamp;
 
     }
   }
