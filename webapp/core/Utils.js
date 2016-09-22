@@ -237,14 +237,14 @@ var Utils = {
 
           // getting analysis
           DataManager.listAnalysis().then(function(analysisResult) {
-            var analysis = [];
+            var analysisArr = [];
 
             analysisResult.forEach(function(analysis) {
-              analysis.push(analysis.toObject());
+              analysisArr.push(analysis.toObject());
             }); // end foreach analysisResult
 
             resolve({
-              "Analysis": analysis,
+              "Analysis": analysisArr,
               "DataSeries": series,
               "DataProviders": providers,
               "Collectors": collectors
