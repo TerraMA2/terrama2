@@ -255,12 +255,13 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   {
     std::string name = fileInfo.fileName().toStdString();
 
+    std::shared_ptr<te::dt::TimeInstantTZ> ctlFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
     std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
 
     QString ctlMask = getCtlFilename(dataSet).c_str();
 
     // Verify if it is a valid CTL file name
-    if (!isValidDataSetName(ctlMask.toStdString(), filter, timezone, name, thisFileTimestamp))
+    if (!isValidDataSetName(ctlMask.toStdString(), filter, timezone, name, ctlFileTimestamp))
       continue;
 
     auto gradsDescriptor = readDataDescriptor(fileInfo.absoluteFilePath().toStdString());;
@@ -358,12 +359,23 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         first = false;
       }
 
+      if(!thisFileTimestamp)
+      {
+        if(!ctlFileTimestamp)
+        {
+          QString errMsg = QObject::tr("Could not find a valid date for the file: ").arg(name.c_str());
+          TERRAMA2_LOG_WARNING() << errMsg;
+          throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+        }
+        else
+          thisFileTimestamp = ctlFileTimestamp;
+      }
+
       addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
 
 
-      //update last file timestamp
-      if (lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
-        lastFileTimestamp = thisFileTimestamp;
+      if (!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
+          lastFileTimestamp = thisFileTimestamp;
 
     }
   }
@@ -885,8 +897,8 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
       pixelOffset *= descriptor.tDef_->numValues_;
 
     unsigned int lineOffset = pixelOffset * descriptor.xDef_->numValues_;
-    unsigned int bytesAfter = getBytesAfter(dataset);
-    unsigned int bytesBefore = getBytesBefore(dataset);
+    unsigned int bytesAfter = 0;//getBytesAfter(dataset);
+    unsigned int bytesBefore = 0;//getBytesBefore(dataset);
     unsigned int imageOffset = 0;
 
     for(int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
