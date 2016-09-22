@@ -9,20 +9,75 @@ module.exports = {
      * A type defines how group values
      */
     Type: {
-      OBJECT: 'object', // It represents a fieldset
-      ARRAY: 'array',   // It represents an array, a tab set
-      STRING: 'text'    // It represents either select (combobox) or a simple text
+      /**
+       * It represents a fieldset
+       */
+      OBJECT: 'object', 
+      /**
+       * It represents an array, a tab set
+       */
+      ARRAY: 'array', 
+      /**
+       * It represents either select (combobox) or a simple text
+       */
+      STRING: 'text'
     },
 
     /**
      * A field defines how to display a field. It design a input
      */
     Field: {
+      /**
+       * It will creates a html text input. <input type="text">
+       * It can be used as html combobox. You must specify combo elements in Form representation.
+       * @example
+       * // simple input with default text
+       * var properties = {
+       *   "combo": {
+       *     "type": Form.Field.TEXT,
+       *     "title": "Simple Input",
+       *     "default": "Default Value"
+       *   }
+       * };
+       * 
+       * // combobox
+       * var properties = {
+       *   combo: {
+       *     type: Form.Field.TEXT,
+       *     title: "Combobox"
+       *   }
+       * };
+       * 
+       * var form = [
+       *   {
+       *     key: 'combo',
+       *     type: 'select',
+       *     titleMap: ['Option1', 'Option2'...]
+       *   }
+       * ]
+       */
       TEXT: "string",
+      /**
+       * It will creates a html number input. <input type="number">
+       */
       NUMBER: "number",
+      /**
+       * It will creates a html checkbox input. <input type="checkbox">
+       */
       CHECKBOX: "boolean",
+      /**
+       * It will creates a html combobox input. <select>
+       * Remember that you should specify combo elements in Form representation
+       * @deprecated It will be deprecated on future schema form implementations. Use TEXT instead
+       */
       COMBOBOX: "string",
+      /**
+       * It will creates a html text area. <textarea>
+       */
       TEXTAREA: "textarea",
+      /**
+       * It will creates a html password input. <input type="password">
+       */
       PASSWORD: "password"
     }
   },

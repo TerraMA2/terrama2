@@ -11,7 +11,7 @@ module.exports = function(app) {
     get: function(request, response) {
       var parameters = makeTokenParameters(request.query.token, app);
       DataManager.listCollectors().then(function(collectors){
-        DataManager.listAnalyses().then(function(analysis){
+        DataManager.listAnalysis().then(function(analysis){
           response.render('configuration/dynamicDataSeries', Object.assign({}, parameters, {"Enums": Enums, "collectors": collectors.map(
             function(element){
               return element.toObject();
@@ -60,7 +60,7 @@ module.exports = function(app) {
       }).catch(function(err) {
         // check if analysis dataseries
         DataManager.getAnalysis({dataSet: {data_series_id: parseInt(dataSeriesId)}}).then(function(analysis) {
-          response.redirect("/configuration/analyses/"+analysis.id+"/edit");
+          response.redirect("/configuration/analysis/"+analysis.id+"/edit");
         }).catch(function(err) {
           // check if input dataseries (processed)
           DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {

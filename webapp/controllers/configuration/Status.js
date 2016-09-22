@@ -11,7 +11,7 @@ module.exports = function(app) {
     };
 
     DataManager.listCollectors().then(function(collectors) {
-      DataManager.listAnalyses().then(function(analysisList) {
+      DataManager.listAnalysis().then(function(analysisList) {
         var outputAnalysis = [];
         analysisList.forEach(function(analysis) {
           outputAnalysis.push(analysis.rawObject());

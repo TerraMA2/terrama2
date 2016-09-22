@@ -222,6 +222,7 @@ var TcpSocket = function(io) {
         });
 
         TcpManager.emit('stopService', instance);
+        TcpManager.statusService(instance);
       }).catch(function(err) {
         console.log(err);
         client.emit('errorResponse', {
@@ -245,7 +246,7 @@ var TcpSocket = function(io) {
       };
 
       DataManager.listServiceInstances().then(function(services) {
-        DataManager.listAnalyses().then(function(analysisList) {
+        DataManager.listAnalysis().then(function(analysisList) {
           var obj = {
             begin: begin,
             end: end

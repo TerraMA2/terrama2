@@ -324,7 +324,7 @@ var ImportExport = function(io) {
           });
         }));
 
-        promises.push(DataManager.listAnalyses({project_id: target.id}).then(function(analysisList) {
+        promises.push(DataManager.listAnalysis({project_id: target.id}).then(function(analysisList) {
           analysisList.forEach(function(analysis) {
             var rawAnalysis = analysis.rawObject();
             rawAnalysis.$id = rawAnalysis.id;

@@ -1,6 +1,6 @@
 {% extends "../base/layout.html" %}
 
-{% set tabActive = "analyses" %}
+{% set tabActive = "analysis" %}
 
 {% block ngApp %} ng-app="terrama2.analysis.registration" {% endblock %}
 
@@ -706,7 +706,7 @@
 
     <div class="box-footer">
       <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton">{[ __('OK') ]}</button>
-      <a href="/configuration/analyses/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
+      <a href="/configuration/analysis/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
     </div>
 
   </terrama2-box>
