@@ -439,6 +439,11 @@ var Utils = {
     }
   },
 
+  /**
+   * It retrieves a list of timezones to fill out elements in GUI interface.
+   * 
+   * @returns {string[]}
+   */
   getTimezonesGUI: function() {
     var output = [];
     for(var i = -12; i < 13; ++i) {
