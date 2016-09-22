@@ -754,6 +754,7 @@ angular.module('terrama2.dataseries.registration', [
             return;
           }
 
+          var attrs = [];
           intersection.forEach(function(element) {
             attrs.push(element.attribute);
             $scope.dataSeriesList.some(function(ds) {
@@ -763,7 +764,7 @@ angular.module('terrama2.dataseries.registration', [
                 var target = $scope.intersection[ds.id];
                 target.selected = true;
 
-                if (canAddAttribute(target.selected, element.attribute, target.attributes)) {
+                if (canAddAttribute(target.data_series, element.attribute, target.attributes)) {
                   target.attributes.push(element.attribute);
                 }
 
@@ -1268,12 +1269,13 @@ angular.module('terrama2.dataseries.registration', [
                   })
                 }
 
-                attributes.forEach(function(attribute) {
+                for(var i = 0; i < attributes.length; ++i) {
+                  var attribute = attributes[i];
                   intersectionValues.push({
                     attribute: attribute,
                     dataseries_id: dataseries_id
                   });
-                });
+                }
               }
             }
 

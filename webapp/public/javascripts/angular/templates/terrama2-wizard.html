@@ -1,13 +1,20 @@
 <div>
   <div class="col-md-8 col-md-offset-2" style="padding-bottom: 35px;">
     <ul class="nav nav-tabs" ng-if="!hideIndicators">
-      <li style="width: calc(100%/{{ getEnabledSteps().length }});" ng-class="{'active': step.selected}" ng-repeat="step in getEnabledSteps()">
+      <li style="width: calc(100%/{{ getEnabledSteps().length }});" 
+          ng-class="{'active': step.selected}" 
+          ng-repeat="step in getEnabledSteps()">
 
         <a class="btn" ng-click="goTo(step)">
-          <span ng-if="step.wzData.required" ng-class="{'terrama2-font-black': step.wzData.required}"><i class="fa fa-asterisk"></i></span>
+          <span ng-if="step.wzData.required" 
+                ng-class="{'terrama2-font-black': step.wzData.required}">
+                <i class="fa fa-asterisk"></i>
+          </span>
           {{ step.title || step.wzTitle }}
 
-          <span ng-class="{'terrama2-font-red': step.wzData.error, 'terrama2-font-green': step.wzData.error === false}"><i class="fa" ng-class="{'fa-times': step.wzData.error, 'fa-check': step.wzData.error === false}"></i></span>
+          <span ng-class="{'terrama2-font-red': step.wzData.error, 'terrama2-font-green': step.wzData.error === false}">
+            <i class="fa" ng-class="{'fa-times': step.wzData.error, 'fa-check': step.wzData.error === false}"></i>
+          </span>
         </a>
       </li>
     </ul>

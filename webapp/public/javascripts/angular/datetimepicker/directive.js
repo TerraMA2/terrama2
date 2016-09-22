@@ -20,6 +20,8 @@ angular.module('terrama2.datetimepicker', ['terrama2'])
         ngModel: "=",
         beforeDatetime: '=beforeDatetime',
         afterDatetime: '=afterDatetime',
+        beforeLabel: '=',
+        afterLabel: '=',
         options: '=?'
       },
       controller: function($scope) {

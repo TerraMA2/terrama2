@@ -343,7 +343,7 @@ TcpManager.prototype.connect = function(serviceInstance) {
         return resolve();
       }
 
-      client.connect().then(function() {
+      return client.connect().then(function() {
         // preparing socket listeners
         self.initialize(client);
         return resolve();

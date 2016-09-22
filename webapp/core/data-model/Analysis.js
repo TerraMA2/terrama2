@@ -4,7 +4,10 @@
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
-var isObject = require("./../Utils").isObject;
+var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
+var Utils = require("./../Utils");
+
+var isObject = Utils.isObject;
 
 /**
  * Analysis model representation
@@ -92,12 +95,26 @@ var Analysis = module.exports = function(params) {
    * @type {number}
    */
   this.instance_id = params.instance_id;
+  /**
+   * @type {DataSeries}
+   */
   this.dataSeries = {};
 
   if (params.AnalysisOutputGrid) {
     this.setAnalysisOutputGrid(params.AnalysisOutputGrid);
   } else {
     this.setAnalysisOutputGrid(params.outputGrid || {});
+  }
+
+  /**
+   * @type {ReprocessingHistoricalData}
+   */
+  this.historicalData = null;
+
+  if (params.ReprocessingHistoricalDatum) {
+    this.setHistoricalData(params.ReprocessingHistoricalDatum);
+  } else {
+    this.setHistoricalData(params.historicalData);
   }
 };
 
@@ -125,6 +142,23 @@ Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
     }
   }
   this.outputGrid = output;
+};
+
+/**
+ * It creates and sets a ReprocessingHistoricalData to historicalData
+ * 
+ * @param {Object | ReprocessingHistoricalData}
+ */
+Analysis.prototype.setHistoricalData = function(historicalData) {
+  if (historicalData instanceof BaseClass) {
+    this.historicalData = historicalData;
+  } else {
+    if (historicalData && !Utils.isEmpty(historicalData)) {
+      this.historicalData = new ReprocessingHistoricalData(historicalData);
+    } else {
+      this.historicalData = {};
+    }
+  }
 };
 
 Analysis.prototype.setDataSeries = function(dataSeries) {
@@ -179,6 +213,7 @@ Analysis.prototype.getOutputDataSeries = function() {
 
 Analysis.prototype.toObject = function() {
   var outputDataSeriesList = this.getOutputDataSeries();
+  var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.toObject() : this.historicalData;
 
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
@@ -194,7 +229,8 @@ Analysis.prototype.toObject = function() {
     'analysis_dataseries_list': outputDataSeriesList,
     schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : this.schedule,
     service_instance_id: this.instance_id,
-    output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid
+    output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid,
+    reprocessing_historical_data: Utils.isEmpty(historicalData) ? null : historicalData
   });
 };
 
@@ -209,7 +245,10 @@ Analysis.prototype.rawObject = function() {
   });
   var obj = this.toObject();
 
-  obj.schedule = this.schedule instanceof BaseClass ? this.schedule.rawObject() : this.schedule,
+  var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.rawObject() : this.historicalData;
+
+  obj.reprocessing_historical_data = historicalData;
+  obj.schedule = this.schedule instanceof BaseClass ? this.schedule.rawObject() : this.schedule;
   obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
   obj.analysis_dataseries_list = outputDataSeriesList;
   obj.output_grid = this.outputGrid instanceof BaseClass ? this.outputGrid.rawObject() : this.outputGrid;

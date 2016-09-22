@@ -97,6 +97,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          Analysis.hasOne(models.ReprocessingHistoricalData, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "analysis_id",
+              allowNull: false
+            }
+          });
         }
       }
     }
