@@ -7,3 +7,4 @@ webapp/npm-debug*
 webapp/public/externals
 webmonitor/node_modules
 webmonitor/public/external
+webmonitor/bower_components
