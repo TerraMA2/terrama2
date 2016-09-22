@@ -256,6 +256,10 @@ angular.module('terrama2.dataseries.registration', [
             // fill out default
             if ($scope.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
               $scope.modelStorager = $scope.prepareFormatToForm(outputDataseries.dataSets[0].format);
+
+              if ($scope.modelStorager.timezone) {
+                $scope.modelStorager.timezone = $scope.modelStorager.timezone.toString();
+              }
             }
           }
 
@@ -921,6 +925,9 @@ angular.module('terrama2.dataseries.registration', [
               });
             } else {
               $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
+              if ($scope.model.timezone) {
+                $scope.model.timezone = $scope.model.timezone.toString();
+              }
             }
 
             if ($scope.hasCollector) {

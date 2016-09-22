@@ -141,7 +141,6 @@
 	"Select the inputs to analysis": "Select the inputs to analysis",
 	"Confirm Password": "Confirm Password",
 	"Confirm password": "Confirm password",
-	"Analyses": "Analyses",
 	"Alerts": "Alerts",
 	"Project": "Project",
 	"Alert Registration": "Alert Registration",
@@ -458,5 +457,6 @@
 	"Start Date": "Start Date",
 	"End Date": "End Date",
 	"Run": "Run",
-	"Remove data": "Remove data"
+	"Remove data": "Remove data",
+	"Unconfigured GraDs Data Series storage": "Unconfigured GraDs Data Series storage"
 }

@@ -115,7 +115,7 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
  */
 Analysis.list = function(restriction) {
   return new PromiseClass(function(resolve, reject) {
-    DataManager.listAnalyses(restriction).then(function(analysisList) {
+    DataManager.listAnalysis(restriction).then(function(analysisList) {
       var output = [];
       analysisList.forEach(function(analysis) {
         output.push(analysis.rawObject());

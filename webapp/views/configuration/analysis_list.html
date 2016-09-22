@@ -1,8 +1,8 @@
 {% extends "../base/layout.html" %}
 
-{% set tabActive = "analyses" %}
+{% set tabActive = "analysis" %}
 
-{% block ngApp %} ng-app="terrama2.analyses" {% endblock %}
+{% block ngApp %} ng-app="terrama2.analysis" {% endblock %}
 
 {% block title %} TerraMA² {[ __('Analysis') ]} {% endblock %}
 
@@ -28,7 +28,7 @@
 
 <script>
 
-  angular.module('terrama2.analyses', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
+  angular.module('terrama2.analysis', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
     .controller("ListController", ['$scope', '$http', 'AnalysisFactory', 'Socket', function($scope, $http, AnalysisFactory, Socket) {
       $scope.model = [];
 
@@ -57,10 +57,10 @@
         {key: "type.name", as: "Type"}
       ];
 
-      $scope.linkToAdd = "/configuration/analyses/new";
+      $scope.linkToAdd = "/configuration/analysis/new";
 
       $scope.link = function(object) {
-        return "/configuration/analyses/" + object.id + "/edit";
+        return "/configuration/analysis/" + object.id + "/edit";
       };
 
       $scope.alertLevel = "alert-success";

@@ -235,22 +235,22 @@ var Utils = {
             collectors.push(collector.toObject());
           }); // end foreach collectorsResult
 
-          // getting analyses
-          DataManager.listAnalyses().then(function(analysesResult) {
-            var analyses = [];
+          // getting analysis
+          DataManager.listAnalysis().then(function(analysisResult) {
+            var analysis = [];
 
-            analysesResult.forEach(function(analysis) {
-              analyses.push(analysis.toObject());
-            }); // end foreach analysesResult
+            analysisResult.forEach(function(analysis) {
+              analysis.push(analysis.toObject());
+            }); // end foreach analysisResult
 
             resolve({
-              "Analysis": analyses,
+              "Analysis": analysis,
               "DataSeries": series,
               "DataProviders": providers,
               "Collectors": collectors
             });
 
-          }).catch(_handleError); // end listAnalyses
+          }).catch(_handleError); // end listAnalysis
         }).catch(_handleError); // end listCollectors
       }).catch(_handleError); // end listDataSeries
     });

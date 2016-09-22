@@ -246,7 +246,7 @@ var TcpSocket = function(io) {
       };
 
       DataManager.listServiceInstances().then(function(services) {
-        DataManager.listAnalyses().then(function(analysisList) {
+        DataManager.listAnalysis().then(function(analysisList) {
           var obj = {
             begin: begin,
             end: end
