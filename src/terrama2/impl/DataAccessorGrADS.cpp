@@ -170,6 +170,7 @@ QString terrama2::core::DataAccessorGrADS::replaceMask(QString mask) const
     %n2  - mm    2 digit minute; leading zero if needed
   */
 
+  mask = mask.replace("%y2", "yy");
   mask = mask.replace("%y4", "yyyy");
   mask = mask.replace("%m2", "MM");
   mask = mask.replace("%d2", "dd");
@@ -361,13 +362,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       // If could not find a valid date for the binary file, uses the CTL date.
       if(!thisFileTimestamp)
       {
-        if(!ctlFileTimestamp)
-        {
-          QString errMsg = QObject::tr("Could not find a valid date for the file: ").arg(name.c_str());
-          TERRAMA2_LOG_WARNING() << errMsg;
-          throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-        }
-        else
+        if(ctlFileTimestamp)
           thisFileTimestamp = ctlFileTimestamp;
       }
 
