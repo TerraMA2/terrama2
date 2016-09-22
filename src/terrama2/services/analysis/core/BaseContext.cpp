@@ -35,6 +35,8 @@
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 
+#include <terralib/memory/CachedRaster.h>
+
 terrama2::services::analysis::core::BaseContext::BaseContext(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
   : dataManager_(dataManager),
     analysis_(analysis),
@@ -121,19 +123,27 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
           throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
         }
 
-        addRaster(key, dsRaster);
+        auto cachedRaster = addRaster(key, dsRaster);
         //FIXME: configure interpolation method in monitored object analysis grid dataseries
         auto interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
         if(interpolationMethod == 0)
           interpolationMethod = 1;
-        std::shared_ptr<te::rst::Interpolator> interpolator(new te::rst::Interpolator(dsRaster.get(), interpolationMethod));
-        interpolatorMap_.emplace(dsRaster, interpolator);
+        std::shared_ptr<te::rst::Interpolator> interpolator(new te::rst::Interpolator(cachedRaster.get(), interpolationMethod));
+        interpolatorMap_.emplace(cachedRaster, interpolator);
       }
     });
 
     return rasterMap_[key];
   }
 }
+
+std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::BaseContext::addRaster(ObjectKey key, std::shared_ptr<te::rst::Raster> raster)
+{
+  auto cachedRaster = std::make_shared<te::mem::CachedRaster>(200, *raster, 1);
+  rasterMap_[key].push_back(cachedRaster);
+
+  return cachedRaster;
+};
 
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
 terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager,
