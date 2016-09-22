@@ -617,8 +617,11 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core:
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
   auto dataManager = context->getDataManager().lock();
-  //FIXME: check dataManager
-  assert(dataManager.get());
+  if(!dataManager.get())
+  {
+    QString errMsg = QObject::tr("Unable to access DataManager.");
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
 
   auto dataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
   if(!dataSeries)
