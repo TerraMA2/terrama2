@@ -5,3 +5,4 @@
 webapp/node_modules
 webapp/npm-debug*
 webapp/public/externals
+webapp/bower_components

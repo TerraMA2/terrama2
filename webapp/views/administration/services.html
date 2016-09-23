@@ -29,34 +29,39 @@
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-<script src="/externals/angular/angular.min.js"></script>
-<script src="/externals/angular/i18n-angular.min.js"></script>
+<!-- Angular -->
+<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+<!-- Internationalization -->
+<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/alert-box/services.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
+<script src="/javascripts/angular/services/services.js"></script>
 <script src="/javascripts/angular/services/service.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="ListController">
-  <terrama2-box title="title" helper="helperMessage" css="boxCss">
+<div ng-controller="ListController as ctrl">
+  <terrama2-box title="ctrl.title" helper="ctrl.helperMessage" css="ctrl.boxCss">
     <div class="col-md-12">
       <div class="col-md-12">
         <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+          <terrama2-alert-box2 handler="ctrl.messageBoxService">
+          </terrama2-alert-box2>
         </div>
       </div>
 
-      <terrama2-table fields="fields" 
-                      model="model" 
-                      link="link" 
-                      link-to-add="linkToAdd"
+      <terrama2-table fields="ctrl.fields" 
+                      model="ctrl.service.model" 
+                      link="ctrl.link" 
+                      link-to-add="ctrl.linkToAdd"
                       order-by="'name'" 
-                      extra="extra" 
-                      remove="remove(object);"></terrama2-table>
+                      extra="ctrl.extra" 
+                      remove="ctrl.remove(object);"></terrama2-table>
     </div>
   </terrama2-box>
 </div>

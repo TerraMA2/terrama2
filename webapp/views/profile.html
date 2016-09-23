@@ -15,7 +15,7 @@ TerraMA² {[ __('User Registration') ]}
 {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="/externals/jquery-countries/css/intlTelInput.css">
+<link rel="stylesheet" type="text/css" href="/bower_components/intl-tel-input/css/intlTelInput.css">
 <style type="text/css">
   .intl-tel-input {
     display: block !important;
@@ -25,17 +25,17 @@ TerraMA² {[ __('User Registration') ]}
 {% endblock %}
 
 {% block javascripts %}
-<script type="text/javascript" src="/externals/jquery-countries/js/intlTelInput.js"></script>
+<script type="text/javascript" src="/bower_components/intl-tel-input/js/intlTelInput.js"></script>
 <script type="text/javascript">
   $(document).ready(function(){
     $("#cellphone").intlTelInput({
       preferredCountries: [ "br", "us", "es", "fr"],
-      utilsScript: "/externals/jquery-countries/js/utils.js"
+      utilsScript: "/bower_components/intl-tel-input/js/utils.js"
     });
   });
 </script>
-<script src="/externals/angular/angular.min.js"></script>
-<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
+<script src="/bower_components/angular/angular.js"></script>
+<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/users/app.js"></script>
