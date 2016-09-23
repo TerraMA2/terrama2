@@ -1,7 +1,7 @@
 {% extends "../base/layout.html" %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+<link rel="stylesheet" type="text/css" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 {% endblock %}
 
 {% block ngApp %} ng-app="terrama2.projects" {% endblock %}
@@ -13,8 +13,10 @@
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
 </script>
-<script src="/externals/angular/angular.min.js"></script>
-<script src="/externals/angular/i18n-angular.min.js"></script>
+<!-- Angular -->
+<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+<!-- Internationalization -->
+<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>

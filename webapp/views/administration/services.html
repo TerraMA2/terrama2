@@ -29,19 +29,23 @@
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-<script src="/externals/angular/angular.min.js"></script>
-<script src="/externals/angular/i18n-angular.min.js"></script>
+<!-- Angular -->
+<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+<!-- Internationalization -->
+<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>
 <script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/alert-box/services.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
+<script src="/javascripts/angular/services/services.js"></script>
 <script src="/javascripts/angular/services/service.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="ListController">
+<div ng-controller="ListController as ctrl">
   <terrama2-box title="title" helper="helperMessage" css="boxCss">
     <div class="col-md-12">
       <div class="col-md-12">

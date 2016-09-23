@@ -77,6 +77,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
+app.use('/bower_components', express.static('bower_components'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 passport.setupPassport(app);

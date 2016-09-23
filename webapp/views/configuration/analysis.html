@@ -7,13 +7,13 @@
 {% block title %} TerraMA² {[ __('Analysis Registration') ]} {% endblock %}
 
 {% block styles %}
-  <link rel="stylesheet" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+  <link rel="stylesheet" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 
   <!-- Angular tree control -->
   <!-- link for CSS when using the tree as a Dom element -->
-  <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control.css">
+  <link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-control/css/tree-control.css">
   <!-- link for CSS when using the tree as an attribute -->
-  <link rel="stylesheet" type="text/css" href="/externals/angular-tree-control/css/tree-control-attribute.css">
+  <link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-control/css/tree-control-attribute.css">
 
   <style>
     table > tbody {
@@ -53,39 +53,33 @@
   }
 </script>
 
-<script type="text/javascript" src="/externals/moment/moment.js"></script>
-
+<!-- Moment Datetime JS -->
+<script type="text/javascript" src="/bower_components/moment/moment.js"></script>
 <!-- Angular -->
-<script type="text/javascript" src="/externals/angular/angular.min.js"></script>
+<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+<!-- Internationalization -->
+<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>
 
 <!-- Angular Schema Form dependencies -->
-<script type="text/javascript" src="/externals/angular-sanitize/angular-sanitize.js"></script>
-<script type="text/javascript" src="/externals/tv4/tv4.min.js"></script>
-<script type="text/javascript" src="/externals/objectpath/ObjectPath.js"></script>
-<script type="text/javascript" src="/externals/angular-schema-form/schema-form.js"></script>
-<script type="text/javascript" src="/externals/bootstrap/js/bootstrap-decorator.min.js"></script>
-
+<script type="text/javascript" src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script type="text/javascript" src="/bower_components/tv4/tv4.js"></script>
+<script type="text/javascript" src="/bower_components/objectpath/lib/ObjectPath.js"></script>
+<script type="text/javascript" src="/bower_components/angular-schema-form/dist/schema-form.js"></script>
+<script type="text/javascript" src="/bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
 <!-- Bootstrap datetimepicker -->
-<script type="text/javascript" src="/externals/bootstrap/js/bootstrap-datetimepicker.js"></script>
-
-<!-- terrama2 Angular app -->
-<script type="text/javascript" src="/javascripts/angular/app.js"></script>
-
-<!-- TerraMA2 Datetimepicker -->
-<script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
-
+<script type="text/javascript" src="/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 <!-- Angular tree control -->
-<script type="text/javascript" src="/externals/angular-tree-control/angular-tree-control.js"></script>
-
-<!-- Angular i18n -->
-<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
-
-<!-- Ace editor -->
-<script type="text/javascript" src="/externals/ace-editor/ace.js"></script>
-<script type="text/javascript" src="/externals/ace-editor/ext-language_tools.js"></script>
-
+<script type="text/javascript" src="/bower_components/angular-tree-control/angular-tree-control.js"></script>
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<!-- Ace editor -->
+<script type="text/javascript" src="/bower_components/ace-builds/src/ace.js"></script>
+<script type="text/javascript" src="/bower_components/ace-builds/src/ext-language_tools.js"></script>
+
+<!-- Terrama2 Angular app -->
+<script type="text/javascript" src="/javascripts/angular/app.js"></script>
+<!-- TerraMA2 Datetimepicker -->
+<script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
 <!-- Terrama2 Script -->
 <script type="text/javascript" src="/javascripts/terrama2.js"></script>
 <!-- TerraMA2 Schedule -->
@@ -96,11 +90,10 @@
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 <!-- TerraMA2 Ace -->
 <script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
-
 <!-- TerraMA2 Bounded Box -->
 <script type="text/javascript" src="/javascripts/angular/geo/app.js"></script>
 <script type="text/javascript" src="/javascripts/angular/geo/directives.js"></script>
-
+<!-- TerraMA2 Analysis NgApp -->
 <script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
 
 {% endblock %}
