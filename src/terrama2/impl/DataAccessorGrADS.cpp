@@ -33,6 +33,7 @@
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/Unpack.hpp"
+#include "../core/utility/Verify.hpp"
 
 //TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
@@ -852,15 +853,18 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
         << " rasterYSize=\"" << descriptor.yDef_->numValues_ << "\""
         << ">";
 
-    if (descriptor.srid_ > 0)
-    {
-      const std::string wktStr = te::srs::SpatialReferenceSystemManager::getInstance().getWkt(descriptor.srid_);
+    terrama2::core::verify::srid(descriptor.srid_);
 
-      if (!wktStr.empty())
-      {
-        vrtfile << std::endl << "<SRS>" << wktStr << "</SRS>";
-      }
+    const std::string wktStr = te::srs::SpatialReferenceSystemManager::getInstance().getWkt(descriptor.srid_);
+
+    if(wktStr.empty())
+    {
+      QString errMsg = QObject::tr("Empty WKT for srid: %1.").arg(descriptor.srid_);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
     }
+
+    vrtfile << std::endl << "<SRS>" << wktStr << "</SRS>";
 
     // In case 'yrev' option is given, we need to flip the image
     bool isYReverse = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end();
