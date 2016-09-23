@@ -48,7 +48,7 @@
 #include <terralib/geometry/Utils.h>
 #include <terralib/raster/PositionIterator.h>
 
-void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Raster* raster, te::gm::Polygon* polygon, std::vector<double>& values)
+void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Raster* raster, int band, te::gm::Polygon* polygon, std::vector<double>& values)
 {
   //raster values can always be read as double
   auto it = te::rst::PolygonIterator<double>::begin(raster, polygon);
@@ -59,8 +59,7 @@ void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Rast
   {
     for(; it != end; ++it)
     {
-      //FIXME: getting from first band
-      values.push_back(it[0]);
+      values.push_back(it[band]);
     }
   }
 }
@@ -68,6 +67,8 @@ void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Rast
 double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
     const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
+  //FIXME: getting from first band
+  int band = 0;
 
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -130,8 +131,6 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
-
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!moGeom.get())
     {
@@ -156,8 +155,8 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
       //sanity check, if no date range only the last raster should be returned
       if(dateDiscardBefore.empty() && rasterList.size() > 1)
       {
-        //FIXME: should not happen, throw?
-        assert(0);
+        QString errMsg(QObject::tr("Invalid list of raster for dataset: %1").arg(dataset->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
       if(rasterList.empty())
@@ -174,13 +173,12 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
         if(!raster->getExtent()->intersects(*geomResult->getMBR()))
           continue;
 
-
         //TODO: check for other valid types
         auto type = geomResult->getGeomTypeId();
         if(type == te::gm::PolygonType)
         {
           auto polygon = std::static_pointer_cast<te::gm::Polygon>(geomResult);
-          appendValues(raster.get(), polygon.get(), values);
+          appendValues(raster.get(), band, polygon.get(), values);
         }
         else if(type == te::gm::MultiPolygonType)
         {
@@ -188,7 +186,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
           for(auto geom : multiPolygon->getGeometries())
           {
             auto polygon = static_cast<te::gm::Polygon*>(geom);
-            appendValues(raster.get(), polygon, values);
+            appendValues(raster.get(), band, polygon, values);
           }
         }
       }

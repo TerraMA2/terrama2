@@ -124,10 +124,7 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
         }
 
         auto cachedRaster = addRaster(key, dsRaster);
-        //FIXME: configure interpolation method in monitored object analysis grid dataseries
         auto interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
-        if(interpolationMethod == 0)
-          interpolationMethod = 1;
         std::shared_ptr<te::rst::Interpolator> interpolator(new te::rst::Interpolator(cachedRaster.get(), interpolationMethod));
         interpolatorMap_.emplace(cachedRaster, interpolator);
       }
