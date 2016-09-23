@@ -90,6 +90,9 @@ terrama2::services::analysis::core::grid::zonal::history::ratio::appendValues(co
 double terrama2::services::analysis::core::grid::zonal::history::ratio::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
     const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
+  //FIXME: Preciptation and Ratio operations calculus are inverted
+  assert(0);
+  
   //FIXME: getting from first band
   int band = 0;
 
