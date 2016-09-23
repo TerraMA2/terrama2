@@ -31,6 +31,8 @@
 #include "Logger.hpp"
 #include "Timer.hpp"
 
+#include <QCoreApplication>
+
 terrama2::core::Service::Service()
   : stop_(false)
 {
@@ -94,7 +96,7 @@ void terrama2::core::Service::stopService() noexcept
   {
     stop(false);
   }
-  catch (...)
+  catch(...)
   {
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
@@ -116,22 +118,39 @@ void terrama2::core::Service::stop(bool holdStopSignal) noexcept
     }
 
     //wait for the loop thread
-    if(mainLoopThread_.valid())
-      mainLoopThread_.get();
+    while(mainLoopThread_.valid())
+    {
+      TERRAMA2_LOG_DEBUG() << QObject::tr("waiting for main loop thread...");
+      auto status = mainLoopThread_.wait_for(std::chrono::seconds(1));
+      if(status == std::future_status::ready)
+      {
+        mainLoopThread_.get();
+      }
+      else
+      {
+        QCoreApplication::processEvents();
+      }
+    }
 
     //wait for each collecting thread
-    for (auto& future : processingThreadPool_)
+    for(size_t i = 0; i < processingThreadPool_.size(); ++i)
     {
-      if(future.valid())
-
-        future.get();
+      TERRAMA2_LOG_DEBUG() << QObject::tr("waiting for loop thread...");
+      auto&& future = std::move(processingThreadPool_.at(i));
+      while(future.valid())
+      {
+        auto status = future.wait_for(std::chrono::seconds(1));
+        if(status == std::future_status::ready)
+          future.get();
+        else
+          QCoreApplication::processEvents();
+      }
     }
-    processingThreadPool_.clear();
 
     if(!holdStopSignal)
       emit serviceFinishedSignal();
   }
-  catch (...)
+  catch(...)
   {
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
