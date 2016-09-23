@@ -278,10 +278,11 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
     for(const auto& dataset : datasets)
     {
       auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, dateDiscardAfter);
-      if(rasterList.size() > 1)
+      //sanity check, if no date range only the last raster should be returned
+      if(dateDiscardBefore.empty() && rasterList.size() > 1)
       {
-        //FIXME: should not happen, throw?
-        assert(0);
+        QString errMsg(QObject::tr("Invalid list of raster for dataset: %1").arg(dataset->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
       if(rasterList.empty())

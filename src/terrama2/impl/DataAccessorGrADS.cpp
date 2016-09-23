@@ -59,7 +59,7 @@
 
 //Boost
 #include <boost/filesystem/operations.hpp>
-
+#include <boost/regex.hpp>
 
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
                                                      const Filter& filter)
@@ -96,18 +96,31 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   std::string uri = dataRetriever->retrieveData(mask, filter, remover);
 
   QUrl url(QString::fromStdString(uri));
-  auto gradsDescriptor = readDataDescriptor(url.path().toStdString()+"/"+mask);
-
-  std::string datasetMask = gradsDescriptor.datasetFilename_;
-  if (gradsDescriptor.datasetFilename_[0] == '^')
+  QDir dir(url.path());
+  auto fileList = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+  for(const auto& file : fileList)
   {
-    gradsDescriptor.datasetFilename_.erase(0, 1);
-    datasetMask = gradsDescriptor.datasetFilename_;
+    auto regexString = terramaMask2Regex(mask);
+
+    boost::regex expression(regexString);
+    boost::match_results< std::string::const_iterator > match;
+
+    if(!boost::regex_match(file.toStdString(), match, expression, boost::match_default))
+      continue;
+
+    auto gradsDescriptor = readDataDescriptor(url.path().toStdString()+"/"+file.toStdString());
+
+    std::string datasetMask = gradsDescriptor.datasetFilename_;
+    if (gradsDescriptor.datasetFilename_[0] == '^')
+    {
+      gradsDescriptor.datasetFilename_.erase(0, 1);
+      datasetMask = gradsDescriptor.datasetFilename_;
+    }
+
+    datasetMask = grad2TerramaMask(datasetMask.c_str()).toStdString();
+
+    dataRetriever->retrieveData(datasetMask, filter, remover);
   }
-
-  datasetMask = replaceMask(datasetMask.c_str()).toStdString();
-
-  uri = dataRetriever->retrieveData(datasetMask, filter, remover);
 
   return uri;
 }
@@ -157,7 +170,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
   }
 }
 
-QString terrama2::core::DataAccessorGrADS::replaceMask(QString mask) const
+QString terrama2::core::DataAccessorGrADS::grad2TerramaMask(QString mask) const
 {
 
   /*
@@ -275,7 +288,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       datasetMask = gradsDescriptor.datasetFilename_;
     }
 
-    datasetMask = replaceMask(datasetMask.c_str()).toStdString();
+    datasetMask = grad2TerramaMask(datasetMask.c_str()).toStdString();
 
 
     for (const auto& dataFileInfo : newFileInfoList)
