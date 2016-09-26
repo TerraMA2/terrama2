@@ -129,8 +129,7 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
         auto interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
         if(interpolationMethod == 0)
           interpolationMethod = 1;
-        std::shared_ptr<te::rst::Interpolator> interpolator = std::make_shared<te::rst::Interpolator>(dsRaster.get(), interpolationMethod);
-        std::shared_ptr<terrama2::core::SynchronizedInterpolator> syncInterpolator = std::make_shared<terrama2::core::SynchronizedInterpolator>(interpolator);
+        std::shared_ptr<terrama2::core::SynchronizedInterpolator> syncInterpolator = std::make_shared<terrama2::core::SynchronizedInterpolator>(dsRaster.get(), interpolationMethod);
         interpolatorMap_.emplace(dsRaster, syncInterpolator);
       }
     });

@@ -29,8 +29,8 @@
 
 #include "SynchronizedInterpolator.hpp"
 
-terrama2::core::SynchronizedInterpolator::SynchronizedInterpolator(std::shared_ptr<te::rst::Interpolator> interpolator)
-: interpolator_(interpolator)
+terrama2::core::SynchronizedInterpolator::SynchronizedInterpolator(te::rst::Raster const* r, int m)
+: te::rst::Interpolator(r, m)
 {
 }
 
@@ -38,12 +38,12 @@ void terrama2::core::SynchronizedInterpolator::getValue(const double& c, const d
                                                         const std::size_t& b)
 {
   std::lock_guard<std::mutex> lockGuard(mutex_);
-  interpolator_->getValue(c, r, v, b);
+  te::rst::Interpolator::getValue(c, r, v, b);
 }
 
 void terrama2::core::SynchronizedInterpolator::getValues(const double& c, const double& r,
                                                          std::vector<std::complex<double> >& values)
 {
   std::lock_guard<std::mutex> lockGuard(mutex_);
-  interpolator_->getValues(c, r, values);
+  te::rst::Interpolator::getValues(c, r, values);
 }

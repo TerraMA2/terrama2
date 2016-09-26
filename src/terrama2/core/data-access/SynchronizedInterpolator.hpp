@@ -43,17 +43,16 @@ namespace terrama2
   namespace core
   {
 
-    class SynchronizedInterpolator
+    class SynchronizedInterpolator : protected te::rst::Interpolator
     {
       public:
-        SynchronizedInterpolator(std::shared_ptr<te::rst::Interpolator> interpolator);
+        SynchronizedInterpolator(te::rst::Raster const* r, int m);
 
-        void getValue(const double& c, const double& r, std::complex<double>& v, const std::size_t& b);
+        virtual void getValue(const double& c, const double& r, std::complex<double>& v, const std::size_t& b);
 
-        void getValues(const double& c, const double& r, std::vector<std::complex<double> >& values);
+        virtual void getValues(const double& c, const double& r, std::vector<std::complex<double> >& values);
 
       protected:
-        std::shared_ptr<te::rst::Interpolator> interpolator_; //!< Smart pointer to a raster interpolator.
         mutable std::mutex mutex_; //!< Mutex to synchronize the interpolator access.
 
     };
