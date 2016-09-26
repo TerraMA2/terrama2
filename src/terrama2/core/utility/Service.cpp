@@ -120,7 +120,6 @@ void terrama2::core::Service::stop(bool holdStopSignal) noexcept
     //wait for the loop thread
     while(mainLoopThread_.valid())
     {
-      TERRAMA2_LOG_DEBUG() << QObject::tr("waiting for main loop thread...");
       auto status = mainLoopThread_.wait_for(std::chrono::seconds(1));
       if(status == std::future_status::ready)
       {
@@ -135,7 +134,6 @@ void terrama2::core::Service::stop(bool holdStopSignal) noexcept
     //wait for each collecting thread
     for(size_t i = 0; i < processingThreadPool_.size(); ++i)
     {
-      TERRAMA2_LOG_DEBUG() << QObject::tr("waiting for loop thread...");
       auto&& future = std::move(processingThreadPool_.at(i));
       while(future.valid())
       {
