@@ -52,21 +52,63 @@ int main(int argc, char** argv)
 
     // Make sure to have a geoServer with the below configuration
     te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver");
-    terrama2::services::view::data_access::GeoServer geoserver(uri);
+    terrama2::services::view::da::GeoServer geoserver(uri);
 
     geoserver.registerWorkspace("aworkspace");
 
+    // Registering shapes from the same server that GeoServer
+    geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/Rod_Principais_SP_lin.shp", "shp");
+
+    geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/35MUE250GC_SIR.shp", "shp");
+
+    // Removing the shapes
+    geoserver.deleteVectorFile("ashape", "Rod_Principais_SP_lin", true);
+
+    geoserver.deleteVectorFile("ashape", "35MUE250GC_SIR.shp", true);
+
+    // Uploading many shapes from a zip file
+    geoserver.uploadZipVectorFiles("ashapes", TERRAMA2_DATA_DIR + "/shapefile/shapefile.zip", "shp");
+
+    // Removing the shapes
+    geoserver.deleteVectorFile("ashapes", "Rod_Principais_SP_lin", true);
+
+    geoserver.deleteVectorFile("ashapes", "35MUE250GC_SIR.shp", true);
+
+    // Registering a folder with shapes in the GeoServer
+    geoserver.registerVectorsFolder("ashapesfolder", TERRAMA2_DATA_DIR + "/shapefile", "shp");
+
+    // Registering coverages from the same server that GeoServer
+    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/Spot_Vegetacao_Jul2001_SP.tif", "geotiff");
+    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/L5219076_07620040908_r3g2b1.tif", "geotiff");
+
+    // Removing the coverages
+    geoserver.deleteCoverageFile("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
+    geoserver.deleteCoverageFile("acoverage", "L5219076_07620040908_r3g2b1", true);
+
+    // Uploading many coverages from a zip file
+    geoserver.uploadZipCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
+
+    // Registering a folder with coverages in the GeoServer
+
+    // Registering a style
     geoserver.registerStyle("astyle", style);
 
-    geoserver.uploadVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/shapefile.zip", "shp");
+    std::list<std::pair<std::string, std::string>> layersAndStyles;
 
-    geoserver.uploadCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
+    layersAndStyles.push_back(std::make_pair("aworkspace:Spot_Vegetacao_Jul2001_SP", ""));
+    layersAndStyles.push_back(std::make_pair("aworkspace:35MUE250GC_SIR", "astyle"));
+    layersAndStyles.push_back(std::make_pair("aworkspace:Rod_Principais_SP_lin", ""));
+
+    te::gm::Envelope env(-53.11664642808698, -25.31237828099399,
+                         -44.16072686935583, -19.772910107715056);
+
+    geoserver.getMapWMS("/home/vinicius", "imagem.jpg", layersAndStyles, env, 768, 516, 4326, "image/jpeg");
 
     geoserver.deleteStyle("astyle");
 
     geoserver.deleteCoverageFile("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
 
-    geoserver.deleteVectorFile("ashape", "Rod_Principais_SP_lin", true);
+    geoserver.deleteVectorFile("ashapesfolder", "Rod_Principais_SP_lin", true);
 
     geoserver.deleteWorkspace(true);
 
