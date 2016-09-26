@@ -9,8 +9,47 @@
   padding: 3px;
 }
 
-.full_screen .navbar{
+#show-menu{
   display: none;
+}
+
+.full_screen #show-menu{
+  display: block;
+  position: fixed;
+  margin: 0;
+  width: 50px;
+  height: 50px;
+  border: 3px solid #73AD21;
+}
+
+.full_screen #nav{
+  transform: translate(0px, -50px);
+  -webkit-transform: translate(0px, -50px);
+  -ms-transform: translate(0px, -50px);
+  -o-transform: translate(0px, -50px);
+}
+
+#nav{
+  transition: transform .35s;
+  -webkit-transition: transform .35s;
+  -moz-transition: transform .35s;
+  -o-transition: transform .35s;
+}
+
+.full_screen #hea{
+  position: absolute;
+  width: 100%;
+  transform: translate(0px, -50px);
+  -webkit-transform: translate(0px, -50px);
+  -ms-transform: translate(0px, -50px);
+  -o-transform: translate(0px, -50px);
+}
+
+#hea{
+  transition: transform .35s;
+  -webkit-transition: transform .35s;
+  -moz-transition: transform .35s;
+  -o-transition: transform .35s;
 }
 
 .full_screen .main-header .logo-lg {

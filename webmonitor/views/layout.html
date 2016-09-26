@@ -15,83 +15,86 @@
 
   </head>
   <body class="hold-transition skin-green">
-  <div class="wrapper">
+    <div class="wrapper">
 
-    <!-- Main Header -->
-    <header class="main-header">
-      <!-- Logo -->
-      <a href="#" class="logo" data-toggle="offcanvas"  full_screen='true'>
-        <!-- mini logo for sidebar mini 50x50 pixels -->
-        <div class="logo-lg"><img src="/images/terrama2_logo.png" class="img-square" alt="User Image"></div>
-        <!-- logo for regular state and mobile devices -->
-        <div class="logo-mini"><img src="/images/terrama2_logo.png" class="img-square" alt="User Image"></div>
-      </a>
-      <!-- Header Navbar -->
-      <nav class="navbar navbar-static-top" role="navigation">
-        <div style="text-align:center">
-          <span class="imgs"><img src="/images/inpe.png"></span>
-          <span class="imgs"><img src="/images/defra.png"></span>
-          <span class="imgs"><img src="/images/banco_mundial.png"></span>
-          <span class="imgs"><img id="mma" src="/images/mma.png"></span>
-          <span class="imgs"><img src="/images/funcate.png"></span>
+      <!-- Main Header -->
+      <header id="hea" class="main-header">
+        <!-- Logo -->
+        <a href="#" class="logo" data-toggle="offcanvas" full_screen='true'>
+          <!-- mini logo for sidebar mini 50x50 pixels -->
+          <div class="logo-lg"><img src="/images/terrama2_logo.png" class="img-square" alt="User Image"></div>
+          <!-- logo for regular state and mobile devices -->
+          <div class="logo-mini"><img src="/images/terrama2_logo.png" class="img-square" alt="User Image"></div>
+        </a>
+        <!-- Header Navbar -->
+        <nav id="nav" class="navbar navbar-static-top" role="navigation">
+          <div style="text-align:center">
+            <span class="imgs"><img src="/images/inpe.png"></span>
+            <span class="imgs"><img src="/images/defra.png"></span>
+            <span class="imgs"><img src="/images/banco_mundial.png"></span>
+            <span class="imgs"><img id="mma" src="/images/mma.png"></span>
+            <span class="imgs"><img src="/images/funcate.png"></span>
+          </div>
+        </nav>
+      </header>
+      
+      <!-- Left side column. contains the logo and sidebar -->
+      <aside class="main-sidebar">
+
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+
+          <!-- Sidebar Menu -->
+          <ul class="sidebar-menu">
+            <li class="header">HEADER</li>
+            <!-- Optionally, you can add icons to the links -->
+            <li class="active"><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
+            <li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
+            <li class="treeview">
+              <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li><a href="#">Link in level 2</a></li>
+                <li><a href="#">Link in level 2</a></li>
+              </ul>
+            </li>
+          </ul>
+          <!-- /.sidebar-menu -->
+        </section>
+        <!-- /.sidebar -->
+      </aside>
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+
+        <!-- Main content -->
+        <section class="content">
+        <div id="show-menu">
+          <a href="#">
+              <div alt="User Image" data-toggle="offcanvas" full_screen='true'>Ola</div></a>
         </div>
-      </nav>
+          {% block content %} {% endblock %}
 
-    </header>
-    <!-- Left side column. contains the logo and sidebar -->
-    <aside class="main-sidebar">
+        </section>
+        <!-- /.content -->
+      </div>
+      <!-- /.content-wrapper -->
 
-      <!-- sidebar: style can be found in sidebar.less -->
-      <section class="sidebar">
-
-        <!-- Sidebar Menu -->
-        <ul class="sidebar-menu">
-          <li class="header">HEADER</li>
-          <!-- Optionally, you can add icons to the links -->
-          <li class="active"><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
-          <li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
-          <li class="treeview">
-            <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
-              <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-            </a>
-            <ul class="treeview-menu">
-              <li><a href="#">Link in level 2</a></li>
-              <li><a href="#">Link in level 2</a></li>
-            </ul>
-          </li>
-        </ul>
-        <!-- /.sidebar-menu -->
-      </section>
-      <!-- /.sidebar -->
-    </aside>
-
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-
-      <!-- Main content -->
-      <section class="content">
-
-        {% block content %} {% endblock %}
-
-      </section>
-      <!-- /.content -->
+      <!-- Main Footer -->
+      <footer class="main-footer">
+        <!-- Default to the left -->
+        <strong>Copyright &copy; 2007 National Institute For Space Research (INPE) - Brazil </strong> All rights reserved.
+      </footer>
     </div>
-    <!-- /.content-wrapper -->
+    <!-- ./wrapper -->
 
-    <!-- Main Footer -->
-    <footer class="main-footer">
-      <!-- Default to the left -->
-      <strong>Copyright &copy; 2007 National Institute For Space Research (INPE) - Brazil </strong> All rights reserved.
-    </footer>
-  </div>
-  <!-- ./wrapper -->
-
-  <script src="/jquery/dist/jquery.min.js"></script>
-  <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
-  <script src="/javascripts/app.js"></script>
-  <script src="/AdminLTE/dist/js/app.min.js"></script>
+    <script src="/jquery/dist/jquery.min.js"></script>
+    <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/javascripts/app.js"></script>
+    <script src="/AdminLTE/dist/js/app.min.js"></script>
 
   </body>
 </html>
