@@ -57,7 +57,7 @@ namespace terrama2
       \brief Provide synchronized access to a terralib dataset.
 
      */
-    class SynchronizedDataSet
+    class SynchronizedDataSet : protected te::da::DataSet
     {
       public:
         /*!
