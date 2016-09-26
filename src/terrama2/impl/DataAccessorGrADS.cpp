@@ -267,7 +267,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   bool first = true;
   for (const auto& fileInfo : newFileInfoList)
   {
-    std::string name = fileInfo.fileName().toStdString();
+    std::string ctlName = fileInfo.fileName().toStdString();
 
     std::shared_ptr<te::dt::TimeInstantTZ> ctlFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
     std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
@@ -275,7 +275,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     QString ctlMask = getCtlFilename(dataSet).c_str();
 
     // Verify if it is a valid CTL file name
-    if (!isValidDataSetName(ctlMask.toStdString(), filter, timezone, name, ctlFileTimestamp))
+    if (!isValidDataSetName(ctlMask.toStdString(), filter, timezone, ctlName, ctlFileTimestamp))
       continue;
 
     auto gradsDescriptor = readDataDescriptor(fileInfo.absoluteFilePath().toStdString());;
