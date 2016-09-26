@@ -1,0 +1,19 @@
+{
+  "name": "TerraMA2-webmonitor",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "https://github.com/franciscovn/terrama2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.0",
+    "bootstrap": "^3.3.7",
+    "AdminLTE": "admin-lte#^2.3.6"
+  }
+}

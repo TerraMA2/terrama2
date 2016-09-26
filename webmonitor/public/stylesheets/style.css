@@ -1,0 +1,43 @@
+.main-header .logo-lg > img {
+  max-height: 50px;
+}
+.main-header .logo-mini > img {
+  max-height: 50px;
+}
+.imgs img{
+  max-height: 50px;
+  padding: 3px;
+}
+
+.full_screen .navbar{
+  display: none;
+}
+
+.full_screen .main-header .logo-lg {
+  display: none;
+}
+
+.full_screen .main-header .logo-mini {
+    display: block;
+    margin-left: -15px;
+    margin-right: -15px;
+    font-size: 18px;
+    position: absolute;
+}
+.full_screen .main-header .logo {
+  width: 50px;
+  position: absolute;
+  min-height: 50px;
+}
+
+.full_screen .main-footer {
+  display: none;
+}
+
+.full_screen .navbar{
+  transition: max-height 0.5s, overflow 0s;
+}
+
+#mma {
+  max-width: 70px;
+}
