@@ -27,6 +27,7 @@
 .full_screen .main-header .logo {
   width: 50px;
   position: absolute;
+  min-height: 50px;
 }
 
 .full_screen .main-footer {
@@ -39,9 +40,4 @@
 
 #mma {
   max-width: 70px;
-}
-
-#monitoring-text {
-  font-weight: bold;
-  font-size: 28px;
 }
