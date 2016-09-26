@@ -228,3 +228,20 @@
   top: 0 !important;
   left: 0 !important;
 }
+
+.terrama2-splash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height:100%;
+  width:100%; 
+  filter: alpha(opacity=60);
+  opacity: 0.6;
+  background: #000;
+}
+
+.terrama2-splace h2 {
+  text-align: center;
+  font-size: 4em;
+  color:white;            
+}

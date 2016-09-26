@@ -7,9 +7,9 @@
 {% block title %}
 
 {% if user !== undefined %}
-TerraMA² {[ __('User Update') ]}
+TerraMA² {{ i18n.__('User Update') }}
 {% else %}
-TerraMA² {[ __('User Registration') ]}
+TerraMA² {{ i18n.__('User Registration') }}
 {% endif %}
 
 {% endblock %}
@@ -34,9 +34,7 @@ TerraMA² {[ __('User Registration') ]}
     });
   });
 </script>
-<script src="/externals/angular/angular.min.js"></script>
-<script type="text/javascript" src="/externals/angular/i18n-angular.min.js"></script>
-<script src="/javascripts/angular/app.js"></script>
+
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/users/app.js"></script>
 <script src="/javascripts/angular/users/controllers.js"></script>
@@ -45,12 +43,12 @@ TerraMA² {[ __('User Registration') ]}
 {% block content %}
 
 <div ng-controller="UserUpdate">
-  <terrama2-box title="'{[ __('User Update') ]}'">
+  <terrama2-box title="i18n.__('User Update')">
     <div class="row" ng-init="initialization({[ currentUser.id ]});">
       <div class="col-md-12">
         <div class="box box-default box-solid">
           <div class="box-header with-border">
-            <h3 class="box-title">{[ __('General Data') ]}</h3>
+            <h3 class="box-title">{{ i18n.__('General Data') }}</h3>
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
               </button>
@@ -62,53 +60,53 @@ TerraMA² {[ __('User Registration') ]}
               <form name="form">
                 <div class="col-md-12">
                   <div class="form-group" terrama2-show-errors>
-                    <label>{[ __("Name") ]}:</label>
-                    <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{[ __('User Name') ]}" type="text" value="{[ user.name ]}" required>
+                    <label>{{ i18n.__("Name") }}:</label>
+                    <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{{ i18n.__('User Name') }}" type="text" value="{[ user.name ]}" required>
 
-                    <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$invalid">{[ __('Name is required') ]}</span>
+                    <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$invalid">{{ i18n.__('Name is required') }}</span>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-group" terrama2-show-errors>
-                    <label>{[ __("Username") ]}:</label>
-                    <input class="form-control" name="username" ng-model="user.username" id="username" placeholder="{[ __('User name credential') ]}" type="text" value="{[ user.username ]}" ng-disabled="true" required>
+                    <label>{{ i18n.__("Username") }}:</label>
+                    <input class="form-control" name="username" ng-model="user.username" id="username" placeholder="{{ i18n.__('User name credential') }}" type="text" value="{[ user.username ]}" ng-disabled="true" required>
 
-                    <span class="help-block has-error" ng-show="form.username.$dirty && form.username.$invalid">{[ __('Username is required') ]}</span>
+                    <span class="help-block has-error" ng-show="form.username.$dirty && form.username.$invalid">{{ i18n.__('Username is required') }}</span>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-group" terrama2-show-errors>
-                    <label>{[ __("Password") ]}:</label>
-                    <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{[ __('User Password credential') ]}" type="password" required>
+                    <label>{{ i18n.__("Password") }}:</label>
+                    <input class="form-control" name="password" ng-model="user.password" id="password" placeholder="{{ i18n.__('User Password credential') }}" type="password" required>
 
-                    <span class="help-block has-error" ng-show="form.password.$dirty && form.password.$invalid">{[ __('Password is required') ]}</span>
+                    <span class="help-block has-error" ng-show="form.password.$dirty && form.password.$invalid">{{ i18n.__('Password is required') }}</span>
                   </div>
                 </div>
 
                 <div class="col-md-4">
                   <div class="form-group" terrama2-show-errors>
-                    <label>{[ __("Confirm Password") ]}:</label>
-                    <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{[ __('Confirm password') ]}" type="password" terrama2-compare-to="user.password" required>
+                    <label>{{ i18n.__("Confirm Password") }}:</label>
+                    <input class="form-control" name="passwordConfirm" ng-model="user.passwordConfirm" id="passwordConfirm" placeholder="{{ i18n.__('Confirm password') }}" type="password" terrama2-compare-to="user.password" required>
 
-                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.required">{[ __('Confirm password is required') ]}</span>
-                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{[ __('Confirm password must be same password') ]}</span>
+                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.required">{{ i18n.__('Confirm password is required') }}</span>
+                    <span class="help-block has-error" ng-show="form.passwordConfirm.$dirty && form.passwordConfirm.$error.compareTo">{{ i18n.__('Confirm password must be same password') }}</span>
                   </div>
                 </div>
 
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>{[ __("Cell phone") ]}:</label>
-                    <input class="form-control" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{[ __('User cell phone number') ]}" type="tel" value="{[ user.cellphone ]}">
+                    <label>{{ i18n.__("Cell phone") }}:</label>
+                    <input class="form-control" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{{ i18n.__('User cell phone number') }}" type="tel" value="{[ user.cellphone ]}">
                   </div>
                 </div>
 
                 <div class="col-md-6">
                   <div class="form-group" terrama2-show-errors>
-                    <label>{[ __("E-mail") ]}:</label>
-                    <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{[ __('User e-mail') ]}" type="email" value="{[ user.email ]}" required>
-                    <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{[ __('Email is required') ]}</span>
+                    <label>{{ i18n.__("E-mail") }}:</label>
+                    <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{{ i18n.__('User e-mail') }}" type="email" value="{[ user.email ]}" required>
+                    <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{{ i18n.__('Email is required') }}</span>
                   </div>
                 </div>
               </form>
@@ -124,8 +122,8 @@ TerraMA² {[ __('User Registration') ]}
     <!-- ./row -->
 
     <div class="box-footer">
-      <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{[ __('OK') ]}</button>
-      <a href="/" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
+      <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__('OK') }}</button>
+      <a href="/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
     </div>
   </terrama2-box>
 </div>

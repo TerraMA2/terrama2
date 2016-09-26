@@ -15,7 +15,7 @@
 </style>
 {% endblock %}
 
-{% block title %} TerraMA² {[ __('Services Handling') ]} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Services Handling') }} {% endblock %}
 
 {% block javascripts %}
 
@@ -29,9 +29,6 @@
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-<script src="/externals/angular/angular.min.js"></script>
-<script src="/externals/angular/i18n-angular.min.js"></script>
-<script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>

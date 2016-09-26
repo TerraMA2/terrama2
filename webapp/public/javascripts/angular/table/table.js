@@ -159,6 +159,9 @@ angular.module('terrama2.table', ['terrama2'])
         }
 
         $scope.$watch('fields', function(fields) {
+          if (!fields) {
+            return;
+          }
           // processing fields
           fields.forEach(function(field) {
             if (field instanceof Object) {

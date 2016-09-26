@@ -1,6 +1,8 @@
 {% extends "../base/layout.html" %}
 
-{% block title %} TerraMA² {[ __("Project Registration") ]} {% endblock %}
+{% set tabActive = "projects" %}
+
+{% block title %} TerraMA² {{ i18n.__("Project Registration") }} {% endblock %}
 
 {% block ngApp %}ng-app="terrama2.projects" {% endblock %}
 
@@ -12,9 +14,7 @@
     url: "{[ url ]}"
   }
 </script>
-<script src="/externals/angular/angular.min.js"></script>
-<script src="/externals/angular/i18n-angular.min.js"></script>
-<script src="/javascripts/angular/app.js"></script>
+
 <script src="/javascripts/angular/projects/app.js"></script>
 <script src="/javascripts/angular/projects/controllers.js"></script>
 <!-- TerraMA2 Alert Box -->
@@ -25,7 +25,7 @@
 {% block content %}
 
 <div ng-controller="Registration">
-  <terrama2-box title="'{[ __("Project Registration") ]}'">
+  <terrama2-box title="i18n.__('Project Registration')">
     <div class="col-md-12">
       <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
     </div>
@@ -33,9 +33,9 @@
       <div class="row">
         <div class="col-md-12">
           <div class="form-group" terrama2-show-errors>
-            <label>{[ __("Name") ]}:</label>
-            <input class="form-control" name="name" ng-model="project.name" placeholder="{[ __('Project Name') ]}" type="text" required>
-            <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$error.required && form.name.$invalid">{[ __('Project name is required') ]}</span>
+            <label>{{ i18n.__("Name") }}:</label>
+            <input class="form-control" name="name" ng-model="project.name" placeholder="{{ i18n.__('Project Name') }}" type="text" required>
+            <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$error.required && form.name.$invalid">{{ i18n.__('Project name is required') }}</span>
 
             <span class="help-block has-error" ng-show="errorFound">{{ errorFound }}</span>
           </div>
@@ -44,8 +44,8 @@
 
         <div class="col-md-12">
           <div class="form-group">
-            <label>{[ __("Description") ]}:</label>
-            <textarea class="form-control" rows="3" name="description" ng-model="project.description"  placeholder="{[ __('Project Description') ]}"></textarea>
+            <label>{{ i18n.__('Description') }}:</label>
+            <textarea class="form-control" rows="3" name="description" ng-model="project.description"  placeholder="{{ i18n.__('Project Description') }}"></textarea>
           </div>
           <!-- /.form-group -->
         </div>
@@ -53,8 +53,8 @@
       </div>
 
       <div class="box-footer">
-        <button type="submit" class="btn btn-primary pull-right" ng-click="save(this);" style="margin-left: 10px;">{[ __("OK") ]}</button>
-        <a href="/configuration/projects" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __("Cancel") ]}</a>
+        <button type="submit" class="btn btn-primary pull-right" ng-click="save(this);" style="margin-left: 10px;">{{ i18n.__("OK") }}</button>
+        <a href="/configuration/projects" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
       </div>
 
       <div class="overlay" ng-show="isSubmiting">

@@ -53,6 +53,42 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
     };
   })
 
+  .directive("terrama2AlertBox2", function() {
+    return {
+      restrict: "E",
+      templateUrl: "message-box.html",
+      scope: {
+        handler: '=handler', // it should be a MessageBoxService,
+        extra: '=?extra'
+      },
+      controller: function($scope) {
+        var alertBox = $scope.handler.alertBox;
+        $scope.display = alertBox.display;
+        $scope.close = $scope.handler.reset;
+        $scope.title = alertBox.title;
+        $scope.message = alertBox.message;
+        $scope.alertLevel = alertBox.level;
+        $scope.isAnyExtra = function() {
+          return Object.keys($scope.extra || {}).length > 0;
+        };
+        $scope.alertIcon = function() {
+          switch($scope.alertLevel) {
+            case ALERT_LEVELS.INFO:
+              return "fa-info";
+            case ALERT_LEVELS.WARNING:
+              return "fa-exclamation-triangle";
+            case ALERT_LEVELS.DANGER:
+              return "fa-times";
+            case ALERT_LEVELS.SUCCESS:
+              return "fa-check";
+            default:
+              return "fa-info";
+          }
+        };
+      }
+    }
+  })
+
   .directive("terrama2AlertBox", function() {
     return {
       restrict: "E",

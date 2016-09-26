@@ -4,7 +4,7 @@
 
 {% block ngApp %}ng-app="terrama2.status"{% endblock %}
 
-{% block title %} TerraMA² {{ __('Project Status')}} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Project Status') }} {% endblock %}
 
 {% block javascripts %}
 <script type="text/javascript">
@@ -26,12 +26,7 @@
 <!-- Moment JS -->
 <script type="text/javascript" src="/externals/moment/moment.js"></script>
 
-<!-- AngularJS -->
-<script src="/externals/angular/angular.min.js"></script>
-<script src="/externals/angular/i18n-angular.min.js"></script>
-
-<!-- TerraMA2 -->
-<script src="/javascripts/angular/app.js"></script>
+<!-- TerraMA² Status Scripts -->
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
@@ -44,7 +39,7 @@
 <div class="col-md-12" ng-controller="StatusController">
   <div class="box">
     <div class="box-header with-border">
-      <h3 class="box-title">{[ __("Status") ]}</h3>
+      <h3 class="box-title"><span ng-bind="i18n.__('Status')"></span></h3>
     </div><!-- /.box-header -->
 
     <div class="box-body">
