@@ -40,6 +40,7 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
 
+#include <ThreadPool.h>
 
 terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
 : terrama2::core::Service(),
