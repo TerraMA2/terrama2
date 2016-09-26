@@ -4,7 +4,7 @@
 
 {% block ngApp %} ng-app="terrama2.analysis" {% endblock %}
 
-{% block title %} TerraMA² {[ __('Analysis') ]} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Analysis') }} {% endblock %}
 
 {% block javascripts %}
 
@@ -19,12 +19,6 @@
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-<!-- Angular -->
-<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
-<!-- Internationalization -->
-<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>
-
-<script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
@@ -32,8 +26,10 @@
 <script>
 
   angular.module('terrama2.analysis', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
-    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', 'Socket', function($scope, $http, AnalysisFactory, Socket) {
+    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', 'Socket', 'i18n', '$log',
+    function($scope, $http, AnalysisFactory, Socket, i18n, $log) {
       $scope.model = [];
+      $scope.i18n = i18n;
 
       Socket.on('errorResponse', function(response){
         $scope.display = true;
@@ -44,7 +40,7 @@
       Socket.on('runResponse', function(response){
         $scope.display = true;
         $scope.alertLevel = "alert-success";
-        $scope.alertBox.message = "The process was started successfully";
+        $scope.alertBox.message = i18n.__("The process was started successfully");
       })
 
       var restriction = {
@@ -56,8 +52,8 @@
       };
 
       $scope.fields = [
-        {key: "name", as: "Name"},
-        {key: "type.name", as: "Type"}
+        {key: "name", as: i18n.__("Name")},
+        {key: "type.name", as: i18n.__("Type")}
       ];
 
       $scope.linkToAdd = "/configuration/analysis/new";
@@ -68,7 +64,7 @@
 
       $scope.alertLevel = "alert-success";
       $scope.alertBox = {
-        title: "Analysis",
+        title: i18n.__("Analysis"),
         message: "{[ message ]}"
       };
       $scope.display = $scope.alertBox.message !== "";
@@ -116,7 +112,7 @@
       AnalysisFactory.get(restriction).success(function(analysis) {
         $scope.model = analysis;
       }).error(function(err) {
-        console.log("Err in retrieving Analysis " + err);
+        $log.info("Err in retrieving Analysis " + err);
       }).finally(function() {
         $scope.loading = false;
       });
@@ -128,7 +124,7 @@
 {% block content %}
 
 <div ng-controller="ListController">
-  <terrama2-box title="'{[ __('Analysis') ]}'">
+  <terrama2-box title="i18n.__('Analysis')">
     <div class="col-md-12">
       <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display">
       </terrama2-alert-box>

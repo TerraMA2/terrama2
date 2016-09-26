@@ -4,7 +4,7 @@
 
 {% block ngApp %}ng-app="terrama2.listDataSeries"{% endblock %}
 
-{% block title %} TerraMA² {{ __('Static Data')}} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Static Data') }} {% endblock %}
 
 {% block javascripts %}
 <!-- Socket.io -->
@@ -43,11 +43,6 @@
 
 </script>
 
-<!-- Angular -->
-<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
-<!-- Internationalization -->
-<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>
-<script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/data-series/data-series.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
@@ -57,7 +52,7 @@
 {% block content %}
 
 <div ng-controller="ListController">
-  <terrama2-box title="'{[ __("Static Data") ]}'">
+  <terrama2-box title="i18n.__('Static Data')">
     <div class="row">
       <div class="col-md-12">
        <div class="col-md-12">

@@ -4,7 +4,7 @@
 
 {% block ngApp %} ng-app="terrama2.alerts" {% endblock %}
 
-{% block title %} TerraMA² {[ __('Alerts') ]} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Alerts') }} {% endblock %}
 
 {% block javascripts %}
 
@@ -17,7 +17,9 @@
 
 <script>
   angular.module('terrama2.alerts', ['terrama2.table'])
-    .controller("ListController", ['$scope', function($scope) {
+    .controller("ListController", ['$scope', 'i18n', function($scope, i18n) {
+      $scope.i18n = i18n;
+
       $scope.model = [
         {
           name: "Alert 1",
@@ -66,7 +68,7 @@
   <div class="col-md-12">
     <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">{[ __('Alerts') ]}</h3>
+        <h3 class="box-title">{{ i18n.__('Alerts') }}</h3>
       </div><!-- /.box-header -->
 
       <div class="box-body">

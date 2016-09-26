@@ -4,23 +4,21 @@
 
 {% block ngApp %}ng-app="terrama2.administration.users"{% endblock %}
 
-{% block title %} TerraMA² {[ __('Users Handling') ]} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Users Handling') }} {% endblock %}
 
 {% block javascripts %}
-<!-- Angular -->
-<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
-<!-- Internationalization -->
-<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>
-<script src="/javascripts/angular/app.js"></script>
+
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 
 <script>
     angular.module('terrama2.administration.users', ['terrama2.table', 'terrama2.components.messagebox'])
-        .controller('ListController', ['$scope', function($scope) {
+        .controller('ListController', ['$scope', 'i18n', function($scope, i18n) {
             $scope.link = function(object) {
                 return "/administration/users/edit/" + object.id;
             };
+
+            $scope.i18n = i18n;
 
             $scope.remove = function(object) {
               return "/administration/users/" + object.id + "/delete";
@@ -30,23 +28,23 @@
             $scope.fields = [
               {
                 key: 'name',
-                as: 'Name'
+                as: i18n.__('Name')
               },
               {
                 key: 'email',
-                as: 'E-mail'
+                as: i18n.__('E-mail')
               },
               {
                 key: 'cellphone',
-                as: 'Cellphone'
+                as: i18n.__('Cellphone')
               },
               {
                 key: 'username',
-                as: 'User'
+                as: i18n.__('User')
               },
               {
                 key: 'administrator',
-                as: 'Administrator'
+                as: i18n.__('Administrator')
               },
             ];
             $scope.iconFn = null;
@@ -56,7 +54,7 @@
             // alert-box
             $scope.alertLevel = "alert-success";
             $scope.alertBox = {
-              title: "Users",
+              title: i18n.__("Users"),
               message: "{[ message ]}"
             };
             $scope.resetState = function() { $scope.display = false; };
@@ -72,7 +70,7 @@
                 }
 
                 $scope.alertLevel = "alert-success";
-                $scope.alertBox.message = data.name + " removed";
+                $scope.alertBox.message = data.name + i18n.__(" removed");
               }
             };
 
@@ -85,7 +83,7 @@
 {% block content %}
 
 <div ng-controller="ListController">
-  <terrama2-box title="'{[ __("Users") ]}'">
+  <terrama2-box title="'{{ i18n.__('Users') }}'">
     <div class="col-md-12">
       <div class="col-md-12">
         <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>

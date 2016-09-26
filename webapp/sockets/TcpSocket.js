@@ -31,6 +31,11 @@ var TcpSocket = function(io) {
 
     console.log("NEW socket.io CONNECTION");
 
+    /**
+     * Listener for handling when service has been started. It applies a socket connect when timeout expires.
+     * 
+     * @param {ServiceInstance} service - A TerraMA² service instance
+     */
     var onServiceStarted = function(service) {
       setTimeout(function() {
         TcpManager.emit('connect', service);
@@ -113,21 +118,23 @@ var TcpSocket = function(io) {
 
     // tcp listeners
     TcpManager.on('serviceStarted', onServiceStarted);
-
     TcpManager.on('serviceConnected', onServiceConnected);
-
     TcpManager.on('statusReceived', onStatusReceived);
-
     TcpManager.on('logReceived', onLogReceived);
-
     TcpManager.on('stop', onStop);
-
     TcpManager.on('close', onClose);
-
     TcpManager.on('tcpError', onError);
 
-    // client listeners
-    client.on('start', function(json) {
+    /**
+     * Listener for handling client start request. When called,
+     * it retrieves a service instance and tries to start TerraMA² service executable.
+     * Once success during start, it performs a socket connection using Service configurations.
+     * After that, it sends status service signal to communicate
+     * 
+     * @param {Object} json - A given arguments sent by client
+     * @param {number} json.service - A TerraMA² service instance id
+     */
+    function onStartRequest(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
         var _handleErr = function(err) {
           client.emit('errorResponse', {
@@ -158,10 +165,16 @@ var TcpSocket = function(io) {
       }).catch(function(err) {
         console.log(err);
       });
-    });
-    // end client start listener
+    } // end client start listener
 
-    client.on('run', function(process_object){
+    /**
+     * Listener for handling start process signal. When it called, it tries to send START_PROCESS signal
+     * in order to forcing a process to execute in TerraMA².
+     * 
+     * @param {Object} process_object - A given arguments sent by client
+     * @param {number} process_object.service_instance - A TerraMA² service instance id
+     */
+    function onRunRequest(process_object){
       var service_instance = process_object.service_instance;
       delete process_object.service_instance;
       DataManager.getServiceInstance({id: service_instance}).then(function(instance) {
@@ -170,9 +183,16 @@ var TcpSocket = function(io) {
       }).catch(function(err) {
         console.log(err);
       });
-    });
+    }
 
-    client.on('status', function(json) {
+    /**
+     * Listener for handling status signal. When it called, it tries to connect to the socket and retrieve a
+     * life time using STATUS_SIGNAL.
+     * 
+     * @param {Object} json - A given arguments sent by client
+     * @param {number} json.service - A TerraMA² service instance id
+     */
+    function onStatusRequest(json) {
       /**
        * Helper for handling error callbacks. It notifies client listeners.
        * 
@@ -209,10 +229,17 @@ var TcpSocket = function(io) {
           service: json.service
         });
       });
-    });
-    // end client status listener
+    } // end client status listener
 
-    client.on('stop', function(json) {
+    /**
+     * Listener for handling STOP service signal. When called, it sends a STOP_SERVICE signal followed by a STATUS_SERVICE.
+     * Once TerraMA² executable receives STOP_SERVICE, it starts changing shutdown the running active processes, so it may
+     * take a few seconds/minutes to finish. 
+     * 
+     * @param {Object} json - A given arguments sent by client
+     * @param {number} json.service - A TerraMA² service instance id
+     */
+    function onStopRequest(json) {
       DataManager.getServiceInstance({id: json.service}).then(function(instance) {
         iosocket.emit('stopResponse', {
           status: 200,
@@ -231,9 +258,17 @@ var TcpSocket = function(io) {
           service: json.service.id
         });
       });
-    }); // end client stop listener
+    } // end client stop listener
 
-    client.on('log', function(json) {
+    /**
+     * Listener for handling Log request signal. When called, it maps the cached logs and if necessary request
+     * for others through LOG_SIGNAL in socket communication.
+     * 
+     * @param {Object} json - A given arguments sent by client
+     * @param {number} json.begin - A begin offset to retrieve logs
+     * @param {number} json.end - An end offset to retrieve logs
+     */
+    function onLogRequest(json) {
       var begin = json.begin || 0,
           end = json.end || 2;
 
@@ -280,9 +315,13 @@ var TcpSocket = function(io) {
           }).catch(_handleError);
         }).catch(_handleError);
       }).catch(_handleError);
-    }); // end log listener
+    }; // end log listener
 
-    client.on('disconnect', function() {
+    /**
+     * Listener to detects when IO socket has been disconnected. It may happen in page reload.
+     * @returns {void}
+     */
+    function onDisconnect() {
       // removing clients listeners of TcpManager instance
       TcpManager.removeListener('statusReceived', onStatusReceived);
       TcpManager.removeListener('logReceived', onLogReceived);
@@ -291,9 +330,16 @@ var TcpSocket = function(io) {
       TcpManager.removeListener('tcpError', onError);
       TcpManager.removeListener('serviceStarted', onServiceStarted);
       TcpManager.removeListener('serviceConnected', onServiceConnected);
-
       console.log("DISCONNECTED");
-    });
+    }
+
+    // registering client listeners
+    client.on('start', onStartRequest);
+    client.on('run', onRunRequest);
+    client.on('status', onStatusRequest);
+    client.on('stop', onStopRequest);
+    client.on('log', onLogRequest);
+    client.on('disconnect', onDisconnect);
   });
 };
 

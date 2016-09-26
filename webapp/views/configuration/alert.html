@@ -1,6 +1,6 @@
 {% extends "../base/layout.html" %}
 
-{% block title %} TerraMA² {[ __('Alert Registration') ]} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Alert Registration') }} {% endblock %}
 
 {% block styles %}
 
@@ -18,7 +18,6 @@
 
 {% endblock %}
 
-
 {% block content %}
 
     <!-- User Analysis Modal -->
@@ -30,7 +29,7 @@
     <div class="col-md-12">
         <div class="box box-default">
             <div class="box-header with-border">
-                <h3 class="box-title">{[ __('Alert Registration') ]}</h3>
+                <h3 class="box-title">{{ i18n.__('Alert Registration') }}</h3>
             </div>
             <!-- /.box-header -->
             <div style="display: block;" class="box-body">
@@ -38,7 +37,7 @@
                 <div class="col-md-12">
                     <div class="box box-default box-solid">
                         <div class="box-header with-border">
-                            <h3 class="box-title">{[ __('General Data') ]}</h3>
+                            <h3 class="box-title">{{ i18n.__('General Data') }}</h3>
                             <div class="box-tools pull-right">
                                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                                 </button>
@@ -49,7 +48,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label>{[ __('User') ]}</label>
+                                        <label>{{ i18n.__('User') }}</label>
                                         <select class="form-control">
                                             <option>joao</option>
                                         </select>
@@ -57,7 +56,7 @@
                                 </div>
 
                                 <div class="col-md-12">
-                                    <label>{[ __('Selected Project') ]}:</label>
+                                    <label>{{ i18n.__('Selected Project') }}:</label>
 
                                     <button data-toggle="modal" data-target="#userAnalisysModal" class="btn btn-box-tool btn-lg terrama2-link">
                                         <i class="fa fa-plus"></i>
@@ -69,9 +68,9 @@
                                     <table class="table table-bordered table-hover">
                                         <tr>
                                             <th>-</th>
-                                            <th>{[ __('Project') ]}</th>
-                                            <th>{[ __('E-mail') ]}</th>
-                                            <th>{[ __('Cell phone') ]}</th>
+                                            <th>{{ i18n.__('Project') }}</th>
+                                            <th>{{ i18n.__('E-mail') }}</th>
+                                            <th>{{ i18n.__('Cell phone') }}</th>
                                         </tr>
                                         <tr>
                                             <td>1</td>
@@ -90,7 +89,7 @@
 
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label>{[ __('Area of interest for notification') ]}:</label>
+                                        <label>{{ i18n.__('Area of interest for notification') }}:</label>
 
                                         <button data-toggle="modal" data-target="#areaOfInterestModal" class="btn btn-box-tool btn-lg terrama2-link">
                                             <i class="fa fa-plus"></i>
@@ -115,8 +114,8 @@
             <!-- /.box body -->
 
             <div class="box-footer">
-                <a href="/configuration/alerts" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('Cancel') ]}</a>
-                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{[ __('OK') ]}</button>
+                <a href="/configuration/alerts" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('OK') }}</button>
             </div>
         </div>
     </div> <!-- end col md 12 -->

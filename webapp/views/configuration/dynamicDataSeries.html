@@ -15,7 +15,7 @@
 </style>
 {% endblock %}
 
-{% block title %} TerraMA² {[ __('Dynamic Data Series') ]} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Dynamic Data Series') }} {% endblock %}
 
 {% block javascripts %}
 
@@ -35,9 +35,6 @@
     collectors: {[collectors|json|safe]},
     analysis: {[analysis|json|safe]},
     link: function(object) {
-      var typeName = object.data_series_semantics.data_series_type_name;
-      // if (typeName === "ANALYSIS_MONITORED_OBJECT")
-      //   return "/configuration/analysis/" + object.id + "/edit";
       return "/configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
     },
     iconFn: function(object) {
@@ -65,11 +62,6 @@
 
 </script>
 
-<!-- Angular -->
-<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
-<!-- Internationalization -->
-<script type="text/javascript" src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>
-<script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
@@ -79,7 +71,7 @@
 
 {% block content %}
 <div ng-controller="ListController">
-  <terrama2-box title="'{[ __('Dynamic Data Series') ]}'">
+  <terrama2-box title="i18n.__('Dynamic Data Series')">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">

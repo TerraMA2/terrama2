@@ -1,16 +1,16 @@
 {% set MENU_URLS = {} %}
 
-{% set MENU_URLS = {"projects": {name: __('Projects'), url: "/configuration/projects", icon: "fa-book"}} %}
-{% set MENU_URLS["data-provider"] = {name: __('Data Provider'), url: "/configuration/providers", icon: "fa-cubes"} %}
-{% set MENU_URLS["static-data"] = {name: __('Static Data'), url: "/configuration/static/dataseries", icon: "fa-folder-o"} %}
-{% set MENU_URLS["dynamic-data"] = {name: __('Dynamic Data'), url: "/configuration/dynamic/dataseries", icon: "fa-exchange"} %}
-{% set MENU_URLS["analysis"] = {name: __('Analysis'), url: "/configuration/analysis", icon: "fa-tasks"} %}
-{% set MENU_URLS["alerts"] = {name: __('Alerts'), url: "/configuration/alerts", icon: "fa-bell"} %}
-{% set MENU_URLS["views"] = {name: __('Views'), url: "/configuration/views", icon: "fa-map"} %}
-{% set MENU_URLS["status"] = {name: __('Status'), url: "/configuration/status", icon: "fa-feed"} %}
+{% set MENU_URLS = {"projects": {name: 'Projects', url: "/configuration/projects", icon: "fa-book"}} %}
+{% set MENU_URLS["data-provider"] = {name: 'Data Server', url: "/configuration/providers", icon: "fa-cubes"} %}
+{% set MENU_URLS["static-data"] = {name: 'Static Data', url: "/configuration/static/dataseries", icon: "fa-folder-o"} %}
+{% set MENU_URLS["dynamic-data"] = {name: 'Dynamic Data', url: "/configuration/dynamic/dataseries", icon: "fa-exchange"} %}
+{% set MENU_URLS["analysis"] = {name: 'Analysis', url: "/configuration/analysis", icon: "fa-tasks"} %}
+{% set MENU_URLS["alerts"] = {name: 'Alerts', url: "/configuration/alerts", icon: "fa-bell"} %}
+{% set MENU_URLS["views"] = {name: 'Views', url: "/configuration/views", icon: "fa-map"} %}
+{% set MENU_URLS["status"] = {name: 'Status', url: "/configuration/status", icon: "fa-feed"} %}
 
 <!DOCTYPE html>
-<html {% block ngApp %}{% endblock %} i18n-locale="{[ i18n.getLocale() ]}">
+<html {% block ngApp %}ng-app="terrama2"{% endblock %} i18n-locale="pt">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -62,7 +62,14 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="hold-transition skin-blue sidebar-mini {% if (!activeProject.name) %} {% if (collapsed) %} sidebar-collapse {% endif %}{% endif %} {% block bodyClass %}{% endblock %}">
+<body class="hold-transition skin-blue sidebar-mini {% if (!activeProject.name) %} {% if (collapsed) %} sidebar-collapse {% endif %}{% endif %} {% block bodyClass %}{% endblock %}"
+      ng-controller="{% block ngController%}TerraMA2Controller{% endblock %}">
+
+  <!--<div ng-show="::false" class="terrama2-splash">
+    <h2>LOADING...</h2>
+    <i class="fa fa-refresh fa-spin"></i>
+  </div> -->
+
   <div class="wrapper">
 
     <header class="main-header">
@@ -86,7 +93,7 @@
             <li class="user user-menu">
               <a aria-expanded="false" href="/logout">
                 <i class="glyphicon glyphicon-log-out"></i>
-                {[ __('Logout') ]}
+                <span ng-bind="i18n.__('Logout')"></span>
               </a>
             </li>
           </ul>
@@ -122,7 +129,7 @@
               {% for tab in MENU_URLS %}
               <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
                 <a href="{[ tab.url ]}">
-                  <i class="fa {[ tab.icon ]}"></i><span>{[ tab.name ]}</span>
+                  <i class="fa {[ tab.icon ]}"></i><span ng-bind="i18n.__('{[ tab.name ]}')"></span>
                 </a>
               </li>
               {% endfor %}
@@ -131,18 +138,18 @@
               {% if currentUser !== null && currentUser.administrator %}
               <li class="treeview">
                 <a href="#">
-                  <i class="fa fa-cogs"></i> <span>{[ __('Administration') ]}</span>
+                  <i class="fa fa-cogs"></i> <span ng-bind="i18n.__('Administration')"></span>
                   <i class="fa fa-angle-left pull-right"></i>
                 </a>
                 <ul class="treeview-menu" style="display: {% if (tabActive === 'services' || tabActive === 'users') %} block; {% else %} none;{% endif %}">
                   <li class="treeview {% if (tabActive === 'services') %} active {% endif %}">
                     <a href="/administration/services">
-                      <i class="fa fa-laptop"></i> {[ __('Services') ]}
+                      <i class="fa fa-laptop"></i> <span ng-bind="i18n.__('Services')"></span>
                     </a>
                   </li>
                   <li class="treeview {% if (tabActive === 'users') %} active {% endif %}">
                     <a href="/administration/users">
-                      <i class="fa fa-users"></i> {[ __('Users') ]}
+                      <i class="fa fa-users"></i> <span ng-bind="i18n.__('Users')"></span>
                     </a>
                   </li>
                 </ul>
@@ -150,7 +157,7 @@
               {% endif %}
               <li class="treeview {% if (tabActive === 'profile') %} active {% endif %}">
                 <a href="/profile/">
-                  <i class="fa fa-pencil-square-o "></i><span>{[ __("Profile") ]}</span>
+                  <i class="fa fa-pencil-square-o "></i><span ng-bind="i18n.__('Profile')"></span>
                 </a>
               </li>
 
@@ -166,10 +173,6 @@
     <div class="content-wrapper">
       <!-- Main content -->
       <section class="content">
-        <div ng-show="::false" class="terrama2-overlay">
-          <i class="loading fa fa-spin fa-refresh"></i>
-        </div>
-
         <div class="row" ng-cloak>
 
           {# Block for handling content of each TerraMA2 page #}
@@ -184,7 +187,7 @@
     <footer class="main-footer">
       <div class="pull-right hidden-xs">
       </div>
-      <strong>Copyright &copy; 2007 National Institute For Space Research (INPE) - Brazil </strong> All rights reserved.
+      <strong>Copyright &copy; 2007 National Institute For Space Research (INPE) - Brazil </strong> {{ i18n.__('All rights reserved') }}.
     </footer>
 
   </div>
@@ -218,6 +221,12 @@
       });
     });
   </script>
+  <!-- Angular JS -->
+  <script src="/externals/angular/angular.min.js"></script>
+  <!-- Internationalization -->
+  <script src="/externals/angular/i18n-angular.min.js"></script>
+  <!-- TerraMA² Angular Module -->
+  <script src="/javascripts/angular/app.js"></script>
   {# Block for handling TerraMA2 javascripts include #}
   {% block javascripts %}
 
