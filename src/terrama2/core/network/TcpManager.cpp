@@ -421,7 +421,7 @@ void terrama2::core::TcpManager::receiveConnection() noexcept
     if(!tcpSocket)
       return;
 
-    connect(tcpSocket, &QTcpSocket::readyRead, [this, tcpSocket]() { readReadySlot(tcpSocket);});
+    connect(tcpSocket, &QTcpSocket::readyRead, this, [this, tcpSocket]() { readReadySlot(tcpSocket);}, Qt::QueuedConnection);
   }
   catch(...)
   {
