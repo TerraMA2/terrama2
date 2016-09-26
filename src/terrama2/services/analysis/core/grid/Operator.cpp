@@ -41,7 +41,7 @@
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/Reprojection.h>
 
-double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<te::rst::Interpolator> interpolator, double column, double row, size_t bandIdx)
+double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<terrama2::core::SynchronizedInterpolator> interpolator, double column, double row, size_t bandIdx)
 {
   std::complex<double> val;
   interpolator->getValue(column, row, val, bandIdx);

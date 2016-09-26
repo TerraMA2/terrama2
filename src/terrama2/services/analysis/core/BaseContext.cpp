@@ -35,6 +35,8 @@
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 
+// TerraLib
+#include <terralib/raster/Interpolator.h>
 #include <terralib/memory/CachedRaster.h>
 
 terrama2::services::analysis::core::BaseContext::BaseContext(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
@@ -77,7 +79,7 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::BaseContext::f
   return it->second;
 }
 
-std::shared_ptr<te::rst::Interpolator> terrama2::services::analysis::core::BaseContext::getInterpolator(std::shared_ptr<te::rst::Raster> raster)
+std::shared_ptr<terrama2::core::SynchronizedInterpolator> terrama2::services::analysis::core::BaseContext::getInterpolator(std::shared_ptr<te::rst::Raster> raster)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -125,8 +127,8 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 
         auto cachedRaster = addRaster(key, dsRaster);
         auto interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
-        std::shared_ptr<te::rst::Interpolator> interpolator(new te::rst::Interpolator(cachedRaster.get(), interpolationMethod));
-        interpolatorMap_.emplace(cachedRaster, interpolator);
+        std::shared_ptr<terrama2::core::SynchronizedInterpolator> syncInterpolator = std::make_shared<terrama2::core::SynchronizedInterpolator>(dsRaster.get(), interpolationMethod);
+        interpolatorMap_.emplace(cachedRaster, syncInterpolator);
       }
     });
 
