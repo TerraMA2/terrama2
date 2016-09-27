@@ -10,7 +10,7 @@
 {% set MENU_URLS["status"] = {name: 'Status', url: "/configuration/status", icon: "fa-feed"} %}
 
 <!DOCTYPE html>
-<html {% block ngApp %}ng-app="terrama2"{% endblock %} i18n-locale="pt">
+<html {% block ngApp %}ng-app="terrama2"{% endblock %} i18n-locale="{[ i18n.getLocale() ]}">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
