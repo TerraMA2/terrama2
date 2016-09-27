@@ -128,6 +128,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
     boost::filesystem::path downloadDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
 
     downloadFolder = downloadDir.string();
+    remover->addTemporaryFolder(downloadFolder);
     scheme_ = "file://";
 
     // Create the directory where you will download the files.

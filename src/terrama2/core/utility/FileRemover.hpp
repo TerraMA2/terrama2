@@ -35,6 +35,7 @@
 
 //QT
 #include <QFile>
+#include <QDir>
 
 namespace terrama2
 {
@@ -53,6 +54,13 @@ namespace terrama2
             if(file.exists())
               file.remove();
           }
+
+          for (auto folderPath : folderList)
+          {
+            QDir folder(QString::fromStdString(folderPath));
+            if(folder.exists())
+              folder.removeRecursively();
+          }
         }
 
         FileRemover(const FileRemover& other) = delete;
@@ -61,9 +69,11 @@ namespace terrama2
         FileRemover& operator=(FileRemover&& other) = default;
 
         void addTemporaryFile(const std::string& pathToFile) { fileList.insert(pathToFile); }
+        void addTemporaryFolder(const std::string& pathToFolder) { folderList.insert(pathToFolder); }
 
       private:
         std::set<std::string> fileList;
+        std::set<std::string> folderList;
     };
   } // end namespace core
 }   // end namespace terrama2
