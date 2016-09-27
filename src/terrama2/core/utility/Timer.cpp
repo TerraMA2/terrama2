@@ -46,11 +46,11 @@ struct terrama2::core::Timer::Impl
   Impl()
     : schedule_(0,0,0) {}
 
-    Schedule             dataSchedule_;
-    QTimer               timer_;//<! Timer to next collection.
-    te::dt::TimeDuration schedule_;//<! Schedule to next collection.
-    ProcessId             processId_;
-    std::shared_ptr< te::dt::TimeInstantTZ > lastEmit_;
+  Schedule             dataSchedule_;
+  QTimer               timer_;//<! Timer to next collection.
+  te::dt::TimeDuration schedule_;//<! Schedule to next collection.
+  ProcessId             processId_;
+  std::shared_ptr< te::dt::TimeInstantTZ > lastEmit_;
 };
 
 terrama2::core::Timer::Timer(const Schedule& dataSchedule, ProcessId processId, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit)
@@ -98,6 +98,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
     if(dataSchedule.frequencyStartTime.empty())
     {
+      // The timer don't has a time to start
       double secondsSinceLastProcess = 0;
 
       if(impl_->lastEmit_)
@@ -105,28 +106,48 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
       secondsToStart = timerSeconds - secondsSinceLastProcess;
     }
-    else
+    else // The timer has a time to start
     {
-      auto startDate = terrama2::core::TimeUtils::stringToTimestamp(dataSchedule.frequencyStartTime, terrama2::core::TimeUtils::webgui_timefacet);
-      if(startDate->getTimeInstantTZ().date() <= nowTZ->getTimeInstantTZ().date())
+      double secondsSinceLastProcess = 0;
+
+      if(impl_->lastEmit_)
       {
-        auto now = nowTZ->getTimeInstantTZ().time_of_day();
-        auto startTime = startDate->getTimeInstantTZ().time_of_day();
+        secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
 
-        while(startTime < now)
-          startTime += boost::posix_time::seconds(timerSeconds);
-
-        auto td = (startTime - now);
-        secondsToStart = td.total_seconds();
+        secondsToStart = timerSeconds - secondsSinceLastProcess;
       }
       else
       {
-        secondsToStart = *startDate - *nowTZ;
-      }
+        // The timer never emitted before
 
+        std::istringstream ss(dataSchedule.frequencyStartTime);
+        ss.exceptions(std::ios_base::failbit);
+        boost::posix_time::time_facet* facet = new boost::posix_time::time_facet(terrama2::core::TimeUtils::webgui_hourfacet.c_str());
+        ss.imbue(std::locale(ss.getloc(), facet));
+
+        boost::posix_time::time_duration startDate(boost::posix_time::not_a_date_time);
+        ss >> startDate; // do the parse
+
+        if(startDate < nowTZ->getTimeInstantTZ().local_time().time_of_day())
+        {
+          auto now = nowTZ->getTimeInstantTZ().time_of_day();
+          auto startTime = startDate;
+
+          while(startTime < now)
+          {
+            startTime += boost::posix_time::seconds(timerSeconds);
+          }
+
+          auto td = (startTime - now);
+          secondsToStart = td.total_seconds();
+        }
+        else
+        {
+          secondsToStart = (startDate - nowTZ->getTimeInstantTZ().local_time().time_of_day()).total_seconds();
+        }
+      }
     }
   }
-
   else if(dataSchedule.schedule > 0)
   {
     secondsToStart = terrama2::core::TimeUtils::scheduleSeconds(dataSchedule, terrama2::core::TimeUtils::nowUTC());
@@ -138,16 +159,9 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
 
-   if(secondsToStart > 0)
-   {
-     // Timer with X seconds
-     connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-     impl_->timer_.start(secondsToStart*1000);
-   }
-   else
-   {
-     timeoutSlot();
-   }
+  // Timer with X seconds
+  connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
+  impl_->timer_.start(secondsToStart > 0 ? secondsToStart*1000 : 0);
 }
 
 ProcessId terrama2::core::Timer::processId() const

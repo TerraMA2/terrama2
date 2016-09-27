@@ -89,7 +89,7 @@ namespace terrama2
 
       uint32_t frequency = 0; //!< The value for time frequency. Ex: From 5 to 5 minutes.
       std::string frequencyUnit; //!< Unit of the time frequency (years, months, days, minutes, hours or seconds)
-      std::string frequencyStartTime; //!< Base date and hour to start by frequency. Format: 2016-08-17T03:00:00.000-03:00
+      std::string frequencyStartTime; //!< Base date and hour to start by frequency. Format: 03:00:00.000-03:00
 
       uint32_t schedule = 0; //!< Value for Schedule day of week, day of year or day of month. Ex: The Third day of a week or the day 137 of a year.
       std::string scheduleTime; //!< The time to execute a process in the scheduled Day.
