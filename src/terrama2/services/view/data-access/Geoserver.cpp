@@ -75,6 +75,44 @@ void terrama2::services::view::da::GeoServer::registerWorkspace(const std::strin
 }
 
 
+void terrama2::services::view::da::GeoServer::registerPostgisTable(const std::string& dataStoreName,
+                                                                   std::map<std::string, std::string> connInfo,
+                                                                   const std::string& tableName) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriPost(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores");
+
+  if(!uriPost.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+  }
+
+  std::string xml = "<dataStore><name>" + dataStoreName +"</name>" +
+                    "<connectionParameters>" +
+                    "<host>" + connInfo.at("PG_HOST") + "</host>" +
+                    "<port>" + connInfo.at("PG_PORT") +"</port>" +
+                    "<database>" + connInfo.at("PG_DB_NAME") + "</database>" +
+                    "<user>" + connInfo.at("PG_USER") + "</user>" +
+                    "<passwd>" + connInfo.at("PG_USER") + "</passwd>" +
+                    "<dbtype>postgis</dbtype>" +
+                    "</connectionParameters>" +
+                    "</dataStore>";
+
+  // Register data store
+  cURLwrapper.post(uriPost, xml, "Content-Type: text/xml");
+
+  te::core::URI uriPostLayer(uriPost.uri() + "/" + dataStoreName +"/featuretypes");
+
+  xml = "<featureType><name>"+ tableName + "</name></featureType>";
+
+  // Publish layer
+  cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
+}
+
+
 void terrama2::services::view::da::GeoServer::uploadZipVectorFiles(const std::string& dataStoreName,
                                                                    const std::string& shpZipFilePath,
                                                                    const std::string& extension) const
@@ -138,8 +176,8 @@ void terrama2::services::view::da::GeoServer::registerVectorsFolder(const std::s
 
 
 void terrama2::services::view::da::GeoServer::uploadZipCoverageFile(const std::string& coverageStoreName,
-                                                                     const std::string& coverageZipFilePath,
-                                                                     const std::string& extension) const
+                                                                    const std::string& coverageZipFilePath,
+                                                                    const std::string& extension) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -330,13 +368,13 @@ void terrama2::services::view::da::GeoServer::deleteStyle(const::std::string& st
 
 
 void terrama2::services::view::da::GeoServer::getMapWMS(const std::string& savePath,
-                                                                 const std::string& fileName,
-                                                                 const std::list<std::pair<std::string, std::string>> layersAndStyles,
-                                                                 const te::gm::Envelope env,
-                                                                 const uint32_t width,
-                                                                 const uint32_t height,
-                                                                 const uint32_t srid,
-                                                                 const std::string& format) const
+                                                        const std::string& fileName,
+                                                        const std::list<std::pair<std::string, std::string>> layersAndStyles,
+                                                        const te::gm::Envelope env,
+                                                        const uint32_t width,
+                                                        const uint32_t height,
+                                                        const uint32_t srid,
+                                                        const std::string& format) const
 {
   if(layersAndStyles.empty())
   {
@@ -349,9 +387,9 @@ void terrama2::services::view::da::GeoServer::getMapWMS(const std::string& saveP
 
   te::ws::ogc::WMSClient wms(savePath, uri_.uri(), version);
 
-  std::string request = (uri_.uri() + "/wms?service=WMS"
-                                      "&version=" + version +
-                                      "&request=GetMap");
+  std::string request = (uri_.uri() + "/wms?service=WMS" +
+                         "&version=" + version +
+                         "&request=GetMap");
 
   std::string layers = "&layers=";
   std::string styles = "&styles=";

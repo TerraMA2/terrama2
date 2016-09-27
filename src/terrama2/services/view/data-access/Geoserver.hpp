@@ -79,6 +79,10 @@ namespace terrama2
            */
           void registerWorkspace(const std::string& name);
 
+          void registerPostgisTable(const std::string& dataStoreName,
+                                    std::map<std::string, std::string> connInfo,
+                                    const std::string& tableName) const;
+
           /*!
            * \brief Method to upload a .zip with the vector files from out of the server to the GeoServer
            * \param dataStoreName The name of the store in GeoServer to upload the vector files,
@@ -86,7 +90,9 @@ namespace terrama2
            * \param shpZipFilePath The full path to the .zip with the vector files
            * \param extension  Specifies the type of data being uploaded. Supported: shp, properties, h2, spatialite, appschema
            */
-          void uploadZipVectorFiles(const std::string& dataStoreName, const std::string& shpZipFilePath, const std::string& extension) const;
+          void uploadZipVectorFiles(const std::string& dataStoreName,
+                                    const std::string& shpZipFilePath,
+                                    const std::string& extension) const;
 
           /*!
            * \brief Register an vector file that is located at the server
@@ -95,7 +101,9 @@ namespace terrama2
            * \param shpFilePath The full path to the vector file
            * \param extension Specifies the type of data being registered. Supported: shp, properties, h2, spatialite, appschema
            */
-          void registerVectorFile(const std::string& dataStoreName, const std::string& shpFilePath, const std::string& extension) const;
+          void registerVectorFile(const std::string& dataStoreName,
+                                  const std::string& shpFilePath,
+                                  const std::string& extension) const;
 
           /*!
            * \brief Register a folder that contains vector files
@@ -104,7 +112,9 @@ namespace terrama2
            * \param shpFolderPath The full path to the folder with the vector files
            * \param extension Specifies the type of data being registered. Supported: shp, properties, h2, spatialite, appschema
            */
-          void registerVectorsFolder(const std::string& dataStoreName, const std::string& shpFolderPath, const std::string& extension) const;
+          void registerVectorsFolder(const std::string& dataStoreName,
+                                     const std::string& shpFolderPath,
+                                     const std::string& extension) const;
 
           /*!
            * \brief Method to upload a .zip with a coverage file from out of the server to the GeoServer.
@@ -114,7 +124,9 @@ namespace terrama2
            * \param coverageFilePath The full path to the .zip with the coverage file
            * \param extension  Specifies the type of data being uploaded. Supported: geotiff, worldimage(JPEG, PNG, TIFF), imagemosaic
            */
-          void uploadZipCoverageFile(const std::string& coverageStoreName, const std::string& coverageZipFilePath, const std::string& extension) const;
+          void uploadZipCoverageFile(const std::string& coverageStoreName,
+                                     const std::string& coverageZipFilePath,
+                                     const std::string& extension) const;
 
           /*!
            * \brief Register an coverage file that is located at the server
@@ -123,7 +135,9 @@ namespace terrama2
            * \param coverageFilePath The full path to the coverage file
            * \param extension Specifies the type of data being uploaded. Supported: geotiff, worldimage(JPEG, PNG, TIFF), imagemosaic
            */
-          void registerCoverageFile(const std::string& coverageStoreName, const std::string& coverageFilePath, const std::string& extension) const;
+          void registerCoverageFile(const std::string& coverageStoreName,
+                                    const std::string& coverageFilePath,
+                                    const std::string& extension) const;
 
           /*!
            * \brief Method to register a style in the GeoServer from a text file
