@@ -43,12 +43,12 @@ TerraMA² {{ i18n.__('User Registration') }}
 {% block content %}
 
 <div ng-controller="{% if (update) %}UserUpdate{% else %}UserRegistration{% endif %}">
-  <terrama2-box title="'{% if (update) %}{{ i18n.__('User Update') }}{% else %}{{ i18n.__('User Registration') }}{% endif %}'">
+  <terrama2-box title="{% if (update) %}i18n.__('User Update'){% else %}i18n.__('User Registration'){% endif %}">
     <div class="row" ng-init="initialization({[ currentUser.id ]}, '{[ redirectUrl ]}');">
       <div class="col-md-12">
         <div class="box box-default box-solid">
           <div class="box-header with-border">
-            <h3 class="box-title">{[ __('General Data') ]}</h3>
+            <h3 class="box-title">{{ i18n.__('General Data') }}</h3>
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
               </button>
@@ -62,9 +62,9 @@ TerraMA² {{ i18n.__('User Registration') }}
                 <div class="col-md-12">
                   <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("Name") }}:</label>
-                    <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{{ __('User Name') }}" type="text" value="{{ user.name }}" required>
+                    <input class="form-control" name="name" ng-model="user.name" id="name" placeholder="{{ i18n.__('User Name') }}" type="text" value="{{ user.name }}" required>
 
-                    <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$invalid">{{ __('Name is required') }}</span>
+                    <span class="help-block has-error" ng-show="form.name.$dirty && form.name.$invalid">{{ i18n.__('Name is required') }}</span>
                   </div>
                 </div>
 
@@ -107,7 +107,7 @@ TerraMA² {{ i18n.__('User Registration') }}
                   <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("E-mail") }}:</label>
                     <input class="form-control" name="email" ng-model="user.email" id="email" placeholder="{{ i18n.__('User e-mail') }}" type="email" value="{[ user.email ]}" required>
-                    <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{{ __('Email is required') }}</span>
+                    <span class="help-block has-error" ng-show="form.email.$dirty && form.email.$error.required">{{ i18n.__('Email is required') }}</span>
                   </div>
                 </div>
 
@@ -131,7 +131,7 @@ TerraMA² {{ i18n.__('User Registration') }}
 
     <div class="box-footer">
       <button type="submit" class="btn btn-primary pull-right" ng-click="save();" style="margin-left: 10px;">{{ i18n.__('OK') }}</button>
-      <a href="{[ redirectUrl ]}" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ __('Cancel') }}</a>
+      <a href="{[ redirectUrl ]}" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
     </div>
   </terrama2-box>
 </div>

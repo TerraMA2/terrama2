@@ -44,12 +44,12 @@
   </div>
 </div>
 <div class="col-md-12" ng-controller="RegistrationController">
-  <terrama2-box title="'{{ i18n.__("Service Registration") }}'">
+  <terrama2-box title="i18n.__('Service Registration')">
     <div class="row">
       <div class="col-md-12">
         <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display" extra="extraProperties"></terrama2-alert-box>
 
-        <terrama2-modal-box ng-show="isCheckingConnection" title="'{{ i18n.__("Connection") }}'" modal-id="'modalConnection'">
+        <terrama2-modal-box ng-show="isCheckingConnection" title="i18n.__('Connection')" modal-id="'modalConnection'">
           <div class="panel-group">
             <div class="panel panel-default" ng-class="{'panel-danger': !ssh.isValid && ssh.message, 'panel-success': ssh.isValid}">
               <div class="panel-heading">
@@ -90,7 +90,7 @@
       </div>
 
       <form name="serviceForm">
-        <terrama2-box title="'{{ i18n.__('Information') }}'" css="css">
+        <terrama2-box title="i18n.__('Information')" css="css">
           <div class="row">
             <div class="col-md-12">
               <div class="col-md-7">
@@ -142,7 +142,7 @@
           </div>
         </terrama2-box>
 
-        <terrama2-box title="'{{ i18n.__('Host') }}'" css="css">
+        <terrama2-box title="i18n.__('Host')" css="css">
           <div class="row">
             <div class="col-md-12" ng-show="!service.isLocal">
               <div class="col-md-6">
@@ -247,7 +247,7 @@
       </form>
       <!-- ./form serviceForm -->
 
-      <terrama2-box title="'{{ i18n.__('Log') }}'" css="css">
+      <terrama2-box title="i18n.__('Log')" css="css">
         <div class="row">
           <form name="logForm">
             <div class="col-md-12">
