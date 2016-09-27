@@ -12,13 +12,12 @@
     "tests"
   ],
   "dependencies": {
-    "AdminLTE": "admin-lte#^2.3.6",
     "jquery": "^2.2.4",
     "angular": ">= 1.5.8",
     "angular-schema-form": "^0.8.13",
     "jquery-ui": "jqueryui#^1.12.1",
     "angular-tree-control": "^0.2.28",
-    "font-awesome": "^4.6.3",
+    "font-awesome": "~4.6.0",
     "jquery.inputmask": "https://github.com/RobinHerbots/Inputmask.git#^3.3.3",
     "moment": "^2.15.1",
     "chart.js": "chartjs#^2.3.0",
