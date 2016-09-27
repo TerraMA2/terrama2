@@ -77,6 +77,20 @@ int main(int argc, char** argv)
     // Registering a folder with shapes in the GeoServer
     geoserver.registerVectorsFolder("ashapesfolder", TERRAMA2_DATA_DIR + "/shapefile", "shp");
 
+    geoserver.deleteVectorFile("ashapesfolder", "35MUE250GC_SIR.shp", true);
+
+    // Publish a table in Postgis with vector data
+    std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
+                                                  {"PG_PORT", TERRAMA2_DATABASE_PORT},
+                                                  {"PG_USER", TERRAMA2_DATABASE_USERNAME},
+                                                  {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
+                                                  {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
+                                                  {"PG_CONNECT_TIMEOUT", "4"},
+                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
+                                                };
+
+    geoserver.registerPostgisTable("ashapepostgis", connInfo, "muni");
+
     // Registering coverages from the same server that GeoServer
     geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/Spot_Vegetacao_Jul2001_SP.tif", "geotiff");
     geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/L5219076_07620040908_r3g2b1.tif", "geotiff");
@@ -96,7 +110,7 @@ int main(int argc, char** argv)
     std::list<std::pair<std::string, std::string>> layersAndStyles;
 
     layersAndStyles.push_back(std::make_pair("aworkspace:Spot_Vegetacao_Jul2001_SP", ""));
-    layersAndStyles.push_back(std::make_pair("aworkspace:35MUE250GC_SIR", "astyle"));
+    layersAndStyles.push_back(std::make_pair("aworkspace:muni", "astyle"));
     layersAndStyles.push_back(std::make_pair("aworkspace:Rod_Principais_SP_lin", ""));
 
     te::gm::Envelope env(-53.11664642808698, -25.31237828099399,
