@@ -64,11 +64,11 @@
 
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
                                                      const Filter& filter)
-    : DataAccessor(dataProvider, dataSeries, filter),
-      DataAccessorGrid(dataProvider, dataSeries, filter),
-      DataAccessorFile(dataProvider, dataSeries, filter)
+  : DataAccessor(dataProvider, dataSeries, filter),
+    DataAccessorGrid(dataProvider, dataSeries, filter),
+    DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if (dataSeries->semantics.code != "GRID-grads")
+  if(dataSeries->semantics.code != "GRID-grads")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -91,7 +91,10 @@ std::string terrama2::core::DataAccessorGrADS::getCtlFilename(DataSetPtr dataSet
   }
 }
 
-std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<FileRemover> remover) const
+std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverPtr dataRetriever,
+                                                            DataSetPtr dataset,
+                                                            const Filter& filter,
+                                                            std::shared_ptr<FileRemover> remover) const
 {
   std::string mask = getCtlFilename(dataset);
   std::string uri = dataRetriever->retrieveData(mask, filter, remover);
@@ -112,7 +115,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
     auto gradsDescriptor = readDataDescriptor(url.path().toStdString()+"/"+file.toStdString());
 
     std::string datasetMask = gradsDescriptor.datasetFilename_;
-    if (gradsDescriptor.datasetFilename_[0] == '^')
+    if(gradsDescriptor.datasetFilename_[0] == '^')
     {
       gradsDescriptor.datasetFilename_.erase(0, 1);
       datasetMask = gradsDescriptor.datasetFilename_;
@@ -120,7 +123,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 
     datasetMask = grad2TerramaMask(datasetMask.c_str()).toStdString();
 
-    dataRetriever->retrieveData(datasetMask, filter, remover);
+    dataRetriever->retrieveData(datasetMask, filter, remover, uri);
   }
 
   return uri;
@@ -145,7 +148,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
   complete->moveLast();
 
   size_t rasterColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
-  if (!isValidColumn(rasterColumn))
+  if(!isValidColumn(rasterColumn))
   {
     QString errMsg = QObject::tr("No raster attribute.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -155,15 +158,15 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
   size_t timestampColumn = te::da::GetFirstPropertyPos(complete.get(), te::dt::DATETIME_TYPE);
 
   dataSet->moveBeforeFirst();
-  while (dataSet->moveNext())
+  while(dataSet->moveNext())
   {
     std::unique_ptr<te::rst::Raster> raster(
-        dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
+      dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
 
     item->setRaster(rasterColumn, raster.release());
-    if (isValidColumn(timestampColumn))
+    if(isValidColumn(timestampColumn))
       item->setDateTime(timestampColumn,
                         fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
 
@@ -205,15 +208,15 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     std::string folder = getFolder(dataSet);
     url = QUrl(QString::fromStdString(uri + "/" + folder));
   }
-  catch (UndefinedTagException&)
+  catch(UndefinedTagException&)
   {
     url = QUrl(QString::fromStdString(uri));
   }
 
   QDir dir(url.path());
   QFileInfoList fileInfoList = dir.entryInfoList(
-      QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-  if (fileInfoList.empty())
+                                 QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+  if(fileInfoList.empty())
   {
     QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -237,7 +240,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   {
     timezone = getTimeZone(dataSet);
   }
-  catch (const terrama2::core::UndefinedTagException& /*e*/)
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
   {
     //if timezone is not defined
     timezone = "UTC+00";
@@ -265,7 +268,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   }
 
   bool first = true;
-  for (const auto& fileInfo : newFileInfoList)
+  for(const auto& fileInfo : newFileInfoList)
   {
     std::string ctlName = fileInfo.fileName().toStdString();
 
@@ -275,7 +278,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     QString ctlMask = getCtlFilename(dataSet).c_str();
 
     // Verify if it is a valid CTL file name
-    if (!isValidDataSetName(ctlMask.toStdString(), filter, timezone, ctlName, ctlFileTimestamp))
+    if(!isValidDataSetName(ctlMask.toStdString(), filter, timezone, ctlName, ctlFileTimestamp))
       continue;
 
     auto gradsDescriptor = readDataDescriptor(fileInfo.absoluteFilePath().toStdString());;
@@ -283,7 +286,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
     // Reads the dataset name from CTL
     std::string datasetMask = gradsDescriptor.datasetFilename_;
-    if (gradsDescriptor.datasetFilename_[0] == '^')
+    if(gradsDescriptor.datasetFilename_[0] == '^')
     {
       gradsDescriptor.datasetFilename_.erase(0, 1);
       datasetMask = gradsDescriptor.datasetFilename_;
@@ -292,14 +295,14 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     datasetMask = grad2TerramaMask(datasetMask.c_str()).toStdString();
 
 
-    for (const auto& dataFileInfo : newFileInfoList)
+    for(const auto& dataFileInfo : newFileInfoList)
     {
       std::string name = dataFileInfo.fileName().toStdString();
       std::string baseName = dataFileInfo.baseName().toStdString();
       std::string extension = dataFileInfo.suffix().toStdString();
 
       // Verify if the file name matches the datasetMask
-      if (!isValidDataSetName(datasetMask, filter, timezone, name, thisFileTimestamp))
+      if(!isValidDataSetName(datasetMask, filter, timezone, name, thisFileTimestamp))
         continue;
 
       boost::replace_last(name, extension, "vrt");
@@ -322,7 +325,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       //RAII for open/closing the datasource
       OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
 
-      if (!datasource->isOpened())
+      if(!datasource->isOpened())
       {
         // Can't throw here, inside loop
         // just log and continue
@@ -339,12 +342,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       std::vector<std::string> dataSetNames = transactor->getDataSetNames();
       auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
       auto itFileName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), name);
-      if (itBaseName != dataSetNames.cend())
+      if(itBaseName != dataSetNames.cend())
         dataSetName = baseName;
-      else if (itFileName != dataSetNames.cend())
+      else if(itFileName != dataSetNames.cend())
         dataSetName = name;
       //No valid dataset name found
-      if (dataSetName.empty())
+      if(dataSetName.empty())
         continue;
 
       std::shared_ptr<te::da::DataSet> teDataSet(transactor->getDataSet(dataSetName));
@@ -363,7 +366,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       }
 
 
-      if (first)
+      if(first)
       {
         //read and adapt all te:da::DataSet from terrama2::core::DataSet
         converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
@@ -383,13 +386,13 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
 
 
-      if (!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
-          lastFileTimestamp = thisFileTimestamp;
+      if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
+        lastFileTimestamp = thisFileTimestamp;
 
     }
   }
 
-  if (!completeDataset.get() || completeDataset->isEmpty())
+  if(!completeDataset.get() || completeDataset->isEmpty())
   {
     QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_WARNING() << errMsg;
@@ -404,17 +407,17 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
 
   //if both dates are valid
-  if ((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
       && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
   {
     (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
-  else if (lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
   {
     //if only fileTimestamp is valid
     (*lastDateTime_) = *lastFileTimestamp;
   }
-  else if (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time())
   {
     //if only dataTimeStamp is valid
     (*lastDateTime_) = *dataTimeStamp;
@@ -437,16 +440,16 @@ void terrama2::core::GrADSDataDescriptor::addVar(const std::string& strVar)
   Var* var = new Var;
   QStringList tokens = QString::fromStdString(strVar).split(" ");
 
-  if (tokens.size() >= 4)
+  if(tokens.size() >= 4)
   {
     var->varName_ = tokens[0].toStdString();
     var->verticalLevels_ = tokens[1].toInt();
     var->units_ = tokens[2].toStdString();
 
     // Description may have spaces, need to concatenate all pieces
-    for (int i = 3; i < tokens.size(); ++i)
+    for(int i = 3; i < tokens.size(); ++i)
     {
-      if (!var->description_.empty())
+      if(!var->description_.empty())
         var->description_ += " ";
       var->description_ += tokens[i].toStdString();
     }
@@ -465,58 +468,58 @@ void terrama2::core::GrADSDataDescriptor::addVar(const std::string& strVar)
 void terrama2::core::GrADSDataDescriptor::setKeyValue(const std::string& key, const std::string& value)
 {
   bool found = false;
-  if (key == "DSET")
+  if(key == "DSET")
   {
     datasetFilename_ = value;
     found = true;
   }
-  else if (key == "TITLE")
+  else if(key == "TITLE")
   {
     title_ = value;
     found = true;
   }
-  else if (key == "UNDEF")
+  else if(key == "UNDEF")
   {
     undef_ = std::atof(value.c_str());
     found = true;
   }
-  else if (key == "OPTIONS" || key == "*OPTIONS")
+  else if(key == "OPTIONS" || key == "*OPTIONS")
   {
     QStringList tokens = QString::fromStdString(value).split(" ");
-    for (QString token : tokens)
+    for(QString token : tokens)
     {
       vecOptions_.push_back(token.toUpper().toStdString());
     }
 
     found = true;
   }
-  else if (key == "XDEF")
+  else if(key == "XDEF")
   {
     xDef_ = getValueDef(value, "X");
-    if (xDef_ != nullptr)
+    if(xDef_ != nullptr)
       found = true;
   }
-  else if (key == "YDEF")
+  else if(key == "YDEF")
   {
     yDef_ = getValueDef(value, "Y");
-    if (yDef_ != nullptr)
+    if(yDef_ != nullptr)
       found = true;
   }
-  else if (key == "ZDEF")
+  else if(key == "ZDEF")
   {
     zDef_ = getValueDef(value, "Z");
-    if (zDef_ != nullptr)
+    if(zDef_ != nullptr)
       found = true;
   }
-  else if (key == "TDEF")
+  else if(key == "TDEF")
   {
     tDef_ = getTValueDef(value);
-    if (tDef_ != nullptr)
+    if(tDef_ != nullptr)
       found = true;
   }
   //TODO: Implement rest of the parameters
 
-  if (!found)
+  if(!found)
   {
     QString errMsg = QObject::tr("Could not find a valid tag for the given key: %1").arg(key.c_str());
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -530,7 +533,7 @@ terrama2::core::GrADSDataDescriptor::getTValueDef(const std::string& value)
   TValueDef* valueDef = new TValueDef;
 
   QStringList tokens = QString::fromStdString(value).split(" ");
-  if (tokens.size() < 3)
+  if(tokens.size() < 3)
   {
     delete valueDef;
     QString errMsg = QObject::tr("Wrong number of fields in TDEF configuration, expected at least 3");
@@ -539,9 +542,9 @@ terrama2::core::GrADSDataDescriptor::getTValueDef(const std::string& value)
   }
 
   valueDef->numValues_ = tokens[0].toInt();
-  if (tokens[1].toUpper() == "LINEAR")
+  if(tokens[1].toUpper() == "LINEAR")
     valueDef->dimensionType_ = LINEAR;
-  else if (tokens[1].toUpper() == "LEVELS")
+  else if(tokens[1].toUpper() == "LEVELS")
     valueDef->dimensionType_ = LEVELS;
   else
   {
@@ -551,7 +554,7 @@ terrama2::core::GrADSDataDescriptor::getTValueDef(const std::string& value)
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  for (int i = 2; i < tokens.size(); ++i)
+  for(int i = 2; i < tokens.size(); ++i)
   {
     valueDef->values_.push_back(tokens[i].toStdString());
   }
@@ -565,30 +568,30 @@ terrama2::core::GrADSDataDescriptor::getValueDef(const std::string& value, const
   ValueDef* valueDef = new ValueDef;
 
   QStringList tokens = QString::fromStdString(value).split(" ");
-  if (tokens.size() < 3)
+  if(tokens.size() < 3)
   {
     delete valueDef;
     QString errMsg = QObject::tr("Wrong number of fields in %1DEF configuration, expected at least 3").arg(
-        dimension.c_str());
+                       dimension.c_str());
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
   valueDef->numValues_ = tokens[0].toInt();
   std::string token = tokens[1].toUpper().toStdString();
-  if (token == "LINEAR")
+  if(token == "LINEAR")
     valueDef->dimensionType_ = LINEAR;
-  else if (token == "LEVELS")
+  else if(token == "LEVELS")
     valueDef->dimensionType_ = LEVELS;
-  else if (token == "GAUST62" && dimension == "Y")
+  else if(token == "GAUST62" && dimension == "Y")
     valueDef->dimensionType_ = GAUST62;
-  else if (token == "GAUSR15" && dimension == "Y")
+  else if(token == "GAUSR15" && dimension == "Y")
     valueDef->dimensionType_ = GAUSR15;
-  else if (token == "GAUSR20" && dimension == "Y")
+  else if(token == "GAUSR20" && dimension == "Y")
     valueDef->dimensionType_ = GAUSR20;
-  else if (token == "GAUSR30" && dimension == "Y")
+  else if(token == "GAUSR30" && dimension == "Y")
     valueDef->dimensionType_ = GAUSR30;
-  else if (token == "GAUSR40" && dimension == "Y")
+  else if(token == "GAUSR40" && dimension == "Y")
     valueDef->dimensionType_ = GAUSR40;
   else
   {
@@ -598,7 +601,7 @@ terrama2::core::GrADSDataDescriptor::getValueDef(const std::string& value, const
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  for (int i = 2; i < tokens.size(); ++i)
+  for(int i = 2; i < tokens.size(); ++i)
   {
     valueDef->values_.push_back(tokens[i].toFloat());
   }
@@ -608,39 +611,39 @@ terrama2::core::GrADSDataDescriptor::getValueDef(const std::string& value, const
 
 terrama2::core::GrADSDataDescriptor& terrama2::core::GrADSDataDescriptor::operator=(const GrADSDataDescriptor& rhs)
 {
-  if (this == &rhs)
+  if(this == &rhs)
     return *this;
 
   // Delete pointers from own copy
-  for (size_t i = 0; i < vecCHSUB_.size(); ++i)
+  for(size_t i = 0; i < vecCHSUB_.size(); ++i)
     delete vecCHSUB_[i];
   vecCHSUB_.clear();
 
-  if (xDef_ != nullptr)
+  if(xDef_ != nullptr)
   {
     delete xDef_;
     xDef_ = nullptr;
   }
 
-  if (yDef_ != nullptr)
+  if(yDef_ != nullptr)
   {
     delete yDef_;
     yDef_ = nullptr;
   }
 
-  if (zDef_ != nullptr)
+  if(zDef_ != nullptr)
   {
     delete zDef_;
     zDef_ = nullptr;
   }
 
-  if (tDef_ != nullptr)
+  if(tDef_ != nullptr)
   {
     delete tDef_;
     zDef_ = nullptr;
   }
 
-  for (size_t i = 0; i < vecVars_.size(); ++i)
+  for(size_t i = 0; i < vecVars_.size(); ++i)
     delete vecVars_[i];
   vecVars_.clear();
 
@@ -652,22 +655,22 @@ terrama2::core::GrADSDataDescriptor& terrama2::core::GrADSDataDescriptor::operat
   fileHeaderLength_ = rhs.fileHeaderLength_;
   srid_ = rhs.srid_;
 
-  for (size_t i = 0; i < rhs.vecCHSUB_.size(); ++i)
+  for(size_t i = 0; i < rhs.vecCHSUB_.size(); ++i)
     vecCHSUB_.push_back(new CHSUB(*rhs.vecCHSUB_[i]));
 
-  if (rhs.xDef_ != nullptr)
+  if(rhs.xDef_ != nullptr)
     xDef_ = new ValueDef(*rhs.xDef_);
 
-  if (rhs.yDef_ != nullptr)
+  if(rhs.yDef_ != nullptr)
     yDef_ = new ValueDef(*rhs.yDef_);
 
-  if (rhs.zDef_ != nullptr)
+  if(rhs.zDef_ != nullptr)
     zDef_ = new ValueDef(*rhs.zDef_);
 
-  if (rhs.tDef_ != nullptr)
+  if(rhs.tDef_ != nullptr)
     tDef_ = new TValueDef(*rhs.tDef_);
 
-  for (size_t i = 0; i < rhs.vecVars_.size(); ++i)
+  for(size_t i = 0; i < rhs.vecVars_.size(); ++i)
     vecVars_.push_back(new Var(*rhs.vecVars_[i]));
 
   return *this;
@@ -682,53 +685,53 @@ terrama2::core::GrADSDataDescriptor::GrADSDataDescriptor(const GrADSDataDescript
   fileHeaderLength_ = rhs.fileHeaderLength_;
   srid_ = rhs.srid_;
 
-  for (size_t i = 0; i < rhs.vecCHSUB_.size(); ++i)
+  for(size_t i = 0; i < rhs.vecCHSUB_.size(); ++i)
     vecCHSUB_.push_back(new CHSUB(*rhs.vecCHSUB_[i]));
 
-  if (rhs.xDef_ != nullptr)
+  if(rhs.xDef_ != nullptr)
     xDef_ = new ValueDef(*rhs.xDef_);
 
-  if (rhs.yDef_ != nullptr)
+  if(rhs.yDef_ != nullptr)
     yDef_ = new ValueDef(*rhs.yDef_);
 
-  if (rhs.zDef_ != nullptr)
+  if(rhs.zDef_ != nullptr)
     zDef_ = new ValueDef(*rhs.zDef_);
 
-  if (rhs.tDef_ != nullptr)
+  if(rhs.tDef_ != nullptr)
     tDef_ = new TValueDef(*rhs.tDef_);
 
-  for (size_t i = 0; i < rhs.vecVars_.size(); ++i)
+  for(size_t i = 0; i < rhs.vecVars_.size(); ++i)
     vecVars_.push_back(new Var(*rhs.vecVars_[i]));
 }
 
 terrama2::core::GrADSDataDescriptor::~GrADSDataDescriptor()
 {
-  for (size_t i = 0; i < vecCHSUB_.size(); ++i)
+  for(size_t i = 0; i < vecCHSUB_.size(); ++i)
     delete vecCHSUB_[i];
 
-  if (xDef_ != nullptr)
+  if(xDef_ != nullptr)
     delete xDef_;
 
-  if (yDef_ != nullptr)
+  if(yDef_ != nullptr)
     delete yDef_;
 
-  if (zDef_ != nullptr)
+  if(zDef_ != nullptr)
     delete zDef_;
 
-  if (tDef_ != nullptr)
+  if(tDef_ != nullptr)
     delete tDef_;
 
-  for (size_t i = 0; i < vecVars_.size(); ++i)
+  for(size_t i = 0; i < vecVars_.size(); ++i)
     delete vecVars_[i];
 }
 
 terrama2::core::GrADSDataDescriptor::GrADSDataDescriptor() : undef_(0.),
-                                                             fileHeaderLength_(0),
-                                                             xDef_(nullptr),
-                                                             yDef_(nullptr),
-                                                             zDef_(nullptr),
-                                                             tDef_(nullptr),
-                                                             srid_(0)
+  fileHeaderLength_(0),
+  xDef_(nullptr),
+  yDef_(nullptr),
+  zDef_(nullptr),
+  tDef_(nullptr),
+  srid_(0)
 {
 }
 
@@ -740,7 +743,7 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
 
   // Opens the CTL file
   QFile file(filename.c_str());
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+  if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     QString errMsg = QObject::tr("Could not read ctl file.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -759,20 +762,20 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
 
   std::string line;
   QTextStream in(&file);
-  while (!in.atEnd())
+  while(!in.atEnd())
   {
-    switch (state)
+    switch(state)
     {
       case FindSection:
       {
         line = trim(in.readLine().toStdString());
-        if (line.empty())
+        if(line.empty())
           continue;
 
         std::string key(line);
         std::string value;
         std::size_t found = line.find(" ");
-        if (found != std::string::npos)
+        if(found != std::string::npos)
         {
           key = line.substr(0, found);
           value = line.substr(found + 1);
@@ -780,12 +783,12 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
 
         boost::to_upper(key);
 
-        if (key == "VARS")
+        if(key == "VARS")
         {
           section = "VARS";
           state = FindVar;
         }
-        else if (key == "ENDVARS")
+        else if(key == "ENDVARS")
         {
           section = "";
           state = FindSection;
@@ -800,7 +803,7 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
       }
       case FindKey:
       {
-        if (line.empty())
+        if(line.empty())
         {
           state = FindSection;
           continue;
@@ -809,7 +812,7 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
         std::string key(line);
         std::string value;
         std::size_t found = line.find(" ");
-        if (found != std::string::npos)
+        if(found != std::string::npos)
         {
           key = line.substr(0, found);
           value = line.substr(found + 1);
@@ -825,10 +828,10 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
       {
         line = trim(in.readLine().toStdString());
 
-        if (line.empty())
+        if(line.empty())
           continue;
 
-        if (line == "ENDVARS")
+        if(line == "ENDVARS")
         {
           state = FindSection;
           continue;
@@ -851,7 +854,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
   std::ofstream vrtfile;
   vrtfile.open(vrtFilename);
 
-  if (!vrtfile.is_open())
+  if(!vrtfile.is_open())
   {
     QString errMsg = QObject::tr("Could not open VRT file.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -884,7 +887,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     if(isYReverse)
     {
       /// Uses a transformation to flip the image
-      if ((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
+      if((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
       {
         vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
                 << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] << ",0,"
@@ -981,7 +984,7 @@ std::string terrama2::core::trim(const std::string& value)
   std::string str = value;
   str.erase(std::unique(str.begin(), str.end(),
                         [](char a, char b)
-                        { return a == ' ' && b == ' '; }), str.end());
+  { return a == ' ' && b == ' '; }), str.end());
 
   return QString::fromStdString(str).trimmed().toStdString();
 }
