@@ -11,15 +11,36 @@
 
 #show-menu{
   display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
+#show-menu a {
+  text-decoration: none;
+}
+
+.full_screen .content-wrapper {
+  margin: 0;
+}
 .full_screen #show-menu{
   display: block;
   position: fixed;
   margin: 0;
-  width: 50px;
+  width: 42px;
   height: 50px;
-  border: 3px solid #73AD21;
+  background-color: transparent;
+  color: white;
+  z-index: 99998;
+  
+}
+
+.full_screen #show-menu .sidebar-toggle {
+  color: #000;
+}
+
+.full_screen .main-sidebar {
+  display: none;
 }
 
 .full_screen #nav{
@@ -36,7 +57,7 @@
   -o-transition: transform .35s;
 }
 
-.full_screen #hea{
+.full_screen #terrama-header{
   position: absolute;
   width: 100%;
   transform: translate(0px, -50px);
@@ -45,7 +66,7 @@
   -o-transform: translate(0px, -50px);
 }
 
-#hea{
+#terrama-header{
   transition: transform .35s;
   -webkit-transition: transform .35s;
   -moz-transition: transform .35s;
@@ -68,15 +89,67 @@
   position: absolute;
   min-height: 50px;
 }
-
 .full_screen .main-footer {
-  display: none;
+  margin: 0;
 }
-
 .full_screen .navbar{
   transition: max-height 0.5s, overflow 0s;
 }
 
 #mma {
   max-width: 70px;
+}
+
+#mini-toggle {
+  position: absolute;
+  bottom: 0;
+  color: white;
+  z-index: 1;
+  text-align: center;
+  width: 100%;
+  height: 50px;
+  padding-top: 16px;
+  background-color: #1e282c;
+}
+
+.sidebar-collapse #mini-toggle span {
+  transform: rotate(180deg)
+}
+
+#show-menu .sidebar-toggle {
+  float: left;
+  background-color: transparent;
+  background-image: none;
+  padding: 15px 15px;
+  font-family: fontAwesome;
+  color: #333;
+}
+#show-menu .sidebar-toggle:before {
+  content: "\f0c9";
+}
+#show-menu .sidebar-toggle:focus,
+#show-menu .sidebar-toggle:active {
+  background: transparent;
+}
+#show-menu .sidebar-toggle .icon-bar {
+  display: none;
+}
+
+.footer-monitor {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 8px;
+  background-color: #808080;
+  border-top: solid 4px black; 
+  z-index: 99999;
+}
+
+.main-footer {
+  display: none !important;
+}
+
+#content {
+  height: inherit;
+  padding: 0;
 }

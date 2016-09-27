@@ -2,7 +2,7 @@
   "default": {
     "port": 36000,
     "db": {
-      "username": "postgres",
+      "username": "francisco",
       "password": "postgres",
       "database": "nodejs",
       "host": "127.0.0.1",
