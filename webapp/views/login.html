@@ -10,12 +10,14 @@
         <title>TerraMA² - {[ __('Login') ]}</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-        <!-- Bootstrap 3.3.5 -->
-        <link rel="stylesheet" href="/externals/bootstrap/css/bootstrap.min.css">
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="/bower_components/AdminLTE/bootstrap/css/bootstrap.min.css">
         <!-- Font Awesome -->
-        <link rel="stylesheet" href="/externals/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.min.css">
         <!-- Theme style -->
-        <link rel="stylesheet" href="/externals/admin-lte/css/AdminLTE.min.css">
+        <link rel="stylesheet" href="/bower_components/AdminLTE/dist/css/AdminLTE.min.css">
+        <!-- Template Skin -->
+        <link rel="stylesheet" href="/bower_components/AdminLTE/dist/css/skins/skin-blue.min.css">
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--     WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -54,7 +56,7 @@
                             </div>
                         </div><!-- /.col -->
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary btn-block btn-flat">{[ __('Sign In') ]}</button>
+                            <button type="submit" name="btnLogin" class="btn btn-primary btn-block btn-flat">{[ __('Sign In') ]}</button>
                         </div><!-- /.col -->
                     </div>
                 </form>
@@ -63,8 +65,8 @@
         </div><!-- /.login-box -->
 
         <!-- jQuery 2.1.4 -->
-        <script src="/externals/jQuery/jQuery-2.1.4.min.js"></script>
+        <script src="/bower_components/jquery/dist/jquery.min.js"></script>
         <!-- Bootstrap 3.3.5 -->
-        <script src="/externals/bootstrap/js/bootstrap.min.js"></script>
+        <script src="/bower_components/AdminLTE/bootstrap/js/bootstrap.min.js"></script>
     </body>
 </html>

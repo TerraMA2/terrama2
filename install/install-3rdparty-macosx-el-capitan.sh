@@ -122,6 +122,22 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip5.dylib" ]; then
 fi
 
 #
+# NodeJS 4.5.0
+#
+nodejs --version
+if [ $? -eq 0 ]; then
+  echo "Installing NodeJS..."
+  echo ""
+  sleep 1s
+
+  curl -O https://nodejs.org/dist/v4.5.0/node-v4.5.0.pkg &> /dev/null
+  valid $? "Error: could not download nodejs 4.5.0!"
+
+  sudo installer -pkg node-v4.5.0.pkg -target /
+  valid $? "Error: could not install node-v4.5.0.pkg"
+fi
+
+#
 # Finished!
 #
 clear

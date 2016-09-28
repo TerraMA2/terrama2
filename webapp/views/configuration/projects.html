@@ -1,34 +1,33 @@
 {% extends "../base/layout.html" %}
 
+{% set tabActive = "projects" %}
+
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="/externals/bootstrap/css/bootstrap-datetimepicker.css">
+<link rel="stylesheet" type="text/css" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 {% endblock %}
 
 {% block ngApp %} ng-app="terrama2.projects" {% endblock %}
 
-{% block title %} TerraMA² {[ __('Projects') ]} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Projects') }} {% endblock %}
 
 {% block javascripts %}
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-</script>
-<script src="/externals/angular/angular.min.js"></script>
-<script src="/externals/angular/i18n-angular.min.js"></script>
-<script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript">
   angular.module("terrama2.projects", ['terrama2', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.services'])
-    .controller("ProjectController", function($scope, $http, Socket, FileDialog, SaveAs, $log) {
+    .controller("ProjectController", function($scope, $http, Socket, FileDialog, SaveAs, $log, i18n) {
       $scope.model = [];
       $log.warn("initializing");
       var socket = Socket;
+      $scope.i18n = i18n;
       $scope.linkToAdd = "/configuration/projects/new";
       $scope.fields = [
-        {key: "name", as: "Name"},
-        {key: "description", as: "Description"}
+        {key: "name", as: i18n.__("Name")},
+        {key: "description", as: i18n.__("Description")}
       ];
 
       $scope.remove = function(object) {
@@ -45,7 +44,7 @@
       // alert-box
       $scope.alertLevel = "alert-success";
       $scope.alertBox = {
-        title: "{[ context ]}" || "Project",
+        title: i18n.__("{[ context ]}" || "Project"),
         message: "{[ message ]}"
       };
       $scope.resetState = function() { $scope.display = false; };
@@ -75,7 +74,7 @@
         }
         $scope.alertLevel = "alert-success";
 
-        var msg = result.data.Projects.length + " projects has been imported. ";
+        var msg = result.data.Projects.length + i18n.__(" projects has been imported. ");
         var canPush = [];
 
         for(var i = 0; i < result.data.Projects.length; ++i) {
@@ -121,7 +120,6 @@
 
         export: function(element) {
           if (!element) {
-            console.log("no element selected");
             return;
           }
           $scope.extra.isExporting = true;
@@ -129,7 +127,7 @@
         },
 
         import: function() {
-          $scope.alertBox.title = "Data Import";
+          $scope.alertBox.title = i18n.__("Data Import");
           $scope.display = false;
           $scope.extra.isImporting = false;
 
@@ -191,7 +189,7 @@
 
 {% block content %}
 <div ng-controller="ProjectController">
-  <terrama2-box title="'{[ __('Projects') ]}'">
+  <terrama2-box title="i18n.__('Projects')">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
@@ -203,12 +201,6 @@
       <!-- ./col-md-12 -->
     </div>
     <!-- ./row -->
-
-    <!--<terrama2-overlay>
-      <div class="overlay" ng-show="loading">
-        <i class="fa fa-refresh fa-spin"></i>
-      </div>
-    </terrama2-overlay>-->
   </terrama2-box>
 </div>
 

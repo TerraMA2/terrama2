@@ -36,6 +36,10 @@ terrama2Application.config(["$provide", function($provide) {
   ]);
 }]);
 
+terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function($scope, i18n) {
+  $scope.i18n = i18n;
+}])/
+
 // setting caches
 terrama2Application.run(function($templateCache) {
   // TerraMA2 Box
