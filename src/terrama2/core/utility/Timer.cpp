@@ -108,7 +108,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
     }
     else // The timer has a time to start
     {
-      double secondsSinceLastProcess = 0;
+      double secondsSinceLastProcess = 0.0;
 
       if(impl_->lastEmit_)
       {
@@ -133,18 +133,12 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
         auto startDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
 
-        if(startDate->getTimeInstantTZ().local_time().time_of_day() < nowTZ->getTimeInstantTZ().local_time().time_of_day())
+        if(*startDate < *nowTZ)
         {
-          auto now = nowTZ->getTimeInstantTZ().utc_time().time_of_day();
-          auto startTime = startDate->getTimeInstantTZ().utc_time().time_of_day();
+          // If the time to start has already passed, set the start time to tomorrow
+          terrama2::core::TimeUtils::addDay(startDate, 1);
 
-          while(startTime < now)
-          {
-            startTime += boost::posix_time::seconds(timerSeconds);
-          }
-
-          auto td = (startTime - now);
-          secondsToStart = td.total_seconds();
+          secondsToStart = *startDate - *nowTZ;
         }
         else
         {
