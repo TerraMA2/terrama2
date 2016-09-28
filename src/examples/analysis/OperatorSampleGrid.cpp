@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     outputDataSet->active = true;
     outputDataSet->format.emplace("mask", "output_grid.tif");
-
+    outputDataSet->dataSeriesId = outputDataSeries->id;
     outputDataSeries->datasetList.emplace_back(outputDataSet);
 
     dataManager->add(outputDataSeriesPtr);
@@ -130,6 +130,7 @@ int main(int argc, char* argv[])
 
     Analysis* analysis = new Analysis;
     AnalysisPtr analysisPtr(analysis);
+
 
     analysis->id = 1;
     analysis->name = "Grid Sample";

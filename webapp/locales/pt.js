@@ -134,7 +134,6 @@
 	"Log username": "Log username",
 	"User is required": "User is required",
 	"Log password": "Log password",
-	"Analysis": "Analysis",
 	"Views": "Views",
 	"Connection": "Connection",
 	"Host connection": "Host connection",
@@ -189,5 +188,6 @@
 	"Confirm password is required": "Confirm password is required",
 	"Confirm password must be same password": "Confirm password must be same password",
 	"Email is required": "Email is required",
-	"Alert Registration": "Alert Registration"
+	"Alert Registration": "Alert Registration",
+	"Reprocessing Historical Data": "Reprocessing Historical Data"
 }

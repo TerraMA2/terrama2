@@ -11,6 +11,16 @@ var Signals = require('./Signals');
 var Promise = require("bluebird");
 var util = require('util');
 var isEqual = require('lodash').isEqual;
+/**
+ * Encrypt/Decrypt module
+ * @type {bcrypt}
+ */
+var bcrypt = require("bcrypt");
+/**
+ * TerraMA² URI Builder.
+ * @type {URIBuilder}
+ */
+var URIBuilder = require("./../core/UriBuilder");
 
 // nodejs
 var glob = require('glob');
@@ -527,6 +537,103 @@ var Utils = {
   },
 
   /**
+   * It performs a text encrypt following a pattern and hash code
+   * 
+   * @param {string} text - A text to encrypt
+   * @param {string} pattern - A crypto pattern hash
+   * @param {string} code - A crypto epassword
+   * @returns {string} 
+   */
+  encrypt: function(text, pattern, code) {
+    if (!pattern) {
+      pattern = 'aes-256-cbc';
+    }
+
+    if (!code) {
+      code = 'd6F3Efeq';
+    }
+
+    var cipher = crypto.createCipher(pattern, code);
+    var crypted = cipher.update(text, 'utf8', 'hex');
+    crypted += cipher.final('hex');
+    return crypted;
+  },
+
+  decrypt: function() {
+    if (!pattern) {
+      pattern = 'aes-256-cbc';
+    }
+
+    if (!code) {
+      code = 'd6F3Efeq';
+    }
+    var decipher = crypto.createDecipher(pattern, code);
+    var dec = decipher.update(text, 'hex', 'utf8');
+    dec += decipher.final('utf8');
+    return dec;
+  },
+  /**
+   * It generates a crypted URI
+   * 
+   * @param {string} uri - An URI to encrypt
+   * @param {Object?} syntax - An URI syntax. Default is Enums.Uri
+   * @param {string} salt - A salt to create encrypted URI
+   * @returns {string}
+   */
+  encryptURI: function(uri, syntax, salt) {
+
+    // Setting default syntax
+    if (!syntax) {
+      syntax = Enums.Uri;
+    }
+
+    if (Utils.isString(uri)) {
+      /**
+       * It will stores a URI Object syntax
+       * @type {Object}
+       */
+      var uriObject = URIBuilder.buildObject(uri, syntax);
+      /**
+       * URI user encrypted
+       * @type {string}
+       */
+      var user = bcrypt.hashSync(uriObject[syntax.USER], salt);
+      var passwd = bcrypt.hashSync(uriObject[syntax.PASSWORD], salt);
+
+      uriObject[syntax.USER] = user;
+      uriObject[syntax.PASSWORD] = passwd;
+
+      // returns a built uri string
+      return URIBuilder.buildUri(uriObject, syntax);
+    }
+
+    throw new Error("Invalid URI to encrypt");
+  },
+
+  /**
+   * It generates a Salt value 
+   * @param {number} rounds - It represents the cost of processing the data. Default 10.
+   * @returns {string}
+   */
+  generateSalt: function(rounds) {
+    if (!this.isNumber(rounds)) {
+      rounds = 10;
+    }
+    return bcrypt.genSaltSync(rounds);
+  },
+
+  /**
+   * It compares URI encrypted with another URI
+   * 
+   * @param {string} uri - An URI to encrypt
+   * @param {string} encryptedURI - An encrypted URI
+   * @returns {Boolean}
+   */
+  compareURI: function(uri, encryptedURI) {
+    return bcrypt.compareSync(uri, encryptedURI);
+  },
+
+  /**
    * It compares two objects if they are same (including attributes).
    * 
    * @param {Object} origin
@@ -545,6 +652,16 @@ var Utils = {
    */
   isObject: function(arg) {
     return arg === Object(arg);
+  },
+
+  /**
+   * It checks if a argument is a number and a finite number.
+   * 
+   * @param {?} arg - A value
+   * @returns {Boolean}
+   */
+  isNumber: function(arg) {
+    return _.isFinite(arg);
   },
 
   /**

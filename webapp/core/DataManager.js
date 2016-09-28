@@ -2147,7 +2147,15 @@ var DataManager = {
     });
   },
 
-  listCollectors: function(restriction, projectId) {
+  /**
+   * It retrieves all collectors from database
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Array<Object>>} 
+   */
+  listCollectors: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var dataProviderRestriction = {};
@@ -2156,7 +2164,7 @@ var DataManager = {
         delete restriction.DataProvider;
       }
 
-      models.db.Collector.findAll({
+      return models.db.Collector.findAll({
         where: restriction,
         include: [
           models.db.Schedule,
@@ -2178,7 +2186,9 @@ var DataManager = {
             }
           }
         ]
-      }).then(function(collectorsResult) {
+      })
+      
+      .then(function(collectorsResult) {
         var output = [];
 
         var promises = [];
@@ -2186,7 +2196,7 @@ var DataManager = {
           promises.push(self.getDataSeries({id: collector.data_series_output}));
         });
 
-        Promise.all(promises).then(function(dataSeriesArray) {
+        return Promise.all(promises).then(function(dataSeriesArray) {
           dataSeriesArray.forEach(function(dataSeries) {
             collectorsResult.some(function(collector) {
               if (collector.data_series_output === dataSeries.id) {
@@ -2199,14 +2209,14 @@ var DataManager = {
             });
           });
 
-          resolve(output);
+          return resolve(output);
         }).catch(function(err) {
           console.log(err);
-          reject(new exceptions.CollectorError("Could not retrieve collector data series output: " + err.toString()));
+          return reject(new exceptions.CollectorError("Could not retrieve collector data series output: " + err.toString()));
         });
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
+        return reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
       });
     });
   },
@@ -3060,6 +3070,86 @@ var DataManager = {
         console.log(err);
         return reject(err);
       });
+    });
+  },
+
+  /**
+   * It retrieves a list of views in database
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.View[]>}
+   */
+  listViews: function(restriction, options) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      self.models.db.View.findAll(Utils.extend({
+        where: restriction
+      }, options))
+        .then(function(views) {
+          return resolve(views.map(function(view) {
+            return new DataModel.View(view.get());
+          }));
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not list views " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs a save view in database
+   * 
+   * @param {Object} viewObject - A view object value to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.View>}
+   */
+  addView: function(viewObject, options) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      self.models.db.View.create(viewObject, options)
+        .then(function(view) {
+          return resolve(new DataModel.View(view.get()));
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not create view " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It performs update views from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} viewObject - A view object values to update
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.View[]>}
+   */
+  updateView: function(restriction, viewObject, options) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+      self.models.db.View.update(
+        viewObject,
+        Utils.extend({
+          fields: ["name", "description", "serverURI", "layerURI", "script"],
+          where: restriction
+        }, options))
+
+        .then(function(view) {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error("Could not update view " + err.toString()));
+        });
     });
   }
 };

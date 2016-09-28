@@ -42,7 +42,7 @@ function buildUri(uriObjectGiven, uriSyntax) {
  * 
  * @param {Object} uriString - A javascript object with uri values
  * @param {Object} uriSyntax - A javascript object with URI syntax
- * @return {string} An URI representation
+ * @return {Object} An URI representation
  */
 function buildObject(uriString, uriSyntax) {
   var uriObject = URL.parse(uriString);

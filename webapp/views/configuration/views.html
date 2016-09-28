@@ -13,23 +13,10 @@
 <script>
   angular.module('terrama2.mapDisplay', ['terrama2.table'])
     .controller("ListController", ['$scope', function($scope) {
-      $scope.model = [
-        {
-          title: "Map1",
-          description: "Lorem ipsum"
-        },
-        {
-          title: "Map generated2",
-          description: "Lorem ipsum"
-        },
-        {
-          title: "Map 3",
-          description: "Lorem ipsum22"
-        }
-      ];
+      $scope.model = [];
 
       $scope.fields = ['title', 'description'];
-      $scope.linkToAdd = "";
+      $scope.linkToAdd = "";//"/configuration/views/new";
       $scope.link = function(object) {
         return "";
       };

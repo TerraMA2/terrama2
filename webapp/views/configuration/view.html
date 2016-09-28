@@ -1,0 +1,88 @@
+{% extends "../base/layout.html" %}
+
+{% set tabActive = "views" %}
+
+{% block ngApp %} ng-app="terrama2.views" {% endblock %}
+
+{% block title %} TerraMA² {{ i18n.__('View Registration') }} {% endblock %}
+
+{% block javascripts %}
+
+<script type="text/javascript" src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script type="text/javascript" src="/bower_components/tv4/tv4.js"></script>
+<script type="text/javascript" src="/bower_components/objectpath/lib/ObjectPath.js"></script>
+<script type="text/javascript" src="/bower_components/angular-schema-form/dist/schema-form.js"></script>
+<script type="text/javascript" src="/bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
+
+<script src="/javascripts/angular/services.js"></script>
+<script src="/javascripts/angular/views/services.js"></script>
+<script src="/javascripts/angular/views/controllers.js"></script>
+<script src="/javascripts/angular/views/app.js"></script>
+
+{% endblock %}
+
+{% block content %}
+
+<div ng-controller="ViewRegistration as ctrl">
+  <terrama2-box title="i18n.__('View Registration')">
+    <div class="col-md-12">
+      <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
+    </div>
+    <terrama2-box title="i18n.__('General Data')" css="ctrl.css">
+      <form name="forms.viewForm">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-md-12">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Name')">:</span></label>
+                <input class="form-control" 
+                       name="name" 
+                       ng-model="ctrl.view.name" 
+                       placeholder="{{ i18n.__('View Name') }}" type="text" required>
+
+                <span class="help-block" 
+                      ng-show="forms.viewForm.name.$dirty && forms.viewForm.name.$invalid" 
+                      ng-class="{'has-error': viewForm.name.$invalid}">
+                      {{ i18n.__('View name is required') }}
+                </span>
+              </div>
+            </div> <!-- ./col-md-8 -->
+          </div><!-- ./col-md-12 -->
+          <div class="col-md-12">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label><span ng-bind="i18n.__('Description')"></span>:</label>
+                <textarea class="form-control" 
+                          ng-model="dataProvider.description" 
+                          rows="3" 
+                          placeholder="{{ i18n.__('Data Server Description') }}"></textarea>
+              </div>
+              <!-- /.form-group -->
+            </div>
+          </div>
+        </div>
+      </form>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Parameters')" css="ctrl.css">
+      <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model"></form>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Script')" css="ctrl.css">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label><span ng-bind="i18n.__('Style')"></span>:</label>
+          <textarea name="script" class="form-control" rows="10" ng-model="ctrl.view.script" required>
+          </textarea>
+        </div>
+      </div>
+    </terrama2-box>
+  </terrama2-box>
+
+  <div class="box-footer">
+    <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="ctrl.save();">{{ i18n.__('OK') }}</button>
+    <a href="/configuration/views/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
+  </div>
+</div> <!-- end col md 12 -->
+
+{% endblock %}
