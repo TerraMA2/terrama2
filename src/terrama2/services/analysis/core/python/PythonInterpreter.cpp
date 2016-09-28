@@ -152,8 +152,11 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
         throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg.c_str());
       }
 
+      Py_DECREF(pValueIndex);
+
     }
 
+    Py_DECREF(pValueAnalysis);
     Py_DECREF(pModule);
     Py_DECREF(pCompiledFn);
   }
