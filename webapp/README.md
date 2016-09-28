@@ -12,7 +12,7 @@ TerraMA² Webapp is a free and open source component based web API for use in we
 
 In order to use the components of the API, you have to run it. For that to be possible you'll need to install some third-party softwares. It can be found in TerraMA² repository [WEB DEPENDENCIES](https://github.com/TerraMA2/terrama2#web-application-and-components-dependencies) section.
 
-## Execution Instructions
+## Installation
 
 Bellow we show the steps to run TerraMA² Webapp:
 
@@ -28,11 +28,14 @@ Note: This repository contain the entire TerraMA², if you want just the web API
 
 ```bash
 cd webapp
+npm install -g bower # It install bower in system path
 npm install # It installs backend web dependencies
 bower install # It installs front end dependencies
 ```
 
-Note: TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipulation. Make sure you have PostgreSQL database and PostGIS spatial extension installed before.
+## Execution Instructions
+
+TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipulation. Make sure you have PostgreSQL database and PostGIS spatial extension installed before.
 
 In order to execute, check available contexts names in [config/config.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/config.terrama2) (Feel free to add a new one following section [Configuration File](#configuration-file)).
 
