@@ -251,9 +251,12 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
         else
           outputRaster->setValue(col, row, value);
 
+        Py_DECREF(pValueRow);
+        Py_DECREF(pValueColumn);
       }
     }
 
+    Py_DECREF(pValueAnalysis);
     Py_DECREF(pModule);
     Py_DECREF(pCompiledFn);
   }
