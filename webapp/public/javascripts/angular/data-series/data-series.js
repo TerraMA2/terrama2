@@ -1,5 +1,7 @@
 angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
-  .controller("ListController", ['$scope', 'DataSeriesFactory', 'Socket',function($scope, DataSeriesFactory,Socket) {
+  .controller("ListController", ['$scope', 'DataSeriesFactory', 'Socket', 'i18n',
+  function($scope, DataSeriesFactory,Socket, i18n) {
+    $scope.i18n = i18n;
     var isDynamic = false;
     var queryParams = {};
 
@@ -12,7 +14,7 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     Socket.on('runResponse', function(response){
       $scope.display = true;
       $scope.alertLevel = "alert-success";
-      $scope.alertBox.message = "The process was started successfully";
+      $scope.alertBox.message = i18n.__("The process was started successfully");
     })
 
     if (configuration.dataSeriesType == "static") {
@@ -41,7 +43,7 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
         }
 
         $scope.alertLevel = "alert-success";
-        $scope.alertBox.message = data.name + " removed";
+        $scope.alertBox.message = data.name + i18n.__(" removed");
       },
       showRunButton: configuration.showRunButton,
       canRun: function(object){
@@ -65,7 +67,7 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     $scope.method = "{[ method ]}";
     $scope.alertLevel = "alert-success";
     $scope.alertBox = {
-      title: "Data Series",
+      title: i18n.__("Data Series"),
       message: configuration.message
     };
     $scope.resetState = function() { $scope.display = false; };
@@ -79,17 +81,17 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
         var value;
         switch(instance.data_series_semantics.data_series_type_name) {
           case globals.enums.DataSeriesType.DCP:
-            value = "DCP";
+            value = i18n.__("DCP");
             break;
           case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
           case globals.enums.DataSeriesType.OCCURRENCE:
-            value = "Occurrence";
+            value = i18n.__("Occurrence");
             break;
           case globals.enums.DataSeriesType.GRID:
-            value = "Grid";
+            value = i18n.__("Grid");
             break;
           case globals.enums.DataSeriesType.STATIC_DATA:
-            value = "Static";
+            value = i18n.__("Static");
             break;
           default:
             value = instance.data_series_semantics.name;
@@ -97,7 +99,7 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
 
         instance.model_type = value;
       });
-      $scope.fields = [{key: 'name', as: "Name"}, {key: "model_type", as: "Type"}];
+      $scope.fields = [{key: 'name', as: i18n.__("Name")}, {key: "model_type", as: i18n.__("Type")}];
     }).error(function(err) {
 
     });

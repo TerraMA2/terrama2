@@ -1,6 +1,7 @@
 angular.module('terrama2.projects')
-  .controller('Registration', ['$scope', '$http', '$window',
-  function($scope, $http, $window) {
+  .controller('Registration', ['$scope', '$http', '$window', 'i18n',
+  function($scope, $http, $window, i18n) {
+    $scope.i18n = i18n;
     $scope.forms = {};
     $scope.isSubmiting = false;
     $scope.errorFound = "";
@@ -17,7 +18,7 @@ angular.module('terrama2.projects')
     };
 
     var makeDialog = function(level, bodyMessage, show, title) {
-      $scope.alertBox.title = title || "Project Registration";
+      $scope.alertBox.title = i18n.__(title || "Project Registration");
       $scope.alertBox.message = bodyMessage;
       $scope.alertLevel = level;
       $scope.display = show;
@@ -28,7 +29,7 @@ angular.module('terrama2.projects')
       $scope.$broadcast('formFieldValidation');
 
       if ($scope.forms.projectForm.$invalid){
-        makeDialog("alert-danger", "There are invalid fields on form", true);
+        makeDialog("alert-danger", i18n.__("There are invalid fields on form"), true);
       }
 
       if ($scope.forms.projectForm.$valid) {

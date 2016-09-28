@@ -204,26 +204,6 @@ else
 fi
 
 #
-# TerraMA2 Web Dependencies
-#
-
-if [ ! -d "$2/webapp/public/externals" ]; then
-  echo "Installing TerraMA2 web dependencies..."
-  echo ""
-
-  unzip -o terrama2-web-dependencies.zip  &> /dev/null
-  valid $? "Error: Could not install web dependencies!"
-  mv externals "$2/webapp/public" &> /dev/null
-  valid $? "Error: Verify if the externals directory already exists."
-
-  echo "Finished TerraMA2 Web Dependencies"
-  echo ""
-
-  sleep 1s
-
-fi
-
-#
 # Finished!
 #
 clear

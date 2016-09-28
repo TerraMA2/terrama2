@@ -28,7 +28,8 @@ Note: This repository contain the entire TerraMA², if you want just the web API
 
 ```bash
 cd webapp
-npm install # It install backend web dependencies
+npm install # It installs backend web dependencies
+bower install # It installs front end dependencies
 ```
 
 Note: TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipulation. Make sure you have PostgreSQL database and PostGIS spatial extension installed before.
@@ -50,6 +51,7 @@ The TerraMA² Web settings can be found in [config/config.json](https://raw.gith
 
 Key               | Description
 ----------------- | -----------------------------------------------------------------
+ port             | A TerraMA² Application Port Number 
  db               | Database credentials 
  db.username      | username
  db.password      | password 
@@ -58,4 +60,3 @@ Key               | Description
  db.dialect       | dialect database (postgres/mysql). **Only postgres supported.** 
  db.define        | It represents a extra properties along database 
  db.define.schema | A database schema 
- port             | A TerraMA² Application Port Number 
