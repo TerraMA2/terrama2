@@ -156,7 +156,7 @@ void TsUtility::testFrequencyTimer()
   }
 }
 
-void TsUtility::testFrequencyTimerBase()
+void TsUtility::testFrequencyTimerBaseEarly()
 {
   try
   {
@@ -190,7 +190,7 @@ void TsUtility::testFrequencyTimerBase()
   }
 }
 
-void TsUtility::testFrequencyTimerBase2()
+void TsUtility::testFrequencyTimerBaseLater()
 {
   try
   {
@@ -206,6 +206,40 @@ void TsUtility::testFrequencyTimerBase2()
     auto lastTime = logger.getLastProcessTimestamp(1);
     terrama2::core::Timer timer(schedule, 1, lastTime);
 
+  }
+  catch(...)
+  {
+    QFAIL("Should not be here!");
+  }
+}
+
+void TsUtility::testFrequencyTimerFirstExecution()
+{
+  try
+  {
+    terrama2::core::Schedule schedule;
+    schedule.id = 0;
+    schedule.frequency = 30;
+    schedule.frequencyUnit = "minute";
+    schedule.frequencyStartTime = "00:01:00.123-03:00";
+
+    terrama2::core::MockProcessLogger logger;
+    EXPECT_CALL(logger, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+    auto lastTime = logger.getLastProcessTimestamp(1);
+    terrama2::core::Timer timer(schedule, 1, lastTime);
+
+  }
+  catch (const terrama2::Exception& e)
+  {
+    QFAIL(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str());
+  }
+  catch (const boost::exception& e)
+  {
+    QFAIL(boost::diagnostic_information(e).c_str());
+  }
+  catch (const std::exception& e)
+  {
+    QFAIL(e.what());
   }
   catch(...)
   {

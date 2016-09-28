@@ -120,18 +120,23 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
       {
         // The timer never emitted before
 
-        std::istringstream ss(dataSchedule.frequencyStartTime);
+        std::stringstream ss;
+
         ss.exceptions(std::ios_base::failbit);
-        boost::posix_time::time_facet* facet = new boost::posix_time::time_facet(terrama2::core::TimeUtils::webgui_hourfacet.c_str());
+        boost::gregorian::date_facet* facet = new boost::gregorian::date_facet();
+        facet->format("%Y-%m-%d");
         ss.imbue(std::locale(ss.getloc(), facet));
 
-        boost::posix_time::time_duration startDate(boost::posix_time::not_a_date_time);
-        ss >> startDate; // do the parse
+        ss << nowTZ->getTimeInstantTZ().date();
+        ss << "T";
+        ss << dataSchedule.frequencyStartTime;
 
-        if(startDate < nowTZ->getTimeInstantTZ().local_time().time_of_day())
+        auto startDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
+
+        if(startDate->getTimeInstantTZ().local_time().time_of_day() < nowTZ->getTimeInstantTZ().local_time().time_of_day())
         {
-          auto now = nowTZ->getTimeInstantTZ().time_of_day();
-          auto startTime = startDate;
+          auto now = nowTZ->getTimeInstantTZ().utc_time().time_of_day();
+          auto startTime = startDate->getTimeInstantTZ().utc_time().time_of_day();
 
           while(startTime < now)
           {
@@ -143,7 +148,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
         }
         else
         {
-          secondsToStart = (startDate - nowTZ->getTimeInstantTZ().local_time().time_of_day()).total_seconds();
+          secondsToStart = (startDate->getTimeInstantTZ().local_time().time_of_day() - nowTZ->getTimeInstantTZ().local_time().time_of_day()).total_seconds();
         }
       }
     }
@@ -161,7 +166,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
   // Timer with X seconds
   connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-  impl_->timer_.start(secondsToStart > 0 ? secondsToStart*1000 : 0);
+  impl_->timer_.start(secondsToStart > 0 ? secondsToStart*1000 : 1);
 }
 
 ProcessId terrama2::core::Timer::processId() const
