@@ -96,54 +96,50 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
     std::shared_ptr < te::dt::TimeInstantTZ > nowTZ = terrama2::core::TimeUtils::nowUTC();
 
-    if(dataSchedule.frequencyStartTime.empty())
+    if(impl_->lastEmit_ || dataSchedule.frequencyStartTime.empty())
     {
-      // The timer don't has a time to start
-      double secondsSinceLastProcess = 0;
-
-      if(impl_->lastEmit_)
-        secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
-
-      secondsToStart = timerSeconds - secondsSinceLastProcess;
-    }
-    else // The timer has a time to start
-    {
+      // The timer never emitted before OR don't has a time to start
       double secondsSinceLastProcess = 0.0;
 
       if(impl_->lastEmit_)
-      {
         secondsSinceLastProcess = *nowTZ.get() - *impl_->lastEmit_.get();
 
-        secondsToStart = timerSeconds - secondsSinceLastProcess;
+      if(secondsSinceLastProcess > timerSeconds)
+      {
+        secondsToStart = 0;
       }
       else
       {
-        // The timer never emitted before
+        secondsToStart = timerSeconds - secondsSinceLastProcess;
+      }
+    }
+    else
+    {
+      // The timer never emitted before and has a time to start
 
-        std::stringstream ss;
+      std::stringstream ss;
 
-        ss.exceptions(std::ios_base::failbit);
-        boost::gregorian::date_facet* facet = new boost::gregorian::date_facet();
-        facet->format("%Y-%m-%d");
-        ss.imbue(std::locale(ss.getloc(), facet));
+      ss.exceptions(std::ios_base::failbit);
+      boost::gregorian::date_facet* facet = new boost::gregorian::date_facet();
+      facet->format("%Y-%m-%d");
+      ss.imbue(std::locale(ss.getloc(), facet));
 
-        ss << nowTZ->getTimeInstantTZ().date();
-        ss << "T";
-        ss << dataSchedule.frequencyStartTime;
+      ss << nowTZ->getTimeInstantTZ().date();
+      ss << "T";
+      ss << dataSchedule.frequencyStartTime;
 
-        auto startDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
+      auto startDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
 
-        if(*startDate < *nowTZ)
-        {
-          // If the time to start has already passed, set the start time to tomorrow
-          terrama2::core::TimeUtils::addDay(startDate, 1);
+      if(*startDate < *nowTZ)
+      {
+        // If the time to start has already passed, set the start time to tomorrow
+        terrama2::core::TimeUtils::addDay(startDate, 1);
 
-          secondsToStart = *startDate - *nowTZ;
-        }
-        else
-        {
-          secondsToStart = (startDate->getTimeInstantTZ().local_time().time_of_day() - nowTZ->getTimeInstantTZ().local_time().time_of_day()).total_seconds();
-        }
+        secondsToStart = *startDate - *nowTZ;
+      }
+      else
+      {
+        secondsToStart = (startDate->getTimeInstantTZ().local_time().time_of_day() - nowTZ->getTimeInstantTZ().local_time().time_of_day()).total_seconds();
       }
     }
   }
@@ -160,7 +156,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 
   // Timer with X seconds
   connect(&impl_->timer_, SIGNAL(timeout()), this, SLOT(timeoutSlot()), Qt::UniqueConnection);
-  impl_->timer_.start(secondsToStart > 0 ? secondsToStart*1000 : 1);
+  impl_->timer_.start(secondsToStart > 0 ? secondsToStart*1000 : 1000);
 }
 
 ProcessId terrama2::core::Timer::processId() const
