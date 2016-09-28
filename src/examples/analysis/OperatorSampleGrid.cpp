@@ -105,13 +105,13 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeries* dataSeries1 = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeries1Ptr(dataSeries1);
     dataSeries1->semantics = semanticsManager.getSemantics("GRID-geotiff");
-    dataSeries1->name = "Umin";
+    dataSeries1->name = "geotiff 1";
     dataSeries1->id = 1;
     dataSeries1->dataProviderId = 1;
 
     terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
     dataSet1->active = true;
-    dataSet1->format.emplace("mask", "umin_ddMMyyyy.tif");
+    dataSet1->format.emplace("mask", "L5219076_07620040908_r3g2b1.tif");
     dataSet1->id = 1;
 
     dataSeries1->datasetList.emplace_back(dataSet1);
@@ -134,30 +134,7 @@ int main(int argc, char* argv[])
 
     analysis->id = 1;
     analysis->name = "Grid Sample";
-
-    auto reprocessingHistoricalData = new ReprocessingHistoricalData();
-    ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr(reprocessingHistoricalData);
-
-
-    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
-
-    std::string startDate = "2015-09-16 00:00:00";
-    boost::posix_time::ptime startBoostDate(boost::posix_time::time_from_string(startDate));
-    boost::local_time::local_date_time lstartDate(startBoostDate.date(), startBoostDate.time_of_day(), zone, true);
-    reprocessingHistoricalData->startDate = std::make_shared<te::dt::TimeInstantTZ>(lstartDate);
-
-    std::string endDate = "2015-09-17 00:00:00";
-    boost::posix_time::ptime endBoostDate(boost::posix_time::time_from_string(endDate));
-    boost::local_time::local_date_time lendDate(endBoostDate.date(), endBoostDate.time_of_day(), zone, true);
-    reprocessingHistoricalData->endDate = std::make_shared<te::dt::TimeInstantTZ>(lendDate);
-
-    analysis->reprocessingHistoricalData = reprocessingHistoricalDataPtr;
-
-    std::string script = "import math\n"
-        "p1 = grid.sample(\"Umin\")\n"
-        "return p1";
-
-    analysis->script = script;
+    analysis->script = "return grid.sample(\"geotiff 1\")";
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::GRID_TYPE;
     analysis->active = true;
@@ -171,8 +148,8 @@ int main(int argc, char* argv[])
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
 
-    analysis->schedule.frequency = 2;
-    analysis->schedule.frequencyUnit = "d";
+    analysis->schedule.frequency = 1;
+    analysis->schedule.frequencyUnit = "min";
 
 
     AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
@@ -198,7 +175,7 @@ int main(int argc, char* argv[])
     logger->setConnectionInfo(connInfo);
     service.setLogger(logger);
 
-    service.start(1);
+    service.start();
     service.addAnalysis(1);
 
     QTimer timer;
