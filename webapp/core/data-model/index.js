@@ -22,3 +22,4 @@ exports.Filter = require('./Filter');
 exports.Service = require('./Service');
 exports.Intersection = require('./Intersection');
 exports.ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
+exports.View = require("./View");

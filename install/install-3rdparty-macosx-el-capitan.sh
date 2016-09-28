@@ -138,6 +138,12 @@ if [ $? -eq 0 ]; then
 fi
 
 #
+# Npm Bower Globally
+#
+sudo npm install -g bower
+valid $? "Error: could not install bower" 
+
+#
 # Finished!
 #
 clear

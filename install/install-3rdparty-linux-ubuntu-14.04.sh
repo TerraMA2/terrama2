@@ -162,6 +162,12 @@ else
 fi
 
 #
+# Npm Bower Globally
+#
+sudo npm install -g bower
+valid $? "Error: could not install bower"
+
+#
 # Python
 #
 python_test=`dpkg -s python2.7-dev | grep Status`
