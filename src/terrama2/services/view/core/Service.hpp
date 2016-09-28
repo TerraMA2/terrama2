@@ -77,7 +77,7 @@ namespace terrama2
           /*!
             \brief Updates the View.
 
-            calls addMap()
+            calls addView()
           */
           void updateView(ViewPtr view) noexcept;
 

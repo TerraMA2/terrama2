@@ -79,6 +79,13 @@ namespace terrama2
            */
           void registerWorkspace(const std::string& name);
 
+          /*!
+           * \brief This method register a table in a PostGis BD as a layer in GeoServer
+           * \param dataStoreName The name of the store in GeoServer,
+           *                      if it doesn't exists, will be created.
+           * \param connInfo The connection parameters to the Postgis BD
+           * \param tableName The name of the table in Postgis to register in GeoServer
+           */
           void registerPostgisTable(const std::string& dataStoreName,
                                     std::map<std::string, std::string> connInfo,
                                     const std::string& tableName) const;
