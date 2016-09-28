@@ -1,9 +1,9 @@
 {% set MENU_URLS = {} %}
 
-{% set MENU_URLS = {"projects": {name: 'Projects', url: "/configuration/projects", icon: "fa-book", data:["queimada", "estados"]}} %}
-{% set MENU_URLS["data-provider"] = {name: 'Data Provider', url: "/configuration/providers", icon: "fa-cubes", data:[]} %}
-{% set MENU_URLS["static-data"] = {name: 'Static Data', url: "/configuration/static/dataseries", icon: "fa-folder-o", data:["queimada", "estados"]} %}
-{% set MENU_URLS["dynamic-data"] = {name: 'Dynamic Data', url: "/configuration/dynamic/dataseries", icon: "fa-exchange", data:["queimada", "estados"]} %}
+{% set MENU_URLS = {"projects": {name: 'Analysis', icon: "fa-book", data:["queimada", "estados"]}} %}
+{% set MENU_URLS["data-provider"] = {name: 'Static Data', icon: "fa-cubes", data:[]} %}
+{% set MENU_URLS["static-data"] = {name: 'Dynamic Data', icon: "fa-folder-o", data:["queimada", "estados"]} %}
+{% set MENU_URLS["dynamic-data"] = {name: 'Template', icon: "fa-exchange", data:["queimada", "estados"]} %}
 
 <!DOCTYPE html>
 <html>
@@ -18,7 +18,6 @@
     <link rel="stylesheet" href="/AdminLTE/dist/css/AdminLTE.min.css">
     <link rel="stylesheet" href="/AdminLTE/dist/css/skins/skin-black.min.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
-
     <link rel="stylesheet" href="http://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
     <style>
       .map {
@@ -115,8 +114,8 @@
 
     <script src="/jquery/dist/jquery.min.js"></script>
     <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="/javascripts/app.js"></script>
     <script src="/AdminLTE/dist/js/app.min.js"></script>
+    <script src="/javascripts/app.js"></script>
 
   </body>
 </html>
