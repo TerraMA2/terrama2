@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module("terrama2.users")
-  .controller("UserUpdate", ["$scope", "UserFactory",
-    function($scope, UserFactory) {
+  .controller("UserUpdate", ["$scope", "UserFactory", "i18n",
+    function($scope, UserFactory, i18n) {
+      $scope.i18n = i18n;
       $scope.user = {};
       var hash = Math.random().toString(36);
 

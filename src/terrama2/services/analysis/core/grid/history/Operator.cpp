@@ -118,7 +118,7 @@ const std::string& dateFilterEnd)
           throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
         }
 
-        // Tranform the coordinate from the output srid to the  source srid
+        // Transform the coordinate from the output srid to the  source srid
         // so we can get the row and column of the source data.
         auto point = context->convertoTo(coord, dsGrid->getSRID());
 

@@ -1,1 +1,1 @@
-angular.module("terrama2.users", ["terrama2.services"]);
+angular.module("terrama2.users", ["terrama2", "terrama2.services"]);

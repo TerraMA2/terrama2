@@ -317,6 +317,13 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   {
     std::string name = fileInfo.fileName().toStdString();
     std::string folderPath = dir.absolutePath().toStdString();
+
+
+    std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
+    // Verify if the file name matches the mask
+    if(!isValidDataSetName(getMask(dataSet), filter, timezone, name, thisFileTimestamp))
+      continue;
+
     if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
     {
       //unpack files

@@ -1,6 +1,11 @@
 # TerraMA²
 
-[![Build Status](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-build-master/badge/icon)](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-build-master/)
+Repository Health  | Status
+------------------ | -----------------------------------------------------------------
+ Build             | [![Build Status](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-build-master/badge/icon)](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-build-master/) 
+ Cppcheck          | [![Build Status](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-cppcheck-linux-ubuntu-14.04/badge/icon)](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-cppcheck-linux-ubuntu-14.04/) 
+ JSHint            | [![Build Status](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-jscheck-linux-ubuntu-14.04/badge/icon)](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-jscheck-linux-ubuntu-14.04/) 
+
 
 **NOTE:**
 * **Until we reach version 4.0.0 this codebase will be unstable and not fully operational.**

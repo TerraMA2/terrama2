@@ -4,16 +4,12 @@
 
 {% block staticDataMenu %}active{% endblock %}
 
-{% block title %} TerraMA² {[ __('Data Providers') ]}{% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Data Server') }}{% endblock %}
 
 {% block ngApp %} ng-app="terrama2.providers" {% endblock %}
 
 {% block javascripts %}
 
-<script src="/externals/angular/angular.min.js"></script>
-<script src="/externals/angular/i18n-angular.min.js"></script>
-
-<script src="/javascripts/angular/app.js"></script>
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
@@ -24,8 +20,8 @@
       $scope.model = [];
       $scope.linkToAdd = "/configuration/providers/new";
       $scope.fields = [
-        {key: "name", as: "Name"},
-        {key: "description", as: "Description"}
+        {key: "name", as: i18n.__("Name")},
+        {key: "description", as: i18n.__("Description")}
       ];
       $scope.remove = function(object) {
         return "/api/DataProvider/" + object.id + "/delete";
@@ -47,13 +43,13 @@
           }
 
           $scope.alertLevel = "alert-success";
-          $scope.alertBox.message = data.name + " removed";
+          $scope.alertBox.message = data.name + i18n.__(" removed");
         }
       };
       $scope.method = "{[ method ]}";
       $scope.alertLevel = "alert-success";
       $scope.alertBox = {
-        title: "Data Provider",
+        title: i18n.__("Data Server"),
         message: "{[ message ]}"
       };
       $scope.resetState = function() { $scope.display = false; };
@@ -74,7 +70,7 @@
 
 {% block content %}
 <div ng-controller="DataProviderController">
-  <terrama2-box title="'{[ __('Data Providers') ]}'">
+  <terrama2-box title="i18n.__('Data Servers')">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">

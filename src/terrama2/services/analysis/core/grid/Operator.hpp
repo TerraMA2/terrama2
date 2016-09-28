@@ -34,6 +34,7 @@
 // TerraMA2
 #include "../BufferMemory.hpp"
 #include "../Analysis.hpp"
+#include "../../../../core/data-access/SynchronizedInterpolator.hpp"
 
 // STL
 #include <string>
@@ -57,7 +58,7 @@ namespace terrama2
           */
           double sample(const std::string& dataSeriesName);
 
-          double getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<te::rst::Interpolator> interpolator, double column, double row, size_t bandIdx);
+          double getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<terrama2::core::SynchronizedInterpolator> interpolator, double column, double row, size_t bandIdx);
 
 
         }   // end namespace grid

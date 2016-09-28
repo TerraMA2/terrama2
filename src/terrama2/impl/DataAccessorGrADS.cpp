@@ -33,6 +33,7 @@
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/Unpack.hpp"
+#include "../core/utility/Verify.hpp"
 
 //TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
@@ -57,9 +58,13 @@
 #include <QUrl>
 #include <QDir>
 
+
 //Boost
 #include <boost/filesystem/operations.hpp>
+#include <boost/regex.hpp>
 
+//STL
+#include <unordered_set>
 
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
                                                      const Filter& filter)
@@ -229,29 +234,9 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     timezone = "UTC+00";
   }
 
-  //fill file list
-  QFileInfoList newFileInfoList;
-  for(const auto& fileInfo : fileInfoList)
-  {
-    std::string name = fileInfo.fileName().toStdString();
-    std::string folderPath = dir.absolutePath().toStdString();
-    if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
-    {
-      //unpack files
-      std::string tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover);
-      QDir tempDir(QString::fromStdString(tempFolderPath));
-      QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-
-      newFileInfoList.append(fileList);
-    }
-    else
-    {
-      newFileInfoList.append(fileInfo);
-    }
-  }
 
   bool first = true;
-  for (const auto& fileInfo : newFileInfoList)
+  for (const auto& fileInfo : fileInfoList)
   {
     std::string name = fileInfo.fileName().toStdString();
 
@@ -278,7 +263,29 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     datasetMask = replaceMask(datasetMask.c_str()).toStdString();
 
 
-    for (const auto& dataFileInfo : newFileInfoList)
+    QFileInfoList binFileList;
+    for (const auto& dataFileInfo : fileInfoList)
+    {
+      std::string name = dataFileInfo.fileName().toStdString();
+
+      // Verify if the file name matches the datasetMask
+      if (!isValidDataSetName(datasetMask, filter, timezone, name, thisFileTimestamp))
+        continue;
+
+      if(terrama2::core::Unpack::isCompressed(dataFileInfo.absoluteFilePath().toStdString()))
+      {
+        //unpack files
+        std::string tempFolderPath = terrama2::core::Unpack::decompress(dataFileInfo.absoluteFilePath().toStdString(), remover);
+        QDir tempDir(QString::fromStdString(tempFolderPath));
+        binFileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+      }
+      else
+      {
+        binFileList.append(fileInfo);
+      }
+    }
+
+    for(const auto& dataFileInfo : binFileList)
     {
       std::string name = dataFileInfo.fileName().toStdString();
       std::string baseName = dataFileInfo.baseName().toStdString();
@@ -370,7 +377,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
 
       if (!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
-          lastFileTimestamp = thisFileTimestamp;
+        lastFileTimestamp = thisFileTimestamp;
 
     }
   }
@@ -852,15 +859,18 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
         << " rasterYSize=\"" << descriptor.yDef_->numValues_ << "\""
         << ">";
 
-    if (descriptor.srid_ > 0)
-    {
-      const std::string wktStr = te::srs::SpatialReferenceSystemManager::getInstance().getWkt(descriptor.srid_);
+    terrama2::core::verify::srid(descriptor.srid_);
 
-      if (!wktStr.empty())
-      {
-        vrtfile << std::endl << "<SRS>" << wktStr << "</SRS>";
-      }
+    const std::string wktStr = te::srs::SpatialReferenceSystemManager::getInstance().getWkt(descriptor.srid_);
+
+    if(wktStr.empty())
+    {
+      QString errMsg = QObject::tr("Empty WKT for srid: %1.").arg(descriptor.srid_);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
     }
+
+    vrtfile << std::endl << "<SRS>" << wktStr << "</SRS>";
 
     // In case 'yrev' option is given, we need to flip the image
     bool isYReverse = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end();
