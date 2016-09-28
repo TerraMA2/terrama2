@@ -9,13 +9,21 @@ $.TerraMAMonitor.pushMenu = {
             e.preventDefault();
             if ($("body").hasClass('full_screen')){
                 $("body").removeClass('full_screen');
-                $("body").addClass('sidebar-mini');
-                $(".content-wrapper").height('100%');
+                $("body").addClass('sidebar-mini'); 
+                
+                var body_height = $("body").height(); 
+                var header_height = $(".main-header").height();
+                $(".content-wrapper").css({'height': body_height - header_height});
+                $(".content").css({'height':($(".content-wrapper").height())});
             } else{
                 $("body").addClass('full_screen');
                 $("body").removeClass('sidebar-mini');
-                $(".content-wrapper").css({'height':($(document).height())+'px'});
+                $("body").css({'height':($("html").height())+'px'});
+                
+                $(".content-wrapper").css({'height':($("body").height())+'px'});
+                $(".content").css({'height':($(".content-wrapper").height())});
             }
+            
         })
     }
 }
