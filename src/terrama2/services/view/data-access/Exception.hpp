@@ -39,7 +39,7 @@ namespace terrama2
   {
     namespace view
     {
-      namespace data_access
+      namespace da
       {
         //! Base exception class for TerraMA2 view data access.
         struct Exception : virtual terrama2::core::Exception{ };

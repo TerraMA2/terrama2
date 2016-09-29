@@ -269,7 +269,7 @@ te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType, std::str
     if(symbolizer != 0)
       rule->push_back(symbolizer);
 
-    te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
+    te::fe::PropertyName* result = new te::fe::PropertyName("result");
     te::fe::Literal* value = new te::fe::Literal("1");
     te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
 
@@ -289,7 +289,7 @@ te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType, std::str
     if(symbolizer != 0)
       rule->push_back(symbolizer);
 
-    te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
+    te::fe::PropertyName* result = new te::fe::PropertyName("result");
     te::fe::Literal* value = new te::fe::Literal("2");
     te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
 
@@ -309,7 +309,7 @@ te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType, std::str
     if(symbolizer != 0)
       rule->push_back(symbolizer);
 
-    te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
+    te::fe::PropertyName* result = new te::fe::PropertyName("result");
     te::fe::Literal* value = new te::fe::Literal("3");
     te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
 
@@ -329,7 +329,7 @@ te::se::Style* CreateFeatureTypeStyle(const te::gm::GeomType& geomType, std::str
     if(symbolizer != 0)
       rule->push_back(symbolizer);
 
-    te::fe::PropertyName* result = new te::fe::PropertyName("RESULT");
+    te::fe::PropertyName* result = new te::fe::PropertyName("result");
     te::fe::Literal* value = new te::fe::Literal("4");
     te::fe::BinaryComparisonOp* stateEqual = new te::fe::BinaryComparisonOp(te::fe::Globals::sm_propertyIsEqualTo, result, value);
 
