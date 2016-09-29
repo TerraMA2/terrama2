@@ -94,9 +94,9 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("imageType", static_cast<int32_t>(view->imageType));
   obj.insert("imageResolutionWidth", static_cast<int32_t>(view->imageResolutionWidth));
   obj.insert("imageResolutionHeight", static_cast<int32_t>(view->imageResolutionHeight));
-  obj.insert("schedule", terrama2::core::toJson(view->schedule));
   obj.insert("srid", static_cast<int32_t>(view->srid));
   obj.insert("geoserverURI", QString(view->geoserverURI.uri().c_str()));
+  obj.insert("schedule", terrama2::core::toJson(view->schedule));
 
   {
     QJsonArray array;
