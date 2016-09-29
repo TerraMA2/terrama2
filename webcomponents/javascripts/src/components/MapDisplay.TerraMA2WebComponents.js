@@ -707,6 +707,7 @@ define(
      * @param {string} imagerySet - Type of imagery, there are the following options: 'Road', 'Aerial', 'AerialWithLabels', 'collinsBart', 'ordnanceSurvey'
      * @param {string} bingMapsKey - Bing Maps require an api key to work, this api key can be generated at Bing Maps portal: http://www.bingmapsportal.com/
      * @param {string} parentGroup - Parent group id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
      * @param {object} params - Optional parameters, there are the following items:
      *    {float} minResolution - Layer minimum resolution,
      *    {float} maxResolution - Layer maximum resolution
@@ -716,16 +717,17 @@ define(
      * @memberof MapDisplay
      * @inner
      */
-    var addBingMapsLayer = function(layerId, layerName, layerTitle, layerVisible, disabled, imagerySet, bingMapsKey, parentGroup, params) {
+    var addBingMapsLayer = function(layerId, layerName, layerTitle, layerVisible, disabled, imagerySet, bingMapsKey, parentGroup, appendAtTheEnd, params) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
       if(layerGroupExists) {
         var layers = layerGroup.getLayers();
 
-        layers.push(
-          createBingMapsLayer(layerId, layerName, layerTitle, layerVisible, disabled, imagerySet, bingMapsKey, params)
-        );
+        var newLayer = createBingMapsLayer(layerId, layerName, layerTitle, layerVisible, disabled, imagerySet, bingMapsKey, params);
+
+        if(appendAtTheEnd) layers.insertAt(0, newLayer);
+        else layers.push(newLayer);
 
         layerGroup.setLayers(layers);
       }
