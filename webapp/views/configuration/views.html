@@ -2,50 +2,51 @@
 
 {% set tabActive = "views" %}
 
-{% block ngApp %} ng-app="terrama2.mapDisplay" {% endblock %}
+{% block ngApp %} ng-app="terrama2.views.controllers.viewlist" {% endblock %}
 
-{% block title %} TerraMA² {{ i18n.__('Map Display') }} {% endblock %}
+{% block title %} TerraMA² {{ i18n.__('Views') }} {% endblock %}
 
 {% block javascripts %}
 
-<script src="/javascripts/angular/table/table.js"></script>
-
-<script>
-  angular.module('terrama2.mapDisplay', ['terrama2.table'])
-    .controller("ListController", ['$scope', function($scope) {
-      $scope.model = [];
-
-      $scope.fields = ['title', 'description'];
-      $scope.linkToAdd = "";//"/configuration/views/new";
-      $scope.link = function(object) {
-        return "";
-      };
-
-      $scope.iconProperties = {
-        type: "img",
-        width: 64,
-        height: 64
-      };
-
-      $scope.icon = function(object) {
-        return "/images/map-display.png";
-      }
-    }]);
+<script type="text/javascript">
+  var configuration = {
+    message: "{[ message ]}"
+  };
 </script>
+
+<script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+
+<script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/services.js"></script>
+<script src="/javascripts/angular/views/services.js"></script>
+<script src="/javascripts/angular/views/controllers/view-list.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="ListController">
+<div class="col-md-12" ng-controller="ViewList as ctrl">
   <div class="col-md-12">
     <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">{{ i18n.__('Views') }}</h3>
+        <h3 class="box-title"><span ng-bind="i18n.__('Views')"></span></h3>
       </div><!-- /.box-header -->
 
       <div class="box-body">
-        <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd"></terrama2-table>
+        <div class="col-md-12">
+          <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
+                               close="ctrl.close()">
+          </terrama2-alert-box>
+        </div>
+
+        <terrama2-table fields="ctrl.fields" 
+                        model="ctrl.model"
+                        link="ctrl.link"
+                        icon="ctrl.icon"
+                        icon-properties="ctrl.iconProperties"
+                        link-to-add="ctrl.linkToAdd">
+        </terrama2-table>
       </div><!-- /.box-body -->
 
     </div><!-- /.box -->

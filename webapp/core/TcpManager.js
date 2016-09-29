@@ -393,6 +393,31 @@ TcpManager.prototype.registerListeners = function (serviceInstance) {
   });
 };
 
+/**
+ * Base method to write data in TCP stream
+ * 
+ * @param {ServiceInstance} serviceInstance - A TerraMA² service instance
+ * @param {Object} data - Data to make buffer
+ * @param {Signals} signal - A TCP signal to communicate 
+ */
+TcpManager.prototype.$send = function(serviceInstance, data, signal) {
+  var client = _getClient(serviceInstance);
+
+  var buffer = self.makebuffer(signal, data);
+
+  client.send(buffer);
+}
+
+/**
+ * It sends a ADD_VIEW_SIGNAL to service in order to process view and retrieve layer url
+ * 
+ * @param {ServiceInstance} serviceInstance - A TerraMA² service instance
+ * @param {Object} data - A view object to send
+ */
+TcpManager.prototype.sendView = function(serviceInstance, data) {
+  this.$send(serviceInstance, data, Signals.ADD_VIEW_SIGNAL);
+};
+
 TcpManager.prototype.initialize = function(client) {
   var self = this;
   if (!client.isOpen() || client.isRegistered()) { return; }

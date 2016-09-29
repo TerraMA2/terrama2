@@ -3,13 +3,14 @@
     .service("ViewService", ViewService);
   
   /**
+   * It defines a TerraMA² View Service DAO.
    * 
    * @class ViewService
    */
   function ViewService($q, $http) {
     this.$q = $q;
     this.$http = $http;
-    this.$baseUrl = "/api/Views";
+    this.$baseUrl = "/api/View";
   }
 
   /**
@@ -63,12 +64,26 @@
   /**
    * It performs a view creation on API call.
    * 
+   * @param {number} viewId - A view identifier
    * @param {Object} viewObject - A view values
    * @returns {ng.IPromise}
    */
   ViewService.prototype.get = function(viewId, restriction) {
     return this.$request(this.$baseUrl + "/" + viewId, "GET", {
       params: restriction
+    });
+  };
+
+  /**
+   * It performs a view update on API call
+   * 
+   * @param {number} viewId - A view identifier
+   * @param {Object} viewObject - A view values to update
+   * @returns {ng.IPromise}
+   */
+  ViewService.prototype.update = function(viewId, viewObject) {
+    return this.$request(this.$baseUrl + "/" + viewId, "PUT", {
+      data: viewObject
     });
   };
 } ());

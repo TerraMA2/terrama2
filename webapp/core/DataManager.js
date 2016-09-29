@@ -125,8 +125,9 @@ var DataManager = {
         }));
 
         // services type
-        inserts.push(models.db.ServiceType.create({id: 1, name: "COLLECT"}));
-        inserts.push(models.db.ServiceType.create({id: 2, name: "ANALYSIS"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.COLLECTOR, name: "COLLECT"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ANALYSIS, name: "ANALYSIS"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -161,6 +162,16 @@ var DataManager = {
 
         inserts.push(self.addServiceInstance(collectorService));
         inserts.push(self.addServiceInstance(analysisService));
+
+        var viewService = Object.assign({}, collectorService);
+        viewService.id = 3;
+        viewService.name = "Local View";
+        viewService.description = "Local service for View";
+        viewService.port = 6546;
+        viewService.service_type_id = Enums.ServiceType.VIEW;
+
+        inserts.push(self.addServiceInstance(collectorService));
+        inserts.push(self.addServiceInstance(viewService));
 
         // data provider intent defaults
         inserts.push(models.db.DataProviderIntent.create({
@@ -3085,7 +3096,7 @@ var DataManager = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      self.models.db.View.findAll(Utils.extend({
+      models.db.View.findAll(Utils.extend({
         where: restriction
       }, options))
         .then(function(views) {
@@ -3112,7 +3123,7 @@ var DataManager = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      self.models.db.View.create(viewObject, options)
+      models.db.View.create(viewObject, options)
         .then(function(view) {
           return resolve(new DataModel.View(view.get()));
         })
@@ -3136,10 +3147,10 @@ var DataManager = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      self.models.db.View.update(
+      models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "serverURI", "layerURI", "script"],
+          fields: ["name", "description", "serverUri", "layerUri", "script"],
           where: restriction
         }, options))
 
@@ -3149,6 +3160,35 @@ var DataManager = {
 
         .catch(function(err) {
           return reject(new Error("Could not update view " + err.toString()));
+        });
+    });
+  },
+
+  /**
+   * It retrieves a view from database
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.View>}
+   */
+  getView: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listViews(restriction, options)
+        .then(function(views) {
+          if (views.length === 0) {
+            return reject(new Error("No view retrieved"));
+          }
+
+          if (views.length > 1) {
+            return reject(new Error("Get operation retrieved more than a view"));
+          }
+
+          return resolve(views[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
         });
     });
   }

@@ -15,14 +15,15 @@ angular.module('terrama2.ace', ['terrama2'])
 
         var session = editor.getSession();
 
+        var editorOptions = Object.assign({}, options);
+
         editor.setTheme("ace/theme/chrome");
-        session.setMode("ace/mode/python");
+        session.setMode(editorOptions.languageMode || "ace/mode/python");
 
         attrs.$observe('readonly', function (value) {
           editor.setReadOnly(!!value || value === '');
         }); 
 
-        var editorOptions = Object.assign({}, options);
         // defaults
         editorOptions.fontSize = options.fontSize || "12pt";
         editorOptions.maxLines = options.maxLines || 20;

@@ -141,10 +141,10 @@ var Service = module.exports = function(serviceInstance) {
       if (!self.isOpen()) {
         callbackError = reject;
         self.socket.connect(self.service.port, self.service.host, function() {
-          resolve();
+          return resolve();
         });
       } else {
-        reject(new Error("Could not connect. There is a open connection"));
+        return reject(new Error("Could not connect. There is a open connection"));
       }
     });
   };
@@ -165,15 +165,10 @@ var Service = module.exports = function(serviceInstance) {
 
   self.update = function(buffer) {
     return new Promise(function(resolve, reject) {
-      if (!self.isOpen()) {
-        self.emit("serviceError", new Error("Could not update service from closed connection"));
-        return;
-      }
-
       callbackError = reject;
-      self.writeData(buffer);
+      self.send(buffer);
 
-      resolve();
+      return resolve();
     });
   };
 
