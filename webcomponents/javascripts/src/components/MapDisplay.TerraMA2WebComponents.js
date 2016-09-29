@@ -604,7 +604,6 @@ define(
         name: layerName,
         title: layerTitle,
         visible: layerVisible,
-        preload: Infinity,
         disabled: disabled
       });
 
