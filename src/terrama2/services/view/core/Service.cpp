@@ -33,6 +33,7 @@
 #include "MemoryDataSetLayer.hpp"
 
 #include "../../../core/Shared.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/DataSet.hpp"
@@ -81,7 +82,7 @@ void terrama2::services::view::core::Service::prepareTask(ViewId viewId)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&makeView, viewId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&viewJob, viewId, logger_, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -222,4 +223,68 @@ void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
   //TODO: adds to queue, is this expected? remove and then add?
   addView(view);
+}
+
+std::shared_ptr< QJsonDocument > terrama2::services::view::core::Service::viewJob(ViewId viewId,
+                                                      std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
+                                                      std::weak_ptr<DataManager> weakDataManager)
+{
+  auto dataManager = weakDataManager.lock();
+  if(!dataManager.get())
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access DataManager");
+    return;
+  }
+
+  try
+  {
+    RegisterId logId = 0;
+    if(logger.get())
+      logId = logger->start(viewId);
+
+    TERRAMA2_LOG_DEBUG() << QObject::tr("Starting view %1 generation.").arg(viewId);
+
+    auto lock = dataManager->getLock();
+
+    auto viewPtr = dataManager->findView(viewId);
+
+    if(!viewPtr->imageName.empty())
+    {
+      // do things with TerraLib
+    }
+
+    if(!viewPtr->geoserverURI.uri().empty())
+    {
+      // do things with GeoServer
+    }
+
+    lock.unlock();
+
+    std::shared_ptr< QJsonDocument > sptr_obj;
+
+    if(logger.get())
+      logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
+
+    return sptr_obj;
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString() << std::endl;
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+  }
+  catch(const boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unkown error.");
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+  }
 }
