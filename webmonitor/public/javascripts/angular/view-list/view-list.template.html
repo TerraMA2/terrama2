@@ -1,0 +1,11 @@
+<li class="treeview" ng-repeat="menuItem in $ctrl.menuUrls">
+  <a href="#">
+    <i class="fa {{ menuItem.icon }}"></i><span>{{menuItem.name}}</span>
+    <span class="pull-right-container">
+      <i class="fa fa-angle-left pull-right"></i>
+    </span>
+  </a>
+  <ul class="treeview-menu">
+      <li ng-repeat="item in menuItem.data"><a href="#"> <input type="checkbox"> {{item}}</a></li>  
+  </ul>
+</li>

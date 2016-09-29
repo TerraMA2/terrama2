@@ -1,12 +1,5 @@
-{% set MENU_URLS = {} %}
-
-{% set MENU_URLS = {"projects": {name: 'Analysis', icon: "fa-book", data:["queimada", "estados"]}} %}
-{% set MENU_URLS["data-provider"] = {name: 'Static Data', icon: "fa-cubes", data:[]} %}
-{% set MENU_URLS["static-data"] = {name: 'Dynamic Data', icon: "fa-folder-o", data:["queimada", "estados"]} %}
-{% set MENU_URLS["dynamic-data"] = {name: 'Template', icon: "fa-exchange", data:["queimada", "estados"]} %}
-
 <!DOCTYPE html>
-<html>
+<html ng-app="monitorApp">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -26,6 +19,7 @@
     </style>
 
     <script src="http://openlayers.org/en/v3.18.2/build/ol.js" type="text/javascript"></script>
+    <script src="/angular/angular.js"></script>
   </head>
   <body class="hold-transition skin-black sidebar-mini">
     <div class="wrapper">
@@ -35,9 +29,9 @@
         <!-- Logo -->
         <a href="#" class="logo">
           <!-- mini logo for sidebar mini 50x50 pixels -->
-          <div class="logo-lg"><img src="/images/terrama2_logo.png" class="img-square" alt="User Image"><b> | TerraMA²</b></div>
+          <div class="logo-lg"><img src="/images/terrama2_logo2.png" class="img-square" alt="User Image"><b>  TerraMA²</b></div>
           <!-- logo for regular state and mobile devices -->
-          <div class="logo-mini"><img src="/images/terrama2_logo.png" class="img-square" alt="User Image"></div>
+          <div class="logo-mini"><img src="/images/terrama2_logo2.png" class="img-square" alt="User Image"></div>
         </a>
         <!-- Header Navbar -->
         <nav id="nav" class="navbar navbar-static-top" role="navigation">
@@ -65,21 +59,7 @@
           <ul class="sidebar-menu">
             <li class="header">VIEWS</li>
             <!-- Optionally, you can add icons to the links -->
-            {% for tab in MENU_URLS %}
-            <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
-              <a href="#">
-                <i class="fa {[ tab.icon ]}"></i><span>{[ tab.name ]}</span>
-                <span class="pull-right-container">
-                  <i class="fa fa-angle-left pull-right"></i>
-                </span>
-              </a>
-              <ul class="treeview-menu">
-                {% for item in tab.data %}
-                  <li><a href="#"> <input type="checkbox"> {[item]}</a></li>  
-                {% endfor %}
-              </ul>
-            </li>
-            {% endfor %}
+            {% block sidebar-list %} {% endblock %}
           </ul>
           <!-- /.sidebar-menu -->
         </section>
@@ -111,11 +91,13 @@
       <footer class="footer-monitor"></footer>
     </div>
     <!-- ./wrapper -->
-
     <script src="/jquery/dist/jquery.min.js"></script>
     <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="/AdminLTE/dist/js/app.min.js"></script>
     <script src="/javascripts/app.js"></script>
+    <script src="/javascripts/angular/app.module.js"></script>
+    <script src="/javascripts/angular/view-list/view-list.module.js"></script>
+    <script src="/javascripts/angular/view-list/view-list.component.js"></script>
 
   </body>
 </html>
