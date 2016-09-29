@@ -87,7 +87,7 @@ void terrama2::core::Timer::timeoutSlot() noexcept
 
 void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
 {
-  uint32_t secondsToStart = 0;
+  int64_t secondsToStart = 0;
 
   if(dataSchedule.frequency > 0)
   {
