@@ -112,7 +112,7 @@ namespace terrama2
 
         /*!
        * \brief Signal emited when a full process is complete in service
-       * \param answer A jSon
+       * \param answer A JSON with process info
        */
         void processFinishedSignal(std::shared_ptr< QJsonDocument > answer);
 
@@ -168,7 +168,7 @@ namespace terrama2
         std::future<void> mainLoopThread_;                            //!< Thread that holds the loop of processing queued dataset.
         std::condition_variable mainLoopCondition_;                  //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
 
-        std::queue<std::packaged_task<std::shared_ptr< QJsonDocument>()> > taskQueue_;       //!< Queue for tasks.
+        std::queue<std::packaged_task<void()> > taskQueue_;       //!< Queue for tasks.
         std::vector<std::future<void> > processingThreadPool_;              //!< Pool of processing threads
         std::condition_variable processingThreadCondition_;                //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.
 

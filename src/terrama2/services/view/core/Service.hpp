@@ -102,9 +102,9 @@ namespace terrama2
           //! Connects signals from DataManager
           void connectDataManager();
 
-          static std::shared_ptr< QJsonDocument > viewJob(ViewId viewId,
-                                                          std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
-                                                          std::weak_ptr<DataManager> weakDataManager);
+          void viewJob(ViewId viewId,
+                       std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
+                       std::weak_ptr<DataManager> weakDataManager);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 

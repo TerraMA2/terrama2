@@ -82,7 +82,7 @@ void terrama2::services::view::core::Service::prepareTask(ViewId viewId)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&viewJob, viewId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&Service::viewJob, this, viewId, logger_, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -225,7 +225,7 @@ void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
   addView(view);
 }
 
-std::shared_ptr< QJsonDocument > terrama2::services::view::core::Service::viewJob(ViewId viewId,
+void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                                                       std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
                                                       std::weak_ptr<DataManager> weakDataManager)
 {
@@ -253,19 +253,22 @@ std::shared_ptr< QJsonDocument > terrama2::services::view::core::Service::viewJo
       // do things with TerraLib
     }
 
+    // TODO: enable when geoserver is implemented
+    /*
     if(!viewPtr->geoserverURI.uri().empty())
     {
       // do things with GeoServer
     }
-
+    */
     lock.unlock();
 
     std::shared_ptr< QJsonDocument > sptr_obj;
 
+    emit processFinishedSignal(sptr_obj);
+
     if(logger.get())
       logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
 
-    return sptr_obj;
   }
   catch(const terrama2::Exception& e)
   {
