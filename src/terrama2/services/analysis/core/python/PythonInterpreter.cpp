@@ -216,8 +216,6 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
       throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg);
     }
 
-    Py_INCREF(pCompiledFn);
-
     // create a module
     PyObject* pModule = PyImport_ExecCodeModule((char*)"analysis" , pCompiledFn) ;
     if(pModule == NULL)
@@ -225,8 +223,6 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
       QString errMsg(QObject::tr("Could not register the analysis function."));
       throw PythonInterpreterException() << terrama2::ErrorDescription(errMsg);
     }
-
-    Py_INCREF(pModule);
 
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
@@ -518,6 +514,7 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
       {
         cache.index = PyInt_AsLong(geomIdPy);
       }
+      Py_DECREF(geomKey);
       break;
     }
     case AnalysisType::GRID_TYPE:
@@ -537,10 +534,17 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
       {
         cache.column = PyInt_AsLong(columnValue);
       }
+
+      Py_DECREF(rowKey);
+      Py_DECREF(columnKey);
       break;
     }
 
   }
+
+  Py_DECREF(analysisKey);
+
+
 }
 
 
