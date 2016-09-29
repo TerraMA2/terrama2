@@ -6,4 +6,5 @@ module.exports = function (app) {
 
   app.get('/configuration/views', passport.isAuthenticated, controller.get);
   app.get('/configuration/views/new', passport.isAuthenticated, controller.new);
+  app.get('/configuration/views/edit/:id', passport.isAuthenticated, controller.edit);
 };

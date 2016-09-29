@@ -3,6 +3,7 @@
 
   // Dependency
   var AbstractClass = require("./AbstractData");
+  var URIBuilder = require("./../UriBuilder");
 
   /**
    * It defines a TerraMA² View representation. 
@@ -30,12 +31,12 @@
      * View server URI. The server may be a GeoServer
      * @type {string}
      */
-    this.serverURI = params.serverURI;
+    this.serverUri = params.serverUri;
     /**
      * View layer URI. It is retrieved from TCP Service
      * @type {string}
      */
-    this.layerURI = params.serverURI;
+    this.layerUri = params.serverUri;
     /**
      * View style script
      * @type {string}
@@ -47,10 +48,10 @@
   View.prototype.constructor = View;
 
   View.prototype.rawObject = function() {
-    var obj = this.toObject;
+    var obj = this.toObject();
     delete obj.uri;
-    obj.serverURI = this.serverURI;
-    obj.layerURI = this.layerURI;
+    obj.serverUri = this.serverUri;
+    obj.layerUri = this.layerUri;
 
     return obj;
   }
@@ -60,7 +61,7 @@
       id: this.id,
       name: this.name,
       description: this.description,
-      uri: this.serverURI,
+      serverUri: this.serverUri,
       script: this.script
     });
   };

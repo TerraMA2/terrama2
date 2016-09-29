@@ -17,8 +17,10 @@
   module.exports = function(sequelize, DataTypes) {
     /**
      * It defines a Sequelize View model
+     * 
+     * @type {Sequelize.Model}
      */
-    return sequelize.define("View", {
+    var View = sequelize.define("View", {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -41,21 +43,29 @@
         allowNull: false,
         comment: "XML style script"
       },
-      serverUri: {
+      uri: {
         type: DataTypes.STRING,
         allowNull: false,
-        comment: "GeoServer Connection URI"
-      },
-      layerUri: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        comment: "GeoServer Layer URI"
-      },
+        comment: "Map server connection URI"
+      }
     }, {
       underscored: true,
       underscoredAll: true,
       timestamps: false,
       classMethods: {
+        /**
+         * It applies a table association during models loading.
+         */
+        associate: function(models) {
+          View.belongsTo(models.DataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_id",
+              allowNull: false
+            }
+          });
+        },
+
         /**
          * It generates a Salt to encrypt/decrypt URI credentials
          * 
@@ -88,5 +98,7 @@
         }
       }
     });
+
+    return View;
   };
 }());
