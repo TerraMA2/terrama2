@@ -40,6 +40,7 @@ define(
      * @param {string} parent - Parent id
      * @param {string} layers - HTML code of the layers that will be inside of the layer group
      * @param {string} classes - Classes to be used in the li element
+     * @param {string} style - Style to be used in the li element
      * @returns {string} html - HTML code of the layer group
      *
      * @private
@@ -47,9 +48,9 @@ define(
      * @memberof LayerExplorer
      * @inner
      */
-    var createLayerGroup = function(id, name, parent, layers, classes) {
+    var createLayerGroup = function(id, name, parent, layers, classes, style) {
       classes = classes !== '' ? ' ' + classes : classes;
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li" + classes + "'><span class='group-name'><div class='terrama2-layerexplorer-plus'></div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
+      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li" + classes + "' style='" + style + "'><span class='group-name'><div class='terrama2-layerexplorer-plus'></div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
     };
 
     /**
@@ -61,6 +62,7 @@ define(
      * @param {boolean} visible - Flag that indicates if the layer should be visible when created
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled when created
      * @param {string} classes - Classes to be used in the li element
+     * @param {string} style - Style to be used in the li element
      * @returns {string} html - HTML code of the layer
      *
      * @private
@@ -68,12 +70,12 @@ define(
      * @memberof LayerExplorer
      * @inner
      */
-    var createLayer = function(id, name, title, parent, visible, disabled, classes) {
+    var createLayer = function(id, name, title, parent, visible, disabled, classes, style) {
       var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
       classes = classes !== '' ? classes + ' ' : classes;
       classes += disabled ? "layer disabled-content" : "layer";
 
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' title='" + title + "' id='" + id.replace(':', '') + "' class='" + classes + "'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
+      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' title='" + title + "' id='" + id.replace(':', '') + "' class='" + classes + "' style='" + style + "'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
     };
 
     /**
@@ -82,19 +84,22 @@ define(
      * @param {string} parent - Parent id
      * @param {boolean} appendAtTheEnd - Flag that indicates if the element should be inserted as last element of the parent, if the parameter isn't provided, it's set to false
      * @param {string} classes - Classes to be used in the li element
+     * @param {string} style - Style to be used in the li element
      *
      * @function addLayersFromMap
      * @memberof LayerExplorer
      * @inner
      */
-    var addLayersFromMap = function(id, parent, appendAtTheEnd, classes) {
+    var addLayersFromMap = function(id, parent, appendAtTheEnd, classes, style) {
       appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
       classes = (classes !== null && classes !== undefined) ? classes : '';
+      style = (style !== null && style !== undefined) ? style : '';
 
       var data = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', id);
 
       if(data !== null) {
         data['classes'] = classes;
+        data['style'] = style;
 
         var elem = buildLayersFromMap(data, parent);
 
@@ -154,10 +159,10 @@ define(
         }
 
         if(!$("#" + layer.get('id').replace(':', '')).length)
-          elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem, layer['classes']);
+          elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem, layer['classes'], layer['style']);
       } else {
         if(!$("#" + layer.get('id').replace(':', '')).length)
-          elem = createLayer(layer.get('id'), layer.get('name'), layer.get('title'), parent, layer.get('visible'), layer.get('disabled'), layer['classes']);
+          elem = createLayer(layer.get('id'), layer.get('name'), layer.get('title'), parent, layer.get('visible'), layer.get('disabled'), layer['classes'], layer['style']);
       }
 
       return elem;
