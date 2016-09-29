@@ -458,5 +458,6 @@
 	"End Date": "End Date",
 	"Run": "Run",
 	"Remove data": "Remove data",
-	"Unconfigured GraDs Data Series storage": "Unconfigured GraDs Data Series storage"
+	"Unconfigured GraDs Data Series storage": "Unconfigured GraDs Data Series storage",
+	"Data Server protocol is required": "Data Server protocol is required"
 }
