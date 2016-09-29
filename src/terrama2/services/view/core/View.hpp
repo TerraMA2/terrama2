@@ -64,7 +64,7 @@ namespace terrama2
         */
         struct View
         {
-          std::string viewName;
+          std::string viewName = "";
           ViewId id = 0;//!< View unique identification.
           ProjectId projectId = 0;//!< Identification of the project owner of the view.
           ServiceInstanceId serviceInstanceId = 0;//!< View service instace where the view should be executed.
