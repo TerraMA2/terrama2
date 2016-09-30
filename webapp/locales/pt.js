@@ -189,5 +189,6 @@
 	"Confirm password must be same password": "Confirm password must be same password",
 	"Email is required": "Email is required",
 	"Alert Registration": "Alert Registration",
-	"Reprocessing Historical Data": "Reprocessing Historical Data"
+	"Reprocessing Historical Data": "Reprocessing Historical Data",
+	"Data Server protocol is required": "Data Server protocol is required"
 }
