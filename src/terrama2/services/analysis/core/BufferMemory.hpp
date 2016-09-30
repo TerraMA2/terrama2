@@ -69,8 +69,8 @@ namespace terrama2
         enum BufferType
         {
           NONE = 0, //!< No buffer
-          IN = 1, //!< Only buffer, can be outside or inside.
-          OUT = 2, //!< Only buffer, can be outside or inside.
+          IN = 1, //!< Only inside buffer.
+          OUT = 2, //!< Only outside buffer.
           IN_OUT = 3, //!< Result buffer is the union between outside buffer and inside buffer.
           OUT_UNION = 4, //!< Geometry plus buffer, must be a positive value because it's an outside buffer.
           IN_DIFF = 5, //!< Geometry minus buffer, must be a negative value because it's an inside buffer.
