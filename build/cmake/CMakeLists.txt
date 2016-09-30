@@ -287,6 +287,7 @@ if(NOT QUAZIP_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Quazip library!")
 endif()
 
+set(ThreadPool_INCLUDE_DIRS "${TERRAMA2_ABSOLUTE_ROOT_DIR}/third-party/ThreadPool/")
 
 #
 # build options

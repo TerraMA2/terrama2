@@ -30,6 +30,10 @@
 
 #include <memory>
 
+class ThreadPool;
+//! Shared smart pointer for ThreadPool
+typedef std::shared_ptr<ThreadPool> ThreadPoolPtr;
+
 namespace terrama2
 {
   namespace services
@@ -45,10 +49,6 @@ namespace terrama2
         struct Analysis;
         //! Shared smart pointer for Analysis
         typedef std::shared_ptr<const terrama2::services::analysis::core::Analysis> AnalysisPtr;
-
-        class ThreadPool;
-        //! Shared smart pointer for ThreadPool
-        typedef std::shared_ptr<terrama2::services::analysis::core::ThreadPool> ThreadPoolPtr;
 
         struct AnalysisOutputGrid;
         //! Shared smart pointer for OutputGrid
