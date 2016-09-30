@@ -163,7 +163,7 @@
   padding: 0;
 }
 
-
+/* Sidebar menu */
 .sidebar-menu > view-list > li {
   position: relative;
   margin: 0;
@@ -215,23 +215,23 @@
 .sidebar-menu > view-list .treeview-menu .treeview-menu {
   padding-left: 20px;
 }
-.sidebar-menu > view-list .treeview-menu > li {
+.sidebar-menu > view-list .treeview-menu > div > li {
   margin: 0;
 }
-.sidebar-menu > view-list .treeview-menu > li > a {
+.sidebar-menu > view-list .treeview-menu > div > li > a {
   padding: 5px 5px 5px 15px;
   display: block;
   font-size: 14px;
 }
-.sidebar-menu > view-list .treeview-menu > li > a > .fa,
-.sidebar-menu > view-list .treeview-menu > li > a > .glyphicon,
-.sidebar-menu > view-list .treeview-menu > li > a > .ion {
+.sidebar-menu > view-list .treeview-menu > div > li > a > .fa,
+.sidebar-menu > view-list .treeview-menu > div > li > a > .glyphicon,
+.sidebar-menu > view-list .treeview-menu > div > li > a > .ion {
   width: 20px;
 }
-.sidebar-menu > view-list .treeview-menu > li > a > .pull-right-container > .fa-angle-left,
-.sidebar-menu > view-list .treeview-menu > li > a > .pull-right-container > .fa-angle-down,
-.sidebar-menu > view-list .treeview-menu > li > a > .fa-angle-left,
-.sidebar-menu > view-list .treeview-menu > li > a > .fa-angle-down {
+.sidebar-menu > view-list .treeview-menu > div > li > a > .pull-right-container > .fa-angle-left,
+.sidebar-menu > view-list .treeview-menu > div > li > a > .pull-right-container > .fa-angle-down,
+.sidebar-menu > view-list .treeview-menu > div > li > a > .fa-angle-left,
+.sidebar-menu > view-list .treeview-menu > div > li > a > .fa-angle-down {
   width: auto;
 }
 

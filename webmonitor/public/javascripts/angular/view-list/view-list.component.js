@@ -12,7 +12,6 @@ angular.
         mapViews = response.data;
 
         var groupedData = _.groupBy(mapViews, function(d){return d.type});
-        console.log(groupedData);
 
         var menuUrls = [
           { name: 'Analysis', icon: "fa-book", data: groupedData.Analysis},
@@ -20,7 +19,6 @@ angular.
           { name: 'Dynamic Data', icon: "fa-folder-o", data: groupedData.Dynamic},
           { name: 'Template', icon: "fa-exchange", data: groupedData.Template}
         ]
-        
         self.menuUrls = menuUrls;
       });
 

@@ -6,6 +6,8 @@
     </span>
   </a>
   <ul class="treeview-menu">
-      <li ng-repeat="item in menuItem.data"><a href="#"> <input type="checkbox"> {{item.name}}</a></li>  
+      <div ng-repeat="views in menuItem.data">
+        <li ng-repeat="item in views.layers"><a href="#"> <input type="checkbox"> {{item}}</a></li>
+      </div>  
   </ul>
 </li>
