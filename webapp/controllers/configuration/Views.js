@@ -18,7 +18,7 @@ module.exports = function(app) {
       DataManager.getView({id: parseInt(request.params.id)})
         .then(function(view) {
           var output = Object.assign(
-            {serverUriObject: UriBuilder.buildObject(view.serverUri, UriSyntax)},
+            {serverUriObject: UriBuilder.buildObject(view.uri, UriSyntax)},
             view.rawObject()
           );
           return response.render("configuration/view", {view: output});

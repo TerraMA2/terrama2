@@ -35,7 +35,7 @@
       post: function(request, response) {
         var viewObject = request.body;
 
-        ViewFacade(viewObject)
+        ViewFacade.save(viewObject)
           .then(function(view) {
             // generating token
             var token = Utils.generateToken(app, TokenCode.SAVE, view.name);

@@ -35,7 +35,6 @@
       },
       description: {
         type: DataTypes.TEXT,
-        allowNull: false,
         comment: "View description"
       }, 
       script: {
@@ -61,6 +60,22 @@
             onDelete: "CASCADE",
             foreignKey: {
               name: "data_series_id",
+              allowNull: false
+            }
+          });
+
+          View.belongsTo(models.Schedule, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "schedule_id",
+              allowNull: false
+            }
+          });
+
+          View.hasOne(models.RegisteredView, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "view_id",
               allowNull: false
             }
           });

@@ -5,6 +5,7 @@
       "terrama2",
       "terrama2.views.services",
       "schemaForm",
+      'terrama2.datetimepicker',
       "terrama2.dataseries.services",
       "terrama2.schedule",
       "terrama2.ace",
@@ -49,8 +50,6 @@
      */
     self.dataSeries = [];
 
-    $scope.$broadcast("updateSchedule", {});
-
     /**
      * It retrieves all data provider type to get HTTP fields
      */
@@ -91,7 +90,7 @@
      * It contains view instance values
      * @type {Object}
      */
-    self.view = config.view || {schedule: {}};
+    self.view = config.view || {};
 
     /**
      * Helper to reset alert box instance
@@ -116,6 +115,7 @@
 
       self.view.serverUriObject = $scope.model;
       self.view.serverUriObject.protocol = self.httpSyntax.name;
+      self.view.schedule = $scope.schedule;
 
       // tries to save
       var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
@@ -133,17 +133,15 @@
      * Using $timeout 0 forces to execute when angular ready state is OK.
      */
     $timeout(function() {
+      $scope.$broadcast("updateSchedule", self.view.schedule || {});
+
       $scope.schema = {
         type: "object",
         properties: self.httpSyntax.properties,
         required: self.httpSyntax.required || []
       };
 
-      if (config.view) {
-        var model = config.view.serverUriObject || {};
-      }
-
-      $scope.model = model;
+      $scope.model = config.view ? config.view.serverUriObject || {} : {};
 
       if (self.httpSyntax.display) {
         $scope.form = self.httpSyntax.display;
