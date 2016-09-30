@@ -7,7 +7,8 @@
    * @param {Sequelize.DataTypes} DataTypes - ORM database field types
    */
   module.exports = function(sequelize, DataTypes) {
-    var RegisteredView = sequelize.define("RegisteredView", {
+    var RegisteredView = sequelize.define("RegisteredView", 
+      {
         id: {
           type: DataTypes.INTEGER,
           allowNull: false,
@@ -35,6 +36,14 @@
             RegisteredView.hasMany(models.Layer, {
               onDelete: "CASCADE",
               foreignKey: {
+                allowNull: false
+              }
+            });
+
+            RegisteredView.belongsTo(models.View, {
+              onDelete: "CASCADE",
+              foreignKey: {
+                name: "view_id",
                 allowNull: false
               }
             });

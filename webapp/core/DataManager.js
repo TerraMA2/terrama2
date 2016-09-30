@@ -3097,11 +3097,18 @@ var DataManager = {
 
     return new Promise(function(resolve, reject) {
       models.db.View.findAll(Utils.extend({
+        include: [ 
+          {
+            model: models.db.Schedule,
+          }
+        ],
         where: restriction
       }, options))
         .then(function(views) {
           return resolve(views.map(function(view) {
-            return new DataModel.View(view.get());
+            return new DataModel.View(Object.assign(view.get(), {
+              schedule: new DataModel.Schedule(view.Schedule.get())
+            }));
           }));
         })
 
