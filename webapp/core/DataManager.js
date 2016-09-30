@@ -3157,7 +3157,7 @@ var DataManager = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "serverUri", "layerUri", "script"],
+          fields: ["name", "description", "uri", "data_series_id", "script"],
           where: restriction
         }, options))
 
