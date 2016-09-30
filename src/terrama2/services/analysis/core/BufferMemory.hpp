@@ -69,11 +69,12 @@ namespace terrama2
         enum BufferType
         {
           NONE = 0, //!< No buffer
-          ONLY_BUFFER = 1, //!< Only buffer, can be outside or inside.
-          OUTSIDE_PLUS_INSIDE = 2, //!< Result buffer is the union between outside buffer and inside buffer.
-          OBJECT_PLUS_BUFFER = 3, //!< Geometry plus buffer, must be a positive value because it's an outside buffer.
-          OBJECT_MINUS_BUFFER = 4, //!< Geometry minus buffer, must be a negative value because it's an inside buffer.
-          DISTANCE_ZONE = 5 //! Result buffer is the difference between buffer 1 and buffer 2.
+          IN = 1, //!< Only buffer, can be outside or inside.
+          OUT = 2, //!< Only buffer, can be outside or inside.
+          IN_OUT = 3, //!< Result buffer is the union between outside buffer and inside buffer.
+          OUT_UNION = 4, //!< Geometry plus buffer, must be a positive value because it's an outside buffer.
+          IN_DIFF = 5, //!< Geometry minus buffer, must be a negative value because it's an inside buffer.
+          LEVEL = 6 //! Result buffer is the difference between buffer 1 and buffer 2.
         };
 
         /*!
@@ -88,8 +89,8 @@ namespace terrama2
         struct Buffer
         {
           //! Default constructor
-          Buffer()
-           : bufferType(NONE),
+          Buffer(BufferType type = NONE)
+           : bufferType(type),
            distance(0),
            distance2(0)
           { }

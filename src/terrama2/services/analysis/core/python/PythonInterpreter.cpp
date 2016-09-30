@@ -439,15 +439,17 @@ BOOST_PYTHON_MODULE(terrama2)
 
   // Export BufferType enum to python
   enum_<terrama2::services::analysis::core::BufferType>("BufferType")
-  .value("none", terrama2::services::analysis::core::NONE)
-  .value("only_buffer", terrama2::services::analysis::core::ONLY_BUFFER)
-  .value("outside_plus_inside", terrama2::services::analysis::core::OUTSIDE_PLUS_INSIDE)
-  .value("object_plus_buffer", terrama2::services::analysis::core::OBJECT_PLUS_BUFFER)
-  .value("object_minus_buffer", terrama2::services::analysis::core::OBJECT_MINUS_BUFFER)
-  .value("distance_zone", terrama2::services::analysis::core::DISTANCE_ZONE);
+  .value("None", terrama2::services::analysis::core::NONE)
+  .value("In", terrama2::services::analysis::core::IN)
+  .value("Out", terrama2::services::analysis::core::OUT)
+  .value("In_out", terrama2::services::analysis::core::IN_OUT)
+  .value("Out_union", terrama2::services::analysis::core::OUT_UNION)
+  .value("In_diff", terrama2::services::analysis::core::IN_DIFF)
+  .value("Level", terrama2::services::analysis::core::LEVEL);
 
   // Export class Buffer enum to python
   class_<terrama2::services::analysis::core::Buffer>("Buffer", init<>())
+  .def(init<terrama2::services::analysis::core::BufferType>())
   .def(init<terrama2::services::analysis::core::BufferType, double, std::string>())
   .def(init<terrama2::services::analysis::core::BufferType, double, std::string, double, std::string>())
   .def_readwrite("buffer_type", &terrama2::services::analysis::core::Buffer::bufferType)
