@@ -253,13 +253,20 @@ var Utils = {
               analysisArr.push(analysis.toObject());
             }); // end foreach analysisResult
 
-            resolve({
-              "Analysis": analysisArr,
-              "DataSeries": series,
-              "DataProviders": providers,
-              "Collectors": collectors
-            });
+            DataManager.listViews().then(function(views) {
+              var viewsArr = [];
+              views.forEach(function(view) {
+                viewsArr.push(view.toObject());
+              });
 
+              return resolve({
+                "Analysis": analysisArr,
+                "DataSeries": series,
+                "DataProviders": providers,
+                "Collectors": collectors,
+                "Views": viewsArr
+              });
+            }).catch(_handleError); // end views
           }).catch(_handleError); // end listAnalysis
         }).catch(_handleError); // end listCollectors
       }).catch(_handleError); // end listDataSeries
