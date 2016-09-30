@@ -130,6 +130,10 @@ void terrama2::services::analysis::core::ContextManager::clearContext(const Anal
   auto ita = analysisMap_.find(analysisHashCode);
   if(ita != analysisMap_.cend())
     analysisMap_.erase(ita);
+
+  auto ite = analysisErrorMap_.find(analysisHashCode);
+  if(ite != analysisErrorMap_.cend())
+    analysisErrorMap_.erase(ite);
 }
 
 void terrama2::services::analysis::core::ContextManager::addError(const AnalysisHashCode analysisHashCode, const std::string& error)
@@ -137,12 +141,6 @@ void terrama2::services::analysis::core::ContextManager::addError(const Analysis
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   auto& errorList = analysisErrorMap_[analysisHashCode];
   errorList.insert(error);
-}
-
-void terrama2::services::analysis::core::ContextManager::addError(const std::string& error)
-{
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
-  contextError_.insert(error);
 }
 
 std::set<std::string> terrama2::services::analysis::core::ContextManager::getErrors(const AnalysisHashCode analysisHashCode) const
