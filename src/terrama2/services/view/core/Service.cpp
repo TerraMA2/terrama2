@@ -248,6 +248,11 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     auto viewPtr = dataManager->findView(viewId);
 
+    DataSeriesId dataSeriesId = viewPtr->dataSeriesList.at(0);
+
+    terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
+    terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
     if(!viewPtr->imageName.empty())
     {
       // do things with TerraLib
