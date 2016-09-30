@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "name": "Focos",
+        "type": "Dynamic"
+    },
+    {
+        "id": 2,
+        "name": "Queimadas",
+        "type": "Dynamic"
+    },
+    {
+        "id": 3,
+        "name": "Analise1",
+        "type": "Analysis"
+    },
+    {
+        "id": 4,
+        "name": "Analise2",
+        "type": "Analysis"
+    },
+    {
+        "id": 5,
+        "name": "Estradas",
+        "type": "Static"
+    },
+    {
+        "id": 6,
+        "name": "Estados",
+        "type": "Static"
+    },
+    {
+        "id": 7,
+        "name": "Mundo",
+        "type": "Template"
+    }
+]

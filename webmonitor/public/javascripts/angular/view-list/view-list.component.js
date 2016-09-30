@@ -5,20 +5,22 @@ angular.
     templateUrl: 'javascripts/angular/view-list/view-list.template.html',
     controller: function ViewListController($http) {
       var self = this;
-      var mapViews = {}
+      var mapViews = {};
 
-      $http.get('http://private-a9473-terrama2.apiary-mock.com/views').then(function(response){
+      $http.get('javascripts/angular/view-list/view-list.json').then(function(response){
         self.mapViews = response.data;
         mapViews = response.data;
-        console.log(mapViews);
 
-        var menuUrls = {
-          "projects": { name: 'Analysis', icon: "fa-book", data:["queimada", "estados"]},
-          "static-data": {name: 'Static Data', icon: "fa-cubes", data:mapViews},
-          "dynamic-data": {name: 'Dynamic Data', icon: "fa-folder-o", data:["queimada", "estados"]},
-          "template": {name: 'Template', icon: "fa-exchange", data:["queimada", "estados"]}
-        }
-        console.log(mapViews);
+        var groupedData = _.groupBy(mapViews, function(d){return d.type});
+        console.log(groupedData);
+
+        var menuUrls = [
+          { name: 'Analysis', icon: "fa-book", data: groupedData.Analysis},
+          { name: 'Static Data', icon: "fa-cubes", data: groupedData.Static},
+          { name: 'Dynamic Data', icon: "fa-folder-o", data: groupedData.Dynamic},
+          { name: 'Template', icon: "fa-exchange", data: groupedData.Template}
+        ]
+        
         self.menuUrls = menuUrls;
       });
 
