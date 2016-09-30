@@ -421,6 +421,7 @@ define(
      *    {string} version - WMS version,
      *    {string} format - Layer format,
      *    {object} tileGrid - Grid pattern for accessing the tiles
+     *    {object} sourceParams - Layer source parameters
      * @returns {ol.layer.Tile} tile - New tiled wms layer
      *
      * @private
@@ -431,10 +432,10 @@ define(
     var createTileWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params) {
       params = params !== undefined && params !== null ? params : {};
 
-      var sourceParams = {
-        'LAYERS': layerId,
-        'TILED': true
-      };
+      var sourceParams = params.sourceParams !== undefined && params.sourceParams !== null ? params.sourceParams : {};
+
+      sourceParams['LAYERS'] = layerId;
+      sourceParams['TILED'] = true;
 
       if(params.time !== undefined && params.time !== null && params.time !== '')
         sourceParams['TIME'] = params.time;
@@ -634,6 +635,7 @@ define(
      *    {string} version - WMS version,
      *    {string} format - Layer format,
      *    {object} tileGrid - Grid pattern for accessing the tiles
+     *    {object} sourceParams - Layer source parameters
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addTileWMSLayer
