@@ -64,6 +64,33 @@
        */
       DataSeriesService.list({schema: "all"}).then(function(dataSeries) {
         self.dataSeries = dataSeries;
+
+        /**
+         * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
+         * Using $timeout 0 forces to execute when angular ready state is OK.
+         */
+        $timeout(function() {
+          $scope.schema = {
+            type: "object",
+            properties: self.httpSyntax.properties,
+            required: self.httpSyntax.required || []
+          };
+
+          if (self.isUpdating) {
+            self.schedule = {};
+            $scope.$broadcast("updateSchedule", self.view.schedule || {});
+          }
+
+          $scope.model = config.view ? config.view.serverUriObject || {} : {};
+
+          if (self.httpSyntax.display) {
+            $scope.form = self.httpSyntax.display;
+          } else {
+            $scope.form = ["*"];
+          }
+
+          $scope.$broadcast('schemaFormRedraw');
+        });
       });
     }).error(function(err) {
       $log.info(err);
@@ -115,7 +142,6 @@
 
       self.view.serverUriObject = $scope.model;
       self.view.serverUriObject.protocol = self.httpSyntax.name;
-      self.view.schedule = $scope.schedule;
 
       // tries to save
       var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
@@ -127,30 +153,6 @@
         self.MessageBoxService.danger(i18n.__("View"), err);
       });
     };
-
-    /**
-     * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
-     * Using $timeout 0 forces to execute when angular ready state is OK.
-     */
-    $timeout(function() {
-      $scope.$broadcast("updateSchedule", self.view.schedule || {});
-
-      $scope.schema = {
-        type: "object",
-        properties: self.httpSyntax.properties,
-        required: self.httpSyntax.required || []
-      };
-
-      $scope.model = config.view ? config.view.serverUriObject || {} : {};
-
-      if (self.httpSyntax.display) {
-        $scope.form = self.httpSyntax.display;
-      } else {
-        $scope.form = ["*"];
-      }
-
-      $scope.$broadcast('schemaFormRedraw');
-    });
   }
 
     // Injecting Angular Dependencies
