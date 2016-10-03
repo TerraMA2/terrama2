@@ -158,7 +158,7 @@ terrama2::services::alert::core::AlertPtr newAlert()
 
   alert->additionalDataVector.push_back(additionalData);
 
-  std::unordered_map<std::string, std::string> reportMetadata;
+  std::map<std::string, std::string> reportMetadata;
   reportMetadata[terrama2::services::alert::core::ReportTags::TYPE] = "TXT";
 
   reportMetadata[terrama2::services::alert::core::ReportTags::TITLE] = "NUMERIC RISK EXAMPLE REPORT";

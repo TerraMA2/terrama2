@@ -62,7 +62,7 @@ terrama2::core::TerraMA2Init::TerraMA2Init()
       providersTypes.push_back(providerType.toString().toStdString());
 
     auto jsonMetadata = obj["metadata"].toObject();
-    std::unordered_map<std::string, std::string> metadata;
+    std::map<std::string, std::string> metadata;
     for(auto it = jsonMetadata.constBegin(); it != jsonMetadata.constEnd(); ++it)
       metadata.emplace(it.key().toStdString(), it.value().toString().toStdString()) ;
 

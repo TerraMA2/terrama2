@@ -50,7 +50,7 @@
 
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Geometry* geom,
     const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-    std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap)
+    std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap)
 {
   //TODO: check for other valid types
   auto type = geom->getGeomTypeId();
@@ -116,7 +116,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
 
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Polygon* polygon,
     const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-    std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap)
+    std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap)
 {
   auto firstRaster = rasterList.front();
   //raster values can always be read as double
@@ -147,7 +147,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
 
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Line* line,
     const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-    std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap)
+    std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap)
 {
   auto firstRaster = rasterList.front();
   //raster values can always be read as double
@@ -178,7 +178,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
 
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(std::vector<te::gm::Point*> pointSet,
     const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-    std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>& valuesMap)
+    std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap)
 {
   auto firstRaster = rasterList.front();
   //raster values can always be read as double
@@ -288,7 +288,7 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
 
     /////////////////////////////////////////////////////////////////
     //map of sum of values for each pixel
-    std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash> valuesMap;
+    std::map<std::pair<int, int>, std::pair<double, int> > valuesMap;
 
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)

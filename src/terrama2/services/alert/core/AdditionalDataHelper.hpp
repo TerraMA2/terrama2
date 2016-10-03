@@ -96,8 +96,8 @@ namespace terrama2
             terrama2::core::DataProviderPtr dataProvider_;//!< DataProvider of the AdditionalData
             std::shared_ptr<terrama2::core::FileRemover> remover_; //Temporary files remover.
 
-            std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> dataMap_;//!< DataSetSeries map of the AdditionalData
-            std::unordered_map<terrama2::core::DataSetPtr, std::shared_ptr<terrama2::core::DataSetMapper> > mapperMap_;//!< DataSetMapper map of the AdditionalData
+            std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries> dataMap_;//!< DataSetSeries map of the AdditionalData
+            std::map<terrama2::core::DataSetPtr, std::shared_ptr<terrama2::core::DataSetMapper> > mapperMap_;//!< DataSetMapper map of the AdditionalData
         };
       }
     }

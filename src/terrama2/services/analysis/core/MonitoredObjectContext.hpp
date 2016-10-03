@@ -127,7 +127,7 @@ namespace terrama2
 
               \return The map with the analysis result.
             */
-            inline std::unordered_map<std::string, std::map<std::string, double> > analysisResult() const { return analysisResult_; }
+            inline std::map<std::string, std::map<std::string, double> > analysisResult() const { return analysisResult_; }
 
             /*!
             \brief Sets the analysis result for a geometry and a given attribute.
@@ -176,9 +176,9 @@ namespace terrama2
 
           protected:
             std::set<std::string> attributes_;
-            std::unordered_map<std::string, std::map<std::string, double> >  analysisResult_;
-            std::unordered_map<ObjectKey, std::shared_ptr<ContextDataSeries>, ObjectKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.
-            std::unordered_map<ObjectKey, std::shared_ptr<te::gm::Geometry>, ObjectKeyHash, EqualKeyComparator > bufferDcpMap_; //!< Map containing DCP buffers.
+            std::map<std::string, std::map<std::string, double> >  analysisResult_;
+            std::map<ObjectKey, std::shared_ptr<ContextDataSeries>, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.
+            std::map<ObjectKey, std::shared_ptr<te::gm::Geometry>, EqualKeyComparator > bufferDcpMap_; //!< Map containing DCP buffers.
         };
       }
     }

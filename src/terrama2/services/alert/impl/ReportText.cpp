@@ -34,7 +34,7 @@
 
 #include <QObject>
 
-terrama2::services::alert::core::ReportText::ReportText(std::unordered_map<std::string, std::string> reportMetadata)
+terrama2::services::alert::core::ReportText::ReportText(std::map<std::string, std::string> reportMetadata)
   : Report(reportMetadata)
 {
 

@@ -52,7 +52,7 @@
 #include <terralib/geometry/MultiPolygon.h>
 
 #include <ctime>
-#include <unordered_map>
+#include <map>
 
 // Boost
 #include <boost/filesystem.hpp>

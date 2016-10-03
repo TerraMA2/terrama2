@@ -31,7 +31,7 @@
 #define __TERRAMA2_SERVICES_ALERT_CORE_REPORT_HPP__
 
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include "Shared.hpp"
 #include "../../../core/Shared.hpp"
@@ -74,7 +74,7 @@ namespace terrama2
         class Report
         {
           public:
-            Report(std::unordered_map<std::string, std::string> reportMetadata)
+            Report(std::map<std::string, std::string> reportMetadata)
               : reportMetadata_(reportMetadata) {}
 
             ~Report() = default;
@@ -89,7 +89,7 @@ namespace terrama2
                                  std::shared_ptr<te::da::DataSet> alertDataSet) = 0;
 
           protected:
-            std::unordered_map<std::string, std::string> reportMetadata_;
+            std::map<std::string, std::string> reportMetadata_;
         };
       } /* core */
     } /* alert */

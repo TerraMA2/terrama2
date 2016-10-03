@@ -57,7 +57,7 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::getAbsTi
   return std::stod(time);
 }
 
-void terrama2::services::analysis::core::grid::zonal::history::ratio::appendValues(te::gm::Polygon* polygon, const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList, std::unordered_map<std::pair<int, int>, double, PairHash>& valuesMap)
+void terrama2::services::analysis::core::grid::zonal::history::ratio::appendValues(te::gm::Polygon* polygon, const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList, std::map<std::pair<int, int>, double>& valuesMap)
 {
   auto firstRaster = rasterList.front();
   //raster values can always be read as double
@@ -164,7 +164,7 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
 
     /////////////////////////////////////////////////////////////////
     //map of sum of values for each pixel
-    std::unordered_map<std::pair<int, int>, double, PairHash> valuesMap;
+    std::map<std::pair<int, int>, double > valuesMap;
 
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)

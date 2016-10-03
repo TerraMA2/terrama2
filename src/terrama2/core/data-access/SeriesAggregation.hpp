@@ -35,7 +35,7 @@
 #include "../Shared.hpp"
 #include "DataSetSeries.hpp"
 
-#include <unordered_map>
+#include <map>
 
 namespace terrama2
 {
@@ -49,9 +49,9 @@ namespace terrama2
     {
       public:
         //! Returns a map of DataSet data.
-        const std::unordered_map<DataSetPtr,DataSetSeries >& getSeries();
+        const std::map<DataSetPtr,DataSetSeries >& getSeries();
       protected:
-        std::unordered_map<DataSetPtr,DataSetSeries > dataSeriesMap_;//!< Map of DataSet data.
+        std::map<DataSetPtr,DataSetSeries > dataSeriesMap_;//!< Map of DataSet data.
     };
   }
 }

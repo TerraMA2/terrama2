@@ -49,7 +49,7 @@ namespace terrama2
         class ReportTxt : public ReportText
         {
           public:
-            ReportTxt(std::unordered_map<std::string, std::string> reportMetadata);
+            ReportTxt(std::map<std::string, std::string> reportMetadata);
 
             virtual ~ReportTxt() = default;
             ReportTxt(const ReportTxt& other) = default;
@@ -67,7 +67,7 @@ namespace terrama2
                                      terrama2::core::DataSetPtr dataset,
                                      std::shared_ptr<te::dt::TimeInstantTZ> alertTime) const;
 
-            static ReportPtr make(std::unordered_map<std::string, std::string> reportMetadata);
+            static ReportPtr make(std::map<std::string, std::string> reportMetadata);
             static ReportType reportType() { return "TXT"; }
         };
       } /* core */

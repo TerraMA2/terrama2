@@ -45,7 +45,7 @@ namespace terrama2
         class ReportText : public Report
         {
           public:
-            ReportText(std::unordered_map<std::string, std::string> reportMetadata);
+            ReportText(std::map<std::string, std::string> reportMetadata);
 
             virtual ~ReportText() = default;
             ReportText(const ReportText& other) = default;

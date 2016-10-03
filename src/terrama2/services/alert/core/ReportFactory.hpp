@@ -38,7 +38,7 @@
 
 // STL
 #include <functional>
-#include <unordered_map>
+#include <map>
 
 namespace terrama2
 {
@@ -52,7 +52,7 @@ namespace terrama2
         {
           public:
             //! Report constructor function.
-            typedef std::function<ReportPtr (std::unordered_map<std::string, std::string>)> FactoryFnctType;
+            typedef std::function<ReportPtr (std::map<std::string, std::string>)> FactoryFnctType;
             //! Register a new Report constructor associated with the ReportType.
             bool add(terrama2::services::alert::core::ReportType reportType, FactoryFnctType f);
             //! Remove the Report constructor associated with the ReportType.
@@ -66,7 +66,7 @@ namespace terrama2
 
               \param reportMetadata Params to generate the report.
             */
-            terrama2::services::alert::core::ReportPtr make(terrama2::services::alert::core::ReportType reportType, std::unordered_map<std::string, std::string> reportMetadata);
+            terrama2::services::alert::core::ReportPtr make(terrama2::services::alert::core::ReportType reportType, std::map<std::string, std::string> reportMetadata);
 
           protected:
             friend class te::common::Singleton<ReportFactory>;
@@ -83,7 +83,7 @@ namespace terrama2
 
           private:
 
-            std::unordered_map<terrama2::services::alert::core::ReportType, FactoryFnctType> factoriesMap_;
+            std::map<terrama2::services::alert::core::ReportType, FactoryFnctType> factoriesMap_;
         };
       } /* core */
     } /* alert */

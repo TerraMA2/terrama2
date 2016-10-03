@@ -70,19 +70,50 @@ namespace terrama2
         */
         struct ObjectKey
         {
-          uint32_t objectId_; //!< Object identifier.
-          std::string dateFilterBegin_; //!< Begin date restriction.
-          std::string dateFilterEnd_; //!< End date restriction.
+          public:
+
+            inline ObjectKey(uint32_t objectId, std::string dateFilterBegin = "", std::string dateFilterEnd = "")
+            : objectId_(objectId), dateFilterBegin_(dateFilterBegin), dateFilterEnd_(dateFilterEnd)
+            {
+              hash_ = std::hash<std::string>()(std::to_string(objectId_) + dateFilterBegin_ + dateFilterEnd_);
+            }
+
+            inline std::size_t hashCode() const
+            {
+              return hash_;
+            }
+
+            inline uint32_t getObjectId() const
+            {
+              return objectId_;
+            }
+
+            inline std::string getDateFilterBegin() const
+            {
+              return dateFilterBegin_;
+            }
+
+            inline std::string getDateFilterEnd() const
+            {
+              return dateFilterEnd_;
+            }
+
+          private:
+            uint32_t objectId_; //!< Object identifier.
+            std::string dateFilterBegin_; //!< Begin date restriction.
+            std::string dateFilterEnd_; //!< End date restriction.
+            std::size_t hash_; //! Hash code.
         };
+
+
 
         struct ObjectKeyHash
         {
           std::size_t operator()(ObjectKey const& key) const
           {
-            return std::hash<std::string>()(std::to_string(key.objectId_)+key.dateFilterBegin_+key.dateFilterEnd_);
+            return key.hashCode();
           }
         };
-
 
         /*!
           \brief Comparator the context key.
@@ -94,17 +125,24 @@ namespace terrama2
           */
           bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            if(lhs.objectId_ < rhs.objectId_)
+            if(lhs.getObjectId() < rhs.getObjectId())
             {
               return true;
             }
-            else if(lhs.objectId_ > rhs.objectId_)
+            else if(lhs.getObjectId() > rhs.getObjectId())
             {
               return false;
             }
             else
             {
-              return lhs.dateFilterBegin_.compare(rhs.dateFilterBegin_) < 0;
+              if(lhs.getDateFilterBegin().compare(rhs.getDateFilterBegin()) == 0)
+              {
+                return lhs.getDateFilterEnd().compare(rhs.getDateFilterEnd()) < 0;
+              }
+              else
+              {
+                return lhs.getDateFilterBegin().compare(rhs.getDateFilterBegin()) < 0;
+              }
             }
           }
         };
@@ -113,7 +151,7 @@ namespace terrama2
         {
           bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            return lhs.objectId_ == rhs.objectId_&& lhs.dateFilterBegin_ == rhs.dateFilterBegin_ && lhs.dateFilterEnd_ == rhs.dateFilterEnd_;
+            return lhs.getObjectId() == rhs.getObjectId()&& lhs.getDateFilterBegin() == rhs.getDateFilterBegin() && lhs.getDateFilterEnd() == rhs.getDateFilterEnd();
           }
         };
 
@@ -168,7 +206,7 @@ namespace terrama2
             std::shared_ptr<terrama2::core::SynchronizedInterpolator> getInterpolator(std::shared_ptr<te::rst::Raster> raster);
 
 
-            std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > getSeriesMap(DataSeriesId dataSeriesId,
+            std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > getSeriesMap(DataSeriesId dataSeriesId,
                 const std::string& dateDiscardBefore = "",
                 const std::string& dateDiscardAfter = "");
 
@@ -179,7 +217,7 @@ namespace terrama2
               The parameters dateDiscardBefore and dateDiscardAfter are optional,
               if they are not set only the last raster is returned.
             */
-            std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
+            std::multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
             getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
 
             terrama2::core::Filter createFilter(const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
@@ -204,12 +242,12 @@ namespace terrama2
             std::set<std::string> errorsSet_;
             std::shared_ptr<terrama2::core::FileRemover> remover_;
 
-            std::unordered_map<std::string, terrama2::core::DataSeriesPtr > dataSeriesMap_;
-            std::unordered_map<Srid, std::shared_ptr<te::srs::Converter> > converterMap_;
-            std::unordered_map<ObjectKey, std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator> analysisGridMap_;
-            std::unordered_map<ObjectKey, std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >, ObjectKeyHash, EqualKeyComparator> analysisSeriesMap_;
-            std::unordered_map<ObjectKey, std::vector<std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator > rasterMap_;
-            std::unordered_map<std::shared_ptr<te::rst::Raster>, std::shared_ptr<terrama2::core::SynchronizedInterpolator> > interpolatorMap_;
+            std::map<std::string, terrama2::core::DataSeriesPtr > dataSeriesMap_;
+            std::map<Srid, std::shared_ptr<te::srs::Converter> > converterMap_;
+            std::map<ObjectKey, std::multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >, LessKeyComparator> analysisGridMap_;
+            std::map<ObjectKey, std::map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >, LessKeyComparator> analysisSeriesMap_;
+            std::map<ObjectKey, std::vector<std::shared_ptr<te::rst::Raster> >, LessKeyComparator > rasterMap_;
+            std::map<std::shared_ptr<te::rst::Raster>, std::shared_ptr<terrama2::core::SynchronizedInterpolator> > interpolatorMap_;
         };
 
       }

@@ -32,7 +32,7 @@
 
 // STL
 #include <cstdint>
-#include <unordered_map>
+#include <map>
 
 // TerraMA2
 #include "../../../core/Typedef.hpp"
@@ -49,6 +49,6 @@ namespace terrama2
   }
 }
 
-typedef std::unordered_map< terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > SeriesMap;
+typedef std::map< terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > SeriesMap;
 
 #endif // __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__

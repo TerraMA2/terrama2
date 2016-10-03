@@ -40,7 +40,7 @@ terrama2::core::DataSeriesSemantics terrama2::core::SemanticsManager::addSemanti
                                                                                    const DataSeriesType& dataSeriesType,
                                                                                    const DataFormat& format,
                                                                                    const std::vector<DataProviderType>& providersTypeList,
-                                                                                   const std::unordered_map<std::string, std::string>& metadata)
+                                                                                   const std::map<std::string, std::string>& metadata)
 {
   auto it = semanticsMap_.find(code);
   if(it != semanticsMap_.cend())
