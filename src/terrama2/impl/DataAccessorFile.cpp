@@ -310,7 +310,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     timezone = "UTC+00";
   }
 
-
+  std::string tempFolderPath;
   //fill file list
   QFileInfoList newFileInfoList;
   for(const auto& fileInfo : fileInfoList)
@@ -327,7 +327,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
     {
       //unpack files
-      std::string tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover);
+      tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover, tempFolderPath);
       QDir tempDir(QString::fromStdString(tempFolderPath));
       QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 

@@ -85,6 +85,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 {
   QJsonObject obj;
   obj.insert("class", QString("View"));
+  obj.insert("viewName", QString(view->viewName.c_str()));
   obj.insert("id", static_cast<int32_t>(view->id));
   obj.insert("project_id", static_cast<int32_t>(view->projectId));
   obj.insert("service_instance_id", static_cast<int32_t>(view->serviceInstanceId));
@@ -95,6 +96,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("imageResolutionHeight", static_cast<int32_t>(view->imageResolutionHeight));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
   obj.insert("srid", static_cast<int32_t>(view->srid));
+  obj.insert("geoserverURI", QString(view->geoserverURI.uri().c_str()));
 
   {
     QJsonArray array;
@@ -278,6 +280,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   }
 
   if(!json.contains("id")
+     || !json.contains("viewName")
      || !json.contains("project_id")
      || !json.contains("service_instance_id")
      || !json.contains("active")
@@ -289,7 +292,8 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("srid")
      || !json.contains("data_series_list")
      || !json.contains("filters_per_data_series")
-     || !json.contains("styles_per_data_series"))
+     || !json.contains("styles_per_data_series")
+     || !json.contains("geoserverURI"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -299,6 +303,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
   terrama2::services::view::core::ViewPtr viewPtr(view);
 
+  view->viewName = json["viewName"].toString().toStdString();
   view->id = static_cast<uint32_t>(json["id"].toInt());
   view->projectId = static_cast<uint32_t>(json["project_id"].toInt());
   view->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
@@ -308,6 +313,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   view->imageResolutionWidth = static_cast<uint32_t>(json["imageResolutionWidth"].toInt());
   view->imageResolutionHeight = static_cast<uint32_t>(json["imageResolutionHeight"].toInt());
   view->srid = static_cast<uint32_t>(json["srid"].toInt());
+  view->geoserverURI = te::core::URI(json["geoserverURI"].toString().toStdString());
 
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
 

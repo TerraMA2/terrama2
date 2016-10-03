@@ -201,7 +201,7 @@ namespace terrama2
                                                 std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
 
-        QString replaceMask(QString qString) const;
+        QString grad2TerramaMask(QString qString) const;
 
         GrADSDataDescriptor readDataDescriptor(const std::string& filename) const;
 
@@ -225,4 +225,3 @@ namespace terrama2
 }
 
 #endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRADS_HPP__
-

@@ -28,12 +28,6 @@
 */
 
 
-//TerrraMA2
-#include <terrama2/core/Utils.hpp>
-#include <terrama2/core/Project.hpp>
-#include <terrama2/core/ApplicationController.hpp>
-#include <terrama2/Exception.hpp>
-
 //terralib
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common.h>
@@ -57,56 +51,3 @@ const char* WRONG_TYPE_EXCEPTION = "Wrong exception type";
 const char* UNEXPECTED_BEHAVIOR = "Should not be here";
 
 const char* CANT_ACCESS_DATA = "Can't access data";
-
-void initializeTerralib()
-{
-  // Initialize the Terralib support
-  TerraLib::getInstance().initialize();
-
-  te::plugin::PluginInfo* info;
-  std::string plugins_path = te::common::FindInTerraLibPath("share/terralib/plugins");
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
-
-  try
-  {
-    te::plugin::PluginManager::getInstance().loadAll();
-  }
-  catch(te::plugin::Exception& e)
-  {
-    qDebug() << e.what();
-    assert(0);
-  }
-}
-
-void finalizeTerralib()
-{
-  te::plugin::PluginManager::getInstance().unloadAll();
-
-  TerraLib::getInstance().finalize();
-}
-
-void initializeTerraMA2()
-{
-  initializeTerralib();
-
-  std::string path = terrama2::core::FindInTerraMA2Path("src/unittest/core/data/project.json");
-
-  terrama2::core::Project project(path.c_str());
-  QCOMPARE(terrama2::core::ApplicationController::getInstance().loadProject(project), true);
-  std::shared_ptr<te::da::DataSource> dataSource = terrama2::core::ApplicationController::getInstance().getDataSource();
-  QVERIFY(dataSource.get());
-}
-
-void finalizeTerraMA2()
-{
-  finalizeTerralib();
-
-  terrama2::core::ApplicationController::getInstance().getDataSource()->close();
-}

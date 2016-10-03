@@ -32,7 +32,7 @@
 #include "AnalysisExecutor.hpp"
 #include "python/PythonInterpreter.hpp"
 #include "DataManager.hpp"
-#include "ThreadPool.hpp"
+#include <ThreadPool.h>
 #include "ContextManager.hpp"
 #include "../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
@@ -239,8 +239,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
       throw PythonInterpreterException() << ErrorDescription(errMsg);
     }
 
-    size_t threadNumber = std::min(threadPool->numberOfThreads(), size);
-
+    size_t threadNumber = std::min(threadPool->numberOfThreads(), size); 
 
     // Calculates the number of geometries that each thread will contain.
     size_t packageSize = 1;
@@ -617,8 +616,11 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core:
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
   auto dataManager = context->getDataManager().lock();
-  //FIXME: check dataManager
-  assert(dataManager.get());
+  if(!dataManager.get())
+  {
+    QString errMsg = QObject::tr("Unable to access DataManager.");
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
 
   auto dataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
   if(!dataSeries)
