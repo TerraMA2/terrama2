@@ -112,7 +112,8 @@ define(
         }
 
         // Handle opacity slider control
-        $('input.opacity').slider();
+        if(typeof $('input.opacity').slider === "function")
+          $('input.opacity').slider();
 
         $('.parent_li').find(' > ul > li').hide();
 
@@ -219,7 +220,7 @@ define(
         ev.stopPropagation();
       });
 
-      $('#terrama2-layerexplorer').on('click', 'li.layer', function() {
+      /*$('#terrama2-layerexplorer').on('click', 'li.layer', function() {
         if($(this).hasClass("selected")) {
           $(this).removeClass("selected");
           memberSelectedLayer = null;
@@ -228,7 +229,7 @@ define(
           $(this).addClass("selected");
           memberSelectedLayer = $(this).attr("data-layerid");
         }
-      });
+      });*/
     };
 
     /**
@@ -240,31 +241,33 @@ define(
      * @inner
      */
     var setSortable = function() {
-      $('.children').sortable({
-        items: "li:not(.unsortable)",
-        start: function(event, ui) {
-          $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
-        },
-        update: function(event, ui) {
-          MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
-          $(this).removeAttr('data-previndex');
-        }
-      });
+      if(typeof $('.children').sortable === "function") {
+        $('.children').sortable({
+          items: "li:not(.unsortable)",
+          start: function(event, ui) {
+            $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
+          },
+          update: function(event, ui) {
+            MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
+            $(this).removeAttr('data-previndex');
+          }
+        });
 
-      $('.children').disableSelection();
+        $('.children').disableSelection();
 
-      $('#terrama2-layerexplorer').sortable({
-        items: "li:not(.unsortable)",
-        start: function(event, ui) {
-          $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
-        },
-        update: function(event, ui) {
-          MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
-          $(this).removeAttr('data-previndex');
-        }
-      });
+        $('#terrama2-layerexplorer').sortable({
+          items: "li:not(.unsortable)",
+          start: function(event, ui) {
+            $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
+          },
+          update: function(event, ui) {
+            MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
+            $(this).removeAttr('data-previndex');
+          }
+        });
 
-      $('#terrama2-layerexplorer').disableSelection();
+        $('#terrama2-layerexplorer').disableSelection();
+      }
     };
 
     /**
