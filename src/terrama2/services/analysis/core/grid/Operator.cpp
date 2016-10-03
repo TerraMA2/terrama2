@@ -43,12 +43,13 @@
 
 double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<terrama2::core::SynchronizedInterpolator> interpolator, double column, double row, size_t bandIdx)
 {
-  std::complex<double> val;
-  interpolator->getValue(column, row, val, bandIdx);
+  //TODO: use interpolator!! Cached raster don't have the <complex> type get value the interpolator function calls
+  double value;
+//   interpolator->getValue(column, row, value, bandIdx);
+  raster->getValue(column, row, value, bandIdx);
   auto band = raster->getBand(bandIdx);
 
   double noData = band->getProperty()->m_noDataValue;
-  double value =  val.real();
   if(value == noData)
     return NAN;
   else
