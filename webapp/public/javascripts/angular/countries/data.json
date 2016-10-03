@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Portuguese Brazilian",
+    "id": "br",
+    "locale": "pt_BR"
+  },
+  {
+    "name": "English",
+    "id": "us",
+    "locale": "en_US"
+  },
+  {
+    "name": "France",
+    "id": "fr",
+    "locale": "fr_FR"
+  },
+  {
+    "name": "Spain",
+    "id": "es",
+    "locale": "es_ES"
+  }
+]

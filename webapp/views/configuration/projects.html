@@ -18,7 +18,7 @@
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript">
-  angular.module("terrama2.projects", ['terrama2', 'terrama2.countries', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.services'])
+  angular.module("terrama2.projects", ['terrama2', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.services'])
     .controller("ProjectController", function($scope, $http, Socket, FileDialog, SaveAs, $log, i18n) {
       $scope.model = [];
       $log.warn("initializing");
