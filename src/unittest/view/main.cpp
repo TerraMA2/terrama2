@@ -38,7 +38,6 @@
 // TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
-#include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/Exception.hpp>
 
 #include "TsJsonUtils.hpp"
