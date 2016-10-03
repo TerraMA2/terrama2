@@ -20,19 +20,18 @@
 */
 
 /*!
-  \file src/terrama2/services/view/core/JSonUtils.hpp
+  \file terrama2/services/view/core/se/Exception.hpp
 
-  \brief Methods to convertion between a View and JSon object
+  \brief Exception classes for View components serialization.
 
   \author Vinicius Campanha
-*/
+ */
 
-// TerraMa2
-#include "View.hpp"
-#include "Shared.hpp"
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__
 
-// Qt
-#include <QJsonObject>
+// TerraMA2
+#include "../Exception.hpp"
 
 namespace terrama2
 {
@@ -42,18 +41,14 @@ namespace terrama2
     {
       namespace core
       {
-        /*!
-          \brief Creates a View from a QJsonObject.
-          \see View for json structure
-          */
-        ViewPtr fromViewJson(QJsonObject json);
+        namespace se
+        {
+          //! Base exception class for TerraMA2 view data access.
+          struct Exception : virtual terrama2::core::Exception{ };
+        } /* da */
+      } /* core */
+    } /* view */
+  }   /* services */
+} // end namespace terrama2
 
-        /*!
-          \brief Creates a Json object from a View
-        */
-        QJsonObject toJson(ViewPtr view);
-
-      } // end namespace core
-    }   // end namespace view
-  }     // end namespace services
-}       // end namespace terrama2
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__
