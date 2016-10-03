@@ -307,6 +307,20 @@ void TsUtility::testTimeUtilsAddYear()
     QFAIL("Should not be here!");
 }
 
+void TsUtility::testTimeUtilsScheduleSeconds()
+{
+  terrama2::core::Schedule dataSchedule;
+
+  dataSchedule.scheduleUnit = "WEEK";
+  dataSchedule.schedule     = 1;
+  dataSchedule.scheduleTime = "00:00";
+
+  double res = terrama2::core::TimeUtils::scheduleSeconds(dataSchedule);
+
+  if( res < 0)
+    QFAIL("Should not be here!");
+}
+
 void TsUtility::ValidMask()
 {
   std::string mask = "MMyyyydd-hhssmm.file";

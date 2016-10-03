@@ -234,7 +234,12 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
       boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
 
       double frequencySeconds = terrama2::core::TimeUtils::frequencySeconds(analysis->schedule);
-      double scheduleSeconds = terrama2::core::TimeUtils::scheduleSeconds(analysis->schedule);
+      double scheduleSeconds = terrama2::core::TimeUtils::scheduleSeconds(analysis->schedule, executionDate);
+      if(frequencySeconds < 0 || scheduleSeconds < 0)
+      {
+        TERRAMA2_LOG_ERROR() << QObject::tr("Invalid schedule");
+        return;
+      }
 
       while(titz <= endDate)
       {
