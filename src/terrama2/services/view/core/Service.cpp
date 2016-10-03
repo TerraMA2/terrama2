@@ -42,6 +42,8 @@
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-access/DataStorager.hpp"
 
+#include "../../../impl/DataAccessorFile.hpp"
+
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
@@ -253,18 +255,41 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
     terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
 
-    if(!viewPtr->imageName.empty())
+    DataProviderType dataProviderType = inputDataProvider->dataProviderType;
+
+    if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")
     {
-      // do things with TerraLib
+      TERRAMA2_LOG_ERROR() << QObject::tr("Data provider not supported: %1.").arg(dataProviderType.c_str());
     }
 
-    // TODO: enable when geoserver is implemented
-    /*
     if(!viewPtr->geoserverURI.uri().empty())
     {
-      // do things with GeoServer
+      if(dataProviderType == "FILE")
+      {
+        std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor =
+            std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries));
+
+        terrama2::core::Filter filter(viewPtr->filtersPerDataSeries.at(dataSeriesId));
+        auto remover = std::make_shared<terrama2::core::FileRemover>();
+        SeriesMap series = dataAccessor->getSeries(filter, remover);
+
+        for(auto& serie : series)
+        {
+          terrama2::core::DataSetPtr dataset = serie.first;
+
+          // TODO: mask in folder
+          std::string url = inputDataProvider->uri;
+//          url += dataAccessor->getFolder(dataset);
+          url += dataAccessor->getMask(dataset);
+        }
+      }
     }
-    */
+
+    if(!viewPtr->imageName.empty())
+    {
+      // TODO: do VIEW with TerraLib
+    }
+
     lock.unlock();
 
     std::shared_ptr< QJsonDocument > sptr_obj;
