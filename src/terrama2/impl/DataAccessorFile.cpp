@@ -285,6 +285,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
 
+  std::string tempFolderPath;
   //fill file list
   QFileInfoList newFileInfoList;
   for(const auto& fileInfo : fileInfoList)
