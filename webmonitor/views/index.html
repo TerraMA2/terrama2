@@ -2,28 +2,55 @@
 
 {% block title %} TerraMA² Monitor {% endblock %} 
 
+{% block styles %}
+
+<link rel="stylesheet" type="text/css" href="external/openlayers/ol.css">
+<link rel="stylesheet" type="text/css" href="external/TerraMA2WebComponents/TerraMA2WebComponents.min.css">
+
+{% endblock %}
 {% block sidebar-list %}
 
-<view-list></view-list>
-
+<div id="terrama2-layerexplorer"></div>
 {% endblock %}
 
 {% block content %}
 
-<div id="map" class="map"></div>
-<script type="text/javascript">
-    var map = new ol.Map({
-    target: 'map',
-    layers: [
-        new ol.layer.Tile({
-        source: new ol.source.OSM()
-        })
-    ],
-    view: new ol.View({
-        center: ol.proj.fromLonLat([37.41, 8.82]),
-        zoom: 4
-    })
+
+<div id="terrama2-map" class="terrama2-map"></div>
+
+<script src="/jquery/dist/jquery.min.js"></script>
+<script src="external/openlayers/ol.js"></script>
+<script src="external/TerraMA2WebComponents/TerraMA2WebComponents.min.js"></script>
+<script>
+
+    TerraMA2WebComponents.LayerExplorer.init();
+    TerraMA2WebComponents.MapDisplay.init();
+
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Template", "Template"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Template", "terrama2-layerexplorer", null, "unsortable", null);
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Analysis", "Analysis"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Analysis", "terrama2-layerexplorer", null, "unsortable", null);
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Static", "Static Data"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Static", "terrama2-layerexplorer", null, "unsortable", null);
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Dynamic", "Dynamic Data"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Dynamic", "terrama2-layerexplorer", null, "unsortable", null);
+
+    $.get("https://private-b1c17-terrama2monitor.apiary-mock.com/questions", function( data ) {
+        var groupedData = _.groupBy(data, function(d){return d.type});
+        for (group in groupedData){
+            for (views in groupedData[group]){
+                for (layer in groupedData[group][views].layers){
+                    var workspace = groupedData[group][views].workspace;
+                    var layerName = groupedData[group][views].layers[layer];
+                    var uriGeoServer = groupedData[group][views].uriGeoserver;
+                    var serverType = groupedData[group][views].serverType;
+                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(workspace + ":" + layerName, layerName, layerName, uriGeoServer, serverType, group == "Template", false, group))
+                        TerraMA2WebComponents.LayerExplorer.addLayersFromMap(workspace + ":" + layerName, group, null, "unsortable", null);
+                }
+            }
+        }
     });
+
 </script>
 
 {% endblock %}

@@ -25,7 +25,7 @@
 
 #show-menu .sidebar-toggle {
   float: left;
-  background-color: transparent;
+  background-color: white;
   background-image: none;
   padding: 15px 15px;
   font-family: fontAwesome;
@@ -163,127 +163,41 @@
   padding: 0;
 }
 
-/* Sidebar menu */
-.sidebar-menu > view-list > li {
-  position: relative;
-  margin: 0;
-  padding: 0;
-}
-.sidebar-menu > view-list > li > a {
-  padding: 12px 5px 12px 15px;
-  display: block;
-}
-.sidebar-menu > view-list > li > a > .fa,
-.sidebar-menu > view-list > li > a > .glyphicon,
-.sidebar-menu > view-list > li > a > .ion {
-  width: 20px;
-}
-.sidebar-menu > view-list > li .label,
-.sidebar-menu > view-list > li .badge {
-  margin-right: 5px;
-}
-.sidebar-menu > view-list > li .badge {
-  margin-top: 3px;
-}
-.sidebar-menu > view-list li.header {
-  padding: 10px 25px 10px 15px;
-  font-size: 12px;
-}
-.sidebar-menu > view-list li > a > .fa-angle-left,
-.sidebar-menu > view-list li > a > .pull-right-container > .fa-angle-left {
-  width: auto;
-  height: auto;
-  padding: 0;
-  margin-right: 10px;
-}
-.sidebar-menu > view-list li.active > a > .fa-angle-left > a > .pull-right-container > .fa-angle-left {
-  -webkit-transform: rotate(-90deg);
-  -ms-transform: rotate(-90deg);
-  -o-transform: rotate(-90deg);
-  transform: rotate(-90deg);
-}
-.sidebar-menu > view-list li.active > .treeview-menu {
-  display: block;
-}
-.sidebar-menu > view-list .treeview-menu {
-  display: none;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  padding-left: 5px;
-}
-.sidebar-menu > view-list .treeview-menu .treeview-menu {
-  padding-left: 20px;
-}
-.sidebar-menu > view-list .treeview-menu > div > li {
-  margin: 0;
-}
-.sidebar-menu > view-list .treeview-menu > div > li > a {
-  padding: 5px 5px 5px 15px;
-  display: block;
-  font-size: 14px;
-}
-.sidebar-menu > view-list .treeview-menu > div > li > a > .fa,
-.sidebar-menu > view-list .treeview-menu > div > li > a > .glyphicon,
-.sidebar-menu > view-list .treeview-menu > div > li > a > .ion {
-  width: 20px;
-}
-.sidebar-menu > view-list .treeview-menu > div > li > a > .pull-right-container > .fa-angle-left,
-.sidebar-menu > view-list .treeview-menu > div > li > a > .pull-right-container > .fa-angle-down,
-.sidebar-menu > view-list .treeview-menu > div > li > a > .fa-angle-left,
-.sidebar-menu > view-list .treeview-menu > div > li > a > .fa-angle-down {
-  width: auto;
+.sidebar-menu > div {
+  color: #b8c7ce;
 }
 
-@media (min-width: 768px) {
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li {
-    position: relative;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li > a {
-    margin-right: 0;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li > a > span {
-    border-top-right-radius: 4px;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li:not(.treeview) > a > span {
-    border-bottom-right-radius: 4px;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li > .treeview-menu {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    border-bottom-right-radius: 4px;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li:hover > a > span:not(.pull-right),
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li:hover > .treeview-menu {
-    display: block !important;
-    position: absolute;
-    width: 180px;
-    left: 50px;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li:hover > a > span {
-    top: 0;
-    margin-left: -3px;
-    padding: 12px 5px 12px 20px;
-    background-color: inherit;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li:hover > a > .pull-right-container {
-    float: right;
-    width: auto!important;
-    left: 200px!important;
-    top: 10px!important;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li:hover > a > .pull-right-container > .label:not(:first-of-type) {
-    display: none;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li:hover > .treeview-menu {
-    top: 44px;
-    margin-left: 0;
-  }
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li > a > span,
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li > .treeview-menu,
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list > li > a > .pull-right,
-  .sidebar-mini.sidebar-collapse .sidebar-menu > view-list li.header {
-    display: none !important;
-    -webkit-transform: translateZ(0);
-  }
+#terrama2-layerexplorer:hover {
+  overflow: hidden;
+}
+
+#Dynamic div, #Static div, #Analysis div, #Template div {
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+#Dynamic .pull-right, #Static .pull-right, #Analysis .pull-right, #Template .pull-right{
+  padding-right: 15px;
+}
+
+.terrama2-layerexplorer-minus, .terrama2-layerexplorer-plus {
+  background-image: none !important;
+  float: none !important;
+  width: 14px !important;
+}
+
+.sidebar-mini.sidebar-collapse #terrama2-layerexplorer > li > span > span{
+  display: none;
+}
+
+.sidebar-mini.sidebar-collapse #terrama2-layerexplorer {
+  width: 230px;
+}
+
+.sidebar-mini.sidebar-collapse #terrama2-layerexplorer li{
+  background-color: #222d32;
+}
+.sidebar-mini.sidebar-collapse #terrama2-layerexplorer li:hover > span > span {
+  display: inline;
+  overflow: visible !important;
 }

@@ -24,16 +24,54 @@ $.TerraMAMonitor.pushMenu = {
                 $(".content").css({'height':($(".content-wrapper").height())});
             }
             
+			TerraMA2WebComponents.MapDisplay.updateMapSize();
         })
     }
 }
+
+$('#mini-toggle').click(function(){
+    TerraMA2WebComponents.MapDisplay.updateMapSize();
+});
+
 $(function () {
     "use strict";
 
     var o = $.TerraMAMonitor.options;
 
     $.TerraMAMonitor.pushMenu.activate(o.sidebarToggleSelector);
-    $(".map").height("100%");
+    $(".terrama2-map").height("100%");
+    $(".terrama2-map").width("auto");
     $(".content").css({'height':($(".content-wrapper").height())+'px'});
+
+    $("#Dynamic").find("div").each(function() {
+        $(this).removeClass("terrama2-layerexplorer-plus");
+        $(this).addClass("fa fa-exchange");
+    });
+    $("#Static").find("div").each(function() {
+        $(this).removeClass("terrama2-layerexplorer-plus");
+        $(this).addClass("fa fa-folder-o");
+    });
+    $("#Analysis").find("div").each(function() {
+        $(this).removeClass("terrama2-layerexplorer-plus");
+        $(this).addClass("fa fa-tasks");
+    });
+    $("#Template").find("div").each(function() {
+        $(this).removeClass("terrama2-layerexplorer-plus");
+        $(this).addClass("fa fa-map");
+    });
+
+    var leftArrow = "<span class='pull-right-container'> <i class='fa fa-angle-left pull-right'></i> </span>";
     
+    $("#Dynamic").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#Static").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#Analysis").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#Template").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
 });

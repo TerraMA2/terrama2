@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="monitorApp">
+<html>
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,15 +11,13 @@
     <link rel="stylesheet" href="/AdminLTE/dist/css/AdminLTE.min.css">
     <link rel="stylesheet" href="/AdminLTE/dist/css/skins/skin-black.min.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
-    <link rel="stylesheet" href="http://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
+    {% block styles %}{% endblock %}
     <style>
       .map {
         width: 100%;
       }
     </style>
 
-    <script src="http://openlayers.org/en/v3.18.2/build/ol.js" type="text/javascript"></script>
-    <script src="/angular/angular.js"></script>
   </head>
   <body class="hold-transition skin-black sidebar-mini">
     <div class="wrapper">
@@ -63,9 +61,10 @@
           </ul>
           <!-- /.sidebar-menu -->
         </section>
+        <!-- TODO: adjust css menu sidebar when is collapsed
         <div id="mini-toggle" data-toggle="offcanvas">
            <span class="glyphicon glyphicon-menu-left"></span> 
-        </div>
+        </div> -->
         <!-- /.sidebar -->
       </aside>
 
@@ -90,15 +89,12 @@
       <footer class="main-footer"></footer>
       <footer class="footer-monitor"></footer>
     </div>
-    <!-- ./wrapper -->
-    <script src="/jquery/dist/jquery.min.js"></script>
+    
+    <script src="/jquery-ui/jquery-ui.min.js"></script>
     <script src="/underscore/underscore-min.js"></script>
     <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="/AdminLTE/dist/js/app.min.js"></script>
     <script src="/javascripts/app.js"></script>
-    <script src="/javascripts/angular/app.module.js"></script>
-    <script src="/javascripts/angular/view-list/view-list.module.js"></script>
-    <script src="/javascripts/angular/view-list/view-list.component.js"></script>
 
   </body>
 </html>
