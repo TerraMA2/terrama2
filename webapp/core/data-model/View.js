@@ -24,6 +24,11 @@
      */
     this.name = params.name;
     /**
+     * TerraMA² Project identifier
+     * @type {number}
+     */
+    this.projectId = params.project_id;
+    /**
      * View description
      * @type {string}
      */
@@ -32,12 +37,12 @@
      * View server URI. The server may be a GeoServer
      * @type {string}
      */
-    this.uri = params.uri;
+    this.mapsServerUri = params.maps_server_uri;
     /**
      * View style script
      * @type {string}
      */
-    this.script = params.script;
+    this.style = params.style;
     /** 
      * Registered view retrieved from tcp or database
      * @type {RegisteredView}
@@ -53,6 +58,16 @@
      * @type {Schedule}
      */
     this.schedule = params.schedule || {};
+    /**
+     * View state
+     * @type {boolean}
+     */
+    this.active = params.active;
+    /**
+     * TerraMA² Service Instance Identifier
+     * @type {number}
+     */
+    this.serviceInstanceId = params.service_instance_id;
   }
 
   View.prototype = Object.create(AbstractClass.prototype);
@@ -74,10 +89,13 @@
       id: this.id,
       name: this.name,
       description: this.description,
-      uri: this.uri,
-      script: this.script,
+      maps_server_uri: this.mapsServerUri,
+      style: this.style,
       data_series_id: this.dataSeries,
-      schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : this.schedule
+      schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : this.schedule,
+      active: this.active,
+      service_instance_id: this.serviceInstanceId,
+      project_id: this.projectId
     });
   };
 

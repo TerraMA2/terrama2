@@ -8,6 +8,7 @@
       'terrama2.datetimepicker',
       "terrama2.dataseries.services",
       "terrama2.schedule",
+      "terrama2.administration.services.iservices",
       "terrama2.ace",
       "terrama2.components.messagebox.services",
       "terrama2.components.messagebox"])
@@ -17,7 +18,7 @@
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -31,6 +32,13 @@
      * @type {Object}
      */
     self.MessageBoxService = MessageBoxService;
+
+    /**
+     * It handles Service Instance model
+     * 
+     * @type {Object}
+     */
+    self.ServiceInstance = Service;
 
     /** 
      * @type {Object}
@@ -60,39 +68,45 @@
       });
 
       /**
-       * Retrieve all data series
+       * Retrieve all service instances
        */
-      DataSeriesService.list({schema: "all"}).then(function(dataSeries) {
-        self.dataSeries = dataSeries;
+      self.ServiceInstance.init().then(function() {
 
         /**
-         * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
-         * Using $timeout 0 forces to execute when angular ready state is OK.
+         * Retrieve all data series
          */
-        $timeout(function() {
-          $scope.schema = {
-            type: "object",
-            properties: self.httpSyntax.properties,
-            required: self.httpSyntax.required || []
-          };
+        return DataSeriesService.list({schema: "all"}).then(function(dataSeries) {
+          self.dataSeries = dataSeries;
 
-          if (self.isUpdating) {
-            self.schedule = {};
-            $scope.$broadcast("updateSchedule", self.view.schedule || {});
-          }
+          /**
+           * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
+           * Using $timeout 0 forces to execute when angular ready state is OK.
+           */
+          $timeout(function() {
+            $scope.schema = {
+              type: "object",
+              properties: self.httpSyntax.properties,
+              required: self.httpSyntax.required || []
+            };
 
-          $scope.model = config.view ? config.view.serverUriObject || {} : {};
+            if (self.isUpdating) {
+              self.schedule = {};
+              $scope.$broadcast("updateSchedule", self.view.schedule || {});
+            }
 
-          if (self.httpSyntax.display) {
-            $scope.form = self.httpSyntax.display;
-          } else {
-            $scope.form = ["*"];
-          }
+            $scope.model = config.view ? config.view.serverUriObject || {} : {};
 
-          $scope.$broadcast('schemaFormRedraw');
+            if (self.httpSyntax.display) {
+              $scope.form = self.httpSyntax.display;
+            } else {
+              $scope.form = ["*"];
+            }
+
+            $scope.$broadcast('schemaFormRedraw');
+          });
         });
       });
-    }).error(function(err) {
+    }).catch(function(err) {
       $log.info(err);
       self.MessageBoxService.danger(i18n.__("View"), err);
     });
@@ -143,6 +157,28 @@
       self.view.serverUriObject = $scope.model;
       self.view.serverUriObject.protocol = self.httpSyntax.name;
 
+      // preparing schedule
+      var scheduleValues = self.view.schedule;
+      switch(scheduleValues.scheduleHandler) {
+        case "seconds":
+        case "minutes":
+        case "hours":
+          scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+          scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
+          break;
+        case "weeks":
+        case "monthly":
+        case "yearly":
+          // todo: verify
+          var dt = scheduleValues.schedule_time;
+          scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+          scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+          break;
+
+        default:
+          break;
+      }
+
       // tries to save
       var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
       operation.then(function(response) {
@@ -156,5 +192,5 @@
   }
 
     // Injecting Angular Dependencies
-  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", "DataSeriesService"];
+  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", "DataSeriesService", "Service"];
 } ());

@@ -37,15 +37,21 @@
         type: DataTypes.TEXT,
         comment: "View description"
       }, 
-      script: {
+      style: {
         type: DataTypes.TEXT,
         allowNull: false,
         comment: "XML style script"
       },
-      uri: {
+      maps_server_uri: {
         type: DataTypes.STRING,
         allowNull: false,
         comment: "Map server connection URI"
+      },
+      active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        default: true,
+        comment: "It defines view can be used and retrieved. Default is true."
       }
     }, {
       underscored: true,
@@ -79,15 +85,31 @@
               allowNull: false
             }
           });
+
+          View.belongsTo(models.Project, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "project_id",
+              allowNull: false
+            }
+          });
+
+          View.belongsTo(models.ServiceInstance, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "service_instance_id",
+              allowNull: false
+            }
+          });
         },
 
         /**
          * It generates a Salt to encrypt/decrypt URI credentials
-         * 
+         * @todo Implement it
          * @returns {string}
          */
         generateSalt: function() {
-          return bcrypt.genSaltSync(10);
+          return Utils.generateSalt(10);
         },
         /**
          * It generates a crypted URI

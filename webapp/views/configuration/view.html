@@ -44,7 +44,10 @@
 <script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
 <!-- TerraMA2 Schedule -->
 <script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
+<!-- TerraMA2 Data Series Services -->
 <script type="text/javascript" src="/javascripts/angular/data-series/services.js"></script>
+<!-- TerraMA2 Service Instance Service -->
+<script type="text/javascript" src="/javascripts/angular/services/services.js"></script>
 <!-- TerraMA2 Factory Helpers -->
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
 <!-- TerraMA2 Alert Box -->
@@ -69,7 +72,7 @@
       <form name="forms.viewForm">
         <div class="row">
           <div class="col-md-12">
-            <div class="col-md-12">
+            <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('Name')">:</span></label>
                 <input class="form-control" 
@@ -83,7 +86,39 @@
                       {{ i18n.__('View name is required') }}
                 </span>
               </div>
-            </div> <!-- ./col-md-8 -->
+            </div> <!-- ./col-md-5 -->
+            <div class="col-md-4">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Service')">:</span></label>
+                <select class="form-control" 
+                        name="service" 
+                        ng-model="ctrl.view.service_instance_id"
+                        ng-options="instance.id as instance.name for instance in ctrl.ServiceInstance.model | filter: {'service_type_id': ctrl.ServiceInstance.types.VIEW}" 
+                        required>
+                  <option ng-if="ctrl.services.data.length == 0" 
+                          value="" 
+                          ng-bind="i18n.__('No service instance found')">
+                  </option>
+                </select>
+
+                <span class="help-block" 
+                      ng-show="forms.viewForm.service.$dirty && forms.viewForm.service.$error.required"
+                      ng-bind="i18n.__('Service is required')">
+                </span>
+              </div>
+            </div> <!-- ./col-md-5 -->
+            <div class="col-md-2">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label style="font-weight: 700; margin-top:19px;">
+                    <input type="checkbox" 
+                           name="active" 
+                           ng-model="ctrl.view.active"
+                           ng-init="ctrl.view.active = configuration.view.active || true"> <span ng-bind="i18n.__('Active Server')"></span>
+                  </label>
+                </div>
+              </div>
+            </div> <!-- ./col-md-2 -->
           </div><!-- ./col-md-12 -->
           <div class="col-md-12">
             <div class="col-md-12">
@@ -125,15 +160,15 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Script')" css="ctrl.css">
+    <terrama2-box title="i18n.__('Style')" css="ctrl.css">
       <div class="col-md-12">
         <div class="form-group">
-          <label><span ng-bind="i18n.__('Style')"></span>:</label>
+          <label><span ng-bind="i18n.__('XML Style')"></span>:</label>
 
-          <div terrama2-ace="{languageMode: 'ace/mode/xml'}" ng-model="ctrl.view.script">
+          <div terrama2-ace="{languageMode: 'ace/mode/xml'}" ng-model="ctrl.view.style">
           </div>
 
-          <textarea name="script" class="form-control" rows="10" ng-model="ctrl.view.script" required ng-show="false">
+          <textarea name="script" class="form-control" rows="10" ng-model="ctrl.view.style" required ng-show="false">
           </textarea>
         </div>
       </div>
