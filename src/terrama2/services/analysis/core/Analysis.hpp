@@ -164,7 +164,7 @@ namespace terrama2
         struct AnalysisOutputGrid
         {
           AnalysisId analysisId = 0; //!< Identifier of the analysis.
-          InterpolationMethod interpolationMethod; //!< Interpolation method.
+          InterpolationMethod interpolationMethod = InterpolationMethod::NEARESTNEIGHBOR; //!< Interpolation method.
           double interpolationDummy = 0; //!< Dummy value.
           ResolutionType resolutionType; //!< Resolution type to be used in the output grid.
           DataSeriesId resolutionDataSeriesId; //!< Identifier of the DataSeries to copy the grid resolution.

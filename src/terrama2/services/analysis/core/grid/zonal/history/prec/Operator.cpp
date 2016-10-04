@@ -46,11 +46,12 @@
 #include <terralib/geometry/MultiPolygon.h>
 #include <terralib/geometry/Utils.h>
 #include <terralib/geometry/Enums.h>
-#include <terralib/raster/PositionIterator.h>
 
-void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Geometry* geom,
-    const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-    std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap)
+template<class T>
+void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                  int band,
+                  te::gm::Geometry* geom,
+    std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap)
 {
   //TODO: check for other valid types
   auto type = geom->getGeomTypeId();
@@ -60,7 +61,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
     case te::gm::PolygonType:
     {
       auto polygon = static_cast<te::gm::Polygon*>(geom);
-      appendValues(polygon, rasterList, valuesMap);
+      appendValues(rasterList, band, polygon, valuesMap);
       break;
     }
     case te::gm::MultiPolygonType:
@@ -69,14 +70,14 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
       for(auto geom : multiPolygon->getGeometries())
       {
         auto polygon = static_cast<te::gm::Polygon*>(geom);
-        appendValues(polygon, rasterList, valuesMap);
+        appendValues(rasterList, band, polygon, valuesMap);
       }
       break;
     }
     case te::gm::LineStringType:
     {
       auto line = static_cast<te::gm::Line*>(geom);
-      appendValues(line, rasterList, valuesMap);
+      appendValues(rasterList, band, line, valuesMap);
       break;
     }
     case te::gm::MultiLineStringType:
@@ -85,14 +86,14 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
       for(auto geom : multiLine->getGeometries())
       {
         auto line = static_cast<te::gm::Line*>(geom);
-        appendValues(line, rasterList, valuesMap);
+        appendValues(rasterList, band, line, valuesMap);
       }
       break;
     }
     case te::gm::PointType:
     {
       auto point = static_cast<te::gm::Point*>(geom);
-      appendValues({point}, rasterList, valuesMap);
+      appendValues(rasterList, band, {point}, valuesMap);
       break;
     }
     case te::gm::MultiPointType:
@@ -105,7 +106,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
         pointSet.push_back(point);
       }
 
-      appendValues(pointSet, rasterList, valuesMap);
+      appendValues(rasterList, band, pointSet, valuesMap);
       break;
     }
     default:
@@ -114,15 +115,41 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
   }
 }
 
-void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Polygon* polygon,
-    const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-    std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap)
+template<class T>
+void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                  int band,
+                  te::gm::Polygon* polygon,
+    std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap)
 {
   auto firstRaster = rasterList.front();
   //raster values can always be read as double
-  auto rasterIt = te::rst::PolygonIterator<double>::begin(firstRaster.get(), polygon);
-  auto end = te::rst::PolygonIterator<double>::end(firstRaster.get(), polygon);
+  auto rasterIt = te::rst::PolygonIterator<T>::begin(firstRaster.get(), polygon);
+  auto end = te::rst::PolygonIterator<T>::end(firstRaster.get(), polygon);
 
+  appendValues(rasterList, band, rasterIt, end, valuesMap);
+}
+
+template<class T>
+void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                  int band,
+                  te::gm::Line* line,
+    std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap)
+{
+  auto firstRaster = rasterList.front();
+  //raster values can always be read as double
+  auto rasterIt = te::rst::LineIterator<T>::begin(firstRaster.get(), line);
+  auto end = te::rst::LineIterator<T>::end(firstRaster.get(), line);
+
+  appendValues(rasterList, band, rasterIt, end, valuesMap);
+}
+
+template<class T>
+void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                    int band,
+                    te::rst::AbstractPositionIterator<T>& rasterIt,
+                    te::rst::AbstractPositionIterator<T>& end,
+                    std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
+{
   for(; rasterIt != end; ++rasterIt)
   {
     auto column = rasterIt.getColumn();
@@ -130,7 +157,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
     for(const auto& raster : rasterList)
     {
       double value;
-      raster->getValue(column, row, value);
+      raster->getValue(column, row, value, band);
 
       auto key = std::make_pair(column, row);
       auto it = valuesMap.find(key);
@@ -145,71 +172,28 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
   }
 }
 
-void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(te::gm::Line* line,
-    const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-    std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap)
+template<class T>
+void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                  int band,
+                  std::vector<te::gm::Point*> pointSet,
+    std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap)
 {
   auto firstRaster = rasterList.front();
   //raster values can always be read as double
-  auto rasterIt = te::rst::LineIterator<double>::begin(firstRaster.get(), line);
-  auto end = te::rst::LineIterator<double>::end(firstRaster.get(), line);
+  auto rasterIt = te::rst::PointSetIterator<T>::begin(firstRaster.get(), pointSet);
+  auto end = te::rst::PointSetIterator<T>::end(firstRaster.get(), pointSet);
 
-  for(; rasterIt != end; ++rasterIt)
-  {
-    auto column = rasterIt.getColumn();
-    auto row = rasterIt.getRow();
-    for(const auto& raster : rasterList)
-    {
-      double value;
-      raster->getValue(column, row, value);
-
-      auto key = std::make_pair(column, row);
-      auto it = valuesMap.find(key);
-      if(it == valuesMap.end())
-        valuesMap[key] = std::make_pair(value, 1);
-      else
-      {
-        it->second.first += value;
-        it->second.second++;
-      }
-    }
-  }
-}
-
-void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(std::vector<te::gm::Point*> pointSet,
-    const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-    std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap)
-{
-  auto firstRaster = rasterList.front();
-  //raster values can always be read as double
-  auto rasterIt = te::rst::PointSetIterator<double>::begin(firstRaster.get(), pointSet);
-  auto end = te::rst::PointSetIterator<double>::end(firstRaster.get(), pointSet);
-
-  for(; rasterIt != end; ++rasterIt)
-  {
-    auto column = rasterIt.getColumn();
-    auto row = rasterIt.getRow();
-    for(const auto& raster : rasterList)
-    {
-      double value;
-      raster->getValue(column, row, value);
-
-      auto key = std::make_pair(column, row);
-      auto it = valuesMap.find(key);
-      if(it == valuesMap.end())
-        valuesMap[key] = std::make_pair(value, 1);
-      else
-      {
-        it->second.first += value;
-        it->second.second++;
-      }
-    }
-  }
+  appendValues(rasterList, band, rasterIt, end, valuesMap);
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::prec::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
     const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
+  //FIXME: Preciptation and Ratio operations calculus are inverted
+  assert(0);
+
+  //FIXME: getting from first band
+  int band = 0;
 
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -294,10 +278,11 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
     for(const auto& dataset : datasets)
     {
       auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, dateDiscardAfter);
-      if(rasterList.size() > 1)
+      //sanity check, if no date range only the last raster should be returned
+      if(dateDiscardBefore.empty() && rasterList.size() > 1)
       {
-        //FIXME: should not happen, throw?
-        assert(0);
+        QString errMsg(QObject::tr("Invalid list of raster for dataset: %1").arg(dataset->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
       if(rasterList.empty())
@@ -313,7 +298,7 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
         continue;
 
       geomResult->transform(firstRaster->getSRID());
-      appendValues(geomResult.get(), rasterList, valuesMap);
+      appendValues(rasterList, band, geomResult.get() , valuesMap);
 
       if(!valuesMap.empty())
       {

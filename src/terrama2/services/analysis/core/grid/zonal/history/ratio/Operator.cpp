@@ -57,21 +57,25 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::getAbsTi
   return std::stod(time);
 }
 
-void terrama2::services::analysis::core::grid::zonal::history::ratio::appendValues(te::gm::Polygon* polygon, const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList, std::map<std::pair<int, int>, double>& valuesMap)
+void
+terrama2::services::analysis::core::grid::zonal::history::ratio::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                                                              int band,
+                                                                              te::gm::Polygon* polygon,
+                                                                              std::map<std::pair<int, int>, double>& valuesMap)
 {
   auto firstRaster = rasterList.front();
   //raster values can always be read as double
-  auto it = te::rst::PolygonIterator<double>::begin(firstRaster.get(), polygon);
+  auto polIt = te::rst::PolygonIterator<double>::begin(firstRaster.get(), polygon);
   auto end = te::rst::PolygonIterator<double>::end(firstRaster.get(), polygon);
 
-  for(; it != end; ++it)
+  for(; polIt != end; ++polIt)
   {
-    auto column = it.getColumn();
-    auto row = it.getRow();
+    auto column = polIt.getColumn();
+    auto row = polIt.getRow();
     for(const auto& raster : rasterList)
     {
       double value;
-      raster->getValue(column, row, value);
+      raster->getValue(column, row, value, band);
 
       auto key = std::make_pair(column, row);
       auto it = valuesMap.find(key);
@@ -86,6 +90,11 @@ void terrama2::services::analysis::core::grid::zonal::history::ratio::appendValu
 double terrama2::services::analysis::core::grid::zonal::history::ratio::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
     const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
+  //FIXME: Preciptation and Ratio operations calculus are inverted
+  assert(0);
+
+  //FIXME: getting from first band
+  int band = 0;
 
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -100,7 +109,7 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
   {
     terrama2::core::verify::analysisMonitoredObject(analysis);
   }
-  catch (const terrama2::core::VerifyException&)
+  catch(const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
     return NAN;
@@ -170,10 +179,11 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
     for(const auto& dataset : datasets)
     {
       auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, dateDiscardAfter);
-      if(rasterList.size() > 1)
+      //sanity check, if no date range only the last raster should be returned
+      if(dateDiscardBefore.empty() && rasterList.size() > 1)
       {
-        //FIXME: should not happen, throw?
-        assert(0);
+        QString errMsg(QObject::tr("Invalid list of raster for dataset: %1").arg(dataset->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
       }
 
       if(rasterList.empty())
@@ -195,7 +205,7 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
       if(type == te::gm::PolygonType)
       {
         auto polygon = std::static_pointer_cast<te::gm::Polygon>(geomResult);
-        appendValues(polygon.get(), rasterList, valuesMap);
+        appendValues(rasterList, band, polygon.get(), valuesMap);
       }
       else if(type == te::gm::MultiPolygonType)
       {
@@ -203,7 +213,7 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
         for(auto geom : multiPolygon->getGeometries())
         {
           auto polygon = static_cast<te::gm::Polygon*>(geom);
-          appendValues(polygon, rasterList, valuesMap);
+          appendValues(rasterList, band, polygon, valuesMap);
         }
       }
 

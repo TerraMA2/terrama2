@@ -1,0 +1,27 @@
+<style>
+  .countries-i18n .country .dial-code {
+    display: none;
+  }
+
+  .countries-i18n .intl-tel-input {
+    margin-right: 60px !important;
+    padding: 5px !important;
+  }
+
+  .countries-i18n .intl-tel-input .flag-container {
+    margin-top: 17px !important;
+  }
+
+  .countries-i18n #i18n-input-flags {
+    width: 0px;
+    display: none;
+  }
+</style>
+
+<div class="countries-i18n">
+  <input class="form-control" 
+        name="cellphone"
+        ng-model="user.cellphone" 
+        id="i18n-input-flags" 
+        type="tel">
+</div>

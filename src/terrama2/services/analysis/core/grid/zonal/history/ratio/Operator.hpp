@@ -64,7 +64,10 @@ namespace terrama2
 
                   The map \e values indexes the sum of values of the pixel of all raster by a pair of column X row.
                 */
-                void appendValues(te::gm::Polygon* polygon, const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList, std::map<std::pair<int, int>, double>& values);
+                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  int band,
+                                  te::gm::Polygon* polygon,
+                                  std::map<std::pair<int, int>, double >& valuesMap);
 
                 /*!
                   \brief Implementation of grid zonal operator.

@@ -37,6 +37,9 @@
 // STL
 #include <string>
 
+//Terralib
+#include <terralib/raster/PositionIterator.h>
+
 namespace te
 {
   namespace gm
@@ -70,22 +73,36 @@ namespace terrama2
 
                   This method will call the geometry type especific method.
                 */
-                void appendValues(te::gm::Geometry* geom,
-                                  const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap);
+                template<class T>
+                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  int band,
+                                  te::gm::Geometry* geom,
+                                  std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap);
                 //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the polygon.
-                void appendValues(te::gm::Polygon* polygon,
-                                  const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  std::map<std::pair<int, int>, std::pair<double, int> >& values);
+                template<class T>
+                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  int band,
+                                  te::gm::Polygon* polygon,
+                                  std::map<std::pair<int, int>, std::pair<T, int> >& values);
                 //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the line.
-                void appendValues(te::gm::Line* line,
-                                  const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap);
+                template<class T>
+                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  int band,
+                                  te::gm::Line* line,
+                                  std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap);
                 //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the point set.
-                void appendValues(std::vector<te::gm::Point*> pointSet,
-                                  const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  std::map<std::pair<int, int>, std::pair<double, int> >& valuesMap);
+                template<class T>
+                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  int band,
+                                  std::vector<te::gm::Point*> pointSet,
+                                  std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap);
 
+              template<class T>
+              void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
+                                  int band,
+                                  te::rst::AbstractPositionIterator<T>& rasterIt,
+                                  te::rst::AbstractPositionIterator<T>& end,
+                                  std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap);
                 /*!
                   \brief Implementation of grid zonal operator.
 
@@ -166,7 +183,8 @@ namespace terrama2
                 double median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
-                  \brief Calculates the standard deviation of zonal grid data.
+                  \brief Calcula
+tes the standard deviation of zonal grid data.
 
                   In case of an error or no data available it will return NAN(Not A Number).
 

@@ -224,11 +224,10 @@ int main(int argc, char* argv[])
   }
   catch(...)
   {
-    // TODO: o que fazer com uncaught exception
     std::cout << "\n\nException...\n" << std::endl;
   }
 
-  
+
 
   return 0;
 }

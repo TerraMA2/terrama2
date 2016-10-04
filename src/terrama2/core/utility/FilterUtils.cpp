@@ -42,19 +42,8 @@
 #include <QString>
 #include <QObject>
 
-bool terrama2::core::isValidDataSetName(const std::string& mask,
-                                        const Filter& filter,
-                                        std::string& timezone,
-                                        const std::string& name,
-                                        std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
+std::string terrama2::core::terramaMask2Regex(const std::string& mask)
 {
-  if(!isValidDatedMask(mask))
-  {
-    QString errMsg = QObject::tr("The mask don't have the minimal needed parameters of a date!");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::UtilityException() << ErrorDescription(errMsg);
-  }
-
   /*
     yyyy  year with 4 digits        [0-9]{4}
     yy    year with 2 digits        [0-9]{2}
@@ -78,7 +67,25 @@ bool terrama2::core::isValidDataSetName(const std::string& mask,
   // add a extension validation in case of the name has it
   m += "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?";
 
-  boost::regex expression(m.toStdString());
+  return m.toStdString();
+}
+
+bool terrama2::core::isValidDataSetName(const std::string& mask,
+                                        const Filter& filter,
+                                        std::string& timezone,
+                                        const std::string& name,
+                                        std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
+{
+  if(!isValidDatedMask(mask))
+  {
+    QString errMsg = QObject::tr("The mask don't have the minimal needed parameters of a date!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::UtilityException() << ErrorDescription(errMsg);
+  }
+
+  auto regexString = terramaMask2Regex(mask);
+
+  boost::regex expression(regexString);
   boost::match_results< std::string::const_iterator > match;
 
   if(!boost::regex_match(name, match, expression, boost::match_default))

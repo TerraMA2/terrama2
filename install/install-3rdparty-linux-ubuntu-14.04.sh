@@ -112,20 +112,20 @@ if [ ! -f "$TERRAMA2_DEPENDENCIES_DIR/lib/libquazip5.so" ]; then
  unzip -o quazip-0.7.2.zip &> /dev/null
  valid $? "Error: could not uncompress quazip-0.7.2.zip!"
 
- cd quazip-0.7.2
- valid $? "Error: could not enter quazip-0.7.2"
+ (
+   cd quazip-0.7.2
+   valid $? "Error: could not enter quazip-0.7.2"
 
- cmake . -DCMAKE_INSTALL_PREFIX:PATH="$TERRAMA2_DEPENDENCIES_DIR" -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL="ON"
+   cmake . -DCMAKE_INSTALL_PREFIX:PATH="$TERRAMA2_DEPENDENCIES_DIR" -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL="ON"
 
- valid $? "Error: could not configure Quazip!"
+   valid $? "Error: could not configure Quazip!"
 
- make
- valid $? "Error: could not make Quazip!"
+   make
+   valid $? "Error: could not make Quazip!"
 
- make install
- valid $? "Error: Could not install Quazip!"
-
- cd ..
+   make install
+   valid $? "Error: Could not install Quazip!"
+ )
 fi
 
 

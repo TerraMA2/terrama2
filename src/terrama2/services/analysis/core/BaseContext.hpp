@@ -228,8 +228,9 @@ namespace terrama2
               \param datasetId The DataSet identifier.
               \param raster The raster to be added to the context.
 
+              \return cached raster
             */
-            inline void addRaster(ObjectKey key, std::shared_ptr<te::rst::Raster> raster) { rasterMap_[key].push_back(raster); };
+            std::shared_ptr<te::rst::Raster> addRaster(ObjectKey key, std::shared_ptr<te::rst::Raster> raster);
 
             virtual std::shared_ptr<te::rst::Raster> resampleRaster(std::shared_ptr<te::rst::Raster> raster) { return raster; }
 

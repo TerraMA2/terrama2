@@ -234,12 +234,12 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
 
     for(int row : rows)
     {
+      auto pValueRow = PyInt_FromLong(row);
+      PyDict_SetItemString(state->dict, "row", pValueRow);
       for(int col = 0; col < nCols; ++col)
       {
-        auto pValueRow = PyInt_FromLong(row);
         auto pValueColumn = PyInt_FromLong(col);
 
-        PyDict_SetItemString(state->dict, "row", pValueRow);
         PyDict_SetItemString(state->dict, "column", pValueColumn);
 
 
@@ -250,9 +250,9 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
         else
           outputRaster->setValue(col, row, value);
 
-        Py_DECREF(pValueRow);
         Py_DECREF(pValueColumn);
       }
+      Py_DECREF(pValueRow);
     }
 
     Py_DECREF(pValueAnalysis);

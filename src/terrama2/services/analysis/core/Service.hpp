@@ -34,7 +34,7 @@
 #include "Shared.hpp"
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Shared.hpp"
-#include "ThreadPool.hpp"
+#include "python/PythonInterpreter.hpp"
 
 //STL
 #include <memory>
@@ -133,15 +133,12 @@ namespace terrama2
             */
             void connectDataManager();
 
-
-
-
             PyThreadState* mainThreadState_; //!< Main thread state from Python interpreter.
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
             std::vector<std::pair<AnalysisId, std::shared_ptr<te::dt::TimeInstantTZ> > > analysisQueue_; //!< Analysis queue.
             std::shared_ptr<AnalysisLogger> logger_; //!< Analysis process logger.
             DataManagerPtr dataManager_; //!< Data manager.
-            std::shared_ptr<ThreadPool> threadPool_; //!< Pool of thread to run the analysis.
+            ThreadPoolPtr threadPool_; //!< Pool of thread to run the analysis.
             terrama2::core::StoragerManagerPtr storagerManager_; //!< Manager to control the storage of analysis results.
 
 
