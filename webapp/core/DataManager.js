@@ -73,7 +73,7 @@ var models = null;
  * @property {object} data - Object for storing model values, such DataProviders, DataSeries and Projects.
  * @property {Boolean} isLoaded - A flag value to determines if DataManager has been loaded before.
  */
-var DataManager = {
+var DataManager = module.exports = {
   data: {
     dataFormats: [],
     dataSeriesTypes: [],
@@ -3132,7 +3132,11 @@ var DataManager = {
     return new Promise(function(resolve, reject) {
       models.db.View.create(viewObject, options)
         .then(function(view) {
-          return resolve(new DataModel.View(view.get()));
+          return self.getSchedule({id: view.schedule_id})
+        })
+
+        .then(function(schedule) {
+          return resolve(new DataModel.View(Object.assign(view.get(), {schedule: schedule})));
         })
 
         .catch(function(err) {
@@ -3157,7 +3161,7 @@ var DataManager = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "uri", "data_series_id", "script"],
+          fields: ["name", "description", "maps_server_uri", "data_series_id", "style", "active", "service_instance_id"],
           where: restriction
         }, options))
 
@@ -3198,7 +3202,30 @@ var DataManager = {
           return reject(err);
         });
     });
+  },
+  /**
+   * It removes a view from database
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  removeView: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.getView(restriction, options)
+        .then(function(view) {
+          return self.removeSchedule({id: view.schedule.id}, options);
+        })
+
+        .then(function() {
+          return resolve();
+        })
+        
+        .catch(function() {
+          return reject(new Error("Could not remove view " + err.toString()));
+        });
+    });
   }
 };
-
-module.exports = DataManager;

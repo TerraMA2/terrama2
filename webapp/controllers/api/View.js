@@ -22,7 +22,7 @@
       get: function(request, response) {
         var viewId = request.params.id;
         
-        ViewFacade.retrieve(viewId)
+        ViewFacade.retrieve(viewId, app.locals.activeProject.id)
           .then(function(views) {
             return response.json(views);
           })
@@ -35,7 +35,7 @@
       post: function(request, response) {
         var viewObject = request.body;
 
-        ViewFacade.save(viewObject)
+        ViewFacade.save(viewObject, app.locals.activeProject.id)
           .then(function(view) {
             // generating token
             var token = Utils.generateToken(app, TokenCode.SAVE, view.name);
@@ -50,9 +50,23 @@
       put: function(request, response) {
         var viewId = parseInt(request.params.id);
 
-        ViewFacade.update(viewId, request.body)
+        ViewFacade.update(viewId, request.body, app.locals.activeProject.id)
           .then(function(view) {
             var token = Utils.generateToken(app, TokenCode.UPDATE, view.name);
+            return response.json({status: 200, result: view.toObject(), token: token});
+          })
+
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
+      },
+
+      delete: function(request, response) {
+        var viewId = parseInt(request.params.id);
+
+        ViewFacade.remove(viewId)
+          .then(function(view) {
+            var token = Utils.generateToken(app, TokenCode.DELETE, view.name);
             return response.json({status: 200, result: view.toObject(), token: token});
           })
 

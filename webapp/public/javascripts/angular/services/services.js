@@ -2,7 +2,12 @@
   'use strict';
 
   angular.module("terrama2.administration.services.iservices", ["terrama2", "terrama2.services"])
-    .service("Service", Service);
+    .service("Service", Service)
+    .constant("ServiceType", {
+      COLLECTOR: 1,
+      ANALYSIS: 2,
+      VIEW: 3  
+    });
 
   /**
    * It handles TerraMA² service like dao.
@@ -11,7 +16,7 @@
    * @param {i18n} i18n - Internationalization module
    * @param {ng.IPromise} $q - Angular promiser 
    */
-  function Service(ServiceInstanceFactory, i18n, $q) {
+  function Service(ServiceInstanceFactory, i18n, $q, ServiceType) {
     /**
      * Cached TerraMA² services
      * @type {Object[]}
@@ -26,6 +31,11 @@
      * @type {Object}
      */
     this.factory = ServiceInstanceFactory;
+    /**
+     * TerraMA² Service Types Supported
+     * @type {Object}
+     */
+    this.types = ServiceType;
   }
 
   /**

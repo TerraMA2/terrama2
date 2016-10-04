@@ -26,31 +26,23 @@
 
 {% block content %}
 
-<div class="col-md-12" ng-controller="ViewList as ctrl">
-  <div class="col-md-12">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title"><span ng-bind="i18n.__('Views')"></span></h3>
-      </div><!-- /.box-header -->
+<div ng-controller="ViewList as ctrl">
+  <terrama2-box title="i18n.__('Views')">
+    <div class="col-md-12">
+      <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
+                            close="ctrl.close()">
+      </terrama2-alert-box2>
+    </div>
 
-      <div class="box-body">
-        <div class="col-md-12">
-          <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
-                               close="ctrl.close()">
-          </terrama2-alert-box>
-        </div>
-
-        <terrama2-table fields="ctrl.fields" 
-                        model="ctrl.model"
-                        link="ctrl.link"
-                        icon="ctrl.icon"
-                        icon-properties="ctrl.iconProperties"
-                        link-to-add="ctrl.linkToAdd">
-        </terrama2-table>
-      </div><!-- /.box-body -->
-
-    </div><!-- /.box -->
-  </div> <!-- end col md 6 -->
+      <terrama2-table fields="ctrl.fields" 
+                      model="ctrl.model"
+                      link="ctrl.link"
+                      icon="ctrl.icon"
+                      icon-properties="ctrl.iconProperties"
+                      link-to-add="ctrl.linkToAdd"
+                      remove="ctrl.remove(object);">
+      </terrama2-table>
+  </terrama2-box> <!-- end col md 6 -->
 
 </div> <!-- end col md 12 -->
 

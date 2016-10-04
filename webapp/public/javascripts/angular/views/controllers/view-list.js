@@ -9,7 +9,10 @@
     "terrama2.components.messagebox"])
   .controller("ViewList", ViewList);
 
-
+  /**
+   * It handles TerraMA² View Listing.
+   * @class ViewList
+   */
   function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window) {
     var self = this;
 
@@ -71,6 +74,14 @@
     self.icon = function(object) {
       return "/images/map-display.png";
     }
+
+    /**
+     * Functor to make URL to remove selected view
+     * @param {Object}
+     */
+    self.remove = function(object) {
+      return "/api/View/" + object.id + "/delete";
+    };
 
     /**
      * It retrieves all views registered
