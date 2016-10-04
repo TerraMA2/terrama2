@@ -384,14 +384,15 @@ define(
      * Adds a new layer group to the map.
      * @param {string} id - Layer group id
      * @param {string} name - Layer group name
+     * @param {string} parentGroup - Parent group id
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addLayerGroup
      * @memberof MapDisplay
      * @inner
      */
-    var addLayerGroup = function(id, name) {
-      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', 'terrama2-layerexplorer');
+    var addLayerGroup = function(id, name, parentGroup) {
+      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
       if(layerGroupExists) {
