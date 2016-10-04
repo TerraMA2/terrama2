@@ -1,7 +1,7 @@
 'use strict';
 
 var AbstractRequest = require('./AbstractRequest');
-var Client = require('jsftp');
+var Client = require('ftp');
 var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var Form = require("./Enums").Form;
@@ -21,12 +21,13 @@ FtpRequest.prototype.request = function() {
   return  new Promise(function(resolve, reject) {
     var config = {
       user: self.params[self.syntax().USER],
-      pass: self.params[self.syntax().PASSWORD],
+      password: self.params[self.syntax().PASSWORD],
       host: self.params[self.syntax().HOST],
       port: self.params[self.syntax().PORT]
     };
 
-    var client = new Client(config);
+    var client = new Client();
+    var path = self.params[self.syntax().PATHNAME];
 
     client.on('error', function(err) {
       var error;
@@ -52,13 +53,39 @@ FtpRequest.prototype.request = function() {
       reject(error);
     });
 
-    client.raw.quit(function(err, data) {
-      if (err) {
-        return reject(err);
+    // success state
+    client.on('ready', function() {
+      if (path) {
+        client.list(path, function(err, list) {
+          client.end();
+          if (err) {
+            console.log(err);
+            var genericMessage = "";
+            switch(err.code) {
+              case "EACCES":
+                genericMessage = "Permission denied in \"" + path + "\"";
+                break;
+              case 450: // ENONT: No such file
+                genericMessage = "Path \"" + path + "\" not found.";
+                break;
+              default:
+                genericMessage = err.message;
+            }
+
+            var pathError = new Exceptions.ValidationErrorItem(genericMessage, self.syntax().PATHNAME, path);
+            return reject(new Exceptions.ConnectionError("Path error. " + genericMessage, [pathError]));
+          }
+          resolve();
+        })
+      } else {
+        client.end();
+        resolve();
       }
 
-      resolve();
     });
+
+    // connecting to server
+    client.connect(config);
   });
 };
 

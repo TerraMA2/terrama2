@@ -23,7 +23,7 @@ module.exports = function (app) {
           return next(e);
         }
 
-        // response.status(200);
+        app.locals.collapsed = false;
         return response.redirect('/')
       })
     })(request, response, next)
