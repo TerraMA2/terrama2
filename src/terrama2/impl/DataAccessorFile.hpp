@@ -36,6 +36,9 @@
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"
 
+// Qt
+#include <QFileInfoList>
+
 namespace terrama2
 {
   namespace core
@@ -59,8 +62,26 @@ namespace terrama2
         virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
         // Doc in base class
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
+
         //! Recover file mask
         virtual std::string getMask(DataSetPtr dataset) const;
+
+        virtual std::string getFolder(DataSetPtr dataSet) const;
+
+        /*!
+         * \brief Search in a folder and return a list of files that match the mask and filter
+         * \param folderURI The folder path to do the search
+         * \param mask The files mask
+         * \param timezone Timezone of the data
+         * \param filter DataSet Filter
+         * \param remover
+         * \return A QFileInfoList with  all files that match the mask and filter
+         */
+        static QFileInfoList getDataFileInfoList(const std::string& uri,
+                                                  const std::string& mask,
+                                                  const std::string& timezone,
+                                                  const Filter& filter,
+                                                  std::shared_ptr<terrama2::core::FileRemover> remover);
 
       protected:
         virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
@@ -119,9 +140,8 @@ namespace terrama2
         */
         virtual bool isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn) const;
 
-        virtual std::string getFolder(DataSetPtr dataSet) const;
-
         std::shared_ptr< te::dt::TimeInstantTZ > getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const;
+
     };
   }
 }
