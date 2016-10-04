@@ -72,7 +72,7 @@ std::string terrama2::core::terramaMask2Regex(const std::string& mask)
 
 bool terrama2::core::isValidDataSetName(const std::string& mask,
                                         const Filter& filter,
-                                        std::string& timezone,
+                                        const std::string& timezone,
                                         const std::string& name,
                                         std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
 {
