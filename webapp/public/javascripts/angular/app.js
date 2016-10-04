@@ -1,6 +1,6 @@
 "use strict";
 
-var terrama2Application = angular.module("terrama2", ['i18n']);
+var terrama2Application = angular.module("terrama2", ['i18n', 'terrama2.countries']);
 
 
 /**
@@ -41,7 +41,7 @@ terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function
 }])/
 
 // setting caches
-terrama2Application.run(function($templateCache) {
+terrama2Application.run(function($templateCache, $rootScope, $locale) {
   // TerraMA2 Box
   $templateCache.put('box.html',
   '<div class="col-md-12">' +
@@ -57,7 +57,47 @@ terrama2Application.run(function($templateCache) {
       '</div>' +
     '</div>' +
   '</div>');
+
+  $rootScope.locale = $locale.localeID;
 });
+
+terrama2Application.service("BaseService", BaseService);
+/**
+ * TerraMA² Base service dao
+ * 
+ * @param {ng.IPromise} $q - Angular $q promiser
+ * @param {ng.IHTTP} $http - Angular $http module
+ * 
+ * @class BaseService
+ */
+function BaseService($q, $http) {
+  this.$q = $q;
+  this.$http = $http;
+}
+
+/**
+ * TerraMA² base request URL. It performs $http operation from given request options
+ * 
+ * @param {string} url - URL to request
+ * @param {string} method - HTTP method
+ * @param {Object} options - HTTP options
+ * @returns {ng.IPromise}
+ */
+BaseService.prototype.$request = function(url, method, options) {
+  var self = this;
+  var defer = self.$q.defer();
+
+  self.$http(Object.assign({
+    url: url,
+    method: method
+  }, options)).success(function(data) {
+    return defer.resolve(data);
+  }).error(function(err) {
+    return defer.reject(err);
+  });
+
+  return defer.promise;
+}
 
 /**
  * It tries to parse a value to number/int

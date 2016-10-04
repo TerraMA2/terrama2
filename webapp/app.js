@@ -47,7 +47,7 @@ app.use(flash());
 
 // Setting internationalization
 i18n.configure( {
-  locales        : [ "en", "pt", "fr", "es" ],
+  locales        : [ "en_US", "pt_BR", "fr_FR", "es_ES"],
   directory      : __dirname + "/locales",
   objectNotation : true
 } );
@@ -65,7 +65,7 @@ app.set('views', __dirname + '/views');
 app.use(i18n.init);
 app.use(i18nRoutes.getLocale);
 
-i18nRoutes.configure(app, {"extension": ".js", directory : __dirname + "/locales/"});
+i18nRoutes.configure(app, {"extension": ".json", directory : __dirname + "/locales/"});
 
 // set up the internacionalization middleware
 app.use(function(req, res, next) {
