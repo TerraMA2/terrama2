@@ -75,12 +75,6 @@ namespace terrama2
             inline ObjectKey(uint32_t objectId, std::string dateFilterBegin = "", std::string dateFilterEnd = "")
             : objectId_(objectId), dateFilterBegin_(dateFilterBegin), dateFilterEnd_(dateFilterEnd)
             {
-              hash_ = std::hash<std::string>()(std::to_string(objectId_) + dateFilterBegin_ + dateFilterEnd_);
-            }
-
-            inline std::size_t hashCode() const
-            {
-              return hash_;
             }
 
             inline uint32_t getObjectId() const
@@ -102,17 +96,6 @@ namespace terrama2
             uint32_t objectId_; //!< Object identifier.
             std::string dateFilterBegin_; //!< Begin date restriction.
             std::string dateFilterEnd_; //!< End date restriction.
-            std::size_t hash_; //! Hash code.
-        };
-
-
-
-        struct ObjectKeyHash
-        {
-          std::size_t operator()(ObjectKey const& key) const
-          {
-            return key.hashCode();
-          }
         };
 
         /*!

@@ -148,7 +148,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
                     int band,
                     te::rst::AbstractPositionIterator<T>& rasterIt,
                     te::rst::AbstractPositionIterator<T>& end,
-                    std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
+                    std::map<std::pair<int, int>, std::pair<T, int> >& valuesMap)
 {
   for(; rasterIt != end; ++rasterIt)
   {
