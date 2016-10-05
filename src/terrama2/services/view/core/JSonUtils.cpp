@@ -85,7 +85,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
 {
   QJsonObject obj;
   obj.insert("class", QString("View"));
-  obj.insert("viewName", QString(view->viewName.c_str()));
+  obj.insert("name", QString(view->viewName.c_str()));
   obj.insert("id", static_cast<int32_t>(view->id));
   obj.insert("project_id", static_cast<int32_t>(view->projectId));
   obj.insert("service_instance_id", static_cast<int32_t>(view->serviceInstanceId));
@@ -95,40 +95,17 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("imageResolutionWidth", static_cast<int32_t>(view->imageResolutionWidth));
   obj.insert("imageResolutionHeight", static_cast<int32_t>(view->imageResolutionHeight));
   obj.insert("srid", static_cast<int32_t>(view->srid));
-  obj.insert("geoserverURI", QString(view->geoserverURI.uri().c_str()));
+  obj.insert("maps_server_uri", QString(view->maps_server_uri.uri().c_str()));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
 
-  {
-    QJsonArray array;
-    for(auto& it : view->dataSeriesList)
-    {
-      QJsonObject datasetSeries;
-      datasetSeries.insert("dataset_series_id", static_cast<int32_t>(it));
-      array.push_back(datasetSeries);
-    }
-    obj.insert("data_series_list", array);
-  }
+  DataSeriesId dataSeriesID = view->dataSeriesList.at(0);
 
-  {
-    QJsonArray array;
-    for(auto& it : view->filtersPerDataSeries)
-    {
-      QJsonObject datasetSeriesAndFilter;
-      datasetSeriesAndFilter.insert("dataset_series_id", static_cast<int32_t>(it.first));
-      datasetSeriesAndFilter.insert("dataset_series_filter", terrama2::core::toJson(it.second));
-      array.push_back(datasetSeriesAndFilter);
-    }
-    obj.insert("filters_per_data_series", array);
-  }
+  obj.insert("dataseries_id", static_cast<int32_t>(dataSeriesID));
 
   // Style serialization
   {
-    QJsonArray array;
     for(auto& it : view->stylesPerDataSeries)
     {
-      QJsonObject datasetSeriesAndStyle;
-      datasetSeriesAndStyle.insert("dataset_series_id", static_cast<int32_t>(it.first));
-
       QTemporaryFile file;
       if(!file.open())
         throw Exception() << ErrorDescription("Could not create XML file!");
@@ -143,11 +120,8 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
         throw Exception() << ErrorDescription(errMsg);
       }
 
-      datasetSeriesAndStyle.insert("dataset_series_view_style", QString(content));
-
-      array.push_back(datasetSeriesAndStyle);
+      obj.insert("style", QString(content));
     }
-    obj.insert("styles_per_data_series", array);
   }
 
   return obj;
@@ -279,21 +253,20 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  if(!json.contains("id")
-     || !json.contains("viewName")
+  if(!json.contains("name")
+     || !json.contains("id")
      || !json.contains("project_id")
      || !json.contains("service_instance_id")
      || !json.contains("active")
+     || !json.contains("dataseries_id")
+     || !json.contains("style")
+     || !json.contains("maps_server_uri")
+     || !json.contains("schedule")
      || !json.contains("imageName")
      || !json.contains("imageType")
      || !json.contains("imageResolutionWidth")
      || !json.contains("imageResolutionHeight")
-     || !json.contains("schedule")
-     || !json.contains("srid")
-     || !json.contains("data_series_list")
-     || !json.contains("filters_per_data_series")
-     || !json.contains("styles_per_data_series")
-     || !json.contains("geoserverURI"))
+     || !json.contains("srid"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -303,66 +276,44 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
   terrama2::services::view::core::ViewPtr viewPtr(view);
 
-  view->viewName = json["viewName"].toString().toStdString();
+  view->viewName = json["name"].toString().toStdString();
   view->id = static_cast<uint32_t>(json["id"].toInt());
   view->projectId = static_cast<uint32_t>(json["project_id"].toInt());
   view->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
   view->active = json["active"].toBool();
+
+  uint32_t dataseriesID = static_cast<uint32_t>(json["dataseries_id"].toInt());
+
+  view->dataSeriesList.push_back(dataseriesID);
+
+  {
+    QTemporaryFile file;
+
+    if(!file.open())
+    {
+      QString errMsg = QObject::tr("Could not load the XML file!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    file.write(json["style"].toString().toUtf8());
+    file.flush();
+
+    std::unique_ptr<te::se::Style> style = readStyle(file.fileName().toStdString());
+
+    view->stylesPerDataSeries.emplace(dataseriesID,
+                                      std::unique_ptr<te::se::Style>(style.release()));
+  }
+
+  view->maps_server_uri = te::core::URI(json["maps_server_uri"].toString().toStdString());
+  view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
+
+
   view->imageName = json["imageName"].toString().toStdString();
   view->imageType = te::map::ImageType(json["imageType"].toInt());
   view->imageResolutionWidth = static_cast<uint32_t>(json["imageResolutionWidth"].toInt());
   view->imageResolutionHeight = static_cast<uint32_t>(json["imageResolutionHeight"].toInt());
   view->srid = static_cast<uint32_t>(json["srid"].toInt());
-  view->geoserverURI = te::core::URI(json["geoserverURI"].toString().toStdString());
-
-  view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-
-  {
-    auto datasetSeriesArray = json["data_series_list"].toArray();
-    auto it = datasetSeriesArray.begin();
-    for(; it != datasetSeriesArray.end(); ++it)
-    {
-      auto obj = (*it).toObject();
-      view->dataSeriesList.push_back(static_cast<uint32_t>(obj["dataset_series_id"].toInt()));
-    }
-  }
-
-  {
-    auto datasetSeriesArray = json["filters_per_data_series"].toArray();
-    auto it = datasetSeriesArray.begin();
-    for(; it != datasetSeriesArray.end(); ++it)
-    {
-      auto obj = (*it).toObject();
-      view->filtersPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()), terrama2::core::fromFilterJson(json["dataset_series_filter"].toObject()));
-    }
-  }
-
-  // Read Style
-  {
-    auto datasetSeriesArray = json["styles_per_data_series"].toArray();
-    auto it = datasetSeriesArray.begin();
-    for(; it != datasetSeriesArray.end(); ++it)
-    {
-      auto obj = (*it).toObject();
-
-      QTemporaryFile file;
-
-      if(!file.open())
-      {
-        QString errMsg = QObject::tr("Could not load the XML file!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-
-      file.write(obj["dataset_series_view_style"].toString().toUtf8());
-      file.flush();
-
-      std::unique_ptr<te::se::Style> style = readStyle(file.fileName().toStdString());
-
-      view->stylesPerDataSeries.emplace(static_cast<uint32_t>(obj["dataset_series_id"].toInt()),
-          std::unique_ptr<te::se::Style>(style.release()));
-    }
-  }
 
   return viewPtr;
 }
