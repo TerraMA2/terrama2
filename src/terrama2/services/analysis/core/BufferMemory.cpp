@@ -240,8 +240,8 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
     OccurrenceAggregation* occurrenceAggregation = occurrenceAggVec[i];
 
     OperatorCache cache;
-    std::vector<double> values;
-    for(auto index : occurrenceAggregation->indexes)
+    std::vector<double> values(occurrenceAggregation->indexes.size());
+    for(int j = 0; j < occurrenceAggregation->indexes.size(); ++j)
     {
       cache.count++;
 
@@ -253,8 +253,8 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
           throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
         }
 
-        double value = getValue(syncDs, attribute, index, attributeType);
-        values.push_back(value);
+        double value = getValue(syncDs, attribute, occurrenceAggregation->indexes[j], attributeType);
+        values[j] = value;
         cache.sum += value;
         if(value > cache.max)
           cache.max = value;
