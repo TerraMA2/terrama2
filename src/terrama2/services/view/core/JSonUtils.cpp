@@ -261,12 +261,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("dataseries_id")
      || !json.contains("style")
      || !json.contains("maps_server_uri")
-     || !json.contains("schedule")
-     || !json.contains("imageName")
-     || !json.contains("imageType")
-     || !json.contains("imageResolutionWidth")
-     || !json.contains("imageResolutionHeight")
-     || !json.contains("srid"))
+     || !json.contains("schedule"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
