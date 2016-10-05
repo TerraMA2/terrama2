@@ -7,6 +7,54 @@
 var app = require('../app');
 var debug = require('debug')('myapp:server');
 var http = require('http');
+var io = require('socket.io')();
+
+io.on('connection', function(socket){
+  console.log('a user connected');
+  socket.on('request', function(){
+    var layers = [
+        {
+            "id": 1,
+            "name": "Funco",
+            "type": "Template",
+            "usr": "admin",
+            "pass": "geoserver",
+            "serverType": "geoserver",
+            "uriGeoserver": "http://www.dpi.inpe.br/queimadas-geoserver/ows",
+            "workspace": "queimadas",
+            "layers": ["plano_de_fundo_pyramid"],
+            "params": {}
+        },
+        {
+            "id": 2,
+            "name": "TIs",
+            "type": "Dynamic",
+            "usr": "admin",
+            "pass": "geoserver",
+            "serverType": "geoserver",
+            "uriGeoserver": "http://www.dpi.inpe.br/queimadas-geoserver/ows",
+            "workspace": "queimadas",
+            "layers": ["buffer_5_terras_indigenas"],
+            "params": {}
+        },
+        {
+            "id": 3,
+            "name": "Conservacao",
+            "type": "Dynamic",
+            "usr": "admin",
+            "pass": "geoserver",
+            "serverType": "geoserver",
+            "uriGeoserver": "http://www.dpi.inpe.br/queimadas-geoserver/ows",
+            "workspace": "queimadas",
+            "layers": ["buffer_5_unidades_conservacao_federais"],
+            "params": {}
+        }
+    ]
+    io.emit('layers request', layers);
+  });
+
+  
+});
 
 /**
  * Get port from environment and store in Express.
@@ -28,6 +76,7 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+io.attach(server);
 
 /**
  * Normalize a port into a number, string, or false.
