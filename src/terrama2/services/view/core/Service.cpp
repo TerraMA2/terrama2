@@ -302,7 +302,15 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
           std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor =
               std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries));
 
-          terrama2::core::Filter filter(viewPtr->filtersPerDataSeries.at(inputDataSeries->id));
+          terrama2::core::Filter filter;
+
+          auto it = viewPtr->filtersPerDataSeries.find(inputDataSeries->id);
+
+          if(it != viewPtr->filtersPerDataSeries.end())
+          {
+            filter = terrama2::core::Filter(it->second);
+          }
+
           auto remover = std::make_shared<terrama2::core::FileRemover>();
           SeriesMap seriesMap = dataAccessor->getSeries(filter, remover);
 
@@ -358,6 +366,16 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         }
 
         da::GeoServer geoserver(viewPtr->maps_server_uri);
+        geoserver.registerWorkspace();
+
+        std::string styleName = "";
+        auto it = viewPtr->stylesPerDataSeries.find(inputDataSeries->id);
+
+        if(it != viewPtr->stylesPerDataSeries.end())
+        {
+          styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
+          geoserver.registerStyle(styleName, it->second);
+        }
 
         QJsonArray layersArray;
 
@@ -375,6 +393,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         jsonAnswer.insert("view_id",static_cast<int32_t>(viewPtr->id));
         jsonAnswer.insert("maps_server_uri", QString::fromStdString(geoserver.uri().uri()));
         jsonAnswer.insert("workspace", QString::fromStdString(geoserver.workspace()));
+        jsonAnswer.insert("style", QString::fromStdString(styleName));
         jsonAnswer.insert("layers_list", layersArray);
       }
 
@@ -386,6 +405,8 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     }
 
     emit processFinishedSignal(std::make_shared<QJsonDocument>(jsonAnswer));
+
+    TERRAMA2_LOG_INFO() << tr("View %1 generated successfully.").arg(viewId);
 
     if(logger.get())
       logger->done(terrama2::core::TimeUtils::nowUTC(), logId);

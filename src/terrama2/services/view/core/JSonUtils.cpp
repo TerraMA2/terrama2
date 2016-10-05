@@ -128,6 +128,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
 
   view->dataSeriesList.push_back(dataseriesID);
 
+  if(!json["style"].toString().isEmpty())
   {
     QTemporaryFile file;
 

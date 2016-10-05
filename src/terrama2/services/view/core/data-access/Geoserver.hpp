@@ -64,7 +64,7 @@ namespace terrama2
            * \param uri The address of the GeoServer. Format: http://user:password@localhost:0000/geoserver
            * \param workspace A workspace to work in GeoServer
            */
-            GeoServer(const te::core::URI uri, const std::string workspace = "terrama");
+            GeoServer(const te::core::URI uri);
 
             /*!
            * \brief GeoServer class default destructor
@@ -88,7 +88,7 @@ namespace terrama2
            *        It will also set the new name to the class workspace
            * \param name The workspace name
            */
-            void registerWorkspace(const std::string& name);
+            void registerWorkspace(const std::string& name = std::string());
 
             /*!
              * \brief Return the working workspace
@@ -229,7 +229,7 @@ namespace terrama2
           private:
 
             te::core::URI uri_;     /*!< The address of the GeoServer */
-            std::string workspace_; /*!< A workspace to work in GeoServer */
+            std::string workspace_ = "terrama"; /*!< A workspace to work in GeoServer */
 
           };
         }

@@ -44,8 +44,8 @@
 #include <QTemporaryFile>
 
 
-terrama2::services::view::core::da::GeoServer::GeoServer(const te::core::URI uri, const std::string workspace)
-  : uri_(uri), workspace_(workspace)
+terrama2::services::view::core::da::GeoServer::GeoServer(const te::core::URI uri)
+  : uri_(uri)
 {
 
 }
@@ -67,7 +67,10 @@ void terrama2::services::view::core::da::GeoServer::registerWorkspace(const std:
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  workspace_ = name;
+  if(!name.empty())
+  {
+    workspace_ = name;
+  }
 
   te::core::URI uriPost(uri_.uri() + "/rest/workspaces");
 
