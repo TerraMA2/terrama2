@@ -293,7 +293,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         TERRAMA2_LOG_ERROR() << QObject::tr("Data provider not supported: %1.").arg(dataProviderType.c_str());
       }
 
-      if(!viewPtr->geoserverURI.uri().empty())
+      if(!viewPtr->maps_server_uri.uri().empty())
       {
         QFileInfoList fileInfoList;
 
@@ -357,7 +357,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
           }
         }
 
-        da::GeoServer geoserver(viewPtr->geoserverURI);
+        da::GeoServer geoserver(viewPtr->maps_server_uri);
 
         QJsonArray layersArray;
 
