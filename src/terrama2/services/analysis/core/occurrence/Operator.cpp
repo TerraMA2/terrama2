@@ -57,6 +57,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
+  return NAN;
+
   auto& contextManager = ContextManager::getInstance();
   auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
   try
@@ -167,6 +169,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
           std::vector<uint32_t> indexes;
           uint32_t countValues = 0;
+          std::vector<double> values;
+
           terrama2::core::SynchronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
 
           if(syncDs->size() == 0)
@@ -185,7 +189,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
             contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);
 
 
-            std::vector<double> values;
 
             int attributeType = 0;
             if(!attribute.empty())
@@ -214,6 +217,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                 continue;
               }
 
+              // Allocate memory for dataset size
+              values.resize(bufferDs->size());
               for(unsigned int i = 0; i < bufferDs->size(); ++i)
               {
                 bufferDs->move(i);
@@ -236,7 +241,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                       ++countValues;
 
                       cache.count++;
-                      values.push_back(value);
+                      values[countValues] = value;
                     }
                   }
                   catch(...)
@@ -249,6 +254,9 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
             }
             else
             {
+
+              // Allocate memory for indexes size
+              values.resize(indexes.size());
               for(uint32_t i : indexes)
               {
                 // Verifies if the occurrence intersects the monitored object
@@ -270,7 +278,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
                       cache.count++;
 
-                      values.push_back(value);
+                      values[cache.count] = value;
                     }
                   }
                   catch(...)
@@ -280,7 +288,12 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                   }
                 }
               }
+
+
+              // Resize the vector for the number of valid values
+              values.resize(cache.count);
             }
+
 
 
             terrama2::services::analysis::core::calculateStatistics(values, cache);

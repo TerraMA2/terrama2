@@ -199,13 +199,17 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                 attributeType = property->getType();
               }
 
-              uint32_t countValues = 0;
 
               if(dcpSyncDs->size() == 0)
+              {
                 continue;
+              }
 
-              // fills the vector with values
-              std::vector<double> values;
+              uint32_t countValues = 0;
+
+              // Allocates the space for the size of the dataset
+              std::vector<double> values(dcpSyncDs->size());
+
               for(unsigned int i = 0; i < dcpSyncDs->size(); ++i)
               {
                 try
@@ -216,8 +220,9 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                     double value = getValue(dcpSyncDs, attribute, i, attributeType);
                     if(std::isnan(value))
                       continue;
+
+                    values[countValues] = value;
                     countValues++;
-                    values.push_back(value);
                   }
                 }
                 catch(...)
@@ -226,6 +231,9 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                   continue;
                 }
               }
+
+              //Resize to the number of valid values
+              values.resize(countValues);
 
               if(countValues == 0)
                 continue;
