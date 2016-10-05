@@ -54,6 +54,7 @@
 
 // Qt
 #include <QUrl>
+#include <QJsonArray>
 
 terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::services::view::core::DataManager> dataManager)
   : dataManager_(dataManager)
@@ -250,6 +251,8 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     return;
   }
 
+  QJsonObject jsonAnswer;
+
   try
   {
     RegisterId logId = 0;
@@ -356,10 +359,23 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
         da::GeoServer geoserver(viewPtr->geoserverURI);
 
+        QJsonArray layersArray;
+
         for(auto& fileInfo : fileInfoList)
         {
-          geoserver.registerVectorFile("datastore", fileInfo.absoluteFilePath().toStdString(), fileInfo.completeSuffix().toStdString());
+          geoserver.registerVectorFile("datastore", fileInfo.absoluteFilePath().toStdString(),
+                                       fileInfo.completeSuffix().toStdString());
+
+          QJsonObject datasetSeries;
+          datasetSeries.insert("layer", fileInfo.baseName());
+          layersArray.push_back(datasetSeries);
         }
+
+        jsonAnswer.insert("class", QString("RegisteredViews"));
+        jsonAnswer.insert("view_id",static_cast<int32_t>(viewPtr->id));
+        jsonAnswer.insert("maps_server_uri", QString::fromStdString(geoserver.uri().uri()));
+        jsonAnswer.insert("workspace", QString::fromStdString(geoserver.workspace()));
+        jsonAnswer.insert("layers_list", layersArray);
       }
 
       if(!viewPtr->imageName.empty())
@@ -369,9 +385,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     }
 
-    std::shared_ptr< QJsonDocument > sptr_obj;
-
-    emit processFinishedSignal(sptr_obj);
+    emit processFinishedSignal(std::make_shared<QJsonDocument>(jsonAnswer));
 
     if(logger.get())
       logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
