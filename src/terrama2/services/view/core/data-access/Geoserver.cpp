@@ -51,6 +51,12 @@ terrama2::services::view::core::da::GeoServer::GeoServer(const te::core::URI uri
 }
 
 
+const te::core::URI& terrama2::services::view::core::da::GeoServer::uri() const
+{
+  return uri_;
+}
+
+
 void terrama2::services::view::core::da::GeoServer::setWorkspace(const std::string& workspace)
 {
   workspace_ = workspace;
@@ -74,6 +80,12 @@ void terrama2::services::view::core::da::GeoServer::registerWorkspace(const std:
 
   // Register style
   cURLwrapper.post(uriPost, "<workspace><name>" + workspace_ + "</name></workspace>", "Content-Type: text/xml");
+}
+
+
+const std::string& terrama2::services::view::core::da::GeoServer::workspace() const
+{
+  return workspace_;
 }
 
 

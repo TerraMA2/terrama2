@@ -72,6 +72,12 @@ namespace terrama2
             ~GeoServer() = default;
 
             /*!
+             * \brief Return the working uri
+             * \return Return the working uri
+             */
+            const te::core::URI& uri() const;
+
+            /*!
            * \brief Set a workspace to work in GeoServer
            * \param workspace The workspace name
            */
@@ -83,6 +89,12 @@ namespace terrama2
            * \param name The workspace name
            */
             void registerWorkspace(const std::string& name);
+
+            /*!
+             * \brief Return the working workspace
+             * \return Return the working workspace
+             */
+            const std::string& workspace() const;
 
             /*!
            * \brief This method register a table in a PostGis BD as a layer in GeoServer
