@@ -3130,9 +3130,11 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
+      var view;
       models.db.View.create(viewObject, options)
-        .then(function(view) {
-          return self.getSchedule({id: view.schedule_id})
+        .then(function(viewResult) {
+          view = viewResult;
+          return self.getSchedule({id: view.schedule_id}, options)
         })
 
         .then(function(schedule) {
