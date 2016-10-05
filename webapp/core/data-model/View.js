@@ -3,14 +3,16 @@
 
   // Dependency
   var AbstractClass = require("./AbstractData");
+  var URIBuilder = require("./../UriBuilder");
+  var RegisteredView = require("./RegisteredView");
 
   /**
    * It defines a TerraMA² View representation. 
    * @class View
    */
   function View(params) {
+    // Calling base abstraction
     AbstractClass.call(this, {'class': 'View'});
-    
     /**
      * View identifier
      * @type {number}
@@ -22,6 +24,11 @@
      */
     this.name = params.name;
     /**
+     * TerraMA² Project identifier
+     * @type {number}
+     */
+    this.projectId = params.project_id;
+    /**
      * View description
      * @type {string}
      */
@@ -30,38 +37,68 @@
      * View server URI. The server may be a GeoServer
      * @type {string}
      */
-    this.serverURI = params.serverURI;
-    /**
-     * View layer URI. It is retrieved from TCP Service
-     * @type {string}
-     */
-    this.layerURI = params.serverURI;
+    this.mapsServerUri = params.maps_server_uri;
     /**
      * View style script
      * @type {string}
      */
-    this.script = params.script;
+    this.style = params.style;
+    /** 
+     * Registered view retrieved from tcp or database
+     * @type {RegisteredView}
+     */
+    this.registeredView = {};
+    /**
+     * Data series associated
+     * @type {DataSeries}
+     */
+    this.dataSeries = params.data_series_id;
+    /**
+     * Schedule associated
+     * @type {Schedule}
+     */
+    this.schedule = params.schedule || {};
+    /**
+     * View state
+     * @type {boolean}
+     */
+    this.active = params.active;
+    /**
+     * TerraMA² Service Instance Identifier
+     * @type {number}
+     */
+    this.serviceInstanceId = params.service_instance_id;
   }
 
   View.prototype = Object.create(AbstractClass.prototype);
   View.prototype.constructor = View;
-
+  /**
+   * It builds a database representation of View
+   */
   View.prototype.rawObject = function() {
-    var obj = this.toObject;
-    delete obj.uri;
-    obj.serverURI = this.serverURI;
-    obj.layerURI = this.layerURI;
-
+    var obj = this.toObject();
+    delete obj.dataseries_id;
+    obj.data_series_id = this.dataSeries;
     return obj;
   }
 
+  /**
+   * It builds a standardized TCP format
+   * 
+   * @returns {Object}
+   */
   View.prototype.toObject = function() {
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.name,
       description: this.description,
-      uri: this.serverURI,
-      script: this.script
+      maps_server_uri: this.mapsServerUri,
+      style: this.style,
+      dataseries_id: this.dataSeries,
+      schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : this.schedule,
+      active: this.active,
+      service_instance_id: this.serviceInstanceId,
+      project_id: this.projectId
     });
   };
 

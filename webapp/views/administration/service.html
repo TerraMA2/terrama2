@@ -108,8 +108,9 @@
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Type") }}:</label>
                   <select class="form-control" name="type" ng-disabled="update" ng-model="service.service_type_id" required>
-                    <option value="1">Collector</option>
-                    <option value="2">Analysis</option>
+                    <option value="1">{{ i18n.__('Collector') }}</option>
+                    <option value="2">{{ i18n.__('Analysis') }}</option>
+                    <option value="3">{{ i18n.__('View') }}</option>
                   </select>
 
                   <span class="form-control-feedback glyphicon terrama2-combobox-feedback" ng-show="serviceForm.type.$dirty" ng-class="{'glyphicon-ok': serviceForm.type.$valid, 'glyphicon-remove': serviceForm.type.$invalid }"></span>

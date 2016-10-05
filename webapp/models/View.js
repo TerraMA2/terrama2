@@ -17,8 +17,10 @@
   module.exports = function(sequelize, DataTypes) {
     /**
      * It defines a Sequelize View model
+     * 
+     * @type {Sequelize.Model}
      */
-    return sequelize.define("View", {
+    var View = sequelize.define("View", {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -33,36 +35,81 @@
       },
       description: {
         type: DataTypes.TEXT,
-        allowNull: false,
         comment: "View description"
       }, 
-      script: {
+      style: {
         type: DataTypes.TEXT,
         allowNull: false,
         comment: "XML style script"
       },
-      serverUri: {
+      maps_server_uri: {
         type: DataTypes.STRING,
         allowNull: false,
-        comment: "GeoServer Connection URI"
+        comment: "Map server connection URI"
       },
-      layerUri: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        comment: "GeoServer Layer URI"
-      },
+      active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        default: true,
+        comment: "It defines view can be used and retrieved. Default is true."
+      }
     }, {
       underscored: true,
       underscoredAll: true,
       timestamps: false,
       classMethods: {
         /**
+         * It applies a table association during models loading.
+         */
+        associate: function(models) {
+          View.belongsTo(models.DataSeries, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_id",
+              allowNull: false
+            }
+          });
+
+          View.belongsTo(models.Schedule, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "schedule_id",
+              allowNull: false
+            }
+          });
+
+          View.hasOne(models.RegisteredView, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "view_id",
+              allowNull: false
+            }
+          });
+
+          View.belongsTo(models.Project, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "project_id",
+              allowNull: false
+            }
+          });
+
+          View.belongsTo(models.ServiceInstance, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "service_instance_id",
+              allowNull: false
+            }
+          });
+        },
+
+        /**
          * It generates a Salt to encrypt/decrypt URI credentials
-         * 
+         * @todo Implement it
          * @returns {string}
          */
         generateSalt: function() {
-          return bcrypt.genSaltSync(10);
+          return Utils.generateSalt(10);
         },
         /**
          * It generates a crypted URI
@@ -88,5 +135,7 @@
         }
       }
     });
+
+    return View;
   };
 }());
