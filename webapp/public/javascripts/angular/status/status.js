@@ -18,23 +18,23 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     $scope.fields = [
       {
         key: 'type',
-        as: 'Type'
+        as: i18n.__('Type')
       },
       {
         key: 'service',
-        as: 'Service'
+        as: i18n.__('Service')
       },
       {
         key: 'name',
-        as: 'Name'
+        as: i18n.__('Name')
       },
       {
         key: 'message',
-        as: 'Message'
+        as: i18n.__('Message')
       },
       {
         key: 'date',
-        as: 'Date'
+        as: i18n.__('Date')
       }
     ];
 

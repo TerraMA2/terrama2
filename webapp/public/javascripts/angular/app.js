@@ -1,6 +1,6 @@
 "use strict";
 
-var terrama2Application = angular.module("terrama2", ['i18n']);
+var terrama2Application = angular.module("terrama2", ['i18n', 'terrama2.countries']);
 
 
 /**
@@ -41,7 +41,7 @@ terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function
 }])/
 
 // setting caches
-terrama2Application.run(function($templateCache) {
+terrama2Application.run(function($templateCache, $rootScope, $locale) {
   // TerraMA2 Box
   $templateCache.put('box.html',
   '<div class="col-md-12">' +
@@ -57,6 +57,8 @@ terrama2Application.run(function($templateCache) {
       '</div>' +
     '</div>' +
   '</div>');
+
+  $rootScope.locale = $locale.localeID;
 });
 
 terrama2Application.service("BaseService", BaseService);

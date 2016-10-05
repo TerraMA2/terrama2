@@ -64,49 +64,45 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
 
   switch(buffer.bufferType)
   {
-    case ONLY_BUFFER:
+    case IN:
     {
-      geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
-      if(distance > 0)
-        geomResult.reset(geomTemp->difference(geomCopy.get()));
-      else
-        geomResult.reset(geomCopy->difference(geomTemp.get()));
+      geomTemp.reset(geomCopy->buffer(-distance, 16, te::gm::CapButtType));
+      geomResult.reset(geomTemp->difference(geomCopy.get()));
       break;
     }
-    case OUTSIDE_PLUS_INSIDE:
+    case OUT:
+    {
+      geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
+      geomResult.reset(geomCopy->difference(geomTemp.get()));
+      break;
+    }
+    case IN_OUT:
     {
       geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
 
-      double distance2 = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
-      std::shared_ptr<te::gm::Geometry> auxGeom(geomCopy->buffer(distance2, 16, te::gm::CapButtType));
+      double inDistance = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
+      std::shared_ptr<te::gm::Geometry> auxGeom(geomCopy->buffer(-inDistance, 16, te::gm::CapButtType));
       geomResult.reset(geomTemp->difference(auxGeom.get()));
       break;
     }
-    case OBJECT_PLUS_BUFFER:
+    case OUT_UNION:
     {
       if(buffer.distance < 0)
       {
         QString errMsg(QObject::tr(
-                "The distance must be positive for the buffer type OBJECT_PLUS_BUFFER, given value: %1.").arg(
+                "The distance must be positive for the buffer type OUT_UNION, given value: %1.").arg(
                 buffer.distance));
         throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
       }
       geomResult.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
       break;
     }
-    case OBJECT_MINUS_BUFFER:
+    case IN_DIFF:
     {
-      if(buffer.distance > 0)
-      {
-        QString errMsg(QObject::tr(
-                "The distance must be negative for the buffer type OBJECT_MINUS_BUFFER, given value: %1.").arg(
-                buffer.distance));
-        throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-      }
-      geomResult.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
+      geomResult.reset(geomCopy->buffer(-distance, 16, te::gm::CapButtType));
       break;
     }
-    case DISTANCE_ZONE:
+    case LEVEL:
     {
       geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
 

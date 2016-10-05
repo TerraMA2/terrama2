@@ -114,29 +114,29 @@ int main(int argc, char* argv[])
                          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
                          "add_value(\"no_buffer\", x)\n"
 
-                         "moBuffer = Buffer(BufferType.object_plus_buffer, 10., \"km\")\n"
+                         "moBuffer = Buffer(BufferType.Out_union, 10., \"km\")\n"
                          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-                         "add_value(\"object_plus_buffer\", x)\n"
+                         "add_value(\"out_union\", x)\n"
 
-                         "moBuffer = Buffer(BufferType.only_buffer, -10., \"km\")\n"
+                         "moBuffer = Buffer(BufferType.In, 10., \"km\")\n"
                          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-                         "add_value(\"intern\", x)\n"
+                         "add_value(\"buffer_in\", x)\n"
 
-                         "moBuffer = Buffer(BufferType.only_buffer, 10, \"km\")\n"
+                         "moBuffer = Buffer(BufferType.Out, 10, \"km\")\n"
                          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-                         "add_value(\"extern\", x)\n"
+                         "add_value(\"out\", x)\n"
 
-                         "moBuffer = Buffer(BufferType.outside_plus_inside, 10., \"km\", -10., \"km\")\n"
+                         "moBuffer = Buffer(BufferType.In_out, 10., \"km\", -10., \"km\")\n"
                          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-                         "add_value(\"outside_plus_inside\", x)\n"
+                         "add_value(\"in_out\", x)\n"
 
-                         "moBuffer = Buffer(BufferType.object_minus_buffer, -10., \"km\")\n"
+                         "moBuffer = Buffer(BufferType.In_diff, 10., \"km\")\n"
                          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-                         "add_value(\"object_minus_buffer\", x)\n"
+                         "add_value(\"in_diff\", x)\n"
 
-                         "moBuffer = Buffer(BufferType.distance_zone, 20, \"km\", 5, \"km\")\n"
+                         "moBuffer = Buffer(BufferType.Level, 20, \"km\", 5, \"km\")\n"
                          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-                         "add_value(\"distance_zone\", x)\n";
+                         "add_value(\"level\", x)\n";
 
 
     analysis->script = script;

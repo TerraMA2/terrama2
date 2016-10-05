@@ -45,6 +45,7 @@ void TsJsonUtils::testToJSon()
     terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
     terrama2::services::view::core::ViewPtr viewPtr(view);
 
+    view->viewName = "TestView";
     view->id = 1;
     view->projectId = 1;
     view->serviceInstanceId = 1;
@@ -54,6 +55,7 @@ void TsJsonUtils::testToJSon()
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
+    view->geoserverURI = te::core::URI("http://locahost:8080/geoserver");
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -107,6 +109,7 @@ void TsJsonUtils::testGoNBackJSon()
     terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
     terrama2::services::view::core::ViewPtr viewPtr(view);
 
+    view->viewName = "TestView";
     view->id = 1;
     view->projectId = 1;
     view->serviceInstanceId = 1;
@@ -116,6 +119,7 @@ void TsJsonUtils::testGoNBackJSon()
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
+    view->geoserverURI = te::core::URI("http://locahost:8080/geoserver");
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -144,6 +148,7 @@ void TsJsonUtils::testGoNBackJSon()
 
     terrama2::services::view::core::ViewPtr viewBackPtr = terrama2::services::view::core::fromViewJson(obj);
 
+    QCOMPARE(viewBackPtr->viewName, viewPtr->viewName);
     QCOMPARE(viewBackPtr->id, viewPtr->id);
     QCOMPARE(viewBackPtr->projectId, viewPtr->projectId);
     QCOMPARE(viewBackPtr->serviceInstanceId, viewPtr->serviceInstanceId);
@@ -152,6 +157,8 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->imageType, viewPtr->imageType);
     QCOMPARE(viewBackPtr->imageResolutionWidth, viewPtr->imageResolutionWidth);
     QCOMPARE(viewBackPtr->imageResolutionHeight, viewPtr->imageResolutionHeight);
+    QCOMPARE(viewBackPtr->srid, viewPtr->srid);
+    QCOMPARE(viewBackPtr->geoserverURI.uri(), viewPtr->geoserverURI.uri());
 
     QCOMPARE(viewBackPtr->schedule.id, viewPtr->schedule.id);
     QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);

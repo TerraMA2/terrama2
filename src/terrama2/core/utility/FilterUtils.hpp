@@ -53,7 +53,7 @@ namespace terrama2
       \param filter Contains the checks to validate name and date
       \param timezone The timezone of the date in name
       \param name A name to check
-      \param fileTimestamp A TimeInstantTZ to be fullfiled with the date in name
+      \param fileTimestamp A TimeInstantTZ to be filed with the timestamp in the filename
 
       \return Returns if the name is valid or not.
 
@@ -80,6 +80,9 @@ namespace terrama2
       \return Returns if the mask is valid or not.
     */
     bool isValidDatedMask(const std::string& mask);
+
+    //! Convert a TerraMA2 mask to a regular expression
+    std::string terramaMask2Regex(const std::string& mask);
   } // end namespace core
 }   // end namespace terrama2
 
