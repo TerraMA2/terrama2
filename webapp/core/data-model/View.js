@@ -76,7 +76,10 @@
    * It builds a database representation of View
    */
   View.prototype.rawObject = function() {
-    return this.toObject();
+    var obj = this.toObject();
+    delete obj.dataseries_id;
+    obj.data_series_id = this.dataSeries;
+    return obj;
   }
 
   /**
@@ -91,7 +94,7 @@
       description: this.description,
       maps_server_uri: this.mapsServerUri,
       style: this.style,
-      data_series_id: this.dataSeries,
+      dataseries_id: this.dataSeries,
       schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : this.schedule,
       active: this.active,
       service_instance_id: this.serviceInstanceId,
