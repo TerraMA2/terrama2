@@ -36,19 +36,18 @@
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Dynamic", "terrama2-layerexplorer", null, "unsortable", null);
 
     $.get("https://private-b1c17-terrama2monitor.apiary-mock.com/questions", function( data ) {
-        var groupedData = _.groupBy(data, function(d){return d.type});
-        for (group in groupedData){
-            for (views in groupedData[group]){
-                for (layer in groupedData[group][views].layers){
-                    var workspace = groupedData[group][views].workspace;
-                    var layerName = groupedData[group][views].layers[layer];
-                    var uriGeoServer = groupedData[group][views].uriGeoserver;
-                    var serverType = groupedData[group][views].serverType;
-                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(workspace + ":" + layerName, layerName, layerName, uriGeoServer, serverType, group == "Template", false, group))
-                        TerraMA2WebComponents.LayerExplorer.addLayersFromMap(workspace + ":" + layerName, group, null, "unsortable", null);
-                }
+        for (i in data){
+            for (l in data[i].layers){
+                var workspace = data[i].workspace;
+                var layerName = data[i].layers[l];
+                var uriGeoServer = data[i].uriGeoserver;
+                var serverType = data[i].serverType;
+                var layerId = workspace + ":" + layerName;
+                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer, serverType, data[i].type == "Template", false, data[i].type))
+                    TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
             }
         }
+
     });
 
 </script>
