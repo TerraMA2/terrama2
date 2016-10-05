@@ -44,9 +44,21 @@ io.on('connection', function(socket){
             "usr": "admin",
             "pass": "geoserver",
             "serverType": "geoserver",
-            "uriGeoserver": "http://www.dpi.inpe.br/queimadas-geoserver/ows",
+            "uriGeoserver": "http://www.dpi.inpe.br/queimadas-geoserver/queimadas/wms",
             "workspace": "queimadas",
             "layers": ["buffer_5_unidades_conservacao_federais"],
+            "params": {}
+        },
+        {
+            "id": 4,
+            "name": "estados",
+            "type": "Static",
+            "usr": "admin",
+            "pass": "geoserver",
+            "serverType": "geoserver",
+            "uriGeoserver": "http://www.dpi.inpe.br/queimadas-geoserver/ows",
+            "workspace": "queimadas",
+            "layers": ["estados"],
             "params": {}
         }
     ]

@@ -11,6 +11,11 @@
 {% block sidebar-list %}
 
 <div id="terrama2-layerexplorer"></div>
+<form class="form-inline"> 
+    <div class="form-group">
+        <input id='wmsUri' class="form-control" type='text'> <button id='addLayers' type='button' class="btn btn-default">Add</button>
+    </div>
+</form>
 {% endblock %}
 
 {% block content %}
@@ -21,6 +26,7 @@
 <script src="external/openlayers/ol.js"></script>
 <script src="external/TerraMA2WebComponents/TerraMA2WebComponents.min.js"></script>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script src="https://gist.github.com/jlong/2428561.js"></script>
 <script>
 
     TerraMA2WebComponents.LayerExplorer.init();
@@ -28,12 +34,12 @@
 
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Template", "Template"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Template", "terrama2-layerexplorer", null, "unsortable", null);
-    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Analysis", "Analysis"))
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Analysis", "terrama2-layerexplorer", null, "unsortable", null);
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Static", "Static Data"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Static", "terrama2-layerexplorer", null, "unsortable", null);
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Dynamic", "Dynamic Data"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Dynamic", "terrama2-layerexplorer", null, "unsortable", null);
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Analysis", "Analysis"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Analysis", "terrama2-layerexplorer", null, "unsortable", null);
 
     var socket = io.connect(':3001');
     socket.emit('request');
@@ -46,12 +52,33 @@
                 var uriGeoServer = data[i].uriGeoserver;
                 var serverType = data[i].serverType;
                 var layerId = workspace + ":" + layerName;
-                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer, serverType, data[i].type == "Template", false, data[i].type))
+                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer, serverType, data[i].type == "Template", false, "terrama2-layerexplorer"))
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
             }
         }
     });
-    
+
+    document.getElementById("addLayers").addEventListener("click", addLayer);
+
+    function addLayer() {
+        var uri = document.getElementById("wmsUri").value;
+        var parser = document.createElement('a');
+        parser.href = uri;
+        var layerId;
+        var layerName;
+        var params = parser.search.split('&');
+        for (i in params){
+            var param = params[i].split('=');
+            if (param[0] == 'layers') {
+                layerId = param[1];
+                layerName = param[1].split(':')[1];
+            }
+        }
+        var geoUrl = parser.protocol + '//' + parser.host + parser.pathname;
+
+        if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, geoUrl, "geoserver", false, false, "terrama2-layerexplorer"))
+            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, "terrama2-layerexplorer", true, "unsortable", null);
+    }
 
 </script>
 
