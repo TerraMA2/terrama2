@@ -201,3 +201,8 @@
   display: inline;
   overflow: visible !important;
 }
+
+#wmsUri {
+  width: 168px;
+  margin-left: 5px;
+}

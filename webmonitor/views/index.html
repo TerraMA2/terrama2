@@ -13,7 +13,7 @@
 <div id="terrama2-layerexplorer"></div>
 <form class="form-inline"> 
     <div class="form-group">
-        <input id='wmsUri' class="form-control" type='text'> <button id='addLayers' type='button' class="btn btn-default">Add</button>
+        <input id='wmsUri' class="form-control" type='text' placeholder='WMS URI'> <button id='addLayers' type='button' class="btn btn-default">Add</button>
     </div>
 </form>
 {% endblock %}
@@ -44,7 +44,6 @@
     var socket = io.connect(':3001');
     socket.emit('request');
     socket.on("layers request", function (data){
-        console.log(data);
         for (i in data){
             for (l in data[i].layers){
                 var workspace = data[i].workspace;
