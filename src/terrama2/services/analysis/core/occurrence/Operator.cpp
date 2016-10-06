@@ -57,8 +57,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
-  return NAN;
-
   auto& contextManager = ContextManager::getInstance();
   auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
   try
