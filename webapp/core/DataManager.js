@@ -3229,5 +3229,26 @@ var DataManager = module.exports = {
           return reject(new Error("Could not remove view " + err.toString()));
         });
     });
+  },
+  /**
+   * It removes a view from database
+   * 
+   * @param {Object} registeredViewObject - TerraMA² RegisteredView values
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  addRegisteredView: function(registeredViewObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.RegisteredView.create(registeredViewObject, options)
+        .then(function(viewResult) {
+          return resolve(new DataModel.RegisteredView(viewResult));
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Coult not save Registered View due %s", err.toString())));
+        });
+    });
   }
 };

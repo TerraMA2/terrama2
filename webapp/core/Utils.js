@@ -718,6 +718,18 @@ var Utils = {
    */
   extend: function(nodeA, nodeB) {
     return _.extend(nodeA || {}, nodeB || {});
+  },
+  /**
+   * It applies a string format over arguments.
+   * @param {...string|number} args A list of arguments.
+   * @returns {string}
+   * 
+   * @example
+   * > Utils.format("Hi %s", "User")  // "Hi User"
+   * > Utils.format(1, 2, 3)  // "1 2 3"
+   */
+  format: function() {
+    return util.format.apply(this, arguments);
   }
 };
 

@@ -11,6 +11,7 @@ var ServiceType = require('./Enums').ServiceType;
 var Process = require('./Process');
 var Executor = require('./Executor');
 var Promise = require('bluebird');
+var DataManager = require("./DataManager");
 
 
 var TcpManager = function() {
@@ -414,6 +415,25 @@ TcpManager.prototype.initialize = function(client) {
     }
 
     self.emit('logReceived', client.service, response);
+  };
+
+  /**
+   * It listens when Tcp service C++ execution is done
+   * @param {Object} response - It contains a C++ service object response
+   */
+  var onProcessFinished = function(response) {
+    if (Utils.isObject(response)) {
+      if (response.class === "RegisteredViews") {
+        DataManager.addRegisteredView(response)
+          .then(function(registeredView) {
+            self.emit("view", registeredView);
+          })
+
+          .catch(function(err) {
+            console.log(Utils.format("Error during add registered views: %s" + err.toString()));
+          });
+      }
+    }
   };
 
   var onStop = function(response) {
