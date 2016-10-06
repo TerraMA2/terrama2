@@ -205,10 +205,9 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                 continue;
               }
 
-              uint32_t countValues = 0;
-
               // Allocates the space for the size of the dataset
-              std::vector<double> values(dcpSyncDs->size());
+              std::vector<double> values;
+              values.reserve(dcpSyncDs->size());
 
               for(unsigned int i = 0; i < dcpSyncDs->size(); ++i)
               {
@@ -221,8 +220,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                     if(std::isnan(value))
                       continue;
 
-                    values[countValues] = value;
-                    countValues++;
+                    values.push_back(value);
                   }
                 }
                 catch(...)
@@ -232,16 +230,13 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                 }
               }
 
-              //Resize to the number of valid values
-              values.resize(countValues);
-
-              if(countValues == 0)
+              if(values.empty())
                 continue;
 
               // Statistics are calculated based on the number of values
               // but the operator count for DCP returns the number of DCPs that influence the monitored object
 
-              cache.count = countValues;
+              cache.count = values.size();
 
               calculateStatistics(values, cache);
             }

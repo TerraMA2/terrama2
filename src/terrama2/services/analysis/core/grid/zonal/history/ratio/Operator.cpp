@@ -228,10 +228,11 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
     {
       return NAN;
     }
-    std::vector<double> values(valuesMap.size());
-    unsigned int count = 0;
+    std::vector<double> values;
+    values.reserve(valuesMap.size());
+
     for(const auto& pair : valuesMap)
-      values[count] = pair.second;
+      values.push_back(pair.second);
 
     auto timeBefore = getAbsTimeFromString(dateDiscardBefore);
     auto timeAfter = getAbsTimeFromString(dateDiscardAfter);

@@ -315,10 +315,11 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
       return NAN;
     }
 
-    std::vector<double> values(valuesMap.size());
+    std::vector<double> values;
+    values.reserve(valuesMap.size());
     unsigned int count = 0;
     for(const auto& pair : valuesMap)
-      values[count] = pair.second.first/pair.second.second;
+      values.push_back(pair.second.first/pair.second.second);
 
     terrama2::services::analysis::core::calculateStatistics(values, cache);
     return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);

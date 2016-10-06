@@ -216,7 +216,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
               }
 
               // Allocate memory for dataset size
-              values.resize(bufferDs->size());
+              values.reserve(bufferDs->size());
               for(unsigned int i = 0; i < bufferDs->size(); ++i)
               {
                 bufferDs->move(i);
@@ -236,10 +236,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                       if(std::isnan(value))
                         continue;
 
-                      ++countValues;
-
-                      cache.count++;
-                      values[countValues] = value;
+                      values.push_back(value);
                     }
                   }
                   catch(...)
@@ -254,7 +251,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
             {
 
               // Allocate memory for indexes size
-              values.resize(indexes.size());
+              values.reserve(indexes.size());
               for(uint32_t i : indexes)
               {
                 // Verifies if the occurrence intersects the monitored object
@@ -274,9 +271,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                       if(std::isnan(value))
                         continue;
 
-                      cache.count++;
-
-                      values[cache.count] = value;
+                      values.push_back(value);
                     }
                   }
                   catch(...)
@@ -286,10 +281,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                   }
                 }
               }
-
-
-              // Resize the vector for the number of valid values
-              values.resize(cache.count);
             }
 
 
