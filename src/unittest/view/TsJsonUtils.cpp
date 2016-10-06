@@ -45,6 +45,7 @@ void TsJsonUtils::testToJSon()
     terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
     terrama2::services::view::core::ViewPtr viewPtr(view);
 
+    view->viewName = "TestView";
     view->id = 1;
     view->projectId = 1;
     view->serviceInstanceId = 1;
@@ -54,6 +55,7 @@ void TsJsonUtils::testToJSon()
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
+    view->maps_server_uri = te::core::URI("http://locahost:8080/geoserver");
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -107,6 +109,7 @@ void TsJsonUtils::testGoNBackJSon()
     terrama2::services::view::core::View* view = new terrama2::services::view::core::View();
     terrama2::services::view::core::ViewPtr viewPtr(view);
 
+    view->viewName = "TestView";
     view->id = 1;
     view->projectId = 1;
     view->serviceInstanceId = 1;
@@ -116,6 +119,7 @@ void TsJsonUtils::testGoNBackJSon()
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
+    view->maps_server_uri = te::core::URI("http://locahost:8080/geoserver");
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -128,22 +132,15 @@ void TsJsonUtils::testGoNBackJSon()
     filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:39:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
     filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:45:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
 
-    view->filtersPerDataSeries.emplace(1, filter);
-    view->filtersPerDataSeries.emplace(2, filter);
-    view->filtersPerDataSeries.emplace(3, filter);
-    view->filtersPerDataSeries.emplace(4, filter);
-
     view->dataSeriesList.push_back(1);
-    view->dataSeriesList.push_back(2);
-    view->dataSeriesList.push_back(3);
-    view->dataSeriesList.push_back(4);
 
-    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
+    view->stylesPerDataSeries.emplace(1, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
     terrama2::services::view::core::ViewPtr viewBackPtr = terrama2::services::view::core::fromViewJson(obj);
 
+    QCOMPARE(viewBackPtr->viewName, viewPtr->viewName);
     QCOMPARE(viewBackPtr->id, viewPtr->id);
     QCOMPARE(viewBackPtr->projectId, viewPtr->projectId);
     QCOMPARE(viewBackPtr->serviceInstanceId, viewPtr->serviceInstanceId);
@@ -152,6 +149,8 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->imageType, viewPtr->imageType);
     QCOMPARE(viewBackPtr->imageResolutionWidth, viewPtr->imageResolutionWidth);
     QCOMPARE(viewBackPtr->imageResolutionHeight, viewPtr->imageResolutionHeight);
+    QCOMPARE(viewBackPtr->srid, viewPtr->srid);
+    QCOMPARE(viewBackPtr->maps_server_uri.uri(), viewPtr->maps_server_uri.uri());
 
     QCOMPARE(viewBackPtr->schedule.id, viewPtr->schedule.id);
     QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);

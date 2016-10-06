@@ -37,6 +37,7 @@
 
 // TerraLib
 #include <terralib/se/Style.h>
+#include <terralib/core/uri/URI.h>
 
 // TerraMA2
 #include "../../../core/data-model/DataSeries.hpp"
@@ -63,6 +64,7 @@ namespace terrama2
         */
         struct View
         {
+          std::string viewName = "";
           ViewId id = 0;//!< View unique identification.
           ProjectId projectId = 0;//!< Identification of the project owner of the view.
           ServiceInstanceId serviceInstanceId = 0;//!< View service instace where the view should be executed.
@@ -76,12 +78,16 @@ namespace terrama2
 
           terrama2::core::Schedule schedule;//!< terrama2::core::Schedule of execution of the view.
 
+          // Parameters to generate a image
           std::string imageName = "";
           te::map::ImageType imageType = te::map::ImageType(1);
           uint32_t imageResolutionWidth = 0; //!< Width resolution of view in pixels
           uint32_t imageResolutionHeight = 0; //!< Height resolution of view in pixels
 
           uint32_t srid = 0; //!< SRID to aplly in view
+
+          // URI to a service of maps
+          te::core::URI maps_server_uri;
 
           // TODO: view filter it's only the bounding box?
           //VINICIUS: filter to get only the last if the dataset contains many registers

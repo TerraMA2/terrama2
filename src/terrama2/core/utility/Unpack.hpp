@@ -46,7 +46,7 @@ namespace terrama2
   {
     /*!
        \brief This class is responsible for decompressing files with  gz, zip, bz2, tar, tar (tar.gz, tar.bz2) extension.
-   */
+    */
 
     namespace Unpack
     {
@@ -55,7 +55,9 @@ namespace terrama2
          * \param Absolute file path to the compressed file.
          * \param Returns the path of the temporary folder whith the content of the compressed file.
          */
-      std::string decompress(std::string uri, std::shared_ptr<terrama2::core::FileRemover> remover);
+      std::string decompress(std::string uri,
+                             std::shared_ptr<terrama2::core::FileRemover> remover,
+                             const std::string& temporaryFolder = "");
 
       /*!
          * \brief checks if the file is compressed or not.
@@ -101,14 +103,14 @@ namespace terrama2
          * \param n - base Octal.
          * \return Returns decimal number.
         */
-      int parseOct(const char *p, size_t n);
+      int parseOct(const char* p, size_t n);
       /*!
          * \brief isEndOfArchive - Verify it is the end of a tar file.
          * \param p - Number of bytes.
          * \return Returns true if this is 512 zero bytes.
          */
-      int isEndOfArchive(const char *p);
-      
+      int isEndOfArchive(const char* p);
+
       /*!
          * \brief createFile - Create a file, including parent directory as necessary.
          * \param pathname - It contains the file path.
@@ -123,7 +125,7 @@ namespace terrama2
          * \param p - Number of bytes.
          * \return Returns The default signing a tar file.
          */
-      int verifyChecksum(const char *p);
+      int verifyChecksum(const char* p);
 
       /*!
          * \brief untar - Extract a tar file.

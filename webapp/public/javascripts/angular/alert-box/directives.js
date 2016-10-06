@@ -53,21 +53,38 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
     };
   })
 
+  /**
+   * It will replace terrama2-alert-box and terrama2-message-box
+   * 
+   */
   .directive("terrama2AlertBox2", function() {
     return {
       restrict: "E",
       templateUrl: "message-box.html",
       scope: {
-        handler: '=handler', // it should be a MessageBoxService,
+        handler: '=handler', // it should be a AlertBox
+        close: '&?',
         extra: '=?extra'
       },
       controller: function($scope) {
-        var alertBox = $scope.handler.alertBox;
-        $scope.display = alertBox.display;
-        $scope.close = $scope.handler.reset;
-        $scope.title = alertBox.title;
-        $scope.message = alertBox.message;
-        $scope.alertLevel = alertBox.level;
+        const ALERT_LEVELS = {
+          INFO: "info",
+          WARNING: 'warning',
+          DANGER: 'danger',
+          SUCCESS: 'success'
+        };
+        $scope.$watch("handler", function(value) {
+          if (!value) {
+            return;
+          }
+
+          var alertBox = value;
+          $scope.display = alertBox.display;
+          $scope.title = alertBox.title;
+          $scope.message = alertBox.message;
+          $scope.alertLevel = alertBox.level;
+        }, true)
+
         $scope.isAnyExtra = function() {
           return Object.keys($scope.extra || {}).length > 0;
         };

@@ -167,8 +167,8 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
   auto dataManager = dataManager_.lock();
   if(!dataManager.get())
   {
-    //FIXME: throw invalid datamanager;
-    return;
+    QString errMsg = QObject::tr("Unable to access DataManager");
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
   switch(analysis_->outputGridPtr->resolutionType)
@@ -194,7 +194,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
         resX = raster->getResolutionX();
         resY = raster->getResolutionY();
       }
-      catch(const terrama2::core::NoDataException e)
+      catch(const terrama2::core::NoDataException& e)
       {
       }
 
@@ -246,7 +246,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
             }
           }
         }
-        catch(const terrama2::core::NoDataException e)
+        catch(const terrama2::core::NoDataException& e)
         {
           continue;
         }
@@ -298,7 +298,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
             }
           }
         }
-        catch(const terrama2::core::NoDataException e)
+        catch(const terrama2::core::NoDataException& e)
         {
           continue;
         }
@@ -326,8 +326,8 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
   auto dataManager = dataManager_.lock();
   if(!dataManager.get())
   {
-    //FIXME: throw invalid datamanager;
-    return;
+    QString errMsg = QObject::tr("Unable to access DataManager");
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
   switch(analysis_->outputGridPtr->interestAreaType)

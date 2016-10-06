@@ -165,7 +165,7 @@ namespace terrama2
             /*!
               \brief Populates the vector \e values with the values of the pixels inside the \e polygon area.
             */
-            void appendValues(te::rst::Raster* raster, te::gm::Polygon* polygon, std::vector<double>& values);
+            void appendValues(te::rst::Raster* raster, int band, te::gm::Polygon* polygon, std::vector<double>& values);
           } /* zonal */
         }   // end namespace grid
       }     // end namespace core

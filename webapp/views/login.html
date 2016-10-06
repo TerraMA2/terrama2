@@ -3,11 +3,11 @@
 {% set divDisplay = "block"; %}
 {% endif %}
 <!DOCTYPE html>
-<html>
+<html ng-app="terrama2" i18n-locale="{{ locale }}">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>TerraMA² - {[ __('Login') ]}</title>
+        <title>TerraMA²</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <!-- Bootstrap -->
@@ -18,6 +18,8 @@
         <link rel="stylesheet" href="/bower_components/AdminLTE/dist/css/AdminLTE.min.css">
         <!-- Template Skin -->
         <link rel="stylesheet" href="/bower_components/AdminLTE/dist/css/skins/skin-blue.min.css">
+        <!-- i18n flags -->
+        <link rel="stylesheet" type="text/css" href="/bower_components/intl-tel-input/build/css/intlTelInput.css">
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--     WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -25,13 +27,13 @@
             <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
     </head>
-    <body class="hold-transition login-page">
+    <body class="hold-transition login-page" ng-controller="TerraMA2Controller">
         <div class="login-box">
             <div class="login-logo">
                 <a href="#"><b>TerraMA²</b></a>
             </div><!-- /.login-logo -->
             <div class="login-box-body">
-                <p class="login-box-msg">{[ __('Sign in to start your session') ]}</p>
+                <p class="login-box-msg">{{ i18n.__('Sign in to start your session') }}</p>
 
                 <div class="alert alert-danger" style="display: {[ divDisplay ]}">
                   <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
@@ -48,15 +50,23 @@
                         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                     </div>
                     <div class="row">
-                        <div class="col-xs-12">
+                        <!--<li class="user user-menu">-->
+                        <div class="col-md-12">
+                            <label><span ng-bind="i18n.__('Language')"></span></label>
+                            <terrama2-countries-list language="{{ '{[ userLocale ]}' || 'us' }}"></terrama2-countries-list>
+                        </div>
+                        <!--</li>-->
+                        <div class="col-xs-12" style="margin-top: 20px;">
                             <div class="form-group">
                                 <label>
-                                    <input type="checkbox"> {[ __('Remember Me') ]}
+                                    <input type="checkbox"> <span ng-bind="i18n.__('Remember Me')"></span>
                                 </label>
                             </div>
                         </div><!-- /.col -->
                         <div class="col-md-12">
-                            <button type="submit" name="btnLogin" class="btn btn-primary btn-block btn-flat">{[ __('Sign In') ]}</button>
+                            <button type="submit" name="btnLogin" class="btn btn-primary btn-block btn-flat">
+                                <span ng-bind="i18n.__('Sign In')"></span>
+                            </button>
                         </div><!-- /.col -->
                     </div>
                 </form>
@@ -68,5 +78,14 @@
         <script src="/bower_components/jquery/dist/jquery.min.js"></script>
         <!-- Bootstrap 3.3.5 -->
         <script src="/bower_components/AdminLTE/bootstrap/js/bootstrap.min.js"></script>
+        <!-- i18n flags -->
+        <script type="text/javascript" src="/bower_components/intl-tel-input/build/js/intlTelInput.js"></script>
+        <!-- Angular JS -->
+        <script src="/bower_components/angular/angular.min.js"></script>
+        <script src="/bower_components/i18n-node-angular/i18n-node-angular.js"></script>
+        <!-- TerraMA² Angular Module -->
+        <script src="/javascripts/angular/app.js"></script>
+        <!-- Flags -->
+        <script src="/javascripts/angular/countries/countries-directive.js"></script>
     </body>
 </html>

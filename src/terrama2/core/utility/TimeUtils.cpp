@@ -257,9 +257,15 @@ double terrama2::core::TimeUtils::scheduleSeconds(const Schedule& dataSchedule, 
     boost::posix_time::time_duration td(boost::posix_time::duration_from_string(dataSchedule.scheduleTime));
     boost::posix_time::ptime pt(d, td);
     boost::local_time::local_date_time dt(pt, baseTime->getTimeInstantTZ().zone());
-    te::dt::TimeInstantTZ day(dt);
+    std::shared_ptr<te::dt::TimeInstantTZ> day(new te::dt::TimeInstantTZ(dt));
 
-    return day - *baseTime.get();
+    if(baseTime->getTimeInstantTZ().date() == day->getTimeInstantTZ().date())
+    {
+      // If the answer is the same  day, add a week to date
+      addDay(day, 7);
+    }
+
+    return *day.get() - *baseTime.get();
   }
   else
   {
