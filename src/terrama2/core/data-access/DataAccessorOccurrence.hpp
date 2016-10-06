@@ -33,12 +33,6 @@
 //TerraMA2
 #include "../Shared.hpp"
 #include "DataAccessor.hpp"
-#include "OccurrenceSeries.hpp"
-
-//TerraLib
-#include <terralib/geometry/Point.h>
-#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
-#include <terralib/memory/DataSet.h>
 
 namespace terrama2
 {

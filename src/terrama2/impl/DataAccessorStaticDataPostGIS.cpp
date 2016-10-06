@@ -20,32 +20,39 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorOccurrence.cpp
+  \file terrama2/core/data-access/DataAccessorStaticDataPostGIS.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-//TerraMA2
-#include "DataAccessorOccurrence.hpp"
-#include "OccurrenceSeries.hpp"
-#include "DataRetriever.hpp"
-#include "../utility/Logger.hpp"
-#include "../Exception.hpp"
+#include "DataAccessorStaticDataPostGIS.hpp"
+#include "../core/utility/Raii.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/memory/DataSet.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
-//Qt
+//QT
+#include <QUrl>
 #include <QObject>
 
-terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getOccurrenceSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
+terrama2::core::DataAccessorStaticDataPostGIS::DataAccessorStaticDataPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+ : DataAccessor(dataProvider, dataSeries, filter),
+   DataAccessorGeometricObject(dataProvider, dataSeries, filter),
+   DataAccessorPostGis(dataProvider, dataSeries, filter)
 {
-  auto series = getSeries(filter, remover);
-  OccurrenceSeriesPtr occurrenceSeries = std::make_shared<OccurrenceSeries>();
-  occurrenceSeries->addOccurrences(series);
+  if(dataSeries->semantics.code != "STATIC_DATA-postgis")
+  {
+    QString errMsg = QObject::tr("Wrong DataSeries semantics.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
+  }
+}
 
-  return occurrenceSeries;
+std::string terrama2::core::DataAccessorStaticDataPostGIS::dataSourceType() const
+{
+  return "POSTGIS";
 }

@@ -67,6 +67,8 @@ namespace terrama2
         //! Recover table name where data is stored
         virtual std::string getDataSetTableName(DataSetPtr dataSet) const;
 
+        virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const;
+
         virtual void addDateTimeFilter(terrama2::core::DataSetPtr dataSet,
                                        const terrama2::core::Filter& filter,
                                        std::vector<std::string>& whereConditions) const;
@@ -78,7 +80,7 @@ namespace terrama2
                                                std::string whereCondition) const;
 
 
-        void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const;
+        virtual void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const;
     };
   }
 }
