@@ -34,6 +34,22 @@ terrama2Application.config(["$provide", function($provide) {
       return $delegate;
     }
   ]);
+  // i18n decorator - to make async call
+  // $provide.decorator("i18n", [
+  //   "$delegate",
+  //   function $logDecorator($delegate) {
+  //     var __ = $delegate.__;
+  //     $delegate.__ = function() {
+  //       var args = [].slice.call(arguments);
+
+  //       $delegate.ensureLocaleIsLoaded()
+  //         .then(function() {
+  //           __.apply(null, args);
+  //         });
+  //     }
+
+  //     return $delegate;
+  //   }]);
 }]);
 
 terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function($scope, i18n) {

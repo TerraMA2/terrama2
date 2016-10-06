@@ -228,8 +228,9 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
     {
       return NAN;
     }
-
     std::vector<double> values;
+    values.reserve(valuesMap.size());
+
     for(const auto& pair : valuesMap)
       values.push_back(pair.second);
 

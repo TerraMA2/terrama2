@@ -493,5 +493,21 @@
 	"Oops! Page not found": "Oops! Page not found",
 	"View Data Series": "View Data Series",
 	"Data Registration": "Data Registration",
-	"Data Server is required": "Data Server is required"
+	"Data Server is required": "Data Server is required",
+	"XML Style": "XML Style",
+	" removed": " removed",
+	"Checking": {
+		"": {
+			"": {
+				"": "Checking..."
+			}
+		}
+	},
+	"Connection Status": "Connection Status",
+	"Connection Successful": "Connection Successful",
+	"Timeout": " Request took longer than ",
+	" seconds": {
+		"": " seconds."
+	},
+	"Maps Server Parameters": "Maps Server Parameters"
 }

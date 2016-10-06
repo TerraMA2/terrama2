@@ -175,12 +175,6 @@ namespace terrama2
 
 
             /*!
-              \brief Returns the python interpreter main thread state.
-
-              \return The python interpreter main thread state.
-            */
-
-            /*!
               \brief Adds an error message to list of errors that occurred in the analysis execution.
               \param errorMessage The error message.
             */

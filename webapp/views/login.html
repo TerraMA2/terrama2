@@ -26,6 +26,21 @@
             <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
             <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
+        <style>
+            .countries-i18n {
+                display: inline-block !important;
+                width: 30px;
+                float: right;
+            }
+
+            .countries-i18n .country-list {
+                z-index: 200;
+            }
+
+            .countries-i18n .intl-tel-input .flag-container {
+                margin-top: 0 !important;
+            }
+        </style>
     </head>
     <body class="hold-transition login-page" ng-controller="TerraMA2Controller">
         <div class="login-box">
@@ -33,7 +48,10 @@
                 <a href="#"><b>TerraMA²</b></a>
             </div><!-- /.login-logo -->
             <div class="login-box-body">
-                <p class="login-box-msg">{{ i18n.__('Sign in to start your session') }}</p>
+                <p class="login-box-msg">
+                    <span ng-bind="i18n.__('Sign in to start your session')"></span>
+                    <terrama2-countries-list language="{{ '{[ userLocale ]}' || 'us' }}"></terrama2-countries-list>
+                </p>
 
                 <div class="alert alert-danger" style="display: {[ divDisplay ]}">
                   <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
@@ -50,11 +68,6 @@
                         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                     </div>
                     <div class="row">
-                        <!--<li class="user user-menu">-->
-                        <div class="col-md-12">
-                            <label><span ng-bind="i18n.__('Language')"></span></label>
-                            <terrama2-countries-list language="{{ '{[ userLocale ]}' || 'us' }}"></terrama2-countries-list>
-                        </div>
                         <!--</li>-->
                         <div class="col-xs-12" style="margin-top: 20px;">
                             <div class="form-group">

@@ -106,13 +106,14 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
   std::string where_;
   if(!whereConditions.empty())
   {
-    where_ = "WHERE ";
+    where_ = " WHERE ";
     where_ += whereConditions.front();
     for(size_t i = 1; i < whereConditions.size(); ++i)
       where_ += " AND " + whereConditions.at(i);
   }
 
   where_ = addLastValueFilter(dataSet, filter, where_);
+  query += where_;
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
   if(tempDataSet->isEmpty())
@@ -160,10 +161,10 @@ void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::Data
     return;
 
   if(filter.discardBefore.get())
-    whereConditions.push_back(getTimestampPropertyName(dataSet)+" > "+filter.discardBefore->toString());
+    whereConditions.push_back(getTimestampPropertyName(dataSet)+" >= '"+filter.discardBefore->toString() + "'");
 
   if(filter.discardAfter.get())
-    whereConditions.push_back(getTimestampPropertyName(dataSet)+" < "+filter.discardAfter->toString());
+    whereConditions.push_back(getTimestampPropertyName(dataSet)+" <= '"+filter.discardAfter->toString() + "'");
 }
 
 void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet,

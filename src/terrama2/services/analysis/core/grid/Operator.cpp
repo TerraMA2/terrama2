@@ -144,6 +144,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
 
       //TODO: allow using other bands
       const int bandIdx = 0;
+
       return getValue(raster, interpolator, column, row, bandIdx);
     }
 
