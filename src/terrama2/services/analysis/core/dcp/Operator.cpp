@@ -72,7 +72,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   auto analysis = cache.analysisPtr;
   try
   {
-    terrama2::core::verify::analysisDCP(analysis);
+    terrama2::core::verify::analysisMonitoredObject(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
