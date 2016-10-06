@@ -62,7 +62,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
   try
   {
     terrama2::core::verify::analysisDCP(analysis);
