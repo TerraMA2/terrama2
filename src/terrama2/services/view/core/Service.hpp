@@ -36,6 +36,11 @@
 #include "Shared.hpp"
 #include "DataManager.hpp"
 #include "ViewLogger.hpp"
+#include "../../../core/data-model/Filter.hpp"
+#include "../../../core/utility/FileRemover.hpp"
+
+// Qt
+#include "QFileInfoList"
 
 namespace terrama2
 {
@@ -105,6 +110,13 @@ namespace terrama2
           void viewJob(ViewId viewId,
                        std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
                        std::weak_ptr<DataManager> weakDataManager);
+
+          template< typename Accessor >
+          QFileInfoList dataSeriesFileList(SeriesMap& seriesMap,
+                                           terrama2::core::DataProviderPtr inputDataProvider,
+                                           terrama2::core::Filter filter,
+                                           std::shared_ptr<terrama2::core::FileRemover> remover,
+                                           Accessor dataAccessor);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 

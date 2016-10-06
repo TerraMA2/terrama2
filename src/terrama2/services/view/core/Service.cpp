@@ -45,6 +45,7 @@
 #include "../../../core/data-access/DataStorager.hpp"
 
 #include "../../../impl/DataAccessorFile.hpp"
+#include "../../../impl/DataAccessorGeoTiff.hpp"
 
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/Logger.hpp"
@@ -292,14 +293,31 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         TERRAMA2_LOG_ERROR() << QObject::tr("Data provider not supported: %1.").arg(dataProviderType.c_str());
       }
 
+      DataFormat dataFormat = inputDataSeries->semantics.dataFormat;
+
+      // Check if the view can be done by the maps server
+      bool mapsServerGeneration = false;
+
       if(!viewPtr->maps_server_uri.uri().empty())
+      {
+        if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GEOTIFF")
+        {
+          TERRAMA2_LOG_WARNING() << QObject::tr("Data format not supported in the maps server: %1.").arg(dataFormat.c_str());
+        }
+        else
+        {
+          mapsServerGeneration = true;
+        }
+      }
+
+      if(mapsServerGeneration)
       {
         QFileInfoList fileInfoList;
 
         if(dataProviderType == "FILE")
         {
-          std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor =
-              std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries));
+          terrama2::core::DataAccessorPtr dataAccessor =
+              terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
 
           terrama2::core::Filter filter;
 
@@ -320,47 +338,24 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
             return;
           }
 
-          for(auto& serie : seriesMap)
+          // Get the list of layers to register
+          if(dataFormat == "OGR")
           {
-            terrama2::core::DataSetPtr dataset = serie.first;
-
-            // TODO: mask in folder
-            QUrl url;
-            try
-            {
-              url = QUrl(QString::fromStdString(inputDataProvider->uri+"/"+dataAccessor->getFolder(dataset)));
-            }
-            catch(const terrama2::core::UndefinedTagException& /*e*/)
-            {
-              url = QUrl(QString::fromStdString(inputDataProvider->uri));
-            }
-
-            //get timezone of the dataset
-            std::string timezone;
-            try
-            {
-              timezone = dataAccessor->getTimeZone(dataset);
-            }
-            catch(const terrama2::core::UndefinedTagException& /*e*/)
-            {
-              //if timezone is not defined
-              timezone = "UTC+00";
-            }
-
-            QFileInfoList tempFileInfoList = dataAccessor->getDataFileInfoList(url.toString().toStdString(),
-                                                                           dataAccessor->getMask(dataset),
-                                                                           timezone,
-                                                                           filter,
-                                                                           remover);
-
-            if(tempFileInfoList.empty())
-            {
-              TERRAMA2_LOG_WARNING() << tr("No data in folder: %1").arg(url.toString());
-              continue;
-            }
-
-            fileInfoList.append(tempFileInfoList);
-
+            auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorFile>>(seriesMap,
+                                                                                               inputDataProvider,
+                                                                                               filter,
+                                                                                               remover,
+                                                                                               std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
+            fileInfoList.append(files);
+          }
+          else if(dataFormat == "GEOTIFF")
+          {
+            auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorGeoTiff>>(seriesMap,
+                                                                                               inputDataProvider,
+                                                                                               filter,
+                                                                                               remover,
+                                                                                               std::dynamic_pointer_cast<terrama2::core::DataAccessorGeoTiff>(dataAccessor));
+            fileInfoList.append(files);
           }
         }
 
@@ -380,8 +375,18 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
         for(auto& fileInfo : fileInfoList)
         {
-          geoserver.registerVectorFile("datastore", fileInfo.absoluteFilePath().toStdString(),
-                                       fileInfo.completeSuffix().toStdString());
+          if(dataFormat == "OGR")
+          {
+            geoserver.registerVectorFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "datastore",
+                                         fileInfo.absoluteFilePath().toStdString(),
+                                         fileInfo.completeSuffix().toStdString());
+          }
+          else if(dataFormat == "GEOTIFF")
+          {
+            geoserver.registerCoverageFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "coveragestore",
+                                           fileInfo.absoluteFilePath().toStdString(),
+                                           "geotiff");
+          }
 
           QJsonObject datasetSeries;
           datasetSeries.insert("layer", fileInfo.baseName());
@@ -429,4 +434,59 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     TERRAMA2_LOG_ERROR() << QObject::tr("Unkown error.");
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
+}
+
+
+template< typename Accessor >
+QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(SeriesMap& seriesMap,
+                                                                          terrama2::core::DataProviderPtr inputDataProvider,
+                                                                          terrama2::core::Filter filter,
+                                                                          std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                                          Accessor dataAccessor)
+{
+  QFileInfoList fileInfoList;
+
+  for(auto& serie : seriesMap)
+  {
+    terrama2::core::DataSetPtr dataset = serie.first;
+
+    // TODO: mask in folder
+    QUrl url;
+    try
+    {
+      url = QUrl(QString::fromStdString(inputDataProvider->uri+"/"+dataAccessor->getFolder(dataset)));
+    }
+    catch(const terrama2::core::UndefinedTagException& /*e*/)
+    {
+      url = QUrl(QString::fromStdString(inputDataProvider->uri));
+    }
+
+    //get timezone of the dataset
+    std::string timezone;
+    try
+    {
+      timezone = dataAccessor->getTimeZone(dataset);
+    }
+    catch(const terrama2::core::UndefinedTagException& /*e*/)
+    {
+      //if timezone is not defined
+      timezone = "UTC+00";
+    }
+
+    QFileInfoList tempFileInfoList = dataAccessor->getDataFileInfoList(url.toString().toStdString(),
+                                                                       dataAccessor->getMask(dataset),
+                                                                       timezone,
+                                                                       filter,
+                                                                       remover);
+
+    if(tempFileInfoList.empty())
+    {
+      TERRAMA2_LOG_WARNING() << tr("No data in folder: %1").arg(url.toString());
+      continue;
+    }
+
+    fileInfoList.append(tempFileInfoList);
+  }
+
+  return fileInfoList;
 }
