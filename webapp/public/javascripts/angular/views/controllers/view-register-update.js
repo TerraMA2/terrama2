@@ -113,6 +113,16 @@
 
     // Setting view service dao
     self.ViewService = ViewService;
+    /**
+     * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
+     * 
+     * @returns {void}
+     */
+    self.initActive = function() {
+      $timeout(function() {
+        self.ctrl.view.active = (self.ctrl.view.active === false || config.view.active) ? false : true;
+      });
+    };
 
     /**
      * It contains all forms. It must be appended on scope instance due schema form support;
