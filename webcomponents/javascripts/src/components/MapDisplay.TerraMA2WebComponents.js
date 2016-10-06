@@ -384,14 +384,15 @@ define(
      * Adds a new layer group to the map.
      * @param {string} id - Layer group id
      * @param {string} name - Layer group name
+     * @param {string} parentGroup - Parent group id
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addLayerGroup
      * @memberof MapDisplay
      * @inner
      */
-    var addLayerGroup = function(id, name) {
-      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', 'terrama2-layerexplorer');
+    var addLayerGroup = function(id, name, parentGroup) {
+      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
       if(layerGroupExists) {
@@ -406,20 +407,22 @@ define(
 
     /**
      * Creates a new tiled wms layer.
-     * @param {string} url - Url to the wms layer
-     * @param {string} type - Server type
      * @param {string} layerId - Layer id
      * @param {string} layerName - Layer name
      * @param {string} layerTitle - Layer title
+     * @param {string} url - Url to the wms layer
+     * @param {string} type - Server type
      * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-     * @param {float} minResolution - Layer minimum resolution
-     * @param {float} maxResolution - Layer maximum resolution
-     * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
-     * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
-     * @param {string} version - WMS version
-     * @param {string} format - Layer format
-     * @param {object} tileGrid - Grid pattern for accessing the tiles
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution,
+     *    {string} time - Time parameter for temporal layers,
+     *    {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations,
+     *    {string} version - WMS version,
+     *    {string} format - Layer format,
+     *    {object} tileGrid - Grid pattern for accessing the tiles
+     *    {object} sourceParams - Layer source parameters
      * @returns {ol.layer.Tile} tile - New tiled wms layer
      *
      * @private
@@ -427,32 +430,34 @@ define(
      * @memberof MapDisplay
      * @inner
      */
-    var createTileWMSLayer = function(url, type, layerId, layerName, layerTitle, layerVisible, minResolution, maxResolution, time, disabled, buffer, version, format, tileGrid) {
-      var params = {
-        'LAYERS': layerId,
-        'TILED': true
-      };
+    var createTileWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params) {
+      params = params !== undefined && params !== null ? params : {};
 
-      if(time !== null && time !== undefined && time !== '')
-        params['TIME'] = time;
+      var sourceParams = params.sourceParams !== undefined && params.sourceParams !== null ? params.sourceParams : {};
 
-      if(buffer !== null && buffer !== undefined && buffer !== '')
-        params['BUFFER'] = buffer;
+      sourceParams['LAYERS'] = layerId;
+      sourceParams['TILED'] = true;
 
-      if(version !== null && version !== undefined && version !== '')
-        params['VERSION'] = version;
+      if(params.time !== undefined && params.time !== null && params.time !== '')
+        sourceParams['TIME'] = params.time;
 
-      if(format !== null && format !== undefined && format !== '')
-        params['FORMAT'] = format;
+      if(params.buffer !== undefined && params.buffer !== null && params.buffer !== '')
+        sourceParams['BUFFER'] = params.buffer;
+
+      if(params.version !== undefined && params.version !== null && params.version !== '')
+        sourceParams['VERSION'] = params.version;
+
+      if(params.format !== undefined && params.format !== null && params.format !== '')
+        sourceParams['FORMAT'] = params.format;
 
       var layerSourceOptions = {
         url: url,
         serverType: type,
-        params: params
+        params: sourceParams
       };
 
-      if(tileGrid !== null && tileGrid !== undefined && tileGrid !== '')
-        layerSourceOptions['tileGrid'] = new ol.tilegrid.TileGrid(tileGrid);
+      if(params.tileGrid !== undefined && params.tileGrid !== null && params.tileGrid !== '')
+        layerSourceOptions['tileGrid'] = new ol.tilegrid.TileGrid(params.tileGrid);
 
       var layerSource = new ol.source.TileWMS(layerSourceOptions);
 
@@ -468,14 +473,15 @@ define(
         name: layerName,
         title: layerTitle,
         visible: layerVisible,
+        preload: Infinity,
         disabled: disabled
       });
 
-      if(minResolution !== undefined && minResolution !== null)
-        tile.setMinResolution(minResolution);
+      if(params.minResolution !== undefined && params.minResolution !== null)
+        tile.setMinResolution(params.minResolution);
 
-      if(maxResolution !== undefined && maxResolution !== null)
-        tile.setMaxResolution(maxResolution);
+      if(params.maxResolution !== undefined && params.maxResolution !== null)
+        tile.setMaxResolution(params.maxResolution);
 
       return tile;
     };
@@ -496,7 +502,7 @@ define(
      * @inner
      */
     var createWMTSSource = function(url, layerId, time, format, matrixSet, tileGrid) {
-      url = (time !== null && time !== undefined && time !== '') ? url + "?TIME=" + time : url;
+      url = (time !== undefined && time !== null && time !== '') ? url + "?TIME=" + time : url;
 
       var layerSourceOptions = {
         url: url,
@@ -519,18 +525,19 @@ define(
 
     /**
      * Creates a new tiled wms layer.
-     * @param {string} url - Url to the wms layer
      * @param {string} layerId - Layer id
      * @param {string} layerName - Layer name
      * @param {string} layerTitle - Layer title
+     * @param {string} url - Url to the wms layer
      * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-     * @param {float} minResolution - Layer minimum resolution
-     * @param {float} maxResolution - Layer maximum resolution
-     * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {string} time - Time parameter for temporal layers
      * @param {string} format - Layer format
      * @param {string} matrixSet - Matrix set
      * @param {object} tileGrid - Grid pattern for accessing the tiles
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution
      * @returns {ol.layer.Tile} tile - New WMTS layer
      *
      * @private
@@ -538,9 +545,63 @@ define(
      * @memberof MapDisplay
      * @inner
      */
-    var createWMTSLayer = function(url, layerId, layerName, layerTitle, layerVisible, minResolution, maxResolution, time, disabled, format, matrixSet, tileGrid) {
+    var createWMTSLayer = function(layerId, layerName, layerTitle, url, layerVisible, disabled, time, format, matrixSet, tileGrid, params) {
       var tile = new ol.layer.Tile({
         source: createWMTSSource(url, layerId, time, format, matrixSet, tileGrid),
+        id: layerId,
+        name: layerName,
+        title: layerTitle,
+        visible: layerVisible,
+        preload: Infinity,
+        disabled: disabled
+      });
+
+      if(params.minResolution !== undefined && params.minResolution !== null)
+        tile.setMinResolution(params.minResolution);
+
+      if(params.maxResolution !== undefined && params.maxResolution !== null)
+        tile.setMaxResolution(params.maxResolution);
+
+      return tile;
+    };
+
+    /**
+     * Creates a new tiled wms layer with a Bing Maps source.
+     * @param {string} layerId - Layer id
+     * @param {string} layerName - Layer name
+     * @param {string} layerTitle - Layer title
+     * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {string} imagerySet - Type of imagery, there are the following options: 'Road', 'Aerial', 'AerialWithLabels', 'collinsBart', 'ordnanceSurvey'
+     * @param {string} bingMapsKey - Bing Maps require an api key to work, this api key can be generated at Bing Maps portal: http://www.bingmapsportal.com/
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution
+     * @returns {ol.layer.Tile} tile - New WMS layer
+     *
+     * @private
+     * @function createBingMapsLayer
+     * @memberof MapDisplay
+     * @inner
+     */
+    var createBingMapsLayer = function(layerId, layerName, layerTitle, layerVisible, disabled, imagerySet, bingMapsKey, params) {
+      var layerSourceOptions = {
+        key: bingMapsKey,
+        imagerySet: imagerySet,
+        maxZoom: 19,
+        culture: 'pt-br'
+      };
+
+      var layerSource = new ol.source.BingMaps(layerSourceOptions);
+
+      if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
+        layerSource.on('tileloadstart', function() { increaseLoading(layerId); });
+        layerSource.on('tileloadend', function() { increaseLoaded(layerId); });
+        layerSource.on('tileloaderror', function() { increaseLoaded(layerId); });
+      }
+
+      var tile = new ol.layer.Tile({
+        source: layerSource,
         id: layerId,
         name: layerName,
         title: layerTitle,
@@ -548,39 +609,41 @@ define(
         disabled: disabled
       });
 
-      if(minResolution !== undefined && minResolution !== null)
-        tile.setMinResolution(minResolution);
+      if(params.minResolution !== undefined && params.minResolution !== null)
+        tile.setMinResolution(params.minResolution);
 
-      if(maxResolution !== undefined && maxResolution !== null)
-        tile.setMaxResolution(maxResolution);
+      if(params.maxResolution !== undefined && params.maxResolution !== null)
+        tile.setMaxResolution(params.maxResolution);
 
       return tile;
     };
 
     /**
      * Adds a new tiled wms layer to the map.
-     * @param {string} url - Url to the wms layer
-     * @param {string} type - Server type
      * @param {string} layerId - Layer id
      * @param {string} layerName - Layer name
      * @param {string} layerTitle - Layer title
+     * @param {string} url - Url to the wms layer
+     * @param {string} type - Server type
      * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-     * @param {float} minResolution - Layer minimum resolution
-     * @param {float} maxResolution - Layer maximum resolution
-     * @param {string} parentGroup - Parent group id
-     * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
-     * @param {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations
-     * @param {string} version - WMS version
-     * @param {string} format - Layer format
-     * @param {object} tileGrid - Grid pattern for accessing the tiles
+     * @param {string} parentGroup - Parent group id
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution,
+     *    {string} time - Time parameter for temporal layers,
+     *    {integer} buffer - Buffer of additional border pixels that are used in the GetMap and GetFeatureInfo operations,
+     *    {string} version - WMS version,
+     *    {string} format - Layer format,
+     *    {object} tileGrid - Grid pattern for accessing the tiles
+     *    {object} sourceParams - Layer source parameters
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addTileWMSLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addTileWMSLayer = function(url, type, layerId, layerName, layerTitle, layerVisible, minResolution, maxResolution, parentGroup, time, disabled, buffer, version, format, tileGrid) {
+    var addTileWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, parentGroup, params) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -588,7 +651,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createTileWMSLayer(url, type, layerId, layerName, layerTitle, layerVisible, minResolution, maxResolution, time, disabled, buffer, version, format, tileGrid)
+          createTileWMSLayer(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params)
         );
 
         layerGroup.setLayers(layers);
@@ -599,26 +662,27 @@ define(
 
     /**
      * Adds a new WMTS layer to the map.
-     * @param {string} url - Url to the wms layer
      * @param {string} layerId - Layer id
      * @param {string} layerName - Layer name
      * @param {string} layerTitle - Layer title
+     * @param {string} url - Url to the wms layer
      * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
-     * @param {float} minResolution - Layer minimum resolution
-     * @param {float} maxResolution - Layer maximum resolution
-     * @param {string} parentGroup - Parent group id
-     * @param {string} time - Time parameter for temporal layers
      * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {string} time - Time parameter for temporal layers
      * @param {string} format - Layer format
      * @param {string} matrixSet - Matrix set
      * @param {object} tileGrid - Grid pattern for accessing the tiles
+     * @param {string} parentGroup - Parent group id
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution
      * @returns {boolean} layerGroupExists - Indicates if the layer group exists
      *
      * @function addWMTSLayer
      * @memberof MapDisplay
      * @inner
      */
-    var addWMTSLayer = function(url, layerId, layerName, layerTitle, layerVisible, minResolution, maxResolution, parentGroup, time, disabled, format, matrixSet, tileGrid) {
+    var addWMTSLayer = function(layerId, layerName, layerTitle, url, layerVisible, disabled, time, format, matrixSet, tileGrid, parentGroup, params) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -626,8 +690,46 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createWMTSLayer(url, layerId, layerName, layerTitle, layerVisible, minResolution, maxResolution, time, disabled, format, matrixSet, tileGrid)
+          createWMTSLayer(layerId, layerName, layerTitle, url, layerVisible, disabled, time, format, matrixSet, tileGrid, params)
         );
+
+        layerGroup.setLayers(layers);
+      }
+
+      return layerGroupExists;
+    };
+
+    /**
+     * Adds a new tiled wms layer with a Bing Maps source.
+     * @param {string} layerId - Layer id
+     * @param {string} layerName - Layer name
+     * @param {string} layerTitle - Layer title
+     * @param {boolean} layerVisible - Flag that indicates if the layer should be visible on the map when created
+     * @param {boolean} disabled - Flag that indicates if the layer should be disabled in the layer explorer when created
+     * @param {string} imagerySet - Type of imagery, there are the following options: 'Road', 'Aerial', 'AerialWithLabels', 'collinsBart', 'ordnanceSurvey'
+     * @param {string} bingMapsKey - Bing Maps require an api key to work, this api key can be generated at Bing Maps portal: http://www.bingmapsportal.com/
+     * @param {string} parentGroup - Parent group id
+     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
+     * @param {object} params - Optional parameters, there are the following items:
+     *    {float} minResolution - Layer minimum resolution,
+     *    {float} maxResolution - Layer maximum resolution
+     * @returns {boolean} layerGroupExists - Indicates if the layer group exists
+     *
+     * @function addBingMapsLayer
+     * @memberof MapDisplay
+     * @inner
+     */
+    var addBingMapsLayer = function(layerId, layerName, layerTitle, layerVisible, disabled, imagerySet, bingMapsKey, parentGroup, appendAtTheEnd, params) {
+      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
+      var layerGroupExists = layerGroup !== null;
+
+      if(layerGroupExists) {
+        var layers = layerGroup.getLayers();
+
+        var newLayer = createBingMapsLayer(layerId, layerName, layerTitle, layerVisible, disabled, imagerySet, bingMapsKey, params);
+
+        if(appendAtTheEnd) layers.insertAt(0, newLayer);
+        else layers.push(newLayer);
 
         layerGroup.setLayers(layers);
       }
@@ -789,74 +891,6 @@ define(
     };
 
     /**
-     * Adds a layer group of base layers to the map.
-     * @param {string} id - Layer id
-     * @param {string} name - Layer name
-     * @returns {boolean} layerGroupExists - Indicates if the layer group exists
-     *
-     * @function addBaseLayers
-     * @memberof MapDisplay
-     * @inner
-     */
-    var addBaseLayers = function(id, name) {
-      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', 'terrama2-layerexplorer');
-      var layerGroupExists = layerGroup !== null;
-
-      if(layerGroupExists) {
-        var layers = layerGroup.getLayers();
-
-        var osmSource = new ol.source.OSM();
-        var mqtSource = new ol.source.MapQuest({layer: 'osm'});
-        var satSource = new ol.source.MapQuest({layer: 'sat'});
-
-        if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
-          osmSource.on('tileloadstart', function() { increaseLoading('osm'); });
-          osmSource.on('tileloadend', function() { increaseLoaded('osm'); });
-          osmSource.on('tileloaderror', function() { increaseLoaded('osm'); });
-
-          mqtSource.on('tileloadstart', function() { increaseLoading('mapquest_osm'); });
-          mqtSource.on('tileloadend', function() { increaseLoaded('mapquest_osm'); });
-          mqtSource.on('tileloaderror', function() { increaseLoaded('mapquest_osm'); });
-
-          satSource.on('tileloadstart', function() { increaseLoading('mapquest_sat'); });
-          satSource.on('tileloadend', function() { increaseLoaded('mapquest_sat'); });
-          satSource.on('tileloaderror', function() { increaseLoaded('mapquest_sat'); });
-        }
-
-        layers.push(
-          new ol.layer.Group({
-            layers: [
-              new ol.layer.Tile({
-                source: osmSource,
-                id: 'osm',
-                name: 'Open Street Map',
-                visible: false
-              }),
-              new ol.layer.Tile({
-                source: mqtSource,
-                id: 'mapquest_osm',
-                name: 'MapQuest OSM',
-                visible: false
-              }),
-              new ol.layer.Tile({
-                source: satSource,
-                id: 'mapquest_sat',
-                name: 'MapQuest Sat&eacute;lite',
-                visible: true
-              })
-            ],
-            id: id,
-            name: name
-          })
-        );
-
-        layerGroup.setLayers(layers);
-      }
-
-      return layerGroupExists;
-    };
-
-    /**
      * Adds an OSM layer to a given layer group.
      * @param {string} layerId - Layer id
      * @param {string} layerName - Layer name
@@ -871,7 +905,7 @@ define(
      * @inner
      */
     var addOSMLayer = function(layerId, layerName, layerTitle, layerVisible, parentGroup, appendAtTheEnd) {
-      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
+      appendAtTheEnd = (appendAtTheEnd !== undefined && appendAtTheEnd !== null) ? appendAtTheEnd : false;
 
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
@@ -891,100 +925,7 @@ define(
           id: layerId,
           name: layerName,
           title: layerTitle,
-          visible: layerVisible
-        });
-
-        if(appendAtTheEnd) layers.insertAt(0, newTile);
-        else layers.push(newTile);
-
-        layerGroup.setLayers(layers);
-      }
-
-      return layerGroupExists;
-    };
-
-    /**
-     * Adds a MapQuestOSM layer to a given layer group.
-     * @param {string} layerId - Layer id
-     * @param {string} layerName - Layer name
-     * @param {string} layerTitle - Layer title
-     * @param {boolean} layerVisible - Layer visibility
-     * @param {string} parentGroup - Parent layer group id
-     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
-     * @returns {boolean} layerGroupExists - Indicates if the layer group exists
-     *
-     * @function addMapQuestOSMLayer
-     * @memberof MapDisplay
-     * @inner
-     */
-    var addMapQuestOSMLayer = function(layerId, layerName, layerTitle, layerVisible, parentGroup, appendAtTheEnd) {
-      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
-
-      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
-      var layerGroupExists = layerGroup !== null;
-
-      if(layerGroupExists) {
-        var layers = layerGroup.getLayers();
-        var source = new ol.source.MapQuest({layer: 'osm'});
-
-        if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
-          source.on('tileloadstart', function() { increaseLoading(layerId); });
-          source.on('tileloadend', function() { increaseLoaded(layerId); });
-          source.on('tileloaderror', function() { increaseLoaded(layerId); });
-        }
-
-        var newTile = new ol.layer.Tile({
-          source: source,
-          id: layerId,
-          name: layerName,
-          title: layerTitle,
-          visible: layerVisible
-        });
-
-        if(appendAtTheEnd) layers.insertAt(0, newTile);
-        else layers.push(newTile);
-
-        layerGroup.setLayers(layers);
-      }
-
-      return layerGroupExists;
-    };
-
-    /**
-     * Adds a MapQuestSatellite layer to a given layer group.
-     * @param {string} layerId - Layer id
-     * @param {string} layerName - Layer name
-     * @param {string} layerTitle - Layer title
-     * @param {boolean} layerVisible - Layer visibility
-     * @param {string} parentGroup - Parent layer group id
-     * @param {boolean} appendAtTheEnd - Flag that indicates if the layer should be inserted as last in the layers order, if the parameter isn't provided, it's set to false
-     * @returns {boolean} layerGroupExists - Indicates if the layer group exists
-     *
-     * @function addMapQuestSatelliteLayer
-     * @memberof MapDisplay
-     * @inner
-     */
-    var addMapQuestSatelliteLayer = function(layerId, layerName, layerTitle, layerVisible, parentGroup, appendAtTheEnd) {
-      appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
-
-      var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
-      var layerGroupExists = layerGroup !== null;
-
-      if(layerGroupExists) {
-        var layers = layerGroup.getLayers();
-        var source = new ol.source.MapQuest({layer: 'sat'});
-
-        if(memberLayersStartLoadingFunction !== null && memberLayersEndLoadingFunction !== null) {
-          source.on('tileloadstart', function() { increaseLoading(layerId); });
-          source.on('tileloadend', function() { increaseLoaded(layerId); });
-          source.on('tileloaderror', function() { increaseLoaded(layerId); });
-        }
-
-        var newTile = new ol.layer.Tile({
-          source: source,
-          id: layerId,
-          name: layerName,
-          title: layerTitle,
+          preload: Infinity,
           visible: layerVisible
         });
 
@@ -1046,10 +987,10 @@ define(
 
           var subLayersLength = layers.Layer[i].Layer.length;
           for(var j = 0; j < subLayersLength; j++) {
-            tilesWMSLayers.push(createTileWMSLayer(serverUrl, serverType, layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, false, false, null, null, null));
+            tilesWMSLayers.push(createTileWMSLayer(layers.Layer[i].Layer[j].Name, layers.Layer[i].Layer[j].Title, layers.Layer[i].Layer[j].Title, serverUrl, serverType, false, false));
           }
         } else {
-          tilesWMSLayers.push(createTileWMSLayer(serverUrl, serverType, layers.Layer[i].Name, layers.Layer[i].Title, false, false, null, null, null));
+          tilesWMSLayers.push(createTileWMSLayer(layers.Layer[i].Name, layers.Layer[i].Title, layers.Layer[i].Title, serverUrl, serverType, false, false));
         }
       }
 
@@ -1488,12 +1429,10 @@ define(
       updateLayerTime: updateLayerTime,
       addTileWMSLayer: addTileWMSLayer,
       addWMTSLayer: addWMTSLayer,
+      addBingMapsLayer: addBingMapsLayer,
       addGeoJSONVectorLayer: addGeoJSONVectorLayer,
       removeLayer: removeLayer,
-      addBaseLayers: addBaseLayers,
       addOSMLayer: addOSMLayer,
-      addMapQuestOSMLayer: addMapQuestOSMLayer,
-      addMapQuestSatelliteLayer: addMapQuestSatelliteLayer,
       setLayersStartLoadingFunction: setLayersStartLoadingFunction,
       setLayersEndLoadingFunction: setLayersEndLoadingFunction,
       setLayerVisibility: setLayerVisibility,
