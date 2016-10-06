@@ -60,8 +60,11 @@ void terrama2::services::analysis::core::BaseContext::addError(const std::string
 terrama2::core::DataSeriesPtr terrama2::services::analysis::core::BaseContext::findDataSeries(const std::string& dataSeriesName)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  auto it = dataSeriesMap_.find(dataSeriesName);
-  if(it == dataSeriesMap_.end())
+  try
+  {
+    return dataSeriesMap_.at(dataSeriesName);;
+  }
+  catch (const std::out_of_range&)
   {
     auto dataManagerPtr = getDataManager().lock();
     if(!dataManagerPtr)
@@ -75,8 +78,6 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::BaseContext::f
     dataSeriesMap_.emplace(dataSeriesName, dataSeries);
     return dataSeries;
   }
-
-  return it->second;
 }
 
 std::shared_ptr<terrama2::core::SynchronizedInterpolator> terrama2::services::analysis::core::BaseContext::getInterpolator(std::shared_ptr<te::rst::Raster> raster)
@@ -92,15 +93,13 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateDiscardBefore;
-  key.dateFilterEnd_ = dateDiscardAfter;
+  ObjectKey key(datasetId, dateDiscardBefore, dateDiscardAfter);
 
-  auto it = rasterMap_.find(key);
-  if(it != rasterMap_.end())
-    return it->second;
-  else
+  try
+  {
+    return rasterMap_.at(key);
+  }
+  catch (const std::out_of_range&)
   {
     auto dataManager = dataManager_.lock();
     if(!dataManager)
@@ -127,12 +126,12 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 
         auto cachedRaster = addRaster(key, dsRaster);
         auto interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
-        std::shared_ptr<terrama2::core::SynchronizedInterpolator> syncInterpolator = std::make_shared<terrama2::core::SynchronizedInterpolator>(dsRaster.get(), interpolationMethod);
+        std::shared_ptr<terrama2::core::SynchronizedInterpolator> syncInterpolator = std::make_shared<terrama2::core::SynchronizedInterpolator>(cachedRaster.get(), interpolationMethod);
         interpolatorMap_.emplace(cachedRaster, syncInterpolator);
       }
     });
 
-    return rasterMap_[key];
+    return rasterMap_.at(key);
   }
 }
 
@@ -151,13 +150,13 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
     const std::string& dateDiscardAfter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  ObjectKey key;
-  key.objectId_ = dataSeriesId;
-  key.dateFilterBegin_ = dateDiscardBefore;
-  key.dateFilterEnd_ = dateDiscardAfter;
+  ObjectKey key(dataSeriesId, dateDiscardBefore, dateDiscardAfter);
 
-  auto it = analysisGridMap_.find(key);
-  if(it == analysisGridMap_.end())
+  try
+  {
+    return analysisGridMap_.at(key);
+  }
+  catch (const std::out_of_range&)
   {
     auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
     if(!dataSeriesPtr)
@@ -189,8 +188,6 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
     analysisGridMap_.emplace(key, gridMap);
     return gridMap;
   }
-
-  return it->second;
 }
 
 terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFilter(const std::string& dateDiscardBefore, const std::string& dateDiscardAfter)
@@ -243,15 +240,15 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
     const std::string& dateDiscardAfter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  ObjectKey key;
-  key.objectId_ = dataSeriesId;
-  key.dateFilterBegin_ = dateDiscardBefore;
-  key.dateFilterEnd_ = dateDiscardAfter;
+  ObjectKey key(dataSeriesId, dateDiscardBefore, dateDiscardAfter);
 
   auto dataManager = getDataManager().lock();
 
-  auto it = analysisSeriesMap_.find(key);
-  if(it == analysisSeriesMap_.end())
+  try
+  {
+    return analysisSeriesMap_.at(key);
+  }
+  catch (const std::out_of_range&)
   {
     auto dataSeriesPtr = dataManager->findDataSeries(dataSeriesId);
     if(!dataSeriesPtr)
@@ -278,6 +275,4 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
     analysisSeriesMap_.emplace(key, series);
     return series;
   }
-
-  return it->second;
 }

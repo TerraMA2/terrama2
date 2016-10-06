@@ -77,7 +77,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
 
   try
   {

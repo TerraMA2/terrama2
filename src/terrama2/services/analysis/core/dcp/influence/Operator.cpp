@@ -60,7 +60,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byAtt
   python::readInfoFromDict(cache);
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
   try
   {
     terrama2::core::verify::analysisDCP(analysis);

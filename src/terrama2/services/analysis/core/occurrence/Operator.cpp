@@ -58,7 +58,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
   try
   {
     terrama2::core::verify::analysisMonitoredObject(analysis);
