@@ -2782,6 +2782,7 @@ var DataManager = module.exports = {
    * 
    * @param {number} analysisId - An analysis identifier
    * @param {Object} analysisObject - An analysis object to update
+   * @param {Object} analysisObject.historical - Reprocessing historical data values
    * @param {Object} scheduleObject - A schedule object to update
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -3286,6 +3287,54 @@ var DataManager = module.exports = {
 
         .catch(function(err) {
           return reject(new Error(Utils.format("Coult not save Registered View due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It retrives a list of registered views in database from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  listRegisteredViews: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.RegisteredView.findAll(Utils.extend({
+        where: restriction
+      }, options))
+        .then(function(registeredViews) {
+          return resolve(registeredViews.map(function(registeredView) {
+            return new DataModel.RegisteredView(registeredView.get());
+          }));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not retrieve registered views due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It performs an update or insert layer operation. When a layer found, it updates. Otherwise, a new layer will be created
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} layersObject - A Layer object
+   * @param {string} layersObject.name - A Layer name
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  upsertLayer: function(restriction, layersObject, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.Layer.upSert(layersObject, Utils.extend({
+        where: restriction
+      }, options))
+        .then(function(resolve, reject) {
+          return resolve();
+        })
+        
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not update or insert layer due %s", err.toString())));
         });
     });
   }

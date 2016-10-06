@@ -13,6 +13,9 @@ var Executor = require('./Executor');
 var Promise = require('bluebird');
 var DataManager = require("./DataManager");
 
+// Facades
+var ProcessFinish = require("./facade/tcp-manager/ProcessFinished");
+
 
 var TcpManager = function() {
   EventEmitter.call(this);
@@ -424,13 +427,11 @@ TcpManager.prototype.initialize = function(client) {
   var onProcessFinished = function(response) {
     if (Utils.isObject(response)) {
       if (response.class === "RegisteredViews") {
-        DataManager.addRegisteredView(response)
+        // checking Save/Update registered View
+        // TODO: check it
+        ProcessFinished.handleRegisteredViews(response)
           .then(function(registeredView) {
-            self.emit("view", registeredView);
-          })
-
-          .catch(function(err) {
-            console.log(Utils.format("Error during add registered views: %s" + err.toString()));
+            self.emit("processFinished", registeredView);
           });
       }
     }

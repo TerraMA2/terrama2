@@ -9,7 +9,7 @@
    * @param {Object} params
    * @param {number} params.id
    * @param {string} params.workspace
-   * @param {string[]} params.layers
+   * @param {Sequelize.Model[]} params.layers
    */
   function RegisteredView(params) {
     AbstractClass.call(this, {'class': 'RegisteredView'});
