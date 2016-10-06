@@ -213,7 +213,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
 
       try
       {
-        auto samples = sample(cache, dataSeriesName, dateFilterBegin, dateFilterEnd);
+        std::vector<double> samples = sample(cache, dataSeriesName, dateFilterBegin, dateFilterEnd);
 
         hasData = !samples.empty();
 

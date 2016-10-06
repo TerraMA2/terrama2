@@ -1831,7 +1831,19 @@ var DataManager = module.exports = {
 
     return dataSetsList;
   },
-
+  /**
+   * It performs a collector insertion, using cascade addDataSeries, addSchedule and addCollector operations.
+   * 
+   * @deprecated It will be deprecated soon (Beta-1). Use addDataSeries, addSchedule and addCollector instead
+   * @param {Object} dataSeriesObject
+   * @param {Object} scheduleObject
+   * @param {Object} filterObject
+   * @param {Object} serviceObject
+   * @param {Object[]} intersectionArray
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<DataModel.Collector>}
+   */
   addDataSeriesAndCollector: function(dataSeriesObject, scheduleObject, filterObject, serviceObject, intersectionArray, active, options) {
     /**
      * @type {DataManager}
@@ -1885,17 +1897,14 @@ var DataManager = module.exports = {
               }
             }).catch(function(err) {
               // rollback schedule
-              console.log("rollback schedule " + err.toString());
               return reject(err);
             });
           }).catch(function(err) {
             // rollback data series
-            console.log("rollback data series in out");
             console.log(err);
             return reject(err);
           });
         }).catch(function(err) {
-          console.log("rollback data series");
           return reject(err);
         });
       }).catch(function(err) {
@@ -2342,17 +2351,17 @@ var DataManager = module.exports = {
     });
   },
 
-  updateIntersections: function(intersectionIds, intersectionList) {
+  updateIntersections: function(intersectionIds, intersectionList, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var promises = [];
       intersectionList.forEach(function(element, index) {
-        promises.push(self.updateIntersection(intersectionIds[index], element));
+        promises.push(self.updateIntersection(intersectionIds[index], element, options));
       });
       Promise.all(promises).then(function() {
-        resolve();
+        return resolve();
       }).catch(function(err) {
-        reject(err);
+        return reject(err);
       });
     });
   },
@@ -2370,13 +2379,19 @@ var DataManager = module.exports = {
       });
     });
   },
-
-  removeIntersection: function(restriction) {
+  /**
+   * It performs remove intersection in database
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   */
+  removeIntersection: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Intersection.destroy({where: restriction}).then(function() {
-        resolve();
+      models.db.Intersection.destroy(Utils.extend({where: restriction}, options)).then(function() {
+        return resolve();
       }).catch(function(err) {
-        reject(new Error("Could not remove intersection " + err.toString()));
+        return reject(new Error("Could not remove intersection " + err.toString()));
       });
     });
   },
@@ -2762,7 +2777,6 @@ var DataManager = module.exports = {
         });
     });
   },
-
   /**
    * It performs a update analysis from given restriction
    * 
@@ -2777,17 +2791,22 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var analysisInstance;
-
-      self.getAnalysis({id: analysisId}, options).then(function(analysisResult) {
+      /**
+       * It is important to pass options to all DB Operations even when options is null|undefined, since 
+       * it may contain Sequelize.Transaction object to handle entire operation. If transaction was passed but
+       * not applied on children operations, Your DB operation may be inconsistent.
+       */
+      // Retrieve analysis and update Analysis Table
+      return self.getAnalysis({id: analysisId}, options).then(function(analysisResult) {
         analysisInstance = analysisResult;
-        return models.db.Analysis.update(analysisObject, {
+        return models.db.Analysis.update(analysisObject, Utils.extend({
           fields: ['name', 'description', 'instance_id', 'script', 'active'],
           where: {
             id: analysisId
           }
-        });
+        }, options));
       })
-      
+      // Prepare to update Analysis Dependencies
       .then(function() {
         // updating analysis dataSeries
         var promises = [];
@@ -2801,33 +2820,33 @@ var DataManager = module.exports = {
         analysisObject.analysisDataSeries.some(function(element) {
           if (element.id && element.id > 0) {
             // update
-            promises.push(models.db.AnalysisDataSeries.update(element, {
+            promises.push(models.db.AnalysisDataSeries.update(element, Utils.extend({
               fields: ['alias'],
               where: {id: element.id}
-            }));
+            }, options)));
           } else {
             // insert
             element.analysis_id = analysisInstance.id;
             delete element.id;
-            promises.push(self.addAnalysisDataSeries(element));
+            promises.push(self.addAnalysisDataSeries(element, options));
           }
         });
 
         // delete
         toRemove.forEach(function(element) {
-          promises.push(models.db.AnalysisDataSeries.destroy({where: {
+          promises.push(models.db.AnalysisDataSeries.destroy(Utils.extend({where: {
             id: element.id
-          }}));
+          }}, options)));
         });
 
         return Promise.all(promises);
       })
-      
+      // Tries to updateschedule
       .then(function() {
         // updating schedule
-        return self.updateSchedule(analysisInstance.schedule.id, scheduleObject);
+        return self.updateSchedule(analysisInstance.schedule.id, scheduleObject, options);
       })
-      
+      // Update historical data if there is
       .then(function() {
         // reprocessing historical data
         if (!_.isEmpty(analysisObject.historical)) {
@@ -2844,19 +2863,19 @@ var DataManager = module.exports = {
 
             if (!historicalData.endDate && !historicalData.startDate) {
               // delete
-              return self.removeHistoricalData({id: analysisInstance.historicalData.id});
+              return self.removeHistoricalData({id: analysisInstance.historicalData.id}, options);
             }
 
             return self.updateHistoricalData({id: analysisInstance.historicalData.id}, historicalData, options);
           } else {
             // save
-            return self.addHistoricalData(analysisInstance.id, analysisObject.historical);
+            return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
           }
         } else {
           return null;
         }
       })
-
+      // Update Analysis Grid if there is
       .then(function() {
         if (analysisInstance.type.id === Enums.AnalysisType.GRID) {
           var gridObject = Object.assign(
@@ -2870,7 +2889,7 @@ var DataManager = module.exports = {
           }
           Object.assign(gridObject, analysisObject.grid);
           
-          return models.db.AnalysisOutputGrid.update(analysisObject.grid, {
+          return models.db.AnalysisOutputGrid.update(analysisObject.grid, Utils.extend({
             fields: ['area_of_interest_box', 'srid', 'resolution_x',
                       'resolution_y', 'interpolation_dummy',
                       'area_of_interest_type', 'resolution_type',
@@ -2879,13 +2898,15 @@ var DataManager = module.exports = {
             where: {
               id: analysisInstance.outputGrid.id
             }
-          }).then(function() {
+          }, options)).then(function() {
+            // applies OK update operation with Grid
             return resolve();
           }).catch(function(err) {
             console.log(err);
             return reject(new exceptions.AnalysisError("Could not update analysis output grid " + err.toString()));
           });
         } else {
+          // applies OK update operation without grid
           return resolve();
         }
       }).catch(function(err) {
@@ -2893,8 +2914,15 @@ var DataManager = module.exports = {
       });
     });
   },
-
-  listAnalysis: function(restriction) {
+  /**
+   * It retrieves all analysis in database from given restriction
+   * 
+   * @param {Object} restriction - An analysis identifier
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} 
+   */
+  listAnalysis: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var _reject = function(err) {
@@ -2902,7 +2930,7 @@ var DataManager = module.exports = {
         reject(err);
       };
 
-      models.db.Analysis.findAll({
+      models.db.Analysis.findAll(Utils.extend({
         include: [
           {
             model: models.db.AnalysisDataSeries,
@@ -2941,7 +2969,7 @@ var DataManager = module.exports = {
           models.db.Schedule
         ],
         where: restriction || {}
-      }).then(function(analysisResult) {
+      }, options)).then(function(analysisResult) {
         var output = [];
         var promises = [];
 
@@ -2982,7 +3010,15 @@ var DataManager = module.exports = {
       }).catch(_reject);
     });
   },
-
+  /**
+   * It retrieve a TerraMA² Analysis instance.
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} restriction.dataSet - TerraMA² Output data set restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.Analysis>} 
+   */
   getAnalysis: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
@@ -2992,7 +3028,7 @@ var DataManager = module.exports = {
         dataSetRestriction = restrict.dataSet;
         delete restrict.dataSet;
       }
-      models.db.Analysis.findOne(Utils.extend({
+      var opts = Utils.extend({
         where: restrict,
         include: [
           {
@@ -3022,7 +3058,9 @@ var DataManager = module.exports = {
             where: dataSetRestriction
           }
         ]
-      }, options)).then(function(analysisResult) {
+      }, options);
+
+      models.db.Analysis.findOne(opts).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
         self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {

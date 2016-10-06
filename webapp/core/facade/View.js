@@ -55,6 +55,10 @@
         viewObject.maps_server_uri = requester.uri;
         // setting current project scope
         viewObject.project_id = projectId;
+        // setting empty style if there is not
+        if (!viewObject.style) {
+          viewObject.style = "";
+        }
 
         return DataManager.addSchedule(viewObject.schedule, options)
           .then(function(schedule) {
