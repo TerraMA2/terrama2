@@ -131,7 +131,7 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
       }
     });
 
-    return rasterMap_.at(key);
+    return rasterMap_[key];
   }
 }
 

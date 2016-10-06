@@ -125,7 +125,7 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
     }
     catch (const std::out_of_range&)
     {
-
+      //Expected behavior 
     }
 
     dataseries_.emplace(dataseries->id, dataseries);
