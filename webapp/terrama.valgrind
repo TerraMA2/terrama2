@@ -1,7 +1,0 @@
-==22769== Memcheck, a memory error detector
-==22769== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
-==22769== Using Valgrind-3.10.1 and LibVEX; rerun with -h for copyright info
-==22769== Command: /home/paulo/.CLion2016.2/system/cmake/generated/cmake-4d245192/4d245192/Debug/bin/terrama2_service collector 6543
-==22769== Parent PID: 22743
-==22769== 
-==22769== FATAL: can't open suppressions file "terrama_libs.supp"
