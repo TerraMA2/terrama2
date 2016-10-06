@@ -1,49 +1,79 @@
-'use strict';
+(function() {
+  'use strict';
 
-// Dependencies
-var DataManager = require("./../../core/DataManager");
-var handleRequestError = require("./../../core/Utils").handleRequestError;
+  // Dependencies
+  var DataManager = require("./../../core/DataManager");
+  var handleRequestError = require("./../../core/Utils").handleRequestError;
 
-/**
- * Injecting NodeJS App configuration as dependency. It retrieves a Views controllers API
- * 
- * @param {Object}
- * @returns {Object}
- */
-module.exports = function(app) {
-  return {
-    get: function(request, response) {
-      var viewId = request.params.id;
-      if (viewId) {
-        // get single view: TODO
-      }
+  // Facade
+  var ViewFacade = require("./../../core/facade/View");
 
-      DataManager.listViews({})
-        .then(function(views) {
-          return response.json(views.map(function(view) {
-            return view.toObject();
-          }))
-        })
+  var TokenCode = require('./../../core/Enums').TokenCode;
+  var Utils = require('./../../core/Utils');
 
-        .catch(function(err) {
-          return handleRequestError(response, err, 400);
-        });
-    },
+  /**
+   * Injecting NodeJS App configuration as dependency. It retrieves a Views controllers API
+   * 
+   * @param {Object}
+   * @returns {Object}
+   */
+  module.exports = function(app) {
+    return {
+      get: function(request, response) {
+        var viewId = request.params.id;
+        
+        ViewFacade.retrieve(viewId, app.locals.activeProject.id)
+          .then(function(views) {
+            return response.json(views);
+          })
 
-    post: function(request, response) {
-      var viewObject = request.body;
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
+      },
 
-      DataManager.orm.transaction(function(t) {
-        return DataManager.addView(viewObject, {transaction: t});
-      })
-      .then(function(view) {
-        // TODO: send via service
-        return response.json(view);
-      })
+      post: function(request, response) {
+        var viewObject = request.body;
+
+        ViewFacade.save(viewObject, app.locals.activeProject.id)
+          .then(function(view) {
+            // generating token
+            var token = Utils.generateToken(app, TokenCode.SAVE, view.name);
+            return response.json({status: 200, result: view.toObject(), token: token});
+          })
+          
+          .catch(function(err){
+            return handleRequestError(response, err, 400);
+          });
+      },
       
-      .catch(function(err){
-        return handleRequestError(response, err, 400);
-      });
+      put: function(request, response) {
+        var viewId = parseInt(request.params.id);
+
+        ViewFacade.update(viewId, request.body, app.locals.activeProject.id)
+          .then(function(view) {
+            var token = Utils.generateToken(app, TokenCode.UPDATE, view.name);
+            return response.json({status: 200, result: view.toObject(), token: token});
+          })
+
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
+      },
+
+      delete: function(request, response) {
+        var viewId = parseInt(request.params.id);
+
+        ViewFacade.remove(viewId)
+          .then(function(view) {
+            var token = Utils.generateToken(app, TokenCode.DELETE, view.name);
+            return response.json({status: 200, result: view.toObject(), token: token});
+          })
+
+          .catch(function(err) {
+            return handleRequestError(response, err, 400);
+          });
+      }
     }
-  }
-};
+  };
+} ());

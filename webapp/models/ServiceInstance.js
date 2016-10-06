@@ -1,4 +1,15 @@
+/**
+ * It exports a sequelize orm Model in order to load and to associate within another orm models.
+ * @returns {sequelize.Model}
+ */
 module.exports = function(sequelize, DataTypes) {
+  'use strict';
+
+  /**
+   * It defines a TerraMA² Service.
+   * 
+   * @type {sequelize.Model}
+   */
   var ServiceInstance = sequelize.define("ServiceInstance", {
       id: {
         type: DataTypes.INTEGER,
@@ -53,6 +64,14 @@ module.exports = function(sequelize, DataTypes) {
           ServiceInstance.hasMany(models.Collector, {
             foreignKey: {
               allowNull: true
+            }
+          });
+
+          ServiceInstance.hasMany(models.View, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "service_instance_id",
+              allowNull: false
             }
           });
         }

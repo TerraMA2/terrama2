@@ -55,7 +55,7 @@ void TsJsonUtils::testToJSon()
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
-    view->geoserverURI = te::core::URI("http://locahost:8080/geoserver");
+    view->maps_server_uri = te::core::URI("http://locahost:8080/geoserver");
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -119,7 +119,7 @@ void TsJsonUtils::testGoNBackJSon()
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
-    view->geoserverURI = te::core::URI("http://locahost:8080/geoserver");
+    view->maps_server_uri = te::core::URI("http://locahost:8080/geoserver");
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -132,17 +132,9 @@ void TsJsonUtils::testGoNBackJSon()
     filter.discardBefore = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:39:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
     filter.discardAfter = terrama2::core::TimeUtils::stringToTimestamp("2016-07-06 12:45:00UTM+00", "%Y-%m-%d %H:%M:%S%ZP");
 
-    view->filtersPerDataSeries.emplace(1, filter);
-    view->filtersPerDataSeries.emplace(2, filter);
-    view->filtersPerDataSeries.emplace(3, filter);
-    view->filtersPerDataSeries.emplace(4, filter);
-
     view->dataSeriesList.push_back(1);
-    view->dataSeriesList.push_back(2);
-    view->dataSeriesList.push_back(3);
-    view->dataSeriesList.push_back(4);
 
-    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
+    view->stylesPerDataSeries.emplace(1, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
@@ -158,7 +150,7 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->imageResolutionWidth, viewPtr->imageResolutionWidth);
     QCOMPARE(viewBackPtr->imageResolutionHeight, viewPtr->imageResolutionHeight);
     QCOMPARE(viewBackPtr->srid, viewPtr->srid);
-    QCOMPARE(viewBackPtr->geoserverURI.uri(), viewPtr->geoserverURI.uri());
+    QCOMPARE(viewBackPtr->maps_server_uri.uri(), viewPtr->maps_server_uri.uri());
 
     QCOMPARE(viewBackPtr->schedule.id, viewPtr->schedule.id);
     QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);

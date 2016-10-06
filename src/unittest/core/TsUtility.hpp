@@ -53,6 +53,7 @@ private slots:
   void testTimeUtilsAddMonth();
   void testTimeUtilsAddDay();
   void testTimeUtilsAddYear();
+  void testTimeUtilsScheduleSeconds();
 
   void ValidMask();
   void invalidValidMask();

@@ -128,29 +128,34 @@ var logs = {
 };
 
 /**
+ * Base method to write data in TCP stream
+ * 
+ * @param {ServiceInstance} serviceInstance - A TerraMA² service instance
+ * @param {Object} data - Data to make buffer
+ * @param {Signals} signal - A TCP signal to communicate 
+ */
+TcpManager.prototype.$send = function(serviceInstance, data, signal) {
+  try {
+    var client = _getClient(serviceInstance);
+    var buffer = this.makebuffer(signal, data);
+    console.log(buffer);
+    console.log("BufferToString: ", buffer.toString());
+    console.log("BufferToString size: ", buffer.length);
+
+    client.send(buffer);
+  } catch (e) {
+    console.log(e);
+    this.emit('tcpError', serviceInstance, new Error("Could not send data to service", e));
+  }
+}
+
+/**
  This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
  @param {ServiceInstance} serviceInstance - a terrama2 service instance
  @param {Object} data - a javascript object message to send
  */
 TcpManager.prototype.sendData = function(serviceInstance, data) {
-  var self = this;
-
-  try {
-    var buffer = self.makebuffer(Signals.ADD_DATA_SIGNAL, data);
-
-    console.log(buffer);
-    console.log("BufferToString: ", buffer.toString());
-    console.log("BufferToString size: ", buffer.length);
-
-    // getting client and writing in the channel
-    var client = _getClient(serviceInstance);
-
-    client.send(buffer);
-
-  } catch (e) {
-    console.log(e);
-    this.emit('tcpError', serviceInstance, new Error("Could not send data to service", e));
-  }
+  this.$send(serviceInstance, data, Signals.ADD_DATA_SIGNAL);
 };
 
 /**
@@ -159,15 +164,7 @@ TcpManager.prototype.sendData = function(serviceInstance, data) {
  @param {Json} data - A Json with type and process ids
  */
 TcpManager.prototype.startProcess = function(serviceInstance, data){
-  var self = this;
-  try{
-    var buffer = self.makebuffer(Signals.START_PROCESS_SIGNAL, data);
-    var client = _getClient(serviceInstance);
-    client.send(buffer);
-  } catch (e){
-    console.log(e);
-    this.emit('tcpError', serviceInstance, new Error("Could not send data to service", e))
-  }
+  this.$send(serviceInstance, data, Signals.START_PROCESS_SIGNAL);
 }
 
 /**
@@ -176,21 +173,7 @@ TcpManager.prototype.startProcess = function(serviceInstance, data){
  @param {Object} data - a javascript object message to send
  */
 TcpManager.prototype.removeData = function(serviceInstance, data) {
-  var self = this;
-  try {
-    var buffer = self.makebuffer(Signals.REMOVE_DATA_SIGNAL, data);
-
-    console.log(buffer);
-
-    // getting client and writing in the channel
-    var client = _getClient(serviceInstance);
-
-    client.send(buffer);
-
-  } catch (e) {
-    console.log(e);
-    this.emit('tcpError', serviceInstance, new Error("Could not send data REMOVE_DATA_SIGNAL to service", e));
-  }
+  this.$send(serviceInstance, data, Signals.REMOVE_DATA_SIGNAL);
 };
 
 

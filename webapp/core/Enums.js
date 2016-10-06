@@ -104,7 +104,8 @@ module.exports = {
   */
   ServiceType: {
     COLLECTOR: 1,
-    ANALYSIS: 2
+    ANALYSIS: 2,
+    VIEW: 3
   },
 
   DataSeriesType: {

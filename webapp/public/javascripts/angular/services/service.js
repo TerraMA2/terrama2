@@ -94,10 +94,13 @@
           services.forEach(function(service) {
             switch(service.service_type_id) {
               case 1:
-                service.type = "Collect";
+                service.type = i18n.__("Collect");
                 break;
               case 2:
-                service.type = "Analysis";
+                service.type = i18n.__("Analysis");
+                break;
+              case 3:
+                service.type = i18n.__("View");
                 break;
               default:
                 break;
@@ -109,8 +112,9 @@
           services.forEach(function(service) {
             if (configuration.message && parseInt(configuration.service) === service.id && configuration.restart) {
               $scope.socket.emit('start', {service: service.id});
-            } else
+            } else {
               $scope.socket.emit('status', {service: service.id});
+            }
           });
         }).error(function(err) {
           console.log(err);
