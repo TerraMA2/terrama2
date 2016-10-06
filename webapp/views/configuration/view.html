@@ -2,37 +2,77 @@
 
 {% set tabActive = "views" %}
 
-{% block ngApp %} ng-app="terrama2.views" {% endblock %}
+{% block ngApp %} ng-app="terrama2.views.controllers.viewregisterupdate" {% endblock %}
 
 {% block title %} TerraMA² {{ i18n.__('View Registration') }} {% endblock %}
 
+{% block styles %}
+  <!-- Bootstrap Eonasdan datatimepicker (used in TerraMA² datetimepicker wrapper) -->
+  <link rel="stylesheet" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+  <style>
+    .has-feedback label~.form-control-feedback {
+      top: 25px !important;
+      margin-right: 20px !important;
+    }
+  </style>
+{% endblock %}
+
 {% block javascripts %}
 
+<script>
+  var configuration = {
+    view: {[ view|json|safe ]}
+  };
+</script>
+
+<!-- Moment Datetime JS -->
+<script type="text/javascript" src="/bower_components/moment/moment.js"></script>
+<!-- Ace editor -->
+<script type="text/javascript" src="/bower_components/ace-builds/src/ace.js"></script>
+<script type="text/javascript" src="/bower_components/ace-builds/src/ext-language_tools.js"></script>
+
+<!-- Angular Schema Form dependencies -->
 <script type="text/javascript" src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
 <script type="text/javascript" src="/bower_components/tv4/tv4.js"></script>
 <script type="text/javascript" src="/bower_components/objectpath/lib/ObjectPath.js"></script>
 <script type="text/javascript" src="/bower_components/angular-schema-form/dist/schema-form.js"></script>
 <script type="text/javascript" src="/bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
+<!-- Bootstrap datetimepicker -->
+<script type="text/javascript" src="/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 
-<script src="/javascripts/angular/services.js"></script>
+<!-- TerraMA2 Datetimepicker -->
+<script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
+<!-- TerraMA2 Schedule -->
+<script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
+<!-- TerraMA2 Data Series Services -->
+<script type="text/javascript" src="/javascripts/angular/data-series/services.js"></script>
+<!-- TerraMA2 Service Instance Service -->
+<script type="text/javascript" src="/javascripts/angular/services/services.js"></script>
+<!-- TerraMA2 Factory Helpers -->
+<script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<!-- TerraMA2 Alert Box -->
+<script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
+<!-- TerraMA2 Ace -->
+<script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
+
 <script src="/javascripts/angular/views/services.js"></script>
-<script src="/javascripts/angular/views/controllers.js"></script>
-<script src="/javascripts/angular/views/app.js"></script>
+<script src="/javascripts/angular/views/controllers/view-register-update.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="ViewRegistration as ctrl">
-  <terrama2-box title="i18n.__('View Registration')">
+<div ng-controller="ViewRegisterUpdate as ctrl">
+  <terrama2-box title="i18n.__(ctrl.isUpdating ? 'View Update' : 'View Registration')">
     <div class="col-md-12">
-      <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
+      <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
     </div>
     <terrama2-box title="i18n.__('General Data')" css="ctrl.css">
       <form name="forms.viewForm">
         <div class="row">
           <div class="col-md-12">
-            <div class="col-md-12">
+            <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
                 <label><span ng-bind="i18n.__('Name')">:</span></label>
                 <input class="form-control" 
@@ -46,16 +86,48 @@
                       {{ i18n.__('View name is required') }}
                 </span>
               </div>
-            </div> <!-- ./col-md-8 -->
+            </div> <!-- ./col-md-5 -->
+            <div class="col-md-4">
+              <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Service')">:</span></label>
+                <select class="form-control" 
+                        name="service" 
+                        ng-model="ctrl.view.service_instance_id"
+                        ng-options="instance.id as instance.name for instance in ctrl.ServiceInstance.model | filter: {'service_type_id': ctrl.ServiceInstance.types.VIEW}" 
+                        required>
+                  <option ng-if="ctrl.services.data.length == 0" 
+                          value="" 
+                          ng-bind="i18n.__('No service instance found')">
+                  </option>
+                </select>
+
+                <span class="help-block" 
+                      ng-show="forms.viewForm.service.$dirty && forms.viewForm.service.$error.required"
+                      ng-bind="i18n.__('Service is required')">
+                </span>
+              </div>
+            </div> <!-- ./col-md-5 -->
+            <div class="col-md-2">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label style="font-weight: 700; margin-top:19px;">
+                    <input type="checkbox" 
+                           name="active" 
+                           ng-model="ctrl.view.active"
+                           ng-init="ctrl.view.active = configuration.view.active || true"> <span ng-bind="i18n.__('Active Server')"></span>
+                  </label>
+                </div>
+              </div>
+            </div> <!-- ./col-md-2 -->
           </div><!-- ./col-md-12 -->
           <div class="col-md-12">
             <div class="col-md-12">
               <div class="form-group">
                 <label><span ng-bind="i18n.__('Description')"></span>:</label>
                 <textarea class="form-control" 
-                          ng-model="dataProvider.description" 
+                          ng-model="self.view.description" 
                           rows="3" 
-                          placeholder="{{ i18n.__('Data Server Description') }}"></textarea>
+                          placeholder="{{ i18n.__('View Description') }}"></textarea>
               </div>
               <!-- /.form-group -->
             </div>
@@ -68,21 +140,46 @@
       <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model"></form>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Script')" css="ctrl.css">
+    <terrama2-box title="i18n.__('Data Series')" css="ctrl.css">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label><span ng-bind="i18n.__('View Data Series')"></span>:</label>
+          <select class="form-control" 
+                  name="dataSeries" 
+                  ng-model="ctrl.view.data_series_id"
+                  ng-options="dSeries.id as dSeries.name for dSeries in ctrl.dataSeries" 
+                  required>
+          </select>
+        </div>
+      </div>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Schedule')" css="ctrl.css">
+      <div class="col-md-12">
+        <terrama2-schedule model="ctrl.view.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
+      </div>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Style')" css="ctrl.css">
       <div class="col-md-12">
         <div class="form-group">
-          <label><span ng-bind="i18n.__('Style')"></span>:</label>
-          <textarea name="script" class="form-control" rows="10" ng-model="ctrl.view.script" required>
+          <label><span ng-bind="i18n.__('XML Style')"></span>:</label>
+
+          <div terrama2-ace="{languageMode: 'ace/mode/xml'}" ng-model="ctrl.view.style">
+          </div>
+
+          <textarea name="script" class="form-control" rows="10" ng-model="ctrl.view.style" required ng-show="false">
           </textarea>
         </div>
       </div>
     </terrama2-box>
+
+    <div class="box-footer">
+      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="ctrl.save();">{{ i18n.__('OK') }}</button>
+      <a href="/configuration/views/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
+    </div>
   </terrama2-box>
 
-  <div class="box-footer">
-    <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="ctrl.save();">{{ i18n.__('OK') }}</button>
-    <a href="/configuration/views/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
-  </div>
 </div> <!-- end col md 12 -->
 
 {% endblock %}

@@ -253,13 +253,20 @@ var Utils = {
               analysisArr.push(analysis.toObject());
             }); // end foreach analysisResult
 
-            resolve({
-              "Analysis": analysisArr,
-              "DataSeries": series,
-              "DataProviders": providers,
-              "Collectors": collectors
-            });
+            DataManager.listViews().then(function(views) {
+              var viewsArr = [];
+              views.forEach(function(view) {
+                viewsArr.push(view.toObject());
+              });
 
+              return resolve({
+                "Analysis": analysisArr,
+                "DataSeries": series,
+                "DataProviders": providers,
+                "Collectors": collectors,
+                "Views": viewsArr
+              });
+            }).catch(_handleError); // end views
           }).catch(_handleError); // end listAnalysis
         }).catch(_handleError); // end listCollectors
       }).catch(_handleError); // end listDataSeries
@@ -418,7 +425,17 @@ var Utils = {
 
     return elements;
   },
-
+  /**
+   * It retrieves a Service Type Name from identifier.
+   * 
+   * @throws {exceptions.ServiceTypeError} When service type is invalid
+   * @param {number} intServiceType - A TerraMA² service type identifier
+   * @returns {string}
+   * 
+   * @example
+   * $ console.log(Utils.getServiceTypeName(Enums.ServiceType.COLLECTOR))
+   * // output -> "COLLECTOR"
+   */
   getServiceTypeName: function(intServiceType) {
     var output = null;
     switch(intServiceType) {
@@ -427,6 +444,9 @@ var Utils = {
         break;
       case Enums.ServiceType.ANALYSIS:
         output = "ANALYSIS";
+        break;
+      case Enums.ServiceType.VIEW:
+        output = "VIEW";
         break;
     }
 
@@ -535,53 +555,35 @@ var Utils = {
       });
     });
   },
-
   /**
-   * It performs a text encrypt following a pattern and hash code
+   * It performs a REMOVE_DATA_SIGNAL to TCP Services
    * 
-   * @param {string} text - A text to encrypt
-   * @param {string} pattern - A crypto pattern hash
-   * @param {string} code - A crypto epassword
-   * @returns {string} 
+   * @param {DataManager} DataManager - A TerraMA² DataManager instance injected as dependency.
+   * @param {TcpManager} TcpManager - A TerraMA² TcpManager instance .
+   * @param {Object} data - A data to remove
+   * @param {number[]} data.Views - A list of view ids to remove
    */
-  encrypt: function(text, pattern, code) {
-    if (!pattern) {
-      pattern = 'aes-256-cbc';
-    }
-
-    if (!code) {
-      code = 'd6F3Efeq';
-    }
-
-    var cipher = crypto.createCipher(pattern, code);
-    var crypted = cipher.update(text, 'utf8', 'hex');
-    crypted += cipher.final('hex');
-    return crypted;
+  removeDataSignal: function(DataManager, TcpManager, data, serviceRestriction) {
+    DataManager.listServiceInstances(serviceRestriction).then(function(services) {
+      services.forEach(function(service) {
+        try {
+          TcpManager.emit('removeData', service, data);
+        } catch (e) {
+          console.log(e);
+        }
+      });
+    });
   },
 
-  decrypt: function() {
-    if (!pattern) {
-      pattern = 'aes-256-cbc';
-    }
-
-    if (!code) {
-      code = 'd6F3Efeq';
-    }
-    var decipher = crypto.createDecipher(pattern, code);
-    var dec = decipher.update(text, 'hex', 'utf8');
-    dec += decipher.final('utf8');
-    return dec;
-  },
   /**
-   * It generates a crypted URI
+   * It generates a encrypted URI
    * 
    * @param {string} uri - An URI to encrypt
-   * @param {Object?} syntax - An URI syntax. Default is Enums.Uri
+   * @param {Enums.Uri?} syntax - An URI syntax. Default is Enums.Uri
    * @param {string} salt - A salt to create encrypted URI
    * @returns {string}
    */
   encryptURI: function(uri, syntax, salt) {
-
     // Setting default syntax
     if (!syntax) {
       syntax = Enums.Uri;
@@ -597,10 +599,8 @@ var Utils = {
        * URI user encrypted
        * @type {string}
        */
-      var user = bcrypt.hashSync(uriObject[syntax.USER], salt);
       var passwd = bcrypt.hashSync(uriObject[syntax.PASSWORD], salt);
 
-      uriObject[syntax.USER] = user;
       uriObject[syntax.PASSWORD] = passwd;
 
       // returns a built uri string

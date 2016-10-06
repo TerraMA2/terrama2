@@ -73,8 +73,9 @@
 /* LayerExplorer style */
 
 #terrama2-layerexplorer ul {
-  padding-left: 35px;
+  padding-left: 15px;
   margin-bottom: 0px;
+  margin-top: 0;
 }
 
 #terrama2-layerexplorer ul.layerstack { list-style: none; }
@@ -93,10 +94,7 @@
   padding: 5px 0;
   position: relative;
   white-space: nowrap;
-  margin-left: 11px;
 }
-
-#terrama2-layerexplorer li > span { padding-left: 10.5px !important; }
 
 #terrama2-layerexplorer li.parent_li, #terrama2-layerexplorer li.parent_li > ul > li { margin: 0 !important; }
 
@@ -109,26 +107,34 @@
 
 #terrama2-layerexplorer li > span {
   display: block;
-  padding: 10px;
+  padding: 5px 0 5px 0px;
   text-decoration: none;
 }
 
 .terrama2-layerexplorer-plus {
+  background-image: url('images/plus.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px;
+  margin-right: 3px;
+  margin-top: 1px;
+  max-height: 13px;
+  height: 13px;
+  width: 13px;
   float: left;
-  font-size: 25px;
-  font-weight: bold;
-  margin-top: -8px;
-  max-height: 20px;
-  padding-right: 18px;
 }
 
 .terrama2-layerexplorer-minus {
+  background-image: url('images/minus.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px;
+  margin-right: 3px;
+  margin-top: 1px;
+  max-height: 13px;
+  height: 13px;
+  width: 13px;
   float: left;
-  font-size: 45px;
-  margin-top: -27px;
-  margin-right: -1px;
-  max-height: 30px;
-  padding-right: 18px;
 }
 
 #terrama2-layerexplorer li.parent_li>span { cursor: pointer; }
@@ -139,11 +145,11 @@
 
 .terrama2-layerexplorer-checkbox {
   display: block;
-  margin-bottom: -27px !important;
-  margin-left: 20px;
+  margin-bottom: -21px !important;
+  margin-left: 0;
 }
 
-span.terrama2-layerexplorer-checkbox-span { margin-left: 20px !important; }
+span.terrama2-layerexplorer-checkbox-span { margin-left: 15px !important; }
 
 #terrama2-layerexplorer ul.children > li.layer:active, #terrama2-layerexplorer > li.layer:active, #terrama2-layerexplorer > li.parent_li:active { cursor: move; }
 

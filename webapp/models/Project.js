@@ -1,5 +1,4 @@
-module.exports = function(sequelize, DataTypes)
-{
+module.exports = function(sequelize, DataTypes) {
   var Project = sequelize.define("Project", {
       id: {
         type: DataTypes.INTEGER,
@@ -12,8 +11,12 @@ module.exports = function(sequelize, DataTypes)
         type: DataTypes.STRING,
         unique: true,
         allowNull: false,
+        comment: "Project name"
       },
-      description: DataTypes.TEXT
+      description: {
+        type: DataTypes.TEXT,
+        comment: "Project description."
+      }
     },
     {
       underscored: true,
@@ -33,6 +36,14 @@ module.exports = function(sequelize, DataTypes)
             onDelete: "CASCADE",
             foreignKey: {
               name: 'project_id',
+              allowNull: false
+            }
+          });
+          // Setting project to View. A project has many views
+          Project.hasMany(models.View, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "project_id",
               allowNull: false
             }
           });
