@@ -63,7 +63,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byAtt
   auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
   try
   {
-    terrama2::core::verify::analysisDCP(analysis);
+    terrama2::core::verify::analysisMonitoredObject(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
