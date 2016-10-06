@@ -120,10 +120,10 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     }
 
     auto moEnvelope = moDsContext->series.syncDataSet->getExtent(moDsContext->geometryPos);
-    auto firstOccurrence = moDsContext->series.syncDataSet->getGeometry(0, moDsContext->geometryPos);
-    int srid = firstOccurrence->getSRID();
+    auto firtMO = moDsContext->series.syncDataSet->getGeometry(0, moDsContext->geometryPos);
+    int moSrid = firtMO->getSRID();
 
-    std::shared_ptr<te::gm::Geometry> geomEnvelope(te::gm::GetGeomFromEnvelope(moEnvelope.get(), srid));
+    std::shared_ptr<te::gm::Geometry> geomEnvelope(te::gm::GetGeomFromEnvelope(moEnvelope.get(), moSrid));
 
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!moGeom.get())
@@ -179,9 +179,9 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
           {
             auto geomResult = createBuffer(buffer, moGeom);
 
-            // Converts the monitored object to the same srid of the occurrences
+            // Converts the monitored object to the same moSrid of the occurrences
             auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-            geomResult->transform(firstOccurrence->getSRID());
+            geomResult->transform(firtMO->getSRID());
 
             // Searchs in the spatial index for the occurrences that intersects the monitored object box
             contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);
