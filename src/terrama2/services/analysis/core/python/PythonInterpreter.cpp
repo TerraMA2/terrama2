@@ -503,6 +503,8 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
     return;
   }
 
+  cache.analysisPtr = analysis;
+
   switch(analysis->type)
   {
     case AnalysisType::DCP_TYPE:

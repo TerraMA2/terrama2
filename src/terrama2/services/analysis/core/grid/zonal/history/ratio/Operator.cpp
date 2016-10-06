@@ -103,7 +103,7 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
   bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
 
   try
   {

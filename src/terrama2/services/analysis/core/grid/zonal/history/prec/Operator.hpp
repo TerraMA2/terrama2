@@ -191,8 +191,7 @@ namespace terrama2
                 double median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
-                  \brief Calcula
-tes the standard deviation of zonal grid data.
+                  \brief Calculates the standard deviation of zonal grid data.
 
                   In case of an error or no data available it will return NAN(Not A Number).
 
