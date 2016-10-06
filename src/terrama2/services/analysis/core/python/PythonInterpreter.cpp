@@ -393,7 +393,12 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
 
           // Stores the result in the context
           std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
-          assert(!geomId.empty());
+          if(geomId.empty())
+          {
+            QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
+            context->addError(errMsg.toStdString());
+            return;
+          }
 
           context->addAttribute(attrName);
           context->setAnalysisResult(geomId, attrName, value);
