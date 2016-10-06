@@ -1,6 +1,6 @@
 {% set MENU_URLS = {} %}
 
-{% set MENU_URLS = {"projects": {name: 'Projects', url: "/configuration/projects", icon: "fa-book"}} %}
+{# set MENU_URLS = {"projects": {name: 'Projects', url: "/configuration/projects", icon: "fa-book"}} #}
 {% set MENU_URLS["data-provider"] = {name: 'Data Server', url: "/configuration/providers", icon: "fa-cubes"} %}
 {% set MENU_URLS["dynamic-data"] = {name: 'Dynamic Data', url: "/configuration/dynamic/dataseries", icon: "fa-exchange"} %}
 {% set MENU_URLS["static-data"] = {name: 'Static Data', url: "/configuration/static/dataseries", icon: "fa-folder-o"} %}
@@ -64,7 +64,7 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="hold-transition skin-blue sidebar-mini {% if (!activeProject.name) %} {% if (collapsed) %} sidebar-collapse {% endif %}{% endif %} {% block bodyClass %}{% endblock %}"
+<body class="hold-transition skin-blue sidebar-mini {% if (collapsed) %} sidebar-collapse {% endif %}{% block bodyClass %}{% endblock %}"
       ng-controller="{% block ngController%}TerraMA2Controller{% endblock %}"
       data-language="{[ acceptedLanguage() ]}">
 
@@ -122,11 +122,17 @@
         <!-- /.search form -->
         {% endif %}
 
-          {% if (activeProject.name) %}
-            <!-- sidebar menu: : style can be found in sidebar.less -->
-            <ul class="sidebar-menu">
+          <!-- sidebar menu: : style can be found in sidebar.less -->
+          <ul class="sidebar-menu">
+            {% if (activeProject.name) %}
               <li class="header" style="font-size:18px;font-weight: bold;">{[ activeProject.name ]}</li>
-
+            {% endif %}
+            <li class="treeview {% if (tabActive === 'projects') %} active {% endif %}">
+              <a href="/configuration/projects">
+                <i class="fa fa-book"></i><span ng-bind="i18n.__('Projects')"></span>
+              </a>
+            </li>
+            {% if (activeProject.name) %}
               {% for tab in MENU_URLS %}
               <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
                 <a href="{[ tab.url ]}">
@@ -134,37 +140,38 @@
                 </a>
               </li>
               {% endfor %}
-              <li class="header"></li>
+            {% endif %}
 
-              {% if currentUser !== null && currentUser.administrator %}
-              <li class="treeview">
-                <a href="#">
-                  <i class="fa fa-cogs"></i> <span ng-bind="i18n.__('Administration')"></span>
-                  <i class="fa fa-angle-left pull-right"></i>
-                </a>
-                <ul class="treeview-menu" style="display: {% if (tabActive === 'services' || tabActive === 'users') %} block; {% else %} none;{% endif %}">
-                  <li class="treeview {% if (tabActive === 'services') %} active {% endif %}">
-                    <a href="/administration/services">
-                      <i class="fa fa-laptop"></i> <span ng-bind="i18n.__('Services')"></span>
-                    </a>
-                  </li>
-                  <li class="treeview {% if (tabActive === 'users') %} active {% endif %}">
-                    <a href="/administration/users">
-                      <i class="fa fa-users"></i> <span ng-bind="i18n.__('Users')"></span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              {% endif %}
-              <li class="treeview {% if (tabActive === 'profile') %} active {% endif %}">
-                <a href="/profile/">
-                  <i class="fa fa-pencil-square-o "></i><span ng-bind="i18n.__('Profile')"></span>
-                </a>
-              </li>
+            <li class="header"></li>
 
-            </ul>
-            <!-- /.ul sidebar -->
-          {% endif %}
+            {% if currentUser !== null && currentUser.administrator %}
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-cogs"></i> <span ng-bind="i18n.__('Administration')"></span>
+                <i class="fa fa-angle-left pull-right"></i>
+              </a>
+              <ul class="treeview-menu" style="display: {% if (tabActive === 'services' || tabActive === 'users') %} block; {% else %} none;{% endif %}">
+                <li class="treeview {% if (tabActive === 'services') %} active {% endif %}">
+                  <a href="/administration/services">
+                    <i class="fa fa-laptop"></i> <span ng-bind="i18n.__('Services')"></span>
+                  </a>
+                </li>
+                <li class="treeview {% if (tabActive === 'users') %} active {% endif %}">
+                  <a href="/administration/users">
+                    <i class="fa fa-users"></i> <span ng-bind="i18n.__('Users')"></span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            {% endif %}
+            <li class="treeview {% if (tabActive === 'profile') %} active {% endif %}">
+              <a href="/profile/">
+                <i class="fa fa-pencil-square-o "></i><span ng-bind="i18n.__('Profile')"></span>
+              </a>
+            </li>
+
+          </ul>
+          <!-- /.ul sidebar -->
       </section>
       <!-- /.sidebar -->
     </aside>
@@ -209,15 +216,15 @@
       $("#collapseButton").click(function(event) {
         var self = this;
 
-        var inverse = !collapsed;
+        // var inverse = !collapsed;
         $.ajax({
           method: 'POST',
           url: '/userDefaults/',
           data: {
-            collapsed: inverse
+            collapsed: collapsed
           }
         }).success(function(data) {
-          collapsed = inverse;
+          collapsed = data.collapsed;
           console.log(data);
         }).error(function(err) {
           console.log(err);
