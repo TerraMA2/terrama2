@@ -1205,7 +1205,7 @@ angular.module('terrama2.dataseries.registration', [
 
           request.then(function(data) {
             console.log(data);
-            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + data.token;
+            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
           }).catch(function(err) {
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.message = err.message || err.data.message;
@@ -1217,8 +1217,7 @@ angular.module('terrama2.dataseries.registration', [
 
         if ($scope.dataSeries.access == 'COLLECT') {
           $scope.$on("storageValuesReceive", function(event, values) {
-          //  todo: improve
-
+            //  todo: improve
             var dSemantics = Object.assign({}, $scope.dataSeries.semantics);
             var dataObject = _save();
             var dSeriesName = dataObject.dataSeries.name;
@@ -1273,7 +1272,7 @@ angular.module('terrama2.dataseries.registration', [
                 if (attributes.length === 0) {
                   intersectionValues.push({
                     dataseries_id: dataseries_id
-                  })
+                  });
                 }
 
                 for(var i = 0; i < attributes.length; ++i) {
@@ -1321,7 +1320,7 @@ angular.module('terrama2.dataseries.registration', [
             //  display alert box
             $scope.alertLevel = "alert-warning";
             $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = "Note: No storager configuration, this data will be accessed when needed.";
+            $scope.alertBox.message = i18n.__("Note: No storager configuration, this data will be accessed when needed.");
             $scope.display = true;
             $scope.extraProperties.object = {
               dataToSend: dataObject.dataSeries,

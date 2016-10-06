@@ -43,17 +43,9 @@ module.exports = function(app) {
 
               console.log("OUTPUT: ", JSON.stringify(output));
 
-              return DataManager.listServiceInstances({}, options).then(function(servicesInstance) {
-                servicesInstance.forEach(function (service) {
-                  try {
-                    TcpManager.emit('sendData', service, output);
-                  } catch (e) {
-                    console.log("Error during send data each service: ", e);
-                  }
-                });
+              Utils.sendDataToServices(DataManager, TcpManager, output);
 
-                return collectorResult.output;
-              });
+              return collectorResult.output;
             });
           });
         } else {
@@ -64,17 +56,9 @@ module.exports = function(app) {
 
             console.log("OUTPUT: ", JSON.stringify(output));
 
-            return DataManager.listServiceInstances({}, options).then(function(servicesInstance) {
-              servicesInstance.forEach(function (service) {
-                try {
-                  TcpManager.emit('sendData', service, output);
-                } catch (e) {
-                  console.log("Error during send data each service: ", e);
-                }
-              });
+            Utils.sendDataToServices(DataManager, TcpManager, output);
 
-              return dataSeriesResult;
-            });
+            return dataSeriesResult;
           });
         }
       }).then(function(dataSeriesResult) {
