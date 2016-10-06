@@ -182,7 +182,7 @@ module.exports = function(app) {
                 .then(function() {
                   return DataManager.updateSchedule(collector.schedule.id, scheduleObject, options)
                     .then(function() {
-                      collector.schedule = new DataManager.DataModel.Schedule(scheduleObject);
+                      collector.schedule = new DataManager.DataModel.Schedule(Utils.extend({id: collector.schedule.id}, scheduleObject));
                       return collector;
                     });
                 })
