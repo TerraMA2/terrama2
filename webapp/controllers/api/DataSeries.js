@@ -30,7 +30,8 @@ module.exports = function(app) {
                 filterObject,
                 serviceResult,
                 intersection,
-                active
+                active,
+                options
             ).then(function(collectorResult) {
               var collector = collectorResult.collector;
               collector.project_id = app.locals.activeProject.id;
@@ -42,38 +43,22 @@ module.exports = function(app) {
 
               console.log("OUTPUT: ", JSON.stringify(output));
 
-              return DataManager.listServiceInstances({}).then(function(servicesInstance) {
-                servicesInstance.forEach(function (service) {
-                  try {
-                    TcpManager.emit('sendData', service, output);
-                  } catch (e) {
-                    console.log("Error during send data each service: ", e);
-                  }
-                });
+              Utils.sendDataToServices(DataManager, TcpManager, output);
 
-                return collectorResult.output;
-              });
+              return collectorResult.output;
             });
           });
         } else {
-          return DataManager.addDataSeries(dataSeriesObject).then(function(dataSeriesResult) {
+          return DataManager.addDataSeries(dataSeriesObject, options).then(function(dataSeriesResult) {
             var output = {
               "DataSeries": [dataSeriesResult.toObject()]
             };
 
             console.log("OUTPUT: ", JSON.stringify(output));
 
-            return DataManager.listServiceInstances().then(function(servicesInstance) {
-              servicesInstance.forEach(function (service) {
-                try {
-                  TcpManager.emit('sendData', service, output);
-                } catch (e) {
-                  console.log("Error during send data each service: ", e);
-                }
-              });
+            Utils.sendDataToServices(DataManager, TcpManager, output);
 
-              return dataSeriesResult;
-            });
+            return dataSeriesResult;
           });
         }
       }).then(function(dataSeriesResult) {
@@ -158,58 +143,36 @@ module.exports = function(app) {
       var serviceId = request.body.service;
       var intersection = request.body.intersection;
 
-      var _handleError = function(err) {
-        return Utils.handleRequestError(response, err, 400);
-      };
+      DataManager.orm.transaction(function(t) {
+        var options = {
+          transaction: t
+        };
 
-      var _continue = function(collector) {
-        // output
-        DataManager.getDataSeries({id: collector.data_series_output}).then(function(dataSeriesOutput) {
-          DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeriesInput) {
-            collector.project_id = app.locals.activeProject.id;
-            var output = {
-              "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
-              "Collectors": [collector.toObject()]
-            };
+        if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
+          return DataManager.getCollector({data_series_input: dataSeriesId}, options)
+            .then(function(collector) {
+              collector.service_instance_id = serviceId;
 
-            // tcp sending
-            Utils.sendDataToServices(DataManager, TcpManager, output);
-
-            var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeriesOutput.name);
-            return response.json({status: 200, result: collector.toObject(), token: token});
-          });
-        });
-      };
-
-      if (dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')) {
-        DataManager.getCollector({data_series_input: dataSeriesId}).then(function(collector) {
-          collector.service_instance_id = serviceId;
-          DataManager.updateCollector(collector.id, collector).then(function() {
-            // input
-            DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input).then(function() {
-              DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output).then(function() {
-                DataManager.updateSchedule(collector.schedule.id, scheduleObject).then(function() {
-                  var _processIntersection = function() {
-                    // temp: remove all and insert. TODO: sequelize upsert / delete
-                    if (_.isEmpty(intersection)) {
-                      DataManager.removeIntersection({collector_id: collector.id}).then(function() {
-                        collector.setIntersection([]);
-                        _continue(collector);
-                      }).catch(_handleError);
-                    } else {
-                      DataManager.removeIntersection({collector_id: collector.id}).finally(function() {
-                        intersection.forEach(function(intersect) {
-                          intersect.collector_id = collector.id;
-                        });
-
-                        DataManager.addIntersection(intersection).then(function(intersectionResult) {
-                          collector.setIntersection(intersectionResult);
-                          _continue(collector);
-                        }).catch(_handleError);
-                      });
-                    }
-                  };
-
+              return DataManager.updateCollector(collector.id, collector, options)
+                .then(function() {
+                  // input
+                  return DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options);
+                })
+                // try update data series output
+                .then(function() {
+                  return DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options);
+                })
+                // try update schedule
+                .then(function() {
+                  return DataManager.updateSchedule(collector.schedule.id, scheduleObject, options)
+                    .then(function() {
+                      collector.schedule = new DataManager.DataModel.Schedule(Utils.extend({id: collector.schedule.id}, scheduleObject));
+                      return collector;
+                    });
+                })
+                // try update filter
+                .then(function() {
+                  // if there is a filter registered, tries to update/delete
                   if (collector.filter.id) {
                     var filterUpdate = Object.assign(collector.filter.rawObject(), filterObject);
                     if (!filterObject.region) {
@@ -227,38 +190,97 @@ module.exports = function(app) {
                       }
                     }
 
-                    DataManager.updateFilter(collector.filter.id, filterUpdate).then(function() {
-                      DataManager.getFilter({id: collector.filter.id}).then(function(filter) {
-                        collector.filter = filter;
-                        _processIntersection();
+                    return DataManager.updateFilter(collector.filter.id, filterUpdate, options)
+                      .then(function() {
+                        return DataManager.getFilter({id: collector.filter.id}, options)
+                          .then(function(filter) {
+                            collector.filter = filter;
+                          });
                       });
-                    }).catch(_handleError);
                   } else {
                     if (_.isEmpty(filterObject.date)) {
-                      _processIntersection();
+                      return null;
                     } else {
                       filterObject.collector_id = collector.id;
 
-                      DataManager.addFilter(filterObject).then(function(filter) {
-                        collector.filter = filter;
-
-                        _processIntersection();
-                      }).catch(_handleError);
+                      return DataManager.addFilter(filterObject, options)
+                        .then(function(filter) {
+                          collector.filter = filter;
+                        });
                     }
                   }
-                }).catch(_handleError);
-              }).catch(_handleError);
-            }).catch(_handleError);
-          }).catch(_handleError);
-        }).catch(_handleError);
-      } else {
-        DataManager.updateDataSeries(dataSeriesId, dataSeriesObject).then(function() {
-          DataManager.getDataSeries({id: dataSeriesId}).then(function(dataSeries) {
-            var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeries.name);
-            return response.json({status: 200, result: dataSeries.toObject(), token: token});
-          }).catch(_handleError);
-        }).catch(_handleError);
-      }
+                })
+                // try to update intersection
+                .then(function() {
+                  // temp: remove all and insert. TODO: sequelize upsert / delete
+                  if (_.isEmpty(intersection)) {
+                    return DataManager.removeIntersection({collector_id: collector.id}, options)
+                      .then(function() {
+                        collector.setIntersection([]);
+                        return collector;
+                      });
+                  } else {
+                    return DataManager.removeIntersection({collector_id: collector.id}, options)
+                      .finally(function() {
+                        intersection.forEach(function(intersect) {
+                          intersect.collector_id = collector.id;
+                        });
+
+                        return DataManager.addIntersection(intersection, options)
+                          .then(function(intersectionResult) {
+                            collector.setIntersection(intersectionResult);
+                            return collector;
+                          });
+                      });
+                  }
+                })
+                // retrieve updated data series input and output
+                .then(function() {
+                  return Promise.all([
+                      DataManager.getDataSeries({id: collector.data_series_output}),
+                      DataManager.getDataSeries({id: collector.data_series_input})
+                    ]);
+                })
+                // send via TCP
+                .then(function(dSeries) {
+                  var dataSeriesOutput = dSeries[0];
+                  var dataSeriesInput = dSeries[1];
+
+                  collector.project_id = app.locals.activeProject.id;
+                  var output = {
+                    "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
+                    "Collectors": [collector.toObject()]
+                  };
+
+                  // tcp sending
+                  Utils.sendDataToServices(DataManager, TcpManager, output);
+
+                  return dataSeriesOutput;
+                });
+          });
+        } else {
+          return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject, options)
+            .then(function() {
+              return DataManager.getDataSeries({id: dataSeriesId})
+                .then(function(dataSeries) {
+                  // tcp sending
+                  Utils.sendDataToServices(DataManager, TcpManager, {
+                    "DataSeries": [dataSeries.toObject()]
+                  });
+                  return dataSeries;
+                });
+            });
+        }
+      })
+      // on success (transaction commit)
+      .then(function(dataSeries) {
+        var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeries.name);
+        return response.json({status: 200, result: dataSeries.toObject(), token: token});
+      })
+      
+      .catch(function(err) {
+        return Utils.handleRequestError(response, err, 400);
+      });
     },
 
     delete: function(request, response) {

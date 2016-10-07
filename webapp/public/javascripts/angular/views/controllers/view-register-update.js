@@ -150,7 +150,12 @@
       // broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
 
-      if ($scope.forms.viewForm.$invalid || $scope.forms.connectionForm.$invalid) {
+      var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+
+      if ($scope.forms.viewForm.$invalid || 
+          $scope.forms.connectionForm.$invalid ||
+          scheduleForm.$invalid ||
+          $scope.forms.dataSeriesForm.$invalid) {
         return;
       }
 

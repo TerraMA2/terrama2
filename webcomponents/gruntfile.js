@@ -37,6 +37,14 @@ module.exports = function(grunt) {
         }]
       }
     },
+    copy: {
+      files: {
+        cwd: 'images',
+        src: '**/*',
+        dest: 'dist/images',
+        expand: true
+      }
+    },
     usebanner: {
       TerraMA2WebComponents: {
         options: {
@@ -63,10 +71,11 @@ module.exports = function(grunt) {
   // Load the plugins.
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-banner');
   grunt.loadNpmTasks('grunt-jsdoc');
 
   // Default tasks.
-  grunt.registerTask('default', ['requirejs', 'cssmin', 'usebanner:TerraMA2WebComponents', 'jsdoc']);
+  grunt.registerTask('default', ['requirejs', 'cssmin', 'copy', 'usebanner:TerraMA2WebComponents', 'jsdoc']);
 
 };

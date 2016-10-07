@@ -66,13 +66,13 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     boost::python::list ids)
 {
   OperatorCache cache;
-  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+  terrama2::services::analysis::core::python::readInfoFromDict (cache);
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
   try
   {
-    terrama2::core::verify::analysisDCP(analysis);
+    terrama2::core::verify::analysisMonitoredObject(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
@@ -199,13 +199,16 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                 attributeType = property->getType();
               }
 
-              uint32_t countValues = 0;
 
               if(dcpSyncDs->size() == 0)
+              {
                 continue;
+              }
 
-              // fills the vector with values
+              // Allocates the space for the size of the dataset
               std::vector<double> values;
+              values.reserve(dcpSyncDs->size());
+
               for(unsigned int i = 0; i < dcpSyncDs->size(); ++i)
               {
                 try
@@ -216,7 +219,7 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                     double value = getValue(dcpSyncDs, attribute, i, attributeType);
                     if(std::isnan(value))
                       continue;
-                    countValues++;
+
                     values.push_back(value);
                   }
                 }
@@ -227,13 +230,13 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
                 }
               }
 
-              if(countValues == 0)
+              if(values.empty())
                 continue;
 
               // Statistics are calculated based on the number of values
               // but the operator count for DCP returns the number of DCPs that influence the monitored object
 
-              cache.count = countValues;
+              cache.count = values.size();
 
               calculateStatistics(values, cache);
             }

@@ -20,15 +20,15 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorOccurrence.hpp
+  \file terrama2/core/data-access/DataAccessorGeometricObject.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOMETRIC_OBJECT_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOMETRIC_OBJECT_HPP__
 
 //TerraMA2
 #include "../Shared.hpp"
@@ -38,37 +38,26 @@ namespace terrama2
 {
   namespace core
   {
-    /*!
-      \class DataAccessorOccurrence
-      \brief DataAccessor for Occurence DataSeries.
-
-      Occurrence data are any data:
-       - With a Date/Time attribute
-       - With a geographic position attribute
-
-      Data of lightining occurrence is an example.
-
-    */
-    class DataAccessorOccurrence : public virtual DataAccessor
+    class DataAccessorGeometricObject : public virtual DataAccessor
     {
       public:
         //! Default constructor
-        DataAccessorOccurrence(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
+        DataAccessorGeometricObject(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter()) : DataAccessor(dataProvider, dataSeries, filter) {}
         //! Default destructor.
-        virtual ~DataAccessorOccurrence() = default;
+        virtual ~DataAccessorGeometricObject() = default;
         //! Default copy constructor
-        DataAccessorOccurrence(const DataAccessorOccurrence& other) = default;
+        DataAccessorGeometricObject(const DataAccessorGeometricObject& other) = default;
         //! Default move constructor
-        DataAccessorOccurrence(DataAccessorOccurrence&& other) : DataAccessor(std::move(other)) {}
+        DataAccessorGeometricObject(DataAccessorGeometricObject&& other) : DataAccessor(std::move(other)) {}
         //! Default const assignment operator
-        DataAccessorOccurrence& operator=(const DataAccessorOccurrence& other) = default;
+        DataAccessorGeometricObject& operator=(const DataAccessorGeometricObject& other) = default;
         //! Default assignment operator
-        DataAccessorOccurrence& operator=(DataAccessorOccurrence&& other) { DataAccessor::operator=(std::move(other)); return *this; }
+        DataAccessorGeometricObject& operator=(DataAccessorGeometricObject&& other) { DataAccessor::operator=(std::move(other)); return *this; }
 
         //! Returns a OccurrenceSeries filtered by Filter
-        virtual OccurrenceSeriesPtr getOccurrenceSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover);
+        // virtual GeometricObjectSeriesPtr getObjectSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover);
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GEOMETRIC_OBJECT_HPP__

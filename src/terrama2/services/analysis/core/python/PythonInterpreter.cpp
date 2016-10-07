@@ -234,12 +234,12 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
 
     for(int row : rows)
     {
+      auto pValueRow = PyInt_FromLong(row);
+      PyDict_SetItemString(state->dict, "row", pValueRow);
       for(int col = 0; col < nCols; ++col)
       {
-        auto pValueRow = PyInt_FromLong(row);
         auto pValueColumn = PyInt_FromLong(col);
 
-        PyDict_SetItemString(state->dict, "row", pValueRow);
         PyDict_SetItemString(state->dict, "column", pValueColumn);
 
 
@@ -250,9 +250,9 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
         else
           outputRaster->setValue(col, row, value);
 
-        Py_DECREF(pValueRow);
         Py_DECREF(pValueColumn);
       }
+      Py_DECREF(pValueRow);
     }
 
     Py_DECREF(pValueAnalysis);
@@ -393,7 +393,12 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
 
           // Stores the result in the context
           std::string geomId = moDsContext->series.syncDataSet->getString(cache.index, moDsContext->identifier);
-          assert(!geomId.empty());
+          if(geomId.empty())
+          {
+            QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
+            context->addError(errMsg.toStdString());
+            return;
+          }
 
           context->addAttribute(attrName);
           context->setAnalysisResult(geomId, attrName, value);
@@ -502,6 +507,8 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
     ContextManager::getInstance().addError(cache.analysisHashCode, errMsg.toStdString());
     return;
   }
+
+  cache.analysisPtr = analysis;
 
   switch(analysis->type)
   {

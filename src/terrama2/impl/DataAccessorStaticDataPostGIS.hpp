@@ -20,18 +20,18 @@
  */
 
 /*!
-  \file terrama2/core/impl/DataAccessorStaticDataOGR.hpp
+  \file terrama2/core/impl/DataAccessorStaticDataPostGIS.hpp
 
   \brief DataAccessor class for static data accessed via OGR driver.
 
   \author Paulo R. M. Oliveira
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_DATA_OGR_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_DATA_OGR_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_DATA_POSTGIS_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_DATA_POSTGIS_HPP__
 
 //TerraMA2
-#include "DataAccessorFile.hpp"
+#include "DataAccessorPostGis.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/data-model/DataSet.hpp"
@@ -50,30 +50,32 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataAccessorStaticDataOGR
+      \class DataAccessorStaticDataPostGIS
 
       \brief DataAccessor class for static data accessed via OGR driver.
 
     */
-    class DataAccessorStaticDataOGR : public DataAccessorGeometricObject, public DataAccessorFile
+    class DataAccessorStaticDataPostGIS : public DataAccessorGeometricObject, public DataAccessorPostGis
     {
       public:
 
-        DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-        virtual ~DataAccessorStaticDataOGR();
+        DataAccessorStaticDataPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        virtual ~DataAccessorStaticDataPostGIS() = default;
 
         static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
         {
-          return std::make_shared<DataAccessorStaticDataOGR>(dataProvider, dataSeries, filter);
+          return std::make_shared<DataAccessorStaticDataPostGIS>(dataProvider, dataSeries, filter);
         }
-        static DataAccessorType dataAccessorType(){ return "STATIC_DATA-ogr"; }
+        static DataAccessorType dataAccessorType(){ return "STATIC_DATA-postgis"; }
 
         // Doc in base class
         virtual std::string dataSourceType() const override;
-        // Doc in base class
-        virtual std::string getTimeZone(DataSetPtr dataSet, bool /*logErrors = false*/) const override;
+
+      protected:
+        virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const override { return ""; }
+        virtual void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const override {};
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_DATA_OGR_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_DATA_POSTGIS_HPP__

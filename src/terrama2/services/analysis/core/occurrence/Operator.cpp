@@ -58,7 +58,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
   try
   {
     terrama2::core::verify::analysisMonitoredObject(analysis);
@@ -120,10 +120,10 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     }
 
     auto moEnvelope = moDsContext->series.syncDataSet->getExtent(moDsContext->geometryPos);
-    auto firstOccurrence = moDsContext->series.syncDataSet->getGeometry(0, moDsContext->geometryPos);
-    int srid = firstOccurrence->getSRID();
+    auto firstMO = moDsContext->series.syncDataSet->getGeometry(0, moDsContext->geometryPos);
+    int moSrid = firstMO->getSRID();
 
-    std::shared_ptr<te::gm::Geometry> geomEnvelope(te::gm::GetGeomFromEnvelope(moEnvelope.get(), srid));
+    std::shared_ptr<te::gm::Geometry> geomEnvelope(te::gm::GetGeomFromEnvelope(moEnvelope.get(), moSrid));
 
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!moGeom.get())
@@ -167,6 +167,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
           std::vector<uint32_t> indexes;
           uint32_t countValues = 0;
+          std::vector<double> values;
+
           terrama2::core::SynchronizedDataSetPtr syncDs = contextDataSeries->series.syncDataSet;
 
           if(syncDs->size() == 0)
@@ -177,15 +179,14 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
           {
             auto geomResult = createBuffer(buffer, moGeom);
 
-            // Converts the monitored object to the same srid of the occurrences
+            // Converts the monitored object to the same moSrid of the occurrences
             auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-            geomResult->transform(firstOccurrence->getSRID());
+            geomResult->transform(firstMO->getSRID());
 
             // Searchs in the spatial index for the occurrences that intersects the monitored object box
             contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);
 
 
-            std::vector<double> values;
 
             int attributeType = 0;
             if(!attribute.empty())
@@ -214,6 +215,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                 continue;
               }
 
+              // Allocate memory for dataset size
+              values.reserve(bufferDs->size());
               for(unsigned int i = 0; i < bufferDs->size(); ++i)
               {
                 bufferDs->move(i);
@@ -233,9 +236,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                       if(std::isnan(value))
                         continue;
 
-                      ++countValues;
-
-                      cache.count++;
                       values.push_back(value);
                     }
                   }
@@ -249,6 +249,9 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
             }
             else
             {
+
+              // Allocate memory for indexes size
+              values.reserve(indexes.size());
               for(uint32_t i : indexes)
               {
                 // Verifies if the occurrence intersects the monitored object
@@ -268,8 +271,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                       if(std::isnan(value))
                         continue;
 
-                      cache.count++;
-
                       values.push_back(value);
                     }
                   }
@@ -281,6 +282,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
                 }
               }
             }
+
 
 
             terrama2::services::analysis::core::calculateStatistics(values, cache);

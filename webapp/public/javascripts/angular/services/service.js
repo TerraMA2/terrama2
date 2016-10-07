@@ -42,11 +42,19 @@
         $scope.socket.on('statusResponse', function(response) {
           var service = getModel(response.service);
 
-          if (!service)
-            return;
+          service.checking = response.checking;
 
-          if (response.hasOwnProperty('loading'))
+          if (!service) {
+            return;
+          }
+
+          if (response.hasOwnProperty('loading')) {
             service.loading = response.loading;
+          }
+
+          if (response.shutting_down) {
+            service.loading = response.shutting_down;
+          }
 
           service.online = response.online;
         });

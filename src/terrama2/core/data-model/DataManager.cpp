@@ -104,20 +104,28 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    auto itPr = providers_.find(dataseries->dataProviderId);
-    if(itPr == providers_.end())
+    try
+    {
+      providers_.at(dataseries->dataProviderId);
+    }
+    catch (const std::out_of_range&)
     {
       QString errMsg = QObject::tr("Can not add a dataseries with a non-registered data provider: %1.").arg(dataseries->dataProviderId);
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    auto itDs = dataseries_.find(dataseries->id);
-    if(itDs != dataseries_.end())
+    try
     {
-      QString errMsg = QObject::tr("DataSeries already registered. Is this an update?");
+      dataseries_.at(dataseries->id);
+
+      QString errMsg = QObject::tr("DataSeries already registered.");
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+    catch (const std::out_of_range&)
+    {
+      //Expected behavior 
     }
 
     dataseries_.emplace(dataseries->id, dataseries);

@@ -97,8 +97,11 @@ te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(cons
   te::gm::Coord2D newPoint;
   std::shared_ptr<te::srs::Converter> converter;
 
-  auto it = converterMap_.find(srid);
-  if(it == converterMap_.end())
+  try
+  {
+    converter = converterMap_.at(srid);
+  }
+  catch (const std::out_of_range&)
   {
     converter.reset(new te::srs::Converter());
     auto raster = getOutputRaster();
@@ -109,8 +112,6 @@ te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(cons
 
     converterMap_.emplace(srid, converter);
   }
-  else
-    converter = it->second;
 
   double x = point.getX();
   double y = point.getY();

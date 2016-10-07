@@ -107,14 +107,6 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   auto fileList = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
   for(const auto& file : fileList)
   {
-    auto regexString = terramaMask2Regex(mask);
-
-    boost::regex expression(regexString);
-    boost::match_results< std::string::const_iterator > match;
-
-    if(!boost::regex_match(file.toStdString(), match, expression, boost::match_default))
-      continue;
-
     auto gradsDescriptor = readDataDescriptor(url.path().toStdString()+"/"+file.toStdString());
 
     std::string datasetMask = gradsDescriptor.datasetFilename_;

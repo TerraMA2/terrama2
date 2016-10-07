@@ -60,6 +60,26 @@
 #include <QUrl>
 #include <QObject>
 
+std::string terrama2::core::DataAccessorPostGis::whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const
+{
+  std::string where;
+
+  std::vector<std::string> whereConditions;
+  addDateTimeFilter(dataSet, filter, whereConditions);
+  addGeometryFilter(dataSet, filter, whereConditions);
+
+  if(!whereConditions.empty())
+  {
+    where = " WHERE ";
+    where += whereConditions.front();
+    for(size_t i = 1; i < whereConditions.size(); ++i)
+      where += " AND " + whereConditions.at(i);
+  }
+
+  where = addLastValueFilter(dataSet, filter, where);
+
+  return where;
+}
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
     terrama2::core::DataSetPtr dataSet, std::shared_ptr<FileRemover> /*remover*/) const
 {
@@ -99,20 +119,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
   query+="* ";
   query+= "FROM "+tableName+" ";
 
-  std::vector<std::string> whereConditions;
-  addDateTimeFilter(dataSet, filter, whereConditions);
-  addGeometryFilter(dataSet, filter, whereConditions);
-
-  std::string where_;
-  if(!whereConditions.empty())
-  {
-    where_ = "WHERE ";
-    where_ += whereConditions.front();
-    for(size_t i = 1; i < whereConditions.size(); ++i)
-      where_ += " AND " + whereConditions.at(i);
-  }
-
-  where_ = addLastValueFilter(dataSet, filter, where_);
+  query += whereConditions(dataSet, filter);
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
   if(tempDataSet->isEmpty())
@@ -160,10 +167,10 @@ void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::Data
     return;
 
   if(filter.discardBefore.get())
-    whereConditions.push_back(getTimestampPropertyName(dataSet)+" > "+filter.discardBefore->toString());
+    whereConditions.push_back(getTimestampPropertyName(dataSet)+" >= '"+filter.discardBefore->toString() + "'");
 
   if(filter.discardAfter.get())
-    whereConditions.push_back(getTimestampPropertyName(dataSet)+" < "+filter.discardAfter->toString());
+    whereConditions.push_back(getTimestampPropertyName(dataSet)+" <= '"+filter.discardAfter->toString() + "'");
 }
 
 void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet,
