@@ -29,7 +29,7 @@
 
 // TerraMA2
 #include "JSonUtils.hpp"
-#include "se/Serialization.hpp"
+#include "serialization/Serialization.hpp"
 #include "../../../core/Exception.hpp"
 #include "../../../core/utility/JSonUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
@@ -73,7 +73,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
       if(!file.open())
         throw Exception() << ErrorDescription("Could not create XML file!");
 
-      se::Serialization::writeStyleGeoserverXML(it.second.get(), file.fileName().toStdString());
+      Serialization::writeStyleGeoserverXML(it.second.get(), file.fileName().toStdString());
 
       QByteArray content = file.readAll();
       if(content.isEmpty())
@@ -142,7 +142,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
     file.write(json["style"].toString().toUtf8());
     file.flush();
 
-    std::unique_ptr<te::se::Style> style = se::Serialization::readStyleXML(file.fileName().toStdString());
+    std::unique_ptr<te::se::Style> style = Serialization::readStyleXML(file.fileName().toStdString());
 
     view->stylesPerDataSeries.emplace(dataseriesID,
                                       std::unique_ptr<te::se::Style>(style.release()));

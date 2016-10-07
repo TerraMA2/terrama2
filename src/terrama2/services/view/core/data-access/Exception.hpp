@@ -41,11 +41,8 @@ namespace terrama2
     {
       namespace core
       {
-        namespace da
-        {
           //! Base exception class for TerraMA2 view data access.
-          struct Exception : virtual terrama2::core::Exception{ };
-        } /* da */
+          struct ViewGeoserverException : virtual terrama2::core::Exception{ };
       } /* core */
     } /* view */
   }   /* services */

@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 
   dataManager->add(outputDataSeriesPtr);
 
-  std::string script = "moBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
+  std::string script = "moBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
           "ids = dcp.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
           "for id in ids:"
           "    add_value(\"id_\" + str(id), id)\n"

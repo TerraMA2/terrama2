@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/view/core/se/Serialization.cpp
+  \file terrama2/services/view/core/serialization/Serialization.cpp
 
   \brief Serialization methods for View service components
 
@@ -42,7 +42,7 @@
 #include <QString>
 #include <QObject>
 
-void terrama2::services::view::core::se::Serialization::writeStyleGeoserverXML(const te::se::Style* style,
+void terrama2::services::view::core::Serialization::writeStyleGeoserverXML(const te::se::Style* style,
                                                                                const std::string path)
 {
 
@@ -78,7 +78,7 @@ void terrama2::services::view::core::se::Serialization::writeStyleGeoserverXML(c
 
 
 std::unique_ptr<te::se::Style>
-terrama2::services::view::core::se::Serialization::readStyleXML(const std::string path)
+terrama2::services::view::core::Serialization::readStyleXML(const std::string path)
 {
   std::unique_ptr<te::se::Style> style;
 
@@ -93,7 +93,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -103,7 +103,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -113,7 +113,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -123,7 +123,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -133,7 +133,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -143,7 +143,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -153,7 +153,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -163,7 +163,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -173,7 +173,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
 
   reader->next();
@@ -183,7 +183,7 @@ terrama2::services::view::core::se::Serialization::readStyleXML(const std::strin
   {
     QString errMsg = QObject::tr("Wrong XML format!");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::Exception() << terrama2::ErrorDescription(errMsg);
+    throw SerializationException() << terrama2::ErrorDescription(errMsg);
   }
   else
   {

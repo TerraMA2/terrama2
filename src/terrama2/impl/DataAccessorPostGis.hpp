@@ -61,11 +61,12 @@ namespace terrama2
         // Doc in base class
         virtual DataSetSeries getSeries(const std::string& uri, const terrama2::core::Filter& filter, terrama2::core::DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
+        //! Recover table name where data is stored
+        virtual std::string getDataSetTableName(DataSetPtr dataSet) const;
+
       protected:
         // Doc in base class
         virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const override;
-        //! Recover table name where data is stored
-        virtual std::string getDataSetTableName(DataSetPtr dataSet) const;
 
         virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const;
 

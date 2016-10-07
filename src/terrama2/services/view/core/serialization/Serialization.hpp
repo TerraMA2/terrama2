@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/view/core/se/Serialization.hpp
+  \file terrama2/services/view/core/serialization/Serialization.hpp
 
   \brief Serialization methods for View service components
 
@@ -44,25 +44,22 @@ namespace terrama2
     {
       namespace core
       {
-        namespace se
-        {
           class Serialization
           {
-          public:
-            /*!
-             *\brief Creates a style XML file compatible with GeoServer
-             */
-            static void writeStyleGeoserverXML(const te::se::Style* style, const std::string path);
+            public:
+              /*!
+               *\brief Creates a style XML file compatible with GeoServer
+               */
+              static void writeStyleGeoserverXML(const te::se::Style* style, const std::string path);
 
-            /*!
-             * \brief Method to read a Style from a xml file and return a TerraLib Style object
-             * \param path Fullpath to the XML file
-             * \return A unique_ptr to a TerraLib Style object
-             */
-            static std::unique_ptr<te::se::Style> readStyleXML(const std::string path);
+              /*!
+               * \brief Method to read a Style from a xml file and return a TerraLib Style object
+               * \param path Fullpath to the XML file
+               * \return A unique_ptr to a TerraLib Style object
+               */
+              static std::unique_ptr<te::se::Style> readStyleXML(const std::string path);
 
           };
-        }
       } // end namespace core
     }   // end namespace view
   }     // end namespace services
