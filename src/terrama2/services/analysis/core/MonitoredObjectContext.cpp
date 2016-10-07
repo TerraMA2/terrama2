@@ -382,11 +382,11 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addAttribute(co
   attributes_.insert(attribute);
 }
 
-void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResult(const std::string& geomId, const std::string& attribute, double result)
+void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResult(const int index, const std::string& attribute, double result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  auto& attributeMap = analysisResult_[geomId];
+  auto& attributeMap = analysisResult_[index];
   attributeMap[attribute] = result;
 }
 

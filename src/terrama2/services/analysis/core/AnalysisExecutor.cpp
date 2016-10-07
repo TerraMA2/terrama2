@@ -387,6 +387,73 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
     throw terrama2::Exception() << ErrorDescription("NOT IMPLEMENTED YET");
   }
 
+  auto date = context->getStartTime();
+
+  std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext;
+
+  // Reads the object monitored
+  te::dt::Property* identifierProperty = nullptr;
+
+  bool found = false;
+  auto analysisDataSeriesList = analysis->analysisDataSeriesList;
+  for(auto analysisDataSeries : analysisDataSeriesList)
+  {
+    if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+    {
+      found = true;
+
+
+      auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+      assert(dataSeries->datasetList.size() == 1);
+      auto datasetMO = dataSeries->datasetList[0];
+
+      if(!context->exists(datasetMO->id))
+      {
+        QString errMsg(QObject::tr("Could not recover monitored object dataset."));
+        context->addError(errMsg.toStdString());
+        return;
+      }
+
+      moDsContext = context->getContextDataset(datasetMO->id);
+
+      if(moDsContext->identifier.empty())
+      {
+        QString errMsg(QObject::tr("Monitored object identifier is empty."));
+        context->addError(errMsg.toStdString());
+        return;
+      }
+
+      if(!moDsContext->series.teDataSetType)
+      {
+        QString errMsg(QObject::tr("Invalid dataset type."));
+        context->addError(errMsg.toStdString());
+        return;
+      }
+
+      auto property = moDsContext->series.teDataSetType->getProperty(moDsContext->identifier);
+      if(property != nullptr)
+      {
+        identifierProperty = property->clone();
+      }
+
+    }
+  }
+
+  if(!found)
+  {
+    QString errMsg(QObject::tr("Could not find a monitored object dataseries."));
+    context->addError(errMsg.toStdString());
+    return;
+  }
+
+  if(!identifierProperty)
+  {
+    QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
+    context->addError(errMsg.toStdString());
+    return;
+  }
+
+
   auto attributes = context->getAttributes();
 
   assert(dataSeries->datasetList.size() == 1);
@@ -395,8 +462,8 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(datasetName);
 
   // first property is the geomId
-  te::dt::StringProperty* geomIdProp = new te::dt::StringProperty("geom_id", te::dt::VAR_STRING, 255, true);
-  dt->add(geomIdProp);
+  identifierProperty->setName("geom_id");
+  dt->add(identifierProperty);
 
 
   //second property: analysis execution date
@@ -406,7 +473,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
   // the unique key is composed by the geomId and the execution date.
   std::string nameuk = datasetName+ "_uk";
   te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk);
-  uk->add(geomIdProp);
+  uk->add(identifierProperty);
   uk->add(dateProp);
 
   dt->add(uk);
@@ -423,14 +490,15 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
     dt->add(prop);
   }
 
-  auto date = context->getStartTime();
 
   // Creates memory dataset and add the items.
   std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(static_cast<te::da::DataSetType*>(dt->clone()));
   for(auto it = resultMap.begin(); it != resultMap.end(); ++it)
   {
     te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
-    dsItem->setString("geom_id", it->first);
+
+    auto geomId = moDsContext->series.syncDataSet->getValue(it->first, moDsContext->identifier)->clone();
+    dsItem->setValue("geom_id", geomId);
     dsItem->setDateTime("execution_date",  dynamic_cast<te::dt::DateTimeInstant*>(date.get()->clone()));
     for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
     {
@@ -439,7 +507,6 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
     ds->add(dsItem);
   }
-
 
   assert(dataSeries->datasetList.size() == 1);
   auto dataset = dataSeries->datasetList[0];
@@ -683,9 +750,20 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core:
   {
     storagerManager->store(series, dataset);
   }
-  catch(const terrama2::Exception& /*e*/)
+  catch(const terrama2::Exception& e)
   {
-    QString errMsg = QObject::tr("Could not store the result of the analysis.");
-    throw Exception() << ErrorDescription(errMsg);
+    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    return;
+  }
+  catch(const std::exception& e)
+  {
+    context->addError(e.what());
+    return;
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred trying to store the results.");
+    context->addError(errMsg.toStdString());
+    return;
   }
 }
