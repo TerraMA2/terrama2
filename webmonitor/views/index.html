@@ -22,6 +22,25 @@
 
 <div id="terrama2-map" class="terrama2-map"></div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Layers</h4>
+      </div>
+      <div id="layersModal" class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button id="close-layers" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="save-layers" type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="/jquery/dist/jquery.min.js"></script>
 <script src="external/openlayers/ol.js"></script>
 <script src="external/TerraMA2WebComponents/TerraMA2WebComponents.min.js"></script>
@@ -32,13 +51,13 @@
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
 
-    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Template", "Template"))
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Template", "Template", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Template", "terrama2-layerexplorer", null, "unsortable", null);
-    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Static", "Static Data"))
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Static", "Static Data", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Static", "terrama2-layerexplorer", null, "unsortable", null);
-    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Dynamic", "Dynamic Data"))
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Dynamic", "Dynamic Data", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Dynamic", "terrama2-layerexplorer", null, "unsortable", null);
-    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Analysis", "Analysis"))
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("Analysis", "Analysis", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("Analysis", "terrama2-layerexplorer", null, "unsortable", null);
 
     var socket = io.connect(':3001');
@@ -57,27 +76,82 @@
         }
     });
 
-    document.getElementById("addLayers").addEventListener("click", addLayer);
-
-    function addLayer() {
-        var uri = document.getElementById("wmsUri").value;
+    function addLayers() {
+        var url = document.getElementById("wmsUri").value;
         var parser = document.createElement('a');
-        parser.href = uri;
-        var layerId;
-        var layerName;
-        var params = parser.search.split('&');
-        for (i in params){
-            var param = params[i].split('=');
-            if (param[0] == 'layers') {
-                layerId = param[1];
-                layerName = param[1].split(':')[1];
+        parser.href = url;
+        var geoUrl = parser.protocol + '//' + parser.host + parser.pathname;
+        if (!url){
+            return;
+        }
+        jsonData = {
+            url: url,
+            format: 'xml'
+        }
+        socket.emit('proxyRequest', jsonData);
+        
+    }
+
+    socket.on('proxyResponse', function(data){
+        capabilities = TerraMA2WebComponents.MapDisplay.getCapabilitiesLayers(data.msg, document.getElementById("wmsUri").value, 'geoserver', 'Test', 'Test');
+        fillModal(capabilities);
+        $('#myModal').modal('show');
+    })
+
+    function fillModal(capabilities) {
+        var lis = "";
+        var check = "<input type='checkbox' class='terrama2-layerviews-checkbox'/>";
+        for (i in capabilities) {
+            lis += '<li data-layerid="' + capabilities[i].name +'">' + check + '<span>' + capabilities[i].title + '</span>' + '</li>';
+        }
+        var htmlList = '<ul id="layersList">' + lis + '</ul>';
+        $('#layersModal').append(htmlList);
+    }
+
+    var selectedLayers = [];
+
+    function saveLayers() {
+
+        var url = document.getElementById("wmsUri").value;
+        var parser = document.createElement('a');
+        parser.href = url;
+        var geoUrl = parser.protocol + '//' + parser.host + parser.pathname;
+        console.log(geoUrl);
+
+        selectedLayers.forEach(addInLayerExplorer);
+
+        function addInLayerExplorer(element, index, array){
+            for (i in capabilities){
+                if (capabilities[i].name == element){
+                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer"))
+                        TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "terrama2-layerexplorer", true, "unsortable", null);
+                    console.log(capabilities[i]);
+                }
             }
         }
-        var geoUrl = parser.protocol + '//' + parser.host + parser.pathname;
 
-        if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, geoUrl, "geoserver", false, false, "terrama2-layerexplorer"))
-            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, "terrama2-layerexplorer", true, "unsortable", null);
+        $("#myModal").modal('hide');
     }
+    
+    document.getElementById("addLayers").addEventListener("click", addLayers);
+
+    $('#layersModal').on('click', 'input.terrama2-layerviews-checkbox', function() {
+        var layerid = $(this).closest('li').data('layerid');
+        var index = selectedLayers.indexOf(layerid);
+        if (index > -1){
+            selectedLayers.splice(index, 1);
+        }
+        else {
+            selectedLayers.push(layerid);
+        }
+    });
+
+    $('#myModal').on('hidden.bs.modal', function (e) {
+        selectedLayers = [];
+        $("#layersList").remove();
+    })
+
+    document.getElementById("save-layers").addEventListener("click", saveLayers);
 
 </script>
 

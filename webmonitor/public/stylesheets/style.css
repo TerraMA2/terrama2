@@ -206,3 +206,16 @@
   width: 168px;
   margin-left: 5px;
 }
+
+#layersModal {
+  max-height: 370px;
+  overflow: overlay;
+}
+
+#layersModal > ul > li > span {
+  margin-left: 5px;
+}
+
+#layersModal > ul {
+  list-style: none;
+}
