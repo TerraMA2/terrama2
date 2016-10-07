@@ -34,9 +34,6 @@ var fs = require('fs');
 var path = require('path');
 var Filters = require("./filters");
 
-// Tcp
-var TcpManager = require('./TcpManager');
-
 // data model
 var DataModel = require('./data-model');
 
@@ -87,7 +84,6 @@ var DataManager = module.exports = {
   isLoaded: false,
 
   Promise: Promise,
-  TcpManager: TcpManager,
   DataModel: DataModel,
   /**
    * It defines a orm instance
@@ -1177,23 +1173,6 @@ var DataManager = module.exports = {
           dProvider.data_provider_type = dataProviderType.get();
           self.data.dataProviders.push(dProvider);
 
-          var d = new DataModel.DataProvider(dProvider);
-
-          // sending to all services
-          self.listServiceInstances().then(function(servicesInstance) {
-            var dataToSend = {"DataProviders": [d.toObject()]};
-
-            servicesInstance.forEach(function(service) {
-              try {
-                TcpManager.emit('sendData', service, dataToSend);
-              } catch (e) {
-
-              }
-            });
-          }).catch(function(err) {
-            console.log(err);
-          });
-          
           return resolve(dProvider);
         }).catch(function(err) {
           console.log(err);
@@ -1280,19 +1259,6 @@ var DataManager = module.exports = {
 
           dataProvider.active = dataProviderObject.active;
 
-          self.listServiceInstances({}, options).then(function(services) {
-            services.forEach(function(service) {
-              try {
-                console.log("Sending Add_signal to update");
-                TcpManager.emit('sendData', service, {
-                  "DataProviders": [dataProvider.toObject()]
-                });
-              } catch (e) {
-
-              }
-            });
-          }).catch(function(err) { });
-
           return resolve(new DataModel.DataProvider(dataProvider));
         }).catch(function(err) {
           return reject(new exceptions.DataProviderError("Could not update data provider ", err));
@@ -1319,31 +1285,13 @@ var DataManager = module.exports = {
       var provider = Utils.remove(self.data.dataProviders, dataProviderParam);
       if (provider) {
         models.db.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
-          var objectToSend = {
-            "DataProvider": [provider.id],
-            "DataSeries": []
-          };
-          return self.listServiceInstances({}, options).then(function(services) {
-            // remove data series
-            var dataSeriesList = Utils.removeAll(self.data.dataSeries, {data_provider_id: provider.id});
-            dataSeriesList.forEach(function(dataSeries) {
-              var dSets = Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
-            });
-
-            // sending Remove signal
-            services.forEach(function(service) {
-              try {
-                TcpManager.emit('removeData', service, objectToSend);
-              } catch (e) {
-                console.log(e);
-              }
-            });
-
-            return resolve();
-          }).catch(function(err) {
-            console.log(err);
-            return reject(err);
+          // remove data series
+          var dataSeriesList = Utils.removeAll(self.data.dataSeries, {data_provider_id: provider.id});
+          dataSeriesList.forEach(function(dataSeries) {
+            var dSets = Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
           });
+
+          return resolve(provider, dataSeriesList);
         }).catch(function(err) {
           console.log(err);
           return reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
@@ -3270,6 +3218,29 @@ var DataManager = module.exports = {
     });
   },
   /**
+   * It saves a layer in database
+   * 
+   * @param {number} registeredViewId - A TerraMA² Registered View Identifier
+   * @param {Object} layerObject - TerraMA² Layer Object
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  addLayer: function(registeredViewId, layerObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      layerObject.registered_view_id = registeredViewId;
+      return models.db.Layer.create(layerObject, options)
+        .then(function(layer) {
+          return resolve(layer.get());
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not save layer due %s", err.toString())));
+        });
+    });
+  },
+  /**
    * It removes a view from database
    * 
    * @param {Object} registeredViewObject - TerraMA² RegisteredView values
@@ -3282,7 +3253,13 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       models.db.RegisteredView.create(registeredViewObject, options)
         .then(function(viewResult) {
-          return resolve(new DataModel.RegisteredView(viewResult));
+          var promises = registeredViewObject.layers_list.map(function(layer) {
+            return self.addLayer(viewResult.id, {name: layer}, options);
+          })
+          return Promise.all(promises)
+            .then(function(layers) {
+              return resolve(new DataModel.RegisteredView(Utils.extend(viewResult, {layers: layers})));
+            });
         })
 
         .catch(function(err) {
@@ -3302,7 +3279,10 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.RegisteredView.findAll(Utils.extend({
-        where: restriction
+        where: restriction,
+        include: {
+          model: models.db.Layer
+        }
       }, options))
         .then(function(registeredViews) {
           return resolve(registeredViews.map(function(registeredView) {
@@ -3311,6 +3291,29 @@ var DataManager = module.exports = {
         })
         .catch(function(err) {
           return reject(new Error(Utils.format("Could not retrieve registered views due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It retrives only a one registered view. If restriction applies for 0 results or more than 1, it throws Error
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  getRegisteredView: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.listRegisteredViews(restriction, Utils.extend(options, {limit: 1}))
+        .then(function(registeredViewList) {
+          if (registeredViewList.length === 0) {
+            return reject(new Error("No registered views retrieved."));
+          }
+          if (registeredViewList.length > 1) {
+            return reject(new Error("More than one registered view retrieved in get operation"));
+          }
+          return resolve(registeredViewList[0]);
         });
     });
   },

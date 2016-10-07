@@ -1,14 +1,14 @@
 (function() {
   'use strict';
+  var Utils = require("./../../Utils");
+  var PromiseClass = require("bluebird");
+  var ServiceTypeError = require("./../../Exceptions").ServiceTypeError;
+  var ServiceType = require("./../../Enums").ServiceType;
   /**
    * TerraMA² DataManager module
    * @type {DataManager}
    */
   var DataManager = require("./../../DataManager");
-  var Utils = require("./../../Utils");
-  var PromiseClass = require("bluebird");
-  var ServiceTypeError = require("./../../Exceptions").ServiceTypeError;
-  var ServiceType = require("./../../Enums").ServiceType;
 
   /**
    * It represents a mock to handle ProcessFinished events, inserting/updating object retrieved from C++ services
@@ -72,7 +72,7 @@
   ProcessFinished.handleRegisteredViews = function(registeredViewObject) {
     return new PromiseClass(function(resolve, reject) {
       // preparing transaction mode
-      return DataManager.orm(function(t) {
+      return DataManager.orm.transaction(function(t) {
         var options = {transaction: t};
 
         return DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options)
@@ -84,11 +84,13 @@
             });
             return Promise.all(promises)
               .then(function() {
-                return DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options)
+                return DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options);
               });
           })
           // NotFound... tries to insert a new one
           .catch(function(err) {
+            registeredViewObject.uri = view.maps_server_uri;
+            registeredViewObject.view_id = registeredViewObject.process_id;
             return DataManager.addRegisteredView(registeredViewObject, options);
           });
       })

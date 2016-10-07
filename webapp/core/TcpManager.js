@@ -11,10 +11,9 @@ var ServiceType = require('./Enums').ServiceType;
 var Process = require('./Process');
 var Executor = require('./Executor');
 var Promise = require('bluebird');
-var DataManager = require("./DataManager");
 
 // Facades
-var ProcessFinish = require("./facade/tcp-manager/ProcessFinished");
+var ProcessFinished = require("./facade/tcp-manager/ProcessFinished");
 
 /**
  * It handles entire TCP communication between TerraMA² NodeJS application and C++ Services
@@ -22,7 +21,7 @@ var ProcessFinish = require("./facade/tcp-manager/ProcessFinished");
  * @inherits EventEmitter
  * @class TcpManager
  */
-var TcpManager = function() {
+var TcpManager = module.exports = function() {
   EventEmitter.call(this);
   // registering self listeners
   this.on('startService', this.startService);
@@ -424,14 +423,12 @@ TcpManager.prototype.initialize = function(client) {
    */
   var onProcessFinished = function(response) {
     if (Utils.isObject(response)) {
-      if (response.class === "RegisteredViews") {
         // checking Save/Update registered View
         // TODO: check it
-        ProcessFinished.handleRegisteredViews(response)
-          .then(function(registeredView) {
-            self.emit("processFinished", registeredView);
-          });
-      }
+      ProcessFinished.handleRegisteredViews(response)
+        .then(function(registeredView) {
+          self.emit("processFinished", registeredView);
+        });
     }
   };
 

@@ -119,7 +119,6 @@ var TcpSocket = function(io) {
 
     // tcp listeners
     TcpManager.on('serviceStarted', onServiceStarted);
-    TcpManager.on('serviceConnected', onServiceConnected);
     TcpManager.on('statusReceived', onStatusReceived);
     TcpManager.on('logReceived', onLogReceived);
     TcpManager.on('stop', onStop);

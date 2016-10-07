@@ -49,7 +49,7 @@
         // TODO: filter user permission
         DataManager.listRegisteredViews()
           .then(function(views) {
-            return client.emit("viewsResponse", views.map(function(view) {
+            return client.emit("viewResponse", views.map(function(view) {
               return view.toObject();
             }));
           })
@@ -65,7 +65,7 @@
         console.log("Disconnected");
       }
 
-      client.on("request", onViewRequest);
+      client.on("viewRequest", onViewRequest);
       client.on("disconnect", onDisconnect);
     });
   };
