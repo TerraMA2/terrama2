@@ -20,46 +20,57 @@
 */
 
 /*!
-  \file terrama2/services/view/data-access/Geoserver.cpp
+  \file terrama2/services/view/core/da/Geoserver.cpp
 
   \brief Communication class between View service and GeoServer
 
   \author Vinicius Campanha
 */
 
-// Qt
-#include <QTemporaryFile>
+
+// TerraMA2
+#include "Geoserver.hpp"
+#include "Exception.hpp"
+#include "../se/Serialization.hpp"
+#include "../../core/JSonUtils.hpp"
+#include "../../../../core/utility/Logger.hpp"
 
 // TerraLib
 #include <terralib/ws/core/CurlWrapper.h>
 #include <terralib/ws/ogc/wms/client/WMSClient.h>
 #include <terralib/geometry/Envelope.h>
 
-// TerraMA2
-#include "Geoserver.hpp"
-#include "Exception.hpp"
-#include "../core/JSonUtils.hpp"
-#include "../../../core/utility/Logger.hpp"
+// Qt
+#include <QTemporaryFile>
 
 
-terrama2::services::view::da::GeoServer::GeoServer(const te::core::URI uri, const std::string workspace)
-  : uri_(uri), workspace_(workspace)
+terrama2::services::view::core::da::GeoServer::GeoServer(const te::core::URI uri)
+  : uri_(uri)
 {
 
 }
 
 
-void terrama2::services::view::da::GeoServer::setWorkspace(const std::string& workspace)
+const te::core::URI& terrama2::services::view::core::da::GeoServer::uri() const
+{
+  return uri_;
+}
+
+
+void terrama2::services::view::core::da::GeoServer::setWorkspace(const std::string& workspace)
 {
   workspace_ = workspace;
 }
 
 
-void terrama2::services::view::da::GeoServer::registerWorkspace(const std::string& name)
+void terrama2::services::view::core::da::GeoServer::registerWorkspace(const std::string& name)
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  workspace_ = name;
+  if(!name.empty())
+  {
+    workspace_ = name;
+  }
 
   te::core::URI uriPost(uri_.uri() + "/rest/workspaces");
 
@@ -75,7 +86,13 @@ void terrama2::services::view::da::GeoServer::registerWorkspace(const std::strin
 }
 
 
-void terrama2::services::view::da::GeoServer::registerPostgisTable(const std::string& dataStoreName,
+const std::string& terrama2::services::view::core::da::GeoServer::workspace() const
+{
+  return workspace_;
+}
+
+
+void terrama2::services::view::core::da::GeoServer::registerPostgisTable(const std::string& dataStoreName,
                                                                    std::map<std::string, std::string> connInfo,
                                                                    const std::string& tableName) const
 {
@@ -113,7 +130,7 @@ void terrama2::services::view::da::GeoServer::registerPostgisTable(const std::st
 }
 
 
-void terrama2::services::view::da::GeoServer::uploadZipVectorFiles(const std::string& dataStoreName,
+void terrama2::services::view::core::da::GeoServer::uploadZipVectorFiles(const std::string& dataStoreName,
                                                                    const std::string& shpZipFilePath,
                                                                    const std::string& extension) const
 {
@@ -133,7 +150,7 @@ void terrama2::services::view::da::GeoServer::uploadZipVectorFiles(const std::st
 }
 
 
-void terrama2::services::view::da::GeoServer::registerVectorFile(const std::string& dataStoreName,
+void terrama2::services::view::core::da::GeoServer::registerVectorFile(const std::string& dataStoreName,
                                                                  const std::string& shpFilePath,
                                                                  const std::string& extension) const
 {
@@ -154,7 +171,7 @@ void terrama2::services::view::da::GeoServer::registerVectorFile(const std::stri
 }
 
 
-void terrama2::services::view::da::GeoServer::registerVectorsFolder(const std::string &dataStoreName,
+void terrama2::services::view::core::da::GeoServer::registerVectorsFolder(const std::string &dataStoreName,
                                                                     const std::string &shpFolderPath,
                                                                     const std::string &extension) const
 {
@@ -175,7 +192,7 @@ void terrama2::services::view::da::GeoServer::registerVectorsFolder(const std::s
 }
 
 
-void terrama2::services::view::da::GeoServer::uploadZipCoverageFile(const std::string& coverageStoreName,
+void terrama2::services::view::core::da::GeoServer::uploadZipCoverageFile(const std::string& coverageStoreName,
                                                                     const std::string& coverageZipFilePath,
                                                                     const std::string& extension) const
 {
@@ -195,7 +212,7 @@ void terrama2::services::view::da::GeoServer::uploadZipCoverageFile(const std::s
 }
 
 
-void terrama2::services::view::da::GeoServer::registerCoverageFile(const std::string& coverageStoreName,
+void terrama2::services::view::core::da::GeoServer::registerCoverageFile(const std::string& coverageStoreName,
                                                                    const std::string& coverageFilePath,
                                                                    const std::string& extension) const
 {
@@ -215,7 +232,7 @@ void terrama2::services::view::da::GeoServer::registerCoverageFile(const std::st
 }
 
 
-void terrama2::services::view::da::GeoServer::registerStyle(const std::string& name,
+void terrama2::services::view::core::da::GeoServer::registerStyle(const std::string& name,
                                                             const std::string& styleFilePath) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
@@ -247,7 +264,7 @@ void terrama2::services::view::da::GeoServer::registerStyle(const std::string& n
 }
 
 
-void terrama2::services::view::da::GeoServer::registerStyle(const std::string &name,
+void terrama2::services::view::core::da::GeoServer::registerStyle(const std::string &name,
                                                             const std::unique_ptr<te::se::Style> &style) const
 {
   QTemporaryFile file;
@@ -260,7 +277,7 @@ void terrama2::services::view::da::GeoServer::registerStyle(const std::string &n
 
   std::string filePath = file.fileName().toStdString();
   // VINICIUS: move all serialization from json utils to another file
-  terrama2::services::view::core::writeStyleGeoserverXML(style.get(), filePath);
+  se::Serialization::writeStyleGeoserverXML(style.get(), filePath);
 
   QByteArray content = file.readAll();
   if(content.isEmpty())
@@ -274,7 +291,7 @@ void terrama2::services::view::da::GeoServer::registerStyle(const std::string &n
 }
 
 
-void terrama2::services::view::da::GeoServer::deleteWorkspace(bool recursive) const
+void terrama2::services::view::core::da::GeoServer::deleteWorkspace(bool recursive) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -298,7 +315,7 @@ void terrama2::services::view::da::GeoServer::deleteWorkspace(bool recursive) co
 }
 
 
-void terrama2::services::view::da::GeoServer::deleteVectorFile(const std::string& dataStoreName,
+void terrama2::services::view::core::da::GeoServer::deleteVectorFile(const std::string& dataStoreName,
                                                                const std::string &fileName,
                                                                bool recursive) const
 {
@@ -324,7 +341,7 @@ void terrama2::services::view::da::GeoServer::deleteVectorFile(const std::string
 }
 
 
-void terrama2::services::view::da::GeoServer::deleteCoverageFile(const std::string& coverageStoreName,
+void terrama2::services::view::core::da::GeoServer::deleteCoverageFile(const std::string& coverageStoreName,
                                                                  const std::string& fileName,
                                                                  bool recursive) const
 {
@@ -350,7 +367,7 @@ void terrama2::services::view::da::GeoServer::deleteCoverageFile(const std::stri
 }
 
 
-void terrama2::services::view::da::GeoServer::deleteStyle(const::std::string& styleName) const
+void terrama2::services::view::core::da::GeoServer::deleteStyle(const::std::string& styleName) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -367,7 +384,7 @@ void terrama2::services::view::da::GeoServer::deleteStyle(const::std::string& st
 }
 
 
-void terrama2::services::view::da::GeoServer::getMapWMS(const std::string& savePath,
+void terrama2::services::view::core::da::GeoServer::getMapWMS(const std::string& savePath,
                                                         const std::string& fileName,
                                                         const std::list<std::pair<std::string, std::string>> layersAndStyles,
                                                         const te::gm::Envelope env,

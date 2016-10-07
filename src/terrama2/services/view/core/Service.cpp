@@ -32,7 +32,10 @@
 #include "View.hpp"
 #include "MemoryDataSetLayer.hpp"
 
+#include "data-access/Geoserver.hpp"
+
 #include "../../../core/Shared.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/DataSet.hpp"
@@ -41,11 +44,17 @@
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-access/DataStorager.hpp"
 
+#include "../../../impl/DataAccessorFile.hpp"
+
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
+
+// Qt
+#include <QUrl>
+#include <QJsonArray>
 
 terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::services::view::core::DataManager> dataManager)
   : dataManager_(dataManager)
@@ -81,7 +90,7 @@ void terrama2::services::view::core::Service::prepareTask(ViewId viewId)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&makeView, viewId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&Service::viewJob, this, viewId, logger_, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -222,4 +231,202 @@ void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
   //TODO: adds to queue, is this expected? remove and then add?
   addView(view);
+}
+
+void terrama2::services::view::core::Service::viewJob(ViewId viewId,
+                                                      std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
+                                                      std::weak_ptr<DataManager> weakDataManager)
+{
+  auto dataManager = weakDataManager.lock();
+  if(!dataManager.get())
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access DataManager");
+    return;
+  }
+
+  if(!logger.get())
+  {
+    QString errMsg = QObject::tr("Unable to access Logger class in view %1").arg(viewId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return;
+  }
+
+  try
+  {
+    RegisterId logId = 0;
+
+    TERRAMA2_LOG_DEBUG() << QObject::tr("Starting view %1 generation.").arg(viewId);
+
+    logId = logger->start(viewId);
+
+    /////////////////////////////////////////////////////////////////////////
+    //  aquiring metadata
+
+    auto lock = dataManager->getLock();
+
+    auto viewPtr = dataManager->findView(viewId);
+
+    std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > dataSeriesProviders;
+    for(auto dataSeriesId : viewPtr->dataSeriesList)
+    {
+      terrama2::core::DataSeriesPtr inputDataSeries = dataManager->findDataSeries(dataSeriesId);
+      terrama2::core::DataProviderPtr inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
+      dataSeriesProviders.emplace(inputDataSeries, inputDataProvider);
+    }
+
+    lock.unlock();
+
+    /////////////////////////////////////////////////////////////////////////
+
+    QJsonObject jsonAnswer;
+    for(auto dataSeriesProvider : dataSeriesProviders)
+    {
+      terrama2::core::DataSeriesPtr inputDataSeries = dataSeriesProvider.first;
+      terrama2::core::DataProviderPtr inputDataProvider = dataSeriesProvider.second;
+
+      DataProviderType dataProviderType = inputDataProvider->dataProviderType;
+
+      if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")
+      {
+        TERRAMA2_LOG_ERROR() << QObject::tr("Data provider not supported: %1.").arg(dataProviderType.c_str());
+      }
+
+      if(!viewPtr->maps_server_uri.uri().empty())
+      {
+        QFileInfoList fileInfoList;
+
+        if(dataProviderType == "FILE")
+        {
+          std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor =
+              std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries));
+
+          terrama2::core::Filter filter;
+
+          auto it = viewPtr->filtersPerDataSeries.find(inputDataSeries->id);
+
+          if(it != viewPtr->filtersPerDataSeries.end())
+          {
+            filter = terrama2::core::Filter(it->second);
+          }
+
+          auto remover = std::make_shared<terrama2::core::FileRemover>();
+          SeriesMap seriesMap = dataAccessor->getSeries(filter, remover);
+
+          if(seriesMap.empty())
+          {
+            logger->done(nullptr, logId);
+            TERRAMA2_LOG_WARNING() << tr("No data to show.");
+            return;
+          }
+
+          for(auto& serie : seriesMap)
+          {
+            terrama2::core::DataSetPtr dataset = serie.first;
+
+            // TODO: mask in folder
+            QUrl url;
+            try
+            {
+              url = QUrl(QString::fromStdString(inputDataProvider->uri+"/"+dataAccessor->getFolder(dataset)));
+            }
+            catch(const terrama2::core::UndefinedTagException& /*e*/)
+            {
+              url = QUrl(QString::fromStdString(inputDataProvider->uri));
+            }
+
+            //get timezone of the dataset
+            std::string timezone;
+            try
+            {
+              timezone = dataAccessor->getTimeZone(dataset);
+            }
+            catch(const terrama2::core::UndefinedTagException& /*e*/)
+            {
+              //if timezone is not defined
+              timezone = "UTC+00";
+            }
+
+            QFileInfoList tempFileInfoList = dataAccessor->getDataFileInfoList(url.toString().toStdString(),
+                                                                           dataAccessor->getMask(dataset),
+                                                                           timezone,
+                                                                           filter,
+                                                                           remover);
+
+            if(tempFileInfoList.empty())
+            {
+              TERRAMA2_LOG_WARNING() << tr("No data in folder: %1").arg(url.toString());
+              continue;
+            }
+
+            fileInfoList.append(tempFileInfoList);
+
+          }
+        }
+
+        da::GeoServer geoserver(viewPtr->maps_server_uri);
+        geoserver.registerWorkspace();
+
+        std::string styleName = "";
+        auto it = viewPtr->stylesPerDataSeries.find(inputDataSeries->id);
+
+        if(it != viewPtr->stylesPerDataSeries.end())
+        {
+          styleName = viewPtr->viewName + "_style_" + std::to_string(inputDataSeries->id);
+          geoserver.registerStyle(styleName, it->second);
+        }
+
+        QJsonArray layersArray;
+
+        for(auto& fileInfo : fileInfoList)
+        {
+          geoserver.registerVectorFile("datastore", fileInfo.absoluteFilePath().toStdString(),
+                                       fileInfo.completeSuffix().toStdString());
+
+          QJsonObject datasetSeries;
+          datasetSeries.insert("layer", fileInfo.baseName());
+          layersArray.push_back(datasetSeries);
+        }
+
+        jsonAnswer.insert("class", QString("RegisteredViews"));
+        jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
+        jsonAnswer.insert("maps_server_uri", QString::fromStdString(geoserver.uri().uri()));
+        jsonAnswer.insert("workspace", QString::fromStdString(geoserver.workspace()));
+        jsonAnswer.insert("style", QString::fromStdString(styleName));
+        jsonAnswer.insert("layers_list", layersArray);
+      }
+
+      if(!viewPtr->imageName.empty())
+      {
+        // TODO: do VIEW with TerraLib
+      }
+
+    }
+
+    TERRAMA2_LOG_INFO() << tr("View %1 generated successfully.").arg(viewId);
+
+    logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
+
+    emit processFinishedSignal(jsonAnswer);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString() << std::endl;
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+  }
+  catch(const boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unkown error.");
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+  }
 }

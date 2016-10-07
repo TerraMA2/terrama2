@@ -36,7 +36,7 @@
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/impl/Utils.hpp>
-#include <terrama2/services/view/data-access/Geoserver.hpp>
+#include <terrama2/services/view/core/data-access/Geoserver.hpp>
 #include <terrama2/services/view/core/JSonUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
     // Make sure to have a geoServer with the below configuration
     te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver");
-    terrama2::services::view::da::GeoServer geoserver(uri);
+    terrama2::services::view::core::da::GeoServer geoserver(uri);
 
     geoserver.registerWorkspace("aworkspace");
 

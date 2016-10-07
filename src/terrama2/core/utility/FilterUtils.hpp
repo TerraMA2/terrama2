@@ -60,7 +60,7 @@ namespace terrama2
       \exception terrama2::Exception If it is not possible to form a date with mask.
       \exception terrama2::Exception If it was not possible to find a valid date in name.
     */
-    bool isValidDataSetName(const std::string& mask, const Filter& filter, std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
+    bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
 
     /*!
       \brief Check timestamp is between a valid period.

@@ -42,6 +42,7 @@
 
 //Qt
 #include <QObject>
+#include <QJsonDocument>
 
 namespace te
 {
@@ -108,6 +109,12 @@ namespace terrama2
 
       signals:
         void serviceFinishedSignal();
+
+        /*!
+       * \brief Signal emited when a full process is complete in service
+       * \param answer A JSON with process info
+       */
+        void processFinishedSignal(QJsonObject answer);
 
       public slots:
 

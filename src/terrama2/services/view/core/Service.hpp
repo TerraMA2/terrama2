@@ -102,6 +102,10 @@ namespace terrama2
           //! Connects signals from DataManager
           void connectDataManager();
 
+          void viewJob(ViewId viewId,
+                       std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
+                       std::weak_ptr<DataManager> weakDataManager);
+
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 
           std::map<ViewId, terrama2::core::TimerPtr> timers_;//!< List of running View timers
