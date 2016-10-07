@@ -333,16 +333,17 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         }
 
         auto remover = std::make_shared<terrama2::core::FileRemover>();
-        SeriesMap seriesMap = dataAccessor->getSeries(filter, remover);
 
-        if(!seriesMap.empty())
+        const std::vector< terrama2::core::DataSetPtr > datasets = inputDataSeries->datasetList;
+
+        if(!datasets.empty())
         {
           if(dataProviderType == "FILE")
           {
             // Get the list of layers to register
             if(dataFormat == "OGR")
             {
-              auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorFile>>(seriesMap,
+              auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorFile>>(datasets,
                                                                                                  inputDataProvider,
                                                                                                  filter,
                                                                                                  remover,
@@ -351,7 +352,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
             }
             else if(dataFormat == "GEOTIFF")
             {
-              auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorGeoTiff>>(seriesMap,
+              auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorGeoTiff>>(datasets,
                                                                                                     inputDataProvider,
                                                                                                     filter,
                                                                                                     remover,
@@ -386,10 +387,8 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
             std::vector<std::string> tablesNames;
 
-            for(auto& serie : seriesMap)
+            for(auto& dataset : datasets)
             {
-              terrama2::core::DataSetPtr dataset = serie.first;
-
               std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
 
               tablesNames.push_back(tableName);
@@ -445,7 +444,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
       if(!viewPtr->imageName.empty())
       {
-        // TODO: do VIEW with TerraLib
+        // TODO: create VIEW with TerraLib
       }
 
     }
@@ -480,18 +479,16 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
 
 template< typename Accessor >
-QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(SeriesMap& seriesMap,
-                                                                          terrama2::core::DataProviderPtr inputDataProvider,
-                                                                          terrama2::core::Filter filter,
-                                                                          std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                                          Accessor dataAccessor)
+QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(const std::vector<terrama2::core::DataSetPtr> datasets,
+                                                                          const terrama2::core::DataProviderPtr inputDataProvider,
+                                                                          const terrama2::core::Filter filter,
+                                                                          const std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                                          const Accessor dataAccessor)
 {
   QFileInfoList fileInfoList;
 
-  for(auto& serie : seriesMap)
+  for(auto& dataset : datasets)
   {
-    terrama2::core::DataSetPtr dataset = serie.first;
-
     // TODO: mask in folder
     QUrl url;
     try

@@ -112,11 +112,11 @@ namespace terrama2
                        std::weak_ptr<DataManager> weakDataManager);
 
           template< typename Accessor >
-          QFileInfoList dataSeriesFileList(SeriesMap& seriesMap,
-                                           terrama2::core::DataProviderPtr inputDataProvider,
-                                           terrama2::core::Filter filter,
-                                           std::shared_ptr<terrama2::core::FileRemover> remover,
-                                           Accessor dataAccessor);
+          QFileInfoList dataSeriesFileList(const std::vector< terrama2::core::DataSetPtr > datasets,
+                                           const terrama2::core::DataProviderPtr inputDataProvider,
+                                           const terrama2::core::Filter filter,
+                                           const std::shared_ptr<terrama2::core::FileRemover> remover,
+                                           const Accessor dataAccessor);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 
