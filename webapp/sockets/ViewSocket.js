@@ -25,7 +25,7 @@
       .then(function(services) {
         // register listener
         services.forEach(function(service) {
-          TcpManager.registerListener(service);
+          // TcpManager.registerListener(service);
         });
       })
       
@@ -47,16 +47,20 @@
        */
       function onViewRequest() {
         // TODO: filter user permission
-        DataManager.listView()
+        DataManager.listRegisteredViews()
           .then(function(views) {
-
+            return client.emit("viewsResponse", views.map(function(view) {
+              return view.toObject();
+            }));
           })
 
           .catch(function(err) {
-
+            return client.emit("error", err.toString());
           });
       }
-
+      /**
+       * It handles client disconnect. It un-register listeners 
+       */
       function onDisconnect() {
         console.log("Disconnected");
       }

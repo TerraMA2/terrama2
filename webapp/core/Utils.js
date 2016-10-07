@@ -45,7 +45,7 @@ function getTokenCodeMessage(code) {
   return msg;
 }
 
-var Utils = {
+var Utils = module.exports = {
   clone: function(object) {
     return cloneDeep(object);
   },
@@ -732,5 +732,3 @@ var Utils = {
     return util.format.apply(this, arguments);
   }
 };
-
-module.exports = Utils;

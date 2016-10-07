@@ -75,7 +75,7 @@
         select: function(country) {
           return BaseService.$request("/languages", "POST", {data: {locale: country}});
         }
-      }
+      };
     }
 
     function terrama2Flag(i18n, $timeout, $rootScope, TerraMA2Countries, $log) {
@@ -116,7 +116,7 @@
                     })
                     .catch(function(err) {
                       $log.info("Could not change locale: " + err.toString());
-                    })
+                    });
                 });
               });
 
@@ -132,7 +132,7 @@
             initLocale(value);
           });
         }
-      }
+      };
 
       function terrama2FlagController() {
         var self = this;
