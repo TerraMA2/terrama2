@@ -242,7 +242,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::services::analysis::core::createAggr
     OperatorCache cache;
     std::vector<double> values;
     values.reserve(occurrenceAggregation->indexes.size());
-    for(int j = 0; j < occurrenceAggregation->indexes.size(); ++j)
+    for(unsigned int j = 0; j < occurrenceAggregation->indexes.size(); ++j)
     {
       cache.count++;
 

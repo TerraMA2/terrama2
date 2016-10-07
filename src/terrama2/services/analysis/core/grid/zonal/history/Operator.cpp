@@ -46,7 +46,7 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
 
   try
   {
@@ -159,7 +159,7 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
 
   try
   {

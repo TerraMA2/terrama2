@@ -65,8 +65,6 @@ namespace terrama2
             void clearContext(const AnalysisHashCode analysisHashCode);
 
             void addError(const AnalysisHashCode analysisHashCode, const std::string& error);
-            void addError(const std::string& error);
-
             std::set<std::string> getErrors(const AnalysisHashCode analysisHashCode) const;
 
 
@@ -77,7 +75,6 @@ namespace terrama2
             std::unordered_map<AnalysisHashCode, GridContextPtr> gridContextMap_;
 
             std::unordered_map<AnalysisHashCode, std::set<std::string> > analysisErrorMap_;
-            std::set<std::string> contextError_;
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
         };
       }

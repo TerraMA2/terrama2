@@ -66,13 +66,13 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
     boost::python::list ids)
 {
   OperatorCache cache;
-  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+  terrama2::services::analysis::core::python::readInfoFromDict (cache);
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
   try
   {
-    terrama2::core::verify::analysisDCP(analysis);
+    terrama2::core::verify::analysisMonitoredObject(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {

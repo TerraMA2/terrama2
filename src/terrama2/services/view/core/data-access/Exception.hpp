@@ -27,11 +27,11 @@
   \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_SERVICES_VIEW_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_VIEW_CORE_EXCEPTION_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_DA_EXCEPTION_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_DA_EXCEPTION_HPP__
 
 // TerraMA2
-#include "../../../core/Exception.hpp"
+#include "../Exception.hpp"
 
 namespace terrama2
 {
@@ -39,13 +39,13 @@ namespace terrama2
   {
     namespace view
     {
-      namespace da
+      namespace core
       {
-        //! Base exception class for TerraMA2 view data access.
-        struct Exception : virtual terrama2::core::Exception{ };
-      }
+          //! Base exception class for TerraMA2 view data access.
+          struct ViewGeoserverException : virtual terrama2::core::Exception{ };
+      } /* core */
     } /* view */
   }   /* services */
 } // end namespace terrama2
 
-#endif // __TERRAMA2_SERVICES_VIEW_CORE_EXCEPTION_HPP__
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_DA_EXCEPTION_HPP__

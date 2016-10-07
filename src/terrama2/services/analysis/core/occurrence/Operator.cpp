@@ -58,7 +58,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
   try
   {
     terrama2::core::verify::analysisMonitoredObject(analysis);
@@ -120,8 +120,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     }
 
     auto moEnvelope = moDsContext->series.syncDataSet->getExtent(moDsContext->geometryPos);
-    auto firtMO = moDsContext->series.syncDataSet->getGeometry(0, moDsContext->geometryPos);
-    int moSrid = firtMO->getSRID();
+    auto firstMO = moDsContext->series.syncDataSet->getGeometry(0, moDsContext->geometryPos);
+    int moSrid = firstMO->getSRID();
 
     std::shared_ptr<te::gm::Geometry> geomEnvelope(te::gm::GetGeomFromEnvelope(moEnvelope.get(), moSrid));
 
@@ -181,7 +181,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
             // Converts the monitored object to the same moSrid of the occurrences
             auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-            geomResult->transform(firtMO->getSRID());
+            geomResult->transform(firstMO->getSRID());
 
             // Searchs in the spatial index for the occurrences that intersects the monitored object box
             contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);

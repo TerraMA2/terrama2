@@ -20,18 +20,18 @@
 */
 
 /*!
-  \file terrama2/services/view/core/Exception.hpp
+  \file terrama2/services/view/core/se/Exception.hpp
 
-  \brief Exception classes for View service.
+  \brief Exception classes for View components serialization.
 
   \author Vinicius Campanha
  */
 
-#ifndef __TERRAMA2_SERVICES_VIEW_CORE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_VIEW_CORE_EXCEPTION_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__
 
 // TerraMA2
-#include "../../../core/Exception.hpp"
+#include "../Exception.hpp"
 
 namespace terrama2
 {
@@ -41,11 +41,14 @@ namespace terrama2
     {
       namespace core
       {
-        //! Base exception class for TerraMA2 view service.
-        struct Exception : virtual terrama2::core::Exception{ };
-      }
+        namespace se
+        {
+          //! Base exception class for TerraMA2 view data access.
+          struct SerializationException : virtual terrama2::core::Exception{ };
+        } /* da */
+      } /* core */
     } /* view */
   }   /* services */
 } // end namespace terrama2
 
-#endif // __TERRAMA2_SERVICES_VIEW_CORE_EXCEPTION_HPP__
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__

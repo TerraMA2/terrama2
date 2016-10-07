@@ -37,6 +37,7 @@
 #include "DataAccessorOccurrenceWfp.hpp"
 #include "DataAccessorOccurrencePostGis.hpp"
 #include "DataAccessorStaticDataOGR.hpp"
+#include "DataAccessorStaticDataPostGIS.hpp"
 #include "DataAccessorAnalysisPostGis.hpp"
 
 #include "DataStoragerPostGis.hpp"
@@ -59,6 +60,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrenceWfp::dataAccessorType(), terrama2::core::DataAccessorOccurrenceWfp::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrencePostGis::dataAccessorType(), terrama2::core::DataAccessorOccurrencePostGis::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorAnalysisPostGis::dataAccessorType(), terrama2::core::DataAccessorAnalysisPostGis::make);
 
   // Data storager

@@ -5,6 +5,7 @@
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
+#include <terrama2/core/data-access/OccurrenceSeries.hpp>
 #include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/Config.hpp>
@@ -143,7 +144,7 @@ int main(int argc, char* argv[])
     std::cout << "\ndataset size: " << teDataSet->size() << std::endl;
   }
 
-  
+
 
   return 0;
 }

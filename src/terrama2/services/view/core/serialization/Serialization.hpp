@@ -20,19 +20,21 @@
 */
 
 /*!
-  \file src/terrama2/services/view/core/JSonUtils.hpp
+  \file terrama2/services/view/core/serialization/Serialization.hpp
 
-  \brief Methods to convertion between a View and JSon object
+  \brief Serialization methods for View service components
 
   \author Vinicius Campanha
 */
 
-// TerraMa2
-#include "View.hpp"
-#include "Shared.hpp"
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_SE_SERIALIZATION_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_SE_SERIALIZATION_HPP__
 
-// Qt
-#include <QJsonObject>
+// Terralib
+#include <terralib/se/Style.h>
+
+// Std
+#include <memory>
 
 namespace terrama2
 {
@@ -42,18 +44,25 @@ namespace terrama2
     {
       namespace core
       {
-        /*!
-          \brief Creates a View from a QJsonObject.
-          \see View for json structure
-          */
-        ViewPtr fromViewJson(QJsonObject json);
+          class Serialization
+          {
+            public:
+              /*!
+               *\brief Creates a style XML file compatible with GeoServer
+               */
+              static void writeStyleGeoserverXML(const te::se::Style* style, const std::string path);
 
-        /*!
-          \brief Creates a Json object from a View
-        */
-        QJsonObject toJson(ViewPtr view);
+              /*!
+               * \brief Method to read a Style from a xml file and return a TerraLib Style object
+               * \param path Fullpath to the XML file
+               * \return A unique_ptr to a TerraLib Style object
+               */
+              static std::unique_ptr<te::se::Style> readStyleXML(const std::string path);
 
+          };
       } // end namespace core
     }   // end namespace view
   }     // end namespace services
 }       // end namespace terrama2
+
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_SE_SERIALIZATION_HPP__

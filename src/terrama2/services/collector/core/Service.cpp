@@ -82,7 +82,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 {
   try
   {
-    taskQueue_.emplace(std::bind(&collect, collectorId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, collectorId, logger_, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -211,6 +211,10 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
 
     logger->done(lastDateTime, logId);
+    QJsonObject jsonAnswer;
+    jsonAnswer.insert("process_id", static_cast<int>(collectorPtr->id));
+
+    emit processFinishedSignal(jsonAnswer);
   }
   catch(const terrama2::Exception&)
   {

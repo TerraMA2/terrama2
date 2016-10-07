@@ -68,21 +68,53 @@ namespace terrama2
         /*!
           \brief Composed key for accessing a ContextDataSeries.
         */
-        struct ObjectKey
-        {
-          uint32_t objectId_; //!< Object identifier.
-          std::string dateFilterBegin_; //!< Begin date restriction.
-          std::string dateFilterEnd_; //!< End date restriction.
-        };
+       struct ObjectKey
+       {
+         public:
+
+           inline ObjectKey(uint32_t objectId, std::string dateFilterBegin = "", std::string dateFilterEnd = "")
+             : objectId_(objectId),
+               dateFilterBegin_(dateFilterBegin),
+               dateFilterEnd_(dateFilterEnd)
+           {
+             hash_ = std::hash<std::string>()(static_cast<char>(objectId_) + dateFilterBegin_ + dateFilterEnd_);
+           }
+
+           inline std::size_t hashCode() const
+           {
+             return hash_;
+
+           }
+
+           inline uint32_t getObjectId() const
+           {
+             return objectId_;
+           }
+
+           inline std::string getDateFilterBegin() const
+           {
+             return dateFilterBegin_;
+           }
+
+           inline std::string getDateFilterEnd() const
+           {
+             return dateFilterEnd_;
+           }
+
+         private:
+           uint32_t objectId_; //!< Object identifier.
+           std::string dateFilterBegin_; //!< Begin date restriction.
+           std::string dateFilterEnd_; //!< End date restriction.
+           std::size_t hash_; //! Hash code.
+       };
 
         struct ObjectKeyHash
         {
           std::size_t operator()(ObjectKey const& key) const
           {
-            return std::hash<std::string>()(std::to_string(key.objectId_)+key.dateFilterBegin_+key.dateFilterEnd_);
+            return key.hashCode();
           }
         };
-
 
         /*!
           \brief Comparator the context key.
@@ -94,17 +126,17 @@ namespace terrama2
           */
           bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            if(lhs.objectId_ < rhs.objectId_)
+            if(lhs.getObjectId() < rhs.getObjectId())
             {
               return true;
             }
-            else if(lhs.objectId_ > rhs.objectId_)
+            else if(lhs.getObjectId() > rhs.getObjectId())
             {
               return false;
             }
             else
             {
-              return lhs.dateFilterBegin_.compare(rhs.dateFilterBegin_) < 0;
+              return lhs.getDateFilterBegin().compare(rhs.getDateFilterBegin()) < 0;
             }
           }
         };
@@ -113,7 +145,7 @@ namespace terrama2
         {
           bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            return lhs.objectId_ == rhs.objectId_&& lhs.dateFilterBegin_ == rhs.dateFilterBegin_ && lhs.dateFilterEnd_ == rhs.dateFilterEnd_;
+            return lhs.getObjectId() == rhs.getObjectId()&& lhs.getDateFilterBegin() == rhs.getDateFilterBegin() && lhs.getDateFilterEnd() == rhs.getDateFilterEnd();
           }
         };
 
