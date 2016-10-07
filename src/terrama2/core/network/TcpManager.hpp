@@ -96,6 +96,8 @@ namespace terrama2
 
       public slots:
         bool updateListeningPort(uint32_t) noexcept;
+        //! Slot called a process ended.
+        void processFinishedSlot(QJsonObject answer) noexcept;
 
       signals:
         //! Emited when the service should be terminated.
@@ -111,6 +113,7 @@ namespace terrama2
         void readReadySlot(QTcpSocket* tcpSocket) noexcept;
 
       private:
+        QTcpSocket* tcpSocket_;
         uint32_t blockSize_; //!< Size of the message received.
         //! Parse bytearray as a json and add contents to the DataManager.
         void addData(const QByteArray& bytearray);

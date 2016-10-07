@@ -108,7 +108,7 @@ namespace terrama2
             /*!
               \brief Callback method to collect and store data.
             */
-            static void collect(CollectorId collectorId, std::shared_ptr< CollectorLogger > logger, std::weak_ptr<DataManager> weakDataManager);
+            void collect(CollectorId collectorId, std::shared_ptr< CollectorLogger > logger, std::weak_ptr<DataManager> weakDataManager);
 
             //! Connects signals from DataManager
             void connectDataManager();

@@ -114,7 +114,7 @@ namespace terrama2
        * \brief Signal emited when a full process is complete in service
        * \param answer A JSON with process info
        */
-        void processFinishedSignal(std::shared_ptr< QJsonDocument > answer);
+        void processFinishedSignal(QJsonObject answer);
 
       public slots:
 

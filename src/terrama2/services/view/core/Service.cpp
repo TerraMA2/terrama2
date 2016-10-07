@@ -251,8 +251,6 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     return;
   }
 
-  QJsonObject jsonAnswer;
-
   try
   {
     RegisterId logId = 0;
@@ -281,6 +279,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     /////////////////////////////////////////////////////////////////////////
 
+    QJsonObject jsonAnswer;
     for(auto dataSeriesProvider : dataSeriesProviders)
     {
       terrama2::core::DataSeriesPtr inputDataSeries = dataSeriesProvider.first;
@@ -373,7 +372,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
         if(it != viewPtr->stylesPerDataSeries.end())
         {
-          styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
+          styleName = viewPtr->viewName + "_style_" + std::to_string(inputDataSeries->id);
           geoserver.registerStyle(styleName, it->second);
         }
 
@@ -390,7 +389,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         }
 
         jsonAnswer.insert("class", QString("RegisteredViews"));
-        jsonAnswer.insert("view_id",static_cast<int32_t>(viewPtr->id));
+        jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
         jsonAnswer.insert("maps_server_uri", QString::fromStdString(geoserver.uri().uri()));
         jsonAnswer.insert("workspace", QString::fromStdString(geoserver.workspace()));
         jsonAnswer.insert("style", QString::fromStdString(styleName));
@@ -404,13 +403,11 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     }
 
-    emit processFinishedSignal(std::make_shared<QJsonDocument>(jsonAnswer));
-
     TERRAMA2_LOG_INFO() << tr("View %1 generated successfully.").arg(viewId);
 
-    if(logger.get())
-      logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
+    logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
 
+    emit processFinishedSignal(jsonAnswer);
   }
   catch(const terrama2::Exception& e)
   {
