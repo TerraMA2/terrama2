@@ -53,14 +53,6 @@ namespace terrama2
             {
               namespace ratio
               {
-                //! Cantor pairing function for hashing the pair (column X row) https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-                struct PairHash
-                {
-                  std::size_t operator()(const std::pair<int, int>& pair) const
-                  {
-                    return 0.5*(pair.first+pair.second)*(pair.first+pair.second+1)+pair.second;;
-                  }
-                };
 
                 //! Get absolute time from the timeStr string.
                 double getAbsTimeFromString(const std::string& timeStr);
@@ -75,7 +67,7 @@ namespace terrama2
                 void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
                                   int band,
                                   te::gm::Polygon* polygon,
-                                  std::unordered_map<std::pair<int, int>, double, PairHash>& valuesMap);
+                                  std::map<std::pair<int, int>, double >& valuesMap);
 
                 /*!
                   \brief Implementation of grid zonal operator.

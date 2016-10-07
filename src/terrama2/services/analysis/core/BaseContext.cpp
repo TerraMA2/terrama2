@@ -92,10 +92,7 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateDiscardBefore;
-  key.dateFilterEnd_ = dateDiscardAfter;
+  ObjectKey key(datasetId, dateDiscardBefore, dateDiscardAfter);
 
   auto it = rasterMap_.find(key);
   if(it != rasterMap_.end())
@@ -144,17 +141,14 @@ std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::BaseContext
   return cachedRaster;
 }
 
-std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
+std::multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
 terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager,
     DataSeriesId dataSeriesId,
     const std::string& dateDiscardBefore,
     const std::string& dateDiscardAfter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  ObjectKey key;
-  key.objectId_ = dataSeriesId;
-  key.dateFilterBegin_ = dateDiscardBefore;
-  key.dateFilterEnd_ = dateDiscardAfter;
+  ObjectKey key(dataSeriesId, dateDiscardBefore, dateDiscardAfter);
 
   auto it = analysisGridMap_.find(key);
   if(it == analysisGridMap_.end())
@@ -237,17 +231,13 @@ terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFi
   return filter;
 }
 
-std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >
+std::map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >
 terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataSeriesId,
     const std::string& dateDiscardBefore,
     const std::string& dateDiscardAfter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  ObjectKey key;
-  key.objectId_ = dataSeriesId;
-  key.dateFilterBegin_ = dateDiscardBefore;
-  key.dateFilterEnd_ = dateDiscardAfter;
-
+  ObjectKey key(dataSeriesId, dateDiscardBefore, dateDiscardAfter);
   auto dataManager = getDataManager().lock();
 
   auto it = analysisSeriesMap_.find(key);

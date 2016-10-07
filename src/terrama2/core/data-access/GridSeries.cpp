@@ -47,7 +47,7 @@
 #include <QObject>
 
 
-void terrama2::core::GridSeries::addGridSeries(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap)
+void terrama2::core::GridSeries::addGridSeries(std::map<DataSetPtr,DataSetSeries> seriesMap)
 {
   dataSeriesMap_ = seriesMap;
   for(const auto& item : seriesMap)

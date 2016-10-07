@@ -49,12 +49,12 @@ namespace terrama2
     {
       public:
         //! Add a group of DataSet data to the DcpSeries.
-        void addDcpSeries(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap);
+        void addDcpSeries(std::map<DataSetPtr,DataSetSeries> seriesMap);
         //! Returns a map of DataSetDcp data.
-        const std::unordered_map<DataSetDcpPtr,DataSetSeries >& dcpSeriesMap();
+        const std::map<DataSetDcpPtr,DataSetSeries >& dcpSeriesMap();
 
       private:
-        std::unordered_map<DataSetDcpPtr,DataSetSeries > dcpMap_;//!< Map of DataSetDcp data.
+        std::map<DataSetDcpPtr,DataSetSeries > dcpMap_;//!< Map of DataSetDcp data.
 
     };
   }

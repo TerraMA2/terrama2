@@ -37,7 +37,7 @@
 #include <terralib/common/Singleton.h>
 
 //STL
-#include <unordered_map>
+#include <map>
 #include <set>
 #include <mutex>
 
@@ -71,12 +71,12 @@ namespace terrama2
 
 
           private:
-            std::unordered_map<AnalysisHashCode, AnalysisPtr> analysisMap_;
+            std::map<AnalysisHashCode, AnalysisPtr> analysisMap_;
 
-            std::unordered_map<AnalysisHashCode, MonitoredObjectContextPtr> monitoredObjectContextMap_;
-            std::unordered_map<AnalysisHashCode, GridContextPtr> gridContextMap_;
+            std::map<AnalysisHashCode, MonitoredObjectContextPtr> monitoredObjectContextMap_;
+            std::map<AnalysisHashCode, GridContextPtr> gridContextMap_;
 
-            std::unordered_map<AnalysisHashCode, std::set<std::string> > analysisErrorMap_;
+            std::map<AnalysisHashCode, std::set<std::string> > analysisErrorMap_;
             std::set<std::string> contextError_;
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
         };

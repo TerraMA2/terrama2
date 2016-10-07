@@ -39,7 +39,7 @@
 
 #include <QObject>
 
-terrama2::services::alert::core::ReportTxt::ReportTxt(std::unordered_map<std::string, std::string> reportMetadata)
+terrama2::services::alert::core::ReportTxt::ReportTxt(std::map<std::string, std::string> reportMetadata)
  : ReportText(reportMetadata)
 {
 
@@ -71,7 +71,7 @@ void terrama2::services::alert::core::ReportTxt::process(AlertPtr alertPtr,
   }
 }
 
-terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::ReportTxt::make(std::unordered_map<std::string, std::string> reportMetadata)
+terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::ReportTxt::make(std::map<std::string, std::string> reportMetadata)
 {
   return std::make_shared<ReportTxt>(reportMetadata);
 }

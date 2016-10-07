@@ -56,7 +56,7 @@ bool terrama2::services::alert::core::ReportFactory::find(terrama2::services::al
   return it != factoriesMap_.end();
 }
 
-terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::ReportFactory::make(terrama2::services::alert::core::ReportType reportType, std::unordered_map<std::string, std::string> reportMetadata)
+terrama2::services::alert::core::ReportPtr terrama2::services::alert::core::ReportFactory::make(terrama2::services::alert::core::ReportType reportType, std::map<std::string, std::string> reportMetadata)
 {
   auto it = factoriesMap_.find(reportType);
   if(it == factoriesMap_.end())

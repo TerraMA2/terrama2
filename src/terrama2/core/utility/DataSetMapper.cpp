@@ -42,7 +42,7 @@ terrama2::core::DataSetMapper::DataSetMapper(std::shared_ptr<te::da::DataSet> da
   lineMap_ = generateStringPkToLineMap(dataSet, pkProperty);
 }
 
-std::unordered_map<std::string, size_t> terrama2::core::DataSetMapper::generateStringPkToLineMap(std::shared_ptr<te::da::DataSet> dataSet, std::string pkProperty) const
+std::map<std::string, size_t> terrama2::core::DataSetMapper::generateStringPkToLineMap(std::shared_ptr<te::da::DataSet> dataSet, std::string pkProperty) const
 {
   size_t pkPropertyPosition = std::numeric_limits<int>::max();
   for(size_t i = 0; i < dataSet->getNumProperties(); ++i)
@@ -61,7 +61,7 @@ std::unordered_map<std::string, size_t> terrama2::core::DataSetMapper::generateS
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 
-  std::unordered_map<std::string, size_t> pkMap;
+  std::map<std::string, size_t> pkMap;
   for(size_t i = 0; i < dataSet->size(); ++i)
   {
     dataSet->move(i);

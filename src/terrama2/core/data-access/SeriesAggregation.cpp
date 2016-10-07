@@ -32,7 +32,7 @@
 #include "SeriesAggregation.hpp"
 
 
-const std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>& terrama2::core::SeriesAggregation::getSeries()
+const std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries>& terrama2::core::SeriesAggregation::getSeries()
 {
   return dataSeriesMap_;
 }

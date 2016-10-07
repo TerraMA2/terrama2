@@ -106,8 +106,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
       dataSeriesContext->identifier = identifier;
       dataSeriesContext->geometryPos = geomPropertyPosition;
 
-      ObjectKey key;
-      key.objectId_ = dataset->id;
+      ObjectKey key(dataset->id);
       datasetMap_[key] = dataSeriesContext;
     }
     else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
@@ -132,8 +131,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         dataSeriesContext->identifier = identifier;
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
-        ObjectKey key;
-        key.objectId_ = dataset->id;
+        ObjectKey key(dataset->id);
         datasetMap_[key] = dataSeriesContext;
       }
     }
@@ -212,7 +210,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
-  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter, remover_);
+  std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter, remover_);
 
   if(seriesMap.empty())
   {
@@ -247,10 +245,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
 
-    ObjectKey key;
-    key.objectId_ = series.dataSet->id;
-    key.dateFilterBegin_ = dateFilterBegin;
-    key.dateFilterEnd_ = dateFilterEnd;
+    ObjectKey key(series.dataSet->id, dateFilterBegin, dateFilterEnd);
     datasetMap_[key] = dataSeriesContext;
   }
 }
@@ -259,10 +254,7 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateFilterBegin;
-  key.dateFilterEnd_ = dateFilterEnd;
+  ObjectKey key(datasetId, dateFilterBegin, dateFilterEnd);
 
   auto it = datasetMap_.find(key);
   if(it == datasetMap_.end())
@@ -277,10 +269,7 @@ bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const Da
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateFilterBegin;
-  key.dateFilterEnd_ = dateFilterEnd;
+  ObjectKey key(datasetId, dateFilterBegin, dateFilterEnd);
 
   auto it = datasetMap_.find(key);
   return it != datasetMap_.end();
@@ -335,7 +324,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
-  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter, remover_);
+  std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter, remover_);
 
 
   if(seriesMap.empty())
@@ -367,10 +356,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
       }
     }
 
-
-    ObjectKey key;
-    key.objectId_ = series.dataSet->id;
-    key.dateFilterBegin_ = dateFilter;
+    ObjectKey key(series.dataSet->id, dateFilter);
     datasetMap_[key] = dataSeriesContext;
   }
 }
@@ -428,9 +414,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredO
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateFilter;
+  ObjectKey key(datasetId, dateFilter);
 
   auto it = bufferDcpMap_.find(key);
   if(it == bufferDcpMap_.end())
@@ -445,8 +429,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(co
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateFilter;
+  ObjectKey key(datasetId, dateFilter);
   bufferDcpMap_[key] = buffer;
 }

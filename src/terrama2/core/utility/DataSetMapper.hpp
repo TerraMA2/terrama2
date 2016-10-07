@@ -34,7 +34,7 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 namespace terrama2
 {
@@ -67,10 +67,10 @@ namespace terrama2
 
       private:
         //! Generates a key-line map
-        std::unordered_map<std::string, size_t> generateStringPkToLineMap(std::shared_ptr<te::da::DataSet> dataSet, std::string pkProperty) const;
+        std::map<std::string, size_t> generateStringPkToLineMap(std::shared_ptr<te::da::DataSet> dataSet, std::string pkProperty) const;
 
         std::shared_ptr<te::da::DataSet> dataSet_;//!< Mapped dataset
-        std::unordered_map<std::string, size_t> lineMap_;//!< Key to line map
+        std::map<std::string, size_t> lineMap_;//!< Key to line map
     };
   } /* core */
 } /* terrama2 */

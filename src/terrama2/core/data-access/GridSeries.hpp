@@ -52,12 +52,12 @@ namespace terrama2
     {
       public:
         //! Add a group of DataSet data to the GridSeries.
-        void addGridSeries(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap);
+        void addGridSeries(std::map<DataSetPtr,DataSetSeries> seriesMap);
         //! Returns a map of DataSetGrid data.
-        inline const std::unordered_multimap<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridMap() const { return rasterMap_; }
+        inline const std::multimap<DataSetGridPtr, std::shared_ptr<te::rst::Raster> >& gridMap() const { return rasterMap_; }
 
       private:
-        std::unordered_multimap<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap_;//!< Map of DataSetGrid data.
+        std::multimap<DataSetGridPtr, std::shared_ptr<te::rst::Raster> > rasterMap_;//!< Map of DataSetGrid data.
 
     };
   }

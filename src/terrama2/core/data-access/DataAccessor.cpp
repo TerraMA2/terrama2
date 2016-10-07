@@ -181,7 +181,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
   return converter;
 }
 
-std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries >
+std::map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries >
 terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<FileRemover> remover) const
 {
 
@@ -203,7 +203,7 @@ terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<Fi
     throw DataProviderException() << ErrorDescription(errMsg);
   }
 
-  std::unordered_map<DataSetPtr,DataSetSeries> series;
+  std::map<DataSetPtr,DataSetSeries> series;
 
   try
   {
