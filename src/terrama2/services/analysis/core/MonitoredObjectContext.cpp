@@ -242,16 +242,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
       }
     }
 
-    // if data projection is in decimal degrees we need to convert it to a meter projection.
-    auto spatialReferenceSystem = te::srs::SpatialReferenceSystemManager::getInstance().getSpatialReferenceSystem(dcpDataset->position->getSRID());
-    std::string unitName = spatialReferenceSystem->getUnitName();
-    if(unitName == "degree")
-    {
-      // Converts the data to UTM
-      int sridUTM = terrama2::core::getUTMSrid(dcpDataset->position.get());
-      dcpDataset->position->transform(sridUTM);
-    }
-
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
 
