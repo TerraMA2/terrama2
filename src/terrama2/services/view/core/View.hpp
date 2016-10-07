@@ -64,26 +64,26 @@ namespace terrama2
         */
         struct View
         {
-          std::string viewName                  = "";
-          ViewId id                             = 0;    //!< View unique identification.
-          ProjectId projectId                   = 0;    //!< Identification of the project owner of the view.
-          ServiceInstanceId serviceInstanceId   = 0;    //!< View service instace where the view should be executed.
+          std::string viewName = "";
+          ViewId id = 0; //!< View unique identification.
+          ProjectId projectId = 0; //!< Identification of the project owner of the view.
+          ServiceInstanceId serviceInstanceId = 0; //!< View service instace where the view should be executed.
 
-          bool active                           = false;//!< Flag if the view is active.
+          bool active = false;//!< Flag if the view is active.
 
-          std::vector< DataSeriesId > dataSeriesList;                                               //!< Ordened list of DataSeries ID that compose this view
-          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries;          //!< List of filters by DataSeries ID
-          std::unordered_map< DataSeriesId, std::unique_ptr<te::se::Style> > stylesPerDataSeries;   //!< List of base styles by DataSeries ID.
+          std::vector< DataSeriesId > dataSeriesList; //!< Ordened list of DataSeries ID that compose this view
+          std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
+          std::unordered_map< DataSeriesId, std::unique_ptr<te::se::Style> > stylesPerDataSeries; //!< List of base styles by DataSeries ID.
 
-          terrama2::core::Schedule schedule;      //!< terrama2::core::Schedule of execution of the view.
+          terrama2::core::Schedule schedule; //!< terrama2::core::Schedule of execution of the view.
 
           // Parameters to generate a image
-          std::string imageName           = "";
-          te::map::ImageType imageType    = te::map::ImageType(1);
-          uint32_t imageResolutionWidth   = 0;    //!< Width resolution of view in pixels
-          uint32_t imageResolutionHeight  = 0;    //!< Height resolution of view in pixels
+          std::string imageName = "";
+          te::map::ImageType imageType = te::map::ImageType(1);
+          uint32_t imageResolutionWidth = 0; //!< Width resolution of view in pixels
+          uint32_t imageResolutionHeight = 0; //!< Height resolution of view in pixels
 
-          uint32_t srid                   = 0;    //!< SRID to aplly in view
+          uint32_t srid = 0; //!< SRID to aplly in view
 
           // Parameter to register view in GeoServer
           te::core::URI maps_server_uri;
