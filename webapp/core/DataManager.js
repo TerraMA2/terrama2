@@ -3254,7 +3254,8 @@ var DataManager = module.exports = {
       models.db.RegisteredView.create(registeredViewObject, options)
         .then(function(viewResult) {
           var promises = registeredViewObject.layers_list.map(function(layer) {
-            return self.addLayer(viewResult.id, {name: layer}, options);
+            // TODO: Currently, layer is a object {layer: layerName}. It must be removed. Layer must be a string
+            return self.addLayer(viewResult.id, {name: layer.layer}, options);
           })
           return Promise.all(promises)
             .then(function(layers) {
@@ -3263,7 +3264,8 @@ var DataManager = module.exports = {
         })
 
         .catch(function(err) {
-          return reject(new Error(Utils.format("Coult not save Registered View due %s", err.toString())));
+          return reject(new exceptions.RegisteredViewErrorr(
+            Utils.format("Coult not save Registered View due %s", err.toString())));
         });
     });
   },
@@ -3290,7 +3292,8 @@ var DataManager = module.exports = {
           }));
         })
         .catch(function(err) {
-          return reject(new Error(Utils.format("Could not retrieve registered views due %s", err.toString())));
+          return reject(new exceptions.RegisteredViewError(
+            Utils.format("Could not retrieve registered views due %s", err.toString())));
         });
     });
   },
@@ -3308,10 +3311,10 @@ var DataManager = module.exports = {
       return self.listRegisteredViews(restriction, Utils.extend(options, {limit: 1}))
         .then(function(registeredViewList) {
           if (registeredViewList.length === 0) {
-            return reject(new Error("No registered views retrieved."));
+            return reject(new exceptions.RegisteredViewError("No registered views retrieved."));
           }
           if (registeredViewList.length > 1) {
-            return reject(new Error("More than one registered view retrieved in get operation"));
+            return reject(new exceptions.RegisteredViewError("More than one registered view retrieved in get operation"));
           }
           return resolve(registeredViewList[0]);
         });
@@ -3329,15 +3332,16 @@ var DataManager = module.exports = {
    */
   upsertLayer: function(restriction, layersObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Layer.upSert(layersObject, Utils.extend({
+      models.db.Layer.upsert(layersObject, Utils.extend({
         where: restriction
       }, options))
-        .then(function(resolve, reject) {
+        .then(function() {
           return resolve();
         })
         
         .catch(function(err) {
-          return reject(new Error(Utils.format("Could not update or insert layer due %s", err.toString())));
+          return reject(new exceptions.RegisteredViewError(
+            Utils.format("Could not update or insert layer due %s", err.toString())));
         });
     });
   }

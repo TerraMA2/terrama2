@@ -3,6 +3,7 @@
   var Utils = require("./../../Utils");
   var PromiseClass = require("bluebird");
   var ServiceTypeError = require("./../../Exceptions").ServiceTypeError;
+  var RegisteredViewError = require("./../../Exceptions").RegisteredViewError;
   var ServiceType = require("./../../Enums").ServiceType;
   /**
    * TerraMA² DataManager module
@@ -80,7 +81,10 @@
           .then(function(registeredView) {
             var promises = [];
             registeredViewObject.layers_list.forEach(function(layer) {
-              promises.push(DataManager.upsertLayer(registeredView.id, {name: layer}, options));
+              promises.push(DataManager.upsertLayer({id: registeredView.id}, {
+                name: layer.layer,
+                registered_view_id: registeredView.id
+              }, options));
             });
             return Promise.all(promises)
               .then(function() {
@@ -89,9 +93,13 @@
           })
           // NotFound... tries to insert a new one
           .catch(function(err) {
-            registeredViewObject.uri = view.maps_server_uri;
-            registeredViewObject.view_id = registeredViewObject.process_id;
-            return DataManager.addRegisteredView(registeredViewObject, options);
+            if (err instanceof RegisteredViewError) {
+              registeredViewObject.uri = registeredViewObject.maps_server_uri;
+              registeredViewObject.view_id = registeredViewObject.process_id;
+              return DataManager.addRegisteredView(registeredViewObject, options);
+            } else {
+              throw err;
+            }
           });
       })
       // on commit
