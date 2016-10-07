@@ -141,7 +141,7 @@ std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::BaseContext
   rasterMap_[key].push_back(cachedRaster);
 
   return cachedRaster;
-};
+}
 
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
 terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager,
