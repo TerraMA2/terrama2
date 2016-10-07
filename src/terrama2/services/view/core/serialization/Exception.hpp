@@ -44,7 +44,7 @@ namespace terrama2
         namespace se
         {
           //! Base exception class for TerraMA2 view data access.
-          struct Exception : virtual terrama2::core::Exception{ };
+          struct SerializationException : virtual terrama2::core::Exception{ };
         } /* da */
       } /* core */
     } /* view */

@@ -317,7 +317,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         QFileInfoList fileInfoList;
         QJsonArray layersArray;
 
-        da::GeoServer geoserver(viewPtr->maps_server_uri);
+        GeoServer geoserver(viewPtr->maps_server_uri);
         geoserver.registerWorkspace();
 
         terrama2::core::DataAccessorPtr dataAccessor =

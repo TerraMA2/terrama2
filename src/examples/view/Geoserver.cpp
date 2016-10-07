@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
     // Make sure to have a geoServer with the below configuration
     te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver");
-    terrama2::services::view::core::da::GeoServer geoserver(uri);
+    terrama2::services::view::core::GeoServer geoserver(uri);
 
     geoserver.registerWorkspace("aworkspace");
 
