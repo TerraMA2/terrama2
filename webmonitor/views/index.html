@@ -22,8 +22,11 @@
 
 <div id="terrama2-map" class="terrama2-map"></div>
 
-
-<!-- Modal -->
+<div id="terrama2-alert" class="alert alert-danger hide">
+  <a href="#" id="close-alert" class="close" aria-label="close">&times;</a>
+  <strong>Invalid URL!</strong> Error to find capabilities.
+</div>
+<!-- Layers Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -78,24 +81,27 @@
 
     function addLayers() {
         var url = document.getElementById("wmsUri").value;
+        if (!url) return;
+        
         var parser = document.createElement('a');
         parser.href = url;
-        var geoUrl = parser.protocol + '//' + parser.host + parser.pathname;
-        if (!url){
-            return;
-        }
+
         jsonData = {
             url: url,
             format: 'xml'
         }
         socket.emit('proxyRequest', jsonData);
-        
     }
 
     socket.on('proxyResponse', function(data){
-        capabilities = TerraMA2WebComponents.MapDisplay.getCapabilitiesLayers(data.msg, document.getElementById("wmsUri").value, 'geoserver', 'Test', 'Test');
-        fillModal(capabilities);
-        $('#myModal').modal('show');
+        try {
+            capabilities = TerraMA2WebComponents.MapDisplay.getCapabilitiesLayers(data.msg, document.getElementById("wmsUri").value, 'geoserver', 'Test', 'Test');
+            fillModal(capabilities);
+            $('#myModal').modal('show');
+        }
+        catch(e) {
+            $("#terrama2-alert").removeClass('hide');
+        }
     })
 
     function fillModal(capabilities) {
@@ -129,7 +135,6 @@
                 }
             }
         }
-
         $("#myModal").modal('hide');
     }
     
@@ -149,6 +154,11 @@
     $('#myModal').on('hidden.bs.modal', function (e) {
         selectedLayers = [];
         $("#layersList").remove();
+    })
+
+    $('#close-alert').on('click', function(){
+        var alertDiv = $(this).closest('div');
+        alertDiv.addClass('hide');
     })
 
     document.getElementById("save-layers").addEventListener("click", saveLayers);

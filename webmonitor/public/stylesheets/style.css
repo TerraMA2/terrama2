@@ -219,3 +219,10 @@
 #layersModal > ul {
   list-style: none;
 }
+
+#terrama2-alert {
+  z-index: 99999;
+  position: fixed;
+  top: 60px;
+  left: 50%;
+}
