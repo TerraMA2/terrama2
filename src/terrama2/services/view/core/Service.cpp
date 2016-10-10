@@ -106,7 +106,7 @@ void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::sha
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    TERRAMA2_LOG_DEBUG() << tr("View added to queue.");
+    TERRAMA2_LOG_DEBUG() << tr("View %1 added to queue.").arg(viewId);
 
     auto datamanager = dataManager_.lock();
     auto view = datamanager->findView(viewId);
@@ -180,6 +180,7 @@ void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
       TERRAMA2_LOG_ERROR() << e.what();
     }
 
+    if(view->active)
     addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
   }
   catch(...)
