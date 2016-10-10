@@ -387,15 +387,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
             std::vector<std::string> tablesNames;
 
-            for(auto& dataset : datasets)
-            {
-              std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
-
-              tablesNames.push_back(tableName);
-            }
-
             QUrl url(inputDataProvider->uri.c_str());
-
             std::map<std::string, std::string> connInfo
             {
               {"PG_HOST", url.host().toStdString()},
@@ -407,14 +399,27 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               {"PG_CLIENT_ENCODING", "UTF-8"}
             };
 
-            for(auto& name : tablesNames)
+            for(auto& dataset : datasets)
             {
-              geoserver.registerPostgisTable(viewPtr->viewName + std::to_string(inputDataSeries->id) + "postgisstore",
+              std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
+              std::string timestampPropertyName;
+              try
+              {
+                timestampPropertyName = dataAccessorPostGis->getTimestampPropertyName(dataset);
+              }
+              catch (...)
+              {
+                /* code */
+              }
+
+              geoserver.registerPostgisTable(inputDataProvider->name,
                                              connInfo,
-                                             name);
+                                             tableName,
+                                             viewPtr->viewName,
+                                             timestampPropertyName);
 
               QJsonObject layer;
-              layer.insert("layer", QString::fromStdString(name));
+              layer.insert("layer", QString::fromStdString(tableName));
               layersArray.push_back(layer);
             }
           }

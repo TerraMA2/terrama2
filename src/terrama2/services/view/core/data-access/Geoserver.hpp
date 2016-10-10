@@ -103,7 +103,9 @@ namespace terrama2
              */
             void registerPostgisTable(const std::string& dataStoreName,
                                       std::map<std::string, std::string> connInfo,
-                                      const std::string& tableName) const;
+                                      const std::string& tableName,
+                                      const std::string& viewName,
+                                      const std::string& timestampPropertyName = "") const;
 
             /*!
              * \brief Method to upload a .zip with the vector files from out of the server to the GeoServer

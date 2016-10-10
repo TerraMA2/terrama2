@@ -89,7 +89,7 @@ int main(int argc, char** argv)
                                                   {"PG_CLIENT_ENCODING", "UTF-8"}
                                                 };
 
-    geoserver.registerPostgisTable("ashapepostgis", connInfo, "muni");
+    geoserver.registerPostgisTable("ashapepostgis", connInfo, "muni", "muni");
 
     // Registering coverages from the same server that GeoServer
     geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/Spot_Vegetacao_Jul2001_SP.tif", "geotiff");
