@@ -76,7 +76,7 @@ namespace terrama2
 
           public slots:
             //! Slot to be called when a DataSetTimer times out.
-            virtual void addToQueue(CollectorId collectorId) noexcept override;
+            virtual void addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
             /*!
               \brief Add a Collector to the service
 

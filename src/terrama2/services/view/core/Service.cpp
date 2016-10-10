@@ -49,6 +49,7 @@
 #include "../../../impl/DataAccessorPostGis.hpp"
 
 #include "../../../core/utility/Timer.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
@@ -100,7 +101,7 @@ void terrama2::services::view::core::Service::prepareTask(ViewId viewId)
   }
 }
 
-void terrama2::services::view::core::Service::addToQueue(ViewId viewId) noexcept
+void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
   try
   {
@@ -179,7 +180,7 @@ void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
       TERRAMA2_LOG_ERROR() << e.what();
     }
 
-    addToQueue(view->id);
+    addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
   }
   catch(...)
   {

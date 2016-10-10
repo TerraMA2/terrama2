@@ -104,7 +104,7 @@ namespace terrama2
         void stopSignal();
         void closeApp();
         //! Emited when a process should be started immediately.
-        void startProcess(uint32_t);
+        void startProcess(uint32_t, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
       private slots:
         //! Slot called when a new conenction arrives.
