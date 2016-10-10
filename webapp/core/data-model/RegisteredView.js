@@ -129,12 +129,13 @@
       id: this.id,
       name: this.view.name,
       workspace: this.workspace,
-      uri: uri,
+      uriGeoserver: uri,
       layers: this.layers.map(function(layer) { return layer.name; }),
       user: this.$uriObject[URISyntax.USER],
       password: this.$uriObject[URISyntax.PASSWORD],
       serverType: "geoserver", // TODO: change it. It should be received from c++ service or even during view registration
-      type: this.dataSeriesType
+      type: this.dataSeriesType,
+      params: {}
     });
   };
 

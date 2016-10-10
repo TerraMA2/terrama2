@@ -75,10 +75,17 @@
       // preparing transaction mode
       return DataManager.orm.transaction(function(t) {
         var options = {transaction: t};
+        var registeredView;
 
         return DataManager.getRegisteredView({view_id: registeredViewObject.process_id}, options)
           // on registeredView retrieved, performs update layers
-          .then(function(registeredView) {
+          .then(function(registeredViewResult) {
+            registeredView = registeredViewResult;
+            // performs update registered view (updated_at)
+            return DataManager.updateRegisteredView({id: registeredView.id}, registeredViewObject, options);
+          })
+
+          .then(function() {
             var promises = [];
             registeredViewObject.layers_list.forEach(function(layer) {
               promises.push(DataManager.upsertLayer({registered_view_id: registeredView.id}, {
@@ -96,7 +103,10 @@
             if (err instanceof RegisteredViewError) {
               registeredViewObject.uri = registeredViewObject.maps_server_uri;
               registeredViewObject.view_id = registeredViewObject.process_id;
-              return DataManager.addRegisteredView(registeredViewObject, options);
+              return DataManager.addRegisteredView(registeredViewObject, options)
+                .then(function(registeredView) {
+                  return DataManager.getRegisteredView({id: registeredView.id}, options);
+                });
             } else {
               throw err;
             }

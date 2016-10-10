@@ -95,7 +95,7 @@
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
             }
 
-            $scope.model = config.view ? config.view.serverUriObject || {} : {};
+            $scope.model = config.view ? config.view.serverUriObject || {} : {port: 8080};
 
             if (self.httpSyntax.display) {
               $scope.form = self.httpSyntax.display;

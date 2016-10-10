@@ -3267,7 +3267,10 @@ var DataManager = module.exports = {
           })
           return Promise.all(promises)
             .then(function(layers) {
-              return resolve(new DataModel.RegisteredView(Utils.extend(viewResult, {layers: layers})));
+              return self.getView({id: viewResult.view_id})
+                .then(function(view) {
+                  return resolve(new DataModel.RegisteredView(Utils.extend(viewResult, {layers: layers, view: view})));
+                });
             });
         })
 
@@ -3381,6 +3384,32 @@ var DataManager = module.exports = {
             return reject(new exceptions.RegisteredViewError("More than one registered view retrieved in get operation"));
           }
           return resolve(registeredViewList[0]);
+        });
+    });
+  },
+  /**
+   * It applies update over registered view.
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} registeredObject - TerraMA² registered object values to update
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  updateRegisteredView: function(restriction, registeredObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.RegisteredView.update(registeredObject, Utils.extend({
+        fields: ['workspace'],
+        where: restriction
+      }, options))
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new exceptions.RegisteredViewError(
+            Utils.format("Could not update registered view due %s", err.toString())));
         });
     });
   },
