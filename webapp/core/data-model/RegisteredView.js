@@ -4,6 +4,13 @@
   // Dependencies
   var AbstractClass = require("./AbstractData");
   var Utils = require("./../Utils");
+  var View = require("./View");
+  var URIBuilder = require("./../UriBuilder");
+  /**
+   * Default URI syntax
+   * @type {Enums.Uri}
+   */
+  var URISyntax = require("./../Enums").Uri;
 
   /**
    * @param {Object} params
@@ -34,13 +41,26 @@
      */
     this.layers = [];
     /**
-     * If defines a view data series dependency. It must be injected using RegisteredView#setDataSeries
-     * @type {DataSeries}
+     * It defines a TerraMA² View object parent 
+     * @type {View}
      */
-    this.dataSeries = null;
+    this.view = null;
+    /**
+     * It defines Data Series Type (static, dynamic, analysis)
+     * @type {string}
+     */
+    this.dataSeriesType = null;
+    /**
+     * It defines a URI object struct.
+     * @type {Object}
+     * @private
+     */
+    this.$uriObject = {};
 
     // setting layers
     this.setLayers(params.Layers || params.layers);
+    // setting parent view
+    this.setView(params.View || params.view);
   }
   // Javascript Object Inheritance Way
   RegisteredView.prototype = Object.create(AbstractClass.prototype);
@@ -63,12 +83,27 @@
     this.layers = output;
   };
   /**
-   * It sets a data series used in views link.
+   * It sets the data series type of View
    * 
-   * @param {DataSeries} dataSeries - TerraMA² View Data Series
+   * @todo Improve it.
+   * @param {string} dsType - Data Series Type
    */
-  RegisteredView.prototype.setDataSeries = function(dataSeries) {
-    this.dataSeries = dataSeries;
+  RegisteredView.prototype.setDataSeriesType = function(dsType) {
+    this.dataSeriesType = dsType;
+  };
+  /**
+   * It sets parent view
+   * 
+   * @throws {Error} When view is invalid
+   * @param {Sequelize.Model|View} view - TerraMA² View
+   */
+  RegisteredView.prototype.setView = function(view) {
+    var viewObj = view;
+    if (Utils.isFunction(view.get)) {
+      viewObj = view.get();
+    }
+    this.view = new View(viewObj);
+    this.$uriObject = URIBuilder.buildObject(this.view.mapsServerUri, URISyntax);
   };
   /**
    * Get real representation of RegisteredView
@@ -84,12 +119,22 @@
    * @returns {Object}
    */
   RegisteredView.prototype.toObject = function() {
+    var uriObject = URIBuilder.buildObject(this.uri, URISyntax);
+    var uri = Utils.format("%s://%s:%s%s", uriObject[URISyntax.SCHEME].toLowerCase(), 
+                                         uriObject[URISyntax.HOST],
+                                         uriObject[URISyntax.PORT],
+                                         uriObject[URISyntax.PATHNAME]);
+
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
+      name: this.view.name,
       workspace: this.workspace,
-      uri: this.uri,
-      layers: this.layers,
-      dataSeries: this.dataSeries
+      uri: uri,
+      layers: this.layers.map(function(layer) { return layer.name; }),
+      user: this.$uriObject[URISyntax.USER],
+      password: this.$uriObject[URISyntax.PASSWORD],
+      serverType: "geoserver", // TODO: change it. It should be received from c++ service or even during view registration
+      type: this.dataSeriesType
     });
   };
 

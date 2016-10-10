@@ -1372,6 +1372,14 @@ var DataManager = module.exports = {
         }).catch(function(err) {
           return reject(err);
         });
+      } else if (restriction && restriction.hasOwnProperty("Analysis")) {
+        return self.listAnalysis({}, options)
+          .then(function(analysisList) {
+            var analysisFilter = new Filters.AnalysisFilter();
+            return resolve(analysisFilter.match(analysisList, {dataSeries: self.data.dataSeries}));
+          })
+          
+          .catch(function(err) { return reject(err) });
       } else {
         var dataSeriesFound = Utils.filter(self.data.dataSeries, restriction);
         dataSeriesFound.forEach(function(dataSeries) {
@@ -1679,7 +1687,7 @@ var DataManager = module.exports = {
 
         if (output.position && format === Enums.Format.WKT) {
           // Getting wkt representation of Point from GeoJSON
-          self.getWKT(output.position).then(function (wktGeom) {
+          return self.getWKT(output.position).then(function (wktGeom) {
             output.positionWkt = wktGeom;
             return resolve(output);
           }).catch(function (err) {
@@ -2926,14 +2934,14 @@ var DataManager = module.exports = {
           promises.push(self.getDataSet({id: analysis.dataset_output}));
         });
 
-        Promise.all(promises).then(function(dataSets) {
+        return Promise.all(promises).then(function(dataSets) {
           promises = [];
 
           dataSets.forEach(function(dataSet) {
             promises.push(self.getDataSeries({id: dataSet.data_series_id}));
           });
 
-          Promise.all(promises).then(function(dataSeriesList) {
+          return Promise.all(promises).then(function(dataSeriesList) {
             analysisResult.forEach(function(analysis) {
               var analysisObject = new DataModel.Analysis(analysis.get());
 
@@ -2953,7 +2961,7 @@ var DataManager = module.exports = {
               output.push(analysisObject);
             });
 
-            resolve(output);
+            return resolve(output);
           }).catch(_reject);
         }).catch(_reject);
       }).catch(_reject);
@@ -3300,30 +3308,50 @@ var DataManager = module.exports = {
       }, options))
         .then(function(registeredViewsResult) {
           registeredViews = registeredViewsResult;
-
-          return self.listDataSeries({}, options);
+          // retrieve all static data series
+          return self.listDataSeries({
+            data_series_semantics: {
+              data_series_type_name: Enums.DataSeriesType.STATIC_DATA
+            }
+          }, options);
         })
-
+        // preparing data series to next handler
+        .then(function(staticDataSeries) {
+          return self.listDataSeries({Collector: {}}, options)
+            .then(function(dynamicDataSeries) {
+              return self.listDataSeries({Analysis: {}}, options)
+                .then(function(analysisDataSeries) {
+                  return {
+                    static: staticDataSeries,
+                    analysis: analysisDataSeries,
+                    dynamic: dynamicDataSeries
+                  }
+                });
+            });
+        })
+        // It will contains a object with data series: {dynamic: [...], static: [...], analysis: [...]}
         .then(function(cachedDataSeries) {
           /**
            * It defines a list of TerraMA² registered views to resolve 
            * @type {RegisteredView[]}
            */
           var output = [];
-          for(var i = 0; i < cachedDataSeries.length; ++i) {
-            var dataSeries = cachedDataSeries[i];
-            for(var j = 0; j < registeredViews.length; ++j) {
-              var registeredView = registeredViews[j];
 
-              if (registeredView.View.data_series_id === dataSeries.id) {
-                // found
-                var dModel = new DataModel.RegisteredView(registeredView.get());
-                dModel.setDataSeries(new DataModel.DataSeries(dataSeries));
-                output.push(dModel);
-                break;
-              }
-            }
-          }
+          registeredViews.forEach(function(registeredView) {
+            Object.keys(cachedDataSeries).some(function(key) {
+              var dataSeriesList = cachedDataSeries[key];
+
+              return dataSeriesList.some(function(dataSeries) {
+                if (dataSeries.id === registeredView.View.data_series_id) {
+                  var dModel = new DataModel.RegisteredView(registeredView.get());
+                  dModel.setDataSeriesType(key);
+                  output.push(dModel);
+                  return true;
+                }
+              });
+            });
+          });
+
           return resolve(output);
         })
 

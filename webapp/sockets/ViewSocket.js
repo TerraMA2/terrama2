@@ -78,6 +78,7 @@
        */
       function onProcessFinished(registeredView) {
         // broadcast to everyone
+        console.log(registeredView.toObject());
         ioSocket.emit("viewReceived", registeredView.toObject());
       }
 

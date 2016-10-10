@@ -3,8 +3,6 @@
 
   // Dependency
   var AbstractClass = require("./AbstractData");
-  var URIBuilder = require("./../UriBuilder");
-  var RegisteredView = require("./RegisteredView");
 
   /**
    * It defines a TerraMA² View representation. 
