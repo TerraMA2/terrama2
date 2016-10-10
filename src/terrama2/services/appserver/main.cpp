@@ -189,9 +189,7 @@ int main(int argc, char* argv[])
       QObject::connect(service.get(), &terrama2::core::Service::processFinishedSignal, tcpManager.get(), &terrama2::core::TcpManager::processFinishedSlot);
       QObject::connect(tcpManager.get(), &terrama2::core::TcpManager::stopSignal, service.get(), &terrama2::core::Service::stopService);
       QObject::connect(service.get(), &terrama2::core::Service::serviceFinishedSignal, &app, &QCoreApplication::quit);
-
-      // QObject::connect(tcpManager.get(), &terrama2::core::TcpManager::closeApp, &app, &QCoreApplication::quit);
-
+      
       app.exec();
     }
 
