@@ -44,20 +44,19 @@ $(function () {
     $(".content").css({'height':($(".content-wrapper").height())+'px'});
 
     $("#Dynamic").find("div").each(function() {
-        $(this).removeClass("terrama2-layerexplorer-plus");
         $(this).addClass("fa fa-exchange");
     });
     $("#Static").find("div").each(function() {
-        $(this).removeClass("terrama2-layerexplorer-plus");
         $(this).addClass("fa fa-folder-o");
     });
     $("#Analysis").find("div").each(function() {
-        $(this).removeClass("terrama2-layerexplorer-plus");
         $(this).addClass("fa fa-tasks");
     });
     $("#Template").find("div").each(function() {
-        $(this).removeClass("terrama2-layerexplorer-plus");
         $(this).addClass("fa fa-map");
+    });
+    $("#Custom").find("div").each(function() {
+        $(this).addClass("fa fa-link");
     });
 
     var leftArrow = "<span class='pull-right-container'> <i class='fa fa-angle-left pull-right'></i> </span>";
@@ -72,6 +71,9 @@ $(function () {
         $(this).append(leftArrow);
     });
     $("#Template").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#Custom").children("span").each(function() {
         $(this).append(leftArrow);
     });
 });

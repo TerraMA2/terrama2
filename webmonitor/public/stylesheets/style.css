@@ -171,12 +171,12 @@
   overflow: hidden;
 }
 
-#Dynamic div, #Static div, #Analysis div, #Template div {
+#Dynamic div, #Static div, #Analysis div, #Template div, #Custom div {
   margin-right: 5px;
   margin-left: 5px;
 }
 
-#Dynamic .pull-right, #Static .pull-right, #Analysis .pull-right, #Template .pull-right{
+#Dynamic .pull-right, #Static .pull-right, #Analysis .pull-right, #Template .pull-right, #Custom .pull-right {
   padding-right: 15px;
 }
 
@@ -207,20 +207,20 @@
   margin-left: 5px;
 }
 
-#layersModal {
+#layersModalBody {
   max-height: 370px;
   overflow: overlay;
 }
 
-#layersModal > ul > li > span {
+#layersModalBody > ul > li > span {
   margin-left: 5px;
 }
 
-#layersModal > ul {
+#layersModalBody > ul {
   list-style: none;
 }
 
-#terrama2-alert {
+#terrama2Alert {
   z-index: 99999;
   position: fixed;
   top: 60px;
