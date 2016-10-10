@@ -422,9 +422,7 @@ void terrama2::core::TcpManager::receiveConnection() noexcept
     if(!tcpSocket)
       return;
 
-    if(tcpSocket_)
-      tcpSocket->close();
-
+//TODO: review if this is needed and if the older socket needs to be closed
     tcpSocket_ = tcpSocket;
 
     connect(tcpSocket, &QTcpSocket::readyRead, this, [this, tcpSocket]() { readReadySlot(tcpSocket);}, Qt::QueuedConnection);
