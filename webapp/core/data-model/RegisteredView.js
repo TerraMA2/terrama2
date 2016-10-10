@@ -13,12 +13,33 @@
    */
   function RegisteredView(params) {
     AbstractClass.call(this, {'class': 'RegisteredView'});
-    
+    /**
+     * Registered View identifier
+     * @type {number}
+     */
     this.id = params.id;
+    /**
+     * It defines a maps server workspace. (GeoServer)
+     * @type {string} 
+     */
     this.workspace = params.workspace;
+    /**
+     * It defines a base URI of layers retrieved from maps server handler
+     * @type {string}
+     */
     this.uri = params.uri;
+    /**
+     * It defines a list of layers registered
+     * @type {string[]}
+     */
     this.layers = [];
+    /**
+     * If defines a view data series dependency. It must be injected using RegisteredView#setDataSeries
+     * @type {DataSeries}
+     */
+    this.dataSeries = null;
 
+    // setting layers
     this.setLayers(params.Layers || params.layers);
   }
   // Javascript Object Inheritance Way
@@ -42,6 +63,14 @@
     this.layers = output;
   };
   /**
+   * It sets a data series used in views link.
+   * 
+   * @param {DataSeries} dataSeries - TerraMA² View Data Series
+   */
+  RegisteredView.prototype.setDataSeries = function(dataSeries) {
+    this.dataSeries = dataSeries;
+  };
+  /**
    * Get real representation of RegisteredView
    * 
    * @returns {Object}
@@ -59,7 +88,8 @@
       id: this.id,
       workspace: this.workspace,
       uri: this.uri,
-      layers: this.layers
+      layers: this.layers,
+      dataSeries: this.dataSeries
     });
   };
 

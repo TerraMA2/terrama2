@@ -3280,17 +3280,53 @@ var DataManager = module.exports = {
   listRegisteredViews: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      /**
+       * It defines a list of model registered views
+       * @type {Sequelize.Model[]}
+       */
+      var registeredViews = [];
+
       return models.db.RegisteredView.findAll(Utils.extend({
         where: restriction,
-        include: {
-          model: models.db.Layer
-        }
+          // joins
+          include: [
+          {
+            model: models.db.Layer
+          },
+          {
+            model: models.db.View  
+          }
+        ]
       }, options))
-        .then(function(registeredViews) {
-          return resolve(registeredViews.map(function(registeredView) {
-            return new DataModel.RegisteredView(registeredView.get());
-          }));
+        .then(function(registeredViewsResult) {
+          registeredViews = registeredViewsResult;
+
+          return self.listDataSeries({}, options);
         })
+
+        .then(function(cachedDataSeries) {
+          /**
+           * It defines a list of TerraMA² registered views to resolve 
+           * @type {RegisteredView[]}
+           */
+          var output = [];
+          for(var i = 0; i < cachedDataSeries.length; ++i) {
+            var dataSeries = cachedDataSeries[i];
+            for(var j = 0; j < registeredViews.length; ++j) {
+              var registeredView = registeredViews[j];
+
+              if (registeredView.View.data_series_id === dataSeries.id) {
+                // found
+                var dModel = new DataModel.RegisteredView(registeredView.get());
+                dModel.setDataSeries(new DataModel.DataSeries(dataSeries));
+                output.push(dModel);
+                break;
+              }
+            }
+          }
+          return resolve(output);
+        })
+
         .catch(function(err) {
           return reject(new exceptions.RegisteredViewError(
             Utils.format("Could not retrieve registered views due %s", err.toString())));
@@ -3321,7 +3357,7 @@ var DataManager = module.exports = {
     });
   },
   /**
-   * It performs an update or insert layer operation. When a layer found, it updates. Otherwise, a new layer will be created
+   * It performs an update or insert layer operation. When a layer found, it updates. Otherwise, a new layer will be created.
    * 
    * @param {Object} restriction - A query restriction
    * @param {Object} layersObject - A Layer object
@@ -3332,13 +3368,27 @@ var DataManager = module.exports = {
    */
   upsertLayer: function(restriction, layersObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Layer.upsert(layersObject, Utils.extend({
+      models.db.Layer.findOne(Utils.extend({
         where: restriction
       }, options))
+        .then(function(layerResult) {
+          // if retrieved a layer, tries update
+          if (layerResult) {
+            return models.db.Layer.update(layersObject, Utils.extend({
+              fields: ['name'],
+              where: {
+                id: layerResult.id
+              }
+            }, options));
+          } else {
+            return self.addLayer(restriction.registered_view_id || layersObject.registered_view_id, layersObject, options)
+          }
+        })
+        // on success insert|update
         .then(function() {
           return resolve();
         })
-        
+
         .catch(function(err) {
           return reject(new exceptions.RegisteredViewError(
             Utils.format("Could not update or insert layer due %s", err.toString())));

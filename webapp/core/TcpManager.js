@@ -426,8 +426,12 @@ TcpManager.prototype.initialize = function(client) {
         // checking Save/Update registered View
         // TODO: check it
       ProcessFinished.handle(response)
-        .then(function(registeredView) {
-          self.emit("processFinished", registeredView);
+        .then(function(targetProcess) {
+          self.emit("processFinished", targetProcess);
+        })
+        
+        .catch(function(err) {
+          console.log(err);
         });
     }
   };

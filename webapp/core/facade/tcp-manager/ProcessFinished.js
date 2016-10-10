@@ -81,7 +81,7 @@
           .then(function(registeredView) {
             var promises = [];
             registeredViewObject.layers_list.forEach(function(layer) {
-              promises.push(DataManager.upsertLayer({id: registeredView.id}, {
+              promises.push(DataManager.upsertLayer({registered_view_id: registeredView.id}, {
                 name: layer.layer,
                 registered_view_id: registeredView.id
               }, options));

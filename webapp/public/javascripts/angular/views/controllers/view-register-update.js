@@ -3,6 +3,7 @@
 
   angular.module("terrama2.views.controllers.viewregisterupdate", [
       "terrama2",
+      "terrama2.services",
       "terrama2.views.services",
       "schemaForm",
       'terrama2.datetimepicker',
@@ -120,7 +121,7 @@
      */
     self.initActive = function() {
       $timeout(function() {
-        self.ctrl.view.active = (self.ctrl.view.active === false || config.view.active) ? false : true;
+        self.view.active = (self.view.active === false || !config.view.active) ? false : true;
       });
     };
 
@@ -149,6 +150,12 @@
     self.close = function() {
       self.MessageBoxService.reset();
     }
+    /**
+     * It handles file upload to retrieve xml style
+     */
+    self.onFileUploadClick = function() {
+      
+    };
 
     /**
      * It performs a save operation. It applies a form validation and try to save

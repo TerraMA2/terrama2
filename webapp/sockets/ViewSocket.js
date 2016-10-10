@@ -10,6 +10,9 @@
    * @param {}
    * @property {Object} ioSocket - Sockets IO object.
    * @property {TcpManager} TcpManager - TerraMA² Tcp Manager
+   * @property {DataManager} DataManager - TerraMA² Data Manager
+   * @property {Object} Utils - TerraMA² global utility module
+   * @property {ServiceType} ServiceType - TerraMA² Service Type enum  
    */
   var ViewSocket = function(io) {
     // Sockets object
@@ -23,9 +26,9 @@
     // retrieving all view services before client connection
     DataManager.listServiceInstances({service_type_id: ServiceType.VIEW})
       .then(function(services) {
-        // register listener
+        // register listener to each view service
         services.forEach(function(service) {
-          // TcpManager.registerListener(service);
+          TcpManager.registerListeners(service);
         });
       })
       
@@ -59,12 +62,29 @@
           });
       }
       /**
-       * It handles client disconnect. It un-register listeners 
+       * It handles client disconnect. 
+       * 
+       * @todo Un-register listeners 
        */
       function onDisconnect() {
         console.log("Disconnected");
+        TcpManager.removeListener('processFinished', onProcessFinished);
+      }
+      /**
+       * It emits a received registered view to the listeners
+       * 
+       * @param {RegisteredView}
+       * @returns {void}
+       */
+      function onProcessFinished(registeredView) {
+        // broadcast to everyone
+        ioSocket.emit("viewReceived", registeredView.toObject());
       }
 
+      // registering Tcp Manager events listeners
+      TcpManager.on("processFinished", onProcessFinished);
+
+      // Registering front end client listeners
       client.on("viewRequest", onViewRequest);
       client.on("disconnect", onDisconnect);
     });

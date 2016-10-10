@@ -509,5 +509,14 @@
 	" seconds": {
 		"": " seconds."
 	},
-	"Maps Server Parameters": "Maps Server Parameters"
+	"Maps Server Parameters": "Maps Server Parameters",
+	"PostGis occurrence": "PostGis occurrence",
+	"INPE's Wildland Fire Program": "INPE's Wildland Fire Program",
+	"INPE's DCP data format": "INPE's DCP data format",
+	"TOA5 DCP format": "TOA5 DCP format",
+	"DCP PostGIS": "DCP PostGIS",
+	"GeoTIFF grid": "GeoTIFF grid",
+	"Monitored object analysis result": "Monitored object analysis result",
+	"GrADS": "GrADS",
+	"Dynamic Data Registration": "Dynamic Data Registration"
 }
