@@ -90,7 +90,7 @@ namespace terrama2
             /*!
               \brief Adds the analysis to the queue of execution.
              */
-            virtual void addToQueue(AnalysisId analysisId) noexcept override;
+            virtual void addToQueue(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
 
 
             /*!

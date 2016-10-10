@@ -118,7 +118,7 @@ namespace terrama2
 
       public slots:
 
-        virtual void addToQueue(ProcessId processId) noexcept = 0;
+        virtual void addToQueue(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept = 0;
 
         /*!
            \brief  Stops the service.
