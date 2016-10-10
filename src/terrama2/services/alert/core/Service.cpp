@@ -90,7 +90,7 @@ void terrama2::services::alert::core::Service::prepareTask(std::pair<AlertId, st
   }
 }
 
-void terrama2::services::alert::core::Service::addToQueue(AlertId alertId) noexcept
+void terrama2::services::alert::core::Service::addToQueue(AlertId alertId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
   try
   {
@@ -167,7 +167,7 @@ void terrama2::services::alert::core::Service::addAlert(AlertPtr alert) noexcept
       TERRAMA2_LOG_ERROR() << e.what();
     }
 
-    addToQueue(alert->id);
+    addToQueue(alert->id, terrama2::core::TimeUtils::nowUTC());
   }
   catch(...)
   {

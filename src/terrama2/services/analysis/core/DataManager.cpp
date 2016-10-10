@@ -127,7 +127,7 @@ void terrama2::services::analysis::core::DataManager::removeAnalysis(const Analy
     auto itPr = analysis_.find(analysisId);
     if(itPr == analysis_.end())
     {
-      QString errMsg = QObject::tr("Analysis not registered.");
+      QString errMsg = QObject::tr("Analysis not registered: %1.").arg(analysisId);
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
@@ -148,7 +148,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
                                 { return analysisPair.second->id == analysisId; });
   if(it == analysis_.cend())
   {
-    QString errMsg = QObject::tr("Analysis not registered.");
+    QString errMsg = QObject::tr("Analysis not registered: %1.").arg(analysisId);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
