@@ -135,7 +135,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
         "<entry key=\"time\">"
           "<dimensionInfo>"
             "<enabled>true</enabled>"
-            "<attribute>data_pas</attribute>"
+            "<attribute>"+timestampPropertyName+"</attribute>"
             "<presentation>CONTINUOUS_INTERVAL</presentation>"
             "<units>ISO8601</units>"
             "<defaultValue>"
