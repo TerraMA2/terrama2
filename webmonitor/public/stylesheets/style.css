@@ -25,7 +25,7 @@
 
 #show-menu .sidebar-toggle {
   float: left;
-  background-color: transparent;
+  background-color: white;
   background-image: none;
   padding: 15px 15px;
   font-family: fontAwesome;
@@ -161,4 +161,73 @@
 #content {
   height: inherit;
   padding: 0;
+}
+
+.sidebar-menu > div {
+  color: #b8c7ce;
+}
+
+#terrama2-layerexplorer:hover {
+  overflow: hidden;
+}
+
+#dynamic div, #static div, #analysis div, #template div, #custom div {
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+#dynamic .pull-right, #static .pull-right, #analysis .pull-right, #template .pull-right, #custom .pull-right {
+  padding-right: 15px;
+}
+
+.terrama2-layerexplorer-minus, .terrama2-layerexplorer-plus {
+  background-image: none !important;
+  float: none !important;
+  width: 14px !important;
+}
+
+.sidebar-mini.sidebar-collapse #terrama2-layerexplorer > li > span > span{
+  display: none;
+}
+
+.sidebar-mini.sidebar-collapse #terrama2-layerexplorer {
+  width: 230px;
+}
+
+.sidebar-mini.sidebar-collapse #terrama2-layerexplorer li{
+  background-color: #222d32;
+}
+.sidebar-mini.sidebar-collapse #terrama2-layerexplorer li:hover > span > span {
+  display: inline;
+  overflow: visible !important;
+}
+
+#wmsUri {
+  width: 168px;
+  margin-left: 5px;
+}
+
+#layersModalBody {
+  max-height: 370px;
+  overflow: overlay;
+}
+
+#layersModalBody > ul > li > span {
+  margin-left: 5px;
+}
+
+#layersModalBody > ul {
+  list-style: none;
+}
+
+#terrama2Alert {
+  z-index: 99999;
+  position: fixed;
+  top: 60px;
+  left: 50%;
+}
+
+#terrama2-sortlayers ul {
+  list-style: none;
+  padding-left: 10px;
 }
