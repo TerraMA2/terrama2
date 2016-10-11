@@ -463,7 +463,7 @@
 	"Data Server protocol is required": "Data Server protocol is required",
 	"Data Server": "Data Server",
 	"All rights reserved": "All rights reserved",
-	"Data Servers": "Data Servers",bapp/locales/en_US.json.LOCAL.30193.json
+	"Data Servers": "Data Servers",
 	"Grid": "Grid",
 	"Data Server Registration": "Data Server Registration",
 	"Data Server Name": "Data Server Name",
@@ -523,5 +523,6 @@
 	"Static Data Registration": "Static Data Registration",
 	"File static data": "File static data",
 	"PostGIS static data": "PostGIS static data",
-	"Message": "Message"
+	"Message": "Message",
+	"Note": " No storager configuration, this data will be accessed when needed."
 }
