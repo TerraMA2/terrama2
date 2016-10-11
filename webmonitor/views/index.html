@@ -2,22 +2,233 @@
 
 {% block title %} TerraMA² Monitor {% endblock %} 
 
+{% block styles %}
+
+<link rel="stylesheet" type="text/css" href="external/openlayers/ol.css">
+<link rel="stylesheet" type="text/css" href="external/TerraMA2WebComponents/TerraMA2WebComponents.min.css">
+
+{% endblock %}
+{% block sidebar-list %}
+
+<div id="terrama2-layerexplorer"></div>
+<form class="form-inline"> 
+    <div class="form-group">
+        <input id='wmsUri' class="form-control" type='text' placeholder='WMS URI'> <button id='addLayers' type='button' class="btn btn-default">Add</button>
+    </div>
+</form>
+<li class="header">VISIBLE LAYERS</li>
+<div id="terrama2-sortlayers"></div>
+{% endblock %}
+
 {% block content %}
 
-<div id="map" class="map"></div>
-<script type="text/javascript">
-    var map = new ol.Map({
-    target: 'map',
-    layers: [
-        new ol.layer.Tile({
-        source: new ol.source.OSM()
-        })
-    ],
-    view: new ol.View({
-        center: ol.proj.fromLonLat([37.41, 8.82]),
-        zoom: 4
-    })
+<div id="terrama2-map" class="terrama2-map"></div>
+
+<!-- Alert message -->
+<div id="terrama2Alert" class="alert alert-danger hide">
+  <a href="#" id="close-alert" class="close" aria-label="close">&times;</a>
+  <strong>Invalid URL!</strong> Error to find capabilities.
+</div>
+
+<!-- Layers Modal -->
+<div class="modal fade" id="layersModal" tabindex="-1" role="dialog" aria-labelledby="layersModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="layersModalLabel">Layers</h4>
+      </div>
+      <div id="layersModalBody" class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button id="closeLayers" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="saveLayers" type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/jquery/dist/jquery.min.js"></script>
+<script src="external/openlayers/ol.js"></script>
+<script src="external/TerraMA2WebComponents/TerraMA2WebComponents.min.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script src="https://gist.github.com/jlong/2428561.js"></script>
+<script>
+
+    var allLayers = [];
+    var visibleLayers = [];
+
+    TerraMA2WebComponents.LayerExplorer.init();
+    TerraMA2WebComponents.MapDisplay.init();
+
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "Custom", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push("custom");
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Template", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push("template");
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static Data", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push("static");
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic Data", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push("dynamic");
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push("analysis");
+
+    var socket = io.connect(':3001');
+    var wepappsocket = io.connect(':36000');
+    wepappsocket.emit('viewRequest');
+    wepappsocket.on("viewResponse", function (data){
+        for (i in data){
+            for (l in data[i].layers){
+                var workspace = data[i].workspace;
+                var layerName = data[i].layers[l];
+                var uriGeoServer = data[i].uriGeoserver;
+                var serverType = data[i].serverType;
+                var layerId = workspace + ":" + layerName;
+                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer"))
+                    TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
+                    allLayers.push(layerId);
+            }
+        }
+        addLayersToSort();
+        setSortable();
     });
+
+    function addLayers() {
+        var url = document.getElementById("wmsUri").value;
+        if (!url) return;
+        
+        jsonData = {
+            url: url,
+            format: 'xml'
+        }
+        socket.emit('proxyRequest', jsonData);
+    }
+
+    socket.on('proxyResponse', function(data){
+        try {
+            capabilities = TerraMA2WebComponents.MapDisplay.getCapabilitiesLayers(data.msg, document.getElementById("wmsUri").value, 'geoserver', 'Test', 'Test');
+            fillModal(capabilities);
+            $('#layersModal').modal('show');
+        }
+        catch(e) {
+            $("#terrama2Alert").removeClass('hide');
+        }
+    })
+
+    function fillModal(capabilities) {
+        var lis = "";
+        var check = "<input type='checkbox' class='terrama2-layerviews-checkbox'/>";
+        for (i in capabilities) {
+            lis += '<li data-layerid="' + capabilities[i].name +'">' + check + '<span>' + capabilities[i].title + '</span>' + '</li>';
+        }
+        var htmlList = '<ul id="layersList">' + lis + '</ul>';
+        $('#layersModalBody').append(htmlList);
+    }
+
+    var selectedLayers = [];
+
+    function saveLayers() {
+        var url = document.getElementById("wmsUri").value;
+        var parser = document.createElement('a');
+        parser.href = url;
+        var geoUrl = parser.protocol + '//' + parser.host + parser.pathname;
+
+        selectedLayers.forEach(addInLayerExplorer);
+
+        function addInLayerExplorer(element, index, array){
+            for (i in capabilities){
+                if (capabilities[i].name == element){
+                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer"))
+                        TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "Custom", true, "unsortable", null);
+                        allLayers.push(capabilities[i].name);
+                        addLayerToSort(capabilities[i].name);
+                }
+            }
+        }
+        $("#layersModal").modal('hide');
+    }
+    
+    document.getElementById("addLayers").addEventListener("click", addLayers);
+
+    $('#layersModalBody').on('click', 'input.terrama2-layerviews-checkbox', function() {
+        var layerid = $(this).closest('li').data('layerid');
+        var index = selectedLayers.indexOf(layerid);
+        if (index > -1){
+            selectedLayers.splice(index, 1);
+        }
+        else {
+            selectedLayers.push(layerid);
+        }
+    });
+
+    $('#layersModal').on('hidden.bs.modal', function(e) {
+        selectedLayers = [];
+        $("#layersList").remove();
+    })
+
+    $('#close-alert').on('click', function(){
+        var alertDiv = $(this).closest('div');
+        alertDiv.addClass('hide');
+    })
+
+    document.getElementById("saveLayers").addEventListener("click", saveLayers);
+
+    $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(){
+        var layerid = $(this).closest('li').data('layerid');
+        if (layerid.includes(':')){
+            layerid = layerid.replace(':','')
+        }
+        var index = visibleLayers.indexOf(layerid);
+        if (index > -1){
+            $('#terrama2-sortlayers').find('li#' + layerid).addClass('hide');
+            visibleLayers.splice(index, 1);
+        }
+        else {
+            $('#terrama2-sortlayers').find('li#' + layerid).removeClass('hide');
+            visibleLayers.push(layerid);
+        }
+    });
+
+    function addLayersToSort(){
+        var itens = "";
+        var allLayersLength = allLayers.length;
+        for (i = allLayersLength -1; i >= 0; i--){
+            var layerId = allLayers[i];
+            if (layerId.includes(':')){
+                layerId = layerId.replace(':','')
+            }
+            itens += '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i] + '</li>';
+        }
+        var list = '<ul>' + itens + '</ul>';
+        $('#terrama2-sortlayers').append(list);
+    }
+
+    function setSortable(){
+        $('#terrama2-sortlayers').sortable({
+          items: "li",
+          start: function(event, ui) {
+            $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
+          },
+          update: function(event, ui) {
+            TerraMA2WebComponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
+            $(this).removeAttr('data-previndex');
+          }
+        });
+    }
+
+    function addLayerToSort(layerName){
+        var layerId = layerName;
+        if (layerId.includes(':')){
+            layerId = layerId.replace(':','')
+        }
+        var liHtml = '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + layerName + '</li>';
+        $('#terrama2-sortlayers').children('ul').prepend(liHtml);
+    }
+
 </script>
 
 {% endblock %}
