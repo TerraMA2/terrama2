@@ -234,6 +234,7 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
   //TODO: adds to queue, is this expected? remove and then add?
+  removeView(view);
   addView(view);
 }
 
