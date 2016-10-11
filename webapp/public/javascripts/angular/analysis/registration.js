@@ -731,6 +731,8 @@ angular.module('terrama2.analysis.registration', [
         case globals.enums.AnalysisType.MONITORED:
           analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
           $scope.metadata[$scope.targetDataSeries.name]['identifier'] = $scope.identifier;
+          // setting monitored object id in output data series format
+          $scope.modelStorager.monitored_object_id = $scope.targetDataSeries.id;
           break;
       }
 

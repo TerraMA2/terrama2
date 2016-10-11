@@ -45,7 +45,7 @@ module.exports = function(app) {
               // try to save
               DataManager.addDataProvider(dataProviderObject).then(function(result) {
                 Utils.sendDataToServices(DataManager, TcpManager, {
-                  "DataProviders": [dataProvider.toObject()]
+                  "DataProviders": [result.toObject()]
                 });
                 // generating token
                 var token = Utils.generateToken(app, TokenCode.SAVE, result.name);

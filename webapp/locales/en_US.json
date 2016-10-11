@@ -518,5 +518,10 @@
 	"GeoTIFF grid": "GeoTIFF grid",
 	"Monitored object analysis result": "Monitored object analysis result",
 	"GrADS": "GrADS",
-	"Dynamic Data Registration": "Dynamic Data Registration"
+	"Dynamic Data Registration": "Dynamic Data Registration",
+	"The process was started successfully": "The process was started successfully",
+	"Static Data Registration": "Static Data Registration",
+	"File static data": "File static data",
+	"PostGIS static data": "PostGIS static data",
+	"Message": "Message"
 }
