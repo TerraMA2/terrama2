@@ -16,10 +16,12 @@ var CollectorFilter = module.exports = function() {};
 CollectorFilter.prototype = Object.create(Filter.prototype);
 CollectorFilter.prototype.constructor = CollectorFilter;
 
-
 /**
+ * It applies a filter over data series to retrieve all the dynamic data series
+ *  
  * @param {Array<Collector>} collectors - An array of TerraMA2 collectors
- * @param {Object} extra - An extra object with following syntax: {"dataSeries": Array<DataSeries>"}
+ * @param {Object} extra - An extra object to help filter
+ * @param {Array<DataSeries>} extra.dataSeries - Data Series to filter
  * @return {Array<DataSeries>} It retrieves a filtered data series from collector
  */
 CollectorFilter.prototype.match = function(collectors, extra) {

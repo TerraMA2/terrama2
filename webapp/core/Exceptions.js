@@ -339,3 +339,17 @@ errors.ServiceTypeError = function(message) {
   this.name = 'ServiceTypeError';
 };
 util.inherits(errors.ServiceTypeError, errors.BaseError);
+
+
+/**
+ * Thrown when Registered View has inconsistent data
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.RegisteredViewError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'RegisteredViewError';
+};
+util.inherits(errors.RegisteredViewError, errors.BaseError);
