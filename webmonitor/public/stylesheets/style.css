@@ -226,3 +226,8 @@
   top: 60px;
   left: 50%;
 }
+
+#terrama2-sortlayers ul {
+  list-style: none;
+  padding-left: 10px;
+}

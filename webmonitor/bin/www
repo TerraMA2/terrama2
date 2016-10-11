@@ -11,7 +11,6 @@ var http = require('http');
 var io = require('socket.io')();
 
 io.on('connection', function(socket){
-  console.log('a user connected');
   socket.on('request', function(){
     var layers = [
         {
