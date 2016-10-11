@@ -139,7 +139,7 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
       }
       else
       {
-        secondsToStart = (startDate->getTimeInstantTZ().local_time().time_of_day() - nowTZ->getTimeInstantTZ().local_time().time_of_day()).total_seconds();
+        secondsToStart = *startDate - *nowTZ;
       }
     }
   }
