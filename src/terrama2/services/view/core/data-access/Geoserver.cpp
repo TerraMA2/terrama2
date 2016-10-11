@@ -94,7 +94,9 @@ const std::string& terrama2::services::view::core::GeoServer::workspace() const
 
 void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
                                                                    std::map<std::string, std::string> connInfo,
-                                                                   const std::string& tableName) const
+                                                                   const std::string& tableName,
+                                                                   const std::string& viewName,
+                                                                   const std::string& timestampPropertyName) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -123,7 +125,29 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   te::core::URI uriPostLayer(uriPost.uri() + "/" + dataStoreName +"/featuretypes");
 
-  xml = "<featureType><name>"+ tableName + "</name></featureType>";
+  xml = "<featureType>"
+          "<title>" + viewName + "</title>"
+          "<name>"+ tableName + "</name>";
+
+  if(!timestampPropertyName.empty())
+  {
+    xml +="<metadata>"
+        "<entry key=\"time\">"
+          "<dimensionInfo>"
+            "<enabled>true</enabled>"
+            "<attribute>"+timestampPropertyName+"</attribute>"
+            "<presentation>CONTINUOUS_INTERVAL</presentation>"
+            "<units>ISO8601</units>"
+            "<defaultValue>"
+              "<strategy>MAXIMUM</strategy>"
+            "</defaultValue>"
+          "</dimensionInfo>"
+        "</entry>"
+        "<entry key=\"cachingEnabled\">false</entry>"
+      "</metadata>";
+  }
+
+  xml += "</featureType>";
 
   // Publish layer
   cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
