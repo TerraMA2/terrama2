@@ -134,13 +134,8 @@ void terrama2::core::Timer::prepareTimer(const Schedule& dataSchedule)
       {
         // If the time to start has already passed, set the start time to tomorrow
         terrama2::core::TimeUtils::addDay(startDate, 1);
-
-        secondsToStart = *startDate - *nowTZ;
       }
-      else
-      {
         secondsToStart = *startDate - *nowTZ;
-      }
     }
   }
   else if(dataSchedule.schedule > 0)
