@@ -144,8 +144,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "output.shp");
-  //  dataSet->format.emplace("mask", "estados_2010.shp");
+  dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
   dataSet->id = 1;
   dataSet->dataSeriesId = 1;

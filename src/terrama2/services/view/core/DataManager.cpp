@@ -78,7 +78,7 @@ void terrama2::services::view::core::DataManager::add(terrama2::services::view::
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    TERRAMA2_LOG_DEBUG() << tr("View added");
+    TERRAMA2_LOG_DEBUG() << tr("View %1 added").arg(view->id);
     view_[view->id] = view;
   }
 

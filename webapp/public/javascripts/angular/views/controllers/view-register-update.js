@@ -3,6 +3,7 @@
 
   angular.module("terrama2.views.controllers.viewregisterupdate", [
       "terrama2",
+      "terrama2.services",
       "terrama2.views.services",
       "schemaForm",
       'terrama2.datetimepicker',
@@ -94,7 +95,7 @@
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
             }
 
-            $scope.model = config.view ? config.view.serverUriObject || {} : {};
+            $scope.model = config.view ? config.view.serverUriObject || {} : {port: 8080};
 
             if (self.httpSyntax.display) {
               $scope.form = self.httpSyntax.display;
@@ -113,6 +114,16 @@
 
     // Setting view service dao
     self.ViewService = ViewService;
+    /**
+     * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
+     * 
+     * @returns {void}
+     */
+    self.initActive = function() {
+      $timeout(function() {
+        self.view.active = (self.view.active === false || !config.view.active) ? false : true;
+      });
+    };
 
     /**
      * It contains all forms. It must be appended on scope instance due schema form support;
@@ -139,6 +150,12 @@
     self.close = function() {
       self.MessageBoxService.reset();
     }
+    /**
+     * It handles file upload to retrieve xml style
+     */
+    self.onFileUploadClick = function() {
+      
+    };
 
     /**
      * It performs a save operation. It applies a form validation and try to save
@@ -150,7 +167,12 @@
       // broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
 
-      if ($scope.forms.viewForm.$invalid || $scope.forms.connectionForm.$invalid) {
+      var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+
+      if ($scope.forms.viewForm.$invalid || 
+          $scope.forms.connectionForm.$invalid ||
+          scheduleForm.$invalid ||
+          $scope.forms.dataSeriesForm.$invalid) {
         return;
       }
 

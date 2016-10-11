@@ -101,12 +101,12 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
         auto lastProcess = logger_->getLastProcessTimestamp(analysis->id);
         terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
         timers_.emplace(analysisId, timer);
-
+      }
+      else
+      {
+        addToQueue(analysisId, terrama2::core::TimeUtils::nowUTC());
       }
 
-      //TODO: Should use the timer and pass the right time of execution
-      // add to queue to run now
-      addToQueue(analysisId);
     }
 
   }
@@ -205,7 +205,7 @@ void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysi
 }
 
 
-void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId) noexcept
+void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
   try
   {

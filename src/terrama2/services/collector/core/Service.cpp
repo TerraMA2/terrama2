@@ -42,6 +42,7 @@
 #include "../../../core/data-access/DataStorager.hpp"
 
 #include "../../../core/utility/Timer.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
@@ -82,7 +83,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 {
   try
   {
-    taskQueue_.emplace(std::bind(&collect, collectorId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, collectorId, logger_, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -90,7 +91,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
   }
 }
 
-void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId) noexcept
+void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
   try
   {
@@ -211,6 +212,10 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
 
     logger->done(lastDateTime, logId);
+    QJsonObject jsonAnswer;
+    jsonAnswer.insert("process_id", static_cast<int>(collectorPtr->id));
+
+    emit processFinishedSignal(jsonAnswer);
   }
   catch(const terrama2::Exception&)
   {
@@ -298,7 +303,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
       TERRAMA2_LOG_ERROR() << e.what();
     }
 
-    addToQueue(collector->id);
+    addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
   }
   catch(...)
   {

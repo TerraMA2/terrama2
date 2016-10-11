@@ -36,6 +36,11 @@
 #include "Shared.hpp"
 #include "DataManager.hpp"
 #include "ViewLogger.hpp"
+#include "../../../core/data-model/Filter.hpp"
+#include "../../../core/utility/FileRemover.hpp"
+
+// Qt
+#include "QFileInfoList"
 
 namespace terrama2
 {
@@ -65,7 +70,7 @@ namespace terrama2
         public slots:
 
           //! Slot to be called when a DataSetTimer times out.
-          virtual void addToQueue(ViewId viewId) noexcept override;
+          virtual void addToQueue(ViewId viewId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
 
           /*!
             \brief Add a View to the service
@@ -101,6 +106,17 @@ namespace terrama2
 
           //! Connects signals from DataManager
           void connectDataManager();
+
+          void viewJob(ViewId viewId,
+                       std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
+                       std::weak_ptr<DataManager> weakDataManager);
+
+          template< typename Accessor >
+          QFileInfoList dataSeriesFileList(const std::vector< terrama2::core::DataSetPtr > datasets,
+                                           const terrama2::core::DataProviderPtr inputDataProvider,
+                                           const terrama2::core::Filter filter,
+                                           const std::shared_ptr<terrama2::core::FileRemover> remover,
+                                           const Accessor dataAccessor);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 

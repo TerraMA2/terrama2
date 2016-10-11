@@ -36,16 +36,7 @@
       objToSend.Views.push(args.toObject());
     }
 
-    DataManager.listServiceInstances({service_type_id: Enums.ServiceType.VIEW})
-      .then(function(services) {
-        try {
-          services.forEach(function(service) {
-            TcpManager.sendData(service, objToSend);
-          });
-        } catch (err) {
-          console.log(err);
-        }
-      });
+    Utils.sendDataToServices(DataManager, TcpManager, objToSend);
   }
   /**
    * It applies a save operation and send views to the service
@@ -64,6 +55,10 @@
         viewObject.maps_server_uri = requester.uri;
         // setting current project scope
         viewObject.project_id = projectId;
+        // setting empty style if there is not
+        if (!viewObject.style) {
+          viewObject.style = "";
+        }
 
         return DataManager.addSchedule(viewObject.schedule, options)
           .then(function(schedule) {

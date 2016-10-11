@@ -106,8 +106,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
       dataSeriesContext->identifier = identifier;
       dataSeriesContext->geometryPos = geomPropertyPosition;
 
-      ObjectKey key;
-      key.objectId_ = dataset->id;
+      ObjectKey key(dataset->id);
       datasetMap_[key] = dataSeriesContext;
     }
     else if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_PCD_TYPE)
@@ -132,8 +131,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         dataSeriesContext->identifier = identifier;
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
-        ObjectKey key;
-        key.objectId_ = dataset->id;
+        ObjectKey key(dataset->id);
         datasetMap_[key] = dataSeriesContext;
       }
     }
@@ -244,23 +242,10 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
       }
     }
 
-    // if data projection is in decimal degrees we need to convert it to a meter projection.
-    auto spatialReferenceSystem = te::srs::SpatialReferenceSystemManager::getInstance().getSpatialReferenceSystem(dcpDataset->position->getSRID());
-    std::string unitName = spatialReferenceSystem->getUnitName();
-    if(unitName == "degree")
-    {
-      // Converts the data to UTM
-      int sridUTM = terrama2::core::getUTMSrid(dcpDataset->position.get());
-      dcpDataset->position->transform(sridUTM);
-    }
-
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
 
-    ObjectKey key;
-    key.objectId_ = series.dataSet->id;
-    key.dateFilterBegin_ = dateFilterBegin;
-    key.dateFilterEnd_ = dateFilterEnd;
+    ObjectKey key(series.dataSet->id, dateFilterBegin, dateFilterEnd);
     datasetMap_[key] = dataSeriesContext;
   }
 }
@@ -269,28 +254,23 @@ std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2:
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateFilterBegin;
-  key.dateFilterEnd_ = dateFilterEnd;
+  ObjectKey key(datasetId, dateFilterBegin, dateFilterEnd);
 
-  auto it = datasetMap_.find(key);
-  if(it == datasetMap_.end())
+  try
+  {
+    return datasetMap_.at(key);
+  }
+  catch (const std::out_of_range&)
   {
     return std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries>();
   }
-
-  return it->second;
 }
 
 bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const DataSetId datasetId, const std::string& dateFilterBegin, const std::string& dateFilterEnd) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateFilterBegin;
-  key.dateFilterEnd_ = dateFilterEnd;
+  ObjectKey key(datasetId, dateFilterBegin, dateFilterEnd);
 
   auto it = datasetMap_.find(key);
   return it != datasetMap_.end();
@@ -298,14 +278,14 @@ bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const Da
 
 void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(terrama2::core::DataSeriesPtr dataSeries,
     std::shared_ptr<te::gm::Geometry> envelope,
-    const std::string& dateFilter, bool createSpatialIndex)
+    const std::string& dateFilterBegin, bool createSpatialIndex)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   bool needToAdd = false;
   for(auto dataset : dataSeries->datasetList)
   {
-    if(!exists(dataset->id, dateFilter))
+    if(!exists(dataset->id, dateFilterBegin))
     {
       needToAdd = true;
       break;
@@ -333,9 +313,9 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
 
   filter.discardAfter = startTime_;
 
-  if(!dateFilter.empty())
+  if(!dateFilterBegin.empty())
   {
-    double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilter, "SECOND", "h");
+    double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilterBegin, "SECOND", "h");
 
     ldt -= boost::posix_time::seconds(seconds);
 
@@ -378,9 +358,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
     }
 
 
-    ObjectKey key;
-    key.objectId_ = series.dataSet->id;
-    key.dateFilterBegin_ = dateFilter;
+    ObjectKey key(series.dataSet->id, dateFilterBegin);
     datasetMap_[key] = dataSeriesContext;
   }
 }
@@ -392,11 +370,11 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addAttribute(co
   attributes_.insert(attribute);
 }
 
-void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResult(const std::string& geomId, const std::string& attribute, double result)
+void terrama2::services::analysis::core::MonitoredObjectContext::setAnalysisResult(const int index, const std::string& attribute, double result)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  auto& attributeMap = analysisResult_[geomId];
+  auto& attributeMap = analysisResult_[index];
   attributeMap[attribute] = result;
 }
 
@@ -438,25 +416,22 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredO
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateFilter;
+  ObjectKey key(datasetId, dateFilter);
 
-  auto it = bufferDcpMap_.find(key);
-  if(it == bufferDcpMap_.end())
+  try
+  {
+    return bufferDcpMap_.at(key);
+  }
+  catch (const std::out_of_range&)
   {
     return std::shared_ptr<te::gm::Geometry>();
   }
-
-  return it->second;
 }
 
 void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const std::string& dateFilter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key;
-  key.objectId_ = datasetId;
-  key.dateFilterBegin_ = dateFilter;
+  ObjectKey key(datasetId, dateFilter);
   bufferDcpMap_[key] = buffer;
 }

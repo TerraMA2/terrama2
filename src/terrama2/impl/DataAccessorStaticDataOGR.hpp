@@ -36,6 +36,7 @@
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/data-model/DataSet.hpp"
 #include "../core/data-model/Filter.hpp"
+#include "../core/data-access/DataAccessorGeometricObject.hpp"
 
 // TerraLib
 #include <terralib/memory/DataSet.h>
@@ -54,7 +55,7 @@ namespace terrama2
       \brief DataAccessor class for static data accessed via OGR driver.
 
     */
-    class DataAccessorStaticDataOGR : public DataAccessorFile
+    class DataAccessorStaticDataOGR : public DataAccessorGeometricObject, public DataAccessorFile
     {
       public:
 

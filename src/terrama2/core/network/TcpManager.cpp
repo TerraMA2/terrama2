@@ -25,6 +25,7 @@
 #include "TcpSignals.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/ServiceManager.hpp"
+#include "../utility/TimeUtils.hpp"
 #include "../data-model/DataManager.hpp"
 
 // Qt
@@ -67,6 +68,7 @@ terrama2::core::TcpManager::TcpManager(std::weak_ptr<terrama2::core::DataManager
                                        std::weak_ptr<terrama2::core::ProcessLogger> logger,
                                        QObject* parent)
   : QTcpServer(parent),
+    tcpSocket_(nullptr),
     blockSize_(0),
     dataManager_(dataManager),
     logger_(logger)
@@ -113,7 +115,7 @@ void terrama2::core::TcpManager::sendStartProcess(const QByteArray& bytearray)
       auto array = obj["ids"].toArray();
       for(auto value : array)
       {
-        startProcess(value.toInt());
+        startProcess(value.toInt(), terrama2::core::TimeUtils::nowUTC());
       }
     }
     else
@@ -421,6 +423,9 @@ void terrama2::core::TcpManager::receiveConnection() noexcept
     if(!tcpSocket)
       return;
 
+//TODO: review if this is needed and if the older socket needs to be closed
+    tcpSocket_ = tcpSocket;
+
     connect(tcpSocket, &QTcpSocket::readyRead, this, [this, tcpSocket]() { readReadySlot(tcpSocket);}, Qt::QueuedConnection);
   }
   catch(...)
@@ -428,6 +433,31 @@ void terrama2::core::TcpManager::receiveConnection() noexcept
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
+
+  return;
+}
+
+void terrama2::core::TcpManager::processFinishedSlot(QJsonObject answer) noexcept
+{
+  TERRAMA2_LOG_INFO() << QObject::tr("Sending process finished information...");
+
+  answer.insert("instance_id", static_cast<int>(serviceManager_->instanceId()));
+  QJsonDocument doc(answer);
+
+  QByteArray bytearray;
+  QDataStream out(&bytearray, QIODevice::WriteOnly);
+
+  out << static_cast<uint32_t>(0);
+  out << static_cast<uint32_t>(TcpSignal::PROCESS_FINISHED_SIGNAL);
+  out << doc.toJson(QJsonDocument::Compact);
+  bytearray.remove(8, 4);//Remove QByteArray header
+  out.device()->seek(0);
+  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
+
+  // wait while sending message
+  qint64 written = tcpSocket_->write(bytearray);
+  if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
+    TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
 
   return;
 }

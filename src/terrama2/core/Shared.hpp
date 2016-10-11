@@ -64,9 +64,9 @@ namespace terrama2
     class OccurrenceSeries;
     //! Shared smart pointer for OccurrenceSeries
     typedef std::shared_ptr<terrama2::core::OccurrenceSeries> OccurrenceSeriesPtr;
-    class MonitoredObjectSeries;
-    //! Shared smart pointer for MonitoredObjectSeries
-    typedef std::shared_ptr<terrama2::core::MonitoredObjectSeries> MonitoredObjectSeriesPtr;
+    class GeometricObjectSeries;
+    //! Shared smart pointer for GeometricObjectSeries
+    typedef std::shared_ptr<terrama2::core::GeometricObjectSeries> GeometricObjectSeriesPtr;
 
     class DataAccessor;
     //! Shared smart pointer for DataAccessor

@@ -53,11 +53,6 @@ namespace terrama2
         */
         QJsonObject toJson(ViewPtr view);
 
-        /*!
-          \brief Creates a style XML file compatible with GeoServer
-        */
-        void writeStyleGeoserverXML(const te::se::Style* style, std::string path);
-
       } // end namespace core
     }   // end namespace view
   }     // end namespace services

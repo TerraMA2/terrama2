@@ -34,6 +34,7 @@
 
 // TerraLib
 #include "Typedef.hpp"
+#include "Shared.hpp"
 #include "../../../core/Typedef.hpp"
 
 
@@ -53,6 +54,7 @@ namespace terrama2
         {
           int32_t index = -1; //!< Geometry index of the monitored object.
           AnalysisHashCode analysisHashCode = 0; //!< Hashcode of current analysis.
+          terrama2::services::analysis::core::AnalysisPtr analysisPtr;
           int32_t row = -1; //!< Output raster row.
           int32_t column = -1; //!< Output raster column.
           double sum = 0; //!< Result of the sum.

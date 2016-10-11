@@ -325,7 +325,12 @@ module.exports = {
       value: 4
     }
   },
-
+  /**
+   * List of available operators for deep search using Utils.find and Utils.filter
+   * 
+   * @readonly
+   * @enum {string}
+   */
   Operators: {
     EQUAL: "$eq",
     GREATER_THAN: "$gt",

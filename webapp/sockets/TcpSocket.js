@@ -67,6 +67,7 @@ var TcpSocket = function(io) {
         client.emit('statusResponse', {
           status: 200,
           service: service.id,
+          shutting_down: response.shutting_down,
           loading: false,
           online: Object.keys(response).length > 0
         });
@@ -118,7 +119,6 @@ var TcpSocket = function(io) {
 
     // tcp listeners
     TcpManager.on('serviceStarted', onServiceStarted);
-    TcpManager.on('serviceConnected', onServiceConnected);
     TcpManager.on('statusReceived', onStatusReceived);
     TcpManager.on('logReceived', onLogReceived);
     TcpManager.on('stop', onStop);
@@ -212,7 +212,7 @@ var TcpSocket = function(io) {
         // notify every one with loading
         iosocket.emit('statusResponse', {
           status: 200,
-          loading: true,
+          checking: true,
           online: false,
           service: instance.id
         });

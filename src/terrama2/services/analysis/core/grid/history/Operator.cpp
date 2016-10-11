@@ -109,6 +109,7 @@ const std::string& dateFilterEnd)
       }
 
       std::vector<double> samples;
+      samples.reserve(rasterList.size());
       for(const auto& raster : rasterList)
       {
         auto dsGrid = raster->getGrid();
@@ -170,7 +171,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
   bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
+  auto analysis = cache.analysisPtr;
 
   try
   {
@@ -213,7 +214,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(
 
       try
       {
-        auto samples = sample(cache, dataSeriesName, dateFilterBegin, dateFilterEnd);
+        std::vector<double> samples = sample(cache, dataSeriesName, dateFilterBegin, dateFilterEnd);
 
         hasData = !samples.empty();
 

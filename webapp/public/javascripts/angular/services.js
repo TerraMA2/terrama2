@@ -43,11 +43,11 @@ angular.module("terrama2.services", ['terrama2'])
       },
 
       post: function(dataSeriesObject) {
-        return $HttpSync.post(url, dataSeriesObject);
+        return $http.post(url, dataSeriesObject);
       },
 
       put: function(dataSeriesId, dataSeriesObject) {
-        return $HttpSync.put(url + "/" + dataSeriesId, dataSeriesObject);
+        return $http.put(url + "/" + dataSeriesId, dataSeriesObject);
       }
     };
   }])
@@ -251,7 +251,31 @@ angular.module("terrama2.services", ['terrama2'])
       }
 
       reader.readAsText(fileBlob);
-    }
+    };
+    /**
+     * It reads XML file loaded from dialog
+     * 
+     * @param {Blob} fileBlob - A javascript blob with file result
+     * @param {Function<Error|string>} callback - A callback function to handle reader async. 
+     */
+    dialogs.readAsXML = function(fileBlob, callback) {
+      if (!fileBlob) {
+        return callback(new Error("Invalid file"));
+      }
+
+      var reader = new FileReader();
+      reader.onload = function(file) {
+        // detecting dom parser
+        if (window.DOMParser) {
+          parser = new DOMParser();
+          xmlDoc = parser.parseFromString(reader.result, "text/xml");
+        } else {
+          xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+          xmlDoc.async = false;
+          xmlDoc.loadXML(reader.result);
+        }
+      };
+    };
 
     return dialogs;
   }])

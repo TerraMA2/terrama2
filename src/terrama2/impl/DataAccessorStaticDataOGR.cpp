@@ -38,6 +38,7 @@
 
 terrama2::core::DataAccessorStaticDataOGR::DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
 : DataAccessor(dataProvider, dataSeries, filter),
+  DataAccessorGeometricObject(dataProvider, dataSeries, filter),
   DataAccessorFile(dataProvider, dataSeries, filter)
 {
  if(dataSeries->semantics.code != "STATIC_DATA-ogr")

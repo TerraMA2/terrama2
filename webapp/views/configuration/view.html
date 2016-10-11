@@ -114,7 +114,7 @@
                     <input type="checkbox" 
                            name="active" 
                            ng-model="ctrl.view.active"
-                           ng-init="ctrl.view.active = configuration.view.active || true"> <span ng-bind="i18n.__('Active Server')"></span>
+                           ng-init="ctrl.initActive()"> <span ng-bind="i18n.__('Active')"></span>
                   </label>
                 </div>
               </div>
@@ -136,22 +136,29 @@
       </form>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Parameters')" css="ctrl.css">
+    <terrama2-box title="i18n.__('Maps Server Parameters')" css="ctrl.css">
       <form name="forms.connectionForm" sf-schema="schema" sf-form="form" sf-model="model"></form>
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Data Series')" css="ctrl.css">
-      <div class="col-md-6">
-        <div class="form-group">
-          <label><span ng-bind="i18n.__('View Data Series')"></span>:</label>
-          <select class="form-control" 
-                  name="dataSeries" 
-                  ng-model="ctrl.view.data_series_id"
-                  ng-options="dSeries.id as dSeries.name for dSeries in ctrl.dataSeries" 
-                  required>
-          </select>
+      <form name="forms.dataSeriesForm">
+        <div class="col-md-6">
+          <div class="form-group" terrama2-show-errors>
+            <label><span ng-bind="i18n.__('View Data Series')"></span>:</label>
+            <select class="form-control" 
+                    name="dataSeries" 
+                    ng-model="ctrl.view.data_series_id"
+                    ng-options="dSeries.id as dSeries.name for dSeries in ctrl.dataSeries" 
+                    required>
+            </select>
+
+            <span class="help-block" 
+              ng-show="forms.dataSeriesForm.dataSeries.$dirty && forms.dataSeriesForm.dataSeries.$error.required"
+              ng-bind="i18n.__('Data Series is required')">
+            </span>
+          </div>
         </div>
-      </div>
+      </form>
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Schedule')" css="ctrl.css">

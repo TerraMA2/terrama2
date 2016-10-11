@@ -50,6 +50,7 @@ add_library(terrama2_view_core SHARED ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES
 qt5_use_modules(terrama2_view_core Core)
 
 target_link_libraries(terrama2_view_core terrama2_core
+                                        terrama2_impl
                                         terralib_mod_maptools
                                         terralib_mod_qt_widgets
                                         terralib_mod_ws_core

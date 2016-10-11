@@ -29,6 +29,7 @@
 
 //TerraMA2
 #include "DataAccessorOccurrence.hpp"
+#include "OccurrenceSeries.hpp"
 #include "DataRetriever.hpp"
 #include "../utility/Logger.hpp"
 #include "../Exception.hpp"

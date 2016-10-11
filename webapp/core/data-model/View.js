@@ -3,8 +3,6 @@
 
   // Dependency
   var AbstractClass = require("./AbstractData");
-  var URIBuilder = require("./../UriBuilder");
-  var RegisteredView = require("./RegisteredView");
 
   /**
    * It defines a TerraMA² View representation. 
@@ -27,7 +25,7 @@
      * TerraMA² Project identifier
      * @type {number}
      */
-    this.projectId = params.project_id;
+    this.projectId = params.project_id || params.projectId;
     /**
      * View description
      * @type {string}
@@ -37,7 +35,7 @@
      * View server URI. The server may be a GeoServer
      * @type {string}
      */
-    this.mapsServerUri = params.maps_server_uri;
+    this.mapsServerUri = params.maps_server_uri || params.mapsServerUri;
     /**
      * View style script
      * @type {string}
@@ -52,7 +50,7 @@
      * Data series associated
      * @type {DataSeries}
      */
-    this.dataSeries = params.data_series_id;
+    this.dataSeries = params.data_series_id || params.dataSeries;
     /**
      * Schedule associated
      * @type {Schedule}
@@ -67,7 +65,7 @@
      * TerraMA² Service Instance Identifier
      * @type {number}
      */
-    this.serviceInstanceId = params.service_instance_id;
+    this.serviceInstanceId = params.service_instance_id || params.serviceInstanceId;
   }
 
   View.prototype = Object.create(AbstractClass.prototype);

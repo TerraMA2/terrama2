@@ -264,10 +264,63 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
   return std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 }
 
+QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::string& uri,
+                                                                    const std::string& mask,
+                                                                    const std::string& timezone,
+                                                                    const Filter& filter,
+                                                                    std::shared_ptr<terrama2::core::FileRemover> remover)
+{
+  QUrl url;
+
+  url = QUrl(QString::fromStdString(uri));
+
+  QDir dir(url.path());
+  QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+  if(fileInfoList.empty())
+  {
+    QString errMsg = QObject::tr("No file in folder: %1.").arg(QString::fromStdString(uri));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw NoDataException() << ErrorDescription(errMsg);
+  }
+
+  boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
+
+  std::string tempFolderPath;
+  //fill file list
+  QFileInfoList newFileInfoList;
+  for(const auto& fileInfo : fileInfoList)
+  {
+    std::string name = fileInfo.fileName().toStdString();
+    std::string folderPath = dir.absolutePath().toStdString();
+
+
+    std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
+    // Verify if the file name matches the mask
+    if(!isValidDataSetName(mask, filter, timezone, name, thisFileTimestamp))
+      continue;
+
+    if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
+    {
+      //unpack files
+      tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover, tempFolderPath);
+      QDir tempDir(QString::fromStdString(tempFolderPath));
+      QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+
+      newFileInfoList.append(fileList);
+    }
+    else
+    {
+      newFileInfoList.append(fileInfo);
+    }
+  }
+
+  return newFileInfoList;
+}
+
 terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
-    const terrama2::core::Filter& filter,
-    terrama2::core::DataSetPtr dataSet,
-    std::shared_ptr<terrama2::core::FileRemover> remover) const
+                                                                          const terrama2::core::Filter& filter,
+                                                                          terrama2::core::DataSetPtr dataSet,
+                                                                          std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
   QUrl url;
   try
@@ -277,15 +330,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   catch(UndefinedTagException&)
   {
     url = QUrl(QString::fromStdString(uri));
-  }
-
-  QDir dir(url.path());
-  QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-  if(fileInfoList.empty())
-  {
-    QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw NoDataException() << ErrorDescription(errMsg);
   }
 
   //return value
@@ -310,34 +354,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     timezone = "UTC+00";
   }
 
-  std::string tempFolderPath;
   //fill file list
-  QFileInfoList newFileInfoList;
-  for(const auto& fileInfo : fileInfoList)
-  {
-    std::string name = fileInfo.fileName().toStdString();
-    std::string folderPath = dir.absolutePath().toStdString();
-
-
-    std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
-    // Verify if the file name matches the mask
-    if(!isValidDataSetName(getMask(dataSet), filter, timezone, name, thisFileTimestamp))
-      continue;
-
-    if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
-    {
-      //unpack files
-      tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover, tempFolderPath);
-      QDir tempDir(QString::fromStdString(tempFolderPath));
-      QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-
-      newFileInfoList.append(fileList);
-    }
-    else
-    {
-      newFileInfoList.append(fileInfo);
-    }
-  }
+  QFileInfoList newFileInfoList = getDataFileInfoList(url.toString().toStdString(), getMask(dataSet), timezone, filter, remover);
 
   bool first = true;
   for(const auto& fileInfo : newFileInfoList)
@@ -457,6 +475,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   return series;
 }
 
+
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDataLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSet> teDataSet) const
 {
   size_t propertiesNumber = teDataSet->getNumProperties();
@@ -523,3 +542,4 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
 
   return lastDateTimeTz;
 }
+
