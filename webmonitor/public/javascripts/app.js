@@ -43,37 +43,37 @@ $(function () {
     $(".terrama2-map").width("auto");
     $(".content").css({'height':($(".content-wrapper").height())+'px'});
 
-    $("#Dynamic").find("div").each(function() {
+    $("#dynamic").find("div").each(function() {
         $(this).addClass("fa fa-exchange");
     });
-    $("#Static").find("div").each(function() {
+    $("#static").find("div").each(function() {
         $(this).addClass("fa fa-folder-o");
     });
-    $("#Analysis").find("div").each(function() {
+    $("#analysis").find("div").each(function() {
         $(this).addClass("fa fa-tasks");
     });
-    $("#Template").find("div").each(function() {
+    $("#template").find("div").each(function() {
         $(this).addClass("fa fa-map");
     });
-    $("#Custom").find("div").each(function() {
+    $("#custom").find("div").each(function() {
         $(this).addClass("fa fa-link");
     });
 
     var leftArrow = "<span class='pull-right-container'> <i class='fa fa-angle-left pull-right'></i> </span>";
     
-    $("#Dynamic").children("span").each(function() {
+    $("#dynamic").children("span").each(function() {
         $(this).append(leftArrow);
     });
-    $("#Static").children("span").each(function() {
+    $("#static").children("span").each(function() {
         $(this).append(leftArrow);
     });
-    $("#Analysis").children("span").each(function() {
+    $("#analysis").children("span").each(function() {
         $(this).append(leftArrow);
     });
-    $("#Template").children("span").each(function() {
+    $("#template").children("span").each(function() {
         $(this).append(leftArrow);
     });
-    $("#Custom").children("span").each(function() {
+    $("#custom").children("span").each(function() {
         $(this).append(leftArrow);
     });
 });

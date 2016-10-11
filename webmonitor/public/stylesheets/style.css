@@ -171,12 +171,12 @@
   overflow: hidden;
 }
 
-#Dynamic div, #Static div, #Analysis div, #Template div, #Custom div {
+#dynamic div, #static div, #analysis div, #template div, #custom div {
   margin-right: 5px;
   margin-left: 5px;
 }
 
-#Dynamic .pull-right, #Static .pull-right, #Analysis .pull-right, #Template .pull-right, #Custom .pull-right {
+#dynamic .pull-right, #static .pull-right, #analysis .pull-right, #template .pull-right, #custom .pull-right {
   padding-right: 15px;
 }
 
