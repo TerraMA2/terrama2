@@ -2597,7 +2597,6 @@ var DataManager = module.exports = {
       var dataSet;
       var dataSeries;
       var scheduleResult;
-      var scheduleResult;
       var historicalData;
       var scriptLanguageResult;
       models.db.Analysis.create(analysisObject, options)
