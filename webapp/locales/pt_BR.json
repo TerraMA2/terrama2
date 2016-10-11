@@ -1,9 +1,9 @@
 {
-	"Static Data": "Dados Estático",
+	"Static Data": "Dados Estáticos",
 	"User": "Usuário",
 	"Online": "Online",
 	"Main Navigation": "Navegação Principal",
-	"Dynamic Data": "Dados Dinâmico",
+	"Dynamic Data": "Dados Dinâmicos",
 	"Analysis": "Análises",
 	"Users": "Usuários",
 	"Administration": "Administração",
@@ -486,5 +486,9 @@
 	"Monitored object analysis result": "Resultado de análise com Objeto Monitorado",
 	"GeoTIFF grid": "Grade GeoTIFF",
 	"GrADS": "Formato GrADS",
-	"Dynamic Data Registration": "Dynamic Data Registration"
+	"Dynamic Data Registration": "Registro de Dado Dinâmico",
+	"Static Data Registration": "Registro de Dado Estático",
+	"File static data": "Arquivo de Dado Estático",
+	"PostGIS static data": "Dado Estático PostGIS",
+	"Message": "Mensagem"
 }
