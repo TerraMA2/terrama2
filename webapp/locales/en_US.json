@@ -523,5 +523,6 @@
 	"Static Data Registration": "Static Data Registration",
 	"File static data": "File static data",
 	"PostGIS static data": "PostGIS static data",
-	"Message": "Message"
+	"Message": "Message",
+	"Note": " No storager configuration, this data will be accessed when needed."
 }
