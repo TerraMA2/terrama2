@@ -42,6 +42,8 @@ function parseByteArray(byteArray) {
  * 
  * @class Service
  * @param {Service} serviceInstance - A TerraMA² service instance
+ * 
+ * @fires Service#processFinished
  */
 var Service = module.exports = function(serviceInstance) {
   EventEmitter.call(this);
@@ -101,6 +103,16 @@ var Service = module.exports = function(serviceInstance) {
           break;
         case Signals.TERMINATE_SERVICE_SIGNAL:
           self.emit("stop", parsed);
+          break;
+        case Signals.PROCESS_FINISHED_SIGNAL:
+          /**
+           * Used to notify when a process has been finished. C++ service emits a processed data to save
+           * and delivery to user
+           * 
+           * @event Service#processFinished
+           * @type {Object}
+           */
+          self.emit("processFinished", parsed.message);
           break;
       }
 

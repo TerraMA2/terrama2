@@ -12,10 +12,18 @@ var Process = require('./Process');
 var Executor = require('./Executor');
 var Promise = require('bluebird');
 
+// Facades
+var ProcessFinished = require("./facade/tcp-manager/ProcessFinished");
 
-var TcpManager = function() {
+/**
+ * It handles entire TCP communication between TerraMA² NodeJS application and C++ Services
+ * 
+ * @inherits EventEmitter
+ * @class TcpManager
+ */
+var TcpManager = module.exports = function() {
   EventEmitter.call(this);
-
+  // registering self listeners
   this.on('startService', this.startService);
   this.on('stopService', this.stopService);
   this.on('sendData', this.sendData);
@@ -27,7 +35,7 @@ var TcpManager = function() {
 
   this.registered = false;
 };
-
+// NodeJs helper to make inherited class
 NodeUtils.inherits(TcpManager, EventEmitter);
 
 
@@ -150,37 +158,40 @@ TcpManager.prototype.$send = function(serviceInstance, data, signal) {
 }
 
 /**
- This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
- @param {ServiceInstance} serviceInstance - a terrama2 service instance
- @param {Object} data - a javascript object message to send
+ * This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
+ * 
+ * @param {ServiceInstance} serviceInstance - a terrama2 service instance
+ * @param {Object} data - a javascript object message to send
  */
 TcpManager.prototype.sendData = function(serviceInstance, data) {
   this.$send(serviceInstance, data, Signals.ADD_DATA_SIGNAL);
 };
 
 /**
- This method send a START_PROCESS_SIGNAL with json process ids.
- @param {ServiceInstance} serviceInstance - a terrama2 service instance
- @param {Json} data - A Json with type and process ids
+ * This method send a START_PROCESS_SIGNAL with json process ids.
+ * 
+ * @param {ServiceInstance} serviceInstance - a terrama2 service instance
+ * @param {Json} data - A Json with type and process ids
  */
 TcpManager.prototype.startProcess = function(serviceInstance, data){
   this.$send(serviceInstance, data, Signals.START_PROCESS_SIGNAL);
 }
 
 /**
- This method sends a REMOVE_DATA_SIGNAL with bytearray to tcp socket. It is async
- @param {ServiceInstance} serviceInstance - a terrama2 service instance
- @param {Object} data - a javascript object message to send
+ * This method sends a REMOVE_DATA_SIGNAL with bytearray to tcp socket. It is async
+ * 
+ * @param {ServiceInstance} serviceInstance - a terrama2 service instance
+ * @param {Object} data - a javascript object message to send
  */
 TcpManager.prototype.removeData = function(serviceInstance, data) {
   this.$send(serviceInstance, data, Signals.REMOVE_DATA_SIGNAL);
 };
 
-
 /**
- This method sends a LOG_SIGNAL with bytearray to tcp socket. It is async
- @param {ServiceInstance} serviceInstance - a terrama2 service instance
- @param {Object} data - a javascript object message to send
+ * This method sends a LOG_SIGNAL with bytearray to tcp socket. It is async
+ * 
+ * @param {ServiceInstance} serviceInstance - a terrama2 service instance
+ * @param {Object} data - a javascript object message to send
  */
 TcpManager.prototype.logData = function(serviceInstance, data) {
   var self = this;
@@ -236,29 +247,20 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
 };
 
 /**
- This method sends a UPDATE_SERVICE_SIGNAL with service instance values to tcp socket.
- @param {ServiceInstance} serviceInstance - a terrama2 service instance
- @return {Promise} a bluebird promise
+ * This method sends a UPDATE_SERVICE_SIGNAL with service instance values to tcp socket.
+ * 
+ * @param {ServiceInstance} serviceInstance - a terrama2 service instance
+ * @return {Promise} a bluebird promise
  */
 TcpManager.prototype.updateService = function(serviceInstance) {
-  var self = this;
-  try {
-    var buffer = self.makebuffer(Signals.UPDATE_SERVICE_SIGNAL, serviceInstance.toObject());
-
-    console.log(buffer.toString());
-    var client = _getClient(serviceInstance);
-
-    client.update(buffer);
-
-  } catch (e) {
-    this.emit('tcpError', serviceInstance, e);
-  }
+  this.$send(serviceInstance, serviceInstance.toObject(), Signals.UPDATE_SERVICE_SIGNAL);
 };
 
 /**
- This method connects via ssh to service host and sends terminal command to start service.
- @param {ServiceInstance} serviceInstance - a terrama2 service instance
- @return {Promise} a bluebird promise
+ * This method connects via ssh to service host and sends terminal command to start service.
+ * 
+ * @param {ServiceInstance} serviceInstance - a terrama2 service instance
+ * @return {Promise} a bluebird promise
  */
 TcpManager.prototype.startService = function(serviceInstance) {
   var self = this;
@@ -284,8 +286,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
     }).catch(function(err) {
       console.log('ssh startservice error');
       console.log(err);
-      reject(err);
-      // self.emit('tcpError', serviceInstance, err);
+      return reject(err);
     });
   });
 };
@@ -416,6 +417,25 @@ TcpManager.prototype.initialize = function(client) {
     self.emit('logReceived', client.service, response);
   };
 
+  /**
+   * It listens when Tcp service C++ execution is done
+   * @param {Object} response - It contains a C++ service object response
+   */
+  var onProcessFinished = function(response) {
+    if (Utils.isObject(response)) {
+        // checking Save/Update registered View
+        // TODO: check it
+      return ProcessFinished.handle(response)
+        .then(function(targetProcess) {
+          self.emit("processFinished", targetProcess);
+        })
+        
+        .catch(function(err) {
+          console.log(err);
+        });
+    }
+  };
+
   var onStop = function(response) {
     self.emit('stop', client.service, response);
   };
@@ -431,6 +451,9 @@ TcpManager.prototype.initialize = function(client) {
   client.on('status', onStatus);
 
   client.on('log', onLog);
+
+  // Registering On Process Finished listener
+  client.on("processFinished", onProcessFinished);
 
   // terminate signal
   client.on('stop', onStop);

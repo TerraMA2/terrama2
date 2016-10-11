@@ -6,6 +6,7 @@ var ValidationError = require('./../../core/Exceptions').ValidationError;
 var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
+var TcpManager = require("./../../core/TcpManager");
 
 module.exports = function(app) {
   return {
@@ -43,6 +44,9 @@ module.exports = function(app) {
 
               // try to save
               DataManager.addDataProvider(dataProviderObject).then(function(result) {
+                Utils.sendDataToServices(DataManager, TcpManager, {
+                  "DataProviders": [dataProvider.toObject()]
+                });
                 // generating token
                 var token = Utils.generateToken(app, TokenCode.SAVE, result.name);
                 response.json({status: 200, result: result.toObject(), token: token});
@@ -106,6 +110,9 @@ module.exports = function(app) {
         dataProviderId = parseInt(dataProviderId);
         DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
           DataManager.getDataProvider({id: dataProviderId, project_id: app.locals.activeProject.id}).then(function(dProvider) {
+            Utils.sendDataToServices(DataManager, TcpManager, {
+              "DataProviders": [dProvider.toObject()]
+            });
             // generating token
             var token = Utils.generateToken(app, TokenCode.UPDATE, dProvider.name);
 
@@ -130,9 +137,20 @@ module.exports = function(app) {
       if (id) {
         id = parseInt(id);
         DataManager.getDataProvider({id: id}).then(function(dProvider) {
-          DataManager.removeDataProvider({id: id}).then(function() {
-          // generating token
-            response.json({status: 200, name: dProvider.name});
+          DataManager.removeDataProvider({id: id}).then(function(dataProvider, dataSeries) {
+            DataManager.listServiceInstances({})
+              .then(function(services) {
+                var objectToSend = {
+                  "DataProvider": [dProvider.id],
+                  "DataSeries": dataSeries.map(function(dSeries) { return dSeries.id; })
+                };
+
+                services.forEach(function(service) {
+                  TcpManager.emit('removeData', service, objectToSend);
+                });
+              });
+            // generating token
+            return response.json({status: 200, name: dProvider.name});
           }).catch(function(err) {
             Utils.handleRequestError(response, err, 400);
           });

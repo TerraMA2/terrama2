@@ -73,9 +73,10 @@ void terrama2::core::Timer::timeoutSlot() noexcept
 {
   try
   {
-    emit timeoutSignal(impl_->processId_);
+    auto now = terrama2::core::TimeUtils::nowUTC();
+    emit timeoutSignal(impl_->processId_, now);
 
-    impl_->lastEmit_ = terrama2::core::TimeUtils::nowUTC();
+    impl_->lastEmit_ = now;
     prepareTimer(impl_->dataSchedule_);
   }
   catch (...)

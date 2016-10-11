@@ -10,5 +10,5 @@ var Signals = module.exports = {
   LOG_SIGNAL: 4, // Log signal, send error message to node.js server
   REMOVE_DATA_SIGNAL: 5, // Used for remove data
   PROCESS_FINISHED_SIGNAL: 6, // Used to notify process has been finalized
-  UPDATE_SERVICE_SIGNAL: 7 // Used to update service data. It is mandatory when a service has been initialized.
+  UPDATE_SERVICE_SIGNAL: 7, // Used to update service data. It is mandatory when a service has been initialized.
 };

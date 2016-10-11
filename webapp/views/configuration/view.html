@@ -114,7 +114,7 @@
                     <input type="checkbox" 
                            name="active" 
                            ng-model="ctrl.view.active"
-                           ng-init="ctrl.view.active = configuration.view.active || true"> <span ng-bind="i18n.__('Active Server')"></span>
+                           ng-init="ctrl.initActive()"> <span ng-bind="i18n.__('Active')"></span>
                   </label>
                 </div>
               </div>

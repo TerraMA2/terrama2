@@ -42,6 +42,7 @@
 #include "../../../core/data-access/DataStorager.hpp"
 
 #include "../../../core/utility/Timer.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
@@ -90,7 +91,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
   }
 }
 
-void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId) noexcept
+void terrama2::services::collector::core::Service::addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
   try
   {
@@ -302,7 +303,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
       TERRAMA2_LOG_ERROR() << e.what();
     }
 
-    addToQueue(collector->id);
+    addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
   }
   catch(...)
   {

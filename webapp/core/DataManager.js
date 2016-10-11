@@ -34,9 +34,6 @@ var fs = require('fs');
 var path = require('path');
 var Filters = require("./filters");
 
-// Tcp
-var TcpManager = require('./TcpManager');
-
 // data model
 var DataModel = require('./data-model');
 
@@ -87,7 +84,6 @@ var DataManager = module.exports = {
   isLoaded: false,
 
   Promise: Promise,
-  TcpManager: TcpManager,
   DataModel: DataModel,
   /**
    * It defines a orm instance
@@ -1177,23 +1173,6 @@ var DataManager = module.exports = {
           dProvider.data_provider_type = dataProviderType.get();
           self.data.dataProviders.push(dProvider);
 
-          var d = new DataModel.DataProvider(dProvider);
-
-          // sending to all services
-          self.listServiceInstances().then(function(servicesInstance) {
-            var dataToSend = {"DataProviders": [d.toObject()]};
-
-            servicesInstance.forEach(function(service) {
-              try {
-                TcpManager.emit('sendData', service, dataToSend);
-              } catch (e) {
-
-              }
-            });
-          }).catch(function(err) {
-            console.log(err);
-          });
-          
           return resolve(dProvider);
         }).catch(function(err) {
           console.log(err);
@@ -1280,19 +1259,6 @@ var DataManager = module.exports = {
 
           dataProvider.active = dataProviderObject.active;
 
-          self.listServiceInstances({}, options).then(function(services) {
-            services.forEach(function(service) {
-              try {
-                console.log("Sending Add_signal to update");
-                TcpManager.emit('sendData', service, {
-                  "DataProviders": [dataProvider.toObject()]
-                });
-              } catch (e) {
-
-              }
-            });
-          }).catch(function(err) { });
-
           return resolve(new DataModel.DataProvider(dataProvider));
         }).catch(function(err) {
           return reject(new exceptions.DataProviderError("Could not update data provider ", err));
@@ -1319,31 +1285,13 @@ var DataManager = module.exports = {
       var provider = Utils.remove(self.data.dataProviders, dataProviderParam);
       if (provider) {
         models.db.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
-          var objectToSend = {
-            "DataProvider": [provider.id],
-            "DataSeries": []
-          };
-          return self.listServiceInstances({}, options).then(function(services) {
-            // remove data series
-            var dataSeriesList = Utils.removeAll(self.data.dataSeries, {data_provider_id: provider.id});
-            dataSeriesList.forEach(function(dataSeries) {
-              var dSets = Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
-            });
-
-            // sending Remove signal
-            services.forEach(function(service) {
-              try {
-                TcpManager.emit('removeData', service, objectToSend);
-              } catch (e) {
-                console.log(e);
-              }
-            });
-
-            return resolve();
-          }).catch(function(err) {
-            console.log(err);
-            return reject(err);
+          // remove data series
+          var dataSeriesList = Utils.removeAll(self.data.dataSeries, {data_provider_id: provider.id});
+          dataSeriesList.forEach(function(dataSeries) {
+            var dSets = Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
           });
+
+          return resolve(provider, dataSeriesList);
         }).catch(function(err) {
           console.log(err);
           return reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
@@ -1424,6 +1372,14 @@ var DataManager = module.exports = {
         }).catch(function(err) {
           return reject(err);
         });
+      } else if (restriction && restriction.hasOwnProperty("Analysis")) {
+        return self.listAnalysis({}, options)
+          .then(function(analysisList) {
+            var analysisFilter = new Filters.AnalysisFilter();
+            return resolve(analysisFilter.match(analysisList, {dataSeries: self.data.dataSeries}));
+          })
+          
+          .catch(function(err) { return reject(err) });
       } else {
         var dataSeriesFound = Utils.filter(self.data.dataSeries, restriction);
         dataSeriesFound.forEach(function(dataSeries) {
@@ -1731,7 +1687,7 @@ var DataManager = module.exports = {
 
         if (output.position && format === Enums.Format.WKT) {
           // Getting wkt representation of Point from GeoJSON
-          self.getWKT(output.position).then(function (wktGeom) {
+          return self.getWKT(output.position).then(function (wktGeom) {
             output.positionWkt = wktGeom;
             return resolve(output);
           }).catch(function (err) {
@@ -2782,6 +2738,7 @@ var DataManager = module.exports = {
    * 
    * @param {number} analysisId - An analysis identifier
    * @param {Object} analysisObject - An analysis object to update
+   * @param {Object} analysisObject.historical - Reprocessing historical data values
    * @param {Object} scheduleObject - A schedule object to update
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
@@ -2977,14 +2934,14 @@ var DataManager = module.exports = {
           promises.push(self.getDataSet({id: analysis.dataset_output}));
         });
 
-        Promise.all(promises).then(function(dataSets) {
+        return Promise.all(promises).then(function(dataSets) {
           promises = [];
 
           dataSets.forEach(function(dataSet) {
             promises.push(self.getDataSeries({id: dataSet.data_series_id}));
           });
 
-          Promise.all(promises).then(function(dataSeriesList) {
+          return Promise.all(promises).then(function(dataSeriesList) {
             analysisResult.forEach(function(analysis) {
               var analysisObject = new DataModel.Analysis(analysis.get());
 
@@ -3004,7 +2961,7 @@ var DataManager = module.exports = {
               output.push(analysisObject);
             });
 
-            resolve(output);
+            return resolve(output);
           }).catch(_reject);
         }).catch(_reject);
       }).catch(_reject);
@@ -3265,6 +3222,233 @@ var DataManager = module.exports = {
         
         .catch(function() {
           return reject(new Error("Could not remove view " + err.toString()));
+        });
+    });
+  },
+  /**
+   * It saves a layer in database
+   * 
+   * @param {number} registeredViewId - A TerraMA² Registered View Identifier
+   * @param {Object} layerObject - TerraMA² Layer Object
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  addLayer: function(registeredViewId, layerObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      layerObject.registered_view_id = registeredViewId;
+      return models.db.Layer.create(layerObject, options)
+        .then(function(layer) {
+          return resolve(layer.get());
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not save layer due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It removes a view from database
+   * 
+   * @param {Object} registeredViewObject - TerraMA² RegisteredView values
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  addRegisteredView: function(registeredViewObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      models.db.RegisteredView.create(registeredViewObject, options)
+        .then(function(viewResult) {
+          var promises = registeredViewObject.layers_list.map(function(layer) {
+            // TODO: Currently, layer is a object {layer: layerName}. It must be removed. Layer must be a string
+            return self.addLayer(viewResult.id, {name: layer.layer}, options);
+          })
+          return Promise.all(promises)
+            .then(function(layers) {
+              return self.getView({id: viewResult.view_id})
+                .then(function(view) {
+                  return resolve(new DataModel.RegisteredView(Utils.extend(viewResult, {layers: layers, view: view})));
+                });
+            });
+        })
+
+        .catch(function(err) {
+          return reject(new exceptions.RegisteredViewErrorr(
+            Utils.format("Coult not save Registered View due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It retrives a list of registered views in database from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  listRegisteredViews: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      /**
+       * It defines a list of model registered views
+       * @type {Sequelize.Model[]}
+       */
+      var registeredViews = [];
+
+      return models.db.RegisteredView.findAll(Utils.extend({
+        where: restriction,
+          // joins
+          include: [
+          {
+            model: models.db.Layer
+          },
+          {
+            model: models.db.View  
+          }
+        ]
+      }, options))
+        .then(function(registeredViewsResult) {
+          registeredViews = registeredViewsResult;
+          // retrieve all static data series
+          return self.listDataSeries({
+            data_series_semantics: {
+              data_series_type_name: Enums.DataSeriesType.STATIC_DATA
+            }
+          }, options);
+        })
+        // preparing data series to next handler
+        .then(function(staticDataSeries) {
+          return self.listDataSeries({Collector: {}}, options)
+            .then(function(dynamicDataSeries) {
+              return self.listDataSeries({Analysis: {}}, options)
+                .then(function(analysisDataSeries) {
+                  return {
+                    static: staticDataSeries,
+                    analysis: analysisDataSeries,
+                    dynamic: dynamicDataSeries
+                  }
+                });
+            });
+        })
+        // It will contains a object with data series: {dynamic: [...], static: [...], analysis: [...]}
+        .then(function(cachedDataSeries) {
+          /**
+           * It defines a list of TerraMA² registered views to resolve 
+           * @type {RegisteredView[]}
+           */
+          var output = [];
+
+          registeredViews.forEach(function(registeredView) {
+            Object.keys(cachedDataSeries).some(function(key) {
+              var dataSeriesList = cachedDataSeries[key];
+
+              return dataSeriesList.some(function(dataSeries) {
+                if (dataSeries.id === registeredView.View.data_series_id) {
+                  var dModel = new DataModel.RegisteredView(registeredView.get());
+                  dModel.setDataSeriesType(key);
+                  output.push(dModel);
+                  return true;
+                }
+              });
+            });
+          });
+
+          return resolve(output);
+        })
+
+        .catch(function(err) {
+          return reject(new exceptions.RegisteredViewError(
+            Utils.format("Could not retrieve registered views due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It retrives only a one registered view. If restriction applies for 0 results or more than 1, it throws Error
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  getRegisteredView: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.listRegisteredViews(restriction, Utils.extend(options, {limit: 1}))
+        .then(function(registeredViewList) {
+          if (registeredViewList.length === 0) {
+            return reject(new exceptions.RegisteredViewError("No registered views retrieved."));
+          }
+          if (registeredViewList.length > 1) {
+            return reject(new exceptions.RegisteredViewError("More than one registered view retrieved in get operation"));
+          }
+          return resolve(registeredViewList[0]);
+        });
+    });
+  },
+  /**
+   * It applies update over registered view.
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} registeredObject - TerraMA² registered object values to update
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  updateRegisteredView: function(restriction, registeredObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.RegisteredView.update(registeredObject, Utils.extend({
+        fields: ['workspace'],
+        where: restriction
+      }, options))
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new exceptions.RegisteredViewError(
+            Utils.format("Could not update registered view due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It performs an update or insert layer operation. When a layer found, it updates. Otherwise, a new layer will be created.
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} layersObject - A Layer object
+   * @param {string} layersObject.name - A Layer name
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<DataModel.RegisteredView>}
+   */
+  upsertLayer: function(restriction, layersObject, options) {
+    return new Promise(function(resolve, reject) {
+      models.db.Layer.findOne(Utils.extend({
+        where: restriction
+      }, options))
+        .then(function(layerResult) {
+          // if retrieved a layer, tries update
+          if (layerResult) {
+            return models.db.Layer.update(layersObject, Utils.extend({
+              fields: ['name'],
+              where: {
+                id: layerResult.id
+              }
+            }, options));
+          } else {
+            return self.addLayer(restriction.registered_view_id || layersObject.registered_view_id, layersObject, options)
+          }
+        })
+        // on success insert|update
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new exceptions.RegisteredViewError(
+            Utils.format("Could not update or insert layer due %s", err.toString())));
         });
     });
   }
