@@ -88,7 +88,7 @@
                 var uriGeoServer = data[i].uriGeoserver;
                 var serverType = data[i].serverType;
                 var layerId = workspace + ":" + layerName;
-                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer, serverType, false, false, "terrama2-layerexplorer"))
+                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer"))
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
                     allLayers.push(layerId);
             }
