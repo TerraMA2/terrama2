@@ -193,7 +193,8 @@ namespace terrama2
         //! Concatenate the given dataset to the complete dataset.
         virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
                                           std::shared_ptr<te::da::DataSet> dataSet,
-                                          std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp) const override;
+                                          std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
+                                          const std::string& filename) const override;
 
         terrama2::core::DataSetSeries getSeries(const std::string& uri,
                                                 const terrama2::core::Filter& filter,
