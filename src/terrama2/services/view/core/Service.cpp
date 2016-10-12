@@ -159,7 +159,7 @@ void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
 
     try
     {
-      if(view->active)
+      if(view->active && view->schedule.id != 0)
       {
         std::lock_guard<std::mutex> lock(mutex_);
 
