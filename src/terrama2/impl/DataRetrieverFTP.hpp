@@ -121,8 +121,6 @@ namespace terrama2
         static DataRetrieverType dataRetrieverType() { return "FTP"; }
 
       private:
-        std::vector<std::string> vectorNames_; //! vector filtered names.
-        std::string scheme_; //! scheme information. Ex. "file://".
         CurlPtr curlwrapper_; //!< Attribute for Handler CurlPtr.
     };
 

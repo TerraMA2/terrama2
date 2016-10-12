@@ -53,6 +53,7 @@
 #include <QObject>
 #include <QDir>
 #include <QDebug>
+#include <QUrl>
 
 terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider, CurlPtr&& curlwrapper)
   : DataRetriever(dataprovider),
@@ -118,23 +119,23 @@ size_t terrama2::core::DataRetrieverFTP::write_vector(void* ptr, size_t size, si
 std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& mask,
                                                            const Filter& filter,
                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                           const std::string& temporaryFolder)
+                                                           const std::string& temporaryFolderUri)
 {
-  std::string downloadFolder = temporaryFolder;
-  if(temporaryFolder.empty())
+  std::string downloadFolderUri = temporaryFolderUri;
+  if(temporaryFolderUri.empty())
   {
     boost::filesystem::path tempDir = boost::filesystem::temp_directory_path();
     boost::filesystem::path tempTerrama(tempDir.string()+"/terrama2");
     boost::filesystem::path downloadDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
 
-    downloadFolder = downloadDir.string();
-    remover->addTemporaryFolder(downloadFolder);
-    scheme_ = "file://";
-
     // Create the directory where you will download the files.
-    QDir dir(QString::fromStdString(downloadFolder));
+    QDir dir(QString::fromStdString(downloadDir.string()));
     if(!dir.exists())
-      dir.mkpath(QString::fromStdString(downloadFolder));
+      dir.mkpath(QString::fromStdString(downloadDir.string()));
+
+    std::string scheme = "file://";
+    downloadFolderUri = scheme+downloadDir.string();
+    remover->addTemporaryFolder(downloadFolderUri);
   }
 
   curlwrapper_.init();
@@ -147,6 +148,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       std::string uriInput = dataProvider_->uri+"/";
       std::vector<std::string> vectorFiles = curlwrapper_.getListFiles(uriInput, &terrama2::core::DataRetrieverFTP::write_vector, block);
 
+      std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
       for(std::string fileName: vectorFiles)
       {
@@ -154,12 +156,12 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
         std::string timezone = "UTC+00";//FIXME: get timezone from dataset
         std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
         if(terrama2::core::isValidDataSetName(mask,filter, timezone, fileName,timestamp))
-          vectorNames_.push_back(fileName);
+          vectorNames.push_back(fileName);
       }
 
-      if(!vectorNames_.empty())
+      if(!vectorNames.empty())
       {
-        for(std::string file: vectorNames_)
+        for(std::string file: vectorNames)
         {
           curlwrapper_.init();
 
@@ -167,7 +169,9 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
           if(curlwrapper_.fcurl())
           {
             std::string uriOrigin = dataProvider_->uri +"/"+file;
-            std::string filePath = downloadFolder+"/"+file;
+
+            QUrl url(QString::fromStdString(downloadFolderUri));
+            std::string filePath = url.path().toStdString()+"/"+file;
 
             CURLcode res = curlwrapper_.getDownloadFiles(uriOrigin, &terrama2::core::DataRetrieverFTP::write_response, filePath);
             remover->addTemporaryFile(filePath);
@@ -209,7 +213,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   }
 
   // returns the absolute path of the folder that contains the files that have been made the download.
-  return scheme_+downloadFolder;
+  return downloadFolderUri;
 }
 
 terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)
