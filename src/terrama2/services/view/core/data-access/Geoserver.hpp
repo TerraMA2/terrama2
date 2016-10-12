@@ -251,7 +251,7 @@ namespace terrama2
           private:
 
             te::core::URI uri_;     /*!< The address of the GeoServer */
-            std::string workspace_ = "terrama"; /*!< A workspace to work in GeoServer */
+            std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
 
         };
       }
