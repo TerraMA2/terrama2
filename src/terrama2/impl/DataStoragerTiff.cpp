@@ -194,10 +194,6 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   if(pos != std::string::npos)
     fileName.replace(pos, 2, zeroPadNumber(seconds, 2));
 
-  //if no extension in the mask, add extension
-  std::string suffix(".tif");
-  if(fileName.compare(fileName.size() - suffix.size(), suffix.size(), suffix) != 0)
-    fileName += ".tif";
   return fileName;
 }
 
@@ -251,6 +247,16 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     }
 
     std::string filename = replaceMask(mask, timestamp, outputDataSet);
+
+    //Terralib cant understand .tiff extension
+    std::string oddSuffix(".tiff");
+    if(filename.compare(filename.size() - oddSuffix.size(), oddSuffix.size(), oddSuffix) != 0)
+      filename.pop_back();
+
+    //if no extension in the mask, add extension
+    std::string suffix(".tif");
+    if(filename.compare(filename.size() - suffix.size(), suffix.size(), suffix) != 0)
+      filename += ".tif";
 
     std::string output = path + "/" + filename;
     te::rp::Copy2DiskRaster(*raster, output);
