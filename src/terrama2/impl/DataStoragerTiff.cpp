@@ -250,7 +250,7 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
 
     //Terralib cant understand .tiff extension
     std::string oddSuffix(".tiff");
-    if(filename.compare(filename.size() - oddSuffix.size(), oddSuffix.size(), oddSuffix) != 0)
+    if(filename.compare(filename.size() - oddSuffix.size(), oddSuffix.size(), oddSuffix) == 0)
       filename.pop_back();
 
     //if no extension in the mask, add extension

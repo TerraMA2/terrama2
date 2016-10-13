@@ -43,6 +43,7 @@
 //QT
 #include <QUrl>
 #include <QDir>
+#include <QSet>
 
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -286,6 +287,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
 
+  QSet<QString> pathSet;
   std::string tempFolderPath;
   //fill file list
   QFileInfoList newFileInfoList;
@@ -306,14 +308,20 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
       tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover, tempFolderPath);
       QDir tempDir(QString::fromStdString(tempFolderPath));
       QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-
-      newFileInfoList.append(fileList);
+//TODO: creating a unique list of files, they have to be in the same folder! Control files and data files together
+//      newFileInfoList.append(fileList);
+      for(const auto& fileI : fileList)
+        pathSet.insert(fileI.absoluteFilePath());
     }
     else
     {
-      newFileInfoList.append(fileInfo);
+//      newFileInfoList.append(fileInfo);
+      pathSet.insert(fileInfo.absoluteFilePath());
     }
   }
+
+  for(const auto& filePath : pathSet)
+    newFileInfoList.append(QFileInfo(filePath));
 
   return newFileInfoList;
 }
@@ -361,6 +369,10 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   bool first = true;
   for(const auto& fileInfo : newFileInfoList)
   {
+// Only access the env files, gdal access the hdr
+    if(fileInfo.suffix() == "hdr")
+      continue;
+
     std::string name = fileInfo.fileName().toStdString();
     std::string baseName = fileInfo.baseName().toStdString();
     std::string completeBaseName = fileInfo.completeBaseName().toStdString();
