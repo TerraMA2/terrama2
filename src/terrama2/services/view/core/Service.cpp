@@ -417,7 +417,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                   continue;
                 }
 
-                terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(id->second);
+                terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(std::stoi(id->second));
                 terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
 
                 QUrl monitoredObjectUrl(monitoredObjectProvider->uri.c_str());
@@ -446,11 +446,11 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                 std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorAnalysisPostGis =
                     std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(monitoredObjectDataAccessor);
 
-                std::string joinTableName = dataAccessorAnalysisPostGis->getTimestampPropertyName(monitoredObjectDataset);
+                std::string joinTableName = dataAccessorAnalysisPostGis->getDataSetTableName(monitoredObjectDataset);
 
                 joinSQL = "SELECT * from " + tableName + " as t1 , " + joinTableName + " as t2 ";
 
-                joinSQL += "WHERE t1." + foreing->second + " = t2." + foreing->second;
+                joinSQL += "WHERE t1.geom_id = t2." + foreing->second;
               }
 
               geoserver.registerPostgisTable(inputDataProvider->name,
