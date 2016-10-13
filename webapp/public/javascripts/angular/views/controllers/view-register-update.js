@@ -294,7 +294,7 @@
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
             }
 
-            $scope.model = config.view ? config.view.serverUriObject || {} : {port: 8080, hostname: "150.163.17.34", pathname: "geoserver", password: "geoserver", user: "admin"};
+            $scope.model = config.view ? config.view.serverUriObject || {} : {port: 8080};
 
             if (self.httpSyntax.display) {
               $scope.form = self.httpSyntax.display;
@@ -366,11 +366,7 @@
      * It contains view instance values
      * @type {Object}
      */
-    self.view = config.view || {
-      name: "estados_2010",
-      data_series_id: 4,
-      service_instance_id: 3
-    };
+    self.view = config.view || {};
     /**
      * It defines a selected View DataSeries object
      * @type {DataSeries}
