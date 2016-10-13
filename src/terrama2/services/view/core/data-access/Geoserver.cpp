@@ -165,7 +165,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 void terrama2::services::view::core::GeoServer::registerPostgisView(const std::string& dataStoreName,
                                                                     std::map<std::string, std::string> connInfo,
                                                                     const std::string& viewName,
-                                                                    const std::string& sql) const
+                                                                    const std::string& sql,
+                                                                    const std::string& timestampPropertyName) const
 {
   registerDataStore(dataStoreName, connInfo);
 
@@ -184,8 +185,26 @@ void terrama2::services::view::core::GeoServer::registerPostgisView(const std::s
               "<sql>"+sql+"</sql>"
               "<escapeSql>false</escapeSql>"
             "</virtualTable>"
-          "</entry>"
-        "</metadata>";
+          "</entry>";
+
+  if(!timestampPropertyName.empty())
+  {
+    xml +="<entry key=\"time\">"
+          "<dimensionInfo>"
+            "<enabled>true</enabled>"
+            "<attribute>"+timestampPropertyName+"</attribute>"
+            "<presentation>CONTINUOUS_INTERVAL</presentation>"
+            "<units>ISO8601</units>"
+            "<defaultValue>"
+              "<strategy>MAXIMUM</strategy>"
+            "</defaultValue>"
+          "</dimensionInfo>"
+        "</entry>"
+        "<entry key=\"cachingEnabled\">false</entry>";
+  }
+
+
+  xml += "</metadata>";
 
 
   xml += "</featureType>";

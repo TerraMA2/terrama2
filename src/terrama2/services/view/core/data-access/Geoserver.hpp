@@ -112,11 +112,13 @@ namespace terrama2
              * \param connInfo The connection parameters to the Postgis BD
              * \param viewName The view name to create
              * \param sql The SQL statements to create the view
+             * \param timestampPropertyName The datetime property for temporal data
              */
             void registerPostgisView(const std::string& dataStoreName,
                                      std::map<std::string, std::string> connInfo,
                                      const std::string& viewName,
-                                     const std::string& sql) const;
+                                     const std::string& sql,
+                                     const std::string& timestampPropertyName = "") const;
 
             /*!
              * \brief Method to upload a .zip with the vector files from out of the server to the GeoServer
