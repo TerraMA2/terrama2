@@ -45,7 +45,10 @@
    */
   ViewService.prototype.create = function(viewObject) {
     return this.$request(this.$baseUrl, "POST", {
-      data: viewObject
+      data: viewObject,
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
   };
 

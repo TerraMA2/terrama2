@@ -524,5 +524,16 @@
 	"File static data": "File static data",
 	"PostGIS static data": "PostGIS static data",
 	"Message": "Message",
-	"Note": " No storager configuration, this data will be accessed when needed."
+	"Note": " No storager configuration, this data will be accessed when needed.",
+	"Line Stroke Width": "Line Stroke Width",
+	"Line Stroke Width is required for View data series": "Line Stroke Width is required for View data series",
+	"Polygon Stroke Width": "Polygon Stroke Width",
+	"Point Size is required for View data series": "Point Size is required for View data series",
+	"Polygon Stroke Width is required for View data series": "Polygon Stroke Width is required for View data series",
+	"Point Size": "Point Size",
+	"Min value": "Min value",
+	"Min value is required for GRID data series": "Min value is required for GRID data series",
+	"Max value": "Max value",
+	"Color": "Color",
+	"Max value is required for GRID data series": "Max value is required for GRID data series"
 }

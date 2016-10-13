@@ -44,7 +44,8 @@ module.exports = function(sequelize, DataTypes) {
             onDelete: "CASCADE",
             foreignKey: {
               name: 'schedule_id',
-              allowNull: false
+              allowNull: true,
+              constraints: true
             }
           });
         }
