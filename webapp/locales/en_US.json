@@ -524,5 +524,13 @@
 	"File static data": "File static data",
 	"PostGIS static data": "PostGIS static data",
 	"Message": "Message",
-	"Note": " No storager configuration, this data will be accessed when needed."
+	"Note": " No storager configuration, this data will be accessed when needed.",
+	"Field 1": "Field 1",
+	"Field 2": "Field 2",
+	"name": "name",
+	"Min value": "Min value",
+	"Max value": "Max value",
+	"Min value is required for GRID data series": "Min value is required for GRID data series",
+	"Color": "Color",
+	"Max value is required for GRID data series": "Max value is required for GRID data series"
 }
