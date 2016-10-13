@@ -41,6 +41,8 @@
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/TimeDuration.h>
+#include <terralib/datatype/Date.h>
 #include <terralib/geometry/GeometryProperty.h>
 
 // Qt
@@ -77,9 +79,16 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
   size_t lonPos = std::numeric_limits<size_t>::max();
   size_t latPos = std::numeric_limits<size_t>::max();
 
-  te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
+  Srid srid = getSrid(dataSet);
 
-  // Find the rigth column to adapt
+  te::dt::DateTimeProperty* dateProperty = new te::dt::DateTimeProperty("data", te::dt::DATE);
+  te::dt::DateTimeProperty* timeProperty = new te::dt::DateTimeProperty("hora", te::dt::TIME_DURATION);
+  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty("data_hora", te::dt::TIME_INSTANT_TZ);
+  te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty("lat", te::dt::DOUBLE_TYPE);
+  te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty("lon", te::dt::DOUBLE_TYPE);
+  te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("geom", srid, te::gm::PointType);
+
+  // Find the right column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
@@ -87,37 +96,49 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
     if(property->getName() == getTimestampPropertyName(dataSet))
     {
       // datetime column found
-      converter->add(i, dtProperty,
+      converter->add(i, timestampProperty,
                      boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
+      converter->add(i, dateProperty,
+                     boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToDate, this, _1, _2, _3, getTimeZone(dataSet)));
+      converter->add(i, timeProperty,
+                     boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToTimeDuration, this, _1, _2, _3, getTimeZone(dataSet)));
     }
     else if(property->getName() == getLatitudePropertyName(dataSet) || property->getName() == getLongitudePropertyName(dataSet))
     {
       // update latitude column index
       if(property->getName() == getLatitudePropertyName(dataSet))
+      {
         latPos = i;
+        converter->add(i, latProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+      }
 
       // update longitude column index
       if(property->getName() == getLongitudePropertyName(dataSet))
+      {
         lonPos = i;
+        converter->add(i, lonProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+      }
 
       if(!isValidColumn(latPos) || !isValidColumn(lonPos))
         continue;
 
-      // geometry columns found
-      Srid srid = getSrid(dataSet);
 
       std::vector<size_t> latLonAttributes;
       latLonAttributes.push_back(lonPos);
       latLonAttributes.push_back(latPos);
 
-      te::gm::GeometryProperty* newProperty = new te::gm::GeometryProperty(getGeometryPropertyName(dataSet), srid, te::gm::PointType);
-      converter->add(latLonAttributes, newProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToPoint, this, _1, _2, _3, srid));
+      converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToPoint, this, _1, _2, _3, srid));
+    }
+    else if(property->getName() == "sat")
+    {
+      // the only other columns is the satellite name
+      te::dt::Property* p = converter->getConvertee()->getProperty(i)->clone();
+      p->setName("satelite");
+      converter->add(i, p);
     }
     else
     {
-      // the only other columns is the satellite name
-      te::dt::Property* p = converter->getConvertee()->getProperty(i);
-      converter->add(i, p->clone());
+      converter->add(i, converter->getConvertee()->getProperty(i)->clone());
     }
   }
 }
@@ -153,9 +174,71 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimesta
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
-    te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
+    return new te::dt::TimeInstant(date.utc_time());
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << "Unknown error";
+  }
 
-    return dt;
+  return nullptr;
+}
+
+te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimeDuration(te::da::DataSet *dataset,
+                                                                                      const std::vector<std::size_t> &indexes,
+                                                                                      int /*dstType*/,
+                                                                                      const std::string &timezone) const
+{
+  assert(indexes.size() == 1);
+
+  try
+  {
+    std::string dateTime = dataset->getAsString(indexes[0]);
+
+    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+    boost::posix_time::time_duration td = date.time_of_day();
+    return new te::dt::TimeDuration(td);
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(boost::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << "Unknown error";
+  }
+
+  return nullptr;
+}
+
+te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToDate(te::da::DataSet* dataset,
+                                                                const std::vector<std::size_t>& indexes, int /*dstType*/,
+                                                                const std::string& timezone) const
+{
+  assert(indexes.size() == 1);
+
+  try
+  {
+    std::string dateTime = dataset->getAsString(indexes[0]);
+
+    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
+    return new te::dt::Date(boostDate.date());
   }
   catch(std::exception& e)
   {

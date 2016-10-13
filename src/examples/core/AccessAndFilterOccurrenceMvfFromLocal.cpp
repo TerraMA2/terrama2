@@ -64,22 +64,10 @@ int main(int argc, char* argv[])
     {
       std::string name = teDataSet->getPropertyName(i);
       names+= name + "\t";
-      if(name == "data_pas")
-      {
-        types+= "DataTime\t";
-        dateColumn = i;
-      }
-      else if(name == "position")
-      {
-        types+= "Geometry\t";
-        geomColumn = i;
-      }
-      else
-        types+= "String\t";
     }
 
     std::cout << names << std::endl;
-    std::cout << types << std::endl;
+
 
     //Print values
     teDataSet->moveBeforeFirst();
@@ -88,7 +76,7 @@ int main(int argc, char* argv[])
       for(int i = 0; i < teDataSet->getNumProperties(); ++i)
       {
 
-        std::cout << teDataSet->getAsString(i) << "\t";
+        std::cout << teDataSet->getValue(i)->toString() << "\t";
       }
       std::cout << std::endl;
     }
