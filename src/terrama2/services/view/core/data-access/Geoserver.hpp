@@ -99,26 +99,16 @@ namespace terrama2
              * \param dataStoreName The name of the store  to create in GeoServer
              * \param connInfo The connection parameters to the Postgis BD
              * \param tableName The name of the table in Postgis to register in GeoServer
+             * \param title
+             * \param timestampPropertyName The datetime property for temporal data
+             * \param sql The SQL statements to create the view
              */
             void registerPostgisTable(const std::string& dataStoreName,
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,
                                       const std::string& title,
-                                      const std::string& timestampPropertyName = "") const;
-
-            /*!
-             * \brief This method register a PostGIS data Store creates a view in GeoServer with the sql parameter
-             * \param dataStoreName The name of the store  to create in GeoServer
-             * \param connInfo The connection parameters to the Postgis BD
-             * \param viewName The view name to create
-             * \param sql The SQL statements to create the view
-             * \param timestampPropertyName The datetime property for temporal data
-             */
-            void registerPostgisView(const std::string& dataStoreName,
-                                     std::map<std::string, std::string> connInfo,
-                                     const std::string& viewName,
-                                     const std::string& sql,
-                                     const std::string& timestampPropertyName = "") const;
+                                      const std::string& timestampPropertyName = "",
+                                      const std::string& sql = "") const;
 
             /*!
              * \brief Method to upload a .zip with the vector files from out of the server to the GeoServer

@@ -295,6 +295,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")
       {
         TERRAMA2_LOG_ERROR() << QObject::tr("Data provider not supported: %1.").arg(dataProviderType.c_str());
+        continue;
       }
 
       DataFormat dataFormat = inputDataSeries->semantics.dataFormat;
@@ -386,106 +387,84 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               {"PG_CLIENT_ENCODING", "UTF-8"}
             };
 
-            if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+            std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorPostGis =
+                std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
+
+            for(auto& dataset : datasets)
             {
-              uint64_t monitoredObjectId;
-              //              TODO: monitoredObjectId = inputDataSeries->semantics.dataFormat.monitored_object_id;
-              terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(monitoredObjectId);
-              terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
+              std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
+              std::string timestampPropertyName;
+              std::string joinSQL;
 
-              QUrl monitoredObjectUrl(monitoredObjectProvider->uri.c_str());
-
-              if(monitoredObjectUrl.host() != url.host()
-                 || monitoredObjectUrl.port() != url.port()
-                 || monitoredObjectUrl.path().section("/", 1, 1) != url.path().section("/", 1, 1))
+              try
               {
-                logger->error("Data to join is in a different DB.", logId);
-                TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+                timestampPropertyName = dataAccessorPostGis->getTimestampPropertyName(dataset);
               }
-              else
+              catch (...)
               {
+                /* code */
+              }
+
+              if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+              {
+                const auto& id = dataset->format.find("monitored_object_id");
+                const auto& foreing = dataset->format.find("monitored_object_pk");
+
+                if(id == dataset->format.end() || foreing == dataset->format.end())
+                {
+                  logger->error("Data to join not informed.", logId);
+                  TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+                  continue;
+                }
+
+                terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(id->second);
+                terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
+
+                QUrl monitoredObjectUrl(monitoredObjectProvider->uri.c_str());
+
+                if(monitoredObjectUrl.host() != url.host()
+                   || monitoredObjectUrl.port() != url.port()
+                   || monitoredObjectUrl.path().section("/", 1, 1) != url.path().section("/", 1, 1))
+                {
+                  logger->error("Data to join is in a different DB.", logId);
+                  TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+                  continue;
+                }
+
                 if(monitoredObjectDataSeries->datasetList.empty())
                 {
                   logger->error("No join data.", logId);
                   TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+                  continue;
                 }
-                else
-                {
-                  const terrama2::core::DataSetPtr monitoredObjectDataset = monitoredObjectDataSeries->datasetList.at(0);
 
-                  std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorMonitoredObjectPostGis =
-                      std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
+                const terrama2::core::DataSetPtr monitoredObjectDataset = monitoredObjectDataSeries->datasetList.at(0);
 
-                  std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorAnalysisPostGis =
-                      std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
+                terrama2::core::DataAccessorPtr monitoredObjectDataAccessor =
+                    terrama2::core::DataAccessorFactory::getInstance().make(monitoredObjectProvider, monitoredObjectDataSeries);
 
-                  for(auto& dataset : datasets)
-                  {
-                    std::string tableName = dataAccessorAnalysisPostGis->getDataSetTableName(dataset);
+                std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorAnalysisPostGis =
+                    std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(monitoredObjectDataAccessor);
 
-                    std::string joinTableName = dataAccessorMonitoredObjectPostGis->getDataSetTableName(monitoredObjectDataset);
+                std::string joinTableName = dataAccessorAnalysisPostGis->getTimestampPropertyName(monitoredObjectDataset);
 
-                    std::string monitoredObjectIdentification;
+                joinSQL = "SELECT * from " + tableName + " as t1 , " + joinTableName + " as t2 ";
 
-                    // TODO: monitoredObjectIdentification = inputDataSeries->semantics.dataFormat.monitored_object_pk;
-
-                    std::string joinSQL = "SELECT * from " + tableName + " as t1 , " + joinTableName + " as t2 ";
-
-                    joinSQL += "WHERE t1." + monitoredObjectIdentification + " = t2." + monitoredObjectIdentification;
-
-                    std::string timestampPropertyName;
-                    try
-                    {
-                      timestampPropertyName = dataAccessorAnalysisPostGis->getTimestampPropertyName(dataset);
-                    }
-                    catch (...)
-                    {
-                      /* code */
-                    }
-
-                    geoserver.registerPostgisView(inputDataProvider->name,
-                                                  connInfo,
-                                                  viewPtr->viewName,
-                                                  joinSQL,
-                                                  timestampPropertyName);
-
-                    QJsonObject layer;
-                    layer.insert("layer", QString::fromStdString(viewPtr->viewName));
-                    layersArray.push_back(layer);
-                  }
-                }
+                joinSQL += "WHERE t1." + foreing->second + " = t2." + foreing->second;
               }
+
+              geoserver.registerPostgisTable(inputDataProvider->name,
+                                             connInfo,
+                                             tableName,
+                                             viewPtr->viewName,
+                                             timestampPropertyName,
+                                             joinSQL);
+
+              QJsonObject layer;
+              layer.insert("layer", QString::fromStdString(tableName));
+              layersArray.push_back(layer);
             }
-            else
-            {
-              std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorPostGis =
-                  std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
 
-              for(auto& dataset : datasets)
-              {
-
-                std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
-                std::string timestampPropertyName;
-                try
-                {
-                  timestampPropertyName = dataAccessorPostGis->getTimestampPropertyName(dataset);
-                }
-                catch (...)
-                {
-                  /* code */
-                }
-
-                geoserver.registerPostgisTable(inputDataProvider->name,
-                                               connInfo,
-                                               tableName,
-                                               viewPtr->viewName,
-                                               timestampPropertyName);
-
-                QJsonObject layer;
-                layer.insert("layer", QString::fromStdString(tableName));
-                layersArray.push_back(layer);
-              }
-            }
           }
         }
         else

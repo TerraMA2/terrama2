@@ -125,7 +125,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                                                                      std::map<std::string, std::string> connInfo,
                                                                      const std::string& tableName,
                                                                      const std::string& title,
-                                                                     const std::string& timestampPropertyName) const
+                                                                     const std::string& timestampPropertyName,
+                                                                     const std::string& sql) const
 {
   registerDataStore(dataStoreName, connInfo);
 
@@ -137,75 +138,41 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                     "<title>" + title + "</title>"
                     "<name>"+ tableName + "</name>";
 
-  if(!timestampPropertyName.empty())
-  {
-    xml +="<metadata>"
-        "<entry key=\"time\">"
-          "<dimensionInfo>"
-            "<enabled>true</enabled>"
-            "<attribute>"+timestampPropertyName+"</attribute>"
-            "<presentation>CONTINUOUS_INTERVAL</presentation>"
-            "<units>ISO8601</units>"
-            "<defaultValue>"
-              "<strategy>MAXIMUM</strategy>"
-            "</defaultValue>"
-          "</dimensionInfo>"
-        "</entry>"
-        "<entry key=\"cachingEnabled\">false</entry>"
-      "</metadata>";
-  }
-
-  xml += "</featureType>";
-
-  // Publish layer
-  cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
-}
-
-
-void terrama2::services::view::core::GeoServer::registerPostgisView(const std::string& dataStoreName,
-                                                                    std::map<std::string, std::string> connInfo,
-                                                                    const std::string& viewName,
-                                                                    const std::string& sql,
-                                                                    const std::string& timestampPropertyName) const
-{
-  registerDataStore(dataStoreName, connInfo);
-
-  te::ws::core::CurlWrapper cURLwrapper;
-
-  te::core::URI uriPostLayer(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName +"/featuretypes");
-
-  std::string xml = "<featureType>"
-                   "<title>" + viewName + "</title>"
-                   "<name>"+ viewName + "</name>";
-
-  xml +="<metadata>"
-          "<entry key=\"JDBC_VIRTUAL_TABLE\">"
-            "<virtualTable>"
-              "<name>"+viewName+"</name>"
-              "<sql>"+sql+"</sql>"
-              "<escapeSql>false</escapeSql>"
-            "</virtualTable>"
-          "</entry>";
+  std::string metadataTime = "";
+  std::string metadataSQL = "";
 
   if(!timestampPropertyName.empty())
   {
-    xml +="<entry key=\"time\">"
-          "<dimensionInfo>"
-            "<enabled>true</enabled>"
-            "<attribute>"+timestampPropertyName+"</attribute>"
-            "<presentation>CONTINUOUS_INTERVAL</presentation>"
-            "<units>ISO8601</units>"
-            "<defaultValue>"
-              "<strategy>MAXIMUM</strategy>"
-            "</defaultValue>"
-          "</dimensionInfo>"
-        "</entry>"
-        "<entry key=\"cachingEnabled\">false</entry>";
+    metadataTime = "<entry key=\"time\">"
+                      "<dimensionInfo>"
+                        "<enabled>true</enabled>"
+                        "<attribute>"+timestampPropertyName+"</attribute>"
+                        "<presentation>CONTINUOUS_INTERVAL</presentation>"
+                        "<units>ISO8601</units>"
+                        "<defaultValue>"
+                          "<strategy>MAXIMUM</strategy>"
+                        "</defaultValue>"
+                      "</dimensionInfo>"
+                   "</entry>"
+                   "<entry key=\"cachingEnabled\">false</entry>";
+
   }
 
+  if(!sql.empty())
+  {
+    metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
+                    "<virtualTable>"
+                      "<name>"+title+"</name>"
+                      "<sql>"+sql+"</sql>"
+                      "<escapeSql>false</escapeSql>"
+                    "</virtualTable>"
+                  "</entry>";
+  }
 
-  xml += "</metadata>";
-
+  if(!metadataTime.empty() || !metadataSQL.empty())
+  {
+    xml += "<metadata>" + metadataTime + metadataSQL + "</metadata>";
+  }
 
   xml += "</featureType>";
 
