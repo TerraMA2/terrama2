@@ -33,7 +33,7 @@ DataProvider.prototype.toObject = function() {
     intent: this.data_provider_intent_id,
     name: this.name,
     description: this.description,
-    uri: this.uri,
+    uri: decodeURIComponent(this.uri),
     active: this.active
   });
 };
