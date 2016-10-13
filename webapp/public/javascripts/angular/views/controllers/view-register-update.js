@@ -15,29 +15,29 @@
       "terrama2.components.messagebox.services",
       "terrama2.components.messagebox"])
     .constant("StyleContants", {
-      "GRID": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd\" version=\"1.0.0\">\n" +
-                    "<UserLayer>\n" +
-                      "<Name>{0}-style</Name>\n" +
-                        "<UserStyle>\n" +
-                          "<Name>raster</Name>\n" +
-                          "<FeatureTypeStyle>\n" +
-                          "<FeatureTypeName>Feature</FeatureTypeName>\n" +
-                          "<Rule>\n" +
-                          "<RasterSymbolizer>\n" +
-                          "<Opacity>1.0</Opacity>\n" +
-                          "<ColorMap extended=\"true\">\n" +
-                            "<ColorMapEntry color=\"{1}\" quantity=\"{2}\"/>\n" +
-                            "<ColorMapEntry color=\"{3}\" quantity=\"{4}\"/>\n" +
-                          "</ColorMap>\n" +
-                        "</RasterSymbolizer>\n" +
-                      "</Rule>\n" +
-                    "</FeatureTypeStyle>\n" +
-                  "</UserStyle>\n" +
-                "</UserLayer>\n" +
+      "GRID": "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<StyledLayerDescriptor xmlns='http://www.opengis.net/sld' xmlns:ogc='http://www.opengis.net/ogc' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd' version='1.0.0'>" +
+                    "<UserLayer>" +
+                      "<Name>{0}-style</Name>" +
+                        "<UserStyle>" +
+                          "<Name>raster</Name>" +
+                          "<FeatureTypeStyle>" +
+                          "<FeatureTypeName>Feature</FeatureTypeName>" +
+                          "<Rule>" +
+                          "<RasterSymbolizer>" +
+                          "<Opacity>1.0</Opacity>" +
+                          "<ColorMap extended='true'>" +
+                            "<ColorMapEntry color='{1}' quantity='{2}'/>" +
+                            "<ColorMapEntry color='{3}' quantity='{4}'/>" +
+                          "</ColorMap>" +
+                        "</RasterSymbolizer>" +
+                      "</Rule>" +
+                    "</FeatureTypeStyle>" +
+                  "</UserStyle>" +
+                "</UserLayer>" +
               "</StyledLayerDescriptor>",
-      "COMMON": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                "<StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.0.0\" xsi:schemaLocation=\"http://www.opengis.net/sld StyledLayerDescriptor.xsd\">" + 
+      "COMMON": "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<StyledLayerDescriptor xmlns='http://www.opengis.net/sld' xmlns:ogc='http://www.opengis.net/ogc' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' version='1.0.0' xsi:schemaLocation='http://www.opengis.net/sld StyledLayerDescriptor.xsd'>" + 
                   "<NamedLayer>" +
                     "<Name>{0}-style</Name>" +
                     "<UserStyle>" +
@@ -46,15 +46,15 @@
                         "<Rule>" +
                           "<LineSymbolizer>" +
                             "<Stroke>" +
-                              "<CssParameter name=\"stroke\">{1}</CssParameter>" +
-                              "<CssParameter name=\"stroke-width\">{2}</CssParameter>" +
+                              "<CssParameter name='stroke'>{1}</CssParameter>" +
+                              "<CssParameter name='stroke-width'>{2}</CssParameter>" +
                             "</Stroke>" +
                           "</LineSymbolizer>" +
 
                           "<PolygonSymbolizer>" +
                             "<Stroke>" +
-                              "<CssParameter name=\"stroke\">{3}</CssParameter>" +
-                              "<CssParameter name=\"stroke-width\">{4}</CssParameter>" +
+                              "<CssParameter name='stroke'>{3}</CssParameter>" +
+                              "<CssParameter name='stroke-width'>{4}</CssParameter>" +
                             "</Stroke>" +
                           "</PolygonSymbolizer>" +
 
@@ -63,7 +63,7 @@
                               "<Mark>" +
                                 "<WellKnownName>circle</WellKnownName>" +
                                 "<Fill>" +
-                                  "<CssParameter name=\"fill\">{5}</CssParameter>" +
+                                  "<CssParameter name='fill'>{5}</CssParameter>" +
                                 "</Fill>" +
                               "</Mark>" +
                               "<Size>{6}</Size>" +
