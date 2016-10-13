@@ -518,7 +518,7 @@ void terrama2::core::GrADSDataDescriptor::setKeyValue(const std::string& key, co
     undef_ = std::atof(value.c_str());
     found = true;
   }
-  else if(key == "OPTIONS" || key == "*OPTIONS")
+  else if(key.find("OPTIONS") != std::string::npos)
   {
     QStringList tokens = QString::fromStdString(value).split(" ");
     for(QString token : tokens)
