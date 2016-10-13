@@ -83,7 +83,7 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
 
   te::dt::DateTimeProperty* dateProperty = new te::dt::DateTimeProperty("data", te::dt::DATE);
   te::dt::DateTimeProperty* timeProperty = new te::dt::DateTimeProperty("hora", te::dt::TIME_DURATION);
-  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty("data_hora", te::dt::TIME_INSTANT_TZ);
+  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty("data_hora", te::dt::TIME_INSTANT);
   te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty("lat", te::dt::DOUBLE_TYPE);
   te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty("lon", te::dt::DOUBLE_TYPE);
   te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("geom", srid, te::gm::PointType);
@@ -167,7 +167,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimesta
 
   try
   {
-    std::string dateTime = dataset->getAsString(indexes[0]);
+    std::string dateTime = dataset->getString(indexes[0]);
 
     boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
 
@@ -201,7 +201,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToTimeDur
 
   try
   {
-    std::string dateTime = dataset->getAsString(indexes[0]);
+    std::string dateTime = dataset->getString(indexes[0]);
 
     boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
 
@@ -235,7 +235,9 @@ te::dt::AbstractData* terrama2::core::DataAccessorOccurrenceWfp::stringToDate(te
 
   try
   {
-    std::string dateTime = dataset->getAsString(indexes[0]);
+    std::string dateTime = dataset->getString(indexes[0]);
+    if(dateTime.empty())
+      return nullptr;
 
     boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateTime));
     return new te::dt::Date(boostDate.date());
