@@ -110,7 +110,6 @@ var Utils = module.exports = {
 
     return {
       name: scheme,
-
       properties: properties,
       required: required,
       display: displayOrder

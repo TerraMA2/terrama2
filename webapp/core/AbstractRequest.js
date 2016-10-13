@@ -18,13 +18,15 @@ var AbstractRequest = function(params) {
 
   if (params instanceof Object) {
     var splitHost = (params[this.syntax().HOST] || "").split("://");
-    if (splitHost.length > 1)
+    if (splitHost.length > 1) {
       params[this.syntax().HOST] = splitHost[1];
+    }
 
+    var pathNameEnum = this.syntax().PATHNAME;
+    params[pathNameEnum] = params[pathNameEnum] || "/";
     this.params = params;
     this.uri = UriBuilder.buildUri(params, this.syntax());
-  }
-  else if (typeof params === "string") {
+  } else if (typeof params === "string") {
     this.uri = params;
     this.params = UriBuilder.buildObject(params, this.syntax());
   }
