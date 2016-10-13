@@ -963,56 +963,6 @@ define(
     };
 
     /**
-     * Return the capabilities layers from xml.
-     * @param {xml} xml - Xml code of the server capabilities
-     * @param {string} serverUrl - Server URL
-     * @param {string} serverType - Server type
-     * @param {string} serverId - Server id
-     * @param {string} serverName - Server name
-     *
-     * @function getCapabilitiesLayers
-     * @memberof MapDisplay
-     * @inner
-     */
-    var getCapabilitiesLayers = function(xml, serverUrl, serverType, serverId, serverName) {
-      var capabilities = memberParser.read(xml);
-      var layers = capabilities.Capability.Layer;
-
-      var tilesWMSLayers = [];
-
-      var capabilitiesList = [];
-
-      var layersLength = layers.Layer.length;
-      for(var i = 0; i < layersLength; i++) {
-        if(layers.Layer[i].hasOwnProperty('Layer')) {
-
-          var subLayersLength = layers.Layer[i].Layer.length;
-          for(var j = 0; j < subLayersLength; j++) {
-            capabilitiesList.push(
-              {
-                name: layers.Layer[i].Layer[j].Name,
-                title: layers.Layer[i].Layer[j].Title,
-                serverUrl: serverUrl,
-                serverType: serverType
-              }
-            )
-          }
-        } else {
-          capabilitiesList.push(
-            {
-              name: layers.Layer[i].Name,
-              title: layers.Layer[i].Title,
-              serverUrl: serverUrl,
-              serverType: serverType
-            }
-          )
-        }
-      }
-      return capabilitiesList;
-
-    };
-
-    /**
      * Creates the capabilities layers in the map.
      * @param {xml} xml - Xml code of the server capabilities
      * @param {string} serverUrl - Server URL
@@ -1485,7 +1435,6 @@ define(
       addOSMLayer: addOSMLayer,
       setLayersStartLoadingFunction: setLayersStartLoadingFunction,
       setLayersEndLoadingFunction: setLayersEndLoadingFunction,
-      getCapabilitiesLayers: getCapabilitiesLayers,
       setLayerVisibility: setLayerVisibility,
       setLayerVisibilityById: setLayerVisibilityById,
       isLayerVisible: isLayerVisible,
