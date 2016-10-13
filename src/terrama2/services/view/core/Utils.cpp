@@ -57,7 +57,11 @@
 #include <QTextStream>
 #include <QString>
 
-void terrama2::services::view::core::createGeoserverShapefile(terrama2::core::DataManagerPtr dataManager, terrama2::core::DataSetPtr dataset, const terrama2::core::Filter& filter, const std::string& exhibitionName, const std::string& outputFolder)
+void terrama2::services::view::core::createGeoserverShapefile(terrama2::core::DataManagerPtr dataManager,
+                                                              terrama2::core::DataSetPtr dataset,
+                                                              const terrama2::core::Filter& filter,
+                                                              const std::string& exhibitionName,
+                                                              const std::string& outputFolder)
 {
 
 
@@ -100,7 +104,7 @@ void terrama2::services::view::core::createGeoserverShapefile(terrama2::core::Da
   te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("geom", 0, te::gm::PolygonType, true);
   geomProp->setSRID(dataAccessor->getSrid(dataset));
 
-  te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty( "timestamp", te::dt::TIME_INSTANT, true);
+  te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
 
   dt->add(filenameProp);
   dt->add(geomProp);
@@ -121,7 +125,7 @@ void terrama2::services::view::core::createGeoserverShapefile(terrama2::core::Da
 
     auto datePropertyPos = te::da::GetFirstPropertyPos(dataSetSeries.syncDataSet->dataset().get(), te::dt::DATETIME_TYPE);
 
-    for (unsigned int row = 0; row < dataSetSeries.syncDataSet->size(); ++row)
+    for(unsigned int row = 0; row < dataSetSeries.syncDataSet->size(); ++row)
     {
       auto raster = dataSetSeries.syncDataSet->getRaster(row, rasterProperty->getId());
       auto date = dataSetSeries.syncDataSet->getDateTime(row, datePropertyPos);
@@ -131,7 +135,8 @@ void terrama2::services::view::core::createGeoserverShapefile(terrama2::core::Da
       auto geom = te::gm::GetGeomFromEnvelope(raster->getExtent(), raster->getSRID());
 
       te::mem::DataSetItem* dsItem01 = new te::mem::DataSetItem(ds);
-      dsItem01->setString(0, dataSetSeries.syncDataSet->getString(row, "filename"));
+      QFileInfo info(QString::fromStdString(dataSetSeries.syncDataSet->getString(row, "filename")));
+      dsItem01->setString(0, info.fileName().toStdString());
       dsItem01->setGeometry(1, geom);
       dsItem01->setDateTime(2, new te::dt::TimeInstant(boostTiTz.local_time()));
 
@@ -165,17 +170,17 @@ void terrama2::services::view::core::createGeoserverPropertiesFile(const std::st
   std::string propertiesFilename = outputFolder + "/data_series_" + std::to_string(dataSeriesId) + ".properties";
 
   std::string content = "Levels=0.009999999776482582,0.009999999776482582\n"
-    "Heterogeneous=false\n"
-    "TimeAttribute=timestamp\n"
-    "AbsolutePath=false\n"
-    "Name=" + exhibitionName +"\n"
-    "TypeName=data_series_" + std::to_string(dataSeriesId) +".shp\n"
-    "Caching=false\n"
-    "ExpandToRGB=false\n"
-    "LocationAttribute=filename\n"
-    "SuggestedSPI=it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi\n"
-    "CheckAuxiliaryMetadata=false\n"
-    "LevelsNum=1";
+                        "Heterogeneous=false\n"
+                        "TimeAttribute=timestamp\n"
+                        "AbsolutePath=false\n"
+                        "Name=" + exhibitionName +"\n"
+                        "TypeName=data_series_" + std::to_string(dataSeriesId) +"\n"
+                        "Caching=false\n"
+                        "ExpandToRGB=false\n"
+                        "LocationAttribute=filename\n"
+                        "SuggestedSPI=it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi\n"
+                        "CheckAuxiliaryMetadata=false\n"
+                        "LevelsNum=1";
 
   /* Try and open a file for output */
 
@@ -196,4 +201,3 @@ void terrama2::services::view::core::createGeoserverPropertiesFile(const std::st
   /* Close the file */
   outputFile.close();
 }
-
