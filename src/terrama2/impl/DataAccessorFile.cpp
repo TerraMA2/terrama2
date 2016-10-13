@@ -249,8 +249,9 @@ std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) cons
 }
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
-    std::shared_ptr<te::da::DataSet> dataSet,
-    std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const
+                                                            std::shared_ptr<te::da::DataSet> dataSet,
+                                                            std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
+                                                            const std::string& filename) const
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->copy(*dataSet);
@@ -425,7 +426,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     assert(converter);
     std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
 
-    addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
+    addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
     //update lastest file timestamp
     if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)

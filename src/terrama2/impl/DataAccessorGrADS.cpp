@@ -37,6 +37,7 @@
 
 //TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/SimpleProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/raster/RasterProperty.h>
@@ -132,12 +133,15 @@ terrama2::core::DataAccessorGrADS::createCompleteDataSet(std::shared_ptr<te::da:
 {
   te::dt::Property* timestamp = new te::dt::DateTimeProperty("file_timestamp", te::dt::TIME_INSTANT_TZ);
   dataSetType->add(timestamp);
+  te::dt::Property* filename = new te::dt::SimpleProperty("filename", te::dt::STRING);
+  dataSetType->add(filename);
   return std::make_shared<te::mem::DataSet>(dataSetType.get());
 }
 
 void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
                                                              std::shared_ptr<te::da::DataSet> dataSet,
-                                                             std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp) const
+                                                             std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
+                                                             const std::string& filename) const
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->moveLast();
@@ -164,6 +168,8 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
     if(isValidColumn(timestampColumn))
       item->setDateTime(timestampColumn,
                         fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
+
+    item->setString("filename", filename);
 
     complete->add(item);
   }
@@ -413,7 +419,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
           thisFileTimestamp = ctlFileTimestamp;
       }
 
-      addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
+      addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
 
       if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)

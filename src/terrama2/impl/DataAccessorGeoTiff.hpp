@@ -70,7 +70,8 @@ namespace terrama2
 
       virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
                                         std::shared_ptr<te::da::DataSet> dataSet,
-                                        std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const override;
+                                        std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
+                                        const std::string& filename) const override;
 
     protected:
       virtual std::string dataSourceType() const override;
