@@ -45,9 +45,7 @@
 #include "../../../core/data-access/DataStorager.hpp"
 
 #include "../../../impl/DataAccessorFile.hpp"
-#include "../../../impl/DataAccessorGeoTiff.hpp"
 #include "../../../impl/DataAccessorPostGis.hpp"
-#include "../../../impl/DataAccessorMonitoredObjectAnalysisPostGis.hpp"
 
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
@@ -345,24 +343,12 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
           if(dataProviderType == "FILE")
           {
             // Get the list of layers to register
-            if(dataFormat == "OGR")
-            {
-              auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorFile>>(datasets,
-                                                                                                 inputDataProvider,
-                                                                                                 filter,
-                                                                                                 remover,
-                                                                                                 std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
-              fileInfoList.append(files);
-            }
-            else if(dataFormat == "GEOTIFF")
-            {
-              auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorGeoTiff>>(datasets,
-                                                                                                    inputDataProvider,
-                                                                                                    filter,
-                                                                                                    remover,
-                                                                                                    std::dynamic_pointer_cast<terrama2::core::DataAccessorGeoTiff>(dataAccessor));
-              fileInfoList.append(files);
-            }
+            auto files = dataSeriesFileList(datasets,
+                                            inputDataProvider,
+                                            filter,
+                                            remover,
+                                            std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
+            fileInfoList.append(files);
 
             for(auto& fileInfo : fileInfoList)
             {
@@ -403,7 +389,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
             if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
             {
               uint64_t monitoredObjectId;
-//              TODO: monitoredObjectId = inputDataSeries->semantics.dataFormat.monitored_object_id;
+              //              TODO: monitoredObjectId = inputDataSeries->semantics.dataFormat.monitored_object_id;
               terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(monitoredObjectId);
               terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
 
@@ -427,15 +413,15 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                 {
                   const terrama2::core::DataSetPtr monitoredObjectDataset = monitoredObjectDataSeries->datasetList.at(0);
 
-                  std::shared_ptr< terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis > dataAccessorMonitoredObjectPostGis =
-                      std::dynamic_pointer_cast<terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis>(dataAccessor);
+                  std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorMonitoredObjectPostGis =
+                      std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
 
-                  std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorPostGis =
+                  std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorAnalysisPostGis =
                       std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
 
                   for(auto& dataset : datasets)
                   {
-                    std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
+                    std::string tableName = dataAccessorAnalysisPostGis->getDataSetTableName(dataset);
 
                     std::string joinTableName = dataAccessorMonitoredObjectPostGis->getDataSetTableName(monitoredObjectDataset);
 
@@ -447,10 +433,21 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
                     joinSQL += "WHERE t1." + monitoredObjectIdentification + " = t2." + monitoredObjectIdentification;
 
+                    std::string timestampPropertyName;
+                    try
+                    {
+                      timestampPropertyName = dataAccessorAnalysisPostGis->getTimestampPropertyName(dataset);
+                    }
+                    catch (...)
+                    {
+                      /* code */
+                    }
+
                     geoserver.registerPostgisView(inputDataProvider->name,
                                                   connInfo,
                                                   viewPtr->viewName,
-                                                  joinSQL);
+                                                  joinSQL,
+                                                  timestampPropertyName);
 
                     QJsonObject layer;
                     layer.insert("layer", QString::fromStdString(viewPtr->viewName));
@@ -550,12 +547,11 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 }
 
 
-template< typename Accessor >
 QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(const std::vector<terrama2::core::DataSetPtr> datasets,
                                                                           const terrama2::core::DataProviderPtr inputDataProvider,
                                                                           const terrama2::core::Filter filter,
                                                                           const std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                                          const Accessor dataAccessor)
+                                                                          const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor)
 {
   QFileInfoList fileInfoList;
 

@@ -35,6 +35,7 @@
 #include <unordered_map>
 
 // TerraMA2
+#include "../../../core/Shared.hpp"
 #include "../../../core/Typedef.hpp"
 
 //! Unique identifier of a View
