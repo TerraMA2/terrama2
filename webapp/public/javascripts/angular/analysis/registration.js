@@ -733,6 +733,7 @@ angular.module('terrama2.analysis.registration', [
           $scope.metadata[$scope.targetDataSeries.name]['identifier'] = $scope.identifier;
           // setting monitored object id in output data series format
           $scope.modelStorager.monitored_object_id = $scope.targetDataSeries.id;
+          $scope.modelStorager.monitored_object_pk = $scope.identifier;
           break;
       }
 
