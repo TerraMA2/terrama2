@@ -3,6 +3,7 @@
 var Proxy = function(io){
   var memberSockets = io.sockets;
   var memberHttp = require('http');
+  var memberXmlParser = require('../utils/XmlParser');
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
@@ -21,10 +22,10 @@ var Proxy = function(io){
 
         // End of request event
         resp.on('end', function() {
-          if(json.format === 'xml') {
-            body = body.replace(/>\s*/g, '>');
-            body = body.replace(/\s*</g, '<');
-          } else if(json.format === 'json') {
+
+          if (json.format === 'xml') {
+            body = memberXmlParser(body);
+          } else if (json.format === 'json') {
             try {
               body = JSON.parse(body);
             } catch(ex) {

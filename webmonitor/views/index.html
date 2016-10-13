@@ -53,8 +53,8 @@
 <script src="TerraMA2WebComponents.min.js"></script>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script src="https://gist.github.com/jlong/2428561.js"></script>
+<script src="/javascripts/utils/capabilities.js"></script>
 <script>
-
     var allLayers = [];
     var visibleLayers = [];
 
@@ -63,19 +63,19 @@
 
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "Custom", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "unsortable", null);
-        allLayers.push("custom");
+        allLayers.push({id: "custom"});
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Template", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "unsortable", null);
-        allLayers.push("template");
+        allLayers.push({id: "template"});
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static Data", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "unsortable", null);
-        allLayers.push("static");
+        allLayers.push({id: "static"});
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic Data", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "unsortable", null);
-        allLayers.push("dynamic");
+        allLayers.push({id: "dynamic"});
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer"))
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "unsortable", null);
-        allLayers.push("analysis");
+        allLayers.push({id: "analysis"});
 
     var socket = io.connect(':3001');
     var wepappsocket = io.connect(':36000');
@@ -90,7 +90,7 @@
                 var layerId = workspace + ":" + layerName;
                 if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer"))
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
-                    allLayers.push(layerId);
+                    allLayers.push({id: layerId});
             }
         }
         addLayersToSort();
@@ -110,7 +110,7 @@
 
     socket.on('proxyResponse', function(data){
         try {
-            capabilities = TerraMA2WebComponents.MapDisplay.getCapabilitiesLayers(data.msg, document.getElementById("wmsUri").value, 'geoserver', 'Test', 'Test');
+            capabilities = getMapCapabilitiesLayers(data.msg);
             fillModal(capabilities);
             $('#layersModal').modal('show');
         }
@@ -144,7 +144,7 @@
                 if (capabilities[i].name == element){
                     if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer"))
                         TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "unsortable", null);
-                        allLayers.push(capabilities[i].name);
+                        allLayers.push({id: capabilities[i].name, extent: capabilities[i].extent});
                         addLayerToSort(capabilities[i].name);
                 }
             }
@@ -197,11 +197,11 @@
         var itens = "";
         var allLayersLength = allLayers.length;
         for (i = allLayersLength -1; i >= 0; i--){
-            var layerId = allLayers[i];
+            var layerId = allLayers[i].id;
             if (layerId.includes(':')){
                 layerId = layerId.replace(':','')
             }
-            itens += '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i] + '</li>';
+            itens += '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].id + '</li>';
         }
         var list = '<ul>' + itens + '</ul>';
         $('#terrama2-sortlayers').append(list);
