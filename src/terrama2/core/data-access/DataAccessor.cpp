@@ -81,7 +81,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
     if(dataset->isNull(indexes[0]))
       return nullptr;
 
-    std::string strValue = dataset->getAsString(indexes[0]);
+    std::string strValue = dataset->getString(indexes[0]);
 
     if(strValue.empty())
       return nullptr;
@@ -121,7 +121,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToInt(te::da::DataSet*
     if(dataset->isNull(indexes[0]))
       return nullptr;
 
-    std::string strValue = dataset->getAsString(indexes[0]);
+    std::string strValue = dataset->getString(indexes[0]);
 
     if(strValue.empty())
       return nullptr;

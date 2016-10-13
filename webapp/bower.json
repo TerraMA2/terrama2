@@ -30,7 +30,8 @@
     "angular-xeditable": "^0.4.0",
     "fastclick": "^1.0.6",
     "ace-builds": "^1.2.5",
-    "AdminLTE": "admin-lte#2.3.0"
+    "AdminLTE": "admin-lte#2.3.0",
+    "angular-color-picker": "angularjs-color-picker#^2.5.0"
   },
   "resolutions": {
     "angular": ">= 1.5.8"
