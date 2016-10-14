@@ -96,7 +96,7 @@
     var wepappsocket = io.connect(':36000');
     wepappsocket.emit('viewRequest');
     wepappsocket.on("viewResponse", function (data){
-        data.push({
+        /*data.push({
             workspace: 'work',
             name: 'test',
             uriGeoserver: 'http://150.163.17.179:8080/geoserver/terrama',
@@ -104,7 +104,7 @@
             layers: ['teste_20100103050604', 'teste_20100203050604', 'teste_20100303050604','teste_20100403050604'],
             params: {mask: 'teste_yyyyMMddhhmmss'},
             type: 'dynamic'
-        });
+        });*/
         for (i in data){
             if (data[i].params && data[i].params.hasOwnProperty('mask')){
                 var layerWithDate = getLayersListWithDate(data[i].params.mask, data[i].layers);
@@ -114,6 +114,7 @@
                 var uriGeoServer = data[i].uriGeoserver;
                 var serverType = data[i].serverType;
                 var layerId = workspace + ":" + layerWithDate[layerWithDate.length - 1].layer;
+                var parent = data[i].type;
                 if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer")){
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
                     allLayers.push({id: layerId, name: layerName});
@@ -133,7 +134,7 @@
                         $("#terrama2-layerexplorer").find('li#' + layerId.replace(':','')).remove();
                         $("#terrama2-sortlayers").find('li#' + layerId.replace(':','')).remove();
 
-                        addLayerWithSlider(layerWithDate, layer.layer, layer.layer, workspace, uriGeoServer, serverType, 'dynamic');
+                        addLayerWithSlider(layerWithDate, layer.layer, layerName, workspace, uriGeoServer, serverType, parent);
                     });
 
                     $("#" + layerId.replace(':','')).append(sliderDiv);
