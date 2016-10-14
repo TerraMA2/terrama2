@@ -11,7 +11,7 @@ module.exports = function(app) {
         var factoryResult = RequestFactory.build(obj);
 
         factoryResult.request().then(function() {
-          response.json({status:200});
+          return response.json({status:200});
         }).catch(function(err) {
           handleRequestError(response, err, 400);
         });

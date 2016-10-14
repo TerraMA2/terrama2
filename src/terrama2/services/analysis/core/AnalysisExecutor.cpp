@@ -668,7 +668,8 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   }
 }
 
-void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context)
+void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager,
+                                                                 terrama2::services::analysis::core::GridContextPtr context)
 {
   auto analysis = context->getAnalysis();
   if(!analysis)
@@ -724,9 +725,11 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core:
   bprops.push_back(new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE));
 
   te::rst::RasterProperty* rstp = new te::rst::RasterProperty(new te::rst::Grid(*grid), bprops, rinfo);
+  te::dt::Property* timestamp = new te::dt::DateTimeProperty("analysis_timestamp", te::dt::TIME_INSTANT_TZ);
   te::da::DataSetType* dt = new te::da::DataSetType("raster dataset");
 
   dt->add(rstp);
+  dt->add(timestamp);
 
   assert(dataSeries->datasetList.size() == 1);
   auto dataset = dataSeries->datasetList[0];
@@ -735,9 +738,11 @@ void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core:
 
   te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
   std::size_t rpos = te::da::GetFirstPropertyPos(ds.get(), te::dt::RASTER_TYPE);
+  std::size_t datePos = te::da::GetFirstPropertyPos(ds.get(), te::dt::DATETIME_TYPE);
 
   //REVIEW: should clone be used? why not the self raster?
   dsItem->setRaster(rpos, dynamic_cast<te::rst::Raster*>(raster->clone()));
+  dsItem->setDateTime(datePos, dynamic_cast<te::dt::TimeInstantTZ*>(context->getStartTime()->clone()));
   ds->add(dsItem);
 
   std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);

@@ -20,18 +20,19 @@
 */
 
 /*!
-  \file terrama2/services/view/core/se/Exception.hpp
+  \file terrama2/services/view/core/View.hpp
 
-  \brief Exception classes for View components serialization.
+  \brief Utility functions for view module.
 
-  \author Vinicius Campanha
- */
+  \author Paulo R. M. Oliveira
+*/
 
-#ifndef __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_UTILS_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_UTILS_HPP__
 
-// TerraMA2
-#include "../Exception.hpp"
+#include <memory>
+#include "../../../core/Shared.hpp"
+#include "../../../core/data-model/Filter.hpp"
 
 namespace terrama2
 {
@@ -41,11 +42,13 @@ namespace terrama2
     {
       namespace core
       {
-          //! Base exception class for TerraMA2 view data access.
-          struct SerializationException : virtual terrama2::core::Exception{ };
-      } /* core */
-    } /* view */
-  }   /* services */
-} // end namespace terrama2
+        void createGeoserverShapefile(terrama2::core::DataManagerPtr dataManager, terrama2::core::DataSetPtr dataset, const terrama2::core::Filter& filter, const std::string& exhibitionName, const std::string& outputFolder);
 
-#endif // __TERRAMA2_SERVICES_VIEW_CORE_SE_EXCEPTION_HPP__
+        void createGeoserverPropertiesFile(const std::string& outputFolder, const std::string& exhibitionName, DataSeriesId dataSeriesId);
+
+      } // end namespace core
+    }   // end namespace view
+  }     // end namespace services
+}       // end namespace terrama2
+
+#endif // __TERRAMA2_SERVICES_VIEW_CORE_UTILS_HPP__

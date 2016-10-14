@@ -49,7 +49,7 @@ FtpRequest.prototype.request = function() {
           error = new Exceptions.ConnectionError("Error in connection");
       }
 
-      reject(error);
+      return reject(error);
     });
 
     client.raw.quit(function(err, data) {
@@ -57,13 +57,13 @@ FtpRequest.prototype.request = function() {
         return reject(err);
       }
 
-      resolve();
+      return resolve();
     });
   });
 };
 
 FtpRequest.fields = function() {
-  return Utils.makeCommonRequestFields("FTP", 21, null, [UriPattern.HOST, UriPattern.PORT, UriPattern.PATHNAME],
+  return Utils.makeCommonRequestFields("FTP", 21, null, [UriPattern.HOST, UriPattern.PORT],
          Utils.getCommonRequestFields().concat([{key: UriPattern.PATHNAME, type: Form.Field.TEXT, htmlClass: 'col-md-12 terrama2-schema-form'}]));
 };
 
