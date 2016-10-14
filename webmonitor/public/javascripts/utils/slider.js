@@ -1,5 +1,12 @@
 'use strict';
 
+var doSlide = function(layerId, layerTime) {
+  //  DO REQUEST
+  var timeFormat = moment(layerTime).format("YYYY-MM-DDThh:mm:ss") + "Z";
+
+  TerraMA2WebComponents.MapDisplay.updateLayerTime(/**id */layerId, /** time */layerTime);
+}
+
 /**
  * Triggered when user clicks on TerraMA² Slider in Layers Menu
  * 

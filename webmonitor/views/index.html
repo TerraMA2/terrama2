@@ -144,8 +144,9 @@
             min: 1,
             max: valMap.length - 1,
             value: 0,
-            slide: function(event, ui) {                        
+            stop: function(event, ui) {                        
                 document.getElementById("amount").innerHTML = valMap[ui.value];
+                doSlide(layerId, rangeDate[ui.value]);
             }       
         })
     }
@@ -156,7 +157,8 @@
         
         jsonData = {
             url: url,
-            format: 'xml'
+            format: 'xml',
+            requestId: "custom"
         }
         socket.emit('proxyRequest', jsonData);
     }
@@ -164,13 +166,16 @@
     socket.on('proxyResponse', function(data){
         try {
             capabilities = getMapCapabilitiesLayers(data.msg);
+            if (data.requestId) {
+                
+            }
             fillModal(capabilities);
             $('#layersModal').modal('show');
         }
         catch(e) {
             $("#terrama2Alert").removeClass('hide');
         }
-    })
+    });
 
     function fillModal(capabilities) {
         var lis = "";
