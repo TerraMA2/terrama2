@@ -135,8 +135,35 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   te::core::URI uriPostLayer(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName +"/featuretypes");
 
   std::string xml = "<featureType>"
-                    "<title>" + title + "</title>"
-                    "<name>"+ tableName + "</name>";
+        "<title>" + title + "</title>"
+        "<name>"+ title + "</name>"
+        "<metadata>"
+        "<entry key=\"JDBC_VIRTUAL_TABLE\">"
+        "<virtualTable>"
+        "<name>"+title+"</name>"
+        "<sql>SELECT 0</sql>"
+        "<escapeSql>false</escapeSql>"
+        "</virtualTable>"
+        "</entry>"
+        "</metadata>"
+        "</featureType>";
+
+  // Try to create the layer with dummy values. If it already exists, does nothing.
+  cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
+
+  std::string xmlUpdate = "<featureType>"
+                    "<title>" + title + "</title>";
+
+  if(sql.empty())
+  {
+    xmlUpdate += "<name>"+ tableName + "</name>";
+  }
+  else
+  {
+    xmlUpdate += "<name>"+ title + "</name>";
+  }
+
+  xmlUpdate += "<enabled>true</enabled>";
 
   std::string metadataTime = "";
   std::string metadataSQL = "";
@@ -171,13 +198,16 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   if(!metadataTime.empty() || !metadataSQL.empty())
   {
-    xml += "<metadata>" + metadataTime + metadataSQL + "</metadata>";
+    xmlUpdate += "<metadata>" + metadataTime + metadataSQL + "</metadata>";
   }
 
-  xml += "</featureType>";
+  xmlUpdate += "</featureType>";
 
-  // Publish layer
-  cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
+
+  te::core::URI uriPutLayer(uriPostLayer.uri() + "/" + title + "?recalculate=nativebbox,latlonbbox");
+
+  // Update the layer
+  cURLwrapper.customRequest(uriPutLayer, "PUT", xmlUpdate, "Content-Type: text/xml");
 }
 
 
