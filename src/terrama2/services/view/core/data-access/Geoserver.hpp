@@ -206,7 +206,10 @@ namespace terrama2
              * \brief Method to delete a style file in Geoserver
              * \param styleName The name of style to delete
              */
-            void deleteStyle(const::std::string& styleName) const;
+            void deleteStyle(const std::string& styleName) const;
+
+
+            void deletePostgisTable(const std::string& dataStoreName, const std::string &tableName, bool recursive) const;
 
 
             /*!
