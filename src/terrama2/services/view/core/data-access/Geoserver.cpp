@@ -132,38 +132,19 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPostLayer(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName +"/featuretypes");
-
   std::string xml = "<featureType>"
-        "<title>" + title + "</title>"
-        "<name>"+ title + "</name>"
-        "<metadata>"
-        "<entry key=\"JDBC_VIRTUAL_TABLE\">"
-        "<virtualTable>"
-        "<name>"+title+"</name>"
-        "<sql>SELECT 0</sql>"
-        "<escapeSql>false</escapeSql>"
-        "</virtualTable>"
-        "</entry>"
-        "</metadata>"
-        "</featureType>";
-
-  // Try to create the layer with dummy values. If it already exists, does nothing.
-  cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
-
-  std::string xmlUpdate = "<featureType>"
                     "<title>" + title + "</title>";
 
   if(sql.empty())
   {
-    xmlUpdate += "<name>"+ tableName + "</name>";
+    xml += "<name>"+ tableName + "</name>";
   }
   else
   {
-    xmlUpdate += "<name>"+ title + "</name>";
+    xml += "<name>"+ title + "</name>";
   }
 
-  xmlUpdate += "<enabled>true</enabled>";
+  xml += "<enabled>true</enabled>";
 
   std::string metadataTime = "";
   std::string metadataSQL = "";
@@ -198,16 +179,13 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   if(!metadataTime.empty() || !metadataSQL.empty())
   {
-    xmlUpdate += "<metadata>" + metadataTime + metadataSQL + "</metadata>";
+    xml += "<metadata>" + metadataTime + metadataSQL + "</metadata>";
   }
 
-  xmlUpdate += "</featureType>";
+  xml += "</featureType>";
 
-
-  te::core::URI uriPutLayer(uriPostLayer.uri() + "/" + title + "?recalculate=nativebbox,latlonbbox");
-
-  // Update the layer
-  cURLwrapper.customRequest(uriPutLayer, "PUT", xmlUpdate, "Content-Type: text/xml");
+  te::core::URI uriPostLayer(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName +"/featuretypes");
+  cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
 }
 
 

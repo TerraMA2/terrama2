@@ -461,7 +461,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                                              joinSQL);
 
               QJsonObject layer;
-              layer.insert("layer", QString::fromStdString(tableName));
+              layer.insert("layer", QString::fromStdString(viewPtr->viewName));
               layersArray.push_back(layer);
             }
 
