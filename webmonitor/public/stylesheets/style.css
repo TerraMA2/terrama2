@@ -231,3 +231,9 @@
   list-style: none;
   padding-left: 10px;
 }
+
+.terrama2-datepicker-icon {
+  margin-right: 15px;
+  float: right;
+  cursor: pointer;
+}

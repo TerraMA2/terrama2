@@ -1,48 +1,76 @@
-(function() {
-  'use strict';
+'use strict';
 
-  $("#layersModalBody").on("click", "li[data-layerid]", function(event) {
-    var self = $(this);
-    var capability = $(self).attr("data-layerid");
-    var calendar = $(self).find("input[id='"+ capability +"']");
-    var hidden = $(self).find("input[type='hidden']");
-    var minDate = $(hidden).attr('data-min-date');
-    var maxDate = $(hidden).attr('data-max-date');
-    if (!minDate || !maxDate) {
-      return;
-    }
-    if (calendar.length === 0) {
-      calendar = $("<input type='text' id='" + capability + "' value='' style='display:none;'>");
+/**
+ * It makes a input hidden with date limits (startDate & endDate)
+ * 
+ * @returns {string}
+ */
+var makeHelperDatePicker = function(capability) {
+  if (!capability) {
+    throw new Error("Invalid capability while making date picker");
+  }
+  /**
+   * It represents a input hidden to store min date and max date
+   * @type {string}
+   */
+  var datepicker = "<input type='hidden' name='" + capability.name + "'";
 
-      var mMinDate = moment(minDate);
-      var mMaxDate = moment(maxDate);
+  if (capability.extent instanceof Array) {
+    datepicker += " data-min-date='" + capability.extent[0] + "' data-max-date='" + capability.extent[capability.extent.length - 1] + "'>";
+  } else if (capability.extent instanceof Object) {
+    datepicker += " data-min-date='" + capability.extent.startDate + "' data-max-date='" + capability.extent.endDate + "'>";
+  }
 
-      $(calendar).daterangepicker({
-        "timePicker": true,
-        "minDate": mMinDate,
-        "startDate": mMinDate,
-        "endDate": mMaxDate,
-        "maxDate": mMaxDate,
-        "timePicker24Hour": true,
-        "opens": "center"
-      });
+  return datepicker;
+};
 
-      $(this).append(calendar);
+$("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
+  var self = $(this);
+  var parentLi = $(self).parent().parent();
+  var capability = $(self).attr("data-layerid");
+  var calendar = $(self).find("input[id='"+ capability +"']");
+  var hidden = $(self).find("input[type='hidden']");
+  var minDate = $(hidden).attr('data-min-date');
+  var maxDate = $(hidden).attr('data-max-date');
+  if (!minDate || !maxDate) {
+    return;
+  }
+  if (calendar.length === 0) {
+    calendar = $("<input type='text' id='" + capability + "' value='' style='display:none;'>");
 
-      $(calendar).on('click', function(e) {
-        e.stopPropagation();
-      })
-    }
+    var mMinDate = moment(minDate);
+    var mMaxDate = moment(maxDate);
+    /**
+     * Important: Due date range picker implementation, we must configure startDate and endDate. Otherwise, it will display NaN
+     * date values because the start date is None, so the component take on current timestamp.
+     */
+    $(calendar).daterangepicker({
+      "timePicker": true,
+      "minDate": mMinDate,
+      "startDate": mMinDate,
+      "endDate": mMaxDate,
+      "maxDate": mMaxDate,
+      "timePicker24Hour": true,
+      "opens": "center"
+    });
 
-    $(calendar).trigger('click');
-  });
+    $(this).append(calendar);
 
-  // $('#demo').daterangepicker({
-  //     "timePicker": true,
-  //     "timePicker24Hour": true,
-  //     "startDate": "10/07/2016",
-  //     "endDate": "10/13/2016"
-  // }, function(start, end, label) {
-  //   console.log("New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')");
-  // });
-} ());
+    $(calendar).on('click', function(e) {
+      e.stopPropagation();
+    })
+
+    $(calendar).on("apply.daterangepicker", function(ev, picker) {
+      //  DO REQUEST
+      var layerId = $(parentLi).attr("data-layerid");
+      var timeFormat = "YYYY-MM-DDThh:mm:ss";
+      var pickerStartDate = picker.startDate.format(timeFormat);
+      var pickerEndDate = picker.endDate.format(timeFormat);
+
+      var layerTime = pickerStartDate + "Z/" + pickerEndDate + "Z";
+      TerraMA2WebComponents.MapDisplay.updateLayerTime(/**id */layerId, /** time */layerTime);
+    });
+  }
+
+  $(calendar).trigger('click');
+});

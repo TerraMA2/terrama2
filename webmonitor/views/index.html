@@ -75,6 +75,7 @@
 <script src="https://gist.github.com/jlong/2428561.js"></script>
 <script src="/javascripts/utils/capabilities.js"></script>
 <script src="/javascripts/utils/calendar.js"></script>
+<script src="/javascripts/utils/slider.js"></script>
 <script>
     var allLayers = [];
     var visibleLayers = [];
@@ -176,18 +177,7 @@
         var check = "<input type='checkbox' class='terrama2-layerviews-checkbox'/>";
         for (i in capabilities) {
             var capability = capabilities[i];
-            var calendarType;
-            var datepicker = "<input type='hidden' name='" + capability.name + "'";
-            if (capability.extent instanceof Array) {
-                calendarType = "multiple";
-                datepicker += " data-min-date='" + capability.extent[0] + "' data-max-date='" + capability.extent[capability.extent.length - 1] + "'>";
-            } else if (capability.extent instanceof Object) {
-                calendarType = "range";
-                datepicker += " data-min-date='" + capability.extent.startDate + "' data-max-date='" + capability.extent.endDate + "'>";
-            } else {
-                calendarType = ""
-            }
-            lis += '<li data-layerid="' + capability.name +'">' + check + '<span>' + capability.title + '</span>' + datepicker + '</li>';
+            lis += '<li data-layerid="' + capability.name +'">' + check + '<span>' + capability.title + '</span>' + '</li>';
         }
         var htmlList = '<ul id="layersList">' + lis + '</ul>';
         $('#layersModalBody').append(htmlList);
@@ -206,10 +196,29 @@
         function addInLayerExplorer(element, index, array){
             for (i in capabilities){
                 if (capabilities[i].name == element){
-                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer"))
+                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer")) { 
                         TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "unsortable", null);
                         allLayers.push({id: capabilities[i].name, name: capabilities[i].title, extent: capabilities[i].extent});
                         addLayerToSort(capabilities[i].name);
+
+                        if (!capabilities[i].extent) {
+                            continue;
+                        } 
+
+                        var span = "";
+                        var listElement = $("li[data-layerid='custom']");
+                        var li = $(listElement).find("li[data-layerid='" + capabilities[i].name +"']");
+                        if (li.length === 0) {
+                            continue;
+                        }
+
+                        if (capabilities[i].extent instanceof Array) {
+                            span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(capabilities[i]) + "<i class='fa fa-sliders'></i></span>";
+                        } else if (capabilities[i].extent instanceof Object) {
+                            span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(capabilities[i]) + "<i class='fa fa-calendar'></i></span>";
+                        }
+                        $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
+                    }
                 }
             }
         }
@@ -252,7 +261,7 @@
             visibleLayers.splice(index, 1);
         }
         else {
-            $('#terrama2-sortlayers').find('li#' + layerid).removeClass('hide');
+            $('#terrama2-sortlayers').find('li[id="' + layerid + '"]').removeClass('hide');
             visibleLayers.push(layerid);
         }
     });
@@ -290,7 +299,8 @@
             layerId = layerId.replace(':','')
         }
         var liHtml = '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + layerName + '</li>';
-        $('#terrama2-sortlayers').children('ul').prepend(liHtml);
+        var elm = $('#terrama2-sortlayers').children('ul');
+        $(elm).prepend(liHtml);
     }
 
 </script>
