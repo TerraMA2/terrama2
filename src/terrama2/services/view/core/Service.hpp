@@ -31,11 +31,13 @@
 #define __TERRAMA2_SERVICES_VIEW_SERVICE_HPP__
 
 // TerraMA2
-#include "../../../core/utility/Service.hpp"
 #include "Typedef.hpp"
 #include "Shared.hpp"
 #include "DataManager.hpp"
 #include "ViewLogger.hpp"
+
+#include "../../../impl/DataAccessorFile.hpp"
+#include "../../../core/utility/Service.hpp"
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/utility/FileRemover.hpp"
 
@@ -111,12 +113,11 @@ namespace terrama2
                        std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
                        std::weak_ptr<DataManager> weakDataManager);
 
-          template< typename Accessor >
           QFileInfoList dataSeriesFileList(const std::vector< terrama2::core::DataSetPtr > datasets,
                                            const terrama2::core::DataProviderPtr inputDataProvider,
                                            const terrama2::core::Filter filter,
                                            const std::shared_ptr<terrama2::core::FileRemover> remover,
-                                           const Accessor dataAccessor);
+                                           const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 
