@@ -7,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="ol3/ol.css">
 <link rel="stylesheet" type="text/css" href="TerraMA2WebComponents.min.css">
 <link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/jquery-ui.css">
+
 <style>
     .slider{
         position: absolute;
@@ -59,14 +60,21 @@
 </div>
 
 <script src="/moment/moment.js"></script>
+
 <script src="/javascripts/utils/utils.js"></script>
 <script src="/jquery/dist/jquery.min.js"></script>
 <script src="/jquery-ui/jquery-ui.min.js"></script>
+
+<!-- Date Range Picker Dependencies -->
+<script type="text/javascript" src="/bootstrap-daterangepicker/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="/bootstrap-daterangepicker/daterangepicker.css" />
+
 <script src="ol3/ol.js"></script>
 <script src="TerraMA2WebComponents.min.js"></script>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script src="https://gist.github.com/jlong/2428561.js"></script>
 <script src="/javascripts/utils/capabilities.js"></script>
+<script src="/javascripts/utils/calendar.js"></script>
 <script>
     var allLayers = [];
     var visibleLayers = [];
@@ -167,7 +175,19 @@
         var lis = "";
         var check = "<input type='checkbox' class='terrama2-layerviews-checkbox'/>";
         for (i in capabilities) {
-            lis += '<li data-layerid="' + capabilities[i].name +'">' + check + '<span>' + capabilities[i].title + '</span>' + '</li>';
+            var capability = capabilities[i];
+            var calendarType;
+            var datepicker = "<input type='hidden' name='" + capability.name + "'";
+            if (capability.extent instanceof Array) {
+                calendarType = "multiple";
+                datepicker += " data-min-date='" + capability.extent[0] + "' data-max-date='" + capability.extent[capability.extent.length - 1] + "'>";
+            } else if (capability.extent instanceof Object) {
+                calendarType = "range";
+                datepicker += " data-min-date='" + capability.extent.startDate + "' data-max-date='" + capability.extent.endDate + "'>";
+            } else {
+                calendarType = ""
+            }
+            lis += '<li data-layerid="' + capability.name +'">' + check + '<span>' + capability.title + '</span>' + datepicker + '</li>';
         }
         var htmlList = '<ul id="layersList">' + lis + '</ul>';
         $('#layersModalBody').append(htmlList);
