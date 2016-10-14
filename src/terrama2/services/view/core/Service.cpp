@@ -45,7 +45,6 @@
 #include "../../../core/data-access/DataStorager.hpp"
 
 #include "../../../impl/DataAccessorFile.hpp"
-#include "../../../impl/DataAccessorGeoTiff.hpp"
 #include "../../../impl/DataAccessorPostGis.hpp"
 
 #include "../../../core/utility/Timer.hpp"
@@ -106,7 +105,7 @@ void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::sha
   try
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    TERRAMA2_LOG_DEBUG() << tr("View added to queue.");
+    TERRAMA2_LOG_DEBUG() << tr("View %1 added to queue.").arg(viewId);
 
     auto datamanager = dataManager_.lock();
     auto view = datamanager->findView(viewId);
@@ -159,7 +158,7 @@ void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
 
     try
     {
-      if(view->active)
+      if(view->active && view->schedule.id != 0)
       {
         std::lock_guard<std::mutex> lock(mutex_);
 
@@ -180,7 +179,8 @@ void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
       TERRAMA2_LOG_ERROR() << e.what();
     }
 
-    addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
+    if(view->active)
+      addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
   }
   catch(...)
   {
@@ -233,6 +233,7 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
   //TODO: adds to queue, is this expected? remove and then add?
+  removeView(view->id);
   addView(view);
 }
 
@@ -294,6 +295,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")
       {
         TERRAMA2_LOG_ERROR() << QObject::tr("Data provider not supported: %1.").arg(dataProviderType.c_str());
+        continue;
       }
 
       DataFormat dataFormat = inputDataSeries->semantics.dataFormat;
@@ -342,24 +344,12 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
           if(dataProviderType == "FILE")
           {
             // Get the list of layers to register
-            if(dataFormat == "OGR")
-            {
-              auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorFile>>(datasets,
-                                                                                                 inputDataProvider,
-                                                                                                 filter,
-                                                                                                 remover,
-                                                                                                 std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
-              fileInfoList.append(files);
-            }
-            else if(dataFormat == "GEOTIFF")
-            {
-              auto files = dataSeriesFileList<std::shared_ptr<terrama2::core::DataAccessorGeoTiff>>(datasets,
-                                                                                                    inputDataProvider,
-                                                                                                    filter,
-                                                                                                    remover,
-                                                                                                    std::dynamic_pointer_cast<terrama2::core::DataAccessorGeoTiff>(dataAccessor));
-              fileInfoList.append(files);
-            }
+            auto files = dataSeriesFileList(datasets,
+                                            inputDataProvider,
+                                            filter,
+                                            remover,
+                                            std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
+            fileInfoList.append(files);
 
             for(auto& fileInfo : fileInfoList)
             {
@@ -383,10 +373,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
           }
           else if(dataProviderType == "POSTGIS")
           {
-            std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorPostGis =
-                  std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
-
-            std::vector<std::string> tablesNames;
+            terrama2::core::DataSeriesType dataSeriesType = inputDataSeries->semantics.dataSeriesType;
 
             QUrl url(inputDataProvider->uri.c_str());
             std::map<std::string, std::string> connInfo
@@ -400,10 +387,15 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               {"PG_CLIENT_ENCODING", "UTF-8"}
             };
 
+            std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorPostGis =
+                std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
+
             for(auto& dataset : datasets)
             {
               std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
               std::string timestampPropertyName;
+              std::string joinSQL;
+
               try
               {
                 timestampPropertyName = dataAccessorPostGis->getTimestampPropertyName(dataset);
@@ -413,16 +405,66 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                 /* code */
               }
 
+              if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+              {
+                const auto& id = dataset->format.find("monitored_object_id");
+                const auto& foreing = dataset->format.find("monitored_object_pk");
+
+                if(id == dataset->format.end() || foreing == dataset->format.end())
+                {
+                  logger->error("Data to join not informed.", logId);
+                  TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+                  continue;
+                }
+
+                terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(std::stoi(id->second));
+                terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
+
+                QUrl monitoredObjectUrl(monitoredObjectProvider->uri.c_str());
+
+                if(monitoredObjectUrl.host() != url.host()
+                   || monitoredObjectUrl.port() != url.port()
+                   || monitoredObjectUrl.path().section("/", 1, 1) != url.path().section("/", 1, 1))
+                {
+                  logger->error("Data to join is in a different DB.", logId);
+                  TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+                  continue;
+                }
+
+                if(monitoredObjectDataSeries->datasetList.empty())
+                {
+                  logger->error("No join data.", logId);
+                  TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
+                  continue;
+                }
+
+                const terrama2::core::DataSetPtr monitoredObjectDataset = monitoredObjectDataSeries->datasetList.at(0);
+
+                terrama2::core::DataAccessorPtr monitoredObjectDataAccessor =
+                    terrama2::core::DataAccessorFactory::getInstance().make(monitoredObjectProvider, monitoredObjectDataSeries);
+
+                std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorAnalysisPostGis =
+                    std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(monitoredObjectDataAccessor);
+
+                std::string joinTableName = dataAccessorAnalysisPostGis->getDataSetTableName(monitoredObjectDataset);
+
+                joinSQL = "SELECT * from " + tableName + " as t1 , " + joinTableName + " as t2 ";
+
+                joinSQL += "WHERE t1.geom_id = t2." + foreing->second;
+              }
+
               geoserver.registerPostgisTable(inputDataProvider->name,
                                              connInfo,
                                              tableName,
                                              viewPtr->viewName,
-                                             timestampPropertyName);
+                                             timestampPropertyName,
+                                             joinSQL);
 
               QJsonObject layer;
-              layer.insert("layer", QString::fromStdString(tableName));
+              layer.insert("layer", QString::fromStdString(viewPtr->viewName));
               layersArray.push_back(layer);
             }
+
           }
         }
         else
@@ -484,12 +526,11 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 }
 
 
-template< typename Accessor >
 QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(const std::vector<terrama2::core::DataSetPtr> datasets,
                                                                           const terrama2::core::DataProviderPtr inputDataProvider,
                                                                           const terrama2::core::Filter filter,
                                                                           const std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                                          const Accessor dataAccessor)
+                                                                          const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor)
 {
   QFileInfoList fileInfoList;
 

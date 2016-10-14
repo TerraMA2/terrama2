@@ -83,9 +83,9 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
 
   te::dt::DateTimeProperty* dateProperty = new te::dt::DateTimeProperty("data", te::dt::DATE);
   te::dt::DateTimeProperty* timeProperty = new te::dt::DateTimeProperty("hora", te::dt::TIME_DURATION);
-  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty("data_hora", te::dt::TIME_INSTANT);
-  te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty("lat", te::dt::DOUBLE_TYPE);
-  te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty("lon", te::dt::DOUBLE_TYPE);
+  te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT);
+  te::dt::SimpleProperty* latProperty = new te::dt::SimpleProperty(getLatitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
+  te::dt::SimpleProperty* lonProperty = new te::dt::SimpleProperty(getLongitudePropertyName(dataSet), te::dt::DOUBLE_TYPE);
   te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty("geom", srid, te::gm::PointType);
 
   // Find the right column to adapt

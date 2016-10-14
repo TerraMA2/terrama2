@@ -29,3 +29,7 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-slider", function(event) {
 
   setSlider(capability.extent, parentId);
 });
+
+$("#terrama2-layerexplorer").on("click", "button[class~='close-slider']", function(e) {
+  $(this).parent().hide();
+});
