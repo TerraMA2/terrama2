@@ -78,6 +78,7 @@ void terrama2::services::analysis::core::python::Grid::registerGridHistoryFuncti
   // set the current scope to the new sub-module
   scope gridHistoryScope = gridHistoryModule;
 
+  def("sum", terrama2::services::analysis::core::grid::history::sum);
   def("min", terrama2::services::analysis::core::grid::history::min);
   def("max", terrama2::services::analysis::core::grid::history::max);
   def("mean", terrama2::services::analysis::core::grid::history::mean);
@@ -199,7 +200,6 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalFunction
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryCount_overloads, terrama2::services::analysis::core::grid::zonal::history::count, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryMin_overloads, terrama2::services::analysis::core::grid::zonal::history::min, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryMax_overloads, terrama2::services::analysis::core::grid::zonal::history::max, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryMean_overloads, terrama2::services::analysis::core::grid::zonal::history::mean, 2, 3)
@@ -222,9 +222,6 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryF
   // set the current scope to the new sub-module
   scope gridZonalHistoryScope = gridZonalHistoryModule;
 
-  def("count", terrama2::services::analysis::core::grid::zonal::history::count,
-      gridZonalHistoryCount_overloads(args("dataSeriesName", "buffer"),
-                                      "Count operator for grid zonal"));
   def("min", terrama2::services::analysis::core::grid::zonal::history::min,
       gridZonalHistoryMin_overloads(args("dataSeriesName", "buffer"),
                                     "Min operator for grid zonal"));
