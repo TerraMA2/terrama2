@@ -930,7 +930,7 @@ var DataManager = module.exports = {
   updateLog: function(logId, logObject, options) {
     return new Promise(function(resolve, reject) {
       models.db.Log.update(logObject, Utils.extend({
-        fields: ['host', 'port', 'user', 'database'],
+        fields: ['host', 'port', 'user', 'database', 'password'],
         where: {
           id: logId
         }
