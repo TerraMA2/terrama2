@@ -3345,6 +3345,7 @@ var DataManager = module.exports = {
                 if (dataSeries.id === registeredView.View.data_series_id) {
                   var dModel = new DataModel.RegisteredView(registeredView.get());
                   dModel.setDataSeriesType(key);
+                  dModel.setDataSeries(dataSeries);
                   output.push(dModel);
                   return true;
                 }
