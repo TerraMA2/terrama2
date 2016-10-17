@@ -95,17 +95,20 @@ namespace terrama2
             const std::string& workspace() const;
 
             /*!
-             * \brief This method register a table in a PostGis BD as a layer in GeoServer
-             * \param dataStoreName The name of the store in GeoServer,
-             *                      if it doesn't exists, will be created.
+             * \brief This method register a PostGIS data Store and table as a layer in GeoServer
+             * \param dataStoreName The name of the store  to create in GeoServer
              * \param connInfo The connection parameters to the Postgis BD
              * \param tableName The name of the table in Postgis to register in GeoServer
+             * \param title
+             * \param timestampPropertyName The datetime property for temporal data
+             * \param sql The SQL statements to create the view
              */
             void registerPostgisTable(const std::string& dataStoreName,
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,
-                                      const std::string& viewName,
-                                      const std::string& timestampPropertyName = "") const;
+                                      const std::string& title,
+                                      const std::string& timestampPropertyName = "",
+                                      const std::string& sql = "") const;
 
             /*!
              * \brief Method to upload a .zip with the vector files from out of the server to the GeoServer
@@ -203,7 +206,10 @@ namespace terrama2
              * \brief Method to delete a style file in Geoserver
              * \param styleName The name of style to delete
              */
-            void deleteStyle(const::std::string& styleName) const;
+            void deleteStyle(const std::string& styleName) const;
+
+
+            void deletePostgisTable(const std::string& dataStoreName, const std::string &tableName, bool recursive) const;
 
 
             /*!
@@ -226,10 +232,21 @@ namespace terrama2
                            const uint32_t srid,
                            const std::string& format) const;
 
+          protected:
+
+            /*!
+             * \brief This method register a PostGIS data Store in GeoServer
+             * \param dataStoreName The name of the store in GeoServer,
+             *                      if it doesn't exists, will be created.
+             * \param connInfo The connection parameters to the Postgis BD
+             */
+            void registerDataStore(const std::string& dataStoreName,
+                                   std::map<std::string, std::string> connInfo) const;
+
           private:
 
             te::core::URI uri_;     /*!< The address of the GeoServer */
-            std::string workspace_ = "terrama"; /*!< A workspace to work in GeoServer */
+            std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
 
         };
       }

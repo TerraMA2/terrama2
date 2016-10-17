@@ -293,6 +293,13 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
         }
       }
+      catch(const EmptyDataSeriesException& e)
+      {
+        if(statisticOperation == StatisticOperation::COUNT)
+          return 0;
+        else
+          return NAN;
+      }
       catch(const terrama2::Exception& e)
       {
         context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());

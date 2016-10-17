@@ -85,7 +85,7 @@ endif()
 
 # variable that defines the database name to be used in unittests and examples
 if(NOT DEFINED TERRAMA2_DATABASE_DBNAME)
-    set(TERRAMA2_DATABASE_DBNAME "nodejs" CACHE PATH "Database name to be used in unittests and examples")
+    set(TERRAMA2_DATABASE_DBNAME "terrama2" CACHE PATH "Database name to be used in unittests and examples")
 endif()
 
 # variable that defines the database host to be used in unittests and examples

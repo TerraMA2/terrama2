@@ -282,11 +282,6 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
   }
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
-{
-  return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::COUNT, dataSeriesName, dateDiscardBefore, "", buffer);
-}
-
 double terrama2::services::analysis::core::grid::zonal::history::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
 {
   return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, "", buffer);
