@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/jquery-ui.css">
 <style>
     .slider{
-        position: absolut;
+        position: absolute;
         width: 150px;
         bottom: 40px;
         overflow: visible;
@@ -27,9 +27,6 @@
 </form>
 <li class="header">VISIBLE LAYERS</li>
 <div id="terrama2-sortlayers"></div>
-<p id="amount" style="color: white"></p>
-<p id="name" style="color: white"></p>
-<p id="change" style="color: white"></p>
 {% endblock %}
 
 {% block content %}
@@ -61,14 +58,22 @@
 </div>
 
 <script src="/moment/moment.js"></script>
+
 <script src="/javascripts/utils/utils.js"></script>
 <script src="/jquery/dist/jquery.min.js"></script>
 <script src="/jquery-ui/jquery-ui.min.js"></script>
+
+<!-- Date Range Picker Dependencies -->
+<script type="text/javascript" src="/bootstrap-daterangepicker/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="/bootstrap-daterangepicker/daterangepicker.css" />
+
 <script src="ol3/ol.js"></script>
 <script src="TerraMA2WebComponents.min.js"></script>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script src="https://gist.github.com/jlong/2428561.js"></script>
 <script src="/javascripts/utils/capabilities.js"></script>
+<script src="/javascripts/utils/calendar.js"></script>
+<script src="/javascripts/utils/slider.js"></script>
 <script>
     var allLayers = [];
     var visibleLayers = [];
@@ -96,18 +101,9 @@
     var wepappsocket = io.connect(':36000');
     wepappsocket.emit('viewRequest');
     wepappsocket.on("viewResponse", function (data){
-        /*data.push({
-            workspace: 'work',
-            name: 'test',
-            uriGeoserver: 'http://150.163.17.179:8080/geoserver/terrama',
-            serverType: 'geoserver',
-            layers: ['teste_20100103050604', 'teste_20100203050604', 'teste_20100303050604','teste_20100403050604'],
-            params: {mask: 'teste_yyyyMMddhhmmss'},
-            type: 'dynamic'
-        });*/
         for (i in data){
-            if (data[i].params && data[i].params.hasOwnProperty('mask')){
-                var layerWithDate = getLayersListWithDate(data[i].params.mask, data[i].layers);
+            if (data.params && data.params.hasOwnProperty('mask')){
+                var layerWithDate = getLayersListWithDate(data.params.mask, data[i].layers);
                 
                 var workspace = data[i].workspace;
                 var layerName = data[i].name;
@@ -115,7 +111,7 @@
                 var serverType = data[i].serverType;
                 var layerId = workspace + ":" + layerWithDate[layerWithDate.length - 1].layer;
                 var parent = data[i].type;
-                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer")){
+                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
                     allLayers.push({id: layerId, name: layerName});
 
@@ -139,7 +135,6 @@
 
                     $("#" + layerId.replace(':','')).append(sliderDiv);
                     setSlider(layerWithDate, layerId);
-                    $("#slider"+layerId.replace(':','')).after(button);
                 }
 
             }
@@ -149,7 +144,7 @@
                 var uriGeoServer = data[i].uriGeoserver;
                 var serverType = data[i].serverType;
                 var layerId = workspace + ":" + data[i].layers[0];
-                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer")){
+                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
                     allLayers.push({id: layerId, name: layerName});
                 }
@@ -162,7 +157,7 @@
 
     function addLayerWithSlider(listLayers, layerId, layerName, workspace, server, serverType, parent){
 
-        if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(workspace + ':' + layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer")){
+        if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(workspace + ':' + layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(workspace + ':' + layerId, parent, null, "unsortable", null);
             addLayerToSort(layerId);
             allLayers.push({id: workspace + ':' + layerId, name: layerName});
@@ -170,19 +165,19 @@
             var sliderDiv = "<div id='slider" + layerId.replace(':','') + "'></div>";
             var button = document.createElement('button');
             button.type = 'button';
-            button.innerHTML = 'Change';
+            // button.innerHTML = 'Change';
 
-            button.addEventListener('click', function(){
-                var indexvalue = document.getElementById("amount").innerHTML;
-                var layer = listLayers[indexvalue];
-                document.getElementById("change").innerHTML = layerId;
+            // button.addEventListener('click', function(){
+            //     var indexvalue = document.getElementById("amount").innerHTML;
+            //     var layer = listLayers[indexvalue];
+            //     document.getElementById("change").innerHTML = layerId;
 
-                TerraMA2WebComponents.MapDisplay.removeLayer(layerId, "terrama2-layerexplorer");
-                $("#terrama2-layerexplorer").find('li#' + workspace + layerId.replace(':','')).remove();
-                $("#terrama2-sortlayers").find('li#' + workspace + layerId.replace(':','')).remove();
+            //     TerraMA2WebComponents.MapDisplay.removeLayer(layerId, "terrama2-layerexplorer");
+            //     $("#terrama2-layerexplorer").find('li#' + workspace + layerId.replace(':','')).remove();
+            //     $("#terrama2-sortlayers").find('li#' + workspace + layerId.replace(':','')).remove();
 
-                addLayerWithSlider(listLayers, layer.layer, layer.layer, workspace, server, serverType, 'dynamic');
-            });
+            //     addLayerWithSlider(listLayers, layer.layer, layer.layer, workspace, server, serverType, 'dynamic');
+            // });
 
             $("#" + workspace + layerId.replace(':','')).append(sliderDiv);
             setSlider(listLayers, layerId);
@@ -192,18 +187,30 @@
 
     function setSlider(rangeDate, layerId){
         var valMap = rangeDate;
+
+        var slider = $("#slider" + layerId.replace(':',''));
+        var sliderParent = $(slider).parent();
+        if (!$(sliderParent).is(":visible")) {
+            $(sliderParent).show();
+        } else {
+            $(sliderParent).hide();
+        }
+
+        var labelDate = $(sliderParent).find("label");
         
-        $("#slider" + layerId.replace(':','')).slider({
+        $(slider).slider({
             min: 0,
             max: valMap.length - 1,
             value: 0,
             slide: function(event, ui) {
-                document.getElementById("amount").innerHTML = ui.value;
-                document.getElementById("name").innerHTML = rangeDate[ui.value].layer;
-            }
-        });
+                $(labelDate).text(moment(rangeDate[ui.value]).format("lll"));
+            },
+            stop: function(event, ui) {                        
+                // document.getElementById("amount").innerHTML = valMap[ui.value];
+                doSlide(layerId, rangeDate[ui.value]);
+            }       
+        })
     }
-
 
     function addLayers() {
         var url = document.getElementById("wmsUri").value;
@@ -250,10 +257,32 @@
         function addInLayerExplorer(element, index, array){
             for (i in capabilities){
                 if (capabilities[i].name == element){
-                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer"))
+                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {version: "1.1.0"})) {
                         TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "unsortable", null);
                         allLayers.push({id: capabilities[i].name, name: capabilities[i].title, extent: capabilities[i].extent});
                         addLayerToSort(capabilities[i].name);
+
+                        if (!capabilities[i].extent) {
+                            continue;
+                        } 
+
+                        var span = "";
+                        var listElement = $("li[data-layerid='custom']");
+                        var li = $(listElement).find("li[data-layerid='" + capabilities[i].name +"']");
+
+                        if (li.length === 0) {
+                            continue;
+                        }
+                        var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
+                        $(li).append(sliderDiv);
+
+                        if (capabilities[i].extent instanceof Array) {
+                            span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(capabilities[i]) + "<i class='fa fa-sliders'></i></span>";
+                        } else if (capabilities[i].extent instanceof Object) {
+                            span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(capabilities[i]) + "<i class='fa fa-calendar'></i></span>";
+                        }
+                        $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
+                    }
                 }
             }
         }
