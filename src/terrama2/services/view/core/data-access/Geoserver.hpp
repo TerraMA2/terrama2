@@ -164,7 +164,9 @@ namespace terrama2
              */
             void registerCoverageFile(const std::string& coverageStoreName,
                                       const std::string& coverageFilePath,
-                                      const std::string& extension) const;
+                                      const std::string& coverageName,
+                                      const std::string& extension,
+                                      const std::string& style = "") const;
 
             /*!
              * \brief Method to register a style in the GeoServer from a text file

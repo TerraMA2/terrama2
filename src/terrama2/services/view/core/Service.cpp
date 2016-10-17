@@ -317,11 +317,20 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
       if(mapsServerGeneration)
       {
-        QFileInfoList fileInfoList;
-        QJsonArray layersArray;
-
         GeoServer geoserver(viewPtr->maps_server_uri);
         geoserver.registerWorkspace();
+
+        std::string styleName = "";
+        auto itStyle = viewPtr->stylesPerDataSeries.find(inputDataSeries->id);
+
+        if(itStyle != viewPtr->stylesPerDataSeries.end())
+        {
+          styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
+          geoserver.registerStyle(styleName, itStyle->second);
+        }
+
+        QFileInfoList fileInfoList;
+        QJsonArray layersArray;
 
         terrama2::core::DataAccessorPtr dataAccessor =
             terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
@@ -363,7 +372,9 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               {
                 geoserver.registerCoverageFile(fileInfo.fileName().toStdString() ,
                                                fileInfo.absoluteFilePath().toStdString(),
-                                               "geotiff");
+                                               fileInfo.completeBaseName().toStdString(),
+                                               "geotiff",
+                                               styleName);
               }
 
               QJsonObject layer;
@@ -475,15 +486,6 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         {
           logger->info("No data to register.", logId);
           TERRAMA2_LOG_WARNING() << tr("No data to register in maps server.");
-        }
-
-        std::string styleName = "";
-        auto itStyle = viewPtr->stylesPerDataSeries.find(inputDataSeries->id);
-
-        if(itStyle != viewPtr->stylesPerDataSeries.end())
-        {
-          styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
-          geoserver.registerStyle(styleName, itStyle->second);
         }
 
         jsonAnswer.insert("class", QString("RegisteredViews"));
