@@ -561,8 +561,8 @@ void TsDataAccessorOccurrenceWfp::TestOK()
     int numberLinesNewFile = teDataSet->size();
 
     QCOMPARE(numberLinesOriginalFile,numberLinesNewFile);
-    QCOMPARE(numberPropertiesOriginalFile.size(),numberPropertiesNewFile);
-
+    QCOMPARE(numberPropertiesOriginalFile.size(), 3);
+    QCOMPARE(numberPropertiesNewFile, 7);
   }
   catch(...)
   {

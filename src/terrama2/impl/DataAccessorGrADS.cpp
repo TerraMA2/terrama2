@@ -162,9 +162,11 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
     std::unique_ptr<te::rst::Raster> raster(
       dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
 
+    std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
+
     te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
 
-    item->setRaster(rasterColumn, raster.release());
+    item->setRaster(rasterColumn, adapted.release());
     if(isValidColumn(timestampColumn))
       item->setDateTime(timestampColumn,
                         fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
@@ -173,6 +175,33 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
 
     complete->add(item);
   }
+}
+
+std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const
+{
+  std::vector<te::rst::BandProperty*> bands;
+  for(size_t i = 0; i < raster->getNumberOfBands(); ++i)
+  {
+    bands.push_back(new te::rst::BandProperty(*raster->getBand(i)->getProperty()));
+  }
+  auto grid = new te::rst::Grid(raster->getNumberOfColumns(), raster->getNumberOfRows(), new te::gm::Envelope(*raster->getExtent()), raster->getSRID());
+  std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
+
+  auto rows = grid->getNumberOfRows();
+  for(size_t band = 0; band < raster->getNumberOfBands(); ++band)
+  {
+    for(size_t row = 0; row < rows; ++row)
+    {
+      for(size_t col = 0; col < grid->getNumberOfColumns(); ++col)
+      {
+        std::complex<double> value;
+        raster->getValue(col, rows-row-1, value, band);
+        expansible->setValue(col, row, value, band);
+      }
+    }
+  }
+
+  return std::move(expansible);
 }
 
 QString terrama2::core::DataAccessorGrADS::grad2TerramaMask(QString mask) const

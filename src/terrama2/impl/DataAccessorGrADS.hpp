@@ -218,6 +218,8 @@ namespace terrama2
 
         void writeVRTFile(GrADSDataDescriptor descriptor, const std::string& binFilename,
                           const std::string& vrtFilename, DataSetPtr dataset) const;
+
+        std::unique_ptr<te::rst::Raster> adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const;
     };
 
 
