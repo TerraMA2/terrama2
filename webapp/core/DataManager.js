@@ -3184,7 +3184,8 @@ var DataManager = module.exports = {
         .then(function(views) {
           return resolve(views.map(function(view) {
             return new DataModel.View(Object.assign(view.get(), {
-              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
+              // schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
+              schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
           }));
         })
