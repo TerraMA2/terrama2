@@ -60,12 +60,23 @@
           viewObject.style = "";
         }
 
-        return DataManager.addSchedule(viewObject.schedule, options)
+        var promiser;
+
+        if (Utils.isEmpty(viewObject.schedule)) {
+          promiser = PromiseClass.resolve();
+        } else {
+          promiser = DataManager.addSchedule(viewObject.schedule, options);
+        }
+
+        return promiser
           .then(function(schedule) {
-            viewObject.schedule_id = schedule.id;
+            if (schedule) {
+              viewObject.schedule_id = schedule.id;
+            }
             return DataManager.addView(viewObject, options);
           });
       })
+
       .then(function(view) {
         // sending to the services
         sendView(view);
@@ -117,17 +128,41 @@
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t) {
         var options = {transaction: t};
+        /**
+         * @type {View}
+         */
+        var view;
         return DataManager.getView({id: viewId, project_id: projectId}, options)
-          .then(function(view) {
-            return DataManager.updateSchedule(view.schedule.id, viewObject.schedule, options)
+          .then(function(viewResult) {
+            view = viewResult;
+
+            if (view.schedule.id) {
+              if (Utils.isEmpty(viewObject.schedule)) {
+                // delete
+                return DataManager.removeSchedule({id: view.schedule.id}, options);
+              } else {
+                // update
+                return DataManager.updateSchedule(view.schedule.id, viewObject.schedule, options);
+              }
+            }
+
+            if (Utils.isEmpty(viewObject.schedule)) {
+              return null;
+            } else {
+              return DataManager.addSchedule(viewObject.schedule, options)
+                .then(function(scheduleResult) {
+                  view.schedule = scheduleResult;
+                });
+            }
+          })
+
+          .then(function() {
+            var requester = RequestFactory.build(viewObject.serverUriObject);
+            // setting built uri
+            viewObject.maps_server_uri = requester.uri;
+            return DataManager.updateView({id: viewId}, viewObject, options)
               .then(function() {
-                var requester = RequestFactory.build(viewObject.serverUriObject);
-                // setting built uri
-                viewObject.maps_server_uri = requester.uri;
-                return DataManager.updateView({id: viewId}, viewObject, options)
-                  .then(function() {
-                    return DataManager.getView({id: viewId}, options);
-                  });
+                return DataManager.getView({id: viewId}, options);
               });
           });
       })

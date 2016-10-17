@@ -6,45 +6,124 @@
       "terrama2.services",
       "terrama2.views.services",
       "schemaForm",
-      'terrama2.datetimepicker',
+      "color.picker",
+      "terrama2.datetimepicker",
       "terrama2.dataseries.services",
       "terrama2.schedule",
       "terrama2.administration.services.iservices",
       "terrama2.ace",
       "terrama2.components.messagebox.services",
       "terrama2.components.messagebox"])
+    .constant("StyleContants", {
+      "GRID": "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<StyledLayerDescriptor xmlns='http://www.opengis.net/sld' xmlns:ogc='http://www.opengis.net/ogc' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd' version='1.0.0'>" +
+                    "<UserLayer>" +
+                      "<Name>{0}-style</Name>" +
+                        "<UserStyle>" +
+                          "<Name>raster</Name>" +
+                          "<FeatureTypeStyle>" +
+                          "<FeatureTypeName>Feature</FeatureTypeName>" +
+                          "<Rule>" +
+                          "<RasterSymbolizer>" +
+                          "<Opacity>1.0</Opacity>" +
+                          "<ColorMap extended='true'>" +
+                            "<ColorMapEntry color='{1}' quantity='{2}'/>" +
+                            "<ColorMapEntry color='{3}' quantity='{4}'/>" +
+                          "</ColorMap>" +
+                        "</RasterSymbolizer>" +
+                      "</Rule>" +
+                    "</FeatureTypeStyle>" +
+                  "</UserStyle>" +
+                "</UserLayer>" +
+              "</StyledLayerDescriptor>",
+      "COMMON": "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<StyledLayerDescriptor xmlns='http://www.opengis.net/sld' xmlns:ogc='http://www.opengis.net/ogc' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' version='1.0.0' xsi:schemaLocation='http://www.opengis.net/sld StyledLayerDescriptor.xsd'>" + 
+                  "<NamedLayer>" +
+                    "<Name>{0}-style</Name>" +
+                    "<UserStyle>" +
+                      "<Title>{0}-style</Title>" +
+                      "<FeatureTypeStyle>" +
+                        "<Rule>" +
+                          "<LineSymbolizer>" +
+                            "<Stroke>" +
+                              "<CssParameter name='stroke'>{1}</CssParameter>" +
+                              "<CssParameter name='stroke-width'>{2}</CssParameter>" +
+                            "</Stroke>" +
+                          "</LineSymbolizer>" +
+
+                          "<PolygonSymbolizer>" +
+                            "<Stroke>" +
+                              "<CssParameter name='stroke'>{3}</CssParameter>" +
+                              "<CssParameter name='stroke-width'>{4}</CssParameter>" +
+                            "</Stroke>" +
+                          "</PolygonSymbolizer>" +
+
+                          "<PointSymbolizer>" +
+                            "<Graphic>" +
+                              "<Mark>" +
+                                "<WellKnownName>circle</WellKnownName>" +
+                                "<Fill>" +
+                                  "<CssParameter name='fill'>{5}</CssParameter>" +
+                                "</Fill>" +
+                              "</Mark>" +
+                              "<Size>{6}</Size>" +
+                            "</Graphic>" +
+                          "</PointSymbolizer>" +
+                        "</Rule>" +
+                      "</FeatureTypeStyle>" +
+                    "</UserStyle>" +
+                  "</NamedLayer>" +
+                "</StyledLayerDescriptor>"
+    })
     .controller("ViewRegisterUpdate", ViewRegisterUpdate)
 
   /**
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleContants, StringFormat) {
     /**
      * @type {ViewRegisterUpdate}
      */
     var self = this;
-
+    /**
+     * It retrieves a configuration from main window.
+     * 
+     * @type {Object}
+     */
     var config = window.configuration;
-
     /**
      * It handles alert box display
      * 
      * @type {Object}
      */
     self.MessageBoxService = MessageBoxService;
-
+    /**
+     * It defines available DataSeries type from DataSeries Service
+     * @enum string
+     */
+    self.DataSeriesType = DataSeriesService.DataSeriesType;
     /**
      * It handles Service Instance model
      * 
      * @type {Object}
      */
     self.ServiceInstance = Service;
-
     /** 
      * @type {Object}
      */
     self.scheduleOptions = {};
+    /**
+     * It handles if should show schedule or not. It may be changed on view data series change
+     * 
+     * @type {boolean}
+     */
+    self.isDynamic = false;
+    /**
+     * It defines a list of Service with type View. It will be filled out in ng-options generation
+     * @type {Service[]}
+     */
+    self.filteredServices = [];
 
     /**
      * Flag to handle if is Updating or Registering
@@ -52,13 +131,89 @@
      * @type {Boolean}
      */
     self.isUpdating = config.view ? true : false;
-
     /**
      * It defines a list of cached data series
      * @type {Object[]}
      */
     self.dataSeries = [];
-
+    /**
+     * It configures color picker (Angular Color Picker dependency)
+     * @type {Object}
+     */
+    self.colorOptions = {
+      format: 'hex',
+    };
+    /**
+     * It defines min color HEX representation. Used for View GRID Data Series
+     * @type {string}
+     */
+    self.minColor = "";
+    /**
+     * It defines max color HEX representation. Used for View GRID Data Series
+     * @type {string}
+     */
+    self.maxColor = "";
+    /**
+     * It defines min value of style. Used for View GRID Data Series
+     * @type {number}
+     */
+    self.minValue = null;
+    /**
+     * It defines max value of style. Used for View GRID Data Series
+     * @type {number}
+     */
+    self.maxValue = null;
+    /**
+     * It defines line width. Used for View Data Series different than GRID
+     * @type {number}
+     */
+    self.lineStroke = null;
+    /**
+     * It defines line color. Used for View Data Series different than GRID
+     * @type {string}
+     */
+    self.lineStrokeColor = null;
+    /**
+     * It defines polygon width. Used for View Data Series different than GRID
+     * @type {number}
+     */
+    self.polygonStroke = null;
+    /**
+     * It defines polygon color. Used for View Data Series different than GRID
+     * @type {string}
+     */
+    self.polygonStrokeColor = null;
+    /**
+     * It defines point size. Used for View Data Series different than GRID
+     * @type {number}
+     */
+    self.pointSize = null;
+    /**
+     * It defines point color. Used for View Data Series different than GRID
+     * @type {number}
+     */
+    self.pointStrokeColor = null;
+    /**
+     * It builds a style from data series semantics
+     * 
+     * @param {DataSeriesService.DataSeriesType} semanticsTypeName
+     * @returns {string}
+     */
+    var makeStyle = function(semanticsTypeName) {
+      var targetStyle = "";
+      switch(semanticsTypeName) {
+        case DataSeriesService.DataSeriesType.STATIC_DATA:
+          targetStyle = StyleContants.COMMON;
+          self.schedule = {};
+          break;
+        case DataSeriesService.DataSeriesType.GRID:
+          targetStyle = StyleContants.GRID;
+          break;
+        default:
+          targetStyle = StyleContants.COMMON;
+      }
+      return targetStyle;
+    };
     /**
      * It retrieves all data provider type to get HTTP fields
      */
@@ -72,13 +227,64 @@
        * Retrieve all service instances
        */
       self.ServiceInstance.init().then(function() {
-
+        // setting all view services in cache
+        self.filteredServices = self.ServiceInstance.list({'service_type_id': self.ServiceInstance.types.VIEW});
         /**
          * Retrieve all data series
          */
         return DataSeriesService.list({schema: "all"}).then(function(dataSeries) {
           self.dataSeries = dataSeries;
 
+          var styleCache = config.view.style;
+
+          if (self.view.data_series_id) {
+            self.onDataSeriesChanged(self.view.data_series_id);
+
+            self.view.style = styleCache;
+
+            // -------------------------------------------------------------------------------
+            // TODO: It is temp. It should have angular xml parser or a library to extend app
+            // -------------------------------------------------------------------------------
+            var xmlStyle = $(self.view.style || "");
+
+            if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {
+              var colors = $(self.view.style || "").find("ColorMapEntry");
+              if (colors.length !== 0) {
+                var minColorSelector = $(colors[0]);
+                var maxColorSelector = $(colors[1]);
+                self.minColor = minColorSelector.attr("color");
+                self.minValue = parseInt(minColorSelector.attr("quantity"));
+
+                self.maxColor = maxColorSelector.attr("color");
+                self.maxValue = parseInt(maxColorSelector.attr("quantity"));
+              }
+            } else {
+              var lineSymbolizer = $(xmlStyle).find("LineSymbolizer");
+              var lines = $(lineSymbolizer).find("CssParameter");
+
+              if (lines.length !== 0) {
+                self.lineStrokeColor = $(lines[0]).text();
+                self.lineStroke = parseInt($(lines[1]).text());
+              }
+
+              var polygonSymbolizer = $(xmlStyle).find("PolygonSymbolizer");
+              var tags = $(polygonSymbolizer).find("CssParameter");
+
+              if (tags.length !== 0) {
+                self.polygonStrokeColor = $(tags[0]).text();
+                self.polygonStroke = parseInt($(tags[1]).text());
+              }
+
+              var pointSymbolyzer = $(xmlStyle).find("PointSymbolizer");
+              var pointTags = $(pointSymbolyzer).find("CssParameter");
+              var pointSizeTag = $(pointSymbolyzer).find("Size");
+
+              if (pointTags.length !== 0) {
+                self.pointStrokeColor = $(pointTags[0]).text();
+                self.pointSize = parseInt($(pointSizeTag[0]).text());
+              }
+            }
+          }
           /**
            * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
            * Using $timeout 0 forces to execute when angular ready state is OK.
@@ -93,6 +299,13 @@
             if (self.isUpdating) {
               self.schedule = {};
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
+            } else {
+              if (!config.view) {
+                // forcing first view pre-selected
+                if (self.filteredServices.length > 0) {
+                  self.view.service_instance_id = self.filteredServices[0].id;
+                }
+              }
             }
 
             $scope.model = config.view ? config.view.serverUriObject || {} : {port: 8080};
@@ -120,10 +333,36 @@
      * @returns {void}
      */
     self.initActive = function() {
+      // wait angular digest cycle
       $timeout(function() {
-        self.view.active = (self.view.active === false || !config.view.active) ? false : true;
+        self.view.active = (config.view.active === false || config.view.active) ? config.view.active : true;
       });
     };
+
+    /**
+     * It handles Data Series combobox change. If it is GRID data series, there is a default style script
+     * @param {DataSeries}
+     */
+    self.onDataSeriesChanged = function(dataSeriesId) {
+      self.dataSeries.some(function(dSeries) {
+        if (dSeries.id === dataSeriesId) {
+          // setting view data series
+          self.viewDataSeries = dSeries;
+          // extra comparison just to setting if it is dynamic or static.
+          // Here avoids to setting to true in many cases below
+          if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.STATIC_DATA) {
+            self.isDynamic = false;
+          } else {
+            self.isDynamic = true;
+          }
+
+          self.view.style = makeStyle(dSeries.data_series_semantics.data_series_type_name);
+
+          // breaking loop
+          return true;
+        }
+      });
+    }
 
     /**
      * It contains all forms. It must be appended on scope instance due schema form support;
@@ -137,13 +376,16 @@
     self.css = {
       boxType: "box-solid"
     };
-
     /**
      * It contains view instance values
      * @type {Object}
      */
     self.view = config.view || {};
-
+    /**
+     * It defines a selected View DataSeries object
+     * @type {DataSeries}
+     */
+    self.viewDataSeries = {};
     /**
      * Helper to reset alert box instance
      */
@@ -167,39 +409,72 @@
       // broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
 
-      var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
-
       if ($scope.forms.viewForm.$invalid || 
           $scope.forms.connectionForm.$invalid ||
-          scheduleForm.$invalid ||
-          $scope.forms.dataSeriesForm.$invalid) {
+          $scope.forms.dataSeriesForm.$invalid ||
+          $scope.forms.styleForm.$invalid) {
         return;
       }
 
       self.view.serverUriObject = $scope.model;
       self.view.serverUriObject.protocol = self.httpSyntax.name;
 
-      // preparing schedule
-      var scheduleValues = self.view.schedule;
-      switch(scheduleValues.scheduleHandler) {
-        case "seconds":
-        case "minutes":
-        case "hours":
-          scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-          scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
-          break;
-        case "weeks":
-        case "monthly":
-        case "yearly":
-          // todo: verify
-          var dt = scheduleValues.schedule_time;
-          scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
-          scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
-          break;
-
-        default:
-          break;
+      // setting style
+      if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {
+        // digesting XML with min/max value and color
+        var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
+        self.view.style = StringFormat(sld, 
+                                       self.view.name,
+                                       self.minColor,
+                                       self.minValue,
+                                       self.maxColor,
+                                       self.maxValue);
+      } else {
+        // digesting XML with min/max value and color
+        var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
+        self.view.style = StringFormat(sld,
+                                       self.view.name,
+                                       self.lineStrokeColor,
+                                       self.lineStroke,
+                                       self.polygonStrokeColor,
+                                       self.polygonStroke,
+                                       self.pointStrokeColor,
+                                       self.pointSize);
       }
+
+      // If dynamic, schedule validation is required
+      if (self.isDynamic) {
+        /**
+         * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
+         */
+        var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+        // form validation
+        if (scheduleForm.$invalid) {
+          return;
+        }
+
+        // preparing schedule.  
+        var scheduleValues = self.view.schedule;
+        switch(scheduleValues.scheduleHandler) {
+          case "seconds":
+          case "minutes":
+          case "hours":
+            scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+            scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
+            break;
+          case "weeks":
+          case "monthly":
+          case "yearly":
+            // todo: verify
+            var dt = scheduleValues.schedule_time;
+            scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+            scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+            break;
+
+          default:
+            break;
+        }
+      } // end if isDynamic
 
       // tries to save
       var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
@@ -214,5 +489,5 @@
   }
 
     // Injecting Angular Dependencies
-  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", "DataSeriesService", "Service"];
+  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", "DataSeriesService", "Service", "StyleContants", "StringFormat"];
 } ());

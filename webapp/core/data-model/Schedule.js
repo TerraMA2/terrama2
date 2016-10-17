@@ -30,36 +30,36 @@
      * Schedule frequency value
      * @type {number}
      */
-    this.frequency = params.frequency;
+    this.frequency = params.frequency || 0;
     /**
      * Schedule frequency unit (minutes,hours,seconds,weekly)
      * @type {string}
      */
-    this.frequency_unit = params.frequency_unit;
+    this.frequency_unit = params.frequency_unit || "";
     /**
      * Defines TerraMA² Start Time frequency
      * @type {string}
      */
-    this.frequency_start_time = params.frequency_start_time;
+    this.frequency_start_time = params.frequency_start_time || "";
     /**
      * Defines TerraMA² Schedule value
      * @type {number}
      */
-    this.schedule = params.schedule;
+    this.schedule = params.schedule || 0;
     /**
      * Defines TerraMA² Schedule Time. 
      * @type {string}
      */
-    this.schedule_time = params.schedule_time;
+    this.schedule_time = params.schedule_time || "";
     /**
      * Defines TerraMA² Schedule Unit values.
      * @type {string}
      */
-    this.schedule_unit = params.schedule_unit;
-    this.schedule_retry = params.schedule_retry;
-    this.schedule_retry_unit = params.schedule_retry_unit;
-    this.schedule_timeout = params.schedule_timeout;
-    this.schedule_timeout_unit = params.schedule_timeout_unit;
+    this.schedule_unit = params.schedule_unit || "";
+    this.schedule_retry = params.schedule_retry || 0;
+    this.schedule_retry_unit = params.schedule_retry_unit || "";
+    this.schedule_timeout = params.schedule_timeout || 0;
+    this.schedule_timeout_unit = params.schedule_timeout_unit || "";
   };
 
   Schedule.prototype = Object.create(BaseClass.prototype);

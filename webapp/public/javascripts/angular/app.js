@@ -34,27 +34,11 @@ terrama2Application.config(["$provide", function($provide) {
       return $delegate;
     }
   ]);
-  // i18n decorator - to make async call
-  // $provide.decorator("i18n", [
-  //   "$delegate",
-  //   function $logDecorator($delegate) {
-  //     var __ = $delegate.__;
-  //     $delegate.__ = function() {
-  //       var args = [].slice.call(arguments);
-
-  //       $delegate.ensureLocaleIsLoaded()
-  //         .then(function() {
-  //           __.apply(null, args);
-  //         });
-  //     }
-
-  //     return $delegate;
-  //   }]);
 }]);
 
 terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function($scope, i18n) {
   $scope.i18n = i18n;
-}])/
+}]);
 
 // setting caches
 terrama2Application.run(function($templateCache, $rootScope, $locale) {
@@ -128,7 +112,20 @@ terrama2Application.factory("TryCaster", function() {
     return parseInt(value);
   }
 });
+/**
+ * It parses a URI using HTML a tag.
+ * 
+ * @param {string} uriString - An URI
+ * @returns {A}
+ */
+terrama2Application.factory("URIParser", function() {
+  var parser = document.createElement('a');
 
+  return function(uriString) {
+    parser.href = uriString;
+    return parser;
+  }
+});
 /**
  * It parses a terrama2 date to a moment date object.
  * It requires "moment" library
@@ -148,6 +145,26 @@ terrama2Application.factory("MakeMetadata", function() {
       output[meta.key] = meta.value;
     });
     return output;
+  }
+});
+
+/**
+ * It applies a string format with syntax: {0}, {1}, ...
+ * 
+ * @param {...string}
+ * @returns {string}
+ */
+terrama2Application.factory("StringFormat", function() {
+  return function() {
+    var theString = arguments[0];
+    
+    // start with the second argument (i = 1)
+    for (var i = 1; i < arguments.length; i++) {
+      var regEx = new RegExp("\\{" + (i - 1) + "\\}", "gm");
+      theString = theString.replace(regEx, arguments[i]);
+    }
+    
+    return theString;
   }
 });
 

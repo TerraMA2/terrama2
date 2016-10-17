@@ -3099,7 +3099,8 @@ var DataManager = module.exports = {
         .then(function(views) {
           return resolve(views.map(function(view) {
             return new DataModel.View(Object.assign(view.get(), {
-              schedule: new DataModel.Schedule(view.Schedule.get())
+              // schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
+              schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
           }));
         })
@@ -3126,7 +3127,11 @@ var DataManager = module.exports = {
       models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          return self.getSchedule({id: view.schedule_id}, options);
+          if (viewResult.schedule_id) {
+            return self.getSchedule({id: view.schedule_id}, options);
+          } else {
+            return {id: 0};
+          }
         })
 
         .then(function(schedule) {
@@ -3345,6 +3350,7 @@ var DataManager = module.exports = {
                 if (dataSeries.id === registeredView.View.data_series_id) {
                   var dModel = new DataModel.RegisteredView(registeredView.get());
                   dModel.setDataSeriesType(key);
+                  dModel.setDataSeries(dataSeries);
                   output.push(dModel);
                   return true;
                 }
