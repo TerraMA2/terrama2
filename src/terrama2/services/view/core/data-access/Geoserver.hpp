@@ -181,6 +181,13 @@ namespace terrama2
             void registerStyle(const std::string& name, const std::unique_ptr<te::se::Style> &style) const;
 
             /*!
+             * \brief Method to register a style in the GeoServer from a TerraLib Style object
+             * \param name The name of the style
+             * \param style The style XML
+             */
+            void registerStyle(const std::string &style) const;
+
+            /*!
              * \brief Method to delete a workspace in Geoserver
              * \param recursive If true will delete all data associated with this workspace in server
              */
