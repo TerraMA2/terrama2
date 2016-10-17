@@ -94,15 +94,6 @@
     var wepappsocket = io.connect(':36000');
     wepappsocket.emit('viewRequest');
     wepappsocket.on("viewResponse", function (data){
-        /*data.push({
-            workspace: 'work',
-            name: 'test',
-            uriGeoserver: 'http://150.163.17.179:8080/geoserver/terrama',
-            serverType: 'geoserver',
-            layers: ['teste_20100103050604', 'teste_20100203050604', 'teste_20100303050604','teste_20100403050604'],
-            params: {mask: 'teste_yyyyMMddhhmmss'},
-            type: 'dynamic'
-        })*/
         for (i in data){
             if (data[i].params && data[i].params.hasOwnProperty('mask')){
                 var layerWithDate = getLayersListWithDate(data[i].params.mask, data[i].layers);
@@ -323,10 +314,17 @@
                     }
                 }
             }
+
+            if (!$("#custom").hasClass('open')){
+                $("#custom").addClass('open');
+            }
+            var children = $('#custom').find(' > ul > li');
+            children.show('fast');
+            
         }
         $("#layersModal").modal('hide');
     }
-    
+
     document.getElementById("addLayers").addEventListener("click", addLayers);
 
     $('#layersModalBody').on('click', 'input.terrama2-layerviews-checkbox', function() {
