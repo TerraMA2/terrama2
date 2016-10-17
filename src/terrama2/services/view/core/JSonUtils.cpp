@@ -69,21 +69,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   {
     for(auto& it : view->stylesPerDataSeries)
     {
-      QTemporaryFile file;
-      if(!file.open())
-        throw Exception() << ErrorDescription("Could not create XML file!");
-
-      Serialization::writeStyleGeoserverXML(it.second.get(), file.fileName().toStdString());
-
-      QByteArray content = file.readAll();
-      if(content.isEmpty())
-      {
-        QString errMsg = QObject::tr("Could not create XML file!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-
-      obj.insert("style", QString(content));
+      obj.insert("style", QString::fromStdString(it.second));
     }
   }
 
@@ -128,25 +114,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
 
   view->dataSeriesList.push_back(dataseriesID);
 
-  if(!json["style"].toString().isEmpty())
-  {
-    QTemporaryFile file;
-
-    if(!file.open())
-    {
-      QString errMsg = QObject::tr("Could not load the XML file!");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-
-    file.write(json["style"].toString().toUtf8());
-    file.flush();
-
-    std::unique_ptr<te::se::Style> style = Serialization::readStyleXML(file.fileName().toStdString());
-
-    view->stylesPerDataSeries.emplace(dataseriesID,
-                                      std::unique_ptr<te::se::Style>(style.release()));
-  }
+  view->stylesPerDataSeries.emplace(dataseriesID, json["style"].toString().toStdString());
 
   view->maps_server_uri = te::core::URI(json["maps_server_uri"].toString().toStdString());
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());

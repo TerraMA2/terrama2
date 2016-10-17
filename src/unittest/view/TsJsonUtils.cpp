@@ -78,7 +78,7 @@ void TsJsonUtils::testToJSon()
     view->dataSeriesList.push_back(3);
     view->dataSeriesList.push_back(4);
 
-    view->stylesPerDataSeries.emplace(2, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
+    view->stylesPerDataSeries.emplace(2, "style");
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
@@ -134,7 +134,7 @@ void TsJsonUtils::testGoNBackJSon()
 
     view->dataSeriesList.push_back(1);
 
-    view->stylesPerDataSeries.emplace(1, std::unique_ptr<te::se::Style>(CreateFeatureTypeStyle(te::gm::PolygonType)));
+    view->stylesPerDataSeries.emplace(1, "style");
 
     QJsonObject obj = terrama2::services::view::core::toJson(viewPtr);
 
@@ -176,8 +176,7 @@ void TsJsonUtils::testGoNBackJSon()
 
     for(auto& it : viewPtr->stylesPerDataSeries)
     {
-      QCOMPARE(*viewBackPtr->stylesPerDataSeries.at(it.first)->getName(), *it.second->getName());
-      QCOMPARE(viewBackPtr->stylesPerDataSeries.at(it.first)->getVersion(), it.second->getVersion());
+      QCOMPARE(viewBackPtr->stylesPerDataSeries.at(it.first), it.second);
     }
   }
   catch(const terrama2::Exception& e)
