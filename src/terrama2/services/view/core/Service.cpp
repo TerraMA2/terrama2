@@ -483,7 +483,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         if(itStyle != viewPtr->stylesPerDataSeries.end())
         {
           styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
-          geoserver.registerStyle(itStyle->second);
+          geoserver.registerStyle(styleName, itStyle->second);
         }
 
         jsonAnswer.insert("class", QString("RegisteredViews"));

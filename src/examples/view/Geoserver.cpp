@@ -55,6 +55,10 @@ int main(int argc, char** argv)
 
     geoserver.registerWorkspace("aworkspace");
 
+    geoserver.registerStyle("arealStyleBitch", "<StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.0.0\" xsi:schemaLocation=\"http://www.opengis.net/sld StyledLayerDescriptor.xsd\"><NamedLayer><Name>Two color gradient</Name><UserStyle><Title>SLD Cook Book: Two color gradient</Title><FeatureTypeStyle><Rule><RasterSymbolizer><Opacity>1.0</Opacity><ColorMap extended=\"true\"><ColorMapEntry color=\"#ffffff\" quantity=\"0.0\"/><ColorMapEntry color=\"#000000\" quantity=\"1.0\"/></ColorMap></RasterSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>");
+    std::cout << " " << std::endl;
+
+
     // Registering shapes from the same server that GeoServer
     geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/Rod_Principais_SP_lin.shp", "shp");
 

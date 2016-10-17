@@ -287,7 +287,7 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 }
 
 
-void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name,
+void terrama2::services::view::core::GeoServer::registerStyleFile(const std::string& name,
                                                             const std::string& styleFilePath) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
@@ -342,11 +342,11 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  registerStyle(name, filePath);
+  registerStyleFile(name, filePath);
 }
 
 
-void terrama2::services::view::core::GeoServer::registerStyle(const std::string &style) const
+void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name, const std::string &style) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -360,7 +360,31 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
   }
 
   // Register style
-  cURLwrapper.post(uriPost, style, "Content-Type: text/xml");
+  cURLwrapper.post(uriPost, "<style><name>" + name + "</name><filename>" + name + ".sld</filename></style>", "Content-Type: text/xml");
+
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + name);
+
+  if(!uriPut.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+  }
+
+  QTemporaryFile file;
+
+  if(!file.open())
+  {
+    QString errMsg = QObject::tr("Could not create the XML file!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  file.write(style.c_str());
+  file.flush();
+
+  // Upload Style file
+  cURLwrapper.putFile(uriPut, file.fileName().toStdString(), "Content-type: application/vnd.ogc.se+xml");
 }
 
 
