@@ -164,14 +164,16 @@ namespace terrama2
              */
             void registerCoverageFile(const std::string& coverageStoreName,
                                       const std::string& coverageFilePath,
-                                      const std::string& extension) const;
+                                      const std::string& coverageName,
+                                      const std::string& extension,
+                                      const std::string& style = "") const;
 
             /*!
              * \brief Method to register a style in the GeoServer from a text file
              * \param name The name of the style
              * \param styleFilePath The full path to the txt file
              */
-            void registerStyle(const std::string& name, const std::string& styleFilePath) const;
+            void registerStyleFile(const std::string& name, const std::string& styleFilePath) const;
 
             /*!
              * \brief Method to register a style in the GeoServer from a TerraLib Style object
@@ -185,7 +187,7 @@ namespace terrama2
              * \param name The name of the style
              * \param style The style XML
              */
-            void registerStyle(const std::string &style) const;
+            void registerStyle(const std::string& name, const std::string &style) const;
 
             /*!
              * \brief Method to delete a workspace in Geoserver

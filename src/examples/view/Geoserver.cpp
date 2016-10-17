@@ -55,6 +55,8 @@ int main(int argc, char** argv)
 
     geoserver.registerWorkspace("aworkspace");
 
+    geoserver.registerStyle("arealStyle", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><sld:StyledLayerDescriptor xmlns=\"http://www.opengis.net/sld\" xmlns:sld=\"http://www.opengis.net/sld\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:ogc=\"http://www.opengis.net/ogc\" version=\"1.0.0\"><sld:NamedLayer><sld:Name>Style</sld:Name><sld:UserStyle><sld:Name>Style</sld:Name><sld:FeatureTypeStyle><sld:Name>Style 1</sld:Name><sld:Rule><sld:RasterSymbolizer><sld:Opacity>1.0</sld:Opacity><sld:ColorMap extended=\"true\"><sld:ColorMapEntry color=\"#000000\" quantity=\"0.0\"/><sld:ColorMapEntry color=\"#ffffff\" quantity=\"1.0\"/></sld:ColorMap></sld:RasterSymbolizer></sld:Rule></sld:FeatureTypeStyle></sld:UserStyle></sld:NamedLayer></sld:StyledLayerDescriptor>");
+
     // Registering shapes from the same server that GeoServer
     geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/Rod_Principais_SP_lin.shp", "shp");
 
@@ -92,9 +94,12 @@ int main(int argc, char** argv)
 
     geoserver.registerPostgisTable("aviewpostgis", connInfo, "view_muni", "view_muni", "", "SELECT * FROM muni WHERE gid = 558");
 
+    // Registering a style
+    geoserver.registerStyle("astyle", "style");
+
     // Registering coverages from the same server that GeoServer
-    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/Spot_Vegetacao_Jul2001_SP.tif", "geotiff");
-    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/L5219076_07620040908_r3g2b1.tif", "geotiff");
+    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/Spot_Vegetacao_Jul2001_SP.tif", "Spot_Vegetacao_Jul2001_SP","geotiff", "astyle");
+    geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/L5219076_07620040908_r3g2b1.tif", "L5219076_07620040908_r3g2b1", "geotiff");
 
     // Removing the coverages
     geoserver.deleteCoverageFile("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
@@ -102,9 +107,6 @@ int main(int argc, char** argv)
 
     // Uploading many coverages from a zip file
     geoserver.uploadZipCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
-
-    // Registering a style
-    geoserver.registerStyle("astyle", "style");
 
     std::list<std::pair<std::string, std::string>> layersAndStyles;
 
