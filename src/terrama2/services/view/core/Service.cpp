@@ -361,7 +361,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               }
               else if(dataFormat == "GEOTIFF")
               {
-                geoserver.registerCoverageFile(fileInfo.fileName().toStdString(),
+                geoserver.registerCoverageFile(fileInfo.fileName().toStdString() ,
                                                fileInfo.absoluteFilePath().toStdString(),
                                                "geotiff");
               }
@@ -465,7 +465,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                                              joinSQL);
 
               QJsonObject layer;
-              layer.insert("layer", QString::fromStdString(viewPtr->viewName));
+              layer.insert("layer", QString::fromStdString(layerName));
               layersArray.push_back(layer);
             }
 
