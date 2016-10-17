@@ -120,6 +120,12 @@
      */
     self.isDynamic = false;
     /**
+     * It defines a list of Service with type View. It will be filled out in ng-options generation
+     * @type {Service[]}
+     */
+    self.filteredServices = [];
+
+    /**
      * Flag to handle if is Updating or Registering
      * 
      * @type {Boolean}
@@ -221,7 +227,8 @@
        * Retrieve all service instances
        */
       self.ServiceInstance.init().then(function() {
-
+        // setting all view services in cache
+        self.filteredServices = self.ServiceInstance.list({'service_type_id': self.ServiceInstance.types.VIEW});
         /**
          * Retrieve all data series
          */
@@ -292,6 +299,13 @@
             if (self.isUpdating) {
               self.schedule = {};
               $scope.$broadcast("updateSchedule", self.view.schedule || {});
+            } else {
+              if (!config.view) {
+                // forcing first view pre-selected
+                if (self.filteredServices.length > 0) {
+                  self.view.service_instance_id = self.filteredServices[0].id;
+                }
+              }
             }
 
             $scope.model = config.view ? config.view.serverUriObject || {} : {port: 8080};

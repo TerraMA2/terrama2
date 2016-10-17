@@ -103,11 +103,11 @@
                 <select class="form-control" 
                         name="service" 
                         ng-model="ctrl.view.service_instance_id"
-                        ng-options="instance.id as instance.name for instance in ctrl.ServiceInstance.model | filter: {'service_type_id': ctrl.ServiceInstance.types.VIEW}" 
+                        ng-options="instance.id as instance.name for instance in ctrl.filteredServices" 
                         required>
-                  <option ng-if="ctrl.services.data.length == 0" 
+                  <option ng-if="ctrl.filteredServices.length == 0" 
                           value="" 
-                          ng-bind="i18n.__('No service instance found')">
+                          ng-bind="i18n.__('No view service found')">
                   </option>
                 </select>
 
