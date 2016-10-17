@@ -367,7 +367,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               }
 
               QJsonObject layer;
-              layer.insert("layer", fileInfo.baseName());
+              layer.insert("layer", fileInfo.completeBaseName());
               layersArray.push_back(layer);
             }
           }
@@ -393,6 +393,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
             for(auto& dataset : datasets)
             {
               std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
+              std::string layerName = tableName;
               std::string timestampPropertyName;
               std::string joinSQL;
 
@@ -451,11 +452,14 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                 joinSQL = "SELECT * from " + tableName + " as t1 , " + joinTableName + " as t2 ";
 
                 joinSQL += "WHERE t1.geom_id = t2." + foreing->second;
+
+                // Change the layer name
+                layerName = viewPtr->viewName;
               }
 
               geoserver.registerPostgisTable(inputDataProvider->name,
                                              connInfo,
-                                             tableName,
+                                             layerName,
                                              viewPtr->viewName,
                                              timestampPropertyName,
                                              joinSQL);
