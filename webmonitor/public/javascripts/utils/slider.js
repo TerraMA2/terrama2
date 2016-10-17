@@ -50,7 +50,3 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-slider-mask", function(event
     sliderContent.hide();
 
 });
-
-$("#terrama2-layerexplorer").on("click", "button[class~='close-slider']", function(e) {
-  $(this).parent().hide();
-});
