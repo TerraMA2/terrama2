@@ -179,8 +179,6 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
 
 std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const
 {
-  auto oldGrid = raster->getGrid();
-
   std::vector<te::rst::BandProperty*> bands;
   for(size_t i = 0; i < raster->getNumberOfBands(); ++i)
   {
@@ -189,19 +187,17 @@ std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(
   auto grid = new te::rst::Grid(raster->getNumberOfColumns(), raster->getNumberOfRows(), new te::gm::Envelope(*raster->getExtent()), raster->getSRID());
   std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
 
-  for(size_t row = 0; row < grid->getNumberOfRows(); ++row)
+  auto rows = grid->getNumberOfRows();
+  for(size_t band = 0; band < raster->getNumberOfBands(); ++band)
   {
-    for(size_t col = 0; col < grid->getNumberOfColumns(); ++col)
+    for(size_t row = 0; row < rows; ++row)
     {
-      auto coord = grid->gridToGeo(col, row);
-
-      double oldCol, oldRow;
-      oldGrid->geoToGrid(coord.getX(), coord.getY(), oldCol, oldRow);
-
-      std::complex<double> value;
-      raster->getValue(oldCol, oldRow, value);
-
-      expansible->setValue(col, row, value);
+      for(size_t col = 0; col < grid->getNumberOfColumns(); ++col)
+      {
+        std::complex<double> value;
+        raster->getValue(col, rows-row-1, value, band);
+        expansible->setValue(col, row, value, band);
+      }
     }
   }
 
