@@ -12,7 +12,14 @@
         position: absolute;
         width: 150px;
         bottom: 40px;
+        width: 180px;
         overflow: visible;
+    }
+    .slidercontainer{
+        position: absolute;
+        width: 200px;
+        bottom: 40px;
+        background-color: white;
     }
 </style>
 
@@ -101,6 +108,15 @@
     var wepappsocket = io.connect(':36000');
     wepappsocket.emit('viewRequest');
     wepappsocket.on("viewResponse", function (data){
+        data.push({
+            workspace: 'work',
+            name: 'test',
+            uriGeoserver: 'http://150.163.17.179:8080/geoserver/terrama',
+            serverType: 'geoserver',
+            layers: ['teste_20100103050604', 'teste_20100203050604', 'teste_20100303050604','teste_20100403050604'],
+            params: {mask: 'teste_yyyyMMddhhmmss'},
+            type: 'dynamic'
+        })
         for (i in data){
             if (data.params && data.params.hasOwnProperty('mask')){
                 var layerWithDate = getLayersListWithDate(data.params.mask, data[i].layers);
@@ -115,14 +131,18 @@
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
                     allLayers.push({id: layerId, name: layerName});
 
-                    var sliderDiv = "<div id='slider" + layerId.replace(':','') + "'></div>";
+                    var sliderDiv = "<div class='slidercontainer' id='content"+ layerId.replace(':','') +"'><span class='hide' id='index"+ layerId.replace(':','') + "'></span><span id='span" + layerId.replace(':','') + "'></span><div id='slider" + layerId.replace(':','') + "'></div></div>";
 
                     var button = document.createElement('button');
                     button.type = 'button';
                     button.innerHTML = 'Change';
 
+                    var iconToOpenSlider = '<span> <i class="fa fa-sliders"></i></span>';
+                    var spanToSpend = $('#'+layerId.replace(':','')).find('span')[0];
+                    spanToSpend.innerHTML = iconToOpenSlider;
+
                     button.addEventListener('click', function(){
-                        var indexvalue = document.getElementById("amount").innerHTML;
+                        var indexvalue = document.getElementById("index"+layerId.replace(':', '')).innerHTML;
                         var layer = layerWithDate[indexvalue];
                         document.getElementById("change").innerHTML = layerId;
 
@@ -162,22 +182,22 @@
             addLayerToSort(layerId);
             allLayers.push({id: workspace + ':' + layerId, name: layerName});
         
-            var sliderDiv = "<div id='slider" + layerId.replace(':','') + "'></div>";
+            var sliderDiv = "<div class='slidercontainer' id='content"+ layerId.replace(':','') +"'><span class='hide' id='index"+ layerId.replace(':','') + "'></span><span id='span" + layerId.replace(':','') + "'></span><div id='slider" + layerId.replace(':','') + "'></div></div>";
             var button = document.createElement('button');
             button.type = 'button';
-            // button.innerHTML = 'Change';
+            button.innerHTML = 'Change';
 
-            // button.addEventListener('click', function(){
-            //     var indexvalue = document.getElementById("amount").innerHTML;
-            //     var layer = listLayers[indexvalue];
-            //     document.getElementById("change").innerHTML = layerId;
+            button.addEventListener('click', function(){
+                var indexvalue = document.getElementById("index"+layerId.replace(':','')).innerHTML;
+                var layer = listLayers[indexvalue];
+                document.getElementById("change").innerHTML = layerId;
 
-            //     TerraMA2WebComponents.MapDisplay.removeLayer(layerId, "terrama2-layerexplorer");
-            //     $("#terrama2-layerexplorer").find('li#' + workspace + layerId.replace(':','')).remove();
-            //     $("#terrama2-sortlayers").find('li#' + workspace + layerId.replace(':','')).remove();
+                TerraMA2WebComponents.MapDisplay.removeLayer(layerId, "terrama2-layerexplorer");
+                $("#terrama2-layerexplorer").find('li#' + workspace + layerId.replace(':','')).remove();
+                $("#terrama2-sortlayers").find('li#' + workspace + layerId.replace(':','')).remove();
 
-            //     addLayerWithSlider(listLayers, layer.layer, layer.layer, workspace, server, serverType, 'dynamic');
-            // });
+                addLayerWithSlider(listLayers, layer.layer, layer.layer, workspace, server, serverType, 'dynamic');
+            });
 
             $("#" + workspace + layerId.replace(':','')).append(sliderDiv);
             setSlider(listLayers, layerId);
@@ -210,6 +230,10 @@
                 doSlide(layerId, rangeDate[ui.value]);
             }       
         })
+                document.getElementById("index" + layerId.replace(':','')).innerHTML = ui.value;
+                document.getElementById("span" + layerId.replace(':','')).innerHTML = rangeDate[ui.value].layer;
+            }
+        });
     }
 
     function addLayers() {
