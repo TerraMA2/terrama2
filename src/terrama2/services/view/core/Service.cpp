@@ -361,7 +361,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               }
               else if(dataFormat == "GEOTIFF")
               {
-                geoserver.registerCoverageFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "coveragestore",
+                geoserver.registerCoverageFile(fileInfo.fileName().toStdString(),
                                                fileInfo.absoluteFilePath().toStdString(),
                                                "geotiff");
               }
