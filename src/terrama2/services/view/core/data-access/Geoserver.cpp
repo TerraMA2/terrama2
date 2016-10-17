@@ -346,6 +346,24 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
 }
 
 
+void terrama2::services::view::core::GeoServer::registerStyle(const std::string &style) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriPost(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles");
+
+  if(!uriPost.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+  }
+
+  // Register style
+  cURLwrapper.post(uriPost, style, "Content-Type: text/xml");
+}
+
+
 void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
