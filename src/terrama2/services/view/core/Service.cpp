@@ -361,9 +361,9 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               }
               else if(dataFormat == "GEOTIFF")
               {
-                geoserver.registerCoverageFile(fileInfo.fileName().toStdString(),
-                                               fileInfo.absoluteFilePath().toStdString(),
-                                               "geotiff");
+//                geoserver.registerCoverageFile(fileInfo.fileName().toStdString(),
+//                                               fileInfo.absoluteFilePath().toStdString(),
+//                                               "geotiff");
               }
 
               QJsonObject layer;
