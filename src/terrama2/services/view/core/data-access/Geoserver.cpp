@@ -137,14 +137,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   std::string xml = "<featureType>"
                     "<title>" + title + "</title>";
 
-  if(sql.empty())
-  {
-    xml += "<name>"+ tableName + "</name>";
-  }
-  else
-  {
-    xml += "<name>"+ title + "</name>";
-  }
+  xml += "<name>"+ tableName + "</name>";
+
 
   xml += "<enabled>true</enabled>";
 
