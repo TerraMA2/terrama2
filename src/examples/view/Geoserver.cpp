@@ -48,7 +48,6 @@ int main(int argc, char** argv)
 
   try
   {
-    std::unique_ptr<te::se::Style> style(CreateFeatureTypeStyle(te::gm::PolygonType, "#00c290"));
 
     // Make sure to have a geoServer with the below configuration
     te::core::URI uri("http://admin:geoserver@localhost:8080/geoserver");
@@ -104,10 +103,8 @@ int main(int argc, char** argv)
     // Uploading many coverages from a zip file
     geoserver.uploadZipCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
 
-    // Registering a folder with coverages in the GeoServer
-
     // Registering a style
-    geoserver.registerStyle("astyle", style);
+    geoserver.registerStyle("astyle", "style");
 
     std::list<std::pair<std::string, std::string>> layersAndStyles;
 
@@ -119,8 +116,6 @@ int main(int argc, char** argv)
                          -44.16072686935583, -19.772910107715056);
 
     geoserver.getMapWMS("/home/vinicius", "imagem.jpg", layersAndStyles, env, 768, 516, 4326, "image/jpeg");
-
-    geoserver.deleteStyle("astyle");
 
     geoserver.deleteCoverageFile("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
 
