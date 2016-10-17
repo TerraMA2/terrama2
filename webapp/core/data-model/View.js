@@ -93,7 +93,7 @@
       maps_server_uri: this.mapsServerUri,
       style: this.style,
       dataseries_id: this.dataSeries,
-      schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : this.schedule,
+      schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {id: 0},
       active: this.active,
       service_instance_id: this.serviceInstanceId,
       project_id: this.projectId

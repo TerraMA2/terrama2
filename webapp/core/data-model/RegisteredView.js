@@ -6,6 +6,7 @@
   var Utils = require("./../Utils");
   var View = require("./View");
   var URIBuilder = require("./../UriBuilder");
+  var DataSeriesType = require("./../Enums").DataSeriesType;
   /**
    * Default URI syntax
    * @type {Enums.Uri}
@@ -45,6 +46,11 @@
      * @type {View}
      */
     this.view = null;
+    /**
+     * It defines a TerraMA² Data Series Object linked from View
+     * @type {DataSeries}
+     */
+    this.dataSeries = null;
     /**
      * It defines Data Series Type (static, dynamic, analysis)
      * @type {string}
@@ -92,6 +98,14 @@
     this.dataSeriesType = dsType;
   };
   /**
+   * It sets TerraMA² Data Series object to the RegisteredView instance
+   * 
+   * @param {DataSeries} dataSeries - A TerraMA² Data Series model built
+   */
+  RegisteredView.prototype.setDataSeries = function(dataSeries) {
+    this.dataSeries = dataSeries;
+  }
+  /**
    * It sets parent view
    * 
    * @throws {Error} When view is invalid
@@ -125,6 +139,14 @@
                                          uriObject[URISyntax.PORT],
                                          uriObject[URISyntax.PATHNAME]);
 
+    var params = {};
+    if (this.dataSeries) {
+      var semantics = this.dataSeries.data_series_semantics;
+      if (semantics && semantics.data_series_type_name === DataSeriesType.GRID) {
+        params.mask = this.dataSeries.dataSets[0].format.mask;
+      }
+    }
+
     return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.view.name,
@@ -135,7 +157,7 @@
       password: this.$uriObject[URISyntax.PASSWORD],
       serverType: "geoserver", // TODO: change it. It should be received from c++ service or even during view registration
       type: this.dataSeriesType,
-      params: {}
+      params: params
     });
   };
 
