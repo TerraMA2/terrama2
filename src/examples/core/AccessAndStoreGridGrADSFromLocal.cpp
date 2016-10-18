@@ -18,7 +18,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::TerraMA2Init terramaRaii;
+    terrama2::core::TerraMA2Init terramaRaii("example", 0);
 
   {
     //DataProvider information
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     dataStorager.store(series, outputDataSetPtr);
   }
 
-  
+
 
   return 0;
 }

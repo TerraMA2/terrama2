@@ -36,12 +36,12 @@
 #include <QJsonArray>
 #include <QString>
 
-terrama2::core::TerraMA2Init::TerraMA2Init()
+terrama2::core::TerraMA2Init::TerraMA2Init(const std::string& serviceType, const int listeningPort)
 {
   curl_global_init(CURL_GLOBAL_ALL);
   terrama2::core::initializeTerralib();
 
-  terrama2::core::initializeLogger("terrama2.log");
+  terrama2::core::initializeLogger(serviceType+"_"+std::to_string(listeningPort)+"_terrama2.log");
 
 
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
