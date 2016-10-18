@@ -431,15 +431,16 @@
                                        self.maxValue);
       } else {
         // digesting XML with min/max value and color
-        var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
-        self.view.style = StringFormat(sld,
-                                       self.view.name,
-                                       self.lineStrokeColor,
-                                       self.lineStroke,
-                                       self.polygonStrokeColor,
-                                       self.polygonStroke,
-                                       self.pointStrokeColor,
-                                       self.pointSize);
+        // var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
+        self.view.style = "";
+        // self.view.style = StringFormat(sld,
+        //                                self.view.name,
+        //                                self.lineStrokeColor,
+        //                                self.lineStroke,
+        //                                self.polygonStrokeColor,
+        //                                self.polygonStroke,
+        //                                self.pointStrokeColor,
+        //                                self.pointSize);
       }
 
       // If dynamic, schedule validation is required
