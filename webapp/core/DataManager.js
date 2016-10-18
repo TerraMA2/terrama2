@@ -3099,8 +3099,8 @@ var DataManager = module.exports = {
         .then(function(views) {
           return resolve(views.map(function(view) {
             return new DataModel.View(Object.assign(view.get(), {
-              // schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
-              schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
+              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
+              // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
           }));
         })
@@ -3130,7 +3130,7 @@ var DataManager = module.exports = {
           if (viewResult.schedule_id) {
             return self.getSchedule({id: view.schedule_id}, options);
           } else {
-            return {id: 0};
+            return {};
           }
         })
 
@@ -3213,9 +3213,19 @@ var DataManager = module.exports = {
   removeView: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      var view;
       return self.getView(restriction, options)
-        .then(function(view) {
-          return self.removeSchedule({id: view.schedule.id}, options);
+        .then(function(viewResult) {
+          view = viewResult;
+          if (view.schedule && view.schedule.id) {
+            return self.removeSchedule({id: view.schedule.id}, options);
+          } else {
+            return null;
+          }
+        })
+
+        .then(function() {
+          return models.db.View.destroy(Utils.extend({where: restriction}, options));
         })
 
         .then(function() {
