@@ -95,7 +95,7 @@
     wepappsocket.emit('viewRequest');
     wepappsocket.on("viewResponse", function (data){
         for (i in data){
-            if (data[i].params && data[i].params.hasOwnProperty('mask')){
+            if (data[i].params && data[i].params.hasOwnProperty('mask') && data[i].layers.length > 1){
                 var layerWithDate = getLayersListWithDate(data[i].params.mask, data[i].layers);
                 var workspace = data[i].workspace;
                 var layerName = data[i].name;
@@ -174,7 +174,7 @@
     function setTemporarySlider(rangeDate, layerId, layerName, workspace, server, serverType, parent){
         var valMap = rangeDate;
 
-        var slider = $("#slider" + layerId.replace(':',''));
+        var slider = $("#slider" + layerId.replace(':','').split('.').join('\\.'));
         var sliderParent = $(slider).parent();
 
         var labelDate = $(sliderParent).find("label");

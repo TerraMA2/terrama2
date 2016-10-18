@@ -28,7 +28,7 @@
     this.id = params.id;
     /**
      * It defines a maps server workspace. (GeoServer)
-     * @type {string} 
+     * @type {string}
      */
     this.workspace = params.workspace;
     /**
@@ -42,7 +42,7 @@
      */
     this.layers = [];
     /**
-     * It defines a TerraMA² View object parent 
+     * It defines a TerraMA² View object parent
      * @type {View}
      */
     this.view = null;
@@ -73,7 +73,7 @@
   RegisteredView.prototype.constructor = RegisteredView;
 
   /**
-   * It sets layers to cache. 
+   * It sets layers to cache.
    * @todo Improve this doc
    * @param {Sequelize.Model[]|Object[]}
    */
@@ -90,7 +90,7 @@
   };
   /**
    * It sets the data series type of View
-   * 
+   *
    * @todo Improve it.
    * @param {string} dsType - Data Series Type
    */
@@ -99,7 +99,7 @@
   };
   /**
    * It sets TerraMA² Data Series object to the RegisteredView instance
-   * 
+   *
    * @param {DataSeries} dataSeries - A TerraMA² Data Series model built
    */
   RegisteredView.prototype.setDataSeries = function(dataSeries) {
@@ -107,7 +107,7 @@
   }
   /**
    * It sets parent view
-   * 
+   *
    * @throws {Error} When view is invalid
    * @param {Sequelize.Model|View} view - TerraMA² View
    */
@@ -121,7 +121,7 @@
   };
   /**
    * Get real representation of RegisteredView
-   * 
+   *
    * @returns {Object}
    */
   RegisteredView.prototype.rawObject = function() {
@@ -129,12 +129,12 @@
   }
   /**
    * Retrieves a standard representation used in TCP communication
-   * 
+   *
    * @returns {Object}
    */
   RegisteredView.prototype.toObject = function() {
     var uriObject = URIBuilder.buildObject(this.uri, URISyntax);
-    var uri = Utils.format("%s://%s:%s%s", uriObject[URISyntax.SCHEME].toLowerCase(), 
+    var uri = Utils.format("%s://%s:%s%s", uriObject[URISyntax.SCHEME].toLowerCase(),
                                          uriObject[URISyntax.HOST],
                                          uriObject[URISyntax.PORT],
                                          uriObject[URISyntax.PATHNAME]);
@@ -144,7 +144,7 @@
       var semantics = this.dataSeries.data_series_semantics;
       if (semantics && semantics.data_series_type_name === DataSeriesType.GRID) {
         var mask = this.dataSeries.dataSets[0].format.mask;
-        params.mask = mask.substring(0, mask.lastIndexOf("."));
+        params.mask = mask;
       }
     }
 
