@@ -91,7 +91,7 @@
         allLayers.push({id: "analysis", name: "Analysis"});
 
     var socket = io.connect(':3001');
-    var wepappsocket = io.connect('150.163.17.179:36000');
+    var wepappsocket = io.connect(':36000');
     wepappsocket.emit('viewRequest');
     wepappsocket.on("viewResponse", function (data){
         for (i in data){
