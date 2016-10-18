@@ -123,7 +123,7 @@
                     span += "<span id='terrama2-slider-mask' class='terrama2-datepicker-icon'><i class='fa fa-sliders'></i></span>";
                     $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
 
-                    setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent);
+                    setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
                 }
 
             }
@@ -147,7 +147,7 @@
         setSortable();
     });
 
-    function addLayerWithSlider(listLayers, layerId, layerName, workspace, server, serverType, parent){
+    function addLayerWithSlider(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue){
 
         if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "unsortable", null);
@@ -167,23 +167,30 @@
             span += "<span id='terrama2-slider-mask' class='terrama2-datepicker-icon'><i class='fa fa-sliders'></i></span>";
             $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
 
-            setTemporarySlider(listLayers, layerId, layerName, workspace, server, serverType, parent);
+            setTemporarySlider(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue);
+
+            if (!$("#"+ parent).hasClass('open')){
+                $("#"+ parent).addClass('open');
+            }
+            var children = $('#'+ parent).find(' > ul > li');
+            children.show('fast');
+            li.find('input').click();
         }
     }
 
-    function setTemporarySlider(rangeDate, layerId, layerName, workspace, server, serverType, parent){
+    function setTemporarySlider(rangeDate, layerId, layerName, workspace, server, serverType, parent, initialValue){
         var valMap = rangeDate;
 
         var slider = $("#slider" + layerId.replace(':','').split('.').join('\\.'));
         var sliderParent = $(slider).parent();
 
         var labelDate = $(sliderParent).find("label");
-        $(labelDate).text(moment(rangeDate[0].date).format("lll"));
+        $(labelDate).text(moment(rangeDate[initialValue].date).format("lll"));
         
         $(slider).slider({
             min: 0,
             max: valMap.length - 1,
-            value: 0,
+            value: initialValue,
             slide: function(event, ui) {
                 $(labelDate).text(moment(rangeDate[ui.value].date).format("lll"));
             },
@@ -195,11 +202,16 @@
                 $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
 
                 var elementIndex = allLayers.map(function (l){return l.id}).indexOf(layerId);
-                if (elementIndex > 0){
+                if (elementIndex >= 0){
                     allLayers.splice(elementIndex, 1);
                 }
 
-                addLayerWithSlider(valMap, workspace + ":" + layer.layer, layerName, workspace, server, serverType, parent);
+                var elementVisibleIndex = visibleLayers.indexOf(layerId.replace(':',''));
+                if (elementVisibleIndex >= 0){
+                    visibleLayers.splice(elementVisibleIndex, 1);
+                }
+
+                addLayerWithSlider(valMap, workspace + ":" + layer.layer, layerName, workspace, server, serverType, parent, ui.value);
             }       
         });
     }
