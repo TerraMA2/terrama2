@@ -37,6 +37,7 @@
 
 //TerraLib
 #include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/SimpleProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/raster/RasterProperty.h>
@@ -132,12 +133,15 @@ terrama2::core::DataAccessorGrADS::createCompleteDataSet(std::shared_ptr<te::da:
 {
   te::dt::Property* timestamp = new te::dt::DateTimeProperty("file_timestamp", te::dt::TIME_INSTANT_TZ);
   dataSetType->add(timestamp);
+  te::dt::Property* filename = new te::dt::SimpleProperty("filename", te::dt::STRING);
+  dataSetType->add(filename);
   return std::make_shared<te::mem::DataSet>(dataSetType.get());
 }
 
 void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
                                                              std::shared_ptr<te::da::DataSet> dataSet,
-                                                             std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp) const
+                                                             std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
+                                                             const std::string& filename) const
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->moveLast();
@@ -158,15 +162,46 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
     std::unique_ptr<te::rst::Raster> raster(
       dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
 
+    std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
+
     te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
 
-    item->setRaster(rasterColumn, raster.release());
+    item->setRaster(rasterColumn, adapted.release());
     if(isValidColumn(timestampColumn))
       item->setDateTime(timestampColumn,
                         fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
 
+    item->setString("filename", filename);
+
     complete->add(item);
   }
+}
+
+std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const
+{
+  std::vector<te::rst::BandProperty*> bands;
+  for(size_t i = 0; i < raster->getNumberOfBands(); ++i)
+  {
+    bands.push_back(new te::rst::BandProperty(*raster->getBand(i)->getProperty()));
+  }
+  auto grid = new te::rst::Grid(raster->getNumberOfColumns(), raster->getNumberOfRows(), new te::gm::Envelope(*raster->getExtent()), raster->getSRID());
+  std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
+
+  auto rows = grid->getNumberOfRows();
+  for(size_t band = 0; band < raster->getNumberOfBands(); ++band)
+  {
+    for(size_t row = 0; row < rows; ++row)
+    {
+      for(size_t col = 0; col < grid->getNumberOfColumns(); ++col)
+      {
+        std::complex<double> value;
+        raster->getValue(col, rows-row-1, value, band);
+        expansible->setValue(col, row, value, band);
+      }
+    }
+  }
+
+  return std::move(expansible);
 }
 
 QString terrama2::core::DataAccessorGrADS::grad2TerramaMask(QString mask) const
@@ -413,7 +448,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
           thisFileTimestamp = ctlFileTimestamp;
       }
 
-      addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
+      addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
 
       if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
@@ -512,7 +547,7 @@ void terrama2::core::GrADSDataDescriptor::setKeyValue(const std::string& key, co
     undef_ = std::atof(value.c_str());
     found = true;
   }
-  else if(key == "OPTIONS" || key == "*OPTIONS")
+  else if(key.find("OPTIONS") != std::string::npos)
   {
     QStringList tokens = QString::fromStdString(value).split(" ");
     for(QString token : tokens)

@@ -16,7 +16,7 @@
    * @param {i18n} i18n - Internationalization module
    * @param {ng.IPromise} $q - Angular promiser 
    */
-  function Service(ServiceInstanceFactory, i18n, $q, ServiceType) {
+  function Service(ServiceInstanceFactory, i18n, $q, ServiceType, $filter) {
     /**
      * Cached TerraMA² services
      * @type {Object[]}
@@ -36,6 +36,12 @@
      * @type {Object}
      */
     this.types = ServiceType;
+    /**
+     * Angular Filter module. Used to filter services from given restriction
+     * 
+     * @type {angular.IFilter}
+     */
+    this.$filter = $filter;
   }
 
   /**
@@ -83,8 +89,8 @@
    * It retrieves a list of services
    * @returns {Object[]}
    */
-  Service.prototype.list = function() {
-    return this.model;
+  Service.prototype.list = function(restriction) {
+    return this.$filter('filter')(this.model, restriction || {});
   };
 
   /**

@@ -43,6 +43,7 @@
 //QT
 #include <QUrl>
 #include <QDir>
+#include <QSet>
 
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -249,8 +250,9 @@ std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) cons
 }
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
-    std::shared_ptr<te::da::DataSet> dataSet,
-    std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp) const
+                                                            std::shared_ptr<te::da::DataSet> dataSet,
+                                                            std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
+                                                            const std::string& filename) const
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->copy(*dataSet);
@@ -285,6 +287,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
 
+  QSet<QString> pathSet;
   std::string tempFolderPath;
   //fill file list
   QFileInfoList newFileInfoList;
@@ -305,14 +308,20 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
       tempFolderPath = terrama2::core::Unpack::decompress(folderPath+ "/" + name, remover, tempFolderPath);
       QDir tempDir(QString::fromStdString(tempFolderPath));
       QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-
-      newFileInfoList.append(fileList);
+//TODO: creating a unique list of files, they have to be in the same folder! Control files and data files together
+//      newFileInfoList.append(fileList);
+      for(const auto& fileI : fileList)
+        pathSet.insert(fileI.absoluteFilePath());
     }
     else
     {
-      newFileInfoList.append(fileInfo);
+//      newFileInfoList.append(fileInfo);
+      pathSet.insert(fileInfo.absoluteFilePath());
     }
   }
+
+  for(const auto& filePath : pathSet)
+    newFileInfoList.append(QFileInfo(filePath));
 
   return newFileInfoList;
 }
@@ -360,6 +369,10 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   bool first = true;
   for(const auto& fileInfo : newFileInfoList)
   {
+// Only access the env files, gdal access the hdr
+    if(fileInfo.suffix() == "hdr")
+      continue;
+
     std::string name = fileInfo.fileName().toStdString();
     std::string baseName = fileInfo.baseName().toStdString();
     std::string completeBaseName = fileInfo.completeBaseName().toStdString();
@@ -425,7 +438,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     assert(converter);
     std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
 
-    addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp);
+    addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
     //update lastest file timestamp
     if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
@@ -519,13 +532,11 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   {
     //NOTE: Depends on te::dt::TimeInstant toString implementation, it's doc is wrong
     std::string dateString = lastDateTime->toString();
-    boost::local_time::local_date_time boostLocalTimeWithoutTimeZone = TimeUtils::stringToBoostLocalTime(dateString, "%Y-%b-%d %H:%M:%S%F %ZP");
-    auto date = boostLocalTimeWithoutTimeZone.date();
-    auto time = boostLocalTimeWithoutTimeZone.utc_time().time_of_day();
-    boost::posix_time::ptime ptime(date, time);
+
+    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateString));
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(getTimeZone(dataSet)));
 
-    boost::local_time::local_date_time boostLocalTime(ptime, zone);
+    boost::local_time::local_date_time boostLocalTime(boostDate, zone);
     lastDateTimeTz = std::make_shared<te::dt::TimeInstantTZ>(boostLocalTime);
   }
   else if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT_TZ)

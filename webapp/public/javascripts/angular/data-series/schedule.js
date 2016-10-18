@@ -60,7 +60,7 @@ angular.module("terrama2.schedule", ['terrama2'])
             $scope.model.frequency = scheduleObject.frequency;
             $scope.model.frequency_unit = scheduleObject.frequency_unit;
             if (scheduleObject.frequency_start_time) {
-              $scope.model.frequency_start_time = new moment(scheduleObject.frequency_start_time);
+              $scope.model.frequency_start_time = new moment(scheduleObject.frequency_start_time, "HH:mm:ss");
             }
             $scope.model.scheduleHandler = scheduleObject.frequency_unit;
           }

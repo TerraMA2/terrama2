@@ -24,16 +24,56 @@ $.TerraMAMonitor.pushMenu = {
                 $(".content").css({'height':($(".content-wrapper").height())});
             }
             
+			TerraMA2WebComponents.MapDisplay.updateMapSize();
         })
     }
 }
+
+$('#mini-toggle').click(function(){
+    TerraMA2WebComponents.MapDisplay.updateMapSize();
+});
+
 $(function () {
     "use strict";
 
     var o = $.TerraMAMonitor.options;
 
     $.TerraMAMonitor.pushMenu.activate(o.sidebarToggleSelector);
-    $(".map").height("100%");
+    $(".terrama2-map").height("100%");
+    $(".terrama2-map").width("auto");
     $(".content").css({'height':($(".content-wrapper").height())+'px'});
+
+    $("#dynamic").find("div").each(function() {
+        $(this).addClass("fa fa-exchange");
+    });
+    $("#static").find("div").each(function() {
+        $(this).addClass("fa fa-folder-o");
+    });
+    $("#analysis").find("div").each(function() {
+        $(this).addClass("fa fa-tasks");
+    });
+    $("#template").find("div").each(function() {
+        $(this).addClass("fa fa-map");
+    });
+    $("#custom").find("div").each(function() {
+        $(this).addClass("fa fa-link");
+    });
+
+    var leftArrow = "<span class='pull-right-container'> <i class='fa fa-angle-left pull-right'></i> </span>";
     
+    $("#dynamic").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#static").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#analysis").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#template").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
+    $("#custom").children("span").each(function() {
+        $(this).append(leftArrow);
+    });
 });

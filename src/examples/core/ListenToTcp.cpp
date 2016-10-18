@@ -91,7 +91,7 @@ terrama2::core::DataSeriesPtr buildInputDataSeries()
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::TerraMA2Init terramaRaii;
+  terrama2::core::TerraMA2Init terramaRaii("example", 0);
   QCoreApplication app(argc, argv);
 
   QJsonObject obj;

@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
 
     int listeningPort = std::stoi(argv[2]);
 
-    terrama2::core::TerraMA2Init terramaRaii;
+    terrama2::core::TerraMA2Init terramaRaii(serviceType, listeningPort);
     terrama2::core::registerFactories();
 
 
@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
       QObject::connect(service.get(), &terrama2::core::Service::processFinishedSignal, tcpManager.get(), &terrama2::core::TcpManager::processFinishedSlot);
       QObject::connect(tcpManager.get(), &terrama2::core::TcpManager::stopSignal, service.get(), &terrama2::core::Service::stopService);
       QObject::connect(service.get(), &terrama2::core::Service::serviceFinishedSignal, &app, &QCoreApplication::quit);
-      
+
       app.exec();
     }
 

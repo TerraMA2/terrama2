@@ -37,8 +37,9 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       };
 
       $scope.options = {};
-    } else
+    } else {
       $scope.schema = {};
+    }
 
     $scope.form = conf.fields.display || [];
 
@@ -164,17 +165,9 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       $scope.model = $scope.model;
       $scope.$broadcast('schemaFormValidate');
 
-      // var tm2Errors = $scope.forms.connectionForm.$error.terrama2Error || [];
-      // // removing terrama2 server error from schema form. TODO: a factory??
-      // while(tm2Errors.length !== 0) {
-      //   var field = tm2Errors[0];
-      //   var schemaformField = "schemaForm.error." + field.$name;
-      //   // pop field error
-      //   $scope.$broadcast(schemaformField, "terrama2Error", true, form.$name);
-      // }
-
-      if (!$scope.isValidDataProviderTypeForm(form))
+      if (!$scope.isValidDataProviderTypeForm(form)) {
         return;
+      }
 
       $scope.isChecking = true; // for handling loading page
 
@@ -231,14 +224,6 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       }).catch(function(err) {
         $scope.errorFound = true;
         $scope.alertBox.message = err.message;
-
-        // todo: notify schemaFormFields
-        // var errors = (err.errors || {});
-        // for(var key in errors) {
-        //   if (errors.hasOwnProperty(key)) {
-        //     $scope.$broadcast("schemaForm.error." + key, "terrama2Error", errors[key].message, form.$name);
-        //   }
-        // }
       }).finally(function() {
         $scope.isChecking = false;
       });

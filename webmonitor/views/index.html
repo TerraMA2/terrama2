@@ -2,22 +2,405 @@
 
 {% block title %} TerraMA² Monitor {% endblock %} 
 
+{% block styles %}
+
+<link rel="stylesheet" type="text/css" href="ol3/ol.css">
+<link rel="stylesheet" type="text/css" href="TerraMA2WebComponents.min.css">
+<link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/jquery-ui.css">
+
+
+{% endblock %}
+{% block sidebar-list %}
+
+<div id="terrama2-layerexplorer"></div>
+<form onsubmit="return false" class="form-inline"> 
+    <div class="form-group">
+        <input id='wmsUri' class="form-control" type='search' placeholder='WMS URI'> <button id='addLayers' type='submit' class="btn btn-default">Add</button>
+    </div>
+</form>
+<li class="header">VISIBLE LAYERS</li>
+<div id="terrama2-sortlayers"></div>
+{% endblock %}
+
 {% block content %}
 
-<div id="map" class="map"></div>
-<script type="text/javascript">
-    var map = new ol.Map({
-    target: 'map',
-    layers: [
-        new ol.layer.Tile({
-        source: new ol.source.OSM()
-        })
-    ],
-    view: new ol.View({
-        center: ol.proj.fromLonLat([37.41, 8.82]),
-        zoom: 4
-    })
+<div id="terrama2-map" class="terrama2-map"></div>
+
+<!-- Alert message -->
+<div id="terrama2Alert" class="alert alert-danger hide">
+  <a href="#" id="close-alert" class="close" aria-label="close">&times;</a>
+  <strong>Invalid URL!</strong> Error to find capabilities.
+</div>
+
+<!-- Layers Modal -->
+<div class="modal fade" id="layersModal" tabindex="-1" role="dialog" aria-labelledby="layersModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="layersModalLabel">Layers</h4>
+      </div>
+      <div id="layersModalBody" class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button id="closeLayers" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="saveLayers" type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/moment/moment.js"></script>
+
+<script src="/javascripts/utils/utils.js"></script>
+<script src="/jquery/dist/jquery.min.js"></script>
+<script src="/jquery-ui/jquery-ui.min.js"></script>
+
+<!-- Date Range Picker Dependencies -->
+<script type="text/javascript" src="/bootstrap-daterangepicker/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="/bootstrap-daterangepicker/daterangepicker.css" />
+
+<script src="ol3/ol.js"></script>
+<script src="TerraMA2WebComponents.min.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script src="https://gist.github.com/jlong/2428561.js"></script>
+<script src="/javascripts/utils/capabilities.js"></script>
+<script src="/javascripts/utils/calendar.js"></script>
+<script src="/javascripts/utils/slider.js"></script>
+<script>
+    var allLayers = [];
+    var visibleLayers = [];
+
+    TerraMA2WebComponents.LayerExplorer.init();
+    TerraMA2WebComponents.MapDisplay.init();
+
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "Custom", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push({id: "custom", name: "Custom"});
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Template", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push({id: "template", name: "Template"});
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static Data", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push({id: "static", name: "Static Data"});
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic Data", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push({id: "dynamic", name: "Dynamic Data"});
+    if (TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer"))
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "unsortable", null);
+        allLayers.push({id: "analysis", name: "Analysis"});
+
+    var socket = io.connect(':3001');
+    var wepappsocket = io.connect(':36000');
+    wepappsocket.emit('viewRequest');
+    wepappsocket.on("viewResponse", function (data){
+        for (i in data){
+            if (data[i].params && data[i].params.hasOwnProperty('mask') && data[i].layers.length > 1){
+                var layerWithDate = getLayersListWithDate(data[i].params.mask, data[i].layers);
+                var workspace = data[i].workspace;
+                var layerName = data[i].name;
+                var uriGeoServer = data[i].uriGeoserver;
+                var serverType = data[i].serverType;
+                var layerId = workspace + ":" + layerWithDate[layerWithDate.length - 1].layer;
+                var parent = data[i].type;
+                if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0){
+                    continue;
+                }
+                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+                    TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
+                    allLayers.push({id: layerId, name: layerName});
+
+                    var span = "";
+                    var listElement = $("li[data-layerid='" + data[i].type + "']");
+                    var li = $(listElement).find("li[data-layerid='" + layerId.split('.').join('\\.') +"']");
+
+                    if (li.length === 0) {
+                        continue;
+                    }
+                    var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
+                    $(li).append(sliderDiv);
+
+                    span += "<span id='terrama2-slider-mask' class='terrama2-datepicker-icon'><i class='fa fa-sliders'></i></span>";
+                    $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
+
+                    setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent);
+                }
+
+            }
+            else {
+                var workspace = data[i].workspace;
+                var layerName = data[i].name;
+                var uriGeoServer = data[i].uriGeoserver;
+                var serverType = data[i].serverType;
+                var layerId = workspace + ":" + data[i].layers[0];
+                if (allLayers.map(function (l){return l.id}).indexOf(layerId) > 0){
+                    continue;
+                }
+                if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+                    TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable", null);
+                    allLayers.push({id: layerId, name: layerName});
+                }
+            }
+        }
+
+        addLayersToSort();
+        setSortable();
     });
+
+    function addLayerWithSlider(listLayers, layerId, layerName, workspace, server, serverType, parent){
+
+        if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, server + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
+            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "unsortable", null);
+            addLayerToSort(layerId, layerName);
+            allLayers.push({id: layerId, name: layerName});
+
+            var span = "";
+            var listElement = $("li[data-layerid='" + parent + "']");
+            var li = $(listElement).find("li[data-layerid='" + layerId.split('.').join('\\.') +"']");
+            
+            if (li.length === 0) {
+                return;
+            }
+            var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
+            $(li).append(sliderDiv);
+
+            span += "<span id='terrama2-slider-mask' class='terrama2-datepicker-icon'><i class='fa fa-sliders'></i></span>";
+            $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
+
+            setTemporarySlider(listLayers, layerId, layerName, workspace, server, serverType, parent);
+        }
+    }
+
+    function setTemporarySlider(rangeDate, layerId, layerName, workspace, server, serverType, parent){
+        var valMap = rangeDate;
+
+        var slider = $("#slider" + layerId.replace(':','').split('.').join('\\.'));
+        var sliderParent = $(slider).parent();
+
+        var labelDate = $(sliderParent).find("label");
+        $(labelDate).text(moment(rangeDate[0].date).format("lll"));
+        
+        $(slider).slider({
+            min: 0,
+            max: valMap.length - 1,
+            value: 0,
+            slide: function(event, ui) {
+                $(labelDate).text(moment(rangeDate[ui.value].date).format("lll"));
+            },
+            stop: function(event, ui) {
+                var layer = valMap[ui.value];
+
+                TerraMA2WebComponents.MapDisplay.removeLayer(layerId, "terrama2-layerexplorer");
+                $("#terrama2-layerexplorer").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
+                $("#terrama2-sortlayers").find('li#' + layerId.replace(':','').split('.').join('\\.')).remove();
+
+                var elementIndex = allLayers.map(function (l){return l.id}).indexOf(layerId);
+                if (elementIndex > 0){
+                    allLayers.splice(elementIndex, 1);
+                }
+
+                addLayerWithSlider(valMap, workspace + ":" + layer.layer, layerName, workspace, server, serverType, parent);
+            }       
+        });
+    }
+
+    function setSlider(rangeDate, layerId){
+        var valMap = rangeDate;
+
+        var slider = $("#slider" + layerId.replace(':',''));
+        var sliderParent = $(slider).parent();
+        if (!$(sliderParent).is(":visible")) {
+            $(sliderParent).show();
+        } else {
+            $(sliderParent).hide();
+        }
+
+        var labelDate = $(sliderParent).find("label");
+        $(labelDate).text(moment(rangeDate[0]).format("lll"));
+        
+        $(slider).slider({
+            min: 0,
+            max: valMap.length - 1,
+            value: 0,
+            slide: function(event, ui) {
+                $(labelDate).text(moment(rangeDate[ui.value]).format("lll"));
+            },
+            stop: function(event, ui) {                        
+                doSlide(layerId, rangeDate[ui.value]);
+            }       
+        });
+    }
+
+    function addLayers() {
+        var url = document.getElementById("wmsUri").value;
+        if (!url) return;
+        
+        jsonData = {
+            url: url,
+            format: 'xml'
+        }
+        socket.emit('proxyRequest', jsonData);
+    }
+
+    $("#wmsUri").on('keyup', function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            addLayers();
+        }
+    });
+
+    socket.on('proxyResponse', function(data){
+        try {
+            capabilities = getMapCapabilitiesLayers(data.msg);
+            fillModal(capabilities);
+            $('#layersModal').modal('show');
+        }
+        catch(e) {
+            $("#terrama2Alert").removeClass('hide');
+        }
+    })
+
+    function fillModal(capabilities) {
+        var lis = "";
+        var check = "<input type='checkbox' class='terrama2-layerviews-checkbox'/>";
+        for (i in capabilities) {
+            lis += '<li data-layerid="' + capabilities[i].name +'">' + check + '<span>' + capabilities[i].title + '</span>' + '</li>';
+        }
+        var htmlList = '<ul id="layersList">' + lis + '</ul>';
+        $('#layersModalBody').append(htmlList);
+    }
+
+    var selectedLayers = [];
+
+    function saveLayers() {
+        var url = document.getElementById("wmsUri").value;
+        var parser = document.createElement('a');
+        parser.href = url;
+        var geoUrl = parser.protocol + '//' + parser.host + parser.pathname;
+
+        selectedLayers.forEach(addInLayerExplorer);
+
+        function addInLayerExplorer(element, index, array){
+            for (i in capabilities){
+                if (capabilities[i].name == element){
+                    if (allLayers.map(function (l){return l.id}).indexOf(capabilities[i].name) > 0){
+                        continue;
+                    }
+                    if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {version: "1.1.0"})) {
+                        TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "unsortable", null);
+                        allLayers.push({id: capabilities[i].name, name: capabilities[i].title, extent: capabilities[i].extent});
+                        addLayerToSort(capabilities[i].name, capabilities[i].title);
+
+                        if (!capabilities[i].extent) {
+                            continue;
+                        } 
+
+                        var span = "";
+                        var listElement = $("li[data-layerid='custom']");
+                        var li = $(listElement).find("li[data-layerid='" + capabilities[i].name +"']");
+
+                        if (li.length === 0) {
+                            continue;
+                        }
+                        var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
+                        $(li).append(sliderDiv);
+
+                        if (capabilities[i].extent instanceof Array) {
+                            span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(capabilities[i]) + "<i class='fa fa-sliders'></i></span>";
+                        } else if (capabilities[i].extent instanceof Object) {
+                            span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(capabilities[i]) + "<i class='fa fa-calendar'></i></span>";
+                        }
+                        $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
+                    }
+                }
+            }
+
+            if (!$("#custom").hasClass('open')){
+                $("#custom").addClass('open');
+            }
+            var children = $('#custom').find(' > ul > li');
+            children.show('fast');
+            
+        }
+        $("#layersModal").modal('hide');
+    }
+
+    document.getElementById("addLayers").addEventListener("click", addLayers);
+
+    $('#layersModalBody').on('click', 'input.terrama2-layerviews-checkbox', function() {
+        var layerid = $(this).closest('li').data('layerid');
+        var index = selectedLayers.indexOf(layerid);
+        if (index > -1){
+            selectedLayers.splice(index, 1);
+        }
+        else {
+            selectedLayers.push(layerid);
+        }
+    });
+
+    $('#layersModal').on('hidden.bs.modal', function(e) {
+        selectedLayers = [];
+        $("#layersList").remove();
+    })
+
+    $('#close-alert').on('click', function(){
+        var alertDiv = $(this).closest('div');
+        alertDiv.addClass('hide');
+    })
+
+    document.getElementById("saveLayers").addEventListener("click", saveLayers);
+
+    $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(){
+        var layerid = $(this).closest('li').data('layerid');
+        if (layerid.includes(':')){
+            layerid = layerid.replace(':','')
+        }
+        var index = visibleLayers.indexOf(layerid);
+        if (index > -1){
+            $('#terrama2-sortlayers').find('li#' + layerid.split('.').join('\\.')).addClass('hide');
+            visibleLayers.splice(index, 1);
+        }
+        else {
+            $('#terrama2-sortlayers').find('li#' + layerid.split('.').join('\\.')).removeClass('hide');
+            visibleLayers.push(layerid);
+        }
+    });
+
+    function addLayersToSort(){
+        var itens = "";
+        var allLayersLength = allLayers.length;
+        for (i = allLayersLength -1; i >= 0; i--){
+            var layerId = allLayers[i].id;
+            if (layerId.includes(':')){
+                layerId = layerId.replace(':','')
+            }
+            itens += '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + allLayers[i].name + '</li>';
+        }
+        var list = '<ul>' + itens + '</ul>';
+        $('#terrama2-sortlayers').append(list);
+    }
+
+    function setSortable(){
+        $('#terrama2-sortlayers').sortable({
+          items: "li",
+          start: function(event, ui) {
+            $(this).attr('data-previndex', (ui.item.context.parentNode.childElementCount - 2) - ui.item.index());
+          },
+          update: function(event, ui) {
+            TerraMA2WebComponents.MapDisplay.alterLayerIndex(ui.item.attr('data-parentid'), $(this).attr('data-previndex'), (ui.item.context.parentNode.childElementCount - 1) - ui.item.index());
+            $(this).removeAttr('data-previndex');
+          }
+        });
+    }
+
+    function addLayerToSort(layerId, layerName){
+        if (layerId.includes(':')){
+            layerId = layerId.replace(':','')
+        }
+        var liHtml = '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + layerName + '</li>';
+        $('#terrama2-sortlayers').children('ul').prepend(liHtml);
+    }
+
 </script>
 
 {% endblock %}

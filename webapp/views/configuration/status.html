@@ -54,11 +54,11 @@
           <terrama2-td title="">
             <img ng-if="iconFn(element)" ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
           </terrama2-td>
-          <terrama2-td title="Service">{{ element.service }}</terrama2-td>
-          <terrama2-td title="Type">{{ element.type }}</terrama2-td>
-          <terrama2-td title="Name">{{ element.name }}</terrama2-td>
-          <terrama2-td title="Message" showMoreInfo="true" fillModal="setModalMessages(element.message)">{{ (element.message.length > 15) ? ((element.message | limitTo:15) + "...") : element.message }}</terrama2-td>
-          <terrama2-td title="Date">{{ element.date }}</terrama2-td>
+          <terrama2-td title="{{ i18n.__('Service') }}">{{ element.service }}</terrama2-td>
+          <terrama2-td title="{{ i18n.__('Type') }}">{{ element.type }}</terrama2-td>
+          <terrama2-td title="{{ i18n.__('Name') }}">{{ element.name }}</terrama2-td>
+          <terrama2-td title="{{ i18n.__('Message') }}" showMoreInfo="true" fillModal="setModalMessages(element.message)">{{ (element.message.length > 15) ? ((element.message | limitTo:15) + "...") : element.message }}</terrama2-td>
+          <terrama2-td title="{{ i18n.__('Date') }}">{{ element.date }}</terrama2-td>
         </terrama2-table-view>
       </div>
 

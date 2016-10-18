@@ -357,8 +357,6 @@ var DataManager = module.exports = {
                       }
                     });
 
-                    // adding metadata to semantics
-                    var semanticsMetadataArray = [];
                     for (var i = 0; i < semanticsList.length; ++i) {
                       var semantics = semanticsList[i];
                       for(var j = 0; j < semanticsObject.length; ++j) {
@@ -379,7 +377,7 @@ var DataManager = module.exports = {
                           break;
                         }
                       }
-                    };
+                    } // end for var i = 0; i < semanticsList.length
 
                     return models.db.SemanticsProvidersType.bulkCreate(semanticsProvidersArray)
                       .finally(function() {
@@ -932,7 +930,7 @@ var DataManager = module.exports = {
   updateLog: function(logId, logObject, options) {
     return new Promise(function(resolve, reject) {
       models.db.Log.update(logObject, Utils.extend({
-        fields: ['host', 'port', 'user', 'database'],
+        fields: ['host', 'port', 'user', 'database', 'password'],
         where: {
           id: logId
         }
@@ -1180,7 +1178,7 @@ var DataManager = module.exports = {
         });
       }).catch(function(err){
         var message = "Could not save data provider due: ";
-        console.log(err.errors)
+        console.log(err.errors);
         if (err.errors) {
           err.errors.forEach(function(e) { message += e.message + "; "; });
         } else {
@@ -2509,7 +2507,7 @@ var DataManager = module.exports = {
       }).catch(function(err) {
         console.log(err);
         return reject(new Error("Analysis output grid not found " + err.toString()));
-      })
+      });
     });
   },
 
@@ -2596,7 +2594,6 @@ var DataManager = module.exports = {
       var analysisResult;
       var dataSet;
       var dataSeries;
-      var scheduleResult;
       var scheduleResult;
       var historicalData;
       var scriptLanguageResult;
@@ -3102,7 +3099,8 @@ var DataManager = module.exports = {
         .then(function(views) {
           return resolve(views.map(function(view) {
             return new DataModel.View(Object.assign(view.get(), {
-              schedule: new DataModel.Schedule(view.Schedule.get())
+              schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
+              // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
           }));
         })
@@ -3129,7 +3127,11 @@ var DataManager = module.exports = {
       models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          return self.getSchedule({id: view.schedule_id}, options)
+          if (viewResult.schedule_id) {
+            return self.getSchedule({id: view.schedule_id}, options);
+          } else {
+            return {};
+          }
         })
 
         .then(function(schedule) {
@@ -3211,16 +3213,26 @@ var DataManager = module.exports = {
   removeView: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
+      var view;
       return self.getView(restriction, options)
-        .then(function(view) {
-          return self.removeSchedule({id: view.schedule.id}, options);
+        .then(function(viewResult) {
+          view = viewResult;
+          if (view.schedule && view.schedule.id) {
+            return self.removeSchedule({id: view.schedule.id}, options);
+          } else {
+            return null;
+          }
+        })
+
+        .then(function() {
+          return models.db.View.destroy(Utils.extend({where: restriction}, options));
         })
 
         .then(function() {
           return resolve();
         })
         
-        .catch(function() {
+        .catch(function(err) {
           return reject(new Error("Could not remove view " + err.toString()));
         });
     });
@@ -3348,6 +3360,7 @@ var DataManager = module.exports = {
                 if (dataSeries.id === registeredView.View.data_series_id) {
                   var dModel = new DataModel.RegisteredView(registeredView.get());
                   dModel.setDataSeriesType(key);
+                  dModel.setDataSeries(dataSeries);
                   output.push(dModel);
                   return true;
                 }

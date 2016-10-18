@@ -110,7 +110,6 @@ var Utils = module.exports = {
 
     return {
       name: scheme,
-
       properties: properties,
       required: required,
       display: displayOrder
@@ -543,6 +542,21 @@ var Utils = module.exports = {
 
     return metadata;
   },
+  /**
+   * It generates an Array from object iteration, calling a callback to build result
+   * 
+   * @param {Object} valuesObject - A javascript object to iterate
+   * @param {Function} operationIter - A callback to be called in object iteration. It should return something (object)
+   */
+  generateArrayFromObject: function(valuesObject, operationIter) {
+    var metadataArr = [];
+    for(var k in valuesObject) {
+      if (valuesObject.hasOwnProperty(k)) {
+        metadataArr.push(operationIter(k, valuesObject[k]));
+      }
+    }
+    return metadataArr;
+  },
 
   sendDataToServices: function(DataManager, TcpManager, data) {
     DataManager.listServiceInstances().then(function(services) {
@@ -690,6 +704,9 @@ var Utils = module.exports = {
    * @param {Array | Object}
    */
   isEmpty: function(arg) {
+    if (!arg) {
+      return true;
+    }
     if (arg instanceof Array) {
       return arg.length === 0;
     }

@@ -92,9 +92,8 @@ const std::string& terrama2::services::view::core::GeoServer::workspace() const
 }
 
 
-void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
-                                                                   std::map<std::string, std::string> connInfo,
-                                                                   const std::string& tableName) const
+void terrama2::services::view::core::GeoServer::registerDataStore(const std::string& dataStoreName,
+                                                                  std::map<std::string, std::string> connInfo) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -120,12 +119,68 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   // Register data store
   cURLwrapper.post(uriPost, xml, "Content-Type: text/xml");
+}
 
-  te::core::URI uriPostLayer(uriPost.uri() + "/" + dataStoreName +"/featuretypes");
+void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
+                                                                     std::map<std::string, std::string> connInfo,
+                                                                     const std::string& tableName,
+                                                                     const std::string& title,
+                                                                     const std::string& timestampPropertyName,
+                                                                     const std::string& sql) const
+{
+  deletePostgisTable(dataStoreName, title, true);
 
-  xml = "<featureType><name>"+ tableName + "</name></featureType>";
+  registerDataStore(dataStoreName, connInfo);
 
-  // Publish layer
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  std::string xml = "<featureType>"
+                    "<title>" + title + "</title>";
+
+  xml += "<name>"+ tableName + "</name>";
+
+
+  xml += "<enabled>true</enabled>";
+
+  std::string metadataTime = "";
+  std::string metadataSQL = "";
+
+  if(!timestampPropertyName.empty())
+  {
+    metadataTime = "<entry key=\"time\">"
+                      "<dimensionInfo>"
+                        "<enabled>true</enabled>"
+                        "<attribute>"+timestampPropertyName+"</attribute>"
+                        "<presentation>CONTINUOUS_INTERVAL</presentation>"
+                        "<units>ISO8601</units>"
+                        "<defaultValue>"
+                          "<strategy>MAXIMUM</strategy>"
+                        "</defaultValue>"
+                      "</dimensionInfo>"
+                   "</entry>"
+                   "<entry key=\"cachingEnabled\">false</entry>";
+
+  }
+
+  if(!sql.empty())
+  {
+    metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
+                    "<virtualTable>"
+                      "<name>"+title+"</name>"
+                      "<sql>"+sql+"</sql>"
+                      "<escapeSql>false</escapeSql>"
+                    "</virtualTable>"
+                  "</entry>";
+  }
+
+  if(!metadataTime.empty() || !metadataSQL.empty())
+  {
+    xml += "<metadata>" + metadataTime + metadataSQL + "</metadata>";
+  }
+
+  xml += "</featureType>";
+
+  te::core::URI uriPostLayer(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName +"/featuretypes");
   cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
 }
 
@@ -213,8 +268,10 @@ void terrama2::services::view::core::GeoServer::uploadZipCoverageFile(const std:
 
 
 void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::string& coverageStoreName,
-                                                                   const std::string& coverageFilePath,
-                                                                   const std::string& extension) const
+                                                                     const std::string& coverageFilePath,
+                                                                     const std::string& coverageName,
+                                                                     const std::string& extension,
+                                                                     const std::string& style) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -229,10 +286,18 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
   }
   // Upload Coverage file
   cURLwrapper.customRequest(uriPut, "PUT", "file://" + coverageFilePath);
+
+  if(!style.empty())
+  {
+    te::core::URI layerStyle(uri_.uri() + "/rest/layers/" + coverageName + ".xml");
+
+    cURLwrapper.customRequest(layerStyle, "PUT",
+                              "<layer><defaultStyle><name>" + style + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
+  }
 }
 
 
-void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name,
+void terrama2::services::view::core::GeoServer::registerStyleFile(const std::string& name,
                                                             const std::string& styleFilePath) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
@@ -250,7 +315,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
   cURLwrapper.post(uriPost, "<style><name>" + name + "</name><filename>" + name + ".sld</filename></style>", "Content-Type: text/xml");
 
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + name);
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + name +"?raw=true");
 
   if(!uriPut.isValid())
   {
@@ -287,7 +352,26 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  registerStyle(name, filePath);
+  registerStyleFile(name, filePath);
+}
+
+
+void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name, const std::string &style) const
+{
+  QTemporaryFile file;
+
+  if(!file.open())
+  {
+    QString errMsg = QObject::tr("Could not create the XML file!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);
+  }
+
+  file.write(style.c_str());
+  file.flush();
+
+  // Upload Style file
+  registerStyleFile(name, file.fileName().toStdString());
 }
 
 
@@ -367,11 +451,37 @@ void terrama2::services::view::core::GeoServer::deleteCoverageFile(const std::st
 }
 
 
-void terrama2::services::view::core::GeoServer::deleteStyle(const::std::string& styleName) const
+void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& styleName) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
   te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + styleName);
+
+  if(!uriDelete.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+  }
+
+  cURLwrapper.customRequest(uriDelete, "delete");
+}
+
+
+void terrama2::services::view::core::GeoServer::deletePostgisTable(const std::string& dataStoreName,
+                                                                   const std::string &tableName,
+                                                                   bool recursive) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  std::string url = "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/featuretypes/" + tableName;
+
+  if(recursive)
+  {
+    url += "?recurse=true";
+  }
+
+  te::core::URI uriDelete(uri_.uri() + url);
 
   if(!uriDelete.isValid())
   {
