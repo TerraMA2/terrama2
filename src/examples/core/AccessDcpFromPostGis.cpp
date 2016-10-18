@@ -14,7 +14,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::TerraMA2Init terramaRaii;
+  terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
 
   {
     QUrl uri;
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  
+
 
   return 0;
 }

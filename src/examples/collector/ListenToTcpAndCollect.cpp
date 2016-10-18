@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    terrama2::core::TerraMA2Init terramaRaii;
+    terrama2::core::TerraMA2Init terramaRaii("example", 0);
 
     terrama2::core::registerFactories();
 

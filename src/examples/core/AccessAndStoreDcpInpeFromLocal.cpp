@@ -18,7 +18,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::TerraMA2Init terramaRaii;
+terrama2::core::TerraMA2Init terramaRaii("example", 0);
 
   //DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 
   dataStorager.store( (*dcpSeries->dcpSeriesMap().begin()).second, dataSetOutputPtr);
 
-  
+
 
   return 0;
 }

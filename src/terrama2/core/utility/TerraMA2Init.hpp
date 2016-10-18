@@ -25,6 +25,8 @@
 #ifndef __TERRAMA2_CORE_TERRAMA2_INIT_HPP__
 #define __TERRAMA2_CORE_TERRAMA2_INIT_HPP__
 
+#include <string>
+
 namespace terrama2
 {
   namespace core
@@ -32,7 +34,7 @@ namespace terrama2
     class TerraMA2Init
     {
       public:
-        TerraMA2Init();
+        TerraMA2Init(const std::string& serviceType, const int listeningPort);
         ~TerraMA2Init();
 
         TerraMA2Init(const TerraMA2Init& other) = delete;
