@@ -42,12 +42,12 @@ int main(int argc, char* argv[])
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   std::map<std::string, std::string> connInfo {{"PG_HOST",            TERRAMA2_DATABASE_HOST},
-    {"PG_PORT",            TERRAMA2_DATABASE_PORT},
-    {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
-    {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
-    {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
-    {"PG_CONNECT_TIMEOUT", "4"},
-    {"PG_CLIENT_ENCODING", "UTF-8"}
+                                               {"PG_PORT",            TERRAMA2_DATABASE_PORT},
+                                               {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
+                                               {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
+                                               {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
+                                               {"PG_CONNECT_TIMEOUT", "4"},
+                                               {"PG_CLIENT_ENCODING", "UTF-8"}
   };
   serviceManager.setLogConnectionInfo(connInfo);
 
@@ -108,8 +108,8 @@ int main(int argc, char* argv[])
   analysis->active = true;
 
   std::string script = "moBuffer = Buffer()\n"
-                       "x = occurrence.count(\"Occurrence\", moBuffer, \"6h\", \"\")\n"
-                       "add_value(\"count\", x)\n";
+      "x = occurrence.count(\"Occurrence\", moBuffer, \"6h\", \"\")\n"
+      "add_value(\"count\", x)\n";
 
 
   analysis->script = script;
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetOccurrence* occurrenceDataSet = new terrama2::core::DataSetOccurrence();
   occurrenceDataSet->active = true;
   occurrenceDataSet->id = 2;
-  occurrenceDataSet->format.emplace("table_name", "focos");
+  occurrenceDataSet->format.emplace("table_name", "queimadas_test_table");
   occurrenceDataSet->format.emplace("timestamp_property", "data_pas");
   occurrenceDataSet->format.emplace("geometry_property", "geom");
   occurrenceDataSet->format.emplace("timezone", "UTC-03");
@@ -237,14 +237,12 @@ int main(int argc, char* argv[])
   logger->setConnectionInfo(connInfo);
   service.setLogger(logger);
 
-  service.start(1);
-  service.addAnalysis(1);
+  service.start();
   service.addAnalysis(1);
 
-  /*
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);*/
+  timer.start(10000);
   app.exec();
 
   return 0;
