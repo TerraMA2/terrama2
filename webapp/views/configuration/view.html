@@ -135,7 +135,7 @@
               <div class="form-group">
                 <label><span ng-bind="i18n.__('Description')"></span>:</label>
                 <textarea class="form-control" 
-                          ng-model="self.view.description" 
+                          ng-model="ctrl.view.description" 
                           rows="3" 
                           placeholder="{{ i18n.__('View Description') }}"></textarea>
               </div>
@@ -178,10 +178,11 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Style')" css="ctrl.css">
+    <terrama2-box title="i18n.__('Style')" css="ctrl.css"
+                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
       <form name="forms.styleForm">                 
         <div class="col-md-12 terrama2-nopadding-box"
-             ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.GRID">
+             ng-show="false">
           <!-- Line -->
           <div class="col-md-12">
             <div class="col-md-6">
@@ -190,8 +191,7 @@
                 <input class="form-control" 
                       name="lineStroke"
                       ng-model="ctrl.lineStroke" 
-                      placeholder="{{ i18n.__('Line Stroke Width') }}" type="number"
-                      ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.GRID">
+                      placeholder="{{ i18n.__('Line Stroke Width') }}" type="number">
 
                 <span class="help-block" 
                   ng-show="forms.styleForm.lineStroke.$dirty && forms.styleForm.lineStroke.$error.required"
@@ -214,8 +214,7 @@
                 <input class="form-control" 
                       name="polygonStroke"
                       ng-model="ctrl.polygonStroke" 
-                      placeholder="{{ i18n.__('Polygon Stroke Width') }}" type="number"
-                      ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.GRID">
+                      placeholder="{{ i18n.__('Polygon Stroke Width') }}" type="number">
 
                 <span class="help-block" 
                   ng-show="forms.styleForm.polygonStroke.$dirty && forms.styleForm.polygonStroke.$error.required"
@@ -238,8 +237,7 @@
                 <input class="form-control" 
                       name="pointSize"
                       ng-model="ctrl.pointSize" 
-                      placeholder="{{ i18n.__('Point Size') }}" type="number"
-                      ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.GRID">
+                      placeholder="{{ i18n.__('Point Size') }}" type="number">
 
                 <span class="help-block" 
                   ng-show="forms.styleForm.pointSize.$dirty && forms.styleForm.pointSize.$error.required"
