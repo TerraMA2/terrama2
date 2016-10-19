@@ -121,7 +121,6 @@
 
                     span += "<span id='terrama2-slider-mask' class='terrama2-datepicker-icon'><i class='fa fa-sliders'></i></span>";
                     $(li).append($(span));
-                    // .find(".terrama2-layerexplorer-checkbox-span")
 
                     setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
                 }
@@ -184,7 +183,7 @@
             } else if (layerCapabilities[layerIndex].extent instanceof Object) {
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";
             }
-            $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
+            $(li).append($(span));
 
         }
         catch(e) {
