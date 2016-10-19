@@ -141,6 +141,7 @@
                     if (data[i].type == 'analysis' || data[i].type == 'dynamic'){
                         var url = uriGeoServer + '/' + workspace + '/' + data[i].layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
                         var getCapabilitiesUrl = {
+                            layerName: data[i].layers[0],
                             layerId: layerId,
                             parent: data[i].type,
                             url: url,
@@ -159,7 +160,11 @@
     socket.on('proxyResponseCapabilities', function(data){
         try {
             var layerCapabilities = getMapCapabilitiesLayers(data.msg);
-            if (!layerCapabilities[i].extent) {
+            var layerIndex = layerCapabilities.map(function (c){return c.name}).indexOf(data.layerName);
+            if (layerIndex < 0) {
+                return;
+            }
+            if (!layerCapabilities[layerIndex].extent) {
                 return;
             }
 
@@ -173,10 +178,10 @@
             var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
             $(li).append(sliderDiv);
 
-            if (layerCapabilities[i].extent instanceof Array) {
-                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[i]) + "<i class='fa fa-sliders'></i></span>";
-            } else if (layerCapabilities[i].extent instanceof Object) {
-                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[i]) + "<i class='fa fa-calendar'></i></span>";
+            if (layerCapabilities[layerIndex].extent instanceof Array) {
+                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-sliders'></i></span>";
+            } else if (layerCapabilities[layerIndex].extent instanceof Object) {
+                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";
             }
             $(li).find(".terrama2-layerexplorer-checkbox-span").append($(span));
 
@@ -184,12 +189,8 @@
         catch(e) {
             return;
         }
-    })
+    });
 
-    function getLayerCapabilities(){
-        var analysisGroup = $('#analysis');
-        var analysisLis = analysisGroup
-    }
 
     function addLayerWithSlider(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue){
 

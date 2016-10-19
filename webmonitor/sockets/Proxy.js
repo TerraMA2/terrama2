@@ -66,7 +66,7 @@ var Proxy = function(io){
             }
           }
           // Socket response
-          client.emit('proxyResponseCapabilities', { msg: body, requestId: json.requestId, layerId: json.layerId, parent: json.parent });
+          client.emit('proxyResponseCapabilities', { msg: body, requestId: json.requestId, layerId: json.layerId, parent: json.parent, layerName: json.layerName });
         });
 
       }).on("error", function(e) {
