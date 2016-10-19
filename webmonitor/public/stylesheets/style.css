@@ -209,7 +209,8 @@
 
 #layersModalBody {
   max-height: 370px;
-  overflow: overlay;
+  /*overflow: overlay;*/
+  overflow-y: auto;
 }
 
 #layersModalBody > ul > li > span {
@@ -252,4 +253,50 @@
 
 .slider-content > div {
   margin-left: 15px;
+}
+
+/*
+  @description It performs a text truncate in string. You should specify width limit using style or another class.
+  In Layers Explorer Section, the recommended width is 140px;
+
+  @example
+  <span class=".terrama2-text-truncate" style="width: 100px;">This text will be truncated</span>
+
+  This text ...
+*/
+.terrama2-text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ui-sortable .terrama2-layerexplorer-checkbox-span {
+  width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unsortable .terrama2-datepicker-icon {
+  margin-top: -30px !important;
+}
+
+/**
+ * It handles Mozila FireFox CSS specific styles
+ */
+@-moz-document url-prefix() {
+    /*
+      It fixes the position of dropdown icon on layer explorer. Without it, the icon will overflow to the next li item
+    */
+    .ui-sortable .group-name span i {
+      margin-top: -16px !important;
+    }
+
+    .terrama2-layerexplorer-checkbox-span {
+      text-indent: 8px !important;
+    }
+
+    .slider-content button[class~="close-slider"]{
+      margin-top: -25px !important;
+    }
 }
