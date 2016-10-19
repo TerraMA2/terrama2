@@ -121,7 +121,6 @@
 
                     span += "<span id='terrama2-slider-mask' class='terrama2-datepicker-icon'><i class='fa fa-sliders'></i></span>";
                     $(li).append($(span));
-                    // .find(".terrama2-layerexplorer-checkbox-span")
 
                     setTemporarySlider(layerWithDate, layerId, layerName, workspace, uriGeoServer + '/ows', serverType, parent, 0);
                 }
@@ -139,6 +138,17 @@
                 if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
                     TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable terrama2-truncate-text", null);
                     allLayers.push({id: layerId, name: layerName});
+                    if (data[i].type == 'analysis' || data[i].type == 'dynamic'){
+                        var url = uriGeoServer + '/' + workspace + '/' + data[i].layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
+                        var getCapabilitiesUrl = {
+                            layerName: data[i].layers[0],
+                            layerId: layerId,
+                            parent: data[i].type,
+                            url: url,
+                            format: 'xml'
+                        }
+                        socket.emit('proxyRequestCapabilities', getCapabilitiesUrl);
+                    }
                 }
             }
         }
@@ -146,6 +156,41 @@
         addLayersToSort();
         setSortable();
     });
+
+    socket.on('proxyResponseCapabilities', function(data){
+        try {
+            var layerCapabilities = getMapCapabilitiesLayers(data.msg);
+            var layerIndex = layerCapabilities.map(function (c){return c.name}).indexOf(data.layerName);
+            if (layerIndex < 0) {
+                return;
+            }
+            if (!layerCapabilities[layerIndex].extent) {
+                return;
+            }
+
+            var span = "";
+            var listElement = $("li[data-layerid='"+ data.parent +"']");
+            var li = $(listElement).find("li[data-layerid='" + data.layerId +"']");
+
+            if (li.length === 0) {
+                return;
+            }
+            var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
+            $(li).append(sliderDiv);
+
+            if (layerCapabilities[layerIndex].extent instanceof Array) {
+                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-sliders'></i></span>";
+            } else if (layerCapabilities[layerIndex].extent instanceof Object) {
+                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";
+            }
+            $(li).append($(span));
+
+        }
+        catch(e) {
+            return;
+        }
+    });
+
 
     function addLayerWithSlider(listLayers, layerId, layerName, workspace, server, serverType, parent, initialValue){
 

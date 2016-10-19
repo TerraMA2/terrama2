@@ -16,10 +16,14 @@ var getMapCapabilitiesLayers = function(capabilities) {
                 var extent = undefined;
                 if (layers.Layer[i].Layer[j].hasOwnProperty('Extent')){
                     var stringextent = layers.Layer[i].Layer[j].Extent[0]._;
-                    if (stringextent.includes(':')){
-                        extent = {
-                            startDate: stringextent.split(':')[0],
-                            endDate: stringextent.split(':')[1]
+                    if (stringextent.includes('/')){
+                        var startDate = stringextent.split('/')[0];
+                        var endDate = stringextent.split('/')[1];
+                        if (startDate != endDate){
+                            extent = {
+                                startDate: startDate,
+                                endDate: endDate
+                            }
                         }
                     }
                     else {
@@ -37,9 +41,13 @@ var getMapCapabilitiesLayers = function(capabilities) {
             if (layers.Layer[i].hasOwnProperty('Extent')){
                 var stringextent = layers.Layer[i].Extent[0]._;
                 if (stringextent.includes('/')){
-                    extent = {
-                        startDate: stringextent.split('/')[0],
-                        endDate: stringextent.split('/')[1]
+                    var startDate = stringextent.split('/')[0];
+                    var endDate = stringextent.split('/')[1];
+                    if (startDate != endDate){
+                        extent = {
+                            startDate: startDate,
+                            endDate: endDate
+                        }
                     }
                 }
                 else {

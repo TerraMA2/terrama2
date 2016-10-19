@@ -47,7 +47,7 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
     $(calendar).daterangepicker({
       "timePicker": true,
       "minDate": mMinDate,
-      "startDate": mMinDate,
+      "startDate": mMaxDate,
       "endDate": mMaxDate,
       "maxDate": mMaxDate,
       "timePicker24Hour": true,
