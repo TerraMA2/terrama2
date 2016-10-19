@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSetOccurrence* occurrenceDataSet = new terrama2::core::DataSetOccurrence();
   occurrenceDataSet->active = true;
   occurrenceDataSet->id = 2;
-  occurrenceDataSet->format.emplace("table_name", "queimadas_test_table");
+  occurrenceDataSet->format.emplace("table_name", "focos");
   occurrenceDataSet->format.emplace("timestamp_property", "data_pas");
   occurrenceDataSet->format.emplace("geometry_property", "geom");
   occurrenceDataSet->format.emplace("timezone", "UTC-03");
@@ -237,12 +237,14 @@ int main(int argc, char* argv[])
   logger->setConnectionInfo(connInfo);
   service.setLogger(logger);
 
-  service.start();
+  service.start(1);
+  service.addAnalysis(1);
   service.addAnalysis(1);
 
+  /*
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-  timer.start(10000);
+  timer.start(10000);*/
   app.exec();
 
   return 0;

@@ -67,6 +67,8 @@ namespace terrama2
             void addError(const AnalysisHashCode analysisHashCode, const std::string& error);
             std::set<std::string> getErrors(const AnalysisHashCode analysisHashCode) const;
 
+            bool exists(const AnalysisHashCode analysisHashCode) const;
+
 
           private:
             std::unordered_map<AnalysisHashCode, AnalysisPtr> analysisMap_;

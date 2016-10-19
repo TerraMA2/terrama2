@@ -167,7 +167,7 @@ namespace terrama2
         /*!
           \brief Erase content from previous analysis execution
         */
-        void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId);
+        void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
       } // end namespace core
     }   // end namespace analysis

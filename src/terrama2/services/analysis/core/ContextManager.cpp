@@ -175,3 +175,18 @@ std::set<std::string> terrama2::services::analysis::core::ContextManager::getErr
 
   return errors;
 }
+
+bool terrama2::services::analysis::core::ContextManager::exists(const AnalysisHashCode analysisHashCode) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+  auto itm = monitoredObjectContextMap_.find(analysisHashCode);
+  if(itm != monitoredObjectContextMap_.cend())
+    return true;
+
+    auto itg = gridContextMap_.find(analysisHashCode);
+  if(itg != gridContextMap_.cend())
+    return true;
+
+  return false;
+}

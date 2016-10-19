@@ -33,6 +33,7 @@
 #include "AnalysisExecutor.hpp"
 #include "python/PythonInterpreter.hpp"
 #include "MonitoredObjectContext.hpp"
+#include "ContextManager.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 #include "../../../core/utility/StoragerManager.hpp"
 #include "../../../core/utility/Timer.hpp"
@@ -50,6 +51,8 @@ terrama2::services::analysis::core::Service::Service(DataManagerPtr dataManager)
   mainThreadState_ = PyThreadState_Get();
 
   storagerManager_ = std::make_shared<terrama2::core::StoragerManager>(dataManager_);
+
+  connect(&analysisExecutor_, &AnalysisExecutor::analysisFinished, this, &Service::analysisFinished);
 }
 
 terrama2::services::analysis::core::Service::~Service()
@@ -70,6 +73,7 @@ bool terrama2::services::analysis::core::Service::processNextData()
     return false;
 
   auto analysisPair = analysisQueue_.front();
+
   //prepare task for collecting
   prepareTask(analysisPair.first, analysisPair.second);
 
@@ -196,7 +200,7 @@ void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysi
   try
   {
     auto analysisPtr = dataManager_->findAnalysis(analysisId);
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::runAnalysis, dataManager_, storagerManager_, logger_, startTime, analysisPtr, threadPool_, mainThreadState_));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager_, storagerManager_, logger_, startTime, analysisPtr, threadPool_, mainThreadState_));
   }
   catch(std::exception& e)
   {
@@ -221,8 +225,6 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
     if(analysis->reprocessingHistoricalData)
     {
-      erasePreviousResult(dataManager_, analysis->outputDataSeriesId);
-
       auto reprocessingHistoricalData = analysis->reprocessingHistoricalData;
 
       auto executionDate = reprocessingHistoricalData->startDate;
@@ -243,10 +245,24 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
       while(titz <= endDate)
       {
-        analysisQueue_.push_back(std::make_pair(analysisId, executionDate));
+        AnalysisHashCode hashCode = analysis->hashCode(executionDate);
+        auto pair = std::make_pair(analysisId, executionDate);
+
+        bool needToWait = std::find(processingQueue_.begin(), processingQueue_.end(), hashCode) != processingQueue_.end();
+        if(needToWait)
+        {
+          waitQueue_.push_back(hashCode);
+        }
+        else
+        {
+          erasePreviousResult(dataManager_, analysis->outputDataSeriesId, executionDate);
+          analysisQueue_.push_back(pair);
+          processingQueue_.push_back(hashCode);
+        }
 
         //wake loop thread
         mainLoopCondition_.notify_one();
+
 
         if(frequencySeconds > 0.)
         {
@@ -296,4 +312,39 @@ void terrama2::services::analysis::core::Service::start(size_t threadNumber)
 {
   terrama2::core::Service::start(threadNumber);
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
+}
+
+void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime, bool success)
+{
+  auto pair = std::make_pair(analysisId, startTime);
+
+  auto analysis = dataManager_->findAnalysis(analysisId);
+  AnalysisHashCode hashCode = analysis->hashCode(startTime);
+  // Remove from processing queue
+  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), hashCode);
+  if(pqIt != processingQueue_.end())
+    processingQueue_.erase(pqIt);
+
+
+  // Verify if there is another execution for the same analysis waiting
+  auto it = std::find(waitQueue_.begin(), waitQueue_.end(), hashCode);
+
+  if(it != waitQueue_.end())
+  {
+    // erase the previous execution result and run another time
+    analysisQueue_.push_back(pair);
+    waitQueue_.erase(it);
+    erasePreviousResult(dataManager_, analysis->outputDataSeriesId, startTime);
+
+    //wake loop thread
+    mainLoopCondition_.notify_one();
+  }
+
+  if(success)
+  {
+    QJsonObject jsonAnswer;
+    jsonAnswer.insert("process_id", static_cast<int>(analysisId));
+
+    emit processFinishedSignal(jsonAnswer);
+  }
 }
