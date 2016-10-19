@@ -14,7 +14,7 @@ var doSlide = function(layerId, layerTime) {
  */
 $("#terrama2-layerexplorer").on("click", "#terrama2-slider", function(event) {
   var self = $(this);
-  var parentLi = $(self).parent().parent();
+  var parentLi = $(self).parent();
   var parentId = $(parentLi).attr("data-layerid");
   var capability = capabilities.find(function(capability) { return capability.name === parentId; });
 
