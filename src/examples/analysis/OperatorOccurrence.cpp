@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::OBJECT;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;

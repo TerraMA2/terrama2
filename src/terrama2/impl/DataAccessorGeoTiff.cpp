@@ -61,9 +61,7 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorGeoTiff::createComp
 {
   te::dt::Property* timestamp = new te::dt::DateTimeProperty("file_timestamp", te::dt::TIME_INSTANT_TZ);
   dataSetType->add(timestamp);
-  te::dt::Property* filename = new te::dt::SimpleProperty("filename", te::dt::STRING);
-  dataSetType->add(filename);
-  return std::make_shared<te::mem::DataSet>(dataSetType.get());
+  return DataAccessorFile::createCompleteDataSet(dataSetType);
 }
 
 void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,

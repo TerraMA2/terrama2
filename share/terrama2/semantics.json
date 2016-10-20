@@ -3,6 +3,7 @@
     "name": "PostGIS occurrence",
     "code": "OCCURRENCE-postgis",
     "type": "OCCURRENCE",
+    "temporality": "DYNAMIC",
     "format": "POSTGIS",
     "providers_type_list": ["POSTGIS"]
   },
@@ -10,6 +11,7 @@
     "name": "INPE's Wildland Fire Program",
     "code": "OCCURRENCE-wfp",
     "type": "OCCURRENCE",
+    "temporality": "DYNAMIC",
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
@@ -24,21 +26,24 @@
   {
     "name": "File static data",
     "code": "STATIC_DATA-ogr",
-    "type": "STATIC_DATA",
+    "type": "OBJECT",
+    "temporality": "STATIC",
     "format": "OGR",
     "providers_type_list": ["FILE"]
   },
   {
     "name": "PostGIS static data",
     "code": "STATIC_DATA-postgis",
-    "type": "STATIC_DATA",
+    "type": "OBJECT",
+    "temporality": "STATIC",
     "format": "POSTGIS",
     "providers_type_list": ["POSTGIS"]
   },
   {
     "name": "Static GeoTIFF grid",
     "code": "GRID-static_geotiff",
-    "type": "STATIC_DATA",
+    "type": "GRID",
+    "temporality": "STATIC",
     "format": "GEOTIFF",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
@@ -49,6 +54,7 @@
     "name": "INPE's DCP data format",
     "code": "DCP-inpe",
     "type": "DCP",
+    "temporality": "DYNAMIC",
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
@@ -59,6 +65,7 @@
     "name": "TOA5 DCP format",
     "code": "DCP-toa5",
     "type": "DCP",
+    "temporality": "DYNAMIC",
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
@@ -71,6 +78,7 @@
     "name": "DCP PostGIS",
     "code": "DCP-postgis",
     "type": "DCP",
+    "temporality": "DYNAMIC",
     "format": "POSTGIS",
     "providers_type_list": ["POSTGIS"]
   },
@@ -78,6 +86,7 @@
     "name": "Monitored object analysis result",
     "code": "ANALYSIS_MONITORED_OBJECT-postgis",
     "type": "ANALYSIS_MONITORED_OBJECT",
+    "temporality": "DYNAMIC",
     "format": "POSTGIS",
     "providers_type_list": ["POSTGIS"]
   },
@@ -85,6 +94,7 @@
     "name": "GeoTIFF grid",
     "code": "GRID-geotiff",
     "type": "GRID",
+    "temporality": "DYNAMIC",
     "format": "GEOTIFF",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
@@ -95,6 +105,7 @@
     "name": "GrADS",
     "code": "GRID-grads",
     "type": "GRID",
+    "temporality": "DYNAMIC",
     "format": "GRADS",
     "providers_type_list": ["FILE", "FTP"],
     "collector": true,

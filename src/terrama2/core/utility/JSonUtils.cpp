@@ -128,9 +128,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
     case DataSeriesType::GRID:
       createDataSet = fromDataSetGridJson;
       break;
-    case DataSeriesType::STATIC:
-      createDataSet = fromDataSetJson;
-      break;
+    case DataSeriesType::OBJECT:
     case DataSeriesType::ANALYSIS_MONITORED_OBJECT:
       createDataSet = fromDataSetJson;
       break;

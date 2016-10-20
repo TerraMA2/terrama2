@@ -62,8 +62,11 @@ namespace terrama2
       {
         return std::make_shared<DataAccessorStaticGeoTiff>(dataProvider, dataSeries, filter);
       }
-      
+
       static DataAccessorType dataAccessorType(){ return "GRID-static_geotiff"; }
+
+      virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
+      virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t dateColumn) const override {return true;};
     };
   }
 }

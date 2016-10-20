@@ -313,14 +313,26 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
   else if(type == "GRID")
     return terrama2::core::DataSeriesType::GRID;
   else if(type == "MONITORED_OBJECT")
-    return terrama2::core::DataSeriesType::MONITORED_OBJECT;
-  else if(type == "STATIC_DATA")
-    return terrama2::core::DataSeriesType::STATIC;
+    return terrama2::core::DataSeriesType::OBJECT;
   else if(type == "ANALYSIS_MONITORED_OBJECT")
     return terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT;
   else
   {
     QString errMsg = QObject::tr("Unknown DataSeriesType: %1.").arg(QString::fromStdString(type));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::DataModelException() << terrama2::ErrorDescription(errMsg);
+  }
+}
+
+terrama2::core::DataSeriesTemporality terrama2::core::dataSeriesTemporalityFromString(const std::string& temporality)
+{
+  if(temporality == "STATIC")
+    return terrama2::core::DataSeriesTemporality::STATIC;
+  else if(temporality == "DYNAMIC")
+    return terrama2::core::DataSeriesTemporality::DYNAMIC;
+  else
+  {
+    QString errMsg = QObject::tr("Unknown DataSeriesTemporality: %1.").arg(QString::fromStdString(temporality));
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::DataModelException() << terrama2::ErrorDescription(errMsg);
   }
