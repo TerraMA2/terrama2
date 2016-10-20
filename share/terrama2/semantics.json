@@ -36,7 +36,7 @@
     "providers_type_list": ["POSTGIS"]
   },
   {
-    "name": "GeoTIFF grid",
+    "name": "Static GeoTIFF grid",
     "code": "GRID-static_geotiff",
     "type": "STATIC_DATA",
     "format": "GEOTIFF",
