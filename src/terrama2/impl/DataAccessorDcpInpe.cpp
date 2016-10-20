@@ -53,7 +53,7 @@ terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(DataProviderPtr dataPro
    DataAccessorDcp(dataProvider, dataSeries, filter),
    DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "DCP-inpe")
+  if(dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

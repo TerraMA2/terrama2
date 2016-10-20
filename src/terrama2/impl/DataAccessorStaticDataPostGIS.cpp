@@ -44,7 +44,7 @@ terrama2::core::DataAccessorStaticDataPostGIS::DataAccessorStaticDataPostGIS(Dat
    DataAccessorGeometricObject(dataProvider, dataSeries, filter),
    DataAccessorPostGIS(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "STATIC_DATA-postgis")
+  if(dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

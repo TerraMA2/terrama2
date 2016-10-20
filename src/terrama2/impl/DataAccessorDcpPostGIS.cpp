@@ -44,7 +44,7 @@ terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr d
    DataAccessorDcp(dataProvider, dataSeries, filter),
    DataAccessorPostGIS(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "DCP-postgis")
+  if(dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

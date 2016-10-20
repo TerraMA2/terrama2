@@ -20,28 +20,20 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorAnalysisPostGIS.cpp
+  \file terrama2/core/data-access/DataAccessorStaticGeoTiff.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorAnalysisPostGIS.hpp"
-#include "../core/utility/Raii.hpp"
+ //TerraMA2
+#include "DataAccessorStaticGeoTiff.hpp"
+#include "../core/utility/Logger.hpp"
 
-//TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-
-//QT
-#include <QUrl>
-#include <QObject>
-
-terrama2::core::DataAccessorAnalysisPostGIS::DataAccessorAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorStaticGeoTiff::DataAccessorStaticGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorPostGIS(dataProvider, dataSeries, filter)
+   DataAccessorGeoTiff(dataProvider, dataSeries, filter)
 {
   if(dataSeries->semantics.code != dataAccessorType())
   {
@@ -49,14 +41,4 @@ terrama2::core::DataAccessorAnalysisPostGIS::DataAccessorAnalysisPostGIS(DataPro
     TERRAMA2_LOG_ERROR() << errMsg;
     throw WrongDataSeriesSemanticsException()  << ErrorDescription(errMsg);
   }
-}
-
-std::string terrama2::core::DataAccessorAnalysisPostGIS::getTimestampPropertyName(DataSetPtr dataSet) const
-{
-  return "execution_date";
-}
-
-std::string terrama2::core::DataAccessorAnalysisPostGIS::dataSourceType() const
-{
-  return "POSTGIS";
 }

@@ -51,6 +51,8 @@ namespace terrama2
         return new DataAccessorMonitoredObjectAnalysisPostGIS(dataProvider, dataSeries, filter);
       }
 
+      static DataAccessorType dataAccessorType(){ return "ANALYSIS_MONITORED_OBJECT-postgis"; }
+
     protected:
       virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const override;
       virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const override;

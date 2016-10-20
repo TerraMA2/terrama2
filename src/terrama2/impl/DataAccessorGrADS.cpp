@@ -72,7 +72,7 @@ terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvide
     DataAccessorGrid(dataProvider, dataSeries, filter),
     DataAccessorFile(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "GRID-grads")
+  if(dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

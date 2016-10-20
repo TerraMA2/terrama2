@@ -44,7 +44,7 @@ terrama2::core::DataAccessorOccurrencePostGIS::DataAccessorOccurrencePostGIS(Dat
    DataAccessorOccurrence(dataProvider, dataSeries, filter),
    DataAccessorPostGIS(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "OCCURRENCE-postgis")
+  if(dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
