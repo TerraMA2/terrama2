@@ -14,7 +14,7 @@ var doSlide = function(layerId, layerTime) {
  */
 $("#terrama2-layerexplorer").on("click", "#terrama2-slider", function(event) {
   var self = $(this);
-  var parentLi = $(self).parent().parent();
+  var parentLi = $(self).parent();
   var parentId = $(parentLi).attr("data-layerid");
   var capability = capabilities.find(function(capability) { return capability.name === parentId; });
 
@@ -42,7 +42,7 @@ $("#terrama2-layerexplorer").on("click", "button[class~='close-slider']", functi
 
 $("#terrama2-layerexplorer").on("click", "#terrama2-slider-mask", function(event) {
   var self = $(this);
-  var parentLi = $(self).parent().parent();
+  var parentLi = $(self).parent();
   var sliderContent = parentLi.children(".slider-content");
   if (sliderContent.is(':hidden'))
     sliderContent.show();

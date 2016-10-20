@@ -128,7 +128,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                                                                      const std::string& timestampPropertyName,
                                                                      const std::string& sql) const
 {
-  deletePostgisTable(dataStoreName, title, true);
+  deletePostgisTable(dataStoreName, tableName, true);
 
   registerDataStore(dataStoreName, connInfo);
 
