@@ -1,15 +1,15 @@
 "use strict";
 
 var Signals = require('./Signals.js');
-var SSH = require("./SSHDispatcher");
+var Process = require('./Process');
+var Executor = require('./executors/Local');
+var SSH = require("./executors/SSH");
 var Utils = require('./Utils');
 var _ = require('lodash');
 var Service = require('./Service');
 var NodeUtils = require('util');
 var EventEmitter = require('events').EventEmitter;
 var ServiceType = require('./Enums').ServiceType;
-var Process = require('./Process');
-var Executor = require('./Executor');
 var Promise = require('bluebird');
 
 // Facades
