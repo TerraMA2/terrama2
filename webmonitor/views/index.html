@@ -350,10 +350,6 @@
                         allLayers.push({id: capabilities[i].name, name: capabilities[i].title, extent: capabilities[i].extent});
                         addLayerToSort(capabilities[i].name, capabilities[i].title);
 
-                        if (!capabilities[i].extent) {
-                            continue;
-                        } 
-
                         var span = "";
                         var listElement = $("li[data-layerid='custom']");
                         var li = $(listElement).find("li[data-layerid='" + capabilities[i].name +"']");
@@ -361,6 +357,13 @@
                         if (li.length === 0) {
                             continue;
                         }
+
+                        li.find('input').click();
+
+                        if (!capabilities[i].extent) {
+                            continue;
+                        } 
+
                         var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':','') + "'></div></div>";
                         $(li).append(sliderDiv);
 
@@ -370,7 +373,6 @@
                             span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(capabilities[i]) + "<i class='fa fa-calendar'></i></span>";
                         }
                         $(li).append($(span));
-                        // find(".terrama2-layerexplorer-checkbox-span").
                     }
                 }
             }
@@ -378,9 +380,9 @@
             if (!$("#custom").hasClass('open')){
                 $("#custom").addClass('open');
             }
-            var children = $('#custom').find(' > ul > li');
-            children.show('fast');
-            
+            var groupSpanName = $('#custom').find(' span.group-name');
+            groupSpanName.click();
+            openGroupLayers();            
         }
         $("#layersModal").modal('hide');
     }
