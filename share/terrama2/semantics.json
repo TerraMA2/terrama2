@@ -36,6 +36,16 @@
     "providers_type_list": ["POSTGIS"]
   },
   {
+    "name": "GeoTIFF grid",
+    "code": "GRID-static_geotiff",
+    "type": "STATIC_DATA",
+    "format": "GEOTIFF",
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "file_timestamp"
+    }
+  },
+  {
     "name": "INPE's DCP data format",
     "code": "DCP-inpe",
     "type": "DCP",
