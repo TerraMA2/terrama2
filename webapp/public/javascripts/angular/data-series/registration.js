@@ -29,11 +29,11 @@ angular.module('terrama2.dataseries.registration', [
       .state('wizard', {
         parent: 'main',
         url: "/wizard",
-        templateUrl: '/javascripts/angular/wizard.html'
+        templateUrl: '/javascripts/angular/wizard.html',
       }).state('advanced', {
         parent: 'main',
         url: "/advanced",
-        templateUrl: '/javascripts/angular/advanced.html'
+        templateUrl: '/javascripts/angular/advanced.html',
       }
     );
   }])
@@ -1025,6 +1025,215 @@ angular.module('terrama2.dataseries.registration', [
         $scope.display = false;
       };
 
+      // it dispatches post operation to nodejs
+      var _sendRequest = function(object) {
+        var request = null;
+        var data = {
+          dataSeries: object.dataToSend,
+          schedule: object.scheduleValues,
+          filter: object.filterValues,
+          service: object.serviceOutput,
+          intersection: object.intersection,
+          active: object.active
+        };
+        if ($scope.isUpdating) {
+          request = DataSeriesFactory.put(configuration.dataSeries.input.id, data);
+        } else {
+          request = DataSeriesFactory.post(data);
+        }
+
+        request.then(function(data) {
+          console.log(data);
+          $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
+        }).catch(function(err) {
+          $scope.alertLevel = "alert-danger";
+          $scope.alertBox.message = err.message || err.data.message;
+          $scope.display = true;
+          $scope.extraProperties = {};
+          console.log(err);
+        });
+      };
+
+      $scope.$on("storageValuesReceive", function(event, values) {
+        //  todo: improve
+        var dSemantics = Object.assign({}, $scope.dataSeries.semantics);
+        var dataObject = _save();
+        var dSeriesName = dataObject.dataSeries.name;
+        // setting _input in data series
+        dataObject.dataSeries.name += "_input";
+
+        var dSets = values.data;
+
+        // it makes data set format
+        var _makeFormat = function(dSetObject) {
+          var format_ = {};
+          for(var key in dSetObject) {
+            if (dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id")
+              format_[key] = dSetObject[key];
+          }
+
+          // adding extra metadata
+          if (dSemantics.metadata.metadata && Object.keys(dSemantics.metadata.metadata).length > 0)
+            Object.assign(format_, dSemantics.metadata.metadata);
+
+          return format_;
+        };
+
+        var out;
+        if (dSets instanceof Array) {
+          // setting to active
+          var dSetsLocal = [];
+          dSets.forEach(function(dSet) {
+            dSetsLocal.push({
+              active: $scope.dataSeries.active,
+              format: _makeFormat(dSet)
+            });
+          });
+          out = dSetsLocal;
+        } else {
+          dSets.format = _makeFormat(dSets);
+          dSets.active = $scope.dataSeries.active;
+          out = [dSets];
+        }
+
+        // preparing intersection
+        var intersectionValues = [];
+        for(var k in $scope.intersection) {
+          if ($scope.intersection.hasOwnProperty(k)) {
+            if (!$scope.intersection[k].selected) {
+              continue;
+            }
+            var attributes = $scope.intersection[k].attributes;
+            var dataseries_id = $scope.intersection[k].data_series.id;
+
+            // grid
+            if (attributes.length === 0) {
+              intersectionValues.push({
+                dataseries_id: dataseries_id
+              });
+            }
+
+            for(var i = 0; i < attributes.length; ++i) {
+              var attribute = attributes[i];
+              intersectionValues.push({
+                attribute: attribute,
+                dataseries_id: dataseries_id
+              });
+            }
+          }
+        }
+
+        var outputDataSeries = {
+          name: dSeriesName,
+          description: dataObject.dataSeries.description,
+          data_series_semantic_id: values.semantics.id,
+          data_provider_id: values.data_provider,
+          dataSets: out
+        };
+
+        _sendRequest({
+          dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
+          scheduleValues: dataObject.schedule,
+          filterValues: dataObject.filter,
+          serviceOutput: values.service,
+          intersection: intersectionValues,
+          active: dataObject.dataSeries.active
+        });
+      });
+
+      // it prepares dataseries object, schedule and filter object
+      var _save = function() {
+
+        var dataToSend = Object.assign({}, $scope.dataSeries);
+        dataToSend.data_series_semantic_id = $scope.dataSeries.semantics.id;
+
+        var semantics = Object.assign({}, dataToSend.semantics);
+        delete dataToSend.semantics;
+
+        dataToSend.dataSets = [];
+
+        $scope.errorFound = false;
+
+        switch(semantics.data_series_type_name) {
+          case "DCP":
+            $scope.dcps.forEach(function(dcp) {
+              var format = {};
+              for(var key in dcp) {
+                if (dcp.hasOwnProperty(key))
+                  if (key !== "latitude" && key !== "longitude" && key !== "active")
+                    format[key] = dcp[key];
+              }
+              var dataSetStructure = {
+                active: $scope.dataSeries.active,
+                format: format,
+                position: {
+                  type: 'Point',
+                  coordinates: [dcp.latitude, dcp.longitude],
+                  crs: {
+                    type: 'name',
+                    properties : {
+                      name: "EPSG:" + dcp.projection
+                    }
+                  }
+                }
+              };
+
+              dataToSend.dataSets.push(dataSetStructure);
+            });
+
+            break;
+          case "OCCURRENCE":
+          case "GRID":
+          case "STATIC_DATA":
+            var format = $scope.model;
+
+            var dataSet = {
+              semantics: semantics,
+              active: $scope.dataSeries.active,
+              format: format
+            };
+            dataToSend.dataSets.push(dataSet);
+            break;
+
+          default:
+            break;
+        }
+
+        var filterValues = Object.assign({}, $scope.filter);
+        if ($scope.filter.filterArea === $scope.filterTypes.AREA.value) {
+          filterValues.region = Polygon.build($scope.filter.area || {});
+        }
+
+        var scheduleValues = Object.assign({}, $scope.schedule);
+        switch(scheduleValues.scheduleHandler) {
+          case "seconds":
+          case "minutes":
+          case "hours":
+            scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+            scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
+            break;
+          case "weeks":
+          case "monthly":
+          case "yearly":
+            // todo: verify
+            var dt = scheduleValues.schedule_time;
+            scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+            scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+            break;
+
+          default:
+            break;
+        }
+
+        console.log(dataToSend);
+
+        return {
+          dataSeries: dataToSend,
+          schedule: scheduleValues,
+          filter: filterValues
+        };
+      };
+
       $scope.save = function() {
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
@@ -1089,216 +1298,7 @@ angular.module('terrama2.dataseries.registration', [
 
         $scope.alertBox.title = "Data Series Registration";
 
-        // it prepares dataseries object, schedule and filter object
-        var _save = function() {
-
-          var dataToSend = Object.assign({}, $scope.dataSeries);
-          dataToSend.data_series_semantic_id = $scope.dataSeries.semantics.id;
-
-          var semantics = Object.assign({}, dataToSend.semantics);
-          delete dataToSend.semantics;
-
-          dataToSend.dataSets = [];
-
-          $scope.errorFound = false;
-
-          switch(semantics.data_series_type_name) {
-            case "DCP":
-              $scope.dcps.forEach(function(dcp) {
-                var format = {};
-                for(var key in dcp) {
-                  if (dcp.hasOwnProperty(key))
-                    if (key !== "latitude" && key !== "longitude" && key !== "active")
-                      format[key] = dcp[key];
-                }
-                var dataSetStructure = {
-                  active: $scope.dataSeries.active,
-                  format: format,
-                  position: {
-                    type: 'Point',
-                    coordinates: [dcp.latitude, dcp.longitude],
-                    crs: {
-                      type: 'name',
-                      properties : {
-                        name: "EPSG:" + dcp.projection
-                      }
-                    }
-                  }
-                };
-
-                dataToSend.dataSets.push(dataSetStructure);
-              });
-
-              break;
-            case "OCCURRENCE":
-            case "GRID":
-            case "STATIC_DATA":
-              var format = $scope.model;
-
-              var dataSet = {
-                semantics: semantics,
-                active: $scope.dataSeries.active,
-                format: format
-              };
-              dataToSend.dataSets.push(dataSet);
-              break;
-
-            default:
-              break;
-          }
-
-          var filterValues = Object.assign({}, $scope.filter);
-          if ($scope.filter.filterArea === $scope.filterTypes.AREA.value) {
-            filterValues.region = Polygon.build($scope.filter.area || {});
-          }
-
-          var scheduleValues = Object.assign({}, $scope.schedule);
-          switch(scheduleValues.scheduleHandler) {
-            case "seconds":
-            case "minutes":
-            case "hours":
-              scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
-              break;
-            case "weeks":
-            case "monthly":
-            case "yearly":
-              // todo: verify
-              var dt = scheduleValues.schedule_time;
-              scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
-              scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
-              break;
-
-            default:
-              break;
-          }
-
-          console.log(dataToSend);
-
-          return {
-            dataSeries: dataToSend,
-            schedule: scheduleValues,
-            filter: filterValues
-          };
-        };
-
-        // it dispatches post operation to nodejs
-        var _sendRequest = function(object) {
-          var request = null;
-          var data = {
-            dataSeries: object.dataToSend,
-            schedule: object.scheduleValues,
-            filter: object.filterValues,
-            service: object.serviceOutput,
-            intersection: object.intersection,
-            active: object.active
-          };
-          if ($scope.isUpdating) {
-            request = DataSeriesFactory.put(configuration.dataSeries.input.id, data);
-          } else {
-            request = DataSeriesFactory.post(data);
-          }
-
-          request.then(function(data) {
-            console.log(data);
-            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
-          }).catch(function(err) {
-            $scope.alertLevel = "alert-danger";
-            $scope.alertBox.message = err.message || err.data.message;
-            $scope.display = true;
-            $scope.extraProperties = {};
-            console.log(err);
-          });
-        };
-
         if ($scope.dataSeries.access == 'COLLECT') {
-          $scope.$on("storageValuesReceive", function(event, values) {
-            //  todo: improve
-            var dSemantics = Object.assign({}, $scope.dataSeries.semantics);
-            var dataObject = _save();
-            var dSeriesName = dataObject.dataSeries.name;
-            // setting _input in data series
-            dataObject.dataSeries.name += "_input";
-
-            var dSets = values.data;
-
-            // it makes data set format
-            var _makeFormat = function(dSetObject) {
-              var format_ = {};
-              for(var key in dSetObject) {
-                if (dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id")
-                  format_[key] = dSetObject[key];
-              }
-
-              // adding extra metadata
-              if (dSemantics.metadata.metadata && Object.keys(dSemantics.metadata.metadata).length > 0)
-                Object.assign(format_, dSemantics.metadata.metadata);
-
-              return format_;
-            };
-
-            var out;
-            if (dSets instanceof Array) {
-              // setting to active
-              var dSetsLocal = [];
-              dSets.forEach(function(dSet) {
-                dSetsLocal.push({
-                  active: $scope.dataSeries.active,
-                  format: _makeFormat(dSet)
-                });
-              });
-              out = dSetsLocal;
-            } else {
-              dSets.format = _makeFormat(dSets);
-              dSets.active = $scope.dataSeries.active;
-              out = [dSets];
-            }
-
-            // preparing intersection
-            var intersectionValues = [];
-            for(var k in $scope.intersection) {
-              if ($scope.intersection.hasOwnProperty(k)) {
-                if (!$scope.intersection[k].selected) {
-                  continue;
-                }
-                var attributes = $scope.intersection[k].attributes;
-                var dataseries_id = $scope.intersection[k].data_series.id;
-
-                // grid
-                if (attributes.length === 0) {
-                  intersectionValues.push({
-                    dataseries_id: dataseries_id
-                  });
-                }
-
-                for(var i = 0; i < attributes.length; ++i) {
-                  var attribute = attributes[i];
-                  intersectionValues.push({
-                    attribute: attribute,
-                    dataseries_id: dataseries_id
-                  });
-                }
-              }
-            }
-
-            var outputDataSeries = {
-              name: dSeriesName,
-              description: dataObject.dataSeries.description,
-              data_series_semantic_id: values.semantics.id,
-              data_provider_id: values.data_provider,
-              dataSets: out
-            };
-
-            _sendRequest({
-              dataToSend: {input: dataObject.dataSeries, output: outputDataSeries},
-              scheduleValues: dataObject.schedule,
-              filterValues: dataObject.filter,
-              serviceOutput: values.service,
-              intersection: intersectionValues,
-              active: dataObject.dataSeries.active
-            });
-
-          });
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {

@@ -1445,7 +1445,66 @@ var DataManager = module.exports = {
       });
     });
   },
+  /**
+   * It retrieves all data set formats from database
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
+  listDataSetFormats: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.DataSetFormat
+        .findAll(Utils.extend({
+          where: restriction
+        }, options))
+        .then(function(dataSetFormats) {
+          return resolve(dataSetFormats);
+        })
 
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not retrieve data set formats %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It performs Insert or Update operation in database. If data set format found with given restriction, it applies
+   * update operation. Otherwise, it performs insert operation
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} dataSetFormat - A data set format values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
+   */
+  upsertDataSetFormats: function(restriction, dataSetFormat, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self
+        .listDataSetFormats(restriction, Utils.extend({limit: 1}, options))
+        .then(function(dataSetFormats) {
+          if (dataSetFormats.length === 0) {
+            // insert
+            return models.db.DataSetFormat.create(dataSetFormat, options); 
+          } else {
+            return models.db.DataSetFormat.update(dataSetFormat, Utils.extend({
+              fields: ["key", "value", "data_set_id"],
+              where: {id: dataSetFormats[0].id}
+            }, options));
+          }
+        })
+
+        .then(function() {
+          return resolve();
+        })
+
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not upsert data set format %s", err.toString())));
+        });
+    })
+  },
   /**
    * It updates a DataSeries object. It should be an object containing object filled out with identifier
    * and model values.
@@ -1461,29 +1520,69 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       var dataSeries = Utils.find(self.data.dataSeries, {id: dataSeriesId});
 
-      if (dataSeries) {
-        models.db.DataSeries.update(dataSeriesObject, Utils.extend({
-          fields: ['name', 'description', 'data_provider_id'],
-          where: {
-            id: dataSeriesId
-          }
-        }, options)).then(function() {
-          return self.getDataProvider({id: parseInt(dataSeriesObject.data_provider_id)}).then(function(dataProvider) {
-            dataSeries.name = dataSeriesObject.name;
-            dataSeries.description = dataSeriesObject.description;
-            dataSeries.data_provider_id = dataProvider.id;
-
-            return resolve(new DataModel.DataSeries(dataSeries));
-          }).catch(function(err) {
-            console.log(err);
-            return reject(err);
-          });
-        }).catch(function(err) {
-          return reject(new exceptions.DataSeriesError("Could not update data series ", err.errors));
-        });
-      } else {
+      if (!dataSeries) {
         return reject(new exceptions.DataSeriesError("Data series not found. ", []));
       }
+
+      return models.db.DataSeries.update(dataSeriesObject, Utils.extend({
+        fields: ['name', 'description', 'data_provider_id'],
+        where: {
+          id: dataSeriesId
+        }
+      }, options))
+      // on data series update, update format
+        .then(function() {
+          return self.getDataSeriesSemantics({id: dataSeriesObject.data_series_semantic_id}, options);
+        })
+
+        .then(function(dataSeriesSemantics) {
+          if (dataSeriesSemantics.data_series_type_name !== Enums.DataSeriesType.DCP) {              
+            var oldDataSet = dataSeries.dataSets[0];
+            var newDataSet = dataSeriesObject.dataSets[0];
+            /**
+             * It defines a list of promises to perform DB operation. It may be insert or update
+             * @type {Promise[]}
+             */
+            var promisesFormat = Utils.generateArrayFromObject(newDataSet.format, function(key, value) {
+              var obj = {
+                key: key,
+                value: value,
+                data_set_id: oldDataSet.id
+              };
+              // performs Insert or Update
+              return self.upsertDataSetFormats({
+                data_set_id: oldDataSet.id,
+                key: key
+              }, obj, options);
+            });
+
+            return Promise.all(promisesFormat)
+              .then(function() {
+                return self
+                  .listDataSetFormats({data_set_id: oldDataSet.id}, options)
+                  .then(function(newDataSetFormats) {
+                    oldDataSet.format = Utils.formatMetadataFromDB(newDataSetFormats);
+                    return null;
+                  });
+              });
+          } else {
+            return null;
+          }
+        })
+
+        .then(function() {
+          return self.getDataProvider({id: parseInt(dataSeriesObject.data_provider_id)});
+        })
+        // retrieving data provider
+        .then(function(dataProvider) {
+          dataSeries.name = dataSeriesObject.name;
+          dataSeries.description = dataSeriesObject.description;
+          dataSeries.data_provider_id = dataProvider.id;
+
+          return resolve(new DataModel.DataSeries(dataSeries));
+        }).catch(function(err) {
+          return reject(new exceptions.DataSeriesError(Utils.format("Could not update data series %s", err.toString()), err.errors));
+        });
     });
   },
 
