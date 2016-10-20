@@ -325,18 +325,18 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
 }
 
 
-void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId)
+void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
 {
   auto outputDataSeries = dataManager->findDataSeries(dataSeriesId);
   if(!outputDataSeries)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data series for analysis %1.").arg(dataSeriesId);
+    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data series for analysis.");
     return;
   }
   auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
   if(!outputDataProvider)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data provider for analysis %1.").arg(dataSeriesId);
+    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data provider for analysis.");
     return;
   }
 
@@ -385,11 +385,9 @@ void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr data
     // get a transactor to interact to the data source
     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
+    transactor->execute("delete from " + tableName + " where execution_date = '" + startTime->toString() + "'");
 
-    if(transactor->dataSetExists(tableName))
-    {
-      transactor->dropDataSet(tableName);
-    }
+
   }
 
 }

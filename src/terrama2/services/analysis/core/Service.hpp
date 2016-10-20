@@ -35,6 +35,7 @@
 #include "../../../core/utility/Service.hpp"
 #include "../../../core/Shared.hpp"
 #include "python/PythonInterpreter.hpp"
+#include "AnalysisExecutor.hpp"
 
 //STL
 #include <memory>
@@ -88,6 +89,14 @@ namespace terrama2
             void updateAnalysis(AnalysisId analysisId) noexcept;
 
             /*!
+              \brief Nofifies that an analysis has ended.
+              \param analysisId Analysis identifier.
+              \param startTime Analysis start time.
+              \param success Analysis finsished with success.
+            */
+            void analysisFinished(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime, bool success);
+
+            /*!
               \brief Adds the analysis to the queue of execution.
              */
             virtual void addToQueue(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
@@ -136,12 +145,13 @@ namespace terrama2
             PyThreadState* mainThreadState_; //!< Main thread state from Python interpreter.
             std::map<AnalysisId, terrama2::core::TimerPtr> timers_; //!< Map of timers by analysis.
             std::vector<std::pair<AnalysisId, std::shared_ptr<te::dt::TimeInstantTZ> > > analysisQueue_; //!< Analysis queue.
+            std::vector<AnalysisHashCode> waitQueue_; //!< Wait queue for reprecessing historical data.
+            std::vector<AnalysisHashCode> processingQueue_; //!< Queue with analysis being processed.
             std::shared_ptr<AnalysisLogger> logger_; //!< Analysis process logger.
             DataManagerPtr dataManager_; //!< Data manager.
             ThreadPoolPtr threadPool_; //!< Pool of thread to run the analysis.
             terrama2::core::StoragerManagerPtr storagerManager_; //!< Manager to control the storage of analysis results.
-
-
+            AnalysisExecutor analysisExecutor_; //! Analysis executor object.
         };
 
       } // end namespace core
