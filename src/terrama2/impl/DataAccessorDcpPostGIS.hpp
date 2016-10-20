@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_POSTGIS_HPP__
 
 //TerraMA2
-#include "DataAccessorPostGis.hpp"
+#include "DataAccessorPostGIS.hpp"
 
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorDcp.hpp"
@@ -45,7 +45,7 @@ namespace terrama2
       \brief DataAccessor for DCP DataSeries in a PostGIS database.
 
     */
-    class DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGis
+    class DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGIS
     {
     public:
       DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());

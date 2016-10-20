@@ -15,7 +15,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::TerraMA2Init terramaRaii;
+  terrama2::core::TerraMA2Init terramaRaii("example", 0);
 
   {
     //DataProvider information
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
     std::cout << "\nDataSet size: " << teDataSet->size() << std::endl;
   }
 
-  
+
 
   return 0;
 }

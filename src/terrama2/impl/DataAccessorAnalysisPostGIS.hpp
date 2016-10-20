@@ -20,18 +20,18 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorMonitoredObjectAnalysisPostGis.hpp
+  \file terrama2/core/data-access/DataAccessorAnalysisPostGIS.hpp
 
-  \brief Data accessor for an monitored object analysis result.
+  \brief
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
  */
 
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_ANALYSIS_POSTGIS_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_ANALYSIS_POSTGIS_HPP__
 
 //TerraMA2
-#include "DataAccessorPostGis.hpp"
+#include "DataAccessorPostGIS.hpp"
 
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorOccurrence.hpp"
@@ -40,20 +40,20 @@ namespace terrama2
 {
   namespace core
   {
-    class DataAccessorMonitoredObjectAnalysisPostGis : public DataAccessorPostGis
+    class DataAccessorAnalysisPostGIS : public DataAccessorPostGIS
     {
     public:
-      DataAccessorMonitoredObjectAnalysisPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorMonitoredObjectAnalysisPostGis() {}
+      DataAccessorAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorAnalysisPostGIS() {}
 
-      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
-        return new DataAccessorMonitoredObjectAnalysisPostGis(dataProvider, dataSeries, filter);
+        return std::make_shared<DataAccessorAnalysisPostGIS>(dataProvider, dataSeries, filter);
       }
+      static DataAccessorType dataAccessorType(){ return "ANALYSIS_MONITORED_OBJECT-postgis"; }
 
     protected:
       virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const override;
-      virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const override;
 
       virtual std::string dataSourceType() const override;
     };

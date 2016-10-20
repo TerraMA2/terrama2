@@ -46,7 +46,7 @@
 
 int main(int argc, char** argv)
 {
-  terrama2::core::TerraMA2Init terramaRaii;
+  terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::registerFactories();
 
   {
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     // DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/umin";
+    dataProvider->uri = "file:///home/jsimas/MyDevel/dpi/terrama2-build/data/grads";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetPtr dataSetPtr(dataSet1);
     dataSet1->active = true;
-    dataSet1->format.emplace("mask", "ddMMumin_yyyy.tif");
+    dataSet1->format.emplace("mask", "umin.yyyyMMdd_hh_mm.tif");
     dataSet1->format.emplace("srid", "4326");
     dataSet1->id = 1;
     dataSet1->dataSeriesId = dataSeries1->id;

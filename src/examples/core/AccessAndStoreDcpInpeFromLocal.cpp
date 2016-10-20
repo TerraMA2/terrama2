@@ -7,7 +7,7 @@
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
-#include <terrama2/impl/DataStoragerPostGis.hpp>
+#include <terrama2/impl/DataStoragerPostGIS.hpp>
 
 #include <terrama2/Config.hpp>
 
@@ -18,7 +18,7 @@
 
 int main(int argc, char* argv[])
 {
-  terrama2::core::TerraMA2Init terramaRaii;
+terrama2::core::TerraMA2Init terramaRaii("example", 0);
 
   //DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -64,13 +64,13 @@ int main(int argc, char* argv[])
   uri.setPath("/basedeteste");
 
   //DataProvider information
-  terrama2::core::DataProvider* dataProviderPostGis = new terrama2::core::DataProvider();
-  terrama2::core::DataProviderPtr dataProviderPostGisPtr(dataProviderPostGis);
-  dataProviderPostGis->uri = uri.url().toStdString();
+  terrama2::core::DataProvider* dataProviderPostGIS = new terrama2::core::DataProvider();
+  terrama2::core::DataProviderPtr dataProviderPostGISPtr(dataProviderPostGIS);
+  dataProviderPostGIS->uri = uri.url().toStdString();
 
-  dataProviderPostGis->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
-  dataProviderPostGis->dataProviderType = "POSTGIS";
-  dataProviderPostGis->active = true;
+  dataProviderPostGIS->intent = terrama2::core::DataProviderIntent::PROCESS_INTENT;
+  dataProviderPostGIS->dataProviderType = "POSTGIS";
+  dataProviderPostGIS->active = true;
 
   //DataSeries information
   terrama2::core::DataSeries* outputDataSeries = new terrama2::core::DataSeries();
@@ -83,11 +83,11 @@ int main(int argc, char* argv[])
   dataSetOutput->format.emplace("table_name", "inpe");
   dataSetOutput->format.emplace("timestamp_column", "DateTime");
 
-  terrama2::core::DataStoragerPostGis dataStorager(dataProviderPostGisPtr);
+  terrama2::core::DataStoragerPostGIS dataStorager(dataProviderPostGISPtr);
 
   dataStorager.store( (*dcpSeries->dcpSeriesMap().begin()).second, dataSetOutputPtr);
 
-  
+
 
   return 0;
 }

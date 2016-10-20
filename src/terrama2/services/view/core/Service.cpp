@@ -45,7 +45,7 @@
 #include "../../../core/data-access/DataStorager.hpp"
 
 #include "../../../impl/DataAccessorFile.hpp"
-#include "../../../impl/DataAccessorPostGis.hpp"
+#include "../../../impl/DataAccessorPostGIS.hpp"
 
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
@@ -398,8 +398,8 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               {"PG_CLIENT_ENCODING", "UTF-8"}
             };
 
-            std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorPostGis =
-                std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(dataAccessor);
+            std::shared_ptr< terrama2::core::DataAccessorPostGIS > dataAccessorPostGis =
+                std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGIS>(dataAccessor);
 
             for(auto& dataset : datasets)
             {
@@ -455,10 +455,10 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
                 terrama2::core::DataAccessorPtr monitoredObjectDataAccessor =
                     terrama2::core::DataAccessorFactory::getInstance().make(monitoredObjectProvider, monitoredObjectDataSeries);
 
-                std::shared_ptr< terrama2::core::DataAccessorPostGis > dataAccessorAnalysisPostGis =
-                    std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGis>(monitoredObjectDataAccessor);
+                std::shared_ptr< terrama2::core::DataAccessorPostGIS > dataAccessorAnalysisPostGIS =
+                    std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGIS>(monitoredObjectDataAccessor);
 
-                std::string joinTableName = dataAccessorAnalysisPostGis->getDataSetTableName(monitoredObjectDataset);
+                std::string joinTableName = dataAccessorAnalysisPostGIS->getDataSetTableName(monitoredObjectDataset);
 
                 joinSQL = "SELECT * from " + tableName + " as t1 , " + joinTableName + " as t2 ";
 

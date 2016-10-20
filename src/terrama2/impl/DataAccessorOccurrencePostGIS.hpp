@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorOccurrencePostGis.hpp
+  \file terrama2/core/data-access/DataAccessorOccurrencePostGIS.hpp
 
   \brief
 
@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_OCCURRENCE_POSTGIS_HPP__
 
 //TerraMA2
-#include "DataAccessorPostGis.hpp"
+#include "DataAccessorPostGIS.hpp"
 
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorOccurrence.hpp"
@@ -40,15 +40,15 @@ namespace terrama2
 {
   namespace core
   {
-    class DataAccessorOccurrencePostGis : public DataAccessorOccurrence, public DataAccessorPostGis
+    class DataAccessorOccurrencePostGIS : public DataAccessorOccurrence, public DataAccessorPostGIS
     {
     public:
-      DataAccessorOccurrencePostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
-      virtual ~DataAccessorOccurrencePostGis() {}
+      DataAccessorOccurrencePostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      virtual ~DataAccessorOccurrencePostGIS() {}
 
       static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
       {
-        return std::make_shared<DataAccessorOccurrencePostGis>(dataProvider, dataSeries, filter);
+        return std::make_shared<DataAccessorOccurrencePostGIS>(dataProvider, dataSeries, filter);
       }
       static DataAccessorType dataAccessorType(){ return "OCCURRENCE-postgis"; }
 
