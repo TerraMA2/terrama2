@@ -312,8 +312,8 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
     return terrama2::core::DataSeriesType::OCCURRENCE;
   else if(type == "GRID")
     return terrama2::core::DataSeriesType::GRID;
-  else if(type == "MONITORED_OBJECT")
-    return terrama2::core::DataSeriesType::OBJECT;
+  else if(type == "GEOMETRIC_OBJECT")
+    return terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
   else if(type == "ANALYSIS_MONITORED_OBJECT")
     return terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT;
   else

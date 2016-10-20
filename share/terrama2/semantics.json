@@ -26,7 +26,7 @@
   {
     "name": "File static data",
     "code": "STATIC_DATA-ogr",
-    "type": "OBJECT",
+    "type": "GEOMETRIC_OBJECT",
     "temporality": "STATIC",
     "format": "OGR",
     "providers_type_list": ["FILE"]
@@ -34,7 +34,7 @@
   {
     "name": "PostGIS static data",
     "code": "STATIC_DATA-postgis",
-    "type": "OBJECT",
+    "type": "GEOMETRIC_OBJECT",
     "temporality": "STATIC",
     "format": "POSTGIS",
     "providers_type_list": ["POSTGIS"]
