@@ -65,8 +65,14 @@
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
+terrama2::services::analysis::core::AnalysisExecutor::AnalysisExecutor()
+{
+  qRegisterMetaType<std::shared_ptr<te::dt::TimeInstantTZ>>("std::shared_ptr<te::dt::TimeInstantTZ>");
+  qRegisterMetaType<uint32_t>("uint32_t");
+}
 
-void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
+
+void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManagerPtr dataManager,
                                                      terrama2::core::StoragerManagerPtr storagerManager,
                                                      std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger,
                                                      std::shared_ptr<te::dt::TimeInstantTZ> startTime,
@@ -154,6 +160,8 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
 
       QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
+
+      emit analysisFinished(analysis->id, startTime, false);
     }
     else
     {
@@ -161,27 +169,34 @@ void terrama2::services::analysis::core::runAnalysis(DataManagerPtr dataManager,
 
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
       TERRAMA2_LOG_INFO() << errMsg;
+
+      emit analysisFinished(analysis->id, startTime, true);
     }
   }
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    emit analysisFinished(analysis->id, startTime, false);
   }
   catch(const std::exception& e)
   {
     TERRAMA2_LOG_ERROR() << e.what();
+    emit analysisFinished(analysis->id, startTime, false);
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
+    emit analysisFinished(analysis->id, startTime, false);
   }
 
   // Clears context
   ContextManager::getInstance().clearContext(analysisHashCode);
+
+
 }
 
-void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerPtr dataManager,
+void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAnalysis(DataManagerPtr dataManager,
                                                                     terrama2::core::StoragerManagerPtr storagerManager,
                                                                     AnalysisPtr analysis,
                                                                     std::shared_ptr<te::dt::TimeInstantTZ> startTime,
@@ -316,7 +331,7 @@ void terrama2::services::analysis::core::runMonitoredObjectAnalysis(DataManagerP
 }
 
 
-void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
+void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime, ThreadPoolPtr threadPool, PyThreadState* mainThreadState)
 {
   // TODO: Ticket #433
   QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
@@ -324,7 +339,7 @@ void terrama2::services::analysis::core::runDCPAnalysis(DataManagerPtr dataManag
   throw Exception() << ErrorDescription(errMsg);
 }
 
-void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context)
+void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context)
 {
 
   auto errors = context->getErrors();
@@ -529,7 +544,7 @@ void terrama2::services::analysis::core::storeMonitoredObjectAnalysisResult(Data
 
 }
 
-void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataManager,
+void terrama2::services::analysis::core::AnalysisExecutor::runGridAnalysis(DataManagerPtr dataManager,
                                                          terrama2::core::StoragerManagerPtr storagerManager,
                                                          AnalysisPtr analysis,
                                                          std::shared_ptr<te::dt::TimeInstantTZ> startTime,
@@ -668,7 +683,7 @@ void terrama2::services::analysis::core::runGridAnalysis(DataManagerPtr dataMana
   }
 }
 
-void terrama2::services::analysis::core::storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager,
+void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager,
                                                                  terrama2::services::analysis::core::GridContextPtr context)
 {
   auto analysis = context->getAnalysis();
