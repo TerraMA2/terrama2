@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStoragerPostGis.cpp
+  \file terrama2/core/data-access/DataStoragerPostGIS.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataStoragerPostGis.hpp"
+#include "DataStoragerPostGIS.hpp"
 
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/utility/Raii.hpp"
@@ -46,7 +46,7 @@
 //STL
 #include <algorithm>
 
-void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr outputDataSet) const
+void terrama2::core::DataStoragerPostGIS::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   if(!dataProvider_)
   {
@@ -121,7 +121,7 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
   const auto& oldPropertiesList = newDataSetType->getProperties();
   for(const auto & property : datasetType->getProperties())
   {
-    auto it = std::find_if(oldPropertiesList.cbegin(), oldPropertiesList.cend(), std::bind(&terrama2::core::DataStoragerPostGis::isPropertyEqual, this, property, std::placeholders::_1));
+    auto it = std::find_if(oldPropertiesList.cbegin(), oldPropertiesList.cend(), std::bind(&terrama2::core::DataStoragerPostGIS::isPropertyEqual, this, property, std::placeholders::_1));
     if(it == oldPropertiesList.cend())
       transactorDestination->addProperty(newDataSetType->getName(), property);
   }
@@ -132,13 +132,13 @@ void terrama2::core::DataStoragerPostGis::store(DataSetSeries series, DataSetPtr
   scopedTransaction.commit();
 }
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGis::make(DataProviderPtr dataProvider)
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataProviderPtr dataProvider)
 {
-  return std::make_shared<DataStoragerPostGis>(dataProvider);
+  return std::make_shared<DataStoragerPostGIS>(dataProvider);
 }
 
 
-std::string terrama2::core::DataStoragerPostGis::getDataSetTableName(DataSetPtr dataSet) const
+std::string terrama2::core::DataStoragerPostGIS::getDataSetTableName(DataSetPtr dataSet) const
 {
   try
   {
@@ -152,7 +152,7 @@ std::string terrama2::core::DataStoragerPostGis::getDataSetTableName(DataSetPtr 
   }
 }
 
-bool terrama2::core::DataStoragerPostGis::isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const
+bool terrama2::core::DataStoragerPostGIS::isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const
 {
   std::string newPropertyName = newProperty->getName();
   std::transform(newPropertyName.begin(), newPropertyName.end(), newPropertyName.begin(), ::tolower);
@@ -174,7 +174,7 @@ bool terrama2::core::DataStoragerPostGis::isPropertyEqual(te::dt::Property* newP
   return true;
 }
 
-std::string terrama2::core::DataStoragerPostGis::getCompleteURI(DataSetPtr outputDataSet) const
+std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr outputDataSet) const
 {
   std::string destinationDataSetName = getDataSetTableName(outputDataSet);
   return dataProvider_->uri + "/" + destinationDataSetName;

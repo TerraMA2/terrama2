@@ -1,6 +1,6 @@
 [
   {
-    "name": "PostGis occurrence",
+    "name": "PostGIS occurrence",
     "code": "OCCURRENCE-postgis",
     "type": "OCCURRENCE",
     "format": "POSTGIS",

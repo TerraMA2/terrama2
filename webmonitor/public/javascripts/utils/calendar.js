@@ -26,7 +26,7 @@ var makeHelperDatePicker = function(capability) {
 
 $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
   var self = $(this);
-  var parentLi = $(self).parent().parent();
+  var parentLi = $(self).parent();
   var capability = $(self).attr("data-layerid");
   var calendar = $(self).find("input[id='"+ capability +"']");
   var hidden = $(self).find("input[type='hidden']");
@@ -47,7 +47,7 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
     $(calendar).daterangepicker({
       "timePicker": true,
       "minDate": mMinDate,
-      "startDate": mMinDate,
+      "startDate": mMaxDate,
       "endDate": mMaxDate,
       "maxDate": mMaxDate,
       "timePicker24Hour": true,

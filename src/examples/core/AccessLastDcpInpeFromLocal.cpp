@@ -8,7 +8,7 @@
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/impl/DataAccessorDcpInpe.hpp>
-#include <terrama2/impl/DataStoragerPostGis.hpp>
+#include <terrama2/impl/DataStoragerPostGIS.hpp>
 
 #include <terrama2/Config.hpp>
 

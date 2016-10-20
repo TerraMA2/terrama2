@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorOccurrencePostGis.cpp
+  \file terrama2/core/data-access/DataAccessorMonitoredObjectAnalysisPostGIS.cpp
 
-  \brief
+  \brief Data accessor for an monitored object analysis result.
 
-  \author Jano Simas
+  \author Paulo R. M. Oliveira
  */
 
-#include "DataAccessorOccurrencePostGis.hpp"
+#include "DataAccessorMonitoredObjectAnalysisPostGIS.hpp"
 #include "../core/utility/Raii.hpp"
 
 //TerraLib
@@ -39,12 +39,11 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorOccurrencePostGis::DataAccessorOccurrencePostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorMonitoredObjectAnalysisPostGIS::DataAccessorMonitoredObjectAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorOccurrence(dataProvider, dataSeries, filter),
-   DataAccessorPostGis(dataProvider, dataSeries, filter)
+   DataAccessorPostGIS(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "OCCURRENCE-postgis")
+  if(dataSeries->semantics.code != "ANALYSIS_MONITORED_OBJECT-postgis")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -52,7 +51,20 @@ terrama2::core::DataAccessorOccurrencePostGis::DataAccessorOccurrencePostGis(Dat
   }
 }
 
-std::string terrama2::core::DataAccessorOccurrencePostGis::dataSourceType() const
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGIS::getTimestampPropertyName(DataSetPtr dataSet) const
+{
+  return "execution_date";
+}
+
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGIS::getGeometryPropertyName(DataSetPtr dataSet) const
+{
+  //TODO: Read the geom property from the monitored objet.
+  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGIS::dataSourceType() const
 {
   return "POSTGIS";
 }

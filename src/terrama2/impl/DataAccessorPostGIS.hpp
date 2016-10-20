@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorPostGis.hpp
+  \file terrama2/core/data-access/DataAccessorPostGIS.hpp
 
   \brief
 
@@ -43,19 +43,19 @@ namespace terrama2
   namespace core
   {
     /*!
-      \class DataAccessorPostGis
+      \class DataAccessorPostGIS
 
       \brief Base class for DataAccessor classes that access a PostgreSQL/PostGIS SGDB.
 
     */
-    class DataAccessorPostGis : public virtual DataAccessor
+    class DataAccessorPostGIS : public virtual DataAccessor
     {
       public:
-        DataAccessorPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
+        DataAccessorPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter())
           : DataAccessor(dataProvider, dataSeries, filter)
         {
         }
-        virtual ~DataAccessorPostGis() {}
+        virtual ~DataAccessorPostGIS() {}
 
         using terrama2::core::DataAccessor::getSeries;
         // Doc in base class

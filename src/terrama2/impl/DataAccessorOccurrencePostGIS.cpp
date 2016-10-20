@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorAnalysisPostGis.cpp
+  \file terrama2/core/data-access/DataAccessorOccurrencePostGIS.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorAnalysisPostGis.hpp"
+#include "DataAccessorOccurrencePostGIS.hpp"
 #include "../core/utility/Raii.hpp"
 
 //TerraLib
@@ -39,11 +39,12 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorAnalysisPostGis::DataAccessorAnalysisPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorOccurrencePostGIS::DataAccessorOccurrencePostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorPostGis(dataProvider, dataSeries, filter)
+   DataAccessorOccurrence(dataProvider, dataSeries, filter),
+   DataAccessorPostGIS(dataProvider, dataSeries, filter)
 {
-  if(dataSeries->semantics.code != "ANALYSIS_MONITORED_OBJECT-postgis")
+  if(dataSeries->semantics.code != "OCCURRENCE-postgis")
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -51,12 +52,7 @@ terrama2::core::DataAccessorAnalysisPostGis::DataAccessorAnalysisPostGis(DataPro
   }
 }
 
-std::string terrama2::core::DataAccessorAnalysisPostGis::getTimestampPropertyName(DataSetPtr dataSet) const
-{
-  return "execution_date";
-}
-
-std::string terrama2::core::DataAccessorAnalysisPostGis::dataSourceType() const
+std::string terrama2::core::DataAccessorOccurrencePostGIS::dataSourceType() const
 {
   return "POSTGIS";
 }

@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorMonitoredObjectAnalysisPostGis.cpp
+  \file terrama2/core/data-access/DataAccessorAnalysisPostGIS.cpp
 
-  \brief Data accessor for an monitored object analysis result.
+  \brief
 
-  \author Paulo R. M. Oliveira
+  \author Jano Simas
  */
 
-#include "DataAccessorMonitoredObjectAnalysisPostGis.hpp"
+#include "DataAccessorAnalysisPostGIS.hpp"
 #include "../core/utility/Raii.hpp"
 
 //TerraLib
@@ -39,9 +39,9 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::DataAccessorMonitoredObjectAnalysisPostGis(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorAnalysisPostGIS::DataAccessorAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
  : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorPostGis(dataProvider, dataSeries, filter)
+   DataAccessorPostGIS(dataProvider, dataSeries, filter)
 {
   if(dataSeries->semantics.code != "ANALYSIS_MONITORED_OBJECT-postgis")
   {
@@ -51,20 +51,12 @@ terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::DataAccessorMonitore
   }
 }
 
-std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getTimestampPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorAnalysisPostGIS::getTimestampPropertyName(DataSetPtr dataSet) const
 {
   return "execution_date";
 }
 
-std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::getGeometryPropertyName(DataSetPtr dataSet) const
-{
-  //TODO: Read the geom property from the monitored objet.
-  QString errMsg = QObject::tr("NOT IMPLEMENTED YET.");
-  TERRAMA2_LOG_ERROR() << errMsg;
-  throw Exception() << ErrorDescription(errMsg);
-}
-
-std::string terrama2::core::DataAccessorMonitoredObjectAnalysisPostGis::dataSourceType() const
+std::string terrama2::core::DataAccessorAnalysisPostGIS::dataSourceType() const
 {
   return "POSTGIS";
 }

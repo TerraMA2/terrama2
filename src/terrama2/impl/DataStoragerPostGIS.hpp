@@ -20,7 +20,7 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStoragerPostGis.hpp
+  \file terrama2/core/data-access/DataStoragerPostGIS.hpp
 
   \brief
 
@@ -42,12 +42,12 @@ namespace terrama2
 {
   namespace core
   {
-    class DataStoragerPostGis : public DataStorager
+    class DataStoragerPostGIS : public DataStorager
     {
       public:
-        DataStoragerPostGis(DataProviderPtr outputDataProvider)
+        DataStoragerPostGIS(DataProviderPtr outputDataProvider)
                 : DataStorager(outputDataProvider) {}
-        ~DataStoragerPostGis() {}
+        ~DataStoragerPostGIS() {}
 
         static DataStoragerType dataStoragerType() { return "POSTGIS"; }
         static DataStoragerPtr make(DataProviderPtr dataProvider);
