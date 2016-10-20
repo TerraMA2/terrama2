@@ -107,7 +107,23 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
     if(collector->serviceInstanceId != serviceInstanceId)
       return;
 
-    collectorQueue_.push_back(collectorId);
+
+    // if this collector id is already being processed put it on the wait queue
+    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), collectorId);
+    if(pqIt == processingQueue_.end())
+    {
+      auto pair = std::make_pair(collectorId, startTime);
+      collectorQueue_.push_back(collectorId);
+      processingQueue_.push_back(collectorId);
+
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
+    else
+    {
+      waitQueue_[collectorId].push(startTime);
+    }
+
     TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
 
     mainLoopCondition_.notify_one();
@@ -216,6 +232,19 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     jsonAnswer.insert("process_id", static_cast<int>(collectorPtr->id));
 
     emit processFinishedSignal(jsonAnswer);
+
+    // Verify if the there is an process waiting for the same collector id
+    if(!waitQueue_[collectorId].empty())
+    {
+      waitQueue_[collectorId].pop();
+
+      // Adds to the processing queue
+      processingQueue_.push_back(collectorId);
+      collectorQueue_.push_back(collectorId);
+
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
   }
   catch(const terrama2::Exception&)
   {

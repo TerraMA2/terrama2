@@ -117,8 +117,17 @@ void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::sha
     if(view->serviceInstanceId != serviceInstanceId)
       return;
 
-    viewQueue_.push_back(viewId);
-    mainLoopCondition_.notify_one();
+    if(std::find(processingQueue_.begin(), processingQueue_.end(), viewId) != processingQueue_.end())
+    {
+      processingQueue_.push_back(viewId);
+      viewQueue_.push_back(viewId);
+      mainLoopCondition_.notify_one();
+    }
+    else
+    {
+      waitQueue_[viewId].push(startTime);
+    }
+
   }
   catch(...)
   {
@@ -508,6 +517,19 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
 
     emit processFinishedSignal(jsonAnswer);
+
+    // Verify if the there is an process waiting for the same view
+    if(!waitQueue_[viewId].empty())
+    {
+      waitQueue_[viewId].pop();
+
+      // Adds to the processing queue
+      processingQueue_.push_back(viewId);
+      viewQueue_.push_back(viewId);
+
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
   }
   catch(const terrama2::Exception& e)
   {

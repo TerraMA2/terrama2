@@ -164,13 +164,14 @@ namespace terrama2
         size_t verifyNumberOfThreads(size_t numberOfThreads) const;
 
         bool stop_;
-        std::mutex  mutex_;                                       //!< Mutex for thread safety
-        std::future<void> mainLoopThread_;                            //!< Thread that holds the loop of processing queued dataset.
-        std::condition_variable mainLoopCondition_;                  //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
-
-        std::queue<std::packaged_task<void()> > taskQueue_;       //!< Queue for tasks.
-        std::vector<std::future<void> > processingThreadPool_;              //!< Pool of processing threads
-        std::condition_variable processingThreadCondition_;                //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.
+        std::mutex  mutex_; //!< Mutex for thread safety
+        std::future<void> mainLoopThread_; //!< Thread that holds the loop of processing queued dataset.
+        std::condition_variable mainLoopCondition_; //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
+        std::map<ProcessId, std::queue<std::shared_ptr<te::dt::TimeInstantTZ> > > waitQueue_; //!< Wait queue to store que process that are already being processed.
+        std::vector<ProcessId> processingQueue_; //!< Queue with process currently being processed.
+        std::queue<std::packaged_task<void()> > taskQueue_; //!< Queue for tasks.
+        std::vector<std::future<void> > processingThreadPool_; //!< Pool of processing threads
+        std::condition_variable processingThreadCondition_; //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.
 
     };
   }
