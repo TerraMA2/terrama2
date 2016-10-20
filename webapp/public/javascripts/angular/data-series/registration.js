@@ -701,7 +701,7 @@ angular.module('terrama2.dataseries.registration', [
       var inputName = "";
 
       if ($scope.isUpdating) {
-        $scope.options = {formDefaults: {readonly: true}};
+        //$scope.options = {formDefaults: {readonly: true}};
         // checking input dataseries is static
         if (inputDataSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA ||
             !outputDataseries || Object.keys(outputDataseries).length === 0) {

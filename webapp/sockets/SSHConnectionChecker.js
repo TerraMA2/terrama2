@@ -15,7 +15,7 @@ var SSHConnectionChecker = function(io) {
   // Sockets object
   var memberSockets = io.sockets;
   // Ssh class
-  var memberSSHDispatcher = require("../core/SSHDispatcher");
+  var memberSSHDispatcher = require("../core/executors/SSH");
 
   var fs = require('fs');
 

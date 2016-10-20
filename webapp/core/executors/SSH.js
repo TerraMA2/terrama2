@@ -4,9 +4,10 @@ var Client = require('ssh2').Client;
 var Promise = require("bluebird");
 var fs = require('fs');
 var util = require('util');
-var Utils = require("./Utils");
-var Enums = require('./Enums');
-var ScreenAdapter = require('./ssh/ScreenAdapter');
+var Utils = require("./../Utils");
+var Enums = require('./../Enums');
+var ScreenAdapter = require('./adapters/ScreenAdapter');
+var LocalSystemAdapter = require("./adapters/LocalSystemAdapter");
 
 
 /**
@@ -92,8 +93,9 @@ SSHDispatcher.prototype.disconnect = function() {
 SSHDispatcher.prototype.execute = function(command) {
   var self = this;
   return new Promise(function(resolve, reject) {
-    if (!self.connected)
+    if (!self.connected) {
       return reject(new Error("Could not start service. There is no such active connection"));
+    }
 
     self.client.exec(command, function(err, stream) {
       if (err) { return reject(err); }
@@ -117,10 +119,12 @@ SSHDispatcher.prototype.execute = function(command) {
           var platform = dataStr.substring(0, dataStr.indexOf('\n'));
           switch(platform) {
             case Enums.OS.LINUX:
-            case Enums.OS.MACOSX:
               self.platform = data;
               self.adapter = ScreenAdapter;
               break;
+            case Enums.OS.MACOSX:
+              self.platform = platform;
+              self.adapter = new LocalSystemAdapter();
             default:
               console.log("Unknown platform");
               self.platform = Enums.OS.UNKNOWN;
