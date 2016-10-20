@@ -35,12 +35,12 @@
 #include "DataAccessorGeoTiff.hpp"
 #include "DataAccessorGrADS.hpp"
 #include "DataAccessorOccurrenceWfp.hpp"
-#include "DataAccessorOccurrencePostGis.hpp"
+#include "DataAccessorOccurrencePostGIS.hpp"
 #include "DataAccessorStaticDataOGR.hpp"
 #include "DataAccessorStaticDataPostGIS.hpp"
-#include "DataAccessorAnalysisPostGis.hpp"
+#include "DataAccessorAnalysisPostGIS.hpp"
 
-#include "DataStoragerPostGis.hpp"
+#include "DataStoragerPostGIS.hpp"
 #include "DataStoragerTiff.hpp"
 
 #include "DataRetrieverFTP.hpp"
@@ -58,13 +58,13 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGeoTiff::dataAccessorType(), terrama2::core::DataAccessorGeoTiff::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGrADS::dataAccessorType(), terrama2::core::DataAccessorGrADS::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrenceWfp::dataAccessorType(), terrama2::core::DataAccessorOccurrenceWfp::make);
-  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrencePostGis::dataAccessorType(), terrama2::core::DataAccessorOccurrencePostGis::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorOccurrencePostGIS::dataAccessorType(), terrama2::core::DataAccessorOccurrencePostGIS::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);
-  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorAnalysisPostGis::dataAccessorType(), terrama2::core::DataAccessorAnalysisPostGis::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorAnalysisPostGIS::dataAccessorType(), terrama2::core::DataAccessorAnalysisPostGIS::make);
 
   // Data storager
-  terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerPostGis::dataStoragerType(), terrama2::core::DataStoragerPostGis::make);
+  terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerPostGIS::dataStoragerType(), terrama2::core::DataStoragerPostGIS::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerTiff::dataStoragerType(), terrama2::core::DataStoragerTiff::make);
 
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverFTP::dataRetrieverType(), terrama2::core::DataRetrieverFTP::make);

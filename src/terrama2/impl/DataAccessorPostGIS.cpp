@@ -20,14 +20,14 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorPostGis.hpp
+  \file terrama2/core/data-access/DataAccessorPostGIS.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorPostGis.hpp"
+#include "DataAccessorPostGIS.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/TimeUtils.hpp"
 #include "../core/data-access/SynchronizedDataSet.hpp"
@@ -60,7 +60,7 @@
 #include <QUrl>
 #include <QObject>
 
-std::string terrama2::core::DataAccessorPostGis::whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const
+std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const
 {
   std::string where;
 
@@ -80,7 +80,7 @@ std::string terrama2::core::DataAccessorPostGis::whereConditions(terrama2::core:
 
   return where;
 }
-terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
+terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
     terrama2::core::DataSetPtr dataSet, std::shared_ptr<FileRemover> /*remover*/) const
 {
   QUrl url(uri.c_str());
@@ -138,7 +138,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGis::getSeries(con
   return series;
 }
 
-std::string terrama2::core::DataAccessorPostGis::getDataSetTableName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorPostGIS::getDataSetTableName(DataSetPtr dataSet) const
 {
   try
   {
@@ -152,14 +152,14 @@ std::string terrama2::core::DataAccessorPostGis::getDataSetTableName(DataSetPtr 
   }
 }
 
-std::string terrama2::core::DataAccessorPostGis::retrieveData(const DataRetrieverPtr /*dataRetriever*/, DataSetPtr /*dataSet*/, const Filter& /*filter*/, std::shared_ptr<terrama2::core::FileRemover> /*remover*/) const
+std::string terrama2::core::DataAccessorPostGIS::retrieveData(const DataRetrieverPtr /*dataRetriever*/, DataSetPtr /*dataSet*/, const Filter& /*filter*/, std::shared_ptr<terrama2::core::FileRemover> /*remover*/) const
 {
   QString errMsg = QObject::tr("Non retrievable DataProvider.");
   TERRAMA2_LOG_ERROR() << errMsg;
   throw NoDataException() << ErrorDescription(errMsg);
 }
 
-void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::DataSetPtr dataSet,
+void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(terrama2::core::DataSetPtr dataSet,
     const terrama2::core::Filter& filter,
     std::vector<std::string>& whereConditions) const
 {
@@ -173,7 +173,7 @@ void terrama2::core::DataAccessorPostGis::addDateTimeFilter(terrama2::core::Data
     whereConditions.push_back(getTimestampPropertyName(dataSet)+" <= '"+filter.discardAfter->toString() + "'");
 }
 
-void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::DataSetPtr dataSet,
+void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::DataSetPtr dataSet,
     const terrama2::core::Filter& filter,
     std::vector<std::string>& whereConditions) const
 {
@@ -181,7 +181,7 @@ void terrama2::core::DataAccessorPostGis::addGeometryFilter(terrama2::core::Data
     whereConditions.push_back(getGeometryPropertyName(dataSet)+".ST_INTERSECTS("+filter.region->asText()+")");
 }
 
-std::string terrama2::core::DataAccessorPostGis::addLastValueFilter(terrama2::core::DataSetPtr dataSet,
+std::string terrama2::core::DataAccessorPostGIS::addLastValueFilter(terrama2::core::DataSetPtr dataSet,
                                                                        const terrama2::core::Filter& filter,
                                                                        std::string whereCondition) const
 {
@@ -198,7 +198,7 @@ std::string terrama2::core::DataAccessorPostGis::addLastValueFilter(terrama2::co
   return whereCondition;
 }
 
-void terrama2::core::DataAccessorPostGis::updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const
+void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const
 {
   std::string tableName = getDataSetTableName(dataSet);
   te::da::FromItem* t1 = new te::da::DataSetName(tableName);

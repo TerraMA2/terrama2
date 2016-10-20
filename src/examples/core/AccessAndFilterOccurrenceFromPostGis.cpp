@@ -6,7 +6,7 @@
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
 #include <terrama2/core/data-access/OccurrenceSeries.hpp>
-#include <terrama2/impl/DataAccessorOccurrencePostGis.hpp>
+#include <terrama2/impl/DataAccessorOccurrencePostGIS.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
 #include <terrama2/Config.hpp>
 
@@ -56,7 +56,7 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
     dataSeries->datasetList.emplace_back(dataSet);
 
     //accessing data
-    terrama2::core::DataAccessorOccurrencePostGis accessor(dataProviderPtr, dataSeriesPtr);
+    terrama2::core::DataAccessorOccurrencePostGIS accessor(dataProviderPtr, dataSeriesPtr);
     //empty filter
     terrama2::core::Filter filter;
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));

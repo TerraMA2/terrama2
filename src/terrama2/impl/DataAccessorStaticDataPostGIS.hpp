@@ -31,7 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_STATIC_DATA_POSTGIS_HPP__
 
 //TerraMA2
-#include "DataAccessorPostGis.hpp"
+#include "DataAccessorPostGIS.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/data-model/DataSet.hpp"
@@ -55,7 +55,7 @@ namespace terrama2
       \brief DataAccessor class for static data accessed via OGR driver.
 
     */
-    class DataAccessorStaticDataPostGIS : public DataAccessorGeometricObject, public DataAccessorPostGis
+    class DataAccessorStaticDataPostGIS : public DataAccessorGeometricObject, public DataAccessorPostGIS
     {
       public:
 
