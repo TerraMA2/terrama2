@@ -254,6 +254,8 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
   if(!dataManager.get())
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Unable to access DataManager");
+    notifyWaitQueue(viewId);
+    sendProcessFinishedSignal(viewId, false);
     return;
   }
 
@@ -261,6 +263,9 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
   {
     QString errMsg = QObject::tr("Unable to access Logger class in view %1").arg(viewId);
     TERRAMA2_LOG_ERROR() << errMsg;
+
+    notifyWaitQueue(viewId);
+    sendProcessFinishedSignal(viewId, false);
     return;
   }
 
@@ -509,7 +514,6 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       {
         // TODO: create VIEW with TerraLib
       }
-
     }
 
     TERRAMA2_LOG_INFO() << tr("View %1 generated successfully.").arg(viewId);
@@ -518,20 +522,11 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     emit processFinishedSignal(jsonAnswer);
 
+    sendProcessFinishedSignal(viewId, true);
+    notifyWaitQueue(viewId);
 
+    return;
 
-    // Verify if the there is an process waiting for the same view
-    if(!waitQueue_[viewId].empty())
-    {
-      waitQueue_[viewId].pop();
-
-      // Adds to the processing queue
-      processingQueue_.push_back(viewId);
-      viewQueue_.push_back(viewId);
-
-      //wake loop thread
-      mainLoopCondition_.notify_one();
-    }
   }
   catch(const terrama2::Exception& e)
   {
@@ -553,6 +548,10 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     TERRAMA2_LOG_ERROR() << QObject::tr("Unkown error.");
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
+
+
+  sendProcessFinishedSignal(viewId, false);
+  notifyWaitQueue(viewId);
 }
 
 
@@ -606,3 +605,28 @@ QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(const 
 
   return fileInfoList;
 }
+
+
+void terrama2::services::view::core::Service::notifyWaitQueue(ViewId viewId)
+{
+  // Remove from processing queue
+  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), viewId);
+  if(pqIt != processingQueue_.end())
+    processingQueue_.erase(pqIt);
+
+
+  // Verify if the there is an process waiting for the same view
+  if(!waitQueue_[viewId].empty())
+  {
+    waitQueue_[viewId].pop();
+
+    // Adds to the processing queue
+    processingQueue_.push_back(viewId);
+    viewQueue_.push_back(viewId);
+
+    //wake loop thread
+    mainLoopCondition_.notify_one();
+  }
+
+}
+
