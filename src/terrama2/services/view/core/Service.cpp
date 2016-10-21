@@ -216,12 +216,12 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     return;
   }
 
+  RegisterId logId = 0;
+
   QJsonObject jsonAnswer;
 
   try
   {
-    RegisterId logId = 0;
-
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting view %1 generation.").arg(viewId);
 
     logId = logger->start(viewId);
@@ -279,6 +279,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       if(mapsServerGeneration)
       {
         GeoServer geoserver(viewPtr->maps_server_uri);
+
         geoserver.registerWorkspace();
 
         std::string styleName = "";
@@ -477,21 +478,29 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
   }
   catch(const terrama2::Exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString() << std::endl;
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    logger->error(errMsg, logId);
+    TERRAMA2_LOG_ERROR() << errMsg << std::endl;
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(const boost::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    logger->error(errMsg, logId);
+    TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(const std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    std::string errMsg = e.what();
+    logger->error(errMsg, logId);
+    TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
   catch(...)
   {
+    std::string errMsg = "Unkown error.";
+    logger->error(errMsg, logId);
     TERRAMA2_LOG_ERROR() << QObject::tr("Unkown error.");
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
