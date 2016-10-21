@@ -518,6 +518,8 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     emit processFinishedSignal(jsonAnswer);
 
+
+
     // Verify if the there is an process waiting for the same view
     if(!waitQueue_[viewId].empty())
     {

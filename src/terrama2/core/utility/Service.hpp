@@ -163,6 +163,9 @@ namespace terrama2
         //! Verifys if the number of threads is greater than 0.
         size_t verifyNumberOfThreads(size_t numberOfThreads) const;
 
+        //! Sends the process finished signal
+        void sendProcessFinishedSignal(const ProcessId processId, const bool success);
+
         bool stop_;
         std::mutex  mutex_; //!< Mutex for thread safety
         std::future<void> mainLoopThread_; //!< Thread that holds the loop of processing queued dataset.

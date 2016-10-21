@@ -352,10 +352,6 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
     mainLoopCondition_.notify_one();
   }
 
-  // Sends signal with the result of the analysis
-  QJsonObject jsonAnswer;
-  jsonAnswer.insert("process_id", static_cast<int>(analysisId));
-  jsonAnswer.insert("result", success);
-  emit processFinishedSignal(jsonAnswer);
+  sendProcessFinishedSignal(analysisId, success);
 
 }
