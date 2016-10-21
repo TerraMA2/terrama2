@@ -81,6 +81,9 @@ namespace terrama2
              */
             void setWorkspace(const std::string& workspace);
 
+
+            const std::string& getWorkspace(const std::string& name) const;
+
             /*!
              * \brief Register the wanted workspace in GeoServer.
              *        It will also set the new name to the class workspace
@@ -241,7 +244,7 @@ namespace terrama2
                            const uint32_t srid,
                            const std::string& format) const;
 
-          protected:
+            const std::string& getDataStore(const std::string& name) const;
 
             /*!
              * \brief This method register a PostGIS data Store in GeoServer
@@ -249,7 +252,7 @@ namespace terrama2
              *                      if it doesn't exists, will be created.
              * \param connInfo The connection parameters to the Postgis BD
              */
-            void registerDataStore(const std::string& dataStoreName,
+            void registerPostGisDataStore(const std::string& dataStoreName,
                                    std::map<std::string, std::string> connInfo) const;
 
           private:
