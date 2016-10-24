@@ -1114,19 +1114,32 @@ var DataManager = module.exports = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataSeriesSemantics>} - a 'bluebird' module with DataSeriesSemantics instance or error callback
    */
-  listDataSeriesSemantics: function(restriction) {
+  listDataSeriesSemantics: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataSeriesSemantics.findAll({where: restriction}).then(function(semanticsList) {
-        var output = [];
+      return models.db.DataSeriesSemantics.findAll(Utils.extend({
+        include: [{
+          model: models.db.SemanticsProvidersType
+        }],
+        where: restriction
+      }, options))
+        .then(function(semanticsList) {
+          var output = [];
 
-        semanticsList.forEach(function(semantics) {
-          output.push(Utils.clone(semantics.get()));
+          semanticsList.forEach(function(semantics) {
+            var _semantics = semantics.get();
+            _semantics.data_providers_semantics = [];
+
+            semantics.SemanticsProvidersTypes.forEach(function(semanticsProvider) {
+              _semantics.data_providers_semantics.push(semanticsProvider.get());
+            });
+
+            output.push(_semantics);
+          });
+
+          return resolve(output);
+        }).catch(function(err) {
+          return reject(new exceptions.DataSeriesSemanticsError("Could not retrieve data series semantics " + err.toString()));
         });
-
-        return resolve(output);
-      }).catch(function(err) {
-        return reject(new exceptions.DataSeriesSemanticsError("Could not retrieve data series semantics " + err.toString()));
-      });
     });
   },
 

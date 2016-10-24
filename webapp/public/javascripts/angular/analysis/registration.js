@@ -3,6 +3,7 @@
 angular.module('terrama2.analysis.registration', [
     'terrama2',
     'terrama2.services',
+    'terrama2.administration.services.iservices',
     'terrama2.components.messagebox',
     'terrama2.datetimepicker',
     'terrama2.ace',
@@ -16,16 +17,18 @@ angular.module('terrama2.analysis.registration', [
     [
       '$scope',
       'i18n',
-      'ServiceInstanceFactory',
+      'Service',
       'DataSeriesFactory',
       'DataSeriesSemanticsFactory',
       'AnalysisFactory',
       'DataProviderFactory',
-      'TryCaster',
       'Socket',
       'DateParser',
-  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster, Socket, DateParser) {
+  function($scope, i18n, Service, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, Socket, DateParser) {
     var socket = Socket;
+    var self = this;
+
+    self.Service = Service;
 
     // injecting i18n module
     $scope.i18n = i18n;
@@ -40,6 +43,16 @@ angular.module('terrama2.analysis.registration', [
       $scope.analysis.active = (configuration.analysis.active === false || configuration.analysis.active) ?
           configuration.analysis.active : true;
     };
+
+    // Retrieving all services instances
+    Service
+      .init()
+      .then(function() {
+
+      })
+      .catch(function(err) {
+
+      });
 
     $scope.dataSeriesBoxName = i18n.__('Additional Data');
 

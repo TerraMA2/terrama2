@@ -2,9 +2,9 @@
 
 {% set tabActive = "analysis" %}
 
-{% block ngApp %} ng-app="terrama2.analysis.registration" {% endblock %}
+{% block ngApp %} ng-app="terrama2.analysis.controller.registerupdate" {% endblock %}
 
-{% block title %} TerraMA² {{ i18n.__('Analysis Registration') }} {% endblock %}
+{% block title %} TerraMA² {% endblock %}
 
 {% block styles %}
   <link rel="stylesheet" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
@@ -81,21 +81,28 @@
 <!-- TerraMA2 Factory Helpers -->
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
 <!-- TerraMA2 Alert Box -->
+<script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 <!-- TerraMA2 Ace -->
 <script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
-
 <!-- TerraMA2 Bounded Box -->
 <script type="text/javascript" src="/javascripts/angular/geo/app.js"></script>
 <script type="text/javascript" src="/javascripts/angular/geo/directives.js"></script>
-
-<script type="text/javascript" src="/javascripts/angular/analysis/registration.js"></script>
+<!-- TerraMA² Service instance -->
+<script type="text/javascript" src="/javascripts/angular/services/services.js"></script>
+<!-- TerraMA2 Data Provider Service -->
+<script type="text/javascript" src="/javascripts/angular/data-provider/services.js"></script>
+<!-- TerraMA² DataSeries -->
+<script type="text/javascript" src="/javascripts/angular/data-series/services.js"></script>
+<!-- TerraMA² Analysis -->
+<script type="text/javascript" src="/javascripts/angular/analysis/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/analysis/controllers/register-update.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="AnalysisRegistration as Ctrl">
+<div ng-controller="RegisterUpdateController as ctrl">
 
   <!-- DataSeries Modal -->
   <div class="modal fade" id="dataSeriesModal" tabindex="-1" role="dialog" aria-labelledby="dataSeriesModalLabel">
@@ -108,18 +115,18 @@
         <div class="modal-body">
 
           <treecontrol class="tree-light"
-             tree-model="dataSeriesGroups"
-             options="treeOptions"
-             selected-nodes="nodesDataSeries"
-             on-selection="showSelected(node)"
-             selected-node="selectedDataSeries">
+             tree-model="ctrl.dataSeriesGroups"
+             options="ctrl.treeOptions"
+             selected-nodes="ctrl.nodesDataSeries"
+             on-selection="ctrl.showSelected(node)"
+             selected-node="ctrl.selectedDataSeries">
              {{node.name}}
           </treecontrol>
 
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n.__('Cancel') }} </button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="addDataSeries()">{{ i18n.__('OK') }}</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="ctrl.addDataSeries()">{{ i18n.__('OK') }}</button>
         </div>
       </div>
     </div>
@@ -127,16 +134,18 @@
 
   <terrama2-box title="i18n.__('Analysis Registration')">
     <div class="col-md-12">
-      <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
+      <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
+                           close="ctrl.close()">
+      </terrama2-alert-box2>
     </div>
-    <terrama2-box title="i18n.__('General Data')" css="css">
+    <terrama2-box title="i18n.__('General Data')" css="ctrl.css">
       <div class="row">
 
         <form name="forms.generalDataForm">
           <div class="col-md-8">
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__("Name") }}:</label>
-              <input class="form-control" name="name" ng-model="analysis.name" placeholder="{{ i18n.__('Analysis Name') }}" type="text" required>
+              <input class="form-control" name="name" ng-model="ctrl.analysis.name" placeholder="{{ i18n.__('Analysis Name') }}" type="text" required>
 
               <span class="help-block" 
                     ng-show="forms.generalDataForm.name.$dirty && forms.generalDataForm.name.$invalid" 
@@ -150,7 +159,12 @@
           <div class="col-md-4">
             <div class="form-group has-feedback" terrama2-show-errors>
               <label>{{ i18n.__("Type") }}:</label>
-              <select class="form-control" name="type" ng-model="analysis.type_id" ng-disabled="isUpdating" required>
+              <select class="form-control" 
+                      name="type" 
+                      ng-model="ctrl.analysis.type_id" 
+                      ng-disabled="isUpdating"
+                      data-ng-change="ctrl.onAnalysisTypeChanged()" 
+                      required>
                 <option value="{[ Enums.AnalysisType.DCP ]}">{{ i18n.__('DCP') }}</option>
                 <option value="{[ Enums.AnalysisType.GRID ]}">{{ i18n.__('Grid') }}</option>
                 <option value="{[ Enums.AnalysisType.MONITORED ]}">{{ i18n.__('Monitored Object') }}</option>
@@ -167,7 +181,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label>{{ i18n.__("Description") }}:</label>
-              <textarea class="form-control" name="description" ng-model="analysis.description" rows="3" placeholder="{{ i18n.__('Analysis Description') }}"></textarea>
+              <textarea class="form-control" name="description" ng-model="ctrl.analysis.description" rows="3" placeholder="{{ i18n.__('Analysis Description') }}"></textarea>
             </div>
             <!-- /.form-group -->
           </div>
@@ -175,9 +189,9 @@
           <div class="col-md-8">
             <div class="form-group has-feedback" terrama2-show-errors>
               <label>{{ i18n.__("Instance") }}:</label>
-              <select class="form-control" name="instance" ng-model="analysis.instance_id" required>
-                <option ng-repeat="instance in instances" value="{{ instance.id }}">{{ instance.name }}</option>
-                <option ng-if="instances.length == 0" value="">{{ i18n.__('No analysis instance found') }}</option>
+              <select class="form-control" name="instance" ng-model="ctrl.analysis.instance_id" required>
+                <option ng-repeat="instance in ctrl.instances" value="{{ instance.id }}">{{ instance.name }}</option>
+                <option ng-if="ctrl.instances.length == 0" value="">{{ i18n.__('No analysis instance found') }}</option>
               </select>
 
               <span class="help-block" ng-show="forms.generalDataForm.instance.$dirty && forms.generalDataForm.instance.$error.required">
@@ -192,7 +206,7 @@
               <div class="form-group">
                 <div class="checkbox">
                   <label style="font-weight: 700; margin-top:19px;">
-                    <input name="active" ng-model="analysis.active" ng-init="initActive(configuration.analysis.active)" type="checkbox"> {{ i18n.__("Active") }}
+                    <input name="active" ng-model="ctrl.analysis.active" ng-init="ctrl.initActive(configuration.analysis.active)" type="checkbox"> {{ i18n.__("Active") }}
                   </label>
                 </div>
               </div>
@@ -206,7 +220,7 @@
       <!-- /.row -->
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Store')" css="css">
+    <terrama2-box title="i18n.__('Store')" css="ctrl.css">
       <div class="row">
 
         <form name="forms.storagerDataForm">
@@ -216,10 +230,10 @@
               <label>{{ i18n.__('Output Format') }}:</label>
                 <select id="storageFormat" class="form-control"
                         name="format"
-                        ng-disabled="isUpdating"
-                        ng-change="onStoragerFormatChange()"
-                        ng-model="storager.format"
-                        ng-options="format.name for format in storagerFormats" required>
+                        ng-disabled="ctrl.isUpdating"
+                        ng-change="ctrl.onStoragerFormatChange()"
+                        ng-model="ctrl.storager.format"
+                        ng-options="format.name for format in ctrl.storagerFormats" required>
               </select>
 
               <span class="help-block" ng-show="forms.storagerDataForm.format.$dirty && forms.storagerDataForm.format.$error.required">
@@ -234,8 +248,8 @@
               <select class="form-control"
                       name="storager_data_provider_id"
                       ng-disabled="isUpdating"
-                      ng-model="analysis.data_provider_id"
-                      ng-options="provider.id as provider.name for provider in dataProviders"
+                      ng-model="ctrl.analysis.data_provider_id"
+                      ng-options="provider.id as provider.name for provider in ctrl.dataProviders"
                       ng-required="storager.format.name" required>
                 <option></option>
               </select>
@@ -248,8 +262,8 @@
         </form>
         <div class="col-md-12 terrama2-nopadding-box">
           <!-- schema form -->
-          <div class="col-md-12" ng-show="showStoragerForm">
-            <form name="forms.storagerForm" sf-schema="schemaStorager" sf-form="formStorager" sf-model="modelStorager" sf-options="options"></form>
+          <div class="col-md-12" ng-show="ctrl.showStoragerForm">
+            <form name="forms.storagerForm" sf-schema="ctrl.schemaStorager" sf-form="ctrl.formStorager" sf-model="ctrl.modelStorager" sf-options="ctrl.options"></form>
           </div>
         </div>
 
@@ -261,7 +275,7 @@
               </div>
 
               <div style="display: block;" class="box-body">
-                <terrama2-schedule model="schedule" options="scheduleOptions"></terrama2-schedule>
+                <terrama2-schedule model="ctrl.schedule" options="ctrl.scheduleOptions"></terrama2-schedule>
               </div>
             </div>
           </div>
@@ -269,7 +283,9 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="semanticsSelected + ' ' + i18n.__('Data Series')" css="css" ng-show="analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'">
+    <terrama2-box title="ctrl.semanticsSelected + ' ' + i18n.__('Data Series')" 
+                  css="ctrl.css" 
+                  ng-show="ctrl.analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'">
       <div class="row">
         <div class="col-md-12">
           <form name="forms.targetDataSeriesForm">
@@ -278,10 +294,10 @@
                 <label>{[ __("DataSeries") ]}:</label>
                 <select class="form-control"
                         name="targetDataSeries"
-                        ng-disabled="isUpdating"
-                        ng-model="targetDataSeries"
-                        ng-options="targetDS as targetDS.name for targetDS in filteredDataSeries"
-                        ng-change="onTargetDataSeriesChange()"
+                        ng-disabled="ctrl.isUpdating"
+                        ng-model="ctrl.targetDataSeries"
+                        ng-options="targetDS as targetDS.name for targetDS in ctrl.filteredDataSeries"
+                        ng-change="ctrl.onTargetDataSeriesChange()"
                         ng-required="analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'">
                 </select>
 
@@ -294,14 +310,14 @@
             </div>
             <!-- ./col-md-6 -->
 
-            <div class="col-md-6" ng-show="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
+            <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
               <div class="form-group has-feedback" terrama2-show-errors>
                 <label>{{ i18n.__("Attribute Identifier") }}:</label>
                 <input type="text" class="form-control"
                                    name="identifier"
-                                   ng-disabled="isUpdating"
-                                   ng-model="identifier"
-                                   ng-required="analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
+                                   ng-disabled="ctrl.isUpdating"
+                                   ng-model="ctrl.identifier"
+                                   ng-required="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
 
                 <!-- required -->
                 <span class="help-block"
@@ -316,7 +332,7 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="dataSeriesBoxName" css="css">
+    <terrama2-box title="ctrl.dataSeriesBoxName" css="ctrl.css">
       <div class="row">
         <div class="col-md-12">
           <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
@@ -333,23 +349,23 @@
                 <th></th>
               </tr>
               <tr style="cursor:pointer;" 
-                  ng-repeat="dataSeries in selectedDataSeriesList" 
+                  ng-repeat="dataSeries in ctrl.selectedDataSeriesList" 
                   data-ng-click="onDataSeriesClick(dataSeries);" 
-                  ng-class="{'active': selectedDataSeries && selectedDataSeries.name == dataSeries.name}">
+                  ng-class="{'active': ctrl.selectedDataSeries && ctrl.selectedDataSeries.name == dataSeries.name}">
                 <td>{{ dataSeries.name }}</td>
                 <td>{{ dataSeries.data_series_semantics.name }}</td>
                 <td>
-                  <input type="text" class="form-control" name="name" ng-model="metadata[dataSeries.name].alias" required>
+                  <input type="text" class="form-control" name="name" ng-model="ctrl.metadata[dataSeries.name].alias" required>
                 </td>
                 <td class="pull-cell-left">
-                  <button type="button" class="btn btn-danger btn-sm" ng-click="removeDataSeries(dataSeries)">
+                  <button type="button" class="btn btn-danger btn-sm" ng-click="ctrl.removeDataSeries(dataSeries)">
                     <i class="fa fa-times">
                       <span class="hidden-xs">{{ i18n.__("Remove") }}</span>
                     </i>
                   </button>
                 </td>
               </tr>
-              <tr ng-if="selectedDataSeriesList.length == 0">
+              <tr ng-if="ctrl.selectedDataSeriesList.length == 0">
                 <td colspan="3">
                   {{ i18n.__('No data series selected') }}
                 </td>
@@ -364,7 +380,7 @@
       </div><!--./row-->
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Reprocessing Historical Data')" css="css">
+    <terrama2-box title="i18n.__('Reprocessing Historical Data')" css="ctrl.css">
       <div class="row">
         <form name="forms.historicalForm" novalidate>
           <terrama2-filter-datetime-picker before-label="'Start Date'" 
@@ -377,8 +393,9 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Grid configuration')" 
-                  css="css" 
-                  ng-show="analysis.type_id == {[ Enums.AnalysisType.GRID ]}">
+                  css="ctrl.css" 
+                  ng-show="ctrl.analysis.type_id == {[ Enums.AnalysisType.GRID ]}"
+                  style="display: none;">
       <div class="row">
         <form name="forms.gridForm">
           <div class="col-md-12">
@@ -387,9 +404,9 @@
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Interpolation Method") }}:</label>
                   <select class="form-control" name="interpolation_method"
-                          ng-model="analysis.grid.interpolation_method"
-                          ng-required="analysis.type_id == 2"
-                          ng-options="obj.value as obj.name for (k, obj) in interpolationMethods">
+                          ng-model="ctrl.analysis.grid.interpolation_method"
+                          ng-required="ctrl.analysis.type_id == 2"
+                          ng-options="obj.value as obj.name for (k, obj) in ctrl.interpolationMethods">
                   </select>
 
                   <!-- required -->
@@ -400,15 +417,15 @@
                 </div>
               </div>
 
-              <div class="col-md-6" ng-show="analysis.grid.interpolation_method !== interpolationMethods.UNDEFINED_INTERPOLATION_METHOD.value">
+              <div class="col-md-6" ng-show="ctrl.analysis.grid.interpolation_method !== ctrl.interpolationMethods.UNDEFINED_INTERPOLATION_METHOD.value">
                 <div class="form-group" terrama2-show-errors>
                   <label>{{ i18n.__("Interpolation dummy") }}:</label>
                   <input class="form-control"
                          name="interpolation_dummy"
-                         ng-model="analysis.grid.interpolation_dummy"
+                         ng-model="ctrl.analysis.grid.interpolation_dummy"
                          placeholder="{{ i18n.__('Interpolation dummy value') }}"
                          type="number"
-                         ng-required="analysis.grid.interpolation_method && analysis.grid.interpolation_method !== interpolationMethods.UNDEFINED_INTERPOLATION_METHOD.value">
+                         ng-required="ctrl.analysis.grid.interpolation_method && ctrl.analysis.grid.interpolation_method !== ctrl.interpolationMethods.UNDEFINED_INTERPOLATION_METHOD.value">
                   <span class="help-block"
                         ng-show="forms.gridForm.interpolation_dummy.$dirty && forms.gridForm.interpolation_dummy.$error.required">
                     {{ i18n.__('Interpolation dummy is required') }}
@@ -426,10 +443,10 @@
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Area of Interest") }}:</label>
                   <select class="form-control" name="area_of_interest"
-                          ng-model="analysis.grid.area_of_interest_type"
-                          ng-required="analysis.type_id == 2"
-                          ng-options="interestArea.value as interestArea.name for interestArea in interestAreaTypes"
-                          ng-change="onAreaOfInterestChange()">
+                          ng-model="ctrl.analysis.grid.area_of_interest_type"
+                          ng-required="ctrl.analysis.type_id == 2"
+                          ng-options="interestArea.value as interestArea.name for interestArea in ctrl.interestAreaTypes"
+                          ng-change="ctrl.onAreaOfInterestChange()">
                   </select>
 
                   <!-- required -->
@@ -440,14 +457,14 @@
                 </div>
               </div> <!-- ./col-md-6 -->
 
-              <div class="col-md-6" ng-show="analysis.grid.area_of_interest_type === interestAreaTypes.SAME_FROM_DATA_SERIES.value">
+              <div class="col-md-6" ng-show="ctrl.analysis.grid.area_of_interest_type === ctrl.interestAreaTypes.SAME_FROM_DATA_SERIES.value">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("DataSeries") }}:</label>
                   <select class="form-control"
                           name="area_of_interest_data_series_id"
-                          ng-model="analysis.grid.area_of_interest_data_series_id"
-                          ng-options="targetDS.id as targetDS.name for targetDS in selectedDataSeriesList"
-                          ng-required="analysis.grid.area_of_interest_type === interestAreaTypes.SAME_FROM_DATA_SERIES.value">
+                          ng-model="ctrl.analysis.grid.area_of_interest_data_series_id"
+                          ng-options="targetDS.id as targetDS.name for targetDS in ctrl.selectedDataSeriesList"
+                          ng-required="ctrl.analysis.grid.area_of_interest_type === ctrl.interestAreaTypes.SAME_FROM_DATA_SERIES.value">
                   </select>
 
                   <!-- required -->
@@ -459,7 +476,7 @@
               </div> <!-- ./col-md-6 -->
 
               <div class="col-md-6" ng-show="analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
-                <terrama2-bounded-box ng-model="analysis.grid.area_of_interest_bounded" is-required="analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
+                <terrama2-bounded-box ng-model="ctrl.analysis.grid.area_of_interest_bounded" is-required="ctrl.analysis.grid.area_of_interest_type === interestAreaTypes.CUSTOM.value">
                 </terrama2-bounded-box>
               </div>
             </div> <!-- ./cold-md-12 terrama2-nopadding-box-->
@@ -469,10 +486,10 @@
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Resolution") }}:</label>
                   <select class="form-control" name="resolution_type"
-                          ng-model="analysis.grid.resolution_type"
-                          ng-required="analysis.type_id == 2"
-                          ng-options="resolutionType.value as resolutionType.name for resolutionType in resolutionTypes"
-                          ng-change="onResolutionChange()">
+                          ng-model="ctrl.analysis.grid.resolution_type"
+                          ng-required="ctrl.analysis.type_id == 2"
+                          ng-options="resolutionType.value as resolutionType.name for resolutionType in ctrl.resolutionTypes"
+                          ng-change="ctrl.onResolutionChange()">
                   </select>
 
                   <!-- required -->
@@ -488,9 +505,9 @@
                     <label>{{ i18n.__("X") }}:</label>
                     <input class="form-control"
                            name="resolution_x"
-                           ng-model="analysis.grid.resolution_x"
+                           ng-model="ctrl.analysis.grid.resolution_x"
                            placeholder="{{ i18n.__('Resolution X') }}" type="number"
-                           ng-required="analysis.grid.resolution_type === resolutionTypes.CUSTOM.value">
+                           ng-required="ctrl.analysis.grid.resolution_type === ctrl.resolutionTypes.CUSTOM.value">
 
                     <span class="help-block"
                           ng-show="forms.gridForm.resolution_x.$dirty && forms.gridForm.resolution_x.$invalid">
@@ -508,9 +525,9 @@
                     <label>{{ i18n.__("Y") }}:</label>
                     <input class="form-control"
                            name="resolution_y"
-                           ng-model="analysis.grid.resolution_y"
+                           ng-model="ctrl.analysis.grid.resolution_y"
                            placeholder="{{ i18n.__('Resolution Y') }}" type="number"
-                           ng-required="analysis.grid.resolution_type === resolutionTypes.CUSTOM.value">
+                           ng-required="ctrl.analysis.grid.resolution_type === ctrl.resolutionTypes.CUSTOM.value">
 
                     <span class="help-block"
                           ng-show="forms.gridForm.resolution_y.$dirty && forms.gridForm.resolution_y.$invalid">
@@ -529,9 +546,9 @@
                   <label>{{ i18n.__("DataSeries") }}:</label>
                   <select class="form-control"
                           name="resolution_data_series_id"
-                          ng-model="analysis.grid.resolution_data_series_id"
-                          ng-options="targetDS.id as targetDS.name for targetDS in selectedDataSeriesList"
-                          ng-required="analysis.grid.resolution_type == resolutionTypes.SAME_FROM_DATA_SERIES.value">
+                          ng-model="ctrl.analysis.grid.resolution_data_series_id"
+                          ng-options="targetDS.id as targetDS.name for targetDS in ctrl.selectedDataSeriesList"
+                          ng-required="ctrl.analysis.grid.resolution_type == ctrl.resolutionTypes.SAME_FROM_DATA_SERIES.value">
                   </select>
 
                   <!-- required -->
@@ -547,20 +564,19 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Influence Area')" css="css" ng-show="analysis.type_id == 1">
+    <terrama2-box title="i18n.__('Influence Area')" css="ctrl.css" ng-show="ctrl.analysis.type_id == 1" style="display: none;">
       <div class="row">
         <div class="col-md-12">
           <form name="forms.influenceForm">
             <div class="col-md-12 terrama2-nopadding-box">
               <div class="col-md-12">
-                <div class="form-group has-feedback" 
-                     ng-class="{'has-error': influenceForm.influence.$dirty && influenceForm.influence.$error.required, 'has-success': influenceForm.influence.$dirty && influenceForm.influence.$valid}">
+                <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Influence") }}:</label>
                   <select class="form-control"
                           name="influence"
-                          ng-disabled="isUpdating"
-                          ng-model="analysis.metadata.INFLUENCE_TYPE"
-                          ng-required="analysis.type_id == 1">
+                          ng-disabled="ctrl.isUpdating"
+                          ng-model="ctrl.analysis.metadata.INFLUENCE_TYPE"
+                          ng-required="ctrl.analysis.type_id == 1">
                     <option value="{[ Enums.InfluenceTypes.TOUCHES.Value ]}">{[ Enums.InfluenceTypes.TOUCHES.Name ]}</option>
                     <option value="{[ Enums.InfluenceTypes.CENTER.Value ]}">{[ Enums.InfluenceTypes.CENTER.Name ]}</option>
                     <option value="{[ Enums.InfluenceTypes.REGION.Value ]}">{[ Enums.InfluenceTypes.REGION.Name ]}</option>
@@ -573,7 +589,7 @@
                 </div>
               </div>
             </div>
-            <div ng-if="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
+            <div ng-if="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
               <div class="col-md-12 terrama2-nopadding-box">
 
                 <div class="col-md-6">
@@ -581,10 +597,10 @@
                     <label>{{ i18n.__("Radius") }}:</label>
                     <input class="form-control"
                            name="radius"
-                           type="text"
-                           ng-disabled="isUpdating"
-                           ng-model="analysis.metadata.INFLUENCE_RADIUS"
-                           ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
+                           type="number"
+                           ng-disabled="ctrl.isUpdating"
+                           ng-model="ctrl.analysis.metadata.INFLUENCE_RADIUS"
+                           ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
 
                     <!-- required -->
                     <span class="help-block" ng-show="forms.influenceForm.radius.$dirty && forms.influenceForm.radius.$error.required">
@@ -597,13 +613,13 @@
 
                   <div class="form-group" terrama2-show-errors>
                     <div class="input-group" style="margin-top: 25px;">
-                      <input type="text" name="radiusUnit" ng-disabled="isUpdating" class="form-control" aria-label="..." ng-model="analysis.metadata.INFLUENCE_RADIUS_UNIT" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
+                      <input type="text" name="radiusUnit" ng-disabled="ctrl.isUpdating" class="form-control" aria-label="..." ng-model="ctrl.analysis.metadata.INFLUENCE_RADIUS_UNIT" ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
                       <div class="input-group-btn">
-                        <button type="button" ng-disabled="isUpdating" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                        <button type="button" ng-disabled="ctrl.isUpdating" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                          <li data-ng-click="onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
-                          <li data-ng-click="onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
+                          <li data-ng-click="ctrl.onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
+                          <li data-ng-click="ctrl.onMetadataFormatClick('m')"><a href="#dataSeriesBox">m</a></li>
                         </ul>
                       </div><!-- /btn-group -->
                     </div><!-- /input-group -->
@@ -613,14 +629,14 @@
               </div><!--/.col-md-12-->
             </div>
 
-            <div ng-if="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+            <div ng-if="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
               <div class="col-md-12 terrama2-nopadding-box">
 
                 <div class="col-md-6">
-                  <div class="form-group has-feedback">
+                  <div class="form-group has-feedback" terrama2-show-errors>
                     <label>{{ i18n.__("Influence Data Series") }}:</label>
-                    <select class="form-control" name="dataSeriesId" ng-disabled="isUpdating" ng-model="analysis.metadata.INFLUENCE_DATASERIES_ID" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
-                      <option ng-repeat="dataSeries in dataSeriesList" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
+                    <select class="form-control" name="dataSeriesId" ng-disabled="ctrl.isUpdating" ng-model="ctrl.analysis.metadata.INFLUENCE_DATASERIES_ID" ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+                      <option ng-repeat="dataSeries in ctrl.DataSeriesService.list()" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
                     </select>
 
                     <!-- required -->
@@ -634,7 +650,7 @@
                   <div class="form-group" terrama2-show-errors>
                     <!-- TODO: combobox with data series properties -->
                     <label>{{ i18n.__("Influence Attribute") }}:</label>
-                    <input class="form-control" name="attribute" ng-disabled="isUpdating" type="text" ng-model="analysis.metadata.INFLUENCE_ATTRIBUTE" ng-required="analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+                    <input class="form-control" name="attribute" ng-disabled="ctrl.isUpdating" type="text" ng-model="ctrl.analysis.metadata.INFLUENCE_ATTRIBUTE" ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
 
                     <!-- required -->
                     <span class="help-block"
@@ -650,7 +666,7 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Script')" css="css">
+    <terrama2-box title="i18n.__('Script')" css="ctrl.css">
       <div class="row">
 
         <div class="col-md-12">
@@ -662,12 +678,9 @@
               <div id="scriptCheckResult"></div>
               <div id="systemError" style="display: none;"></div>
 
-              <div terrama2-ace="{onChange: onScriptChanged}" ng-model="analysis.script">
+              <div terrama2-ace="{onChange: onScriptChanged}" ng-model="ctrl.analysis.script">
 
               </div>
-
-              <textarea name="script" ng-model="analysis.script" ng-show="false" required>
-              </textarea>
 
               <!-- required -->
               <span class="help-block"
@@ -691,11 +704,11 @@
               </ul>
             </div>
 
-            <button class="btn btn-default pull-right" style="width: 75px;" ng-click="onScriptValidation();">
-              <span class="loading" ng-show="testingScript">
+            <button class="btn btn-default pull-right" style="width: 75px;" ng-click="ctrl.onScriptValidation();">
+              <span class="loading" ng-show="ctrl.testingScript">
                 <i class="fa fa-refresh fa-spin"></i>
               </span>
-              <span class="text" ng-show="!testingScript" ng-disabled="testingScript">{{ i18n.__('Validate') }}</span>
+              <span class="text" ng-show="!ctrl.testingScript" ng-disabled="ctrl.testingScript" ng-bind="i18n.__('Validate')"></span>
             </button>
           </div>
         </div>
@@ -704,7 +717,7 @@
     </terrama2-box>
 
     <div class="box-footer">
-      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="save();" id="analysisSaveButton">{{ i18n.__('OK') }}</button>
+      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="ctrl.save();" id="analysisSaveButton">{{ i18n.__('OK') }}</button>
       <a href="/configuration/analysis/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
     </div>
 

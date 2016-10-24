@@ -232,7 +232,7 @@
         /**
          * Retrieve all data series
          */
-        return DataSeriesService.list({schema: "all"}).then(function(dataSeries) {
+        return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
           self.dataSeries = dataSeries;
 
           var styleCache = config.view.style;

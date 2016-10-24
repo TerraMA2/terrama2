@@ -476,7 +476,7 @@ var Utils = module.exports = {
   getTimezonesGUI: function() {
     var output = [];
     for(var i = -12; i < 13; ++i) {
-      var val = i < 0 ? i.toString() : "+" + i;
+      var val = i < 0 ? i.toString() : ((i === 0) ? i : "+" + i);
       output.push({ name: val, value: val });
     }
     return output;
