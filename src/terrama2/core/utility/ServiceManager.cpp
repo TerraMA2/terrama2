@@ -113,26 +113,25 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
   setNumberOfThreads(obj["number_of_threads"].toInt());
   auto logDatabaseObj = obj["log_database"].toObject();
 
-  std::map<std::string, std::string> connInfo { {"PG_HOST", logDatabaseObj["PG_HOST"].toString().toStdString()},
-    {"PG_PORT", std::to_string(logDatabaseObj["PG_PORT"].toInt())},
-    {"PG_USER", logDatabaseObj["PG_USER"].toString().toStdString()},
-    {"PG_PASSWORD", logDatabaseObj["PG_PASSWORD"].toString().toStdString()},
-    {"PG_DB_NAME", logDatabaseObj["PG_DB_NAME"].toString().toStdString()},
-    {"PG_CONNECT_TIMEOUT", "4"},
-    {"PG_CLIENT_ENCODING", "UTF-8"}
-  };
-  setLogConnectionInfo(connInfo);
+  te::core::URI uri("postgis://"
+  +logDatabaseObj["PG_USER"].toString().toStdString()
+  +"@"+logDatabaseObj["PG_PASSWORD"].toString().toStdString()
+  +":"+logDatabaseObj["PG_HOST"].toString().toStdString()
+  +":"+std::to_string(logDatabaseObj["PG_PORT"].toInt())
+  +"/"+logDatabaseObj["PG_DB_NAME"].toString().toStdString());
+
+  setLogConnectionInfo(uri);
 }
 
-void terrama2::core::ServiceManager::setLogConnectionInfo(std::map<std::string, std::string> connInfo)
+void terrama2::core::ServiceManager::setLogConnectionInfo(const te::core::URI& logDbUri)
 {
-  connInfo_ = connInfo;
-  emit logConnectionInfoUpdated(connInfo);
+  logDbUri_ = logDbUri;
+  emit logConnectionInfoUpdated(logDbUri);
 }
 
-std::map<std::string, std::string> terrama2::core::ServiceManager::logConnectionInfo() const
+te::core::URI terrama2::core::ServiceManager::logConnectionInfo() const
 {
-  return connInfo_;
+  return logDbUri_;
 }
 
 void terrama2::core::ServiceManager::setShuttingDownProcessInitiated()

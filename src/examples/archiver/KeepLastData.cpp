@@ -28,18 +28,12 @@ int main(int argc, char* argv[])
   return 1;
 
   {
-    QUrl uri;
-    uri.setScheme("postgis");
-    uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
-    uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
-    uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
-    uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
-    uri.setPath(QString::fromStdString("/"+TERRAMA2_DATABASE_DBNAME));
+te::core::URI uri("postgis://"+TERRAMA2_DATABASE_USERNAME+"@"+TERRAMA2_DATABASE_PASSWORD+":"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
 
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = uri.url().toStdString();
+    dataProvider->uri = uri.uri();
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "POSTGIS";
     dataProvider->active = true;
@@ -78,18 +72,7 @@ int main(int argc, char* argv[])
 
     // creates a DataSource to the data and filters the dataset,
     // also joins if the DCP comes from separated files
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS"));
-
-    std::map<std::string, std::string> connInfo {{"PG_HOST", uri.host().toStdString()},
-      {"PG_PORT", std::to_string(uri.port())},
-      {"PG_USER", uri.userName().toStdString()},
-      {"PG_PASSWORD", uri.password().toStdString()},
-      {"PG_DB_NAME", uri.path().section("/", 1, 1).toStdString()},
-      {"PG_CONNECT_TIMEOUT", "4"},
-      {"PG_CLIENT_ENCODING", "UTF-8"}
-    };
-
-    datasource->setConnectionInfo(connInfo);
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS", uri));
 
     // RAII for open/closing the datasource
     terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
@@ -120,7 +103,7 @@ int main(int argc, char* argv[])
     std::cout << "dataset size: " << teDataSet->size() << std::endl;
   }
 
-  
+
 
   return 0;
 }

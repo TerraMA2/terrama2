@@ -175,16 +175,9 @@ int main(int argc, char* argv[])
 
     QJsonDocument doc(obj);
 
+    te::core::URI uri("postgis://"+TERRAMA2_DATABASE_USERNAME+"@"+TERRAMA2_DATABASE_PASSWORD+":"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
     auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
-                                                  {"PG_PORT", TERRAMA2_DATABASE_PORT},
-                                                  {"PG_USER", TERRAMA2_DATABASE_USERNAME},
-                                                  {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
-                                                  {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
-                                                  {"PG_CONNECT_TIMEOUT", "4"},
-                                                  {"PG_CLIENT_ENCODING", "UTF-8"}
-                                                };
-    serviceManager.setLogConnectionInfo(connInfo);
+    serviceManager.setLogConnectionInfo(uri);
 
     auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
     terrama2::core::TcpManager tcpManager(dataManager, std::weak_ptr<terrama2::core::ProcessLogger>());

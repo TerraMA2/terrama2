@@ -39,6 +39,7 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/datatype.h>
+#include <terralib/core/uri/URI.h>
 
 // Qt
 #include <QString>
@@ -52,14 +53,13 @@
 // STL
 #include <utility>
 
-void terrama2::core::ProcessLogger::setConnectionInfo(const std::map < std::string, std::string >& connInfo) noexcept
+void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri) noexcept
 {
   try
   {
     closeConnection();
 
-    dataSource_ = te::da::DataSourceFactory::make("POSTGIS");
-    dataSource_->setConnectionInfo(connInfo);
+    dataSource_ = te::da::DataSourceFactory::make("POSTGIS", uri);
 
     try
     {

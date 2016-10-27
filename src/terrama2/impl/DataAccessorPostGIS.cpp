@@ -83,24 +83,11 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
     terrama2::core::DataSetPtr dataSet, std::shared_ptr<FileRemover> /*remover*/) const
 {
-  QUrl url(uri.c_str());
-
   std::string tableName = getDataSetTableName(dataSet);
 
   // creates a DataSource to the data and filters the dataset,
   // also joins if the DCP comes from separated files
-  std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
-
-  std::map<std::string, std::string> connInfo {{"PG_HOST", url.host().toStdString()},
-    {"PG_PORT", std::to_string(url.port())},
-    {"PG_USER", url.userName().toStdString()},
-    {"PG_PASSWORD", url.password().toStdString()},
-    {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
-    {"PG_CONNECT_TIMEOUT", "4"},
-    {"PG_CLIENT_ENCODING", "UTF-8"}
-  };
-
-  datasource->setConnectionInfo(connInfo);
+  std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), uri));
 
   // RAII for open/closing the datasource
   OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);

@@ -155,15 +155,8 @@ int main(int argc, char* argv[])
     {
       QCoreApplication app(argc, argv);
       auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-      std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
-                                                    {"PG_PORT", TERRAMA2_DATABASE_PORT},
-                                                    {"PG_USER", TERRAMA2_DATABASE_USERNAME},
-                                                    {"PG_PASSWORD", TERRAMA2_DATABASE_PASSWORD},
-                                                    {"PG_DB_NAME", TERRAMA2_DATABASE_DBNAME},
-                                                    {"PG_CONNECT_TIMEOUT", "4"},
-                                                    {"PG_CLIENT_ENCODING", "UTF-8"}
-                                                  };
-      serviceManager.setLogConnectionInfo(connInfo);
+    te::core::URI uri("postgis://"+TERRAMA2_DATABASE_USERNAME+"@"+TERRAMA2_DATABASE_PASSWORD+":"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+      serviceManager.setLogConnectionInfo(uri);
       serviceManager.setInstanceId(1);
 
       auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
@@ -173,7 +166,7 @@ int main(int argc, char* argv[])
 
       terrama2::services::collector::core::Service service(dataManager);
       auto logger = std::make_shared<terrama2::services::collector::core::CollectorLogger>();
-      logger->setConnectionInfo(connInfo);
+      logger->setConnectionInfo(uri);
       service.setLogger(logger);
       service.start();
 
