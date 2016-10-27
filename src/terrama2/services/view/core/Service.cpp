@@ -117,7 +117,7 @@ void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::sha
     if(view->serviceInstanceId != serviceInstanceId)
       return;
 
-    if(std::find(processingQueue_.begin(), processingQueue_.end(), viewId) != processingQueue_.end())
+    if(std::find(processingQueue_.begin(), processingQueue_.end(), viewId) == processingQueue_.end())
     {
       processingQueue_.push_back(viewId);
       viewQueue_.push_back(viewId);
