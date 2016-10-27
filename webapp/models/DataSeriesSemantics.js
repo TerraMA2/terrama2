@@ -21,6 +21,10 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         default: false
+      },
+      temporality: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     },
     {
