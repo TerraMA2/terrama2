@@ -42,6 +42,7 @@
 
 // Qt
 #include <QTemporaryFile>
+#include <QUrl>
 
 
 terrama2::services::view::core::GeoServer::GeoServer(const te::core::URI uri)
@@ -107,7 +108,7 @@ void terrama2::services::view::core::GeoServer::registerWorkspace(const std::str
 
   try
   {
-    getWorkspace(name);
+    getWorkspace(workspace_);
   }
   catch(NotFoundGeoserverException /*e*/)
   {
@@ -144,7 +145,8 @@ const std::string& terrama2::services::view::core::GeoServer::getDataStore(const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + name);
+  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "/")).toStdString());
 
   if(!uriGet.isValid())
   {
@@ -217,7 +219,10 @@ const std::string& terrama2::services::view::core::GeoServer::getFeature(const s
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/featuretypes/" + name);
+  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       +  QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                       + "/featuretypes/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "/")).toStdString());
 
   if(!uriGet.isValid())
   {
@@ -315,7 +320,11 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   xml += "</featureType>";
 
-  te::core::URI uriPostLayer(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName +"/featuretypes");
+  std::string uri = uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                    +"/featuretypes";
+
+  te::core::URI uriPostLayer(uri);
   cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
 }
 
@@ -326,8 +335,9 @@ void terrama2::services::view::core::GeoServer::uploadZipVectorFiles(const std::
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" +
-                       dataStoreName + "/file." + extension + "?configure=all&update=append");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                       + "/file." + extension + "?configure=all&update=append");
 
   if(!uriPut.isValid())
   {
@@ -346,8 +356,9 @@ void terrama2::services::view::core::GeoServer::registerVectorFile(const std::st
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" +
-                       dataStoreName + "/external." + extension + "?configure=first&update=append");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                       + "/external." + extension + "?configure=first&update=append");
 
   if(!uriPut.isValid())
   {
@@ -367,8 +378,9 @@ void terrama2::services::view::core::GeoServer::registerVectorsFolder(const std:
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" +
-                       dataStoreName + "/external." + extension + "?configure=all&update=append");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                       + "/external." + extension + "?configure=all&update=append");
 
   if(!uriPut.isValid())
   {
@@ -388,8 +400,9 @@ void terrama2::services::view::core::GeoServer::uploadZipCoverageFile(const std:
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/" +
-                       coverageStoreName + "/file." + extension + "?configure=all");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
+                       + "/file." + extension + "?configure=all");
 
   if(!uriPut.isValid())
   {
@@ -410,8 +423,9 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/" +
-                       coverageStoreName + "/external." + extension + "?configure=first");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
+                       + "/external." + extension + "?configure=first");
 
   if(!uriPut.isValid())
   {
@@ -540,7 +554,10 @@ void terrama2::services::view::core::GeoServer::deleteVectorLayer(const std::str
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  std::string url = "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/featuretypes/" + fileName;
+  std::string url = "/rest/workspaces/" + workspace_ + "/datastores/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                    + "/featuretypes/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(fileName), "", "/")).toStdString();
 
   if(recursive)
   {
@@ -566,7 +583,10 @@ void terrama2::services::view::core::GeoServer::deleteCoverageLayer(const std::s
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  std::string url = "/rest/workspaces/" + workspace_ + "/coveragestores/" + coverageStoreName + "/coverages/" + fileName;
+  std::string url = "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
+                    + "/coverages/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(fileName), "", "/")).toStdString();
 
   if(recursive)
   {
@@ -590,7 +610,8 @@ void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& s
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + styleName);
+  te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/"
+                          + QString(QUrl::toPercentEncoding(QString::fromStdString(styleName), "", "/")).toStdString());
 
   if(!uriDelete.isValid())
   {
