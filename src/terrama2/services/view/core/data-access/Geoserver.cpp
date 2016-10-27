@@ -83,13 +83,13 @@ const std::string& terrama2::services::view::core::GeoServer::getWorkspace(const
 
   if(cURLwrapper.responseCode() == 404)
   {
-    QString errMsg = QObject::tr("Workspace not found.");
+    QString errMsg = QObject::tr("Workspace not found. ");
     TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
     throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
   }
   else if(cURLwrapper.responseCode() != 200)
   {
-    QString errMsg = QObject::tr("Error at get Workspace.");
+    QString errMsg = QObject::tr("Error at get Workspace. ");
     TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
   }
@@ -160,13 +160,13 @@ const std::string& terrama2::services::view::core::GeoServer::getDataStore(const
 
   if(cURLwrapper.responseCode() == 404)
   {
-    QString errMsg = QObject::tr("Data Store not found.");
+    QString errMsg = QObject::tr("Data Store not found. ");
     TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
     throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
   }
   else if(cURLwrapper.responseCode() != 200)
   {
-    QString errMsg = QObject::tr("Error at get Data Store.");
+    QString errMsg = QObject::tr("Error at get Data Store. ");
     TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
   }
@@ -211,6 +211,43 @@ void terrama2::services::view::core::GeoServer::registerPostGisDataStore(const s
   }
 }
 
+
+const std::string& terrama2::services::view::core::GeoServer::getFeature(const std::string& dataStoreName,
+                                                                         const std::string& name) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/featuretypes/" + name);
+
+  if(!uriGet.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriGet.uri()));
+  }
+
+  std::string responseDataStore;
+
+  // Register style
+  cURLwrapper.get(uriGet, responseDataStore);
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    QString errMsg = QObject::tr("Feature not found. ");
+    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
+    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at get Feature. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+
+  return cURLwrapper.response();
+}
+
+
 void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
                                                                      std::map<std::string, std::string> connInfo,
                                                                      const std::string& tableName,
@@ -218,7 +255,16 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                                                                      const std::string& timestampPropertyName,
                                                                      const std::string& sql) const
 {
-  deletePostgisTable(dataStoreName, tableName, true);
+  try
+  {
+    getFeature(dataStoreName, tableName);
+
+    deleteVectorLayer(dataStoreName, tableName, true);
+  }
+  catch(NotFoundGeoserverException /*e*/)
+  {
+    // Do nothing
+  }
 
   registerPostGisDataStore(dataStoreName, connInfo);
 
@@ -228,7 +274,6 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                     "<title>" + title + "</title>";
 
   xml += "<name>"+ tableName + "</name>";
-
 
   xml += "<enabled>true</enabled>";
 
@@ -272,7 +317,6 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   te::core::URI uriPostLayer(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName +"/featuretypes");
   cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
-
 }
 
 
@@ -490,7 +534,7 @@ void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) 
 }
 
 
-void terrama2::services::view::core::GeoServer::deleteVectorFile(const std::string& dataStoreName,
+void terrama2::services::view::core::GeoServer::deleteVectorLayer(const std::string& dataStoreName,
                                                                const std::string &fileName,
                                                                bool recursive) const
 {
@@ -516,7 +560,7 @@ void terrama2::services::view::core::GeoServer::deleteVectorFile(const std::stri
 }
 
 
-void terrama2::services::view::core::GeoServer::deleteCoverageFile(const std::string& coverageStoreName,
+void terrama2::services::view::core::GeoServer::deleteCoverageLayer(const std::string& coverageStoreName,
                                                                  const std::string& fileName,
                                                                  bool recursive) const
 {
@@ -547,32 +591,6 @@ void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& s
   te::ws::core::CurlWrapper cURLwrapper;
 
   te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + styleName);
-
-  if(!uriDelete.isValid())
-  {
-    QString errMsg = QObject::tr("Invalid URI.");
-    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
-  }
-
-  cURLwrapper.customRequest(uriDelete, "delete");
-}
-
-
-void terrama2::services::view::core::GeoServer::deletePostgisTable(const std::string& dataStoreName,
-                                                                   const std::string &tableName,
-                                                                   bool recursive) const
-{
-  te::ws::core::CurlWrapper cURLwrapper;
-
-  std::string url = "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/featuretypes/" + tableName;
-
-  if(recursive)
-  {
-    url += "?recurse=true";
-  }
-
-  te::core::URI uriDelete(uri_.uri() + url);
 
   if(!uriDelete.isValid())
   {
