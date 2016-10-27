@@ -107,8 +107,21 @@ void terrama2::services::alert::core::Service::addToQueue(AlertId alertId, std::
     if(alert->serviceInstanceId != serviceInstanceId)
       return;
 
-    alertQueue_.push_back(std::make_pair(alertId, terrama2::core::TimeUtils::nowUTC()));
-    mainLoopCondition_.notify_one();
+    // if this alert id is already being processed put it on the wait queue.
+    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), alertId);
+    if(pqIt == processingQueue_.end())
+    {
+      auto pair = std::make_pair(alertId, terrama2::core::TimeUtils::nowUTC());
+      alertQueue_.push_back(pair);
+      processingQueue_.push_back(alertId);
+
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
+    else
+    {
+      waitQueue_[alertId].push(startTime);
+    }
   }
   catch(...)
   {
