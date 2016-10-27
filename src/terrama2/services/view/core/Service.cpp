@@ -450,6 +450,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
           TERRAMA2_LOG_WARNING() << tr("No data to register in maps server.");
         }
 
+        // TODO: assuming that only has one dataseries, overwriting answer
         jsonAnswer.insert("class", QString("RegisteredViews"));
         jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
         jsonAnswer.insert("maps_server_uri", QString::fromStdString(geoserver.uri().uri()));
@@ -474,7 +475,6 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     notifyWaitQueue(viewId);
 
     return;
-
   }
   catch(const terrama2::Exception& e)
   {
@@ -504,7 +504,6 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     TERRAMA2_LOG_ERROR() << QObject::tr("Unkown error.");
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
   }
-
 
   sendProcessFinishedSignal(viewId, false);
   notifyWaitQueue(viewId);
