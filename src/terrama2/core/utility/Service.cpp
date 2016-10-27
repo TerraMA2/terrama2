@@ -31,6 +31,8 @@
 #include "Logger.hpp"
 #include "Timer.hpp"
 
+// QT
+#include <QJsonObject>
 #include <QCoreApplication>
 
 terrama2::core::Service::Service()
@@ -267,4 +269,13 @@ terrama2::core::TimerPtr terrama2::core::Service::createTimer(const Schedule& sc
   connect(timer.get(), &terrama2::core::Timer::timeoutSignal, this, &terrama2::core::Service::addToQueue, Qt::UniqueConnection);
 
   return timer;
+}
+
+void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processId, const bool success)
+{
+  QJsonObject jsonAnswer;
+  jsonAnswer.insert("process_id", static_cast<int>(processId));
+  jsonAnswer.insert("result", success);
+
+  emit processFinishedSignal(jsonAnswer);
 }

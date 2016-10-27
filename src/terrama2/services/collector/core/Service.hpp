@@ -97,9 +97,15 @@ namespace terrama2
             */
             void removeCollector(CollectorId collectorId) noexcept;
 
+            /*!
+              \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
+            */
+            void notifyWaitQueue(CollectorId collectorId);
+
           protected:
             // comments on base class
             virtual bool hasDataOnQueue() noexcept override;
+
             // comments on base class
             virtual bool processNextData() override;
 
