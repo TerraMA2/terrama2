@@ -95,6 +95,11 @@ namespace terrama2
           */
           void removeView(ViewId viewId) noexcept;
 
+          /*!
+            \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
+          */
+          void notifyWaitQueue(ViewId viewId);
+
         protected:
 
           // comments on base class

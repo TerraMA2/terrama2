@@ -245,23 +245,22 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
       while(titz <= endDate)
       {
-        AnalysisHashCode hashCode = analysis->hashCode(executionDate);
         auto pair = std::make_pair(analysisId, executionDate);
 
-        bool needToWait = std::find(processingQueue_.begin(), processingQueue_.end(), hashCode) != processingQueue_.end();
-        if(needToWait)
+        erasePreviousResult(dataManager_, analysis->outputDataSeriesId, executionDate);
+        auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
+        if(pqIt == processingQueue_.end())
         {
-          waitQueue_.push_back(hashCode);
+          analysisQueue_.push_back(pair);
+          processingQueue_.push_back(analysisId);
+
+          //wake loop thread
+          mainLoopCondition_.notify_one();
         }
         else
         {
-          erasePreviousResult(dataManager_, analysis->outputDataSeriesId, executionDate);
-          analysisQueue_.push_back(pair);
-          processingQueue_.push_back(hashCode);
+          waitQueue_[analysisId].push(executionDate);
         }
-
-        //wake loop thread
-        mainLoopCondition_.notify_one();
 
 
         if(frequencySeconds > 0.)
@@ -279,10 +278,20 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     {
       auto startTime = terrama2::core::TimeUtils::nowUTC();
 
-      analysisQueue_.push_back(std::make_pair(analysisId, startTime));
+      auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
+      if(pqIt == processingQueue_.end())
+      {
+        auto pair = std::make_pair(analysisId, startTime);
+        analysisQueue_.push_back(pair);
+        processingQueue_.push_back(analysisId);
 
-      //wake loop thread
-      mainLoopCondition_.notify_one();
+        //wake loop thread
+        mainLoopCondition_.notify_one();
+      }
+      else
+      {
+        waitQueue_[analysisId].push(startTime);
+      }
     }
 
   }
@@ -314,36 +323,35 @@ void terrama2::services::analysis::core::Service::start(size_t threadNumber)
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }
 
-void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime, bool success)
+void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, bool success)
 {
-  auto pair = std::make_pair(analysisId, startTime);
-
   auto analysis = dataManager_->findAnalysis(analysisId);
-  AnalysisHashCode hashCode = analysis->hashCode(startTime);
+
   // Remove from processing queue
-  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), hashCode);
+  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
   if(pqIt != processingQueue_.end())
     processingQueue_.erase(pqIt);
 
 
   // Verify if there is another execution for the same analysis waiting
-  auto it = std::find(waitQueue_.begin(), waitQueue_.end(), hashCode);
+  auto& startTimeQueue = waitQueue_[analysisId];
 
-  if(it != waitQueue_.end())
+  if(!startTimeQueue.empty())
   {
     // erase the previous execution result and run another time
+    auto startTime = startTimeQueue.front();
+    startTimeQueue.pop();
+    auto pair = std::make_pair(analysisId, startTime);
+
     analysisQueue_.push_back(pair);
-    waitQueue_.erase(it);
+    if(startTimeQueue.empty())
+      waitQueue_.erase(analysisId);
     erasePreviousResult(dataManager_, analysis->outputDataSeriesId, startTime);
 
     //wake loop thread
     mainLoopCondition_.notify_one();
   }
 
-  // Sends signal with the result of the analysis
-  QJsonObject jsonAnswer;
-  jsonAnswer.insert("process_id", static_cast<int>(analysisId));
-  jsonAnswer.insert("result", success);
-  emit processFinishedSignal(jsonAnswer);
+  sendProcessFinishedSignal(analysisId, success);
 
 }
