@@ -747,5 +747,15 @@ var Utils = module.exports = {
    */
   format: function() {
     return util.format.apply(this, arguments);
+  },
+
+  /**
+   * It performs a array concat with arguments values.
+   * 
+   * @param {any[]} array - Array of elements to concatenate
+   * @param {...any} [values] - The values to concatenate
+   */
+  concat: function() {
+    return _.concat.apply(this, arguments);
   }
 };

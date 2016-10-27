@@ -82,6 +82,30 @@
      */
     self.MessageBoxService = MessageBoxService;
 
+    /**
+     * TerraMA² Analysis Object to be created
+     * 
+     * @type {Object}
+     */
+    self.analysis = {
+      metadata: {}
+    };
+
+    /**
+     * It initializes Analysis active checkbox. It compares from object received from NodeJS
+     */
+    self.initActive = function() {
+      self.analysis.active = (config.analysis.active === false || config.analysis.active) ?
+          config.analysis.active : true;
+    };
+
+    /**
+     * Helper to reset alert box instance
+     */
+    self.close = function() {
+      self.MessageBoxService.reset();
+    };
+
     // initializing async services
     $q
       .all([
@@ -105,15 +129,6 @@
          * @type {ServiceInstance[]}
          */
         self.instances = Service.list({service_type_id: Service.types.ANALYSIS});
-
-        /**
-         * TerraMA² Analysis Object to be created
-         * 
-         * @type {Object}
-         */
-        self.analysis = {
-          metadata: {}
-        };
 
         /**
          * It defines a TerraMA² Service Instance DAO. Used to retrieve analysis services
@@ -168,14 +183,6 @@
         self.interpolationMethods = globals.enums.InterpolationMethod;
         self.interestAreaTypes = globals.enums.InterestAreaType;
         self.resolutionTypes = globals.enums.ResolutionType;
-
-        /**
-         * It initializes Analysis active checkbox. It compares from object received from NodeJS
-         */
-        self.initActive = function() {
-          self.analysis.active = (config.analysis.active === false || config.analysis.active) ?
-              config.analysis.active : true;
-        };
 
         /**
          * It defines a target data series that should be monitored/grid or even DCP
@@ -239,6 +246,10 @@
           // auto-trigger format changed
           self.onStoragerFormatChange();
 
+          /**
+           * It defines a reprocessing historical data values
+           * @type {Object}
+           */
           var historicalData = analysisInstance.reprocessing_historical_data || {};
           if (historicalData.startDate) {
             historicalData.startDate = DateParser(historicalData.startDate);
@@ -264,7 +275,10 @@
                   self.targetDataSeries = filteredDs;
                   self.onTargetDataSeriesChange();
 
-                  // set identifier
+                  /**
+                   * Defines target analysis data series identifier
+                   * @type {string}   
+                   */
                   self.identifier = analysisDs.metadata.identifier;
                   return true;
                 }
@@ -282,6 +296,10 @@
               area_of_interest_type: analysisInstance.output_grid.area_of_interest_type,
               resolution_type: analysisInstance.output_grid.resolution_type
             };
+            /**
+             * It retrieves a dummy values (GRID Analysis) if there is.
+             * @type {string}
+             */
             var dummy = analysisInstance.output_grid.interpolation_dummy;
             if (dummy) {
               self.analysis.grid.interpolation_dummy = Number(dummy);
@@ -357,6 +375,11 @@
 
         self.storagerFormats = [];
         self.storager = {};
+        /**
+         * It defines a local cache buffers with data series to help #dataSeriesGroups in Additional Groups (Static/Dynamic).
+         * 
+         * @type {Object}
+         */
         self.buffers = {
           "static": [],
           "dynamic": []
@@ -365,7 +388,10 @@
         // filter for dataseries basead analysis type. If obj monitored, then this list will be list of obj monitored and occurrences
         self.filteredDataSeries = [];
 
-        // helper of semantics selected to display in gui: Object Monitored, Dcp, Grid, etc.
+        /** 
+         * Helper of selected semantics to display in gui "terrama2-box": Object Monitored, Dcp, Grid, etc.
+         * @type {string}
+         */
         self.semanticsSelected = "";
 
         /**
@@ -531,7 +557,6 @@
         self.modelStorager = {};
         self.schemaStorager = {};
         self.options = {};
-        if (self.isUpdating) { self.options.formDefaults = {readonly: true}; }
 
         var semanticsList = DataSeriesSemanticsService.list();
         var semanticsListFiltered = [];
@@ -585,7 +610,7 @@
               } else {
                 self.analysis.grid.area_of_interest_bounded = {
                   srid: value
-                }
+                };
               }
             }
           }
@@ -749,12 +774,12 @@
 
           // cheking influence form: DCP and influence form valid
           if (self.analysis.type_id == 1) {
-            var form = self.forms.influenceForm;
+            var form = $scope.forms.influenceForm;
             if (form.$invalid) {
               return;
             }
           } else if (self.analysis.type_id == globals.enums.AnalysisType.GRID) {
-            if (self.forms.gridForm.$invalid) {
+            if ($scope.forms.gridForm.$invalid) {
               return;
             }
           }
@@ -887,7 +912,7 @@
 
           return request
             .then(function(data) {
-              window.location = "/config/analysis?token=" + data.token;
+              window.location = "/configuration/analysis?token=" + data.token;
             })
             .catch(function(err) {
               $log.log(err);

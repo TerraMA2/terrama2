@@ -648,23 +648,30 @@ var DataManager = module.exports = {
       self.getProject(restriction).then(function(projectResult) {
         return self.listCollectors({}, options).then(function(collectors) {
           return self.listAnalysis({project_id: projectResult.id}, options).then(function(analysisList) {
-            if (collectors.length === 0 || analysisList.length === 0) {
-              return Promise.resolve();
-            }
+            return self.listViews({project_id: projectResult.id}).then(function(views) {
+              var scheduleIds = [];
+              collectors.forEach(function(collector) {
+                if (collector.dataSeriesOutput && collector.dataSeriesOutput.dataProvider.project_id === projectResult.id) {
+                  scheduleIds.push(collector.schedule.id);
+                }
+              });
 
-            var scheduleIds = [];
-            collectors.forEach(function(collector) {
-              if (collector.dataSeriesOutput && collector.dataSeriesOutput.dataProvider.project_id === projectResult.id) {
-                scheduleIds.push(collector.schedule.id);
+              var scheduleAnalysis = analysisList.map(function(analysis) {
+                return analysis.schedule.id;
+              });
+
+              var scheduleViews = [];
+              for(var i = 0; i < views.length; ++i) {
+                var view = views[i];
+                if (view.schedule && view.schedule.id) {
+                  scheduleViews.push(view.schedule.id);
+                }
               }
+
+              var scheduleIdentifiers = Utils.concat(scheduleIds, scheduleAnalysis, scheduleViews);
+
+              return self.removeSchedule({id: {$in: scheduleIdentifiers}}, options);
             });
-
-            // pushing analysis schedules into scheduleIds
-            Array.prototype.push.apply(scheduleIds, analysisList.map(function(analysis) {
-              return analysis.schedule.id;
-            }));
-
-            return self.removeSchedule({id: {$in: scheduleIds}}, options);
           }).finally(function() {
             return models.db.Project.destroy({
               where: {
@@ -2575,19 +2582,20 @@ var DataManager = module.exports = {
   /**
    * It performs save analysis output grid in database
    * 
-   * @param {Object} addAnalysisOutputGridObject - An analysis output grid values to save
+   * @param {Object} analysisOutputGridObject - An analysis output grid values to save
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @returns {Promise<AnalysisOutputGrid>}
    */
-  addAnalysisOutputGrid: function(addAnalysisOutputGridObject, options) {
+  addAnalysisOutputGrid: function(analysisOutputGridObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.AnalysisOutputGrid.create(addAnalysisOutputGridObject, options).then(function(analysisOutGridResult) {
-        return self.getAnalysisOutputGrid({id: analysisOutGridResult.id}, options)
-          .then(function(outputGrid) {
-            return resolve(outputGrid);
-          });
+      return models.db.AnalysisOutputGrid.create(analysisOutputGridObject, options)
+        .then(function(analysisOutGridResult) {
+          return self.getAnalysisOutputGrid({id: analysisOutGridResult.id}, options)
+            .then(function(outputGrid) {
+              return resolve(outputGrid);
+            });
       }).catch(function(err) {
         console.log(err);
         return reject(new exceptions.AnalysisError("Could not save analysis output grid " + err.toString()));
@@ -2872,6 +2880,11 @@ var DataManager = module.exports = {
           }
         }, options));
       })
+
+      // .then(function() {
+      //   return self.updateDataSeries(analysisInstance.dataSeries.id, analysisObject.dataSeries, options);
+      // })
+
       // Prepare to update Analysis Dependencies
       .then(function() {
         // updating analysis dataSeries

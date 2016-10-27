@@ -391,7 +391,7 @@
      */
     self.close = function() {
       self.MessageBoxService.reset();
-    }
+    };
     /**
      * It handles file upload to retrieve xml style
      */
