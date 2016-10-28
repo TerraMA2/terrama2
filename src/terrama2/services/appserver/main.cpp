@@ -48,8 +48,11 @@
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/ErrorCodes.hpp>
+#include <terrama2/Version.hpp>
 
 #include <boost/exception/diagnostic_information.hpp>
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 // STL
 #include <memory>
@@ -129,10 +132,29 @@ int main(int argc, char* argv[])
 {
   try
   {
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("help", "show help message")
+        ("version", "Show TerraMA2 version")
+    ;
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc << std::endl;
+        return 0;
+    }
+
+    if (vm.count("version")) {
+        std::cout << "TerraMA2 " << TERRAMA2_VERSION_STRING << std::endl;
+        return 0;
+    }
+
     if(argc != 3)
     {
-      //TODO: help message
-      std::cout << "\n<< Help usage message >>\n" << std::endl;
+      std::cout << desc << std::endl;
       return SERVICE_PARAMETERS_ERROR;
     }
     std::string serviceType(argv[1]);
