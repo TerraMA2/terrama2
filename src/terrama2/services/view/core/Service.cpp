@@ -171,10 +171,7 @@ void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
       {
         std::lock_guard<std::mutex> lock(mutex_);
 
-        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
-        if(logger_.get())
-          lastProcess = logger_->getLastProcessTimestamp(view->id);
-
+        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess = logger_->getLastProcessTimestamp(view->id);
         terrama2::core::TimerPtr timer = createTimer(view->schedule, view->id, lastProcess);
         timers_.emplace(view->id, timer);
       }
@@ -187,16 +184,12 @@ void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
     {
       TERRAMA2_LOG_ERROR() << e.what();
     }
-
-    if(view->active)
-      addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
   }
   catch(...)
   {
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
-
 }
 
 void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
@@ -629,4 +622,3 @@ void terrama2::services::view::core::Service::notifyWaitQueue(ViewId viewId)
   }
 
 }
-

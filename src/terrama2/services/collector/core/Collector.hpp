@@ -30,6 +30,7 @@
 #ifndef __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__
 #define __TERRAMA2_SERVICES_COLLECTOR_CORE_COLLECTOR_HPP__
 
+#include "../../../core/data-model/Process.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/data-model/Filter.hpp"
@@ -52,14 +53,8 @@ namespace terrama2
         /*!
           \brief The Collector groups the information to aquire data from a source server and store at a destination.
         */
-        struct Collector
+        struct Collector : public terrama2::core::Process
         {
-          CollectorId id = 0;//!< Collector unique identification.
-          ProjectId projectId = 0;//!< Identification of the project owner of the colletor.
-          ServiceInstanceId serviceInstanceId = 0;//!< Collector service instace where the colletor should be executed.
-
-          bool active = true;//!< Flag if the colletor is active.
-
           DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
           DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
 

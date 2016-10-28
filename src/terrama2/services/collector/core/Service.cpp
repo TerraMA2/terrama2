@@ -337,10 +337,7 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
       {
         std::lock_guard<std::mutex> lock(mutex_);
 
-        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
-        if(logger_.get())
-          lastProcess = logger_->getLastProcessTimestamp(collector->id);
-
+        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess = logger_->getLastProcessTimestamp(collector->id);
         terrama2::core::TimerPtr timer = createTimer(collector->schedule, collector->id, lastProcess);
         timers_.emplace(collector->id, timer);
       }
@@ -353,8 +350,6 @@ void terrama2::services::collector::core::Service::addCollector(CollectorPtr col
     {
       TERRAMA2_LOG_ERROR() << e.what();
     }
-
-    addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
   }
   catch(...)
   {

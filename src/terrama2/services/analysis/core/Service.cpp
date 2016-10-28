@@ -97,7 +97,6 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
 
     if(analysis->active)
     {
-
       if(!analysis->reprocessingHistoricalData)
       {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -106,13 +105,7 @@ void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysi
         terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
         timers_.emplace(analysisId, timer);
       }
-      else
-      {
-        addToQueue(analysisId, terrama2::core::TimeUtils::nowUTC());
-      }
-
     }
-
   }
   catch(const terrama2::core::InvalidFrequencyException&)
   {
