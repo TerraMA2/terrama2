@@ -403,7 +403,7 @@ void TsUtility::invalidValidMask()
 
 void TsUtility::testTerramaMask2Regex()
 {
-  std::string mask = "*ddMMyyyyyy-hhmmss.file";
+  std::string mask = "*%DD%MM%YYYY%YY-%hh%mm%ss.file";
 
   if(!terrama2::core::isValidDatedMask(mask))
     QFAIL("Should not be here!");
