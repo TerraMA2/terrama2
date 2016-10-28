@@ -113,10 +113,10 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
   setNumberOfThreads(obj["number_of_threads"].toInt());
   auto logDatabaseObj = obj["log_database"].toObject();
 
-  te::core::URI uri("postgis://"
+  te::core::URI uri("pgsql://"
   +logDatabaseObj["PG_USER"].toString().toStdString()
-  +"@"+logDatabaseObj["PG_PASSWORD"].toString().toStdString()
-  +":"+logDatabaseObj["PG_HOST"].toString().toStdString()
+  +":"+logDatabaseObj["PG_PASSWORD"].toString().toStdString()
+  +"@"+logDatabaseObj["PG_HOST"].toString().toStdString()
   +":"+std::to_string(logDatabaseObj["PG_PORT"].toInt())
   +"/"+logDatabaseObj["PG_DB_NAME"].toString().toStdString());
 

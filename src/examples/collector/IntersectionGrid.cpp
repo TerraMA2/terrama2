@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
     {
       QCoreApplication app(argc, argv);
       auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    te::core::URI uri("postgis://"+TERRAMA2_DATABASE_USERNAME+"@"+TERRAMA2_DATABASE_PASSWORD+":"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+    te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
       serviceManager.setLogConnectionInfo(uri);
       serviceManager.setInstanceId(1);
 

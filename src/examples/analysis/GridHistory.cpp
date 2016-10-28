@@ -35,15 +35,8 @@ int main(int argc, char* argv[])
 
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-  std::map<std::string, std::string> connInfo { {"PG_HOST",            TERRAMA2_DATABASE_HOST},
-    {"PG_PORT",            TERRAMA2_DATABASE_PORT},
-    {"PG_USER",            TERRAMA2_DATABASE_USERNAME},
-    {"PG_PASSWORD",        TERRAMA2_DATABASE_PASSWORD},
-    {"PG_DB_NAME",         TERRAMA2_DATABASE_DBNAME},
-    {"PG_CONNECT_TIMEOUT", "4"},
-    {"PG_CLIENT_ENCODING", "UTF-8"}
-  };
-  serviceManager.setLogConnectionInfo(connInfo);
+te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PASSWORD+"@"+TERRAMA2_DATABASE_HOST+":"+TERRAMA2_DATABASE_PORT+"/"+TERRAMA2_DATABASE_DBNAME);
+  serviceManager.setLogConnectionInfo(uri);
 
   terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
 
@@ -52,14 +45,6 @@ int main(int argc, char* argv[])
 
 
     DataManagerPtr dataManager(new DataManager());
-
-    QUrl uri;
-    uri.setScheme("postgis");
-    uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
-    uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
-    uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
-    uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
-    uri.setPath(QString::fromStdString("/" + TERRAMA2_DATABASE_DBNAME));
 
     // DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -167,7 +152,7 @@ int main(int argc, char* argv[])
     terrama2::core::ServiceManager::getInstance().setInstanceId(1);
 
     auto logger = std::make_shared<AnalysisLogger>();
-    logger->setConnectionInfo(connInfo);
+    logger->setConnectionInfo(uri);
     service.setLogger(logger);
 
     service.start();
