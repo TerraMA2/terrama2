@@ -15,6 +15,7 @@ $.TerraMAMonitor.pushMenu = {
                 var header_height = $(".main-header").height();
                 $(".content-wrapper").css({'height': body_height - header_height});
                 $(".content").css({'height':($(".content-wrapper").height())});
+                $(".terrama2-map").width("auto");
             } else{
                 $("body").addClass('full_screen');
                 $("body").removeClass('sidebar-mini');
@@ -22,6 +23,7 @@ $.TerraMAMonitor.pushMenu = {
                 
                 $(".content-wrapper").css({'height':($("body").height())+'px'});
                 $(".content").css({'height':($(".content-wrapper").height())});
+                $(".terrama2-map").width("100%");
             }
             
 			TerraMA2WebComponents.MapDisplay.updateMapSize();
@@ -31,6 +33,19 @@ $.TerraMAMonitor.pushMenu = {
 
 $('#mini-toggle').click(function(){
     TerraMA2WebComponents.MapDisplay.updateMapSize();
+});
+
+/**
+ * When window resize the map must follow the width
+ */
+$(window).resize(function() {
+    if ($("body").hasClass('full_screen')){
+        $(".terrama2-map").width("100%");
+    }
+    else {
+        $(".terrama2-map").css({'width':($(".content").width())});
+		TerraMA2WebComponents.MapDisplay.updateMapSize();
+    }
 });
 
 $(function () {

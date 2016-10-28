@@ -90,8 +90,8 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
           case globals.enums.DataSeriesType.GRID:
             value = i18n.__("Grid");
             break;
-          case globals.enums.DataSeriesType.STATIC_DATA:
-            value = i18n.__("Static");
+          case globals.enums.DataSeriesType.GEOMETRIC_OBJECT:
+            value = i18n.__("Geometric Object");
             break;
           default:
             value = instance.data_series_semantics.name;

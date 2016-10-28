@@ -187,7 +187,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS_MONITORED_OBJECT, description: "Data Series Analysis Monitored Object"}));
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.STATIC_DATA, description: "Data Series Static Data"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GEOMETRIC_OBJECT, description: "Data Series Geometric object"}));
 
         // data formats semantics defaults
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "CSV description"}));
@@ -297,6 +297,7 @@ var DataManager = module.exports = {
         semanticsObject.forEach(function(semanticsElement) {
           semanticsWithProviders[semanticsElement.code] = semanticsElement.providers_type_list;
           inserts.push(self.addDataSeriesSemantics({
+            temporality: semanticsElement.temporality,
             code: semanticsElement.code,
             name: semanticsElement.name,
             data_format_name: semanticsElement.format,
@@ -1337,7 +1338,7 @@ var DataManager = module.exports = {
         if (restriction.schema === "all") {
           self.listDataSeries({"Collector": restriction}).then(function(data) {
             return self.listDataSeries({
-              data_series_semantics: { data_series_type_name: Enums.DataSeriesType.STATIC_DATA }
+              data_series_semantics: { temporality: Enums.TemporalityType.STATIC }
             }, options).then(function(staticData) {
               var output = [];
               data.forEach(function(d) {
@@ -1631,7 +1632,7 @@ var DataManager = module.exports = {
             case DataSeriesType.OCCURRENCE:
               models.db.DataSetOccurrence.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
-            case DataSeriesType.STATIC_DATA:
+            case DataSeriesType.GEOMETRIC_OBJECT:
               onSuccess(dataSet);
               break;
             case DataSeriesType.GRID:
@@ -3326,7 +3327,7 @@ var DataManager = module.exports = {
           // retrieve all static data series
           return self.listDataSeries({
             data_series_semantics: {
-              data_series_type_name: Enums.DataSeriesType.STATIC_DATA
+              temporality: Enums.TemporalityType.STATIC
             }
           }, options);
         })

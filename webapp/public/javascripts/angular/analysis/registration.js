@@ -209,7 +209,7 @@ angular.module('terrama2.analysis.registration', [
       $scope.filteredDataSeries = [];
       $scope.dataSeriesList.forEach(function(dataSeries) {
         var semantics = dataSeries.data_series_semantics;
-        if (semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA) {
+        if (semantics.temporality === globals.enums.TemporalityType.STATIC) {
           $scope.filteredDataSeries.push(dataSeries);
         }
       });
@@ -424,7 +424,7 @@ angular.module('terrama2.analysis.registration', [
 
       $scope.buffers.static = [];
       ($scope.dataSeriesList || []).forEach(function(dataSeries) {
-        if (dataSeries.data_series_semantics.data_series_type_name === "STATIC_DATA") {
+        if (dataSeries.data_series_semantics.temporality === "STATIC") {
           if (dataSeries.id !== newValue.id) {
             console.log(dataSeries);
             $scope.buffers.static.push(dataSeries);
@@ -476,7 +476,7 @@ angular.module('terrama2.analysis.registration', [
         $scope.dataSeriesList.forEach(function(dSeries) {
           var semantics = dSeries.data_series_semantics;
 
-          if (semantics.data_series_type_name === "STATIC_DATA") {
+          if (semantics.temporality === "STATIC") {
             // skip target data series in additional data
             if ($scope.targetDataSeries && $scope.targetDataSeries.id !== dSeries.id) {
               dSeries.isDynamic = false;

@@ -602,7 +602,7 @@ angular.module('terrama2.dataseries.registration', [
 
       // filters
       $scope.intersectionDataSeries = function(dataSeries) {
-        return (dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.STATIC_DATA ||
+        return (dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GEOMETRIC_OBJECT ||
                 dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GRID)
       };
 
@@ -703,7 +703,7 @@ angular.module('terrama2.dataseries.registration', [
       if ($scope.isUpdating) {
         $scope.options = {formDefaults: {readonly: true}};
         // checking input dataseries is static
-        if (inputDataSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA ||
+        if (inputDataSeries.data_series_semantics.temporality === globals.enums.TemporalityType.STATIC ||
             !outputDataseries || Object.keys(outputDataseries).length === 0) {
           inputName = inputDataSeries.name;
         } else {
@@ -739,12 +739,13 @@ angular.module('terrama2.dataseries.registration', [
 
         // fill intersection data series
         $scope.dataSeriesList.forEach(function(dSeries) {
-          var dataSeriesType = dSeries.data_series_semantics.data_series_type_name;
-          switch(dataSeriesType) {
-            case globals.enums.DataSeriesType.GRID:
-              $scope.dataSeriesGroups[1].children.push(dSeries);
+          var temporality = dSeries.data_series_semantics.temporality;
+          switch(temporality) {
+            case globals.enums.TemporalityType.DYNAMIC:
+              if (dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID)
+                $scope.dataSeriesGroups[1].children.push(dSeries);
               break;
-            case globals.enums.DataSeriesType.STATIC_DATA:
+            case globals.enums.TemporalityType.STATIC:
               $scope.dataSeriesGroups[0].children.push(dSeries);
               break;
           }
@@ -1132,7 +1133,7 @@ angular.module('terrama2.dataseries.registration', [
               break;
             case "OCCURRENCE":
             case "GRID":
-            case "STATIC_DATA":
+            case "GEOMETRIC_OBJECT":
               var format = $scope.model;
 
               var dataSet = {
