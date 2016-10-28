@@ -83,7 +83,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 {
   try
   {
-    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, collectorId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, collectorId, std::dynamic_pointer_cast<CollectorLogger>(logger_), dataManager_));
   }
   catch(std::exception& e)
   {
@@ -308,60 +308,11 @@ void terrama2::services::collector::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, this,
-          &terrama2::services::collector::core::Service::addCollector);
+          &terrama2::services::collector::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, this,
           &terrama2::services::collector::core::Service::removeCollector);
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorUpdated, this,
           &terrama2::services::collector::core::Service::updateCollector);
-}
-
-void terrama2::services::collector::core::Service::setLogger(std::shared_ptr<CollectorLogger> logger) noexcept
-{
-  logger_ = logger;
-}
-
-void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector) noexcept
-{
-  try
-  {
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this collector should be executed in this instance
-    if(collector->serviceInstanceId != serviceInstanceId)
-      return;
-
-    try
-    {
-      if(collector->active)
-      {
-        std::lock_guard<std::mutex> lock(mutex_);
-
-        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
-        if(logger_.get())
-          lastProcess = logger_->getLastProcessTimestamp(collector->id);
-
-        terrama2::core::TimerPtr timer = createTimer(collector->schedule, collector->id, lastProcess);
-        timers_.emplace(collector->id, timer);
-      }
-    }
-    catch(const terrama2::core::InvalidFrequencyException&)
-    {
-      // invalid schedule, already logged
-    }
-    catch(const te::common::Exception& e)
-    {
-      TERRAMA2_LOG_ERROR() << e.what();
-    }
-
-    addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-
 }
 
 void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId) noexcept
@@ -406,6 +357,6 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 
 void terrama2::services::collector::core::Service::updateCollector(CollectorPtr collector) noexcept
 {
-  //TODO: addCollector adds to queue, is this expected?
-  addCollector(collector);
+  removeCollector(collector->id);
+  addProcessToSchedule(collector);
 }

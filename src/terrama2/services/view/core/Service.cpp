@@ -92,7 +92,7 @@ void terrama2::services::view::core::Service::prepareTask(ViewId viewId)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&Service::viewJob, this, viewId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&Service::viewJob, this, viewId, std::dynamic_pointer_cast<terrama2::services::view::core::ViewLogger>(logger_), dataManager_));
   }
   catch(std::exception& e)
   {
@@ -136,67 +136,15 @@ void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::sha
   }
 }
 
-
-
 void terrama2::services::view::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewAdded, this,
-          &terrama2::services::view::core::Service::addView);
+          &terrama2::services::view::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewRemoved, this,
           &terrama2::services::view::core::Service::removeView);
   connect(dataManager.get(), &terrama2::services::view::core::DataManager::viewUpdated, this,
           &terrama2::services::view::core::Service::updateView);
-}
-
-void terrama2::services::view::core::Service::setLogger(std::shared_ptr<ViewLogger> logger) noexcept
-{
-  logger_ = logger;
-}
-
-void terrama2::services::view::core::Service::addView(ViewPtr view) noexcept
-{
-  try
-  {
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this view should be executed in this instance
-    if(view->serviceInstanceId != serviceInstanceId)
-      return;
-
-    try
-    {
-      if(view->active && view->schedule.id != 0)
-      {
-        std::lock_guard<std::mutex> lock(mutex_);
-
-        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
-        if(logger_.get())
-          lastProcess = logger_->getLastProcessTimestamp(view->id);
-
-        terrama2::core::TimerPtr timer = createTimer(view->schedule, view->id, lastProcess);
-        timers_.emplace(view->id, timer);
-      }
-    }
-    catch(const terrama2::core::InvalidFrequencyException&)
-    {
-      // invalid schedule, already logged
-    }
-    catch(const te::common::Exception& e)
-    {
-      TERRAMA2_LOG_ERROR() << e.what();
-    }
-
-    if(view->active)
-      addToQueue(view->id, terrama2::core::TimeUtils::nowUTC());
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-
 }
 
 void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
@@ -241,9 +189,8 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
 
 void terrama2::services::view::core::Service::updateView(ViewPtr view) noexcept
 {
-  //TODO: adds to queue, is this expected? remove and then add?
   removeView(view->id);
-  addView(view);
+  addProcessToSchedule(view);
 }
 
 void terrama2::services::view::core::Service::viewJob(ViewId viewId,
@@ -629,4 +576,3 @@ void terrama2::services::view::core::Service::notifyWaitQueue(ViewId viewId)
   }
 
 }
-
