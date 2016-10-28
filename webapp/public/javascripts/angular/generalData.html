@@ -38,7 +38,7 @@
   </div>
 
   <div class="col-md-12">
-    <div class="col-md-7">
+    <div ng-class="{'col-md-5': existsDataFolder(), 'col-md-7': !existsDataFolder()}">
       <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Data Server') }}:</label>
         <select class="form-control"
@@ -52,7 +52,24 @@
       </div>
     </div>
 
-    <div class="col-md-5">
+    <div class="col-md-5" ng-if="existsDataFolder()">
+      <div class="form-group" terrama2-show-errors>
+        <label>{{ i18n.__('Folder') }}:</label>
+        <input type="text" 
+               name="folder"
+               ng-model="model.folder"
+               class="form-control"
+               placeholder="{{ i18n.__('Data Series Folder') }}"
+               pattern="[^:?#!$&'()*+,;=\[\]{}]*">
+
+        <label class="help-block text-danger"
+               ng-show="forms.generalDataForm.folder.$dirty && forms.generalDataForm.folder.$invalid"
+               ng-bind="i18n.__('Data Series Folder is invalid')">
+        </label>
+      </div>
+    </div>
+
+    <div ng-class="{'col-md-2': existsDataFolder(), 'col-md-5': !existsDataFolder()}">
       <div class="form-group">
         <div class="checkbox">
           <label style="font-weight: 700; margin-top:19px;">

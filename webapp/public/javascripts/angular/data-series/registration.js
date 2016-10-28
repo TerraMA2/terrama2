@@ -539,6 +539,19 @@ angular.module('terrama2.dataseries.registration', [
         $scope.forms.intersectionForm.$setPristine();
       };
 
+      $scope.existsDataFolder = function() {
+        var found = ($scope.dataProviders || []).find(function(dProvider) {
+          return dProvider.id === Number($scope.dataSeries.data_provider_id);
+        });
+
+        if (!found) {
+          return null;
+        }
+
+        return found.data_provider_type.name === "FILE" ||
+               found.data_provider_type.name === "FTP";
+      };
+
       $scope.isIntersectionEmpty = function() {
         return Object.keys($scope.intersection).length === 0;
       };
