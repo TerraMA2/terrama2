@@ -33,6 +33,7 @@
 #include "../Typedef.hpp"
 #include "../Shared.hpp"
 #include "../data-model/Schedule.hpp"
+#include "ProcessLogger.hpp"
 
 //STL
 #include <vector>
@@ -138,6 +139,9 @@ namespace terrama2
         */
         virtual void updateNumberOfThreads(size_t numberOfThreads = 0) noexcept final;
 
+        virtual void addProcessToSchedule(ProcessPtr process) noexcept;
+        void setLogger(std::shared_ptr<ProcessLogger> logger) noexcept;
+
       protected:
 
         TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
@@ -176,6 +180,8 @@ namespace terrama2
         std::vector<std::future<void> > processingThreadPool_; //!< Pool of processing threads
         std::condition_variable processingThreadCondition_; //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.
 
+        std::map<ProcessId, terrama2::core::TimerPtr> timers_;//!< List of running Collector timers
+        std::shared_ptr< ProcessLogger > logger_;//!< process logger
     };
   }
 }

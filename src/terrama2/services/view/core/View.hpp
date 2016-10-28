@@ -71,8 +71,6 @@ namespace terrama2
           std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
           std::unordered_map< DataSeriesId, std::string > stylesPerDataSeries; //!< List of base styles by DataSeries ID.
 
-          terrama2::core::Schedule schedule; //!< terrama2::core::Schedule of execution of the view.
-
           // Parameters to generate a image
           std::string imageName = "";
           te::map::ImageType imageType = te::map::ImageType(1);

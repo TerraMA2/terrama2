@@ -191,7 +191,6 @@ namespace terrama2
           DataSeriesId outputDataSeriesId; //!< The dataset that stores the result of the analysis.
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
-          terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
           AnalysisOutputGridPtr outputGridPtr; //!< Output grid configuration.
           ReprocessingHistoricalDataPtr reprocessingHistoricalData; //!< Date filter for reprocessing of historical data.
 

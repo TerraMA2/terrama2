@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_MODEL_PROCESS_HPP__
 
 #include "../Typedef.hpp"
+#include "Schedule.hpp"
 
 namespace terrama2
 {
@@ -42,6 +43,8 @@ namespace terrama2
       ServiceInstanceId serviceInstanceId = 0;//!< Collector service instace where the process should be executed.
       bool active = true;//!< Flag if the process is active.
       ProjectId projectId = 0;//!< Identification of the project owner of the process.
+
+      Schedule schedule;//!< terrama2::core::Schedule of execution of the process.
     };
   } // end namespace core
 }   // end namespace terrama2

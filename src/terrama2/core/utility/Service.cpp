@@ -28,8 +28,10 @@
 */
 
 #include "Service.hpp"
+#include "ServiceManager.hpp"
 #include "Logger.hpp"
 #include "Timer.hpp"
+#include "../data-model/Process.hpp"
 
 // QT
 #include <QJsonObject>
@@ -278,4 +280,47 @@ void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processI
   jsonAnswer.insert("result", success);
 
   emit processFinishedSignal(jsonAnswer);
+}
+
+void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
+{
+  try
+  {
+    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+    auto serviceInstanceId = serviceManager.instanceId();
+
+    // Check if this collector should be executed in this instance
+    if(process->serviceInstanceId != serviceInstanceId)
+      return;
+
+    try
+    {
+      if(process->active && process->schedule.id != 0)
+      {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess = logger_->getLastProcessTimestamp(process->id);
+        terrama2::core::TimerPtr timer = createTimer(process->schedule, process->id, lastProcess);
+        timers_.emplace(process->id, timer);
+      }
+    }
+    catch(const terrama2::core::InvalidFrequencyException&)
+    {
+      // invalid schedule, already logged
+    }
+    catch(const te::common::Exception& e)
+    {
+      TERRAMA2_LOG_ERROR() << e.what();
+    }
+  }
+  catch(...)
+  {
+    // exception guard, slots should never emit exceptions.
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
+}
+
+void terrama2::core::Service::Service::setLogger(std::shared_ptr<ProcessLogger> logger) noexcept 
+{
+  logger_ = logger;
 }
