@@ -77,7 +77,7 @@ LocalExecutor.prototype.execute = function(command) {
             self.adapter = ScreenAdapter;
             break;
           case OS.MACOSX:
-            self.adapter = LocalSystemAdapter;
+            self.adapter = new LocalSystemAdapter();
             break;
           default:
             console.log("Unknown platform");
