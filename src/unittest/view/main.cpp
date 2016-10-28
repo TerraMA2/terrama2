@@ -52,9 +52,6 @@ int main(int argc, char** argv)
     ::testing::GTEST_FLAG(throw_on_failure) = true;
     ::testing::InitGoogleMock(&argc, argv);
 
-    terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
-    terrama2::core::disableLogger();
-
     try
     {
       TsJsonUtils testJsonUtils;
