@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetPtr dataSetPtr(dataSet1);
     dataSet1->active = true;
-    dataSet1->format.emplace("mask", "umin.yyyyMMdd_hh_mm.tif");
+    dataSet1->format.emplace("mask", "umin.%YYYY%MM%DD_%hh_mm.tif");
     dataSet1->format.emplace("srid", "4326");
     dataSet1->id = 1;
     dataSet1->dataSeriesId = dataSeries1->id;
