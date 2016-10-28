@@ -130,7 +130,7 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
   dataSet->id = 1;
   dataSet->active = true;
-  dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
+  dataSet->format.emplace("mask", "exporta_%YYYY%MM%DD_%hh%mm.csv");
   dataSet->format.emplace("srid", "4326");
 
   dataSeries->datasetList.emplace_back(dataSet);

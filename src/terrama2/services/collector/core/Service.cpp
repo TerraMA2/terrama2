@@ -243,22 +243,22 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     return;
 
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
-    QString errMsg = tr("Collection for collector %1 finished with error(s).").arg(collectorId);
-    TERRAMA2_LOG_INFO() << errMsg;
+    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
     if(logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
   catch(const boost::exception& e)
   {
-    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
+    std::string errMsg = boost::diagnostic_information(e);;
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
     if(logId != 0)
-      logger->error(errMsg.toStdString(), logId);
+      logger->error(errMsg, logId);
   }
   catch(const std::exception& e)
   {

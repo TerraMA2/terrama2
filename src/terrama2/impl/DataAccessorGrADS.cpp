@@ -209,20 +209,20 @@ QString terrama2::core::DataAccessorGrADS::grad2TerramaMask(QString mask) const
 
   /*
    * GrADS date format
-    %y2  - yy    2 digit year
-    %y4  - yyyy  4 digit year
+    %y2  - YY    2 digit year
+    %y4  - YYYY  4 digit year
     %m2  - MM    2 digit month (leading zero if needed)
-    %d2  - dd    2 digit day (leading zero if needed)
+    %d2  - DD    2 digit day (leading zero if needed)
     %h2  - hh    2 digit hour
     %n2  - mm    2 digit minute; leading zero if needed
   */
 
-  mask = mask.replace("%y2", "yy");
-  mask = mask.replace("%y4", "yyyy");
-  mask = mask.replace("%m2", "MM");
-  mask = mask.replace("%d2", "dd");
-  mask = mask.replace("%h2", "hh");
-  mask = mask.replace("%n2", "mm");
+  mask = mask.replace("%y2", "%YY");
+  mask = mask.replace("%y4", "%YYYY");
+  mask = mask.replace("%m2", "%MM");
+  mask = mask.replace("%d2", "%DD");
+  mask = mask.replace("%h2", "%hh");
+  mask = mask.replace("%n2", "%mm");
 
   return mask;
 }

@@ -45,10 +45,10 @@
 std::string terrama2::core::terramaMask2Regex(const std::string& mask)
 {
   /*
-    yyyy  year with 4 digits        [0-9]{4}
-    yy    year with 2 digits        [0-9]{2}
+    YYYY  year with 4 digits        [0-9]{4}
+    YY    year with 2 digits        [0-9]{2}
     MM    month with 2 digits       0[1-9]|1[012]
-    dd    day with 2 digits         0[1-9]|[12][0-9]|3[01]
+    DD    day with 2 digits         0[1-9]|[12][0-9]|3[01]
     hh    hout with 2 digits        [0-1][0-9]|2[0-4]
     mm    minutes with 2 digits     [0-5][0-9]
     ss    seconds with 2 digits     [0-5][0-9]
@@ -56,13 +56,13 @@ std::string terrama2::core::terramaMask2Regex(const std::string& mask)
 
   QString m(mask.c_str());
 
-  m.replace("yyyy", "(?<YEAR>[0-9]{4})");
-  m.replace("yy", "(?<YEAR2DIGITS>[0-9]{2})");
-  m.replace("MM", "(?<MONTH>0[1-9]|1[012])");
-  m.replace("dd", "(?<DAY>0[1-9]|[12][0-9]|3[01])");
-  m.replace("hh", "(?<HOUR>[0-1][0-9]|2[0-4])");
-  m.replace("mm", "(?<MINUTES>[0-5][0-9])");
-  m.replace("ss", "(?<SECONDS>[0-5][0-9])");
+  m.replace("%YYYY", "(?<YEAR>[0-9]{4})");
+  m.replace("%YY", "(?<YEAR2DIGITS>[0-9]{2})");
+  m.replace("%MM", "(?<MONTH>0[1-9]|1[012])");
+  m.replace("%DD", "(?<DAY>0[1-9]|[12][0-9]|3[01])");
+  m.replace("%hh", "(?<HOUR>[0-1][0-9]|2[0-4])");
+  m.replace("%mm", "(?<MINUTES>[0-5][0-9])");
+  m.replace("%ss", "(?<SECONDS>[0-5][0-9])");
 
   // add a extension validation in case of the name has it
   m += "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?";
@@ -154,13 +154,9 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
 
 bool terrama2::core::isValidDatedMask(const std::string& mask)
 {
-  bool day = false,
-      month = false,
-      year = false;
-
-  day = mask.find("dd") != std::string::npos;
-  month = mask.find("MM") != std::string::npos;
-  year = mask.find("yyyy") != std::string::npos || mask.find("yy") != std::string::npos;
+  bool day = mask.find("%DD") != std::string::npos;
+  bool month = mask.find("%MM") != std::string::npos;
+  bool year = mask.find("%YYYY") != std::string::npos || mask.find("%YY") != std::string::npos;
 
   // If has one of them, must have the others too
   if(day || month || year)
