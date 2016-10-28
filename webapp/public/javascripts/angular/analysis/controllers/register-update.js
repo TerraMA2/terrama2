@@ -328,9 +328,8 @@
               };
             }
           } else if (analysisInstance.type.id === globals.enums.AnalysisType.DCP) {
-            console.log("HERE");
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
-            self.analysis.metadata.INFLUENCE_RADIUS = analysisInstance.metadata.INFLUENCE_RADIUS;
+            self.analysis.metadata.INFLUENCE_RADIUS = Number(analysisInstance.metadata.INFLUENCE_RADIUS);
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
             self.analysis.metadata.INFLUENCE_DATASERIES_ID = analysisInstance.metadata.INFLUENCE_DATASERIES_ID;
             self.analysis.metadata.INFLUENCE_ATTRIBUTE = analysisInstance.metadata.INFLUENCE_ATTRIBUTE;
@@ -369,7 +368,11 @@
         // define dataseries selected in modal
         self.nodesDataSeries = [];
 
-        // define dataseries selected to analysis
+        /**
+         * Define dataseries selected to analysis
+         * 
+         * @type {Object[]}
+         */ 
         self.selectedDataSeriesList = [];
         self.metadata = {};
 
@@ -592,7 +595,7 @@
           DataSeriesService.list().forEach(function(dataSeries) {
             if (dataSeries.data_series_semantics.data_series_type_name === "STATIC_DATA") {
               if (dataSeries.id !== newValue.id) {
-                console.log(dataSeries);
+                $log.log(dataSeries);
                 self.buffers.static.push(dataSeries);
               }
             }
@@ -703,7 +706,9 @@
           self.selectedDataSeries = dataSeries;
         };
 
-        // pcd metadata (radius format - km, m...)
+        /*
+         * DCP metadata (radius format - km, m...)
+         */ 
         self.onMetadataFormatClick = function(format) {
           self.analysis.metadata.INFLUENCE_RADIUS_UNIT = format;
         };
@@ -712,7 +717,7 @@
         self.save = function() {
           $scope.$broadcast('formFieldValidation');
 
-          $scope.analysis_script_error = false;
+          self.analysis_script_error = false;
           // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
           if ($scope.forms.generalDataForm.$invalid ||
@@ -727,7 +732,10 @@
 
           // checking script form if there any "add_value"
           var typeId = parseInt(self.analysis.type_id);
-
+          /**
+           * It retrieves a dom element #scriptCheckResult in order to append script feedback message
+           * @type {DOM}
+           */
           var checkResult = angular.element("#scriptCheckResult");
 
           var hasScriptError = function(expression, message) {
@@ -843,25 +851,7 @@
 
               var bounded = self.analysis.grid.area_of_interest_bounded;
               analysisToSend.grid.area_of_interest_box = Polygon.build(bounded);
-              // var coordinates = [
-              //   [
-              //     [bounded.minX, bounded.minY],
-              //     [bounded.minX, bounded.maxY],
-              //     [bounded.maxX, bounded.maxY],
-              //     [bounded.maxX, bounded.minY],
-              //     [bounded.minX, bounded.minY]
-              //   ]
-              // ];
-              // analysisToSend.grid.area_of_interest_box = {
-              //   type: 'Polygon',
-              //   coordinates: coordinates,
-              //   crs: {
-              //     type: 'name',
-              //     properties : {
-              //       name: "EPSG:" + bounded.srid || "4326"
-              //     }
-              //   }
-              // };
+
               analysisToSend.grid.srid = bounded.srid;
             }
           }
@@ -904,7 +894,10 @@
             storager: storager,
             schedule: scheduleValues
           };
-
+          /**
+           * Target object request (update/insert)
+           * @type {angular.IPromise<any>}
+           */
           var request;
 
           if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }

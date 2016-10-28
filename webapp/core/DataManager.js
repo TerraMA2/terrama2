@@ -1556,38 +1556,66 @@ var DataManager = module.exports = {
         })
 
         .then(function(dataSeriesSemantics) {
-          if (dataSeriesSemantics.data_series_type_name !== Enums.DataSeriesType.DCP) {              
-            var oldDataSet = dataSeries.dataSets[0];
-            var newDataSet = dataSeriesObject.dataSets[0];
+          /**
+           * Helper to iterate over formats in order to build promise "upsertDataSetFormats"
+           * 
+           * @param {string} key - Format Key
+           * @param {string} value - Format value
+           * @param {DataSet} extra - Current data set.
+           * @returns {Promise} 
+           */
+          function formatIterator(key, value, extra) {
+            var obj = {
+              key: key,
+              value: value,
+              data_set_id: extra.id
+            };
+            // performs Insert or Update
+            return self.upsertDataSetFormats({
+              data_set_id: extra.id,
+              key: key
+            }, obj, options)
+              .then(function() {
+                return obj;
+              });
+          }
+
+          /**
+           * It defines a promises of update data set formats.
+           * @type {Promise}
+           */
+          var promises = [];
+
+          dataSeries.dataSets.forEach(function(oldDataSet, dataSetIndex) {
+            var newDataSet = dataSeriesObject.dataSets[dataSetIndex];
             /**
              * It defines a list of promises to perform DB operation. It may be insert or update
-             * @type {Promise[]}
+             * @type {Promise<DataSetFormat>[]}
              */
-            var promisesFormat = Utils.generateArrayFromObject(newDataSet.format, function(key, value) {
-              var obj = {
-                key: key,
-                value: value,
-                data_set_id: oldDataSet.id
-              };
-              // performs Insert or Update
-              return self.upsertDataSetFormats({
-                data_set_id: oldDataSet.id,
-                key: key
-              }, obj, options);
-            });
+            var promisesFormat = Utils.generateArrayFromObject(newDataSet.format, formatIterator, oldDataSet);
 
-            return Promise.all(promisesFormat)
-              .then(function() {
-                return self
-                  .listDataSetFormats({data_set_id: oldDataSet.id}, options)
-                  .then(function(newDataSetFormats) {
-                    oldDataSet.format = Utils.formatMetadataFromDB(newDataSetFormats);
-                    return null;
-                  });
-              });
-          } else {
+            promises.push(promisesFormat);
+          });
+
+          //TODO: change it. It iterate over array of array of promises. It should iterate just over an array
+          return Promise.map(promises, function(promiseArray) {
+            return Promise.all(promiseArray);
+          })
+          .then(function(dataSetFormatArray) {
+            for(var i = 0; i < dataSetFormatArray.length; ++i) {
+              var formatArray = dataSetFormatArray[i];
+
+              for(var j = 0; j < dataSeries.dataSets.length; ++j) {
+                var dataSet = dataSeries.dataSets[j];
+
+                if (formatArray[0].data_set_id === dataSet.id) {
+                  dataSet.format = Utils.formatMetadataFromDB(dataSetFormatArray[i]);
+                }
+              }
+            }
+
             return null;
-          }
+          });
         })
 
         .then(function() {
@@ -1695,7 +1723,7 @@ var DataManager = module.exports = {
                   output.format[dataSetFormat.key] = dataSetFormat.value;
                 });
 
-                //  if analysis, add input dataseries id
+                // TODO: check it. if analysis, add input dataseries id
                 if (analysisType && analysisType.data_series_id) {
                   output.format.monitored_object_dataseries_id = analysisType.data_series_id;
                 }
@@ -2701,6 +2729,26 @@ var DataManager = module.exports = {
   },
 
   /**
+   * It performs save analysis metadata in database
+   * 
+   * @param {Object} analysisMetadataObject - An analysis metadata values to save
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>}
+   */
+  addAnalysisMetadata: function(analysisMetadataObject, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.AnalysisMetadata.bulkCreate(analysisMetadataObject, options)
+        .then(function(bulkAnalysisMetadata) {
+          return resolve(Utils.formatMetadataFromDB(bulkAnalysisMetadata));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not save analysis metadata due ", err.toString())));
+        })
+    });
+  },
+
+  /**
    * It performs save analysis in database
    * 
    * @param {Object} analysisObject - An analysis values to save
@@ -2765,12 +2813,7 @@ var DataManager = module.exports = {
             }
           }
 
-          models.db.AnalysisMetadata.bulkCreate(analysisMetadata, options).then(function(bulkAnalysisMetadata) {
-            var analysisMetadataOutput = {};
-            bulkAnalysisMetadata.forEach(function(bulkMetadata) {
-              analysisMetadataOutput[bulkMetadata.key] = bulkMetadata.value;
-            });
-
+          self.addAnalysisMetadata.then(function(analysisMetadataOutput) {
             var promises = [];
 
             analysisDataSeriesArray.forEach(function(analysisDS) {
@@ -2857,11 +2900,12 @@ var DataManager = module.exports = {
    * @param {Object} analysisObject - An analysis object to update
    * @param {Object} analysisObject.historical - Reprocessing historical data values
    * @param {Object} scheduleObject - A schedule object to update
+   * @param {Object} storagerObject - A storager object to update
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise} 
    */
-  updateAnalysis: function(analysisId, analysisObject, scheduleObject, options) {
+  updateAnalysis: function(analysisId, analysisObject, scheduleObject, storagerObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var analysisInstance;
@@ -2880,10 +2924,6 @@ var DataManager = module.exports = {
           }
         }, options));
       })
-
-      // .then(function() {
-      //   return self.updateDataSeries(analysisInstance.dataSeries.id, analysisObject.dataSeries, options);
-      // })
 
       // Prepare to update Analysis Dependencies
       .then(function() {
@@ -2954,41 +2994,72 @@ var DataManager = module.exports = {
           return null;
         }
       })
-      // Update Analysis Grid if there is
+      // Update Analysis DCP or Grid if there is
       .then(function() {
-        if (analysisInstance.type.id === Enums.AnalysisType.GRID) {
-          var gridObject = Object.assign(
-            {},
-            analysisInstance.outputGrid.toObject ? analysisInstance.outputGrid.toObject() : analysisInstance.outputGrid);
-          // reset
-          for(var k in gridObject) {
-            if (gridObject.hasOwnProperty(k)) {
-              gridObject[k] = null;
+        switch (analysisInstance.type.id) {
+          case Enums.AnalysisType.GRID:
+            var gridObject = Object.assign(
+              {},
+              analysisInstance.outputGrid.toObject ? analysisInstance.outputGrid.toObject() : analysisInstance.outputGrid);
+            // reset
+            for(var k in gridObject) {
+              if (gridObject.hasOwnProperty(k)) {
+                gridObject[k] = null;
+              }
             }
-          }
-          Object.assign(gridObject, analysisObject.grid);
-          
-          return models.db.AnalysisOutputGrid.update(analysisObject.grid, Utils.extend({
-            fields: ['area_of_interest_box', 'srid', 'resolution_x',
-                      'resolution_y', 'interpolation_dummy',
-                      'area_of_interest_type', 'resolution_type',
-                      'interpolation_method', 'resolution_data_series_id',
-                      'area_of_interest_data_series_id'],
-            where: {
-              id: analysisInstance.outputGrid.id
-            }
-          }, options)).then(function() {
-            // applies OK update operation with Grid
-            return resolve();
-          }).catch(function(err) {
-            console.log(err);
-            return reject(new exceptions.AnalysisError("Could not update analysis output grid " + err.toString()));
-          });
-        } else {
-          // applies OK update operation without grid
-          return resolve();
+            Object.assign(gridObject, analysisObject.grid);
+            
+            return models.db.AnalysisOutputGrid.update(analysisObject.grid, Utils.extend({
+              fields: ['area_of_interest_box', 'srid', 'resolution_x',
+                        'resolution_y', 'interpolation_dummy',
+                        'area_of_interest_type', 'resolution_type',
+                        'interpolation_method', 'resolution_data_series_id',
+                        'area_of_interest_data_series_id'],
+              where: {
+                id: analysisInstance.outputGrid.id
+              }
+            }, options));
+          case Enums.AnalysisType.DCP:
+            var newMetadata = Utils.generateArrayFromObject(analysisObject.metadata, function(key, value) {
+              return {"key": key, "value": value, "analysis_id": analysisInstance.id};
+            });
+
+            return models.db.AnalysisMetadata
+              .destroy(Utils.extend(
+                {
+                  where: {
+                    analysis_id: analysisInstance.id
+                  }
+                }, 
+                options))
+              .then(function() {
+                return self.addAnalysisMetadata(newMetadata, options);
+              });
+          default:
+            // propagate next promise
+            return null;
         }
-      }).catch(function(err) {
+      })
+      /**
+       * finally, update data series. It is important to put it at end of operations, since the data series are cached. 
+       * So, if it uses transaction object and an exception occurs, it is not necessary to force data to original state
+       */
+      .then(function() {
+        var dataSeries = Utils.clone(analysisInstance.dataSeries);
+        dataSeries.name = analysisObject.name;
+        // TODO: change it
+        dataSeries.description = "Generated by analysis " + analysisObject.name;
+        dataSeries.data_provider_id = analysisObject.data_provider_id;
+        dataSeries.dataSets[0].format = storagerObject.format;
+        dataSeries.data_series_semantic_id = dataSeries.data_series_semantics.id;
+        return self.updateDataSeries(analysisInstance.dataSeries.id, dataSeries, options);
+      })
+      
+      .then(function() {
+        return resolve();
+      })
+
+      .catch(function(err) {
         return reject(new exceptions.AnalysisError("Could not update analysis " + err.toString()));
       });
     });

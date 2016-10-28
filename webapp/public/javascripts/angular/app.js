@@ -44,8 +44,8 @@ terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function
 terrama2Application.run(function($templateCache, $rootScope, $locale) {
   // TerraMA2 Box
   $templateCache.put('box.html',
-  '<div class="col-md-12">' +
-    '<div class="box box-default {{ boxType }}">' +
+  '<div class="col-md-12" title="{{ titleHeader }}">' +
+    '<div class="box box-default {{ boxType }}" title="{{ titleHeader }}">' +
       '<div class="box-header with-border">' +
         '<h3 class="box-title">{{ titleHeader }}</h3>' +
         '<div class="box-tools pull-right">' +
@@ -412,15 +412,16 @@ terrama2Application.directive('terrama2Box', function($parse, $templateCache) {
       $scope.css = $scope.css || {};
 
       $scope.boxType = "";
-      if ($scope.css.boxType)
+      if ($scope.css.boxType) {
         $scope.boxType = $scope.css.boxType;
+      }
     },
     link: function(scope, element, attrs, ctrl, transclude) {
       var elm = element.find('#targetTransclude');
 
       transclude(scope.$parent, function(clone, scope) {
         elm.append(clone);
-      })
+      });
     }
   }
 });

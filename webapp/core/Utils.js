@@ -547,12 +547,14 @@ var Utils = module.exports = {
    * 
    * @param {Object} valuesObject - A javascript object to iterate
    * @param {Function} operationIter - A callback to be called in object iteration. It should return something (object)
+   * @param {any} extra - An extra values to iterate. It will be passed through function iteration
+   * @returns {Array<?>}
    */
-  generateArrayFromObject: function(valuesObject, operationIter) {
+  generateArrayFromObject: function(valuesObject, operationIter, extra) {
     var metadataArr = [];
     for(var k in valuesObject) {
       if (valuesObject.hasOwnProperty(k)) {
-        metadataArr.push(operationIter(k, valuesObject[k]));
+        metadataArr.push(operationIter(k, valuesObject[k], extra));
       }
     }
     return metadataArr;

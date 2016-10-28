@@ -162,7 +162,7 @@
               <select class="form-control" 
                       name="type" 
                       ng-model="ctrl.analysis.type_id" 
-                      ng-disabled="isUpdating"
+                      ng-disabled="ctrl.isUpdating"
                       data-ng-change="ctrl.onAnalysisTypeChanged()" 
                       required>
                 <option value="{[ Enums.AnalysisType.DCP ]}">{{ i18n.__('DCP') }}</option>
@@ -247,7 +247,6 @@
               <label>{{ i18n.__('Data Store') }}:</label>
               <select class="form-control"
                       name="storager_data_provider_id"
-                      ng-disabled="isUpdating"
                       ng-model="ctrl.analysis.data_provider_id"
                       ng-options="provider.id as provider.name for provider in ctrl.dataProviders"
                       ng-required="storager.format.name" required>
@@ -565,8 +564,7 @@
 
     <terrama2-box title="i18n.__('Influence Area')" 
                   css="ctrl.css" 
-                  ng-show="ctrl.analysis.type_id == 1" 
-                  style="display: none;">
+                  ng-show="ctrl.analysis.type_id == 1">
       <div class="row">
         <div class="col-md-12">
           <form name="forms.influenceForm">
@@ -576,7 +574,6 @@
                   <label>{{ i18n.__("Influence") }}:</label>
                   <select class="form-control"
                           name="influence"
-                          ng-disabled="ctrl.isUpdating"
                           ng-model="ctrl.analysis.metadata.INFLUENCE_TYPE"
                           ng-required="ctrl.analysis.type_id == 1">
                     <option value="{[ Enums.InfluenceTypes.TOUCHES.Value ]}">{[ Enums.InfluenceTypes.TOUCHES.Name ]}</option>
@@ -600,7 +597,6 @@
                     <input class="form-control"
                            name="radius"
                            type="number"
-                           ng-disabled="ctrl.isUpdating"
                            ng-model="ctrl.analysis.metadata.INFLUENCE_RADIUS"
                            ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
 
@@ -615,9 +611,9 @@
 
                   <div class="form-group" terrama2-show-errors>
                     <div class="input-group" style="margin-top: 25px;">
-                      <input type="text" name="radiusUnit" ng-disabled="ctrl.isUpdating" class="form-control" aria-label="..." ng-model="ctrl.analysis.metadata.INFLUENCE_RADIUS_UNIT" ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
+                      <input type="text" name="radiusUnit" class="form-control" aria-label="..." ng-model="ctrl.analysis.metadata.INFLUENCE_RADIUS_UNIT" ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.TOUCHES.Value ]} || ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.CENTER.Value ]}">
                       <div class="input-group-btn">
-                        <button type="button" ng-disabled="ctrl.isUpdating" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                           <li data-ng-click="ctrl.onMetadataFormatClick('km')"><a href="#dataSeriesBox">km</a></li>
@@ -637,7 +633,7 @@
                 <div class="col-md-6">
                   <div class="form-group has-feedback" terrama2-show-errors>
                     <label>{{ i18n.__("Influence Data Series") }}:</label>
-                    <select class="form-control" name="dataSeriesId" ng-disabled="ctrl.isUpdating" ng-model="ctrl.analysis.metadata.INFLUENCE_DATASERIES_ID" ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+                    <select class="form-control" name="dataSeriesId" ng-model="ctrl.analysis.metadata.INFLUENCE_DATASERIES_ID" ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
                       <option ng-repeat="dataSeries in ctrl.DataSeriesService.list()" value="{{ dataSeries.id }}">{{ dataSeries.name }}</option>
                     </select>
 
@@ -652,7 +648,11 @@
                   <div class="form-group" terrama2-show-errors>
                     <!-- TODO: combobox with data series properties -->
                     <label>{{ i18n.__("Influence Attribute") }}:</label>
-                    <input class="form-control" name="attribute" ng-disabled="ctrl.isUpdating" type="text" ng-model="ctrl.analysis.metadata.INFLUENCE_ATTRIBUTE" ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
+                    <input class="form-control" 
+                           name="attribute" 
+                           type="text" 
+                           ng-model="ctrl.analysis.metadata.INFLUENCE_ATTRIBUTE" 
+                           ng-required="ctrl.analysis.metadata.INFLUENCE_TYPE == {[ Enums.InfluenceTypes.REGION.Value ]}">
 
                     <!-- required -->
                     <span class="help-block"
@@ -680,7 +680,7 @@
               <div id="scriptCheckResult"></div>
               <div id="systemError" style="display: none;"></div>
 
-              <div terrama2-ace="{onChange: onScriptChanged}" name="script" ng-model="ctrl.analysis.script">
+              <div terrama2-ace="{}" name="script" ng-model="ctrl.analysis.script">
 
               </div>
 
