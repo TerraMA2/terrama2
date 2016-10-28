@@ -134,8 +134,8 @@ int main(int argc, char* argv[])
   {
     po::options_description desc("Allowed options");
     desc.add_options()
-        ("help", "show help message")
-        ("version", "Show TerraMA2 version")
+        ("help,h", "show help message")
+        ("version,v", "Show TerraMA2 version")
     ;
 
     po::variables_map vm;
