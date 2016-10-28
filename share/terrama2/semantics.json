@@ -24,7 +24,7 @@
     }
   },
   {
-    "name": "File static data",
+    "name": "OGR static data file",
     "code": "STATIC_DATA-ogr",
     "type": "GEOMETRIC_OBJECT",
     "temporality": "STATIC",
