@@ -58,6 +58,7 @@ private slots:
 
   void ValidMask();
   void invalidValidMask();
+  void testTerramaMask2Regex();
 
   void testValidDataSetName();
   void testValidDataSetNameCompress();

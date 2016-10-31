@@ -117,7 +117,7 @@ void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::sha
     if(view->serviceInstanceId != serviceInstanceId)
       return;
 
-    if(std::find(processingQueue_.begin(), processingQueue_.end(), viewId) != processingQueue_.end())
+    if(std::find(processingQueue_.begin(), processingQueue_.end(), viewId) == processingQueue_.end())
     {
       processingQueue_.push_back(viewId);
       viewQueue_.push_back(viewId);
@@ -216,12 +216,12 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     return;
   }
 
+  RegisterId logId = 0;
+
   QJsonObject jsonAnswer;
 
   try
   {
-    RegisterId logId = 0;
-
     TERRAMA2_LOG_DEBUG() << QObject::tr("Starting view %1 generation.").arg(viewId);
 
     logId = logger->start(viewId);
@@ -279,6 +279,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       if(mapsServerGeneration)
       {
         GeoServer geoserver(viewPtr->maps_server_uri);
+
         geoserver.registerWorkspace();
 
         std::string styleName = "";
@@ -449,6 +450,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
           TERRAMA2_LOG_WARNING() << tr("No data to register in maps server.");
         }
 
+        // TODO: assuming that only has one dataseries, overwriting answer
         jsonAnswer.insert("class", QString("RegisteredViews"));
         jsonAnswer.insert("process_id",static_cast<int32_t>(viewPtr->id));
         jsonAnswer.insert("maps_server_uri", QString::fromStdString(geoserver.uri().uri()));
@@ -473,29 +475,43 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     notifyWaitQueue(viewId);
 
     return;
-
   }
   catch(const terrama2::Exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString() << std::endl;
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    TERRAMA2_LOG_ERROR() << errMsg << std::endl;
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+
+    if(logId != 0)
+      logger->error(errMsg, logId);
   }
   catch(const boost::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e);
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+
+    if(logId != 0)
+      logger->error(errMsg, logId);
   }
   catch(const std::exception& e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    std::string errMsg = e.what();
+    TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+
+    if(logId != 0)
+      logger->error(errMsg, logId);
   }
   catch(...)
   {
+    std::string errMsg = "Unkown error.";
     TERRAMA2_LOG_ERROR() << QObject::tr("Unkown error.");
     TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
-  }
 
+    if(logId != 0)
+      logger->error(errMsg, logId);
+  }
 
   sendProcessFinishedSignal(viewId, false);
   notifyWaitQueue(viewId);
