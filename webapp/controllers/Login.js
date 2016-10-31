@@ -7,13 +7,10 @@ module.exports = function(app) {
       response.render('login');
     },
     logout: function(request, response) {
-      DataManager.unload().then(function() {
-        console.log("Unloaded");
-        app.locals.activeProject = {};
-        app.locals.collapsed = false;
-        request.logout();
-        response.redirect('/');
-      });
+      app.locals.activeProject = {};
+      app.locals.collapsed = false;
+      request.logout();
+      response.redirect('/');
     }
   };
 };

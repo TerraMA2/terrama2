@@ -132,7 +132,8 @@ function _getClient(connection) {
 */
 var logs = {
   collectors: [],
-  analysis: []
+  analysis: [],
+  views: []
 };
 
 /**
@@ -273,15 +274,15 @@ TcpManager.prototype.startService = function(serviceInstance) {
       instance.setAdapter(new Executor());
     }
 
-    instance.connect(serviceInstance).then(function() {
-      instance.startService().then(function(code) {
+    return instance.connect(serviceInstance).then(function() {
+      return instance.startService().then(function(code) {
         // self.emit("serviceStarted", serviceInstance);
-        resolve(code);
+        return resolve(code);
       }).catch(function(err) {
         // self.emit('error', serviceInstance, err);
-        reject(err);
+        return reject(err);
       }).finally(function() {
-        instance.disconnect();
+        return instance.disconnect();
       });
     }).catch(function(err) {
       console.log('ssh startservice error');
@@ -397,6 +398,9 @@ TcpManager.prototype.initialize = function(client) {
         break;
       case ServiceType.ANALYSIS:
         target = logs.analysis;
+        break;
+      case ServiceType.VIEW:
+        target = logs.views;
         break;
     }
 
