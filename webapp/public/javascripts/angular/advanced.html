@@ -58,7 +58,7 @@
   </div>
 </div>
 
-<div class="col-md-12" ng-if="isDynamic">
+<div class="col-md-12" ng-if="isDynamic && form.length > 0">
   <div class="box box-default box-solid collapsed-box">
     <div class="box-header with-border">
       <h3 class="box-title">{{ i18n.__('Store') }}</h3>
@@ -74,7 +74,7 @@
   </div>
 </div>
 
-<div class="col-md-12" ng-if="isDynamic">
+<div class="col-md-12" ng-if="isDynamic && form.length > 0">
   <div class="box box-default box-solid collapsed-box">
     <div class="box-header with-border">
       <h3 class="box-title">{{ i18n.__('Filter') }}</h3>
@@ -92,7 +92,7 @@
   </div>
 </div>
 
-<div class="col-md-12" ng-if="isDynamic">
+<div class="col-md-12" ng-if="isDynamic && form.length > 0">
   <div class="box box-default box-solid collapsed-box">
     <div class="box-header with-border">
       <h3 class="box-title">{{ i18n.__('Intersection') }}</h3>
