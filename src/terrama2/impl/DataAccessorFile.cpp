@@ -77,8 +77,6 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 
 std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
-  te::dt::Property* filename = new te::dt::SimpleProperty("filename", te::dt::STRING);
-  dataSetType->add(filename);
   return std::make_shared<te::mem::DataSet>(dataSetType.get());
 }
 
