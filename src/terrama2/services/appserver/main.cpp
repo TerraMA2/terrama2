@@ -51,6 +51,7 @@
 #include <terrama2/Version.hpp>
 
 #include <boost/exception/diagnostic_information.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
@@ -132,17 +133,26 @@ int main(int argc, char* argv[])
 {
   try
   {
+    std::string appName = boost::filesystem::basename(argv[0]);
+
     po::options_description desc("Allowed options");
     desc.add_options()
-        ("help,h", "show help message")
-        ("version,v", "Show TerraMA2 version")
+        ("help,h", "show help message.")
+        ("version,v", "Show TerraMA2 version.")
+        ("service,s", po::value<std::string>()->required(), "Service to be started.\nValid options:\n\t- ANALYSIS\n\t- COLLECTOR\n\t- VIEW")
+        ("port,p", po::value<int>()->required(), "Port the service will listen.")
     ;
+    po::positional_options_description positionalOptions;
+        positionalOptions.add("service", 1);
+        positionalOptions.add("port", 1);
 
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
+    po::store(po::command_line_parser(argc, argv).options(desc)
+                      .positional(positionalOptions).run(),
+                    vm);
 
     if (vm.count("help")) {
+        std::cout << "usage: "+appName+" [--version] [--help] service port" << "\n";
         std::cout << desc << std::endl;
         return 0;
     }
@@ -152,18 +162,15 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    if(argc != 3)
-    {
-      std::cout << desc << std::endl;
-      return SERVICE_PARAMETERS_ERROR;
-    }
-    std::string serviceType(argv[1]);
+    po::notify(vm);
+
+    std::string serviceType(vm["service"].as<std::string>());
     std::transform(serviceType.begin(), serviceType.end(), serviceType.begin(), ::tolower);
 
     if(!checkServiceType(serviceType))
       return UNKNOWN_SERVICE_TYPE;
 
-    int listeningPort = std::stoi(argv[2]);
+    int listeningPort = vm["port"].as<int>();
 
     terrama2::core::TerraMA2Init terramaRaii(serviceType, listeningPort);
     terrama2::core::registerFactories();
@@ -225,6 +232,11 @@ int main(int argc, char* argv[])
     {
       return TERRAMA2_FINALIZATION_ERROR;
     }
+  }
+  catch(boost::program_options::required_option& e)
+  {
+    std::cout << "Invalid options.See 'terrama2_service --help'\n" << std::endl;
+    TERRAMA2_LOG_ERROR() << e.what();
   }
   catch(boost::exception& e)
   {
