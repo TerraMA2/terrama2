@@ -52,6 +52,7 @@ std::string terrama2::core::terramaMask2Regex(const std::string& mask)
     hh    hout with 2 digits        [0-1][0-9]|2[0-4]
     mm    minutes with 2 digits     [0-5][0-9]
     ss    seconds with 2 digits     [0-5][0-9]
+     *    any character, any times  .*
     */
 
   QString m(mask.c_str());
@@ -63,6 +64,7 @@ std::string terrama2::core::terramaMask2Regex(const std::string& mask)
   m.replace("%hh", "(?<HOUR>[0-1][0-9]|2[0-4])");
   m.replace("%mm", "(?<MINUTES>[0-5][0-9])");
   m.replace("%ss", "(?<SECONDS>[0-5][0-9])");
+  m.replace("*", ".*");
 
   // add a extension validation in case of the name has it
   m += "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?";

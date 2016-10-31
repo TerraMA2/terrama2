@@ -399,7 +399,24 @@ void TsUtility::invalidValidMask()
 
   if(terrama2::core::isValidDatedMask(mask))
     QFAIL("Should not be here!");
+}
 
+void TsUtility::testTerramaMask2Regex()
+{
+  std::string mask = "*%DD%MM%YYYY%YY-%hh%mm%ss.file";
+
+  if(!terrama2::core::isValidDatedMask(mask))
+    QFAIL("Should not be here!");
+
+  std::string regex = terrama2::core::terramaMask2Regex(mask);
+
+  std::string maskConverted(".*(?<DAY>0[1-9]|[12][0-9]|3[01])(?<MONTH>0[1-9]|1[012])"
+                            "(?<YEAR>[0-9]{4})(?<YEAR2DIGITS>[0-9]{2})-"
+                            "(?<HOUR>[0-1][0-9]|2[0-4])(?<MINUTES>[0-5][0-9])(?<SECONDS>[0-5][0-9])"
+                            ".file"
+                            "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?");
+
+  QCOMPARE(regex, maskConverted);
 }
 
 void TsUtility::testValidDataSetName()
