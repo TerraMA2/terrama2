@@ -273,9 +273,8 @@ terrama2::core::TimerPtr terrama2::core::Service::createTimer(const Schedule& sc
   return timer;
 }
 
-void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processId, const bool success)
+void terrama2::core::Service::sendProcessFinishedSignal(const ProcessId processId, const bool success, QJsonObject jsonAnswer)
 {
-  QJsonObject jsonAnswer;
   jsonAnswer.insert("process_id", static_cast<int>(processId));
   jsonAnswer.insert("result", success);
 
@@ -320,7 +319,7 @@ void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
   }
 }
 
-void terrama2::core::Service::Service::setLogger(std::shared_ptr<ProcessLogger> logger) noexcept 
+void terrama2::core::Service::Service::setLogger(std::shared_ptr<ProcessLogger> logger) noexcept
 {
   logger_ = logger;
 }
