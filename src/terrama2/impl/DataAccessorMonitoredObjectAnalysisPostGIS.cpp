@@ -39,11 +39,11 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorMonitoredObjectAnalysisPostGIS::DataAccessorMonitoredObjectAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
- : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorPostGIS(dataProvider, dataSeries, filter)
+terrama2::core::DataAccessorMonitoredObjectAnalysisPostGIS::DataAccessorMonitoredObjectAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+ : DataAccessor(dataProvider, dataSeries, false),
+   DataAccessorPostGIS(dataProvider, dataSeries, false)
 {
-  if(dataSeries->semantics.code != dataAccessorType())
+  if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

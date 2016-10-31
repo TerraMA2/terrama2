@@ -39,12 +39,12 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
- : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorDcp(dataProvider, dataSeries, filter),
-   DataAccessorPostGIS(dataProvider, dataSeries, filter)
+terrama2::core::DataAccessorDcpPostGIS::DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+ : DataAccessor(dataProvider, dataSeries, false),
+   DataAccessorDcp(dataProvider, dataSeries, false),
+   DataAccessorPostGIS(dataProvider, dataSeries, false)
 {
-  if(dataSeries->semantics.code != dataAccessorType())
+  if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -57,7 +57,7 @@ std::string terrama2::core::DataAccessorDcpPostGIS::dataSourceType() const
   return "POSTGIS";
 }
 
-terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpPostGIS::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpPostGIS::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
 {
-  return std::make_shared<DataAccessorDcpPostGIS>(dataProvider, dataSeries, filter);
+  return std::make_shared<DataAccessorDcpPostGIS>(dataProvider, dataSeries);
 }

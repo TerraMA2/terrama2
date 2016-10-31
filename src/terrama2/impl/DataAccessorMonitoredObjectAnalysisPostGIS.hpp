@@ -43,12 +43,12 @@ namespace terrama2
     class DataAccessorMonitoredObjectAnalysisPostGIS : public DataAccessorPostGIS
     {
     public:
-      DataAccessorMonitoredObjectAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      DataAccessorMonitoredObjectAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
       virtual ~DataAccessorMonitoredObjectAnalysisPostGIS() {}
 
-      static DataAccessor* make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
       {
-        return new DataAccessorMonitoredObjectAnalysisPostGIS(dataProvider, dataSeries, filter);
+        return std::make_shared<DataAccessorMonitoredObjectAnalysisPostGIS>(dataProvider, dataSeries);
       }
 
       static DataAccessorType dataAccessorType(){ return "ANALYSIS_MONITORED_OBJECT-postgis"; }

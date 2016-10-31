@@ -49,10 +49,10 @@ namespace terrama2
     class DataAccessorDcpInpe : public DataAccessorDcp, public DataAccessorFile
     {
     public:
-      DataAccessorDcpInpe(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      DataAccessorDcpInpe(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
       virtual ~DataAccessorDcpInpe() {}
 
-      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
       static DataAccessorType dataAccessorType(){ return "DCP-inpe"; }
     protected:
       virtual std::string dataSourceType() const override;

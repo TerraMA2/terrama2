@@ -31,11 +31,11 @@
 #include "DataAccessorStaticGeoTiff.hpp"
 #include "../core/utility/Logger.hpp"
 
-terrama2::core::DataAccessorStaticGeoTiff::DataAccessorStaticGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
- : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorGeoTiff(dataProvider, dataSeries, filter)
+terrama2::core::DataAccessorStaticGeoTiff::DataAccessorStaticGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+ : DataAccessor(dataProvider, dataSeries, false),
+   DataAccessorGeoTiff(dataProvider, dataSeries, false)
 {
-  if(dataSeries->semantics.code != dataAccessorType())
+  if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

@@ -54,12 +54,12 @@
 #include <QTextStream>
 
 
-terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
- : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorDcp(dataProvider, dataSeries, filter),
-   DataAccessorFile(dataProvider, dataSeries, filter)
+terrama2::core::DataAccessorDcpToa5::DataAccessorDcpToa5(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+ : DataAccessor(dataProvider, dataSeries, false),
+   DataAccessorDcp(dataProvider, dataSeries, false),
+   DataAccessorFile(dataProvider, dataSeries, false)
 {
-  if(dataSeries->semantics.code != dataAccessorType())
+  if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -234,7 +234,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   return dataSeries;
 }
 
-terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpToa5::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpToa5::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
 {
-  return std::make_shared<DataAccessorDcpToa5>(dataProvider, dataSeries, filter);
+  return std::make_shared<DataAccessorDcpToa5>(dataProvider, dataSeries);
 }

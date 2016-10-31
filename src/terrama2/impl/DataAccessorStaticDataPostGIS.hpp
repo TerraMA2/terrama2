@@ -59,12 +59,12 @@ namespace terrama2
     {
       public:
 
-        DataAccessorStaticDataPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        DataAccessorStaticDataPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
         virtual ~DataAccessorStaticDataPostGIS() = default;
 
-        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
         {
-          return std::make_shared<DataAccessorStaticDataPostGIS>(dataProvider, dataSeries, filter);
+          return std::make_shared<DataAccessorStaticDataPostGIS>(dataProvider, dataSeries);
         }
         static DataAccessorType dataAccessorType(){ return "STATIC_DATA-postgis"; }
 

@@ -142,7 +142,7 @@ namespace terrama2
       public:
 
         //! Constructor
-        DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
 
         //! Default destructor.
         virtual ~DataAccessorGrADS() = default;
@@ -177,9 +177,9 @@ namespace terrama2
          \return Smart pointer to the DataAccessorGrADS.
         */
         inline static DataAccessorPtr
-        make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
         {
-          return std::make_shared<DataAccessorGrADS>(dataProvider, dataSeries, filter);
+          return std::make_shared<DataAccessorGrADS>(dataProvider, dataSeries);
         }
 
         //! Returns the data accessor type.

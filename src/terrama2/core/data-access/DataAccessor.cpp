@@ -49,10 +49,9 @@
 //STL
 #include <algorithm>
 
-terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter)
+terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
   : dataProvider_(dataProvider),
-    dataSeries_(dataSeries),
-    filter_(filter)
+    dataSeries_(dataSeries)
 {
   if(!dataProvider_.get() || ! dataSeries_.get())
   {
