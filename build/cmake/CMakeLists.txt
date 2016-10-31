@@ -254,7 +254,7 @@ if(NOT QT_QCOLLECTIONGENERATOR_EXECUTABLE)
                PATH_SUFFIXES bin)
 endif()
 
-find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem regex python iostreams)
+find_package(Boost 1.54.0 REQUIRED system date_time chrono log timer filesystem regex python iostreams program_options)
 
 if(NOT Boost_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Boost libraries!")
