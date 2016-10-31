@@ -63,7 +63,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Filters') }}" wz-disabled="{{ !isDynamic }}">
+    <wz-step wz-title="{{ i18n.__('Filters') }}" wz-disabled="{{ !isDynamic }}" wz-data="wizard.filter">
       <div class="col-md-12">
 
         <div ng-include="'/javascripts/angular/filter.html'"></div>
@@ -78,7 +78,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Intersection') }}" wz-disabled="{{ !isDynamic || semantics === 'GRID' }} ">
+    <wz-step wz-title="{{ i18n.__('Intersection') }}" wz-disabled="{{ !isDynamic || semantics === 'GRID' }} " wz-data="wizard.intersection">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/intersection.html'">
         </div>

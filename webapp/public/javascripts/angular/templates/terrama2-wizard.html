@@ -5,7 +5,7 @@
           ng-class="{'active': step.selected}" 
           ng-repeat="step in getEnabledSteps()">
 
-        <a class="btn" ng-click="goTo(step)">
+        <a class="btn" ng-click="goTo(step)" ng-disabled="step.wzData.disabled">
           <span ng-if="step.wzData.required" 
                 ng-class="{'terrama2-font-black': step.wzData.required}">
                 <i class="fa fa-asterisk"></i>
