@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * NodeJS event
@@ -13,20 +13,19 @@ var EventEmitter = require("events").EventEmitter;
 var PromiseClass = require("./../../Promise");
 
 // TerraMA2 Utils
-var Utils = require('./../../../core/Utils');
+var Utils = require("./../../../core/Utils");
 
 // TcpManager
-var TcpManager = require('./../../../core/TcpManager');
+var TcpManager = require("./../../../core/TcpManager");
 
 // TerraMA2 Enums
-var ServiceType = require('./../../../core/Enums').ServiceType;
+var ServiceType = require("./../../../core/Enums").ServiceType;
 
 // DataManager
-var DataManager = require('./../../../core/DataManager');
+var DataManager = require("./../../../core/DataManager");
 
 /**
  * It handles TCP service manipulation
- * 
  * @emits #serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
  * @emits #serviceStatus When user request for service status in order to determines if service is running properly
  * @emits #serviceRequestingStatus When user is requesting for status. Useful to notify all listeners
@@ -86,7 +85,7 @@ function TcpService() {
    */
   this.$setRegisteredServices = function(arr) {
     _registeredServices = arr;
-  }
+  };
 }
 // Javascript inheritance way
 TcpService.prototype = Object.create(EventEmitter.prototype);
@@ -105,11 +104,11 @@ TcpService.prototype.init = function() {
       // TODO: throw exception
       if (!self.$loaded) {
         // registering tcp manager listener
-        TcpManager.on('statusReceived', onStatusReceived);
-        TcpManager.on('logReceived', onLogReceived);
-        TcpManager.on('stop', onStop);
-        TcpManager.on('close', onClose);
-        TcpManager.on('tcpError', onError);
+        TcpManager.on("statusReceived", onStatusReceived);
+        TcpManager.on("logReceived", onLogReceived);
+        TcpManager.on("stop", onStop);
+        TcpManager.on("close", onClose);
+        TcpManager.on("tcpError", onError);
 
         self.$loaded = true;
         instances.forEach(function(instance) {
@@ -131,11 +130,11 @@ TcpService.prototype.finalize = function() {
   return new PromiseClass(function(resolve) {
     if (self.$loaded) {
       // remove TcpManager listener
-      TcpManager.removeListener('statusReceived', onStatusReceived);
-      TcpManager.removeListener('logReceived', onLogReceived);
-      TcpManager.removeListener('stop', onStop);
-      TcpManager.removeListener('close', onClose);
-      TcpManager.removeListener('tcpError', onError);
+      TcpManager.removeListener("statusReceived", onStatusReceived);
+      TcpManager.removeListener("logReceived", onLogReceived);
+      TcpManager.removeListener("stop", onStop);
+      TcpManager.removeListener("close", onClose);
+      TcpManager.removeListener("tcpError", onError);
       self.$loaded = false;
     }
     // resetting cache
@@ -223,7 +222,7 @@ TcpService.prototype.run = function(processObject) {
     return DataManager.getServiceInstance({id: service})
       .then(function(instance) {
         TcpManager.startProcess(instance, processObject);
-        self.emit('processRun', processObject);
+        self.emit("processRun", processObject);
         return resolve();
       })
       .catch(function(err) {
@@ -250,7 +249,7 @@ TcpService.prototype.status = function(json) {
 
         return TcpManager.connect(instance)
           .then(function() {
-            return TcpManager.emit('statusService', instance);
+            return TcpManager.emit("statusService", instance);
           });
       })
 
@@ -284,13 +283,13 @@ TcpService.prototype.stop = function(json) {
       .then(function(instance) {
         self.emit("serviceStopping", instance);
 
-        TcpManager.emit('stopService', instance);
+        TcpManager.emit("stopService", instance);
         TcpManager.statusService(instance);
 
         return resolve();
       }).catch(function(err) {
         console.log(err);
-        self.emit('serviceError', {
+        self.emit("serviceError", {
           exception: err,
           message: err.toString(),
           service: json.service
@@ -355,7 +354,7 @@ TcpService.prototype.log = function(json) {
           }
 
           // requesting log data
-          TcpManager.emit('logData', service, obj);
+          TcpManager.emit("logData", service, obj);
         }); // end foreach
       }) // end spread
       .then(function() {
@@ -389,14 +388,14 @@ function onStatusReceived(service, response) {
 
     setTimeout(function() {
       Utils.prepareAddSignalMessage(DataManager).then(function(data) {
-        TcpManager.emit('sendData', service, data);
+        TcpManager.emit("sendData", service, data);
       }).finally(function() {
         // checking status again
         TcpManager.emit("statusService", service);
       });
     }, 1000);
   } else {
-    tcpService.emit('serviceStatus', {
+    tcpService.emit("serviceStatus", {
       status: 200,
       service: service.id,
       shutting_down: response.shutting_down,
@@ -407,7 +406,7 @@ function onStatusReceived(service, response) {
 }
 
 function onLogReceived(service, response) {
-  tcpService.emit('serviceLog', {
+  tcpService.emit("serviceLog", {
     status: 200,
     logs: response,
     service_type: service.service_type_id,
@@ -416,7 +415,7 @@ function onLogReceived(service, response) {
 }
 
 function onStop(service) {
-  tcpService.emit('serviceStop', {
+  tcpService.emit("serviceStop", {
     status: 200,
     online: false,
     loading: false,
@@ -426,7 +425,7 @@ function onStop(service) {
 
 function onClose(service, response) {
   console.log(response);
-  tcpService.emit('serviceStop', {
+  tcpService.emit("serviceStop", {
     status: 400,
     service: service.id,
     loading: false,
@@ -435,7 +434,7 @@ function onClose(service, response) {
 }
 
 function onError(service, err) {
-  tcpService.emit('serviceError', {
+  tcpService.emit("serviceError", {
     status: 400,
     message: err.toString(),
     service: service ? service.id : 0
