@@ -48,12 +48,12 @@
 #include <QUrl>
 #include <QFileInfoList>
 
-terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
- : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorDcp(dataProvider, dataSeries, filter),
-   DataAccessorFile(dataProvider, dataSeries, filter)
+terrama2::core::DataAccessorDcpInpe::DataAccessorDcpInpe(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+ : DataAccessor(dataProvider, dataSeries, false),
+   DataAccessorDcp(dataProvider, dataSeries, false),
+   DataAccessorFile(dataProvider, dataSeries, false)
 {
-  if(dataSeries->semantics.code != "DCP-inpe")
+  if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -156,7 +156,7 @@ void terrama2::core::DataAccessorDcpInpe::addColumns(std::shared_ptr<te::da::Dat
   // the converter will add columns
 }
 
-terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpInpe::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpInpe::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
 {
-  return std::make_shared<DataAccessorDcpInpe>(dataProvider, dataSeries, filter);
+  return std::make_shared<DataAccessorDcpInpe>(dataProvider, dataSeries);
 }

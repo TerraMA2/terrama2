@@ -45,9 +45,14 @@ namespace terrama2
       DCP = 1,//!< Fixed position data producer station. (Data Collection Platform).
       OCCURRENCE = 2,//!< Dated-positioned occurrence.
       GRID = 3,//!< Spatialy indexed data matrix.
-      MONITORED_OBJECT = 4,//!< Group of vector-spatial-geometry to be monitored (//NOTE: NOT in use, to be used for dynamic monitored objects).
-      STATIC = 5, //!< Group  of vector-spatial-geometry.
+      GEOMETRIC_OBJECT = 5, //!< Group  of vector-spatial-geometry.
       ANALYSIS_MONITORED_OBJECT = 6 //!< Analysis result data series.
+    };
+
+    enum class DataSeriesTemporality
+    {
+      STATIC,
+      DYNAMIC
     };
 
     /*!
@@ -66,7 +71,8 @@ namespace terrama2
     {
       std::string name;//!< Name of the semantics.
       std::string code;//!< Name of the semantics.
-      DataSeriesType dataSeriesType = DataSeriesType::STATIC;//!< Semantics type of DataSeries
+      DataSeriesType dataSeriesType = DataSeriesType::GEOMETRIC_OBJECT;//!< Semantics type of DataSeries
+      DataSeriesTemporality temporality = DataSeriesTemporality::STATIC;
       DataFormat dataFormat;//!< Text unique identifier for the data format.
       std::vector<DataProviderType> providersTypeList;
       std::unordered_map<std::string, std::string> metadata;

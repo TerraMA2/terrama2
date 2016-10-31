@@ -67,12 +67,11 @@
 #include <unordered_set>
 
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
-                                                     const Filter& filter)
-  : DataAccessor(dataProvider, dataSeries, filter),
-    DataAccessorGrid(dataProvider, dataSeries, filter),
-    DataAccessorFile(dataProvider, dataSeries, filter)
+                                                     const bool checkSemantics)
+  : DataAccessor(dataProvider, dataSeries, false),
+    DataAccessorGeoTiff(dataProvider, dataSeries, false)
 {
-  if(dataSeries->semantics.code != "GRID-grads")
+  if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -127,16 +126,6 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 
 std::string terrama2::core::DataAccessorGrADS::dataSourceType() const
 { return "GDAL"; }
-
-std::shared_ptr<te::da::DataSet>
-terrama2::core::DataAccessorGrADS::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
-{
-  te::dt::Property* timestamp = new te::dt::DateTimeProperty("file_timestamp", te::dt::TIME_INSTANT_TZ);
-  dataSetType->add(timestamp);
-  te::dt::Property* filename = new te::dt::SimpleProperty("filename", te::dt::STRING);
-  dataSetType->add(filename);
-  return std::make_shared<te::mem::DataSet>(dataSetType.get());
-}
 
 void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
                                                              std::shared_ptr<te::da::DataSet> dataSet,

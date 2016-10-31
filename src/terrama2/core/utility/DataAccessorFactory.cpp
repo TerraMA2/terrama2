@@ -52,7 +52,7 @@ bool terrama2::core::DataAccessorFactory::add(const std::string& semanticsCode, 
 
     if(it != factoriesMap_.end())
     {
-      QString errMsg = QObject::tr("A data accessor factory with this name already exists: %1!").arg(semantics.code.c_str());
+      QString errMsg = QObject::tr("A data accessor factory with this name already exists: %1.").arg(semantics.code.c_str());
       TERRAMA2_LOG_ERROR() << errMsg.toStdString();
       throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     }
@@ -78,7 +78,7 @@ void terrama2::core::DataAccessorFactory::remove(const std::string& semanticsCod
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("There is no registered data accessor factory named : %1!").arg(semantics.code.c_str());
+    QString errMsg = QObject::tr("There is no registered data accessor factory named : %1.").arg(semantics.code.c_str());
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
@@ -95,17 +95,17 @@ bool terrama2::core::DataAccessorFactory::find(const std::string& semanticsCode)
   return (it != factoriesMap_.end());
 }
 
-terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, terrama2::core::Filter filter)
+terrama2::core::DataAccessorPtr terrama2::core::DataAccessorFactory::make(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries)
 {
 
   std::map<terrama2::core::DataSeriesSemantics, FactoryFnctType>::const_iterator it = factoriesMap_.find(dataSeries->semantics);
 
   if(it == factoriesMap_.end())
   {
-    QString errMsg = QObject::tr("Could not find a data accessor factory for this semantic: %1!").arg(dataSeries->semantics.code.c_str());
+    QString errMsg = QObject::tr("Could not find a data accessor factory for this semantic: %1.").arg(dataSeries->semantics.code.c_str());
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  return factoriesMap_[dataSeries->semantics](dataProvider, dataSeries, filter);
+  return factoriesMap_[dataSeries->semantics](dataProvider, dataSeries);
 }

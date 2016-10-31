@@ -48,12 +48,12 @@ namespace terrama2
     class DataAccessorOccurrenceWfp : public DataAccessorOccurrence, public DataAccessorFile
     {
       public:
-        DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
         virtual ~DataAccessorOccurrenceWfp() {}
 
-        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
         {
-          return std::make_shared<DataAccessorOccurrenceWfp>(dataProvider, dataSeries, filter);
+          return std::make_shared<DataAccessorOccurrenceWfp>(dataProvider, dataSeries);
         }
 
         static DataAccessorType dataAccessorType(){ return "OCCURRENCE-wfp"; }

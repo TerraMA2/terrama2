@@ -535,5 +535,7 @@
 	"Min value is required for GRID data series": "Min value is required for GRID data series",
 	"Max value": "Max value",
 	"Color": "Color",
-	"Max value is required for GRID data series": "Max value is required for GRID data series"
+	"Max value is required for GRID data series": "Max value is required for GRID data series",
+	"Static GeoTIFF grid": "Static GeoTIFF grid",
+	"PostGIS occurrence": "PostGIS occurrence"
 }

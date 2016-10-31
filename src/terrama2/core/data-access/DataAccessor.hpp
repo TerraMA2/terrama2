@@ -169,7 +169,7 @@ namespace terrama2
 
           \exception DataAccessorException Raised if any of the parameters is NULL.
         */
-        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, Filter filter = Filter());
+        DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
 
         /*!
            \brief Prefix especification for drivers.
@@ -233,7 +233,6 @@ namespace terrama2
 
         DataProviderPtr dataProvider_;//!< DataProvider with iformation of the server where the data is stored.
         DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data iformation.
-        Filter filter_;//! Filter applied to accessed data.
 
         std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime_;//!< Last data Date/Time
     };
