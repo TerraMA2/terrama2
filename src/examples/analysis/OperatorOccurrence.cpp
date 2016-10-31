@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
   service.setLogger(logger);
 
   service.start();
-  service.addAnalysis(1);
+  service.addProcessToSchedule(analysisPtr);
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

@@ -81,7 +81,7 @@ void addStaticDataSeries(std::shared_ptr<terrama2::services::collector::core::Da
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
   dataSeries->name = "States Brazil";
   dataSeries->id = 3;
   dataSeries->dataProviderId = dataProvider->id;
@@ -132,7 +132,7 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   terrama2::core::DataSetOccurrence* dataSet = new terrama2::core::DataSetOccurrence();
   dataSet->id = 1;
   dataSet->active = true;
-  dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
+  dataSet->format.emplace("mask", "exporta_%YYYY%MM%DD_%hh%mm.csv");
   dataSet->format.emplace("srid", "4326");
 
   dataSeries->datasetList.emplace_back(dataSet);

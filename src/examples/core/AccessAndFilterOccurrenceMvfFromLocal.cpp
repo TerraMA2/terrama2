@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSetOccurrence* dataSet =new terrama2::core::DataSetOccurrence();
     dataSet->active = true;
-    dataSet->format.emplace("mask", "exporta_yyyyMMdd_hhmm.csv");
+    dataSet->format.emplace("mask", "exporta_%YYYY%MM%DD_%hh%mm.csv");
     dataSeries->datasetList.emplace_back(dataSet);
 
     terrama2::core::Filter filter;

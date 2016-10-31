@@ -104,7 +104,7 @@ void terrama2::services::analysis::core::DataManager::add(AnalysisPtr analysis)
     analysis_[analysis->id] = analysis;
   }
 
-  emit analysisAdded(analysis->id);
+  emit analysisAdded(analysis);
 }
 
 void terrama2::services::analysis::core::DataManager::update(AnalysisPtr analysis)
@@ -117,7 +117,7 @@ void terrama2::services::analysis::core::DataManager::update(AnalysisPtr analysi
     blockSignals(false);
   }
 
-  emit analysisUpdated(analysis->id);
+  emit analysisUpdated(analysis);
 }
 
 void terrama2::services::analysis::core::DataManager::removeAnalysis(const AnalysisId analysisId)

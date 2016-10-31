@@ -63,22 +63,22 @@ int main(int argc, char** argv)
     geoserver.registerVectorFile("ashape", TERRAMA2_DATA_DIR + "/shapefile/35MUE250GC_SIR.shp", "shp");
 
     // Removing the shapes
-    geoserver.deleteVectorFile("ashape", "Rod_Principais_SP_lin", true);
+    geoserver.deleteVectorLayer("ashape", "Rod_Principais_SP_lin", true);
 
-    geoserver.deleteVectorFile("ashape", "35MUE250GC_SIR.shp", true);
+    geoserver.deleteVectorLayer("ashape", "35MUE250GC_SIR.shp", true);
 
     // Uploading many shapes from a zip file
     geoserver.uploadZipVectorFiles("ashapes", TERRAMA2_DATA_DIR + "/shapefile/shapefile.zip", "shp");
 
     // Removing the shapes
-    geoserver.deleteVectorFile("ashapes", "Rod_Principais_SP_lin", true);
+    geoserver.deleteVectorLayer("ashapes", "Rod_Principais_SP_lin", true);
 
-    geoserver.deleteVectorFile("ashapes", "35MUE250GC_SIR.shp", true);
+    geoserver.deleteVectorLayer("ashapes", "35MUE250GC_SIR.shp", true);
 
     // Registering a folder with shapes in the GeoServer
     geoserver.registerVectorsFolder("ashapesfolder", TERRAMA2_DATA_DIR + "/shapefile", "shp");
 
-    geoserver.deleteVectorFile("ashapesfolder", "35MUE250GC_SIR.shp", true);
+    geoserver.deleteVectorLayer("ashapesfolder", "35MUE250GC_SIR.shp", true);
 
     // Publish a table in Postgis with vector data
     std::map<std::string, std::string> connInfo { {"PG_HOST", TERRAMA2_DATABASE_HOST},
@@ -102,8 +102,8 @@ int main(int argc, char** argv)
     geoserver.registerCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/L5219076_07620040908_r3g2b1.tif", "L5219076_07620040908_r3g2b1", "geotiff");
 
     // Removing the coverages
-    geoserver.deleteCoverageFile("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
-    geoserver.deleteCoverageFile("acoverage", "L5219076_07620040908_r3g2b1", true);
+    geoserver.deleteCoverageLayer("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
+    geoserver.deleteCoverageLayer("acoverage", "L5219076_07620040908_r3g2b1", true);
 
     // Uploading many coverages from a zip file
     geoserver.uploadZipCoverageFile("acoverage", TERRAMA2_DATA_DIR + "/geotiff/geotiff.zip", "geotiff");
@@ -119,9 +119,9 @@ int main(int argc, char** argv)
 
     geoserver.getMapWMS("/home/vinicius", "imagem.jpg", layersAndStyles, env, 768, 516, 4326, "image/jpeg");
 
-    geoserver.deleteCoverageFile("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
+    geoserver.deleteCoverageLayer("acoverage", "Spot_Vegetacao_Jul2001_SP", true);
 
-    geoserver.deleteVectorFile("ashapesfolder", "Rod_Principais_SP_lin", true);
+    geoserver.deleteVectorLayer("ashapesfolder", "Rod_Principais_SP_lin", true);
 
     geoserver.deleteWorkspace(true);
 

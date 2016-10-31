@@ -202,7 +202,7 @@
     var makeStyle = function(semanticsTypeName) {
       var targetStyle = "";
       switch(semanticsTypeName) {
-        case DataSeriesService.DataSeriesType.STATIC_DATA:
+        case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
           targetStyle = StyleContants.COMMON;
           self.schedule = {};
           break;
@@ -350,7 +350,7 @@
           self.viewDataSeries = dSeries;
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
-          if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.STATIC_DATA) {
+          if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT) {
             self.isDynamic = false;
           } else {
             self.isDynamic = true;

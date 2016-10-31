@@ -8,6 +8,7 @@ var FileStaticDataOgr = require('./FileStaticDataOgr');
 var PostgisStaticDataOgr = require('./PostgisStaticDataOgr');
 var AnalysisMonitoredObject = require('./AnalysisMonitoredObject');
 var GridGeoTiff = require('./GridGeoTiff');
+var GridStaticGeoTiff = require('./GridStaticGeoTiff');
 var DcpToa5 = require('./DcpToa5');
 var DataSeriesSemanticsError = require('./../Exceptions').DataSeriesSemanticsError;
 var PluginLoader = require('./../PluginLoader');
@@ -28,6 +29,7 @@ function availableTypes() {
   output.push(FileStaticDataOgr);
   output.push(AnalysisMonitoredObject);
   output.push(GridGeoTiff);
+  output.push(GridStaticGeoTiff);
   output.push(DcpToa5);
   output.push(PostgisStaticDataOgr);
   output.push(Grads);

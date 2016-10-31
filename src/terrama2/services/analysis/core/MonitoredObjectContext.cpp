@@ -209,7 +209,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
 
 
   //accessing data
-  terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
+  terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
   std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter, remover_);
 
   if(seriesMap.empty())
@@ -324,7 +324,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
   }
 
   //accessing data
-  terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries, filter);
+  terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
   std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesMap = accessor->getSeries(filter, remover_);
 
 

@@ -48,10 +48,10 @@ namespace terrama2
     class DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGIS
     {
     public:
-      DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
       virtual ~DataAccessorDcpPostGIS() {}
 
-      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
       static DataAccessorType dataAccessorType(){ return "DCP-postgis"; }
 
     protected:

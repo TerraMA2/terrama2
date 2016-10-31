@@ -32,7 +32,7 @@
 
 //TerraMA2
 #include <QtCore/QString>
-#include "DataAccessorFile.hpp"
+#include "DataAccessorGeoTiff.hpp"
 #include "../core/Shared.hpp"
 #include "../core/data-access/DataAccessorGrid.hpp"
 
@@ -137,12 +137,12 @@ namespace terrama2
     /*!
       \brief DataAccessor for GRID DataSeries in GrADS format.
     */
-    class DataAccessorGrADS : public DataAccessorGrid, public DataAccessorFile
+    class DataAccessorGrADS : public DataAccessorGeoTiff
     {
       public:
 
         //! Constructor
-        DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
 
         //! Default destructor.
         virtual ~DataAccessorGrADS() = default;
@@ -177,18 +177,14 @@ namespace terrama2
          \return Smart pointer to the DataAccessorGrADS.
         */
         inline static DataAccessorPtr
-        make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
         {
-          return std::make_shared<DataAccessorGrADS>(dataProvider, dataSeries, filter);
+          return std::make_shared<DataAccessorGrADS>(dataProvider, dataSeries);
         }
 
         //! Returns the data accessor type.
         static DataAccessorType dataAccessorType()
         { return "GRID-grads"; }
-
-        //! Creates a dataset with a timestamp column
-        virtual std::shared_ptr<te::da::DataSet>
-        createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
 
         //! Concatenate the given dataset to the complete dataset.
         virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,

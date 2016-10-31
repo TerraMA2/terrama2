@@ -4,7 +4,7 @@
   // BaseClass
   var Filter = require("./Filter");
   // Enums
-  var DataSeriesType = require("./../Enums").DataSeriesType;
+  var TemporalityType = require("./../Enums").TemporalityType;
   // DataModels
   var DataSeries = require("./../data-model/DataSeries");
 
@@ -28,9 +28,9 @@
     var dataSeries = extra.dataSeries;
     // creating a copy
     var copyDataSeries = [];
-    // removing STATIC_DATA
+    // removing STATIC
     dataSeries.forEach(function(ds) {
-      if (ds.data_series_semantics.data_series_type_name !== DataSeriesType.STATIC_DATA) {
+      if (ds.data_series_semantics.temporality !== TemporalityType.STATIC) {
         copyDataSeries.push(new DataSeries(ds));
       }
     });

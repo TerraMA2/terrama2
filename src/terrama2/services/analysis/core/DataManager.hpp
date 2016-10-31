@@ -171,13 +171,13 @@ namespace terrama2
           signals:
 
             //! Signal to notify that a provider has been added.
-            void analysisAdded(AnalysisId);
+            void analysisAdded(AnalysisPtr);
 
             //! Signal to notify that a provider has been removed.
             void analysisRemoved(AnalysisId);
 
             //! Signal to notify that a provider has been updated.
-            void analysisUpdated(AnalysisId);
+            void analysisUpdated(AnalysisPtr);
 
 
           protected:

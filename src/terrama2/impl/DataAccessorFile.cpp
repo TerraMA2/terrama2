@@ -553,4 +553,3 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
 
   return lastDateTimeTz;
 }
-
