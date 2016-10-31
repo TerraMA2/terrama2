@@ -20,36 +20,33 @@
 */
 
 /*!
-  \file terrama2/services/view/core/Exception.hpp
+  \file terrama2/core/data-model/Process.hpp
 
-  \brief Exception classes for View Data Access.
+  \brief Base struct for process (collector, analysis...)
 
-  \author Vinicius Campanha
- */
+  \author Jano Simas
+*/
 
-#ifndef __TERRAMA2_SERVICES_VIEW_CORE_DA_EXCEPTION_HPP__
-#define __TERRAMA2_SERVICES_VIEW_CORE_DA_EXCEPTION_HPP__
+#ifndef __TERRAMA2_CORE_DATA_MODEL_PROCESS_HPP__
+#define __TERRAMA2_CORE_DATA_MODEL_PROCESS_HPP__
 
-// TerraMA2
-#include "../Exception.hpp"
+#include "../Typedef.hpp"
+#include "Schedule.hpp"
 
 namespace terrama2
 {
-  namespace services
+  namespace core
   {
-    namespace view
+    struct Process
     {
-      namespace core
-      {
-          //! Base exception class for TerraMA2 view data access.
-          struct ViewGeoserverException : virtual terrama2::core::Exception{ };
+      ProcessId id = 0;//!< Unique identification.
+      ServiceInstanceId serviceInstanceId = 0;//!< Collector service instace where the process should be executed.
+      bool active = true;//!< Flag if the process is active.
+      ProjectId projectId = 0;//!< Identification of the project owner of the process.
 
-          //! Exception for not found recurses
-          struct NotFoundGeoserverException : virtual ViewGeoserverException{ };
+      Schedule schedule;//!< terrama2::core::Schedule of execution of the process.
+    };
+  } // end namespace core
+}   // end namespace terrama2
 
-      } /* core */
-    } /* view */
-  }   /* services */
-} // end namespace terrama2
-
-#endif // __TERRAMA2_SERVICES_VIEW_CORE_DA_EXCEPTION_HPP__
+#endif  // __TERRAMA2_CORE_DATA_MODEL_PROCESS_HPP__

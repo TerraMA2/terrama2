@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);
     outputDataSet->active = true;
-    outputDataSet->format.emplace("mask", "L5219076_076yyyMMdd_r3g2b1.tif");
+    outputDataSet->format.emplace("mask", "L5219076_076%YYYY%MM%DD_r3g2b1.tif");
     outputDataSeries->datasetList.push_back(outputDataSetPtr);
 
     auto seriesMap = gridSeries->getSeries();

@@ -386,7 +386,7 @@ void TsUtility::testTimeUtilsScheduleSeconds()
 
 void TsUtility::ValidMask()
 {
-  std::string mask = "MMyyyydd-hhssmm.file";
+  std::string mask = "%MM%YYYY%DD-hhssmm.file";
 
   if(!terrama2::core::isValidDatedMask(mask))
     QFAIL("Should not be here!");
@@ -395,17 +395,34 @@ void TsUtility::ValidMask()
 
 void TsUtility::invalidValidMask()
 {
-  std::string mask = "MM-hhssmm.file";
+  std::string mask = "%MM-hhssmm.file";
 
   if(terrama2::core::isValidDatedMask(mask))
     QFAIL("Should not be here!");
+}
 
+void TsUtility::testTerramaMask2Regex()
+{
+  std::string mask = "*%DD%MM%YYYY%YY-%hh%mm%ss.file";
+
+  if(!terrama2::core::isValidDatedMask(mask))
+    QFAIL("Should not be here!");
+
+  std::string regex = terrama2::core::terramaMask2Regex(mask);
+
+  std::string maskConverted(".*(?<DAY>0[1-9]|[12][0-9]|3[01])(?<MONTH>0[1-9]|1[012])"
+                            "(?<YEAR>[0-9]{4})(?<YEAR2DIGITS>[0-9]{2})-"
+                            "(?<HOUR>[0-1][0-9]|2[0-4])(?<MINUTES>[0-5][0-9])(?<SECONDS>[0-5][0-9])"
+                            ".file"
+                            "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?");
+
+  QCOMPARE(regex, maskConverted);
 }
 
 void TsUtility::testValidDataSetName()
 {
   std::string name = "file2016-04-19153726.file";
-  std::string mask = "fileyyyy-MM-ddhhmmss.file";
+  std::string mask = "file%YYYY-%MM-%DD%hh%mm%ss.file";
   std::string timezone = "00";
   terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
@@ -417,7 +434,7 @@ void TsUtility::testValidDataSetName()
 void TsUtility::testValidDataSetNameCompress()
 {
   std::string name = "file2016-04-19153726.tar.gz";
-  std::string mask = "fileyyyy-MM-ddhhmmss";
+  std::string mask = "file%YYYY-%MM-%DD%hh%mm%ss";
   std::string timezone = "00";
   terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
@@ -429,7 +446,7 @@ void TsUtility::testValidDataSetNameCompress()
 void TsUtility::testValidDataSetNameCompressError()
 {
   std::string name = "file2016-04-19153726.tar.error";
-  std::string mask = "fileyyyy-MM-ddhhmmss";
+  std::string mask = "file%YYYY-%MM-%DD%hh%mm%ss";
   std::string timezone = "00";
   terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
@@ -441,7 +458,7 @@ void TsUtility::testValidDataSetNameCompressError()
 void TsUtility::testValidDataSetName2DigitsYear()
 {
   std::string name = "file16-04-19153726.file";
-  std::string mask = "fileyy-MM-ddhhmmss.file";
+  std::string mask = "file%YY-%MM-%DD%hh%mm%ss.file";
   std::string timezone = "00";
   terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
@@ -453,7 +470,7 @@ void TsUtility::testValidDataSetName2DigitsYear()
 void TsUtility::testValidDataSetName2DigitsYear1900()
 {
   std::string name = "file56-04-19153726.file";
-  std::string mask = "fileyy-MM-ddhhmmss.file";
+  std::string mask = "file%YY-%MM-%DD%hh%mm%ss.file";
   std::string timezone = "00";
   terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;
@@ -465,7 +482,7 @@ void TsUtility::testValidDataSetName2DigitsYear1900()
 void TsUtility::testIgnoreArchiveExtension()
 {
   std::string name = "file56-04-19153726.file";
-  std::string mask = "fileyy-MM-ddhhmmss";
+  std::string mask = "file%YY-%MM-%DD%hh%mm%ss";
   std::string timezone = "00";
   terrama2::core::Filter filter;
   std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp;

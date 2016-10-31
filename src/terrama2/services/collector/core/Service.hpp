@@ -71,18 +71,9 @@ namespace terrama2
             Service& operator=(const Service& other) = delete;
             Service& operator=(Service&& other) = default;
 
-            //! Set ProcessLogger
-            void setLogger(std::shared_ptr<CollectorLogger> logger) noexcept;
-
           public slots:
             //! Slot to be called when a DataSetTimer times out.
             virtual void addToQueue(CollectorId collectorId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept override;
-            /*!
-              \brief Add a Collector to the service
-
-              Check if this is the instance where the collector should run.
-            */
-            void addCollector(CollectorPtr) noexcept;
 
             /*!
               \brief Updates the Collector.
@@ -97,9 +88,15 @@ namespace terrama2
             */
             void removeCollector(CollectorId collectorId) noexcept;
 
+            /*!
+              \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
+            */
+            void notifyWaitQueue(CollectorId collectorId);
+
           protected:
             // comments on base class
             virtual bool hasDataOnQueue() noexcept override;
+
             // comments on base class
             virtual bool processNextData() override;
 
@@ -115,9 +112,7 @@ namespace terrama2
 
             std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
 
-            std::map<CollectorId, terrama2::core::TimerPtr> timers_;//!< List of running Collector timers
             std::deque<CollectorId> collectorQueue_;//!< Collector queue
-            std::shared_ptr< CollectorLogger > logger_;//!< process logger
         };
 
       } // end namespace core

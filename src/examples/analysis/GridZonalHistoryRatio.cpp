@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
 
     service.setLogger(logger);
     service.start();
-    service.addAnalysis(1);
+    service.addProcessToSchedule(analysisPtr);
 
 
     QTimer timer;

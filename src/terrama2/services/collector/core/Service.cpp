@@ -83,7 +83,7 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 {
   try
   {
-    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, collectorId, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, collectorId, std::dynamic_pointer_cast<CollectorLogger>(logger_), dataManager_));
   }
   catch(std::exception& e)
   {
@@ -107,8 +107,25 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
     if(collector->serviceInstanceId != serviceInstanceId)
       return;
 
-    collectorQueue_.push_back(collectorId);
-    TERRAMA2_LOG_DEBUG() << tr("Collector added to queue.");
+
+    // if this collector id is already being processed put it on the wait queue
+    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), collectorId);
+    if(pqIt == processingQueue_.end())
+    {
+      auto pair = std::make_pair(collectorId, startTime);
+      collectorQueue_.push_back(collectorId);
+      processingQueue_.push_back(collectorId);
+      TERRAMA2_LOG_DEBUG() << tr("Collector %1 added to processing queue.").arg(collectorId);
+
+      //wake loop thread
+      mainLoopCondition_.notify_one();
+    }
+    else
+    {
+      waitQueue_[collectorId].push(startTime);
+      TERRAMA2_LOG_DEBUG() << tr("Collector %1 added to wait queue.").arg(collectorId);
+    }
+
 
     mainLoopCondition_.notify_one();
   }
@@ -127,6 +144,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   if(!dataManager.get())
   {
     TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
+    notifyWaitQueue(collectorId);
+    sendProcessFinishedSignal(collectorId, false);
     return;
   }
 
@@ -134,6 +153,8 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   {
     QString errMsg = QObject::tr("Unable to access Logger class in collector %1").arg(collectorId);
     TERRAMA2_LOG_ERROR() << errMsg;
+    notifyWaitQueue(collectorId);
+    sendProcessFinishedSignal(collectorId, false);
     return;
   }
 
@@ -183,6 +204,9 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     {
       logger->done(nullptr, logId);
       TERRAMA2_LOG_WARNING() << tr("No data to collect.");
+
+      notifyWaitQueue(collectorId);
+      sendProcessFinishedSignal(collectorId, false);
       return;
     }
     auto lastDateTime = dataAccessor->lastDateTime();
@@ -212,27 +236,29 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
 
     logger->done(lastDateTime, logId);
-    QJsonObject jsonAnswer;
-    jsonAnswer.insert("process_id", static_cast<int>(collectorPtr->id));
 
-    emit processFinishedSignal(jsonAnswer);
+
+    sendProcessFinishedSignal(collectorId, true);
+    notifyWaitQueue(collectorId);
+    return;
+
   }
-  catch(const terrama2::Exception&)
+  catch(const terrama2::Exception& e)
   {
-    QString errMsg = tr("Collection for collector %1 finished with error(s).").arg(collectorId);
-    TERRAMA2_LOG_INFO() << errMsg;
+    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
     if(logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
   catch(const boost::exception& e)
   {
-    QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
+    std::string errMsg = boost::diagnostic_information(e);;
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
     if(logId != 0)
-      logger->error(errMsg.toStdString(), logId);
+      logger->error(errMsg, logId);
   }
   catch(const std::exception& e)
   {
@@ -251,66 +277,42 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     if(logId != 0)
       logger->error(errMsg.toStdString(), logId);
   }
+
+  sendProcessFinishedSignal(collectorId, false);
+  notifyWaitQueue(collectorId);
+
+}
+
+void terrama2::services::collector::core::Service::notifyWaitQueue(CollectorId collectorId)
+{
+  // Remove from processing queue
+  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), collectorId);
+  if(pqIt != processingQueue_.end())
+    processingQueue_.erase(pqIt);
+
+  // Verify if the there is an process waiting for the same collector id
+  if(!waitQueue_[collectorId].empty())
+  {
+    waitQueue_[collectorId].pop();
+
+    // Adds to the processing queue
+    processingQueue_.push_back(collectorId);
+    collectorQueue_.push_back(collectorId);
+
+    //wake loop thread
+    mainLoopCondition_.notify_one();
+  }
 }
 
 void terrama2::services::collector::core::Service::connectDataManager()
 {
   auto dataManager = dataManager_.lock();
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorAdded, this,
-          &terrama2::services::collector::core::Service::addCollector);
+          &terrama2::services::collector::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorRemoved, this,
           &terrama2::services::collector::core::Service::removeCollector);
   connect(dataManager.get(), &terrama2::services::collector::core::DataManager::collectorUpdated, this,
           &terrama2::services::collector::core::Service::updateCollector);
-}
-
-void terrama2::services::collector::core::Service::setLogger(std::shared_ptr<CollectorLogger> logger) noexcept
-{
-  logger_ = logger;
-}
-
-void terrama2::services::collector::core::Service::addCollector(CollectorPtr collector) noexcept
-{
-  try
-  {
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this collector should be executed in this instance
-    if(collector->serviceInstanceId != serviceInstanceId)
-      return;
-
-    try
-    {
-      if(collector->active)
-      {
-        std::lock_guard<std::mutex> lock(mutex_);
-
-        std::shared_ptr<te::dt::TimeInstantTZ> lastProcess;
-        if(logger_.get())
-          lastProcess = logger_->getLastProcessTimestamp(collector->id);
-
-        terrama2::core::TimerPtr timer = createTimer(collector->schedule, collector->id, lastProcess);
-        timers_.emplace(collector->id, timer);
-      }
-    }
-    catch(const terrama2::core::InvalidFrequencyException&)
-    {
-      // invalid schedule, already logged
-    }
-    catch(const te::common::Exception& e)
-    {
-      TERRAMA2_LOG_ERROR() << e.what();
-    }
-
-    addToQueue(collector->id, terrama2::core::TimeUtils::nowUTC());
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-
 }
 
 void terrama2::services::collector::core::Service::removeCollector(CollectorId collectorId) noexcept
@@ -355,6 +357,6 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 
 void terrama2::services::collector::core::Service::updateCollector(CollectorPtr collector) noexcept
 {
-  //TODO: addCollector adds to queue, is this expected?
-  addCollector(collector);
+  removeCollector(collector->id);
+  addProcessToSchedule(collector);
 }

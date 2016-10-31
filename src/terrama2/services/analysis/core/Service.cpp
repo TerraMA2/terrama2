@@ -84,62 +84,6 @@ bool terrama2::services::analysis::core::Service::processNextData()
   return !analysisQueue_.empty();
 }
 
-void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId) noexcept
-{
-  try
-  {
-    AnalysisPtr analysis = dataManager_->findAnalysis(analysisId);
-
-    if(analysis->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
-    {
-      return;
-    }
-
-    if(analysis->active)
-    {
-
-      if(!analysis->reprocessingHistoricalData)
-      {
-        std::lock_guard<std::mutex> lock(mutex_);
-
-        auto lastProcess = logger_->getLastProcessTimestamp(analysis->id);
-        terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
-        timers_.emplace(analysisId, timer);
-      }
-      else
-      {
-        addToQueue(analysisId, terrama2::core::TimeUtils::nowUTC());
-      }
-
-    }
-
-  }
-  catch(const terrama2::core::InvalidFrequencyException&)
-  {
-    // invalid schedule, already logged
-  }
-  catch(const terrama2::Exception&)
-  {
-
-  }
-  catch(const te::common::Exception& e)
-  {
-    //TODO: should be caught elsewhere?
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-
-}
-
-void terrama2::services::analysis::core::Service::setLogger(std::shared_ptr<AnalysisLogger> logger) noexcept
-{
-  logger_ = logger;
-}
-
 void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId) noexcept
 {
   try
@@ -189,10 +133,10 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
   }
 }
 
-void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId) noexcept
+void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisPtr analysis) noexcept
 {
-  //TODO: addAnalysis adds to queue, is this expected?
-  addAnalysis(analysisId);
+  removeAnalysis(analysis->id);
+  addProcessToSchedule(analysis);
 }
 
 void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
@@ -200,7 +144,7 @@ void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysi
   try
   {
     auto analysisPtr = dataManager_->findAnalysis(analysisId);
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager_, storagerManager_, logger_, startTime, analysisPtr, threadPool_, mainThreadState_));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager_, storagerManager_, std::dynamic_pointer_cast<AnalysisLogger>(logger_), startTime, analysisPtr, threadPool_, mainThreadState_));
   }
   catch(std::exception& e)
   {
@@ -245,23 +189,22 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
       while(titz <= endDate)
       {
-        AnalysisHashCode hashCode = analysis->hashCode(executionDate);
         auto pair = std::make_pair(analysisId, executionDate);
 
-        bool needToWait = std::find(processingQueue_.begin(), processingQueue_.end(), hashCode) != processingQueue_.end();
-        if(needToWait)
+        erasePreviousResult(dataManager_, analysis->outputDataSeriesId, executionDate);
+        auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
+        if(pqIt == processingQueue_.end())
         {
-          waitQueue_.push_back(hashCode);
+          analysisQueue_.push_back(pair);
+          processingQueue_.push_back(analysisId);
+
+          //wake loop thread
+          mainLoopCondition_.notify_one();
         }
         else
         {
-          erasePreviousResult(dataManager_, analysis->outputDataSeriesId, executionDate);
-          analysisQueue_.push_back(pair);
-          processingQueue_.push_back(hashCode);
+          waitQueue_[analysisId].push(executionDate);
         }
-
-        //wake loop thread
-        mainLoopCondition_.notify_one();
 
 
         if(frequencySeconds > 0.)
@@ -279,10 +222,20 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     {
       auto startTime = terrama2::core::TimeUtils::nowUTC();
 
-      analysisQueue_.push_back(std::make_pair(analysisId, startTime));
+      auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
+      if(pqIt == processingQueue_.end())
+      {
+        auto pair = std::make_pair(analysisId, startTime);
+        analysisQueue_.push_back(pair);
+        processingQueue_.push_back(analysisId);
 
-      //wake loop thread
-      mainLoopCondition_.notify_one();
+        //wake loop thread
+        mainLoopCondition_.notify_one();
+      }
+      else
+      {
+        waitQueue_[analysisId].push(startTime);
+      }
     }
 
   }
@@ -303,7 +256,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
 void terrama2::services::analysis::core::Service::connectDataManager()
 {
-  connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addAnalysis);
+  connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addProcessToSchedule);
   connect(dataManager_.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
   connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
 }
@@ -314,36 +267,35 @@ void terrama2::services::analysis::core::Service::start(size_t threadNumber)
   threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
 }
 
-void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime, bool success)
+void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId analysisId, bool success)
 {
-  auto pair = std::make_pair(analysisId, startTime);
-
   auto analysis = dataManager_->findAnalysis(analysisId);
-  AnalysisHashCode hashCode = analysis->hashCode(startTime);
+
   // Remove from processing queue
-  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), hashCode);
+  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
   if(pqIt != processingQueue_.end())
     processingQueue_.erase(pqIt);
 
 
   // Verify if there is another execution for the same analysis waiting
-  auto it = std::find(waitQueue_.begin(), waitQueue_.end(), hashCode);
+  auto& startTimeQueue = waitQueue_[analysisId];
 
-  if(it != waitQueue_.end())
+  if(!startTimeQueue.empty())
   {
     // erase the previous execution result and run another time
+    auto startTime = startTimeQueue.front();
+    startTimeQueue.pop();
+    auto pair = std::make_pair(analysisId, startTime);
+
     analysisQueue_.push_back(pair);
-    waitQueue_.erase(it);
+    if(startTimeQueue.empty())
+      waitQueue_.erase(analysisId);
     erasePreviousResult(dataManager_, analysis->outputDataSeriesId, startTime);
 
     //wake loop thread
     mainLoopCondition_.notify_one();
   }
 
-  // Sends signal with the result of the analysis
-  QJsonObject jsonAnswer;
-  jsonAnswer.insert("process_id", static_cast<int>(analysisId));
-  jsonAnswer.insert("result", success);
-  emit processFinishedSignal(jsonAnswer);
+  sendProcessFinishedSignal(analysisId, success);
 
 }

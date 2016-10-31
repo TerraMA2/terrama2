@@ -33,6 +33,7 @@
 #include "../Typedef.hpp"
 #include "../Shared.hpp"
 #include "../data-model/Schedule.hpp"
+#include "ProcessLogger.hpp"
 
 //STL
 #include <vector>
@@ -138,6 +139,9 @@ namespace terrama2
         */
         virtual void updateNumberOfThreads(size_t numberOfThreads = 0) noexcept final;
 
+        virtual void addProcessToSchedule(ProcessPtr process) noexcept;
+        void setLogger(std::shared_ptr<ProcessLogger> logger) noexcept;
+
       protected:
 
         TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;
@@ -163,15 +167,21 @@ namespace terrama2
         //! Verifys if the number of threads is greater than 0.
         size_t verifyNumberOfThreads(size_t numberOfThreads) const;
 
+        //! Sends the process finished signal
+        void sendProcessFinishedSignal(const ProcessId processId, const bool success);
+
         bool stop_;
-        std::mutex  mutex_;                                       //!< Mutex for thread safety
-        std::future<void> mainLoopThread_;                            //!< Thread that holds the loop of processing queued dataset.
-        std::condition_variable mainLoopCondition_;                  //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
+        std::mutex  mutex_; //!< Mutex for thread safety
+        std::future<void> mainLoopThread_; //!< Thread that holds the loop of processing queued dataset.
+        std::condition_variable mainLoopCondition_; //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
+        std::map<ProcessId, std::queue<std::shared_ptr<te::dt::TimeInstantTZ> > > waitQueue_; //!< Wait queue to store que process that are already being processed.
+        std::vector<ProcessId> processingQueue_; //!< Queue with process currently being processed.
+        std::queue<std::packaged_task<void()> > taskQueue_; //!< Queue for tasks.
+        std::vector<std::future<void> > processingThreadPool_; //!< Pool of processing threads
+        std::condition_variable processingThreadCondition_; //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.
 
-        std::queue<std::packaged_task<void()> > taskQueue_;       //!< Queue for tasks.
-        std::vector<std::future<void> > processingThreadPool_;              //!< Pool of processing threads
-        std::condition_variable processingThreadCondition_;                //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.
-
+        std::map<ProcessId, terrama2::core::TimerPtr> timers_;//!< List of running Collector timers
+        std::shared_ptr< ProcessLogger > logger_;//!< process logger
     };
   }
 }
