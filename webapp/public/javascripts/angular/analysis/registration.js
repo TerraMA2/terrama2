@@ -162,6 +162,7 @@ angular.module('terrama2.analysis.registration', [
       $scope.analysis.metadata = {};
       var semanticsType;
       var intTypeId = parseInt(value);
+      var dataseriesFilterType;
 
       if ($scope.analysis.grid) {
         delete $scope.analysis.grid;
@@ -172,15 +173,18 @@ angular.module('terrama2.analysis.registration', [
         case globals.enums.AnalysisType.DCP:
           semanticsType = globals.enums.DataSeriesType.DCP;
           $scope.semanticsSelected = "Dcp";
+          dataseriesFilterType = 'DCP';
           break;
         case globals.enums.AnalysisType.GRID:
           semanticsType = globals.enums.DataSeriesType.GRID;
           $scope.semanticsSelected = "Grid";
           $scope.dataSeriesBoxName = i18n.__("Grid Data Series");
+          dataseriesFilterType = 'GRID';
           break;
         case globals.enums.AnalysisType.MONITORED:
           semanticsType = globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
           $scope.semanticsSelected = i18n.__("Object Monitored");
+          dataseriesFilterType = 'GEOMETRIC_OBJECT';
           break;
         default:
           console.log("invalid analysis type");
@@ -210,7 +214,7 @@ angular.module('terrama2.analysis.registration', [
       $scope.filteredDataSeries = [];
       $scope.dataSeriesList.forEach(function(dataSeries) {
         var semantics = dataSeries.data_series_semantics;
-        if (semantics.data_series_type_name === globals.enums.DataSeriesType.STATIC_DATA) {
+        if (semantics.data_series_type_name === dataseriesFilterType) {
           $scope.filteredDataSeries.push(dataSeries);
         }
       });
@@ -256,8 +260,8 @@ angular.module('terrama2.analysis.registration', [
         $scope.dataProviders = [];
 
         $scope.dataProvidersList.forEach(function(dataProvider) {
-          data.data_providers_semantics.forEach(function(demand) {
-            if (dataProvider.data_provider_type.id == demand.data_provider_type_id) {
+          data.metadata.demand.forEach(function(demand) {
+            if (dataProvider.data_provider_type.name == demand) {
               $scope.dataProviders.push(dataProvider);
             }
           });
@@ -425,7 +429,7 @@ angular.module('terrama2.analysis.registration', [
 
       $scope.buffers.static = [];
       ($scope.dataSeriesList || []).forEach(function(dataSeries) {
-        if (dataSeries.data_series_semantics.data_series_type_name === "STATIC_DATA") {
+        if (dataSeries.data_series_semantics.temporality === "STATIC") {
           if (dataSeries.id !== newValue.id) {
             console.log(dataSeries);
             $scope.buffers.static.push(dataSeries);
@@ -469,15 +473,21 @@ angular.module('terrama2.analysis.registration', [
           var semantics = dSeries.data_series_semantics;
 
           if (semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
-            dSeries.isDynamic = true;
-            $scope.buffers.dynamic.push(dSeries);
+            if (semantics.temporality == globals.enums.TemporalityType.DYNAMIC){
+              dSeries.isDynamic = true;
+              $scope.buffers.dynamic.push(dSeries);
+            } 
+            else {
+              dSeries.isDynamic = false;
+              $scope.buffers.static.push(dSeries);
+            }
           }
         });
       } else {
         $scope.dataSeriesList.forEach(function(dSeries) {
           var semantics = dSeries.data_series_semantics;
 
-          if (semantics.data_series_type_name === "STATIC_DATA") {
+          if (semantics.temporality === globals.enums.TemporalityType.STATIC) {
             // skip target data series in additional data
             if ($scope.targetDataSeries && $scope.targetDataSeries.id !== dSeries.id) {
               dSeries.isDynamic = false;

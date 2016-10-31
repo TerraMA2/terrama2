@@ -32,6 +32,7 @@
 #define __TERRAMA2_ANALYSIS_CORE_ANALYSIS_HPP__
 
 #include "Exception.hpp"
+#include "../../../core/data-model/Process.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
 #include "../../../core/utility/Verify.hpp"
@@ -180,21 +181,16 @@ namespace terrama2
           \struct Analysis
           \brief Model for the configuration of an analysis execution.
         */
-        struct Analysis
+        struct Analysis : public terrama2::core::Process
         {
-          AnalysisId id = 0; //!< Analysis identifier.
-          ProjectId projectId = 0; //!< Project identifier.
           ScriptLanguage scriptLanguage; //!< Language of the script.
           std::string script; //!< Content of the script.
           AnalysisType type; //!< Type of the analysis.
           std::string name; //!< Name of the analysis.
           std::string description; //!< Short description of the purpose of the analysis.
-          bool active = true; //!< Defines if the analysis is active, if true it will be executed according to the schedule.
           DataSeriesId outputDataSeriesId; //!< The dataset that stores the result of the analysis.
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
-          terrama2::core::Schedule schedule; //!< Time schedule for the analysis execution.
-          ServiceInstanceId serviceInstanceId; //!< Identifier of the service instance that should run the analysis.
           AnalysisOutputGridPtr outputGridPtr; //!< Output grid configuration.
           ReprocessingHistoricalDataPtr reprocessingHistoricalData; //!< Date filter for reprocessing of historical data.
 

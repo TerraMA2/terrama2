@@ -54,14 +54,14 @@ namespace terrama2
          * \param dataSeries It contains a dataset Ex. set of DCP-TOA5.
          * \param filter It contains the filter data.
          */
-        DataAccessorDcpToa5(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        DataAccessorDcpToa5(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
 
         /*!
          * \brief ~DataAccessorDcpToa5 Default Destructor.
          */
         virtual ~DataAccessorDcpToa5() {}
 
-        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
         static DataAccessorType dataAccessorType(){ return "DCP-toa5"; }
 
       protected:

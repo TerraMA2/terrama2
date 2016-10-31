@@ -2,7 +2,7 @@ var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
 var DataSeriesSemanticsError = require("../../core/Exceptions").DataSeriesSemanticsError;
 var DataSeriesSemanticsFactory = require('./../../core/data-series-semantics/Factory');
-var DataSeriesType = require('./../../core/Enums').DataSeriesType;
+var TemporalityType = require('./../../core/Enums').TemporalityType;
 var Promise = require("bluebird");
 
 function makeMetadata(identifier) {
@@ -27,11 +27,9 @@ module.exports = function(app) {
 
       if (semanticsType) {
         if (semanticsType.toLowerCase() == "static")
-          queryParams["data_series_type_name"] = DataSeriesType.STATIC_DATA;
+          queryParams["temporality"] = TemporalityType.STATIC;
         else {
-          queryParams["$and"] = {
-            $or: Utils.listDynamicDataSeriesType()
-          }
+          queryParams["temporality"] = TemporalityType.DYNAMIC;
         }
       }
 

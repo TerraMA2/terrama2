@@ -13,7 +13,7 @@
       OCCURRENCE: 'OCCURRENCE',
       GRID: 'GRID',
       ANALYSIS_MONITORED_OBJECT: 'ANALYSIS_MONITORED_OBJECT',
-      STATIC_DATA: 'STATIC_DATA',
+      GEOMETRIC_OBJECT: 'GEOMETRIC_OBJECT',
       POSTGIS: 'POSTGIS'
     })
     .service("DataSeriesService", DataSeriesService)

@@ -48,7 +48,7 @@ namespace terrama2
     {
     public:
 
-      DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      DataAccessorGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
       //! Default destructor.
       virtual ~DataAccessorGeoTiff() = default;
       //! Default copy constructor
@@ -60,9 +60,9 @@ namespace terrama2
       //! Default assignment operator
       DataAccessorGeoTiff& operator=(DataAccessorGeoTiff&& other) = default;
 
-      inline static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      inline static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
       {
-        return std::make_shared<DataAccessorGeoTiff>(dataProvider, dataSeries, filter);
+        return std::make_shared<DataAccessorGeoTiff>(dataProvider, dataSeries);
       }
       static DataAccessorType dataAccessorType(){ return "GRID-geotiff"; }
 

@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);
     outputDataSet->active = true;
-    outputDataSet->format.emplace("mask", "Prec_BRAMS05km.yyyyMMdd_hh_mm.tif");
+    outputDataSet->format.emplace("mask", "Prec_BRAMS05km.%YYYY%MM%DD_%hh_mm.tif");
     outputDataSeries->datasetList.push_back(outputDataSetPtr);
 
     auto seriesMap = gridSeries->getSeries();

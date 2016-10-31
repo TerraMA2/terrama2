@@ -58,7 +58,7 @@ namespace terrama2
     {
       public:
         //! DataAccessor constructor function.
-        typedef std::function<DataAccessorPtr (terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, terrama2::core::Filter filter)> FactoryFnctType;
+        typedef std::function<DataAccessorPtr (terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries)> FactoryFnctType;
         //! Register a new DataAccessor constructor associated with the DataSeriesSemantics.
         bool add(const std::string& semanticsCode, FactoryFnctType f);
         //! Remove the DataAccessor constructor associated with the DataSeriesSemantics.
@@ -76,7 +76,7 @@ namespace terrama2
           \param dataSeries DataSeries of the data.
           \param filter Filtering information for caching data.
         */
-        terrama2::core::DataAccessorPtr make(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, terrama2::core::Filter filter = Filter());
+        terrama2::core::DataAccessorPtr make(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries);
 
       protected:
         friend class te::common::Singleton<DataAccessorFactory>;

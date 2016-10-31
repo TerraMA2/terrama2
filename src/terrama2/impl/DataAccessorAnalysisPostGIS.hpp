@@ -43,12 +43,12 @@ namespace terrama2
     class DataAccessorAnalysisPostGIS : public DataAccessorPostGIS
     {
     public:
-      DataAccessorAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+      DataAccessorAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
       virtual ~DataAccessorAnalysisPostGIS() {}
 
-      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+      static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
       {
-        return std::make_shared<DataAccessorAnalysisPostGIS>(dataProvider, dataSeries, filter);
+        return std::make_shared<DataAccessorAnalysisPostGIS>(dataProvider, dataSeries);
       }
       static DataAccessorType dataAccessorType(){ return "ANALYSIS_MONITORED_OBJECT-postgis"; }
 

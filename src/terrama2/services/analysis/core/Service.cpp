@@ -84,62 +84,6 @@ bool terrama2::services::analysis::core::Service::processNextData()
   return !analysisQueue_.empty();
 }
 
-void terrama2::services::analysis::core::Service::addAnalysis(AnalysisId analysisId) noexcept
-{
-  try
-  {
-    AnalysisPtr analysis = dataManager_->findAnalysis(analysisId);
-
-    if(analysis->serviceInstanceId != terrama2::core::ServiceManager::getInstance().instanceId())
-    {
-      return;
-    }
-
-    if(analysis->active)
-    {
-
-      if(!analysis->reprocessingHistoricalData)
-      {
-        std::lock_guard<std::mutex> lock(mutex_);
-
-        auto lastProcess = logger_->getLastProcessTimestamp(analysis->id);
-        terrama2::core::TimerPtr timer = createTimer(analysis->schedule, analysisId, lastProcess);
-        timers_.emplace(analysisId, timer);
-      }
-      else
-      {
-        addToQueue(analysisId, terrama2::core::TimeUtils::nowUTC());
-      }
-
-    }
-
-  }
-  catch(const terrama2::core::InvalidFrequencyException&)
-  {
-    // invalid schedule, already logged
-  }
-  catch(const terrama2::Exception&)
-  {
-
-  }
-  catch(const te::common::Exception& e)
-  {
-    //TODO: should be caught elsewhere?
-    TERRAMA2_LOG_ERROR() << e.what();
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-
-}
-
-void terrama2::services::analysis::core::Service::setLogger(std::shared_ptr<AnalysisLogger> logger) noexcept
-{
-  logger_ = logger;
-}
-
 void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId analysisId) noexcept
 {
   try
@@ -189,10 +133,10 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
   }
 }
 
-void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisId analysisId) noexcept
+void terrama2::services::analysis::core::Service::updateAnalysis(AnalysisPtr analysis) noexcept
 {
-  //TODO: addAnalysis adds to queue, is this expected?
-  addAnalysis(analysisId);
+  removeAnalysis(analysis->id);
+  addProcessToSchedule(analysis);
 }
 
 void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysisId, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
@@ -200,7 +144,7 @@ void terrama2::services::analysis::core::Service::prepareTask(AnalysisId analysi
   try
   {
     auto analysisPtr = dataManager_->findAnalysis(analysisId);
-    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager_, storagerManager_, logger_, startTime, analysisPtr, threadPool_, mainThreadState_));
+    taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager_, storagerManager_, std::dynamic_pointer_cast<AnalysisLogger>(logger_), startTime, analysisPtr, threadPool_, mainThreadState_));
   }
   catch(std::exception& e)
   {
@@ -312,7 +256,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
 
 void terrama2::services::analysis::core::Service::connectDataManager()
 {
-  connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addAnalysis);
+  connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addProcessToSchedule);
   connect(dataManager_.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
   connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
 }

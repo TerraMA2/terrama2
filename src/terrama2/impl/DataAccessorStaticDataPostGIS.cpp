@@ -39,12 +39,12 @@
 #include <QUrl>
 #include <QObject>
 
-terrama2::core::DataAccessorStaticDataPostGIS::DataAccessorStaticDataPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter)
- : DataAccessor(dataProvider, dataSeries, filter),
-   DataAccessorGeometricObject(dataProvider, dataSeries, filter),
-   DataAccessorPostGIS(dataProvider, dataSeries, filter)
+terrama2::core::DataAccessorStaticDataPostGIS::DataAccessorStaticDataPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+ : DataAccessor(dataProvider, dataSeries, false),
+   DataAccessorGeometricObject(dataProvider, dataSeries, false),
+   DataAccessorPostGIS(dataProvider, dataSeries, false)
 {
-  if(dataSeries->semantics.code != "STATIC_DATA-postgis")
+  if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
     QString errMsg = QObject::tr("Wrong DataSeries semantics.");
     TERRAMA2_LOG_ERROR() << errMsg;

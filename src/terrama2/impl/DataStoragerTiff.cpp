@@ -166,31 +166,31 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
 
   //replace wildcards in mask
   std::string fileName = mask;
-  size_t pos = fileName.find("yyyy");
+  size_t pos = fileName.find("%YYYY");
   if(pos != std::string::npos)
     fileName.replace(pos, 4, zeroPadNumber(year, 4));
 
-  pos = fileName.find("yy");
+  pos = fileName.find("%YY");
   if(pos != std::string::npos)
     fileName.replace(pos, 2, zeroPadNumber(year, 2));
 
-  pos = fileName.find("MM");
+  pos = fileName.find("%MM");
   if(pos != std::string::npos)
     fileName.replace(pos, 2, zeroPadNumber(month, 2));
 
-  pos = fileName.find("dd");
+  pos = fileName.find("%DD");
   if(pos != std::string::npos)
     fileName.replace(pos, 2, zeroPadNumber(day, 2));
 
-  pos = fileName.find("hh");
+  pos = fileName.find("%hh");
   if(pos != std::string::npos)
     fileName.replace(pos, 2, zeroPadNumber(hour, 2));
 
-  pos = fileName.find("mm");
+  pos = fileName.find("%mm");
   if(pos != std::string::npos)
     fileName.replace(pos, 2, zeroPadNumber(minutes, 2));
 
-  pos = fileName.find("ss");
+  pos = fileName.find("%ss");
   if(pos != std::string::npos)
     fileName.replace(pos, 2, zeroPadNumber(seconds, 2));
 

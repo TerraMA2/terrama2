@@ -543,5 +543,7 @@
 	"Grid analysis script must end with 'return' statement": "Grid analysis script must end with 'return' statement",
 	"Analysis will not able to generate a output data": {
 		" ": "Analysis will not able to generate a output data. "
-	}
+	},
+	"Static GeoTIFF grid": "Static GeoTIFF grid",
+	"PostGIS occurrence": "PostGIS occurrence"
 }

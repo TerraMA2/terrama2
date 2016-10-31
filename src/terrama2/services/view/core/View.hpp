@@ -40,6 +40,7 @@
 #include <terralib/core/uri/URI.h>
 
 // TerraMA2
+#include "../../../core/data-model/Process.hpp"
 #include "../../../core/data-model/DataSeries.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-model/Schedule.hpp"
@@ -62,20 +63,13 @@ namespace terrama2
         /*!
           \brief The View groups the information to draw view.
         */
-        struct View
+        struct View : public terrama2::core::Process
         {
           std::string viewName = "";
-          ViewId id = 0; //!< View unique identification.
-          ProjectId projectId = 0; //!< Identification of the project owner of the view.
-          ServiceInstanceId serviceInstanceId = 0; //!< View service instace where the view should be executed.
-
-          bool active = false;//!< Flag if the view is active.
 
           std::vector< DataSeriesId > dataSeriesList; //!< Ordened list of DataSeries ID that compose this view
           std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
           std::unordered_map< DataSeriesId, std::string > stylesPerDataSeries; //!< List of base styles by DataSeries ID.
-
-          terrama2::core::Schedule schedule; //!< terrama2::core::Schedule of execution of the view.
 
           // Parameters to generate a image
           std::string imageName = "";

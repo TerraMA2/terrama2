@@ -4,7 +4,7 @@ var DataManager = require("../../core/DataManager");
 var TcpManager = require('../../core/TcpManager');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
-var DataSeriesType = require('./../../core/Enums').DataSeriesType;
+var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
 var TokenCode = require('./../../core/Enums').TokenCode;
 var _ = require('lodash');
 
@@ -71,13 +71,13 @@ module.exports = function(app) {
 
     get: function(request, response) {
       var dataSeriesId = request.params.id;
-      var dataSeriesType = request.query.type;
+      var dataSeriesTemporality = request.query.type;
       var schema = request.query.schema;
 
       // collector scope
       var collector = request.query.collector;
 
-      var dataSeriesTypeName;
+      var dataSeriesTemporalityName;
 
       // list data series restriction
       var restriction = {
@@ -86,15 +86,15 @@ module.exports = function(app) {
         }
       };
 
-      if (dataSeriesType) {
+      if (dataSeriesTemporality) {
         // checking data series: static or dynamic to filter data series output
-        switch(dataSeriesType) {
+        switch(dataSeriesTemporality) {
           case "static":
-            dataSeriesTypeName = DataSeriesType.STATIC_DATA;
+            dataSeriesTemporalityName = DataSeriesTemporality.STATIC;
             break;
           case "dynamic":
-            dataSeriesTypeName = {
-              $ne: DataSeriesType.STATIC_DATA
+            dataSeriesTemporalityName = {
+              $ne: DataSeriesTemporality.STATIC
             };
             break;
           default:
@@ -102,7 +102,7 @@ module.exports = function(app) {
         }
 
         restriction.data_series_semantics = {
-          data_series_type_name: dataSeriesTypeName
+          temporality: dataSeriesTemporalityName
         };
       }
 

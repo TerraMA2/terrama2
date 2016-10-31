@@ -20,28 +20,20 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataAccessorAnalysisPostGIS.cpp
+  \file terrama2/core/data-access/DataAccessorStaticGeoTiff.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataAccessorAnalysisPostGIS.hpp"
-#include "../core/utility/Raii.hpp"
+ //TerraMA2
+#include "DataAccessorStaticGeoTiff.hpp"
+#include "../core/utility/Logger.hpp"
 
-//TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-
-//QT
-#include <QUrl>
-#include <QObject>
-
-terrama2::core::DataAccessorAnalysisPostGIS::DataAccessorAnalysisPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
+terrama2::core::DataAccessorStaticGeoTiff::DataAccessorStaticGeoTiff(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
  : DataAccessor(dataProvider, dataSeries, false),
-   DataAccessorPostGIS(dataProvider, dataSeries, false)
+   DataAccessorGeoTiff(dataProvider, dataSeries, false)
 {
   if(checkSemantics && dataSeries->semantics.code != dataAccessorType())
   {
@@ -51,12 +43,7 @@ terrama2::core::DataAccessorAnalysisPostGIS::DataAccessorAnalysisPostGIS(DataPro
   }
 }
 
-std::string terrama2::core::DataAccessorAnalysisPostGIS::getTimestampPropertyName(DataSetPtr dataSet) const
+std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorStaticGeoTiff::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
-  return "execution_date";
-}
-
-std::string terrama2::core::DataAccessorAnalysisPostGIS::dataSourceType() const
-{
-  return "POSTGIS";
+  return DataAccessorFile::createCompleteDataSet(dataSetType);
 }

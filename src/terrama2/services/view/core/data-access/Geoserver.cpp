@@ -42,6 +42,7 @@
 
 // Qt
 #include <QTemporaryFile>
+#include <QUrl>
 
 
 terrama2::services::view::core::GeoServer::GeoServer(const te::core::URI uri)
@@ -63,26 +64,75 @@ void terrama2::services::view::core::GeoServer::setWorkspace(const std::string& 
 }
 
 
-void terrama2::services::view::core::GeoServer::registerWorkspace(const std::string& name)
+const std::string& terrama2::services::view::core::GeoServer::getWorkspace(const std::string& name) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  if(!name.empty())
-  {
-    workspace_ = name;
-  }
-
-  te::core::URI uriPost(uri_.uri() + "/rest/workspaces");
+  te::core::URI uriPost(uri_.uri() + "/rest/workspaces/" + name);
 
   if(!uriPost.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
   }
 
+  std::string responseWorkspace;
+
   // Register style
-  cURLwrapper.post(uriPost, "<workspace><name>" + workspace_ + "</name></workspace>", "Content-Type: text/xml");
+  cURLwrapper.get(uriPost, responseWorkspace);
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    QString errMsg = QObject::tr("Workspace not found. ");
+    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
+    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at get Workspace. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+
+  return cURLwrapper.response();
+}
+
+
+void terrama2::services::view::core::GeoServer::registerWorkspace(const std::string& name)
+{
+  if(!name.empty())
+  {
+    workspace_ = name;
+  }
+
+  try
+  {
+    getWorkspace(workspace_);
+  }
+  catch(NotFoundGeoserverException /*e*/)
+  {
+    te::ws::core::CurlWrapper cURLwrapper;
+
+    te::core::URI uriPost(uri_.uri() + "/rest/workspaces");
+
+    if(!uriPost.isValid())
+    {
+      QString errMsg = QObject::tr("Invalid URI.");
+      TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+    }
+
+    // Register style
+    cURLwrapper.post(uriPost, "<workspace><name>" + workspace_ + "</name></workspace>", "Content-Type: text/xml");
+
+    if(cURLwrapper.responseCode() != 201)
+    {
+      QString errMsg = QObject::tr("Error to register the workspace.");
+      TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    }
+  }
 }
 
 
@@ -91,35 +141,117 @@ const std::string& terrama2::services::view::core::GeoServer::workspace() const
   return workspace_;
 }
 
-
-void terrama2::services::view::core::GeoServer::registerDataStore(const std::string& dataStoreName,
-                                                                  std::map<std::string, std::string> connInfo) const
+const std::string& terrama2::services::view::core::GeoServer::getDataStore(const std::string& name) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPost(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores");
+  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "/")).toStdString());
 
-  if(!uriPost.isValid())
+  if(!uriGet.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
-    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriGet.uri()));
   }
 
-  std::string xml = "<dataStore><name>" + dataStoreName +"</name>" +
-                    "<connectionParameters>" +
-                    "<host>" + connInfo.at("PG_HOST") + "</host>" +
-                    "<port>" + connInfo.at("PG_PORT") +"</port>" +
-                    "<database>" + connInfo.at("PG_DB_NAME") + "</database>" +
-                    "<user>" + connInfo.at("PG_USER") + "</user>" +
-                    "<passwd>" + connInfo.at("PG_USER") + "</passwd>" +
-                    "<dbtype>postgis</dbtype>" +
-                    "</connectionParameters>" +
-                    "</dataStore>";
+  std::string responseDataStore;
 
-  // Register data store
-  cURLwrapper.post(uriPost, xml, "Content-Type: text/xml");
+  // Register style
+  cURLwrapper.get(uriGet, responseDataStore);
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    QString errMsg = QObject::tr("Data Store not found. ");
+    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
+    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at get Data Store. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+
+  return cURLwrapper.response();
 }
+
+
+void terrama2::services::view::core::GeoServer::registerPostGisDataStore(const std::string& dataStoreName,
+                                                                         std::map<std::string, std::string> connInfo) const
+{
+  try
+  {
+    getDataStore(dataStoreName);
+  }
+  catch(NotFoundGeoserverException /*e*/)
+  {
+    te::ws::core::CurlWrapper cURLwrapper;
+
+    te::core::URI uriPost(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores");
+
+    if(!uriPost.isValid())
+    {
+      QString errMsg = QObject::tr("Invalid URI.");
+      TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+    }
+
+    std::string xml = "<dataStore><name>" + dataStoreName +"</name>" +
+                      "<connectionParameters>" +
+                      "<host>" + connInfo.at("PG_HOST") + "</host>" +
+                      "<port>" + connInfo.at("PG_PORT") +"</port>" +
+                      "<database>" + connInfo.at("PG_DB_NAME") + "</database>" +
+                      "<user>" + connInfo.at("PG_USER") + "</user>" +
+                      "<passwd>" + connInfo.at("PG_USER") + "</passwd>" +
+                      "<dbtype>postgis</dbtype>" +
+                      "</connectionParameters>" +
+                      "</dataStore>";
+
+    // Register data store
+    cURLwrapper.post(uriPost, xml, "Content-Type: text/xml");
+  }
+}
+
+
+const std::string& terrama2::services::view::core::GeoServer::getFeature(const std::string& dataStoreName,
+                                                                         const std::string& name) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriGet(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       +  QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                       + "/featuretypes/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "/")).toStdString());
+
+  if(!uriGet.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriGet.uri()));
+  }
+
+  std::string responseDataStore;
+
+  // Register style
+  cURLwrapper.get(uriGet, responseDataStore);
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    QString errMsg = QObject::tr("Feature not found. ");
+    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
+    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at get Feature. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriGet.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
+
+  return cURLwrapper.response();
+}
+
 
 void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::string& dataStoreName,
                                                                      std::map<std::string, std::string> connInfo,
@@ -128,9 +260,18 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                                                                      const std::string& timestampPropertyName,
                                                                      const std::string& sql) const
 {
-  deletePostgisTable(dataStoreName, tableName, true);
+  try
+  {
+    getFeature(dataStoreName, tableName);
 
-  registerDataStore(dataStoreName, connInfo);
+    deleteVectorLayer(dataStoreName, tableName, true);
+  }
+  catch(NotFoundGeoserverException /*e*/)
+  {
+    // Do nothing
+  }
+
+  registerPostGisDataStore(dataStoreName, connInfo);
 
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -138,7 +279,6 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                     "<title>" + title + "</title>";
 
   xml += "<name>"+ tableName + "</name>";
-
 
   xml += "<enabled>true</enabled>";
 
@@ -180,7 +320,11 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   xml += "</featureType>";
 
-  te::core::URI uriPostLayer(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName +"/featuretypes");
+  std::string uri = uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                    +"/featuretypes";
+
+  te::core::URI uriPostLayer(uri);
   cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
 }
 
@@ -191,14 +335,15 @@ void terrama2::services::view::core::GeoServer::uploadZipVectorFiles(const std::
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" +
-                       dataStoreName + "/file." + extension + "?configure=all&update=append");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                       + "/file." + extension + "?configure=all&update=append");
 
   if(!uriPut.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
   }
   // Upload Vector file
   cURLwrapper.putFile(uriPut, shpZipFilePath, "Content-type: application/zip");
@@ -211,14 +356,15 @@ void terrama2::services::view::core::GeoServer::registerVectorFile(const std::st
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" +
-                       dataStoreName + "/external." + extension + "?configure=first&update=append");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                       + "/external." + extension + "?configure=first&update=append");
 
   if(!uriPut.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
   }
 
   // Register Vector file
@@ -232,14 +378,15 @@ void terrama2::services::view::core::GeoServer::registerVectorsFolder(const std:
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/" +
-                       dataStoreName + "/external." + extension + "?configure=all&update=append");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                       + "/external." + extension + "?configure=all&update=append");
 
   if(!uriPut.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
   }
 
   // Register Vector file
@@ -253,14 +400,15 @@ void terrama2::services::view::core::GeoServer::uploadZipCoverageFile(const std:
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/" +
-                       coverageStoreName + "/file." + extension + "?configure=all");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
+                       + "/file." + extension + "?configure=all");
 
   if(!uriPut.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
   }
   // Upload Coverage file
   cURLwrapper.putFile(uriPut, coverageZipFilePath, "Content-type: application/zip");
@@ -275,14 +423,15 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/" +
-                       coverageStoreName + "/external." + extension + "?configure=first");
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
+                       + "/external." + extension + "?configure=first");
 
   if(!uriPut.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
   }
   // Upload Coverage file
   cURLwrapper.customRequest(uriPut, "PUT", "file://" + coverageFilePath);
@@ -308,7 +457,7 @@ void terrama2::services::view::core::GeoServer::registerStyleFile(const std::str
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
   }
 
   // Register style
@@ -321,7 +470,7 @@ void terrama2::services::view::core::GeoServer::registerStyleFile(const std::str
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
   }
 
   // Upload Style file
@@ -337,7 +486,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
   {
     QString errMsg = QObject::tr("Can't open the file.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
   }
 
   std::string filePath = file.fileName().toStdString();
@@ -349,7 +498,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
   {
     QString errMsg = QObject::tr("Can't read the SLD file.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
   }
 
   registerStyleFile(name, filePath);
@@ -392,20 +541,23 @@ void terrama2::services::view::core::GeoServer::deleteWorkspace(bool recursive) 
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
 }
 
 
-void terrama2::services::view::core::GeoServer::deleteVectorFile(const std::string& dataStoreName,
+void terrama2::services::view::core::GeoServer::deleteVectorLayer(const std::string& dataStoreName,
                                                                const std::string &fileName,
                                                                bool recursive) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  std::string url = "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/featuretypes/" + fileName;
+  std::string url = "/rest/workspaces/" + workspace_ + "/datastores/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "/")).toStdString()
+                    + "/featuretypes/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(fileName), "", "/")).toStdString();
 
   if(recursive)
   {
@@ -418,20 +570,23 @@ void terrama2::services::view::core::GeoServer::deleteVectorFile(const std::stri
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
 }
 
 
-void terrama2::services::view::core::GeoServer::deleteCoverageFile(const std::string& coverageStoreName,
+void terrama2::services::view::core::GeoServer::deleteCoverageLayer(const std::string& coverageStoreName,
                                                                  const std::string& fileName,
                                                                  bool recursive) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  std::string url = "/rest/workspaces/" + workspace_ + "/coveragestores/" + coverageStoreName + "/coverages/" + fileName;
+  std::string url = "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
+                    + "/coverages/"
+                    + QString(QUrl::toPercentEncoding(QString::fromStdString(fileName), "", "/")).toStdString();
 
   if(recursive)
   {
@@ -444,7 +599,7 @@ void terrama2::services::view::core::GeoServer::deleteCoverageFile(const std::st
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
@@ -455,39 +610,14 @@ void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& s
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
-  te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + styleName);
+  te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/"
+                          + QString(QUrl::toPercentEncoding(QString::fromStdString(styleName), "", "/")).toStdString());
 
   if(!uriDelete.isValid())
   {
     QString errMsg = QObject::tr("Invalid URI.");
     TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
-  }
-
-  cURLwrapper.customRequest(uriDelete, "delete");
-}
-
-
-void terrama2::services::view::core::GeoServer::deletePostgisTable(const std::string& dataStoreName,
-                                                                   const std::string &tableName,
-                                                                   bool recursive) const
-{
-  te::ws::core::CurlWrapper cURLwrapper;
-
-  std::string url = "/rest/workspaces/" + workspace_ + "/datastores/" + dataStoreName + "/featuretypes/" + tableName;
-
-  if(recursive)
-  {
-    url += "?recurse=true";
-  }
-
-  te::core::URI uriDelete(uri_.uri() + url);
-
-  if(!uriDelete.isValid())
-  {
-    QString errMsg = QObject::tr("Invalid URI.");
-    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriDelete.uri()));
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
@@ -507,7 +637,7 @@ void terrama2::services::view::core::GeoServer::getMapWMS(const std::string& sav
   {
     QString errMsg = QObject::tr("No layers defined.");
     TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
   }
 
   std::string version = "1.1.0";

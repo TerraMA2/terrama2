@@ -81,6 +81,9 @@ namespace terrama2
              */
             void setWorkspace(const std::string& workspace);
 
+
+            const std::string& getWorkspace(const std::string& name) const;
+
             /*!
              * \brief Register the wanted workspace in GeoServer.
              *        It will also set the new name to the class workspace
@@ -201,7 +204,7 @@ namespace terrama2
              * \param fileName The name of the vector file to delete
              * \param recursive If true will delete all layers associated with this vetctor file in server
              */
-            void deleteVectorFile(const std::string& dataStoreName, const std::string& fileName, bool recursive) const;
+            void deleteVectorLayer(const std::string& dataStoreName, const std::string& fileName, bool recursive) const;
 
             /*!
              * \brief Method to delete a coverage file in Geoserver
@@ -209,17 +212,13 @@ namespace terrama2
              * \param fileName The name of the coverage file to delete
              * \param recursive If true will delete all layers associated with this coverage file in server
              */
-            void deleteCoverageFile(const std::string& coverageStoreName, const std::string& fileName, bool recursive) const;
+            void deleteCoverageLayer(const std::string& coverageStoreName, const std::string& fileName, bool recursive) const;
 
             /*!
              * \brief Method to delete a style file in Geoserver
              * \param styleName The name of style to delete
              */
             void deleteStyle(const std::string& styleName) const;
-
-
-            void deletePostgisTable(const std::string& dataStoreName, const std::string &tableName, bool recursive) const;
-
 
             /*!
              * \brief Method to download a image with the layers registered in Geoserver
@@ -241,7 +240,20 @@ namespace terrama2
                            const uint32_t srid,
                            const std::string& format) const;
 
-          protected:
+            /*!
+             * \brief getDataStore
+             * \param name The name of the store in GeoServer
+             * \return
+             */
+            const std::string& getDataStore(const std::string& name) const;
+
+            /*!
+             * \brief getFeature
+             * \param dataStoreName The name of the store in GeoServer
+             * \param name The name of the layer in GeoServer
+             * \return
+             */
+            const std::string& getFeature(const std::string& dataStoreName,const std::string& name) const;
 
             /*!
              * \brief This method register a PostGIS data Store in GeoServer
@@ -249,7 +261,7 @@ namespace terrama2
              *                      if it doesn't exists, will be created.
              * \param connInfo The connection parameters to the Postgis BD
              */
-            void registerDataStore(const std::string& dataStoreName,
+            void registerPostGisDataStore(const std::string& dataStoreName,
                                    std::map<std::string, std::string> connInfo) const;
 
           private:

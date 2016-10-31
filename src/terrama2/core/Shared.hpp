@@ -54,6 +54,10 @@ namespace terrama2
     struct DataSetGrid;
     //! Shared smart pointer for DataSetGrid
     typedef std::shared_ptr<const terrama2::core::DataSetGrid> DataSetGridPtr;
+    
+    struct Process;
+    //! Shared smart pointer for Process
+    typedef std::shared_ptr<const terrama2::core::Process> ProcessPtr;
 
     class DcpSeries;
     //! Shared smart pointer for DcpSeries

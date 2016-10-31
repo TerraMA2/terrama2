@@ -284,19 +284,6 @@ var Utils = module.exports = {
     });
   },
 
-  listDynamicDataSeriesType: function() {
-    var output = [];
-    for(var key in Enums.DataSeriesType) {
-      if (Enums.DataSeriesType.hasOwnProperty(key) && key !== "STATIC_DATA") {
-        var obj = {};
-        obj.data_series_type_name = Enums.DataSeriesType[key];
-        output.push(obj);
-      }
-    }
-
-    return output;
-  },
-
   /**
    * A deep match object. It checks every key/object in target and match them from initial object.
    * It applies a auto recursive call when obj key is pointing to an another object.
@@ -457,7 +444,7 @@ var Utils = module.exports = {
   isValidDataSeriesType: function(code) {
     switch(code) {
       case Enums.DataSeriesType.DCP:
-      case Enums.DataSeriesType.STATIC_DATA:
+      case Enums.DataSeriesType.GEOMETRIC_OBJECT:
       case Enums.DataSeriesType.OCCURRENCE:
       case Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
       case Enums.DataSeriesType.GRID:

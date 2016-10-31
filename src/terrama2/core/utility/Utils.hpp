@@ -110,6 +110,8 @@ namespace terrama2
     double convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit);
 
     DataSeriesType dataSeriesTypeFromString(const std::string& type);
+    
+    DataSeriesTemporality dataSeriesTemporalityFromString(const std::string& temporality);
 
     bool isValidColumn(size_t value);
 
