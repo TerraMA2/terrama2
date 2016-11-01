@@ -65,11 +65,12 @@ void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Rast
 }
 
 double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-    const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
+                                                                     const std::string& dataSeriesName,
+                                                                     const std::string& dateDiscardBefore,
+                                                                     const std::string& dateDiscardAfter,
+                                                                     const int band,
+                                                                     terrama2::services::analysis::core::Buffer buffer)
 {
-  //FIXME: getting from first band
-  int band = 0;
-
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
@@ -229,43 +230,42 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   }
 }
 
-double terrama2::services::analysis::core::grid::zonal::count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::count(const std::string& dataSeriesName, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", "", band, buffer);
 }
 
-
-double terrama2::services::analysis::core::grid::zonal::min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::min(const std::string& dataSeriesName, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::max(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::max(const std::string& dataSeriesName, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::mean(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::mean(const std::string& dataSeriesName, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::median(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::median(const std::string& dataSeriesName, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::standardDeviation(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::standardDeviation(const std::string& dataSeriesName, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::variance(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::variance(const std::string& dataSeriesName, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::sum(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::sum(const std::string& dataSeriesName, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, "", "", band, buffer);
 }

@@ -32,52 +32,53 @@
 #include "Operator.hpp"
 #include "../Operator.hpp"
 
-double terrama2::services::analysis::core::grid::history::interval::operatorImpl(
-  terrama2::services::analysis::core::StatisticOperation statisticOperation,
-  const std::string& dataSeriesName, const std::string& dateFilterBegin,
-  const std::string& dateFilterEnd)
+double terrama2::services::analysis::core::grid::history::interval::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                                                                                 const std::string& dataSeriesName,
+                                                                                 const std::string& dateFilterBegin,
+                                                                                 const std::string& dateFilterEnd,
+                                                                                 const int band)
 {
-  return terrama2::services::analysis::core::grid::history::operatorImpl(statisticOperation, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return terrama2::services::analysis::core::grid::history::operatorImpl(statisticOperation, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::min(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd)
+    const std::string& dateFilterEnd, const int band)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::max(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd)
+    const std::string& dateFilterEnd, const int band)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::mean(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd)
+    const std::string& dateFilterEnd, const int band)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::median(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd)
+    const std::string& dateFilterEnd, const int band)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd)
+    const std::string& dateFilterEnd, const int band)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::variance(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd)
+    const std::string& dateFilterEnd, const int band)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::sum(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd)
+    const std::string& dateFilterEnd, const int band)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilterBegin, dateFilterEnd);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
