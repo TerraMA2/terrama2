@@ -60,7 +60,7 @@
 using namespace boost::python;
 
 
-double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation statisticOperation,
+double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation statisticOperation,
     const std::string& dataSeriesName,
     const std::string& attribute,
     boost::python::list ids)
@@ -300,55 +300,55 @@ double terrama2::services::analysis::core::dcp::operatorImpl(StatisticOperation 
   }
 }
 
-int terrama2::services::analysis::core::dcp::count(const std::string& dataSeriesName, Buffer buffer)
+int terrama2::services::analysis::core::dcp::zonal::count(const std::string& dataSeriesName, Buffer buffer)
 {
-  return (int)terrama2::services::analysis::core::dcp::influence::byRule(dataSeriesName, buffer).size();
+  return (int)terrama2::services::analysis::core::dcp::zonal::influence::byRule(dataSeriesName, buffer).size();
 }
 
-double terrama2::services::analysis::core::dcp::min(const std::string& dataSeriesName, const std::string& attribute, boost::python::list ids)
+double terrama2::services::analysis::core::dcp::zonal::min(const std::string& dataSeriesName, const std::string& attribute, boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, ids);
 }
 
-double terrama2::services::analysis::core::dcp::max(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::zonal::max(const std::string& dataSeriesName, const std::string& attribute,
     boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, ids);
 }
 
-double terrama2::services::analysis::core::dcp::mean(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::zonal::mean(const std::string& dataSeriesName, const std::string& attribute,
     boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, ids);
 }
 
-double terrama2::services::analysis::core::dcp::median(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::zonal::median(const std::string& dataSeriesName, const std::string& attribute,
     boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, ids);
 }
 
-double terrama2::services::analysis::core::dcp::sum(const std::string& dataSeriesName, const std::string& attribute,
+double terrama2::services::analysis::core::dcp::zonal::sum(const std::string& dataSeriesName, const std::string& attribute,
     boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, ids);
 }
 
-double terrama2::services::analysis::core::dcp::standardDeviation(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::standardDeviation(const std::string& dataSeriesName,
     const std::string& attribute,
     boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, ids);
 }
 
-double terrama2::services::analysis::core::dcp::variance(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::variance(const std::string& dataSeriesName,
     const std::string& attribute,
     boost::python::list ids)
 {
   return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, attribute, ids);
 }
 
-terrama2::services::analysis::core::InfluenceType terrama2::services::analysis::core::dcp::getInfluenceType(
+terrama2::services::analysis::core::InfluenceType terrama2::services::analysis::core::dcp::zonal::getInfluenceType(
   AnalysisPtr analysis)
 {
   // Reads influence type
@@ -365,7 +365,7 @@ terrama2::services::analysis::core::InfluenceType terrama2::services::analysis::
 }
 
 
-std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::createDCPInfluenceBuffer(
+std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::zonal::createDCPInfluenceBuffer(
   AnalysisPtr analysis,
   std::shared_ptr<te::gm::Geometry> position,
   int monitoredObjectSrid,
@@ -431,7 +431,7 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::creat
 }
 
 
-bool terrama2::services::analysis::core::dcp::verifyDCPInfluence(InfluenceType influenceType,
+bool terrama2::services::analysis::core::dcp::zonal::verifyDCPInfluence(InfluenceType influenceType,
     std::shared_ptr<te::gm::Geometry> geom,
     std::shared_ptr<te::gm::Geometry> dcpInfluenceBuffer)
 {

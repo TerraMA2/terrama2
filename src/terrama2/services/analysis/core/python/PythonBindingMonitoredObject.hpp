@@ -64,19 +64,24 @@ namespace terrama2
             void registerDCPFunctions();
 
             /*!
+              \brief Registers DCP zonal functions in the Python interpreter.
+            */
+            void registerDCPZonalFunctions();
+
+            /*!
               \brief Registers DCP history functions in the Python interpreter.
             */
-            void registerDCPHistoryFunctions();
+            void registerDCPZonalHistoryFunctions();
 
             /*!
               \brief Registers DCP history interval functions in the Python interpreter.
             */
-            void registerDCPHistoryIntervalFunctions();
+            void registerDCPZonalHistoryIntervalFunctions();
 
             /*!
               \brief Registers DCP influence functions in the Python interpreter.
             */
-            void registerDCPInfluenceFunctions();
+            void registerDCPZonalInfluenceFunctions();
 
           } /* MonitoredObject */
         } /* python */

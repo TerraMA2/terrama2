@@ -51,7 +51,7 @@
 #include <QString>
 
 
-std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList)
+std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence::byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList)
 {
 
   std::vector<DataSetId> vecIds;
@@ -191,7 +191,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byAtt
 
 }
 
-std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer)
+std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence::byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer)
 {
   std::vector<DataSetId> vecIds;
 
@@ -260,7 +260,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byRul
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto influenceType = getInfluenceType(analysis);
+    auto influenceType = zonal::getInfluenceType(analysis);
 
     for(auto dataset : dcpDataSeries->datasetList)
     {
@@ -274,12 +274,12 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::influence::byRul
       auto dcpInfluenceBuffer = context->getDCPBuffer(dcpDataset->id);
       if(!dcpInfluenceBuffer)
       {
-        dcpInfluenceBuffer = createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(),
+        dcpInfluenceBuffer = zonal::createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(),
                                                       influenceType);
         context->addDCPBuffer(dcpDataset->id, dcpInfluenceBuffer);
       }
 
-      if(verifyDCPInfluence(influenceType, geom, dcpInfluenceBuffer))
+      if(zonal::verifyDCPInfluence(influenceType, geom, dcpInfluenceBuffer))
       {
         vecIds.push_back(dcpDataset->id);
       }
