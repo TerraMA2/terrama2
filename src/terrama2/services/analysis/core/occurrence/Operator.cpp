@@ -224,6 +224,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
                 if(occurrenceGeom->intersects(geomResult.get()))
                 {
+                  ++countValues;
 
                   try
                   {
@@ -349,69 +350,76 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   }
 }
 
-int terrama2::services::analysis::core::occurrence::count(const std::string& dataSeriesName, Buffer buffer,
-    const std::string& dateFilter, const std::string& restriction)
+int terrama2::services::analysis::core::occurrence::count(const std::string& dataSeriesName,
+    const std::string& dateFilter, Buffer buffer, const std::string& restriction)
 {
   return (int) operatorImpl(StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, Buffer(), "",
                             StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
-    const std::string& dateFilter, const std::string& attribute, const std::string& restriction)
+double terrama2::services::analysis::core::occurrence::min(const std::string& dataSeriesName,
+                                                           const std::string& attribute,
+                                                           const std::string& dateFilter,
+                                                           terrama2::services::analysis::core::Buffer buffer,
+                                                           const std::string& restriction)
 {
   return operatorImpl(StatisticOperation::MIN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::max(const std::string& dataSeriesName, Buffer buffer,
-    const std::string& dateFilter,
-    const std::string& attribute, const std::string& restriction)
+double terrama2::services::analysis::core::occurrence::max(const std::string& dataSeriesName,
+    const std::string& attribute,
+    const std::string& dateFilter, Buffer buffer, const std::string& restriction)
 {
   return operatorImpl(StatisticOperation::MAX, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::mean(const std::string& dataSeriesName, Buffer buffer,
-    const std::string& dateFilter,
-    const std::string& attribute,
-    const std::string& restriction)
+double terrama2::services::analysis::core::occurrence::mean(const std::string& dataSeriesName,
+                                                            const std::string& attribute,
+                                                            const std::string& dateFilter,
+                                                            Buffer buffer,
+                                                            const std::string& restriction)
 {
   return operatorImpl(StatisticOperation::MEAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::median(const std::string& dataSeriesName, Buffer buffer,
-    const std::string& dateFilter,
-    const std::string& attribute,
-    const std::string& restriction)
+double terrama2::services::analysis::core::occurrence::median(const std::string& dataSeriesName,
+                                                              const std::string& attribute,
+                                                              const std::string& dateFilter,
+                                                              Buffer buffer,
+                                                              const std::string& restriction)
 {
   return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::standardDeviation(const std::string& dataSeriesName,
-    Buffer buffer,
-    const std::string& dateFilter,
-    const std::string& attribute,
-    const std::string& restriction)
+                                                                         const std::string& attribute,
+                                                                         const std::string& dateFilter,
+                                                                         Buffer buffer,
+                                                                         const std::string& restriction)
 {
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
 double terrama2::services::analysis::core::occurrence::variance(const std::string& dataSeriesName,
-    Buffer buffer,
-    const std::string& dateFilter,
-    const std::string& attribute,
-    const std::string& restriction)
+                                                                const std::string& attribute,
+                                                                const std::string& dateFilter,
+                                                                Buffer buffer,
+                                                                const std::string& restriction)
 {
   return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
 }
 
-double terrama2::services::analysis::core::occurrence::sum(const std::string& dataSeriesName, Buffer buffer,
-    const std::string& dateFilter,
-    const std::string& attribute, const std::string& restriction)
+double terrama2::services::analysis::core::occurrence::sum(const std::string& dataSeriesName,
+                                                           const std::string& attribute,
+                                                           const std::string& dateFilter,
+                                                           Buffer buffer,
+                                                           const std::string& restriction)
 {
   return operatorImpl(StatisticOperation::SUM, dataSeriesName, buffer, dateFilter, Buffer(), attribute,
                       StatisticOperation::INVALID, restriction);
