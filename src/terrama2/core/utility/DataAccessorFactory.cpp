@@ -42,7 +42,7 @@
 
 #include <memory>
 
-bool terrama2::core::DataAccessorFactory::add(const std::string& semanticsCode, FactoryFnctType f)
+void terrama2::core::DataAccessorFactory::add(const std::string& semanticsCode, FactoryFnctType f)
 {
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
   try
@@ -64,10 +64,7 @@ bool terrama2::core::DataAccessorFactory::add(const std::string& semanticsCode, 
     // Could not add the factory because the given semantic isn't registered.
     QString errMsg = QObject::tr("Could not register data accessor factory\n Sematics not registered!");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    return false;
   }
-
-  return true;
 }
 
 void terrama2::core::DataAccessorFactory::remove(const std::string& semanticsCode)
