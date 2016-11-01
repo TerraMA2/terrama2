@@ -250,7 +250,7 @@
                       name="storager_data_provider_id"
                       ng-model="ctrl.analysis.data_provider_id"
                       ng-options="provider.id as provider.name for provider in ctrl.dataProviders"
-                      ng-required="storager.format.name" required>
+                      ng-required="ctrl.storager.format.name" required>
                 <option></option>
               </select>
               <span class="help-block"
@@ -298,7 +298,7 @@
                         ng-model="ctrl.targetDataSeries"
                         ng-options="targetDS as targetDS.name for targetDS in ctrl.filteredDataSeries"
                         ng-change="ctrl.onTargetDataSeriesChange()"
-                        ng-required="analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'">
+                        ng-required="ctrl.analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'">
                 </select>
 
                 <!-- required -->
@@ -315,7 +315,6 @@
                 <label>{{ i18n.__("Attribute Identifier") }}:</label>
                 <input type="text" class="form-control"
                                    name="identifier"
-                                   ng-disabled="ctrl.isUpdating"
                                    ng-model="ctrl.identifier"
                                    ng-required="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
 

@@ -244,7 +244,7 @@
           // auto-trigger analysis type id changed
           self.onAnalysisTypeChanged();
           // auto-trigger format changed
-          self.onStoragerFormatChange();
+          // self.onStoragerFormatChange();
 
           /**
            * It defines a reprocessing historical data values
@@ -427,16 +427,19 @@
             DataSeriesService.list().forEach(function(dSeries) {
               var semantics = dSeries.data_series_semantics;
 
-              if (semantics.data_series_type_name === DataSeriesService.DataSeriesType.GRID) {
+              if (semantics.temporality == globals.enums.TemporalityType.DYNAMIC){
                 dSeries.isDynamic = true;
                 self.buffers.dynamic.push(dSeries);
+              } else {
+                dSeries.isDynamic = false;
+                self.buffers.static.push(dSeries);
               }
             });
           } else {
             DataSeriesService.list().forEach(function(dSeries) {
               var semantics = dSeries.data_series_semantics;
 
-              if (semantics.data_series_type_name === DataSeriesService.DataSeriesType.STATIC_DATA) {
+              if (semantics.temporality === globals.enums.TemporalityType.STATIC) {
                 // skip target data series in additional data
                 if (self.targetDataSeries && self.targetDataSeries.id !== dSeries.id) {
                   dSeries.isDynamic = false;
@@ -461,6 +464,7 @@
           self.analysis.metadata = {};
           var semanticsType;
           var intTypeId = parseInt(self.analysis.type_id);
+          var dataseriesFilterType;
 
           if (self.analysis.grid) {
             delete self.analysis.grid;
@@ -471,15 +475,18 @@
             case AnalysisService.types.DCP:
               semanticsType = DataSeriesService.DataSeriesType.DCP;
               self.semanticsSelected = "Dcp";
+              dataseriesFilterType = 'DCP';
               break;
             case AnalysisService.types.GRID:
               semanticsType = DataSeriesService.DataSeriesType.GRID;
               self.semanticsSelected = "Grid";
               self.dataSeriesBoxName = i18n.__("Grid Data Series");
+              dataseriesFilterType = 'GRID';
               break;
             case AnalysisService.types.MONITORED:
               semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
               self.semanticsSelected = i18n.__("Object Monitored");
+              dataseriesFilterType = 'GEOMETRIC_OBJECT';
               break;
             default:
               $log.log("Invalid analysis type ID");
@@ -508,7 +515,7 @@
           // filtering dataseries
           self.filteredDataSeries = DataSeriesService.list({
             data_series_semantics: {
-              data_series_type_name: DataSeriesService.DataSeriesType.STATIC_DATA
+              data_series_type_name: dataseriesFilterType
             }
           });
         };
@@ -545,8 +552,8 @@
             self.dataProviders = [];
 
             DataProviderService.list().forEach(function(dataProvider) {
-              self.currentSemantics.data_providers_semantics.forEach(function(demand) {
-                if (dataProvider.data_provider_type.id == demand.data_provider_type_id) {
+              self.currentSemantics.metadata.demand.forEach(function(demand) {
+                if (dataProvider.data_provider_type.name == demand) {
                   self.dataProviders.push(dataProvider);
                 }
               });
@@ -593,7 +600,7 @@
 
           self.buffers.static = [];
           DataSeriesService.list().forEach(function(dataSeries) {
-            if (dataSeries.data_series_semantics.data_series_type_name === "STATIC_DATA") {
+            if (dataSeries.data_series_semantics.temporality === "STATIC") {
               if (dataSeries.id !== newValue.id) {
                 $log.log(dataSeries);
                 self.buffers.static.push(dataSeries);
@@ -905,7 +912,7 @@
 
           return request
             .then(function(data) {
-              window.location = "/configuration/analysis?token=" + data.token;
+              window.location = "/configuration/analysis?token=" + (data.token || data.data.token);
             })
             .catch(function(err) {
               $log.log(err);
