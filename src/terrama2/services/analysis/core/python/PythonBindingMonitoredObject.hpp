@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/occurrence/Context.hpp
+  \file terrama2/services/analysis/core/python/PythonBindingMonitoredObject.hpp
 
-  \brief Contains occurrence analysis context.
+  \brief
 
   \author Jano Simas
 */

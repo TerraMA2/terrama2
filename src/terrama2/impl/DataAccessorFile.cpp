@@ -77,6 +77,23 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 
 std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
+  return internalCreateCompleteDataSet(dataSetType, false, false);
+}
+
+std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::internalCreateCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType, bool enableFileName, bool enableFileTimestamp) const
+{
+  if(enableFileName)
+  {
+    te::dt::Property* filename = new te::dt::SimpleProperty("filename", te::dt::STRING);
+    dataSetType->add(filename);
+  }
+
+  if(enableFileTimestamp)
+  {
+    te::dt::Property* timestamp = new te::dt::DateTimeProperty("file_timestamp", te::dt::TIME_INSTANT_TZ);
+    dataSetType->add(timestamp);
+  }
+
   return std::make_shared<te::mem::DataSet>(dataSetType.get());
 }
 
@@ -251,8 +268,8 @@ std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) cons
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
                                                             std::shared_ptr<te::da::DataSet> dataSet,
-                                                            std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
-                                                            const std::string& filename) const
+                                                            std::shared_ptr< te::dt::TimeInstantTZ > /*fileTimestamp*/,
+                                                            const std::string& /*filename*/) const
 {
   auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
   complete->copy(*dataSet);

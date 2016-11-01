@@ -469,9 +469,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     logger->done(terrama2::core::TimeUtils::nowUTC(), logId);
 
-    emit processFinishedSignal(jsonAnswer);
-
-    sendProcessFinishedSignal(viewId, true);
+    sendProcessFinishedSignal(viewId, true, jsonAnswer);
     notifyWaitQueue(viewId);
 
     return;
