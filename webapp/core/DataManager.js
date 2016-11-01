@@ -2814,7 +2814,7 @@ var DataManager = module.exports = {
             }
           }
 
-          self.addAnalysisMetadata.then(function(analysisMetadataOutput) {
+          return self.addAnalysisMetadata(analysisMetadata, options).then(function(analysisMetadataOutput) {
             var promises = [];
 
             analysisDataSeriesArray.forEach(function(analysisDS) {
@@ -2944,6 +2944,17 @@ var DataManager = module.exports = {
               fields: ['alias'],
               where: {id: element.id}
             }, options)));
+
+            // update analysis data series metadata
+            if (!Utils.isEmpty(element.metadata || {})) {
+              var dsMetaArr = Utils.generateArrayFromObject(element.metadata, function(key, value, analysisDsId) {
+                return {"key": key, "value": value, "analysis_data_series_id": analysisDsId}
+              }, element.id);
+              promises.push(models.db.AnalysisDataSeriesMetadata.update(dsMetaArr[0], Utils.extend({
+                fields: ['key', 'value'],
+                where: {analysis_data_series_id: element.id}
+              }, options)));
+            }
           } else {
             // insert
             element.analysis_id = analysisInstance.id;
