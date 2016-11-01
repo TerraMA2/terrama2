@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   analysis->name = "Analysis";
   analysis->active = true;
 
-  std::string script = "x = occurrence.count(\"Occurrence\", \"30d\")\n"
+  std::string script = "x = occurrence.count(\"Occurrence\", \"500d\")\n"
                        "add_value(\"count\", x)\n";
 
 

@@ -224,6 +224,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
                 if(occurrenceGeom->intersects(geomResult.get()))
                 {
+                  ++countValues;
 
                   try
                   {

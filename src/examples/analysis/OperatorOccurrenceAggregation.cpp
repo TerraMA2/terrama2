@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
   analysis->active = true;
 
   std::string script = "aggregationBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
-                       "x = occurrence.aggregation.count(\"Occurrence\", \"30d\", aggregationBuffer)\n"
+                       "x = occurrence.aggregation.count(\"Occurrence\", \"500d\", aggregationBuffer)\n"
                        "add_value(\"aggregation_count\", x)\n";
 
 
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSet* dataSet = new terrama2::core::DataSet;
   terrama2::core::DataSetPtr dataSetPtr(dataSet);
   dataSet->active = true;
-  dataSet->format.emplace("mask", "output.shp");
+  dataSet->format.emplace("mask", "estados_2010.shp");
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("identifier", "nome");
   dataSet->id = 1;
