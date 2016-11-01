@@ -1,7 +1,8 @@
 'use strict';
 
 var Promise = require('bluebird');
-var execAsync = require('child_process').exec;
+var spawnAsync = require('child_process').spawn;
+var execAsync = require("child_process").exec;
 var OS = require('./../Enums').OS;
 var ScreenAdapter = require('./adapters/ScreenAdapter');
 var LocalSystemAdapter = require("./adapters/LocalSystemAdapter");
@@ -20,7 +21,7 @@ var LocalSystemAdapter = require("./adapters/LocalSystemAdapter");
  *
  * @author Raphael Willian da Costa
  *
- * @property {object} adapter - An adapter command to run (ScreenAdapter|LocalSystemAdapter).
+ * @property {BaseAdapter} adapter - An adapter command to run (ScreenAdapter|LocalSystemAdapter).
  * @property {OS} platform - An enum value to represent Operational System
  */
 var LocalExecutor = module.exports = function(adapter) {
@@ -28,18 +29,27 @@ var LocalExecutor = module.exports = function(adapter) {
   this.adapter = adapter;
 };
 
+/**
+ * It pretends to make a connection.
+ * 
+ * @param {Service} serviceInstance - TerraMA² Service instance where to run
+ * @returns {Promise<null>}
+ */
 LocalExecutor.prototype.connect = function(serviceInstance) {
   var self = this;
   return new Promise(function(resolve) {
     self.serviceInstance = serviceInstance;
     // detecting platform
-    self.execute("ipconfig").then(function() {
-      self.platform = OS.WIN;
-    }).catch(function() {
-      return self.execute("uname");
-    }).finally(function() {
-      resolve();
-    });
+    return self.execute("ipconfig")
+      .then(function() {
+        self.platform = OS.WIN;
+      })
+      .catch(function() {
+        return self.execute("uname");
+      })
+      .finally(function() {
+        return resolve();
+      });
   });
 };
 /**
@@ -48,47 +58,79 @@ LocalExecutor.prototype.connect = function(serviceInstance) {
  * @param {string} command - Command to execute
  * @returns {Promise<string>}
  */
-LocalExecutor.prototype.execute = function(command) {
+LocalExecutor.prototype.execute = function(command, commandArgs) {
   var self = this;
   return new Promise(function(resolve, reject) {
-    var child = execAsync(command);
+    var options = {
+      detached: true
+    };
 
-    child.on('close', function(code, signal) {
-      console.log("LocalExecutor close ", code, signal);
-      if (code !== 0) {
-        return reject(new Error("Error: exit code " + code));
+    if (command !== "uname" && command !== "ipconfig") {
+      options.stdio = "ignore";
+    }
+
+    /**
+     * It defines a executor type handler. For SSH, use exec. For nohup, use spawn 
+     * @type {Executor}
+     */
+    var child;
+
+    /**
+     * Helper to define platform and respective adapter
+     * 
+     * @param {string} data - Command execution output
+     */
+    var defineAdapter = function(data) {
+      var dataStr = data;
+      var platform = dataStr.substring(0, dataStr.indexOf('\n'));
+
+      self.platform = platform;
+      switch(platform) {
+        case OS.LINUX:
+          self.adapter = new ScreenAdapter();
+          break;
+        case OS.MACOSX:
+          self.adapter = new LocalSystemAdapter();
+          break;
+        default:
+          console.log("Unknown platform");
+          self.platform = OS.UNKNOWN;
       }
+    }
 
-      resolve(code);
-    });
+    if (self.adapter instanceof LocalSystemAdapter) {
+      child = spawnAsync(command, commandArgs, options);
 
-    child.on('error', function(err) {
-      console.log(err);
-    });
+      child.unref();
+      //todo: remove it, since it just forcing resolve promise
+      return resolve(0);
+    } else {
+      child = execAsync(command);
 
-    child.stdout.on('data', function(data) {
-      if (command === "uname") {
-        var dataStr = data.toString();
-        var platform = dataStr.substring(0, dataStr.indexOf('\n'));
-
-        self.platform = platform;
-        switch(platform) {
-          case OS.LINUX:
-            self.adapter = ScreenAdapter;
-            break;
-          case OS.MACOSX:
-            self.adapter = new LocalSystemAdapter();
-            break;
-          default:
-            console.log("Unknown platform");
-            self.platform = OS.UNKNOWN;
+      child.on('close', function(code, signal) {
+        console.log("LocalExecutor close ", code, signal);
+        if (code !== 0) {
+          return reject(new Error("Error: exit code " + code));
         }
-      }
-    });
 
-    child.stderr.on('data', function(data) {
-      console.log("LocalExecutor Error: ", data.toString());
-    });
+        return resolve(code);
+      });
+
+      child.on('error', function(err) {
+        console.log(err);
+      });
+
+      child.stdout.on('data', function(data) {
+        if (command === "uname") {
+          defineAdapter(data.toString());
+        }
+      });
+
+      // stream for handling errors data
+      child.stderr.on('data', function(data) {
+        console.log("LocalExecutor Error: ", data.toString());
+      });
+    } 
   });
 };
 /**

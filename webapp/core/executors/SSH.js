@@ -120,7 +120,7 @@ SSHDispatcher.prototype.execute = function(command) {
           switch(platform) {
             case Enums.OS.LINUX:
               self.platform = data;
-              self.adapter = ScreenAdapter;
+              self.adapter = new ScreenAdapter();
               break;
             case Enums.OS.MACOSX:
               self.platform = platform;

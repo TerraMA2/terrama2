@@ -583,7 +583,7 @@ angular.module('terrama2.dataseries.registration', [
         });
 
         if (intersection.attributes.length === 0) {
-          $scope.intersection[selected.id].selected = false;
+          $scope.intersection[selected.id].selected = true;
         }
 
         // delete $scope.intersection[selected.id];

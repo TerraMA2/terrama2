@@ -307,12 +307,12 @@ var DataManager = module.exports = {
         });
 
         // it will match each of semantics with providers
-        Promise.all(inserts)
+        return Promise.all(inserts)
           .catch(function(err) {
             console.log(err);
+            return null;
           }).finally(function() {
-            self.listSemanticsProvidersType()
-            
+            return self.listSemanticsProvidersType()
               .then(function(result) {
                 if (result.length !== 0) {
                   callback();
@@ -324,7 +324,7 @@ var DataManager = module.exports = {
                  */
                 var dataProvidersType;
 
-                self.listDataProviderType()
+                return self.listDataProviderType()
                   .then(function(dataProvidersTypeResult) {
                     dataProvidersType = dataProvidersTypeResult;
                     return self.listDataSeriesSemantics();
@@ -396,12 +396,12 @@ var DataManager = module.exports = {
           });
       };
 
-      orm.authenticate().then(function() {
-        orm.sync().then(function () {
-          fn();
+      return orm.authenticate().then(function() {
+        return orm.sync().then(function () {
+          return fn();
         }).catch(function(err) {
           console.log(err);
-          fn();
+          return fn();
         });
       }).catch(function(err) {
         callback(new Error("Could not initialize TerraMA2 due: " + err.message));
@@ -823,7 +823,7 @@ var DataManager = module.exports = {
    */
   listServiceInstances: function(restriction, options) {
     return new Promise(function(resolve, reject){
-      models.db.ServiceInstance.findAll(Utils.extend({
+      return models.db.ServiceInstance.findAll(Utils.extend({
         where: restriction,
         include: [models.db.Log]
       }, options)).then(function(services) {
@@ -834,10 +834,10 @@ var DataManager = module.exports = {
           output.push(serviceObject);
         });
 
-        resolve(output);
+        return resolve(output);
       }).catch(function(err) {
         console.log(err);
-        reject(new Error("Could not retrieve services " + err.message));
+        return reject(new Error("Could not retrieve services " + err.message));
       });
     });
   },

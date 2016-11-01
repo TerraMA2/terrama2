@@ -35,7 +35,17 @@ var PromiseClass = require("bluebird");
  * @returns {string}
  */
 LocalSystemAdapter.prototype.make = function(service, command) {
-  return Utils.format("nohup %s &", command);
+  return Utils.format("nohup %s > terrama2.out > terrama2.err < /dev/null &", command);
+};
+
+/**
+ * It prepares a command as array of string in order to spawn as nodejs process
+ * 
+ * @param {string} command - A command to split
+ * @returns {string[]}
+ */
+LocalSystemAdapter.prototype.commandArgs = function(command) {
+  return BaseAdapter.prototype.commandArgs.call(this, command);
 };
 
 /**
@@ -49,11 +59,13 @@ LocalSystemAdapter.prototype.make = function(service, command) {
 LocalSystemAdapter.prototype.executeCommand = function(executor, command, service, extra) {
   var self = this;
   return new PromiseClass(function(resolve, reject) {
-    var localCommand = self.make(service, command);
-    console.log(localCommand);
+    var commandArgs = self.commandArgs(command);
+    var localCommand = "nohup";
 
-    return ssh
-      .execute(localCommand)
+    console.log(localCommand, commandArgs);
+
+    return executor
+      .execute(localCommand, commandArgs)
       .then(function(code) {
         return resolve(code);
       })

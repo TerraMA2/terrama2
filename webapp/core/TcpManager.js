@@ -273,15 +273,15 @@ TcpManager.prototype.startService = function(serviceInstance) {
       instance.setAdapter(new Executor());
     }
 
-    instance.connect(serviceInstance).then(function() {
-      instance.startService().then(function(code) {
+    return instance.connect(serviceInstance).then(function() {
+      return instance.startService().then(function(code) {
         // self.emit("serviceStarted", serviceInstance);
         resolve(code);
       }).catch(function(err) {
         // self.emit('error', serviceInstance, err);
         reject(err);
       }).finally(function() {
-        instance.disconnect();
+        return instance.disconnect();
       });
     }).catch(function(err) {
       console.log('ssh startservice error');
