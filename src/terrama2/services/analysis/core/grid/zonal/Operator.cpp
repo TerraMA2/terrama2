@@ -149,7 +149,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
     }
 
     auto datasets = dataSeries->datasetList;
-    for(auto dataset : datasets)
+    for(const auto& dataset : datasets)
     {
       auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, dateDiscardAfter);
 
@@ -167,7 +167,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
       }
 
       std::vector<double> values;
-      for(auto raster : rasterList)
+      for(const auto& raster : rasterList)
       {
         geomResult->transform(raster->getSRID());
         //no intersection between the raster and the object geometry

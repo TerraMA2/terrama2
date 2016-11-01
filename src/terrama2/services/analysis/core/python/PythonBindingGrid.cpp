@@ -254,12 +254,12 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryF
 
 // // Declaration needed for default parameter restriction
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioCount_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::count, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioMin_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::min, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioMax_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::max, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioMean_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::mean, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioMedian_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::median, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::standardDeviation, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::variance, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioMin_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::min, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioMax_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::max, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioMean_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::mean, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioMedian_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::median, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::standardDeviation, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryRatioVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::ratio::variance, 2, 4)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
@@ -305,12 +305,12 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryR
 
 // // Declaration needed for default parameter restriction
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecCount_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::count, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMin_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::min, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMax_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::max, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMean_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::mean, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMedian_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::median, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::standardDeviation, 2, 3)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::variance, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMin_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::min, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMax_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::max, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMean_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::mean, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMedian_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::median, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::standardDeviation, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::variance, 2, 4)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop

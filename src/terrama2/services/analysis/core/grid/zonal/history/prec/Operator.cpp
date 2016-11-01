@@ -49,9 +49,9 @@
 
 template<class T>
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                  int band,
-                  te::gm::Geometry* geom,
-    std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
+                                                                                  int band,
+                                                                                  te::gm::Geometry* geom,
+                                                                                  std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
 {
   //TODO: check for other valid types
   auto type = geom->getGeomTypeId();
@@ -160,13 +160,15 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
       raster->getValue(column, row, value, band);
 
       auto key = std::make_pair(column, row);
-      auto it = valuesMap.find(key);
-      if(it == valuesMap.end())
-        valuesMap[key] = std::make_pair(value, 1);
-      else
+      try
       {
-        it->second.first += value;
-        it->second.second++;
+        auto& temp = valuesMap.at(key);
+        temp.first += value;
+        temp.second++;
+      }
+      catch (...)
+      {
+        valuesMap[key] = std::make_pair(value, 1);
       }
     }
   }
@@ -187,14 +189,12 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
 }
 
 double terrama2::services::analysis::core::grid::zonal::history::prec::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-    const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
+    const std::string& dataSeriesName,
+    const std::string& dateDiscardBefore,
+    const std::string& dateDiscardAfter,
+    const int band,
+    terrama2::services::analysis::core::Buffer buffer)
 {
-  //FIXME: Preciptation and Ratio operations calculus are inverted
-  assert(0);
-
-  //FIXME: getting from first band
-  int band = 0;
-
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
@@ -317,7 +317,6 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
 
     std::vector<double> values;
     values.reserve(valuesMap.size());
-    unsigned int count = 0;
     for(const auto& pair : valuesMap)
       values.push_back(pair.second.first/pair.second.second);
 
@@ -344,41 +343,41 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
 
 double terrama2::services::analysis::core::grid::zonal::history::prec::count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", "", 0, buffer);
 }
 
 
-double terrama2::services::analysis::core::grid::zonal::history::prec::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::prec::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::prec::max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::prec::max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::prec::mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::prec::mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::prec::median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::prec::median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::prec::standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::prec::standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::prec::variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::prec::variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::prec::sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::prec::sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const int band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, "", "", band, buffer);
 }
