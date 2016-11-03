@@ -210,16 +210,6 @@ namespace terrama2
 
             terrama2::core::Filter createFilter(const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
 
-            /*!
-              \brief Adds the given raster to the context map.
-
-              \param datasetId The DataSet identifier.
-              \param raster The raster to be added to the context.
-
-              \return cached raster
-            */
-            std::shared_ptr<te::rst::Raster> addRaster(ObjectKey key, std::shared_ptr<te::rst::Raster> raster);
-
             virtual std::shared_ptr<te::rst::Raster> resampleRaster(std::shared_ptr<te::rst::Raster> raster) { return raster; }
 
 

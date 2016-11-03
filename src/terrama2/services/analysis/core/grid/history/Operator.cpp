@@ -49,7 +49,7 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
                                                                               const std::string& dataSeriesName,
                                                                               const std::string& dateFilterBegin,
                                                                               const std::string& dateFilterEnd,
-                                                                              const int band)
+                                                                              const size_t band)
 {
   auto& contextManager = ContextManager::getInstance();
   auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
@@ -164,7 +164,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
                                                                        const std::string& dataSeriesName,
                                                                        const std::string& dateFilterBegin,
                                                                        const std::string& dateFilterEnd,
-                                                                       const int band)
+                                                                       const size_t band)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -259,37 +259,37 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
   }
 }
 
-double terrama2::services::analysis::core::grid::history::min(const std::string& dataSeriesName, const std::string& dateFilter, const int band)
+double terrama2::services::analysis::core::grid::history::min(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band)
 {
   return operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilter, "", band);
 }
 
-double terrama2::services::analysis::core::grid::history::max(const std::string& dataSeriesName, const std::string& dateFilter, const int band)
+double terrama2::services::analysis::core::grid::history::max(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band)
 {
   return operatorImpl(StatisticOperation::MAX, dataSeriesName, dateFilter, "", band);
 }
 
-double terrama2::services::analysis::core::grid::history::mean(const std::string& dataSeriesName, const std::string& dateFilter, const int band)
+double terrama2::services::analysis::core::grid::history::mean(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band)
 {
   return operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateFilter, "", band);
 }
 
-double terrama2::services::analysis::core::grid::history::median(const std::string& dataSeriesName, const std::string& dateFilter, const int band)
+double terrama2::services::analysis::core::grid::history::median(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band)
 {
   return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateFilter, "", band);
 }
 
-double terrama2::services::analysis::core::grid::history::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilter, const int band)
+double terrama2::services::analysis::core::grid::history::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band)
 {
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilter, "", band);
 }
 
-double terrama2::services::analysis::core::grid::history::variance(const std::string& dataSeriesName, const std::string& dateFilter, const int band)
+double terrama2::services::analysis::core::grid::history::variance(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band)
 {
   return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilter, "", band);
 }
 
-double terrama2::services::analysis::core::grid::history::sum(const std::string& dataSeriesName, const std::string& dateFilter, const int band)
+double terrama2::services::analysis::core::grid::history::sum(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band)
 {
   return operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilter, "", band);
 }

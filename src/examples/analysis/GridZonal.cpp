@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/Logger.hpp>
@@ -124,8 +125,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProvider1Ptr(dataProvider);
     dataProvider->name = "Provider";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/shapefile";
+    dataProvider->uri += TERRAMA2_DATA_DIR + "/shapefile";
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
@@ -165,9 +165,7 @@ int main(int argc, char* argv[])
     // DataProvider information
     terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
-    dataProvider2->uri = "file://";
-    dataProvider2->uri += TERRAMA2_DATA_DIR;
-    dataProvider2->uri += "/geotiff";
+    dataProvider2->uri = "file://"+TERRAMA2_DATA_DIR+"/geotiff";
 
     dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider2->dataProviderType = "FILE";
@@ -182,7 +180,7 @@ int main(int argc, char* argv[])
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
-    dataSeries2->semantics = semanticsManager.getSemantics("GRID-geotiff");
+    dataSeries2->semantics = semanticsManager.getSemantics("GRID-static_geotiff");
     dataSeries2->name = "geotiff 1";
     dataSeries2->id = 2;
     dataSeries2->dataProviderId = 2;
@@ -208,8 +206,19 @@ int main(int argc, char* argv[])
 
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-    analysis->schedule.frequency = 1;
-    analysis->schedule.frequencyUnit = "min";
+
+    AnalysisOutputGrid* outputGrid = new AnalysisOutputGrid();
+    AnalysisOutputGridPtr outputGridPtr(outputGrid);
+
+    outputGrid->analysisId = 1;
+    outputGrid->interpolationMethod = InterpolationMethod::BILINEAR;
+    outputGrid->interestAreaType = InterestAreaType::SAME_FROM_DATASERIES;
+    outputGrid->interestAreaDataSeriesId = 1;
+    outputGrid->resolutionType = ResolutionType::SAME_FROM_DATASERIES;
+    outputGrid->resolutionDataSeriesId = 1;
+    outputGrid->interpolationDummy = -1;
+
+    analysis->outputGridPtr = outputGridPtr;
 
     dataManager->add(analysisPtr);
 
@@ -221,7 +230,7 @@ int main(int argc, char* argv[])
 
     service.setLogger(logger);
     service.start();
-    service.addProcessToSchedule(analysisPtr);
+    service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
 
 
     QTimer timer;

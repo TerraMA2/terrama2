@@ -35,42 +35,42 @@
 double terrama2::services::analysis::core::grid::forecast::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                                                         const std::string& dataSeriesName,
                                                                         const std::string& dateFilterEnd,
-                                                                        const int band)
+                                                                        const size_t band)
 {
   return terrama2::services::analysis::core::grid::history::operatorImpl(statisticOperation, dataSeriesName, "0s", "-"+dateFilterEnd, band);
 }
 
-double terrama2::services::analysis::core::grid::forecast::min(const std::string& dataSeriesName, const std::string& dateFilterBegin, const int band)
+double terrama2::services::analysis::core::grid::forecast::min(const std::string& dataSeriesName, const std::string& dateFilterBegin, const size_t band)
 {
   return operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilterBegin, band);
 }
 
-double terrama2::services::analysis::core::grid::forecast::max(const std::string& dataSeriesName, const std::string& dateFilterBegin, const int band)
+double terrama2::services::analysis::core::grid::forecast::max(const std::string& dataSeriesName, const std::string& dateFilterBegin, const size_t band)
 {
   return operatorImpl(StatisticOperation::MAX, dataSeriesName, dateFilterBegin, band);
 }
 
-double terrama2::services::analysis::core::grid::forecast::mean(const std::string& dataSeriesName, const std::string& dateFilterBegin, const int band)
+double terrama2::services::analysis::core::grid::forecast::mean(const std::string& dataSeriesName, const std::string& dateFilterBegin, const size_t band)
 {
   return operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateFilterBegin, band);
 }
 
-double terrama2::services::analysis::core::grid::forecast::median(const std::string& dataSeriesName, const std::string& dateFilterBegin, const int band)
+double terrama2::services::analysis::core::grid::forecast::median(const std::string& dataSeriesName, const std::string& dateFilterBegin, const size_t band)
 {
   return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateFilterBegin, band);
 }
 
-double terrama2::services::analysis::core::grid::forecast::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin, const int band)
+double terrama2::services::analysis::core::grid::forecast::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin, const size_t band)
 {
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilterBegin, band);
 }
 
-double terrama2::services::analysis::core::grid::forecast::variance(const std::string& dataSeriesName, const std::string& dateFilterBegin, const int band)
+double terrama2::services::analysis::core::grid::forecast::variance(const std::string& dataSeriesName, const std::string& dateFilterBegin, const size_t band)
 {
   return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilterBegin, band);
 }
 
-double terrama2::services::analysis::core::grid::forecast::sum(const std::string& dataSeriesName, const std::string& dateFilterBegin, const int band)
+double terrama2::services::analysis::core::grid::forecast::sum(const std::string& dataSeriesName, const std::string& dateFilterBegin, const size_t band)
 {
   return operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilterBegin, band);
 }

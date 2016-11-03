@@ -36,49 +36,49 @@ double terrama2::services::analysis::core::grid::history::interval::operatorImpl
                                                                                  const std::string& dataSeriesName,
                                                                                  const std::string& dateFilterBegin,
                                                                                  const std::string& dateFilterEnd,
-                                                                                 const int band)
+                                                                                 const size_t band)
 {
   return terrama2::services::analysis::core::grid::history::operatorImpl(statisticOperation, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::min(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd, const int band)
+    const std::string& dateFilterEnd, const size_t band)
 {
   return operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::max(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd, const int band)
+    const std::string& dateFilterEnd, const size_t band)
 {
   return operatorImpl(StatisticOperation::MAX, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::mean(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd, const int band)
+    const std::string& dateFilterEnd, const size_t band)
 {
   return operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::median(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd, const int band)
+    const std::string& dateFilterEnd, const size_t band)
 {
   return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd, const int band)
+    const std::string& dateFilterEnd, const size_t band)
 {
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::variance(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd, const int band)
+    const std::string& dateFilterEnd, const size_t band)
 {
   return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }
 
 double terrama2::services::analysis::core::grid::history::interval::sum(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-    const std::string& dateFilterEnd, const int band)
+    const std::string& dateFilterEnd, const size_t band)
 {
   return operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilterBegin, dateFilterEnd, band);
 }

@@ -69,7 +69,7 @@ namespace terrama2
                                   const std::string& dataSeriesName,
                                   const std::string& dateFilterBegin,
                                   const std::string& dateFilterEnd,
-                                  const int band);
+                                  const size_t band);
 
               /*!
                 \brief Calculates the sum of historic grid data for a given time interval.
@@ -85,7 +85,7 @@ namespace terrama2
               double sum(const std::string& dataSeriesName,
                          const std::string& dateFilterBegin,
                          const std::string& dateFilterEnd,
-                         const int band = 0);
+                         const size_t band = 0);
 
               /*!
                 \brief Calculates the mean of historic grid data for a given time interval.
@@ -100,7 +100,7 @@ namespace terrama2
               */
               double mean(const std::string& dataSeriesName, const std::string& dateFilterBegin,
                           const std::string& dateFilterEnd,
-                          const int band = 0);
+                          const size_t band = 0);
 
               /*!
                 \brief Calculates the min of historic grid data for a given time interval.
@@ -114,7 +114,7 @@ namespace terrama2
                 \return A double value with the result.
               */
               double min(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                         const std::string& dateFilterEnd, const int band = 0);
+                         const std::string& dateFilterEnd, const size_t band = 0);
 
               /*!
                 \brief Calculates the max of historic grid data for a given time interval.
@@ -128,7 +128,7 @@ namespace terrama2
                 \return A double value with the result.
               */
               double max(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                         const std::string& dateFilterEnd, const int band = 0);
+                         const std::string& dateFilterEnd, const size_t band = 0);
 
               /*!
                 \brief Calculates the median of historic grid data for a given time interval.
@@ -142,7 +142,7 @@ namespace terrama2
                 \return A double value with the result.
               */
               double median(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                            const std::string& dateFilterEnd, const int band = 0);
+                            const std::string& dateFilterEnd, const size_t band = 0);
 
               /*!
                 \brief Calculates the standard deviation of historic grid data for a given time interval.
@@ -156,7 +156,7 @@ namespace terrama2
                 \return A double value with the result.
               */
               double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                                       const std::string& dateFilterEnd, const int band = 0);
+                                       const std::string& dateFilterEnd, const size_t band = 0);
 
               /*!
                 \brief Calculates the variance of historic grid data for a given time interval.
@@ -170,7 +170,7 @@ namespace terrama2
                 \return A double value with the result.
               */
               double variance(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                              const std::string& dateFilterEnd, const int band = 0);
+                              const std::string& dateFilterEnd, const size_t band = 0);
 
             } // end namespace interval
           }   // end namespace forecast
