@@ -61,7 +61,7 @@ angular.module("terrama2.components.geo", ["terrama2"])
        * @return {Object} a geojson object representation
        */
       build: function(model) {
-        var geojson = Object.assign({}, GeoJSON);
+        var geojson = angular.copy(GeoJSON, {});
         var coordinates = [
           [model.minX, model.minY],
           [model.minX, model.maxY],

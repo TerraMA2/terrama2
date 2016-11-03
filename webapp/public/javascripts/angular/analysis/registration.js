@@ -3,6 +3,7 @@
 angular.module('terrama2.analysis.registration', [
     'terrama2',
     'terrama2.services',
+    'terrama2.administration.services.iservices',
     'terrama2.components.messagebox',
     'terrama2.datetimepicker',
     'terrama2.ace',
@@ -21,11 +22,11 @@ angular.module('terrama2.analysis.registration', [
       'DataSeriesSemanticsFactory',
       'AnalysisFactory',
       'DataProviderFactory',
-      'TryCaster',
       'Socket',
       'DateParser',
-  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, TryCaster, Socket, DateParser) {
+  function($scope, i18n, ServiceInstanceFactory, DataSeriesFactory, DataSeriesSemanticsFactory, AnalysisFactory, DataProviderFactory, Socket, DateParser) {
     var socket = Socket;
+    var self = this;
 
     // injecting i18n module
     $scope.i18n = i18n;

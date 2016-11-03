@@ -151,14 +151,14 @@ var TcpSocket = function(io) {
           service: instance.id
         });
 
-        TcpManager.startService(instance).then(function(code) {
+        return TcpManager.startService(instance).then(function(code) {
           if (code !== 0) {
             _handleErr(new Error("Error occurred during start service. " + code));
             return;
           }
           setTimeout(function() {
-            TcpManager.connect(instance).then(function() {
-              TcpManager.statusService(instance);
+            return TcpManager.connect(instance).then(function() {
+              return TcpManager.statusService(instance);
             }).catch(_handleErr);
           }, 3000);
         }).catch(_handleErr);

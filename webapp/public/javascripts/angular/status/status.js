@@ -118,7 +118,7 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
       logArray.forEach(function(logProcess) {
         logProcess.log.forEach(function(logMessage) {
           var out = {
-            date: moment(logMessage.last_process_timestamp.split('.')[0]).subtract(currentOffSet/60, 'hours').calendar(),
+            date: moment(logMessage.last_process_timestamp.split('.')[0], "YYYY-MMM-DD hh:mm:ss").subtract(currentOffSet/60, 'hours'),
             status: logMessage.status,
             type: targetMessage,
             service: service

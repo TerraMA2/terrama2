@@ -44,8 +44,8 @@ terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function
 terrama2Application.run(function($templateCache, $rootScope, $locale) {
   // TerraMA2 Box
   $templateCache.put('box.html',
-  '<div class="col-md-12">' +
-    '<div class="box box-default {{ boxType }}">' +
+  '<div class="col-md-12" title="{{ titleHeader }}">' +
+    '<div class="box box-default {{ boxType }}" title="{{ titleHeader }}">' +
       '<div class="box-header with-border">' +
         '<h3 class="box-title">{{ titleHeader }}</h3>' +
         '<div class="box-tools pull-right">' +
@@ -65,15 +65,22 @@ terrama2Application.service("BaseService", BaseService);
 /**
  * TerraMA² Base service dao
  * 
- * @param {ng.IPromise} $q - Angular $q promiser
- * @param {ng.IHTTP} $http - Angular $http module
+ * @param {angular.IPromise} $q - Angular $q promiser
+ * @param {angular.IHTTP} $http - Angular $http module
+ * @param {angular.IFilter} $filter - Angular $filter module
+ * @param {angular.IParse} $parse - Angular Parser module
  * 
  * @class BaseService
  */
-function BaseService($q, $http) {
+function BaseService($q, $http, $filter, $parse) {
   this.$q = $q;
   this.$http = $http;
+  this.$filter = $filter;
+  this.$parse = $parse;
 }
+
+// Injecting angular dependencies in BaseService
+BaseService.$inject = ["$q", "$http", "$filter", "$parse"];
 
 /**
  * TerraMA² base request URL. It performs $http operation from given request options
@@ -97,7 +104,56 @@ BaseService.prototype.$request = function(url, method, options) {
   });
 
   return defer.promise;
+};
+/**
+ * It applies a angular filter over a array with query restriction.
+ * 
+ * @param {Array<?>} model - An array of object to filter
+ * @param {Object} query - A query restriction
+ * @returns {Array<?>}
+ */
+BaseService.prototype.$list = function(model, query) {
+  return this.$filter("filter")(model, query);
+};
+
+/**
+ * It retrieves a first selement from model. If element found, return element. Otherwise, return null.
+ * 
+ * @param {Array<?>} model - An array of object to filter
+ * @param {Object} query - A query restriction
+ * @returns {?}
+ */
+BaseService.prototype.get = function(model, query) {
+  var elements = this.$list(model, query);
+  if (elements.length === 0) {
+    return null;
+  }
+  return elements[0];
+};
+
+terrama2Application.service("EnumService", EnumService);
+/**
+ * It handles TerraMA² backend enums 
+ * 
+ * @param {BaseService} BaseService - A generic TerraMA² requester
+ * 
+ * @class EnumService
+ */
+function EnumService(BaseService) {
+  this.BaseService = BaseService;
+  this.model = [];
+  this.url = "/api/Enums";
 }
+/**
+ * It retrieves all enums from remote TerraMA² host
+ * 
+ * @returns {angular.IPromise<Enums>}
+ */
+EnumService.prototype.init = function() {
+  return this.BaseService.$request(this.url, "GET", {});
+};
+
+EnumService.$inject = ["BaseService"];
 
 /**
  * It tries to parse a value to number/int
@@ -356,15 +412,16 @@ terrama2Application.directive('terrama2Box', function($parse, $templateCache) {
       $scope.css = $scope.css || {};
 
       $scope.boxType = "";
-      if ($scope.css.boxType)
+      if ($scope.css.boxType) {
         $scope.boxType = $scope.css.boxType;
+      }
     },
     link: function(scope, element, attrs, ctrl, transclude) {
       var elm = element.find('#targetTransclude');
 
       transclude(scope.$parent, function(clone, scope) {
         elm.append(clone);
-      })
+      });
     }
   }
 });

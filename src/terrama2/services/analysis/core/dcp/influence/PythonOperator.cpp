@@ -31,12 +31,12 @@
 #include "Operator.hpp"
 #include "../../python/PythonUtils.hpp"
 
-boost::python::list terrama2::services::analysis::core::dcp::influence::python::byAttribute(const std::string& dataSeriesName, boost::python::list attributeList)
+boost::python::list terrama2::services::analysis::core::dcp::zonal::influence::python::byAttribute(const std::string& dataSeriesName, boost::python::list attributeList)
 {
   std::vector<std::string> vecAttr;
   terrama2::services::analysis::core::python::pythonToVector<std::string>(attributeList, vecAttr);
 
-  auto vecIds = terrama2::services::analysis::core::dcp::influence::byAttribute(dataSeriesName, vecAttr);
+  auto vecIds = terrama2::services::analysis::core::dcp::zonal::influence::byAttribute(dataSeriesName, vecAttr);
 
   boost::python::list pyList;
   for(DataSetId id : vecIds)
@@ -46,9 +46,9 @@ boost::python::list terrama2::services::analysis::core::dcp::influence::python::
   return pyList;
 }
 
-boost::python::list terrama2::services::analysis::core::dcp::influence::python::byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer)
+boost::python::list terrama2::services::analysis::core::dcp::zonal::influence::python::byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer)
 {
-  auto vecIds = terrama2::services::analysis::core::dcp::influence::byRule(dataSeriesName, buffer);
+  auto vecIds = terrama2::services::analysis::core::dcp::zonal::influence::byRule(dataSeriesName, buffer);
 
   boost::python::list pyList;
   for(DataSetId id : vecIds)
