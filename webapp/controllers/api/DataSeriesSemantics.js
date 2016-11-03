@@ -2,7 +2,8 @@ var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
 var DataSeriesSemanticsError = require("../../core/Exceptions").DataSeriesSemanticsError;
 var DataSeriesSemanticsFactory = require('./../../core/data-series-semantics/Factory');
-var DataSeriesType = require('./../../core/Enums').DataSeriesType;
+var TemporalityType = require('./../../core/Enums').TemporalityType;
+var Promise = require("bluebird");
 
 function makeMetadata(identifier) {
   var semanticsStructure = DataSeriesSemanticsFactory.build({code: identifier});
@@ -26,11 +27,9 @@ module.exports = function(app) {
 
       if (semanticsType) {
         if (semanticsType.toLowerCase() == "static")
-          queryParams["data_series_type_name"] = DataSeriesType.STATIC_DATA;
+          queryParams["temporality"] = TemporalityType.STATIC;
         else {
-          queryParams["$and"] = {
-            $or: Utils.listDynamicDataSeriesType()
-          }
+          queryParams["temporality"] = TemporalityType.DYNAMIC;
         }
       }
 
@@ -46,17 +45,13 @@ module.exports = function(app) {
           }
 
           DataManager.getDataSeriesSemantics(queryParams).then(function(semantics) {
-            DataManager.listSemanticsProvidersType({data_series_semantics_id: semantics.id}).then(function(semanticsProvider) {
-              var output = semantics;
-              output.data_providers_semantics = semanticsProvider;
+            var output = semantics;
 
-              if (metadata)
-                output.metadata = semanticsStructure;
+            if (metadata) {
+              output.metadata = semanticsStructure;
+            }
 
-              return response.json(output);
-            }).catch(function(err) {
-               return Utils.handleRequestError(response, err, 400);
-            });
+            return response.json(output);
           }).catch(function(err) {
             return Utils.handleRequestError(response, err, 400);
           });

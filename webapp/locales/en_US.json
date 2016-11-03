@@ -535,5 +535,15 @@
 	"Min value is required for GRID data series": "Min value is required for GRID data series",
 	"Max value": "Max value",
 	"Color": "Color",
-	"Max value is required for GRID data series": "Max value is required for GRID data series"
+	"Max value is required for GRID data series": "Max value is required for GRID data series",
+	"No view service found": "No view service found",
+	"Please fill at least a add_value() in script field": {
+		"": "Please fill at least a add_value() in script field."
+	},
+	"Grid analysis script must end with 'return' statement": "Grid analysis script must end with 'return' statement",
+	"Analysis will not able to generate a output data": {
+		" ": "Analysis will not able to generate a output data. "
+	},
+	"Static GeoTIFF grid": "Static GeoTIFF grid",
+	"PostGIS occurrence": "PostGIS occurrence"
 }

@@ -1,5 +1,6 @@
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/ServiceManager.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
@@ -98,20 +99,20 @@ int main(int argc, char* argv[])
   dataManager->add(outputDataSeriesPtr);
 
   std::string script = "moBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
-          "ids = dcp.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
+          "ids = dcp.zonal.influence.by_rule(\"Serra do Mar\", moBuffer)\n"
           "for id in ids:"
           "    add_value(\"id_\" + str(id), id)\n"
-          "x = dcp.history.sum(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
+          "x = dcp.zonal.history.sum(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_sum\",x)\n"
-          "x = dcp.history.max(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
+          "x = dcp.zonal.history.max(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_max\",x)\n"
-          "x = dcp.history.min(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
+          "x = dcp.zonal.history.min(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_min\",x)\n"
-          "x = dcp.history.mean(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
+          "x = dcp.zonal.history.mean(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_mean\",x)\n"
-          "x = dcp.history.median(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
+          "x = dcp.zonal.history.median(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_median\",x)\n"
-          "x = dcp.history.standard_deviation(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
+          "x = dcp.zonal.history.standard_deviation(\"Serra do Mar\", \"Pluvio\", \"3650d\", ids)\n"
           "add_value(\"history_standard_deviation\",x)\n";
 
 
@@ -230,10 +231,6 @@ int main(int argc, char* argv[])
   analysisDataSeriesList.push_back(monitoredObjectADS);
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-
-  analysis->schedule.frequency = 1;
-  analysis->schedule.frequencyUnit = "min";
-
   dataManager->add(analysisPtr);
 
   // Starts the service and adds the analysis
@@ -245,7 +242,7 @@ int main(int argc, char* argv[])
   service.setLogger(logger);
 
   service.start();
-  service.addProcessToSchedule(analysisPtr);
+  service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

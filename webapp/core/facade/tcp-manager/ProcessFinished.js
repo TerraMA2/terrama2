@@ -55,7 +55,7 @@
             });
         })
         // on any error
-        .catch(function() {
+        .catch(function(err) {
           return reject(err);
         });
     });

@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/Logger.hpp>
@@ -138,7 +139,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     dataSeries->dataProviderId = dataProvider->id;
     dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
-    dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+    dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;;
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
     dataSeries->dataProviderId = 1;
@@ -208,8 +209,6 @@ int main(int argc, char* argv[])
 
     analysis->analysisDataSeriesList = analysisDataSeriesList;
 
-    analysis->schedule.frequency = 1;
-    analysis->schedule.frequencyUnit = "min";
 
     dataManager->add(analysisPtr);
 
@@ -221,7 +220,7 @@ int main(int argc, char* argv[])
 
     service.setLogger(logger);
     service.start();
-    service.addProcessToSchedule(analysisPtr);
+    service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
 
 
     QTimer timer;

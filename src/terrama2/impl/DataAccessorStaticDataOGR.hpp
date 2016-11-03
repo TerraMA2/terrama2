@@ -59,12 +59,12 @@ namespace terrama2
     {
       public:
 
-        DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter());
+        DataAccessorStaticDataOGR(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
         virtual ~DataAccessorStaticDataOGR();
 
-        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const Filter& filter = Filter())
+        static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
         {
-          return std::make_shared<DataAccessorStaticDataOGR>(dataProvider, dataSeries, filter);
+          return std::make_shared<DataAccessorStaticDataOGR>(dataProvider, dataSeries);
         }
         static DataAccessorType dataAccessorType(){ return "STATIC_DATA-ogr"; }
 

@@ -48,23 +48,26 @@ namespace terrama2
       {
         namespace dcp
         {
-          namespace influence
+          namespace zonal
           {
-            namespace python
+            namespace influence
             {
+              namespace python
+              {
 
-              /*
+                /*
                \brief Python wrapper for influence by attribute operator
                */
-              boost::python::list byAttribute(const std::string& dataSeriesName, boost::python::list attributeList);
+                boost::python::list byAttribute(const std::string& dataSeriesName, boost::python::list attributeList);
 
-              /*
+                /*
                \brief Python wrapper for influence by rule operator
                */
-              boost::python::list byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer = terrama2::services::analysis::core::Buffer());
+                boost::python::list byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer = terrama2::services::analysis::core::Buffer());
 
-            } // end namespace python
-          }   // end namespace influence
+              } // end namespace python
+            }   // end namespace influence
+          }     // end namespace zonal
         }     // end namespace dcp
       }       // end namespace core
     }         // end namespace analysis

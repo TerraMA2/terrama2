@@ -108,9 +108,8 @@ int main(int argc, char* argv[])
   analysis->name = "Analysis";
   analysis->active = true;
 
-  std::string script = "moBuffer = Buffer()\n"
-          "x = occurrence.count(\"Occurrence\", moBuffer, \"500d\", \"\")\n"
-          "add_value(\"count\", x)\n";
+  std::string script = "x = occurrence.count(\"Occurrence\", \"500d\")\n"
+                       "add_value(\"count\", x)\n";
 
 
   analysis->script = script;
@@ -136,7 +135,7 @@ int main(int argc, char* argv[])
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   dataSeries->dataProviderId = dataProvider->id;
   dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
-  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::STATIC;
+  dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
   dataSeries->name = "Monitored Object";
   dataSeries->id = 1;
   dataSeries->dataProviderId = 1;
@@ -208,6 +207,7 @@ int main(int argc, char* argv[])
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
+  analysis->schedule.id = 1;
   analysis->schedule.frequency = 30;
   analysis->schedule.frequencyUnit = "sec";
 

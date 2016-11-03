@@ -43,6 +43,10 @@ namespace terrama2
       {
           //! Base exception class for TerraMA2 view data access.
           struct ViewGeoserverException : virtual terrama2::core::Exception{ };
+
+          //! Exception for not found recurses
+          struct NotFoundGeoserverException : virtual ViewGeoserverException{ };
+
       } /* core */
     } /* view */
   }   /* services */

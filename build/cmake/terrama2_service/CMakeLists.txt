@@ -62,7 +62,7 @@ target_link_libraries(terrama2_service terrama2_core
                                        terrama2_alert_core
                                        terrama2_impl
                                        ${PYTHON_LIBRARIES}
-                                       ${Boost_PYTHON_LIBRARY})
+                                       ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 set_target_properties(terrama2_service
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

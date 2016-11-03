@@ -44,8 +44,10 @@ module.exports = function(app) {
       if (analysisId) {
         var analysisObject = request.body.analysis;
         var scheduleObject = request.body.schedule;
+        var storager = request.body.storager;
 
-        AnalysisFacade.update(parseInt(analysisId), app.locals.activeProject.id, analysisObject, scheduleObject)
+        return AnalysisFacade
+          .update(parseInt(analysisId), app.locals.activeProject.id, analysisObject, scheduleObject, storager)
           .then(function(analysisInstance) {
             // generating token
             var token = Utils.generateToken(app, TokenCode.UPDATE, analysisInstance.name);

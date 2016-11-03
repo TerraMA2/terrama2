@@ -202,7 +202,7 @@
     var makeStyle = function(semanticsTypeName) {
       var targetStyle = "";
       switch(semanticsTypeName) {
-        case DataSeriesService.DataSeriesType.STATIC_DATA:
+        case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
           targetStyle = StyleContants.COMMON;
           self.schedule = {};
           break;
@@ -232,7 +232,7 @@
         /**
          * Retrieve all data series
          */
-        return DataSeriesService.list({schema: "all"}).then(function(dataSeries) {
+        return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
           self.dataSeries = dataSeries;
 
           var styleCache = config.view.style;
@@ -350,7 +350,7 @@
           self.viewDataSeries = dSeries;
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
-          if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.STATIC_DATA) {
+          if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT) {
             self.isDynamic = false;
           } else {
             self.isDynamic = true;
@@ -391,7 +391,7 @@
      */
     self.close = function() {
       self.MessageBoxService.reset();
-    }
+    };
     /**
      * It handles file upload to retrieve xml style
      */
