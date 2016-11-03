@@ -256,10 +256,20 @@ TcpService.prototype.run = function(processObject) {
  * @returns {Promise}
  */
 TcpService.prototype.$sendStatus = function(service) {
+  /**
+   * Current TcpService reference
+   * @type {TcpService}
+   */
   var self = this;
   return new PromiseClass(function(resolve, reject) {
+    var params = {
+      status: 200,
+      checking: true,
+      online: false,
+      service: service.id
+    };
     // notify every one with loading
-    self.emit("serviceRequestingStatus", service.id);
+    self.emit("serviceRequestingStatus", params);
 
     return TcpManager.connect(service)
       .then(function() {
@@ -267,6 +277,10 @@ TcpService.prototype.$sendStatus = function(service) {
         return resolve();
       })
       .catch(function(err) {
+        params.status = 400;
+        params.checking = false;
+        // notify every one
+        self.emit("serviceRequestingStatus", params);
         return reject(err);
       });
   });

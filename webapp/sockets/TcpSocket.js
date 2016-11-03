@@ -57,20 +57,64 @@ var TcpSocket = function(io) {
     iosocket.emit("statusResponse", resp);
   });
 
+  /**
+   * Defines log listener, containing the log array and service metadata
+   * 
+   * @param {Object} resp - A response object with these values 
+   * @param {number} resp.status - A code status
+   * @param {number} resp.service - A TerraMA² Service identifier
+   * @param {any[]} resp.logs - Log values
+   */
   TcpService.on("serviceLog", function(resp) {
     iosocket.emit("logResponse", resp);
   });
 
+  /**
+   * Defines stop listener. It does not represents that TerraMA² C++ has been closed. It defines that TERMINATE signal were sent
+   * and C++ service replied successfully. To ensure service stopped, send status service after that.
+   * 
+   * @param {Object} resp - Response object
+   */
   TcpService.on("serviceStop", function(resp) {
     iosocket.emit("stopResponse", resp);
   });
 
+  /**
+   * Defines listener when socket closes
+   * 
+   * @param {Object} resp - A response object with these values 
+   * @param {number} resp.status - A code status
+   * @param {number} resp.service - A TerraMA² Service identifier
+   * @param {boolean} resp.loading - Flag to indicates service loading. Always false
+   * @param {boolean} resp.online - Flag to indicates current status of service. Always false.
+   */
   TcpService.on("serviceClose", function(resp) {
     iosocket.emit("closeResponse", resp);
   });
 
+  /**
+   * Defines socket error listener. If there is any error during commutication, this listener will be triggered.
+   * 
+   * @param {Object} resp - A response object with these values 
+   * @param {number} resp.status - A code status
+   * @param {number} resp.service - A TerraMA² Service identifier
+   * @param {string} resp.message - An error message
+   */
   TcpService.on("serviceError", function(resp) {
     iosocket.emit("errorResponse", resp);
+  });
+
+  /**
+   * Defines a status listener to broadcast everyone.
+   * 
+   * @param {Object} resp - A response object with these values 
+   * @param {number} resp.status - A code status
+   * @param {number} resp.service - A TerraMA² Service identifier
+   * @param {boolean} resp.checking - Identifies if service is checking
+   * @param {boolean} resp.online - Flag to determines if service is running properly
+   */
+  TcpService.on("serviceRequestingStatus", function(resp) {
+    iosocket.emit("statusResponse", resp);
   });
 
   // Socket connection event
