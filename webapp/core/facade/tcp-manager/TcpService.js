@@ -357,7 +357,7 @@ TcpService.prototype.log = function(json) {
         DataManager.listCollectors(),
         DataManager.listViews()
       ])
-      // spreading promiser result into services, analysisList and collectors variables
+      // spreading promiser result into services, analysisList, collectors and views variables
       .spread(function(services, analysisList, collectors, views) {
         var obj = {
           begin: begin,
@@ -369,19 +369,16 @@ TcpService.prototype.log = function(json) {
           throw new Error("No service available");
         }
 
-        var analysisIds = analysisList.map(function(element) { return element.id; });
-        var collectorsIds = collectors.map(function(elm) { return elm.id; });
-        var viewsId = views.map(function(elm) { return elm.id; });
         services.forEach(function(service) {
           switch(service.service_type_id) {
             case ServiceType.ANALYSIS:
-              obj.process_ids = analysisIds;
+              obj.process_ids = analysisList.map(function(element) { return element.id; });
               break;
             case ServiceType.COLLECTOR:
-              obj.process_ids = collectorsIds;
+              obj.process_ids = collectors.map(function(elm) { return elm.id; });
               break;
             case ServiceType.VIEW:
-              obj.process_ids = viewsId;
+              obj.process_ids = views.map(function(elm) { return elm.id; });
               break;
             default:
               throw new Error("Invalid service type");
@@ -402,7 +399,7 @@ TcpService.prototype.log = function(json) {
 }; // end log listener
 
 /**
- * Singleton
+ * TcpService Singleton. It will be exported
  * @type {TcpService}
  */
 var tcpService = new TcpService();
@@ -410,7 +407,9 @@ var tcpService = new TcpService();
 /**
  * Listener for handling TerraMA² TcpManager Service Status
  * 
- * @param {ServiceInstance} service - TerraMA² service
+ * @emits #serviceStatus When TerraMA² C++ Service is already loaded
+ * @emits #statusService When TerraMA² C++ Service is not loaded yet
+ * @param {Service} service - TerraMA² service
  * @param {Object} response - Response object
  * @param {boolean} response.service_loaded - Identifier if service was loaded before
  * @param {boolean} response.shutting_down - Identifier if service is shutting down
@@ -439,6 +438,13 @@ function onStatusReceived(service, response) {
   }
 }
 
+/**
+ * Listener for handling TerraMA² TcpManager Log values
+ *
+ * @emits #serviceLog 
+ * @param {Service} service - TerraMA² service
+ * @param {Object} response - Response object with log values from respective service
+ */
 function onLogReceived(service, response) {
   tcpService.emit("serviceLog", {
     status: 200,
@@ -448,6 +454,13 @@ function onLogReceived(service, response) {
   });
 }
 
+/**
+ * Listener for handling Service Stopping. Once called, it will emit object determining service is stopping, 
+ * but you must call STATUS to ensure service is stopped.
+ * 
+ * @emits #serviceStop
+ * @param {Service} service - TerraMA² Service
+ */
 function onStop(service) {
   tcpService.emit("serviceStop", {
     status: 200,
@@ -457,6 +470,13 @@ function onStop(service) {
   });
 }
 
+/**
+ * Listener for handling socket connection close.
+ * 
+ * @emits #serviceStop
+ * @param {Service} service - TerraMA² Service
+ * @param {Object} response - Socket Response Object
+ */
 function onClose(service, response) {
   console.log(response);
   tcpService.emit("serviceStop", {
@@ -467,6 +487,13 @@ function onClose(service, response) {
   });
 }
 
+/**
+ * Listener for handlign any error during socket communication.
+ * 
+ * @emits #serviceError
+ * @param {Service} service - TerraMA² Service
+ * @param {Error} err - Socket error
+ */
 function onError(service, err) {
   tcpService.emit("serviceError", {
     status: 400,

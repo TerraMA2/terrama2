@@ -43,34 +43,60 @@ var TcpSocket = function(io) {
     });
   });
 
-  TcpService.on("serviceStatus", (resp) => {
+  /**
+   * Defines a status listener. Once received, it emits to front end socket.
+   * 
+   * @param {Object} resp - A response object with these values 
+   * @param {number} resp.status - A code status
+   * @param {number} resp.service - A TerraMA² Service identifier
+   * @param {boolean} resp.shutting_down - Flag to handle if service is stopping
+   * @param {boolean} resp.loading - Flag to determines service loading. Useful in GUI pages
+   * @param {boolean} resp.online - Flag to determines if service is running properly
+   */
+  TcpService.on("serviceStatus", function(resp) {
     iosocket.emit("statusResponse", resp);
   });
 
-  TcpService.on("serviceLog", (resp) => {
+  TcpService.on("serviceLog", function(resp) {
     iosocket.emit("logResponse", resp);
   });
 
-  TcpService.on("serviceStop", (resp) => {
+  TcpService.on("serviceStop", function(resp) {
     iosocket.emit("stopResponse", resp);
   });
 
-  TcpService.on("serviceClose", (resp) => {
+  TcpService.on("serviceClose", function(resp) {
     iosocket.emit("closeResponse", resp);
   });
 
-  TcpService.on("serviceError", (resp) => {
+  TcpService.on("serviceError", function(resp) {
     iosocket.emit("errorResponse", resp);
   });
 
   // Socket connection event
   iosocket.on('connection', function(client) {
+    /**
+     * Listener for handling Process Run from TerraMA² TcpService.
+     * 
+     * @todo It will emits serviceError in order to notify user that service is not running.
+     * @param {Object} resp - A response object
+     * @param {number} resp.service - TerraMA² service identifier
+     */
     function onProcessRun(resp) {
       client.emit("runResponse", resp);
     }
 
+    /** 
+     * Register the process run listener. It is the only one listener registered on each user, since it does not need to notify all
+     * It must be removed on socket disconnection
+     */
     TcpService.on("processRun", onProcessRun);
 
+    /**
+     * It just define on front-end socket disconnection. It remove a process run listener due it is the only one registered each one user
+     * 
+     * @returns {void}
+     */
     function onDisconnect() {
       TcpService.removeListener ("processRun", onProcessRun);
     }

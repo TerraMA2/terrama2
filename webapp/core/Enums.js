@@ -103,8 +103,23 @@ module.exports = {
    * @enum {ServiceType}
   */
   ServiceType: {
+    /**
+     * Defines a Collector service
+     * 
+     * @type {number}
+     */
     COLLECTOR: 1,
+    /**
+     * Defines a Analysis service
+     * 
+     * @type {number}
+     */
     ANALYSIS: 2,
+    /**
+     * Defines a View service
+     * 
+     * @type {number}
+     */
     VIEW: 3
   },
 

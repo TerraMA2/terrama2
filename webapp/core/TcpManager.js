@@ -227,6 +227,9 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
       case ServiceType.ANALYSIS:
         array = logs.analysis;
         break;
+      case ServiceType.VIEW:
+        array = logs.views;
+        break;
       default:
         this.emit('tcpError', null, new Error("Invalid service type id"));
         return;
