@@ -44,7 +44,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationStandardDeviation_overloads
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationVariance_overloads, terrama2::services::analysis::core::occurrence::aggregation::variance, 5, 7)
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(dcpInfluenceByRule_overloads, terrama2::services::analysis::core::dcp::influence::python::byRule, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(dcpInfluenceByRule_overloads, terrama2::services::analysis::core::dcp::zonal::influence::python::byRule, 1, 2)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
@@ -54,9 +54,10 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerFuncti
   registerOccurrenceFunctions();
   registerOccurrenceAggregationFunctions();
   registerDCPFunctions();
-  registerDCPHistoryFunctions();
-  registerDCPHistoryIntervalFunctions();
-  registerDCPInfluenceFunctions();
+  registerDCPZonalFunctions();
+  registerDCPZonalHistoryFunctions();
+  registerDCPZonalHistoryIntervalFunctions();
+  registerDCPZonalInfluenceFunctions();
 
 }
 
@@ -107,75 +108,89 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerDCPFun
   // set the current scope to the new sub-module
   scope scpScope = dcpModule;
 
-  // export functions inside dcp namespace
-  def("min", terrama2::services::analysis::core::dcp::min);
-  def("max", terrama2::services::analysis::core::dcp::max);
-  def("mean", terrama2::services::analysis::core::dcp::mean);
-  def("median", terrama2::services::analysis::core::dcp::median);
-  def("sum", terrama2::services::analysis::core::dcp::sum);
-  def("standard_deviation", terrama2::services::analysis::core::dcp::standardDeviation);
-  def("variance", terrama2::services::analysis::core::dcp::variance);
-  def("count", terrama2::services::analysis::core::dcp::count);
 }
 
-void terrama2::services::analysis::core::python::MonitoredObject::registerDCPHistoryFunctions()
+void terrama2::services::analysis::core::python::MonitoredObject::registerDCPZonalFunctions()
+{
+  using namespace boost::python;
+
+  // map the dcp namespace to a sub-module
+  // make "from terrama2.dcp import <function>" work
+  boost::python::object dcpModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.zonal"))));
+  // make "from terrama2 import dcp" work
+  import("terrama2.dcp").attr("zonal") = dcpModule;
+  // set the current scope to the new sub-module
+  scope scpScope = dcpModule;
+
+  // export functions inside dcp namespace
+  def("min", terrama2::services::analysis::core::dcp::zonal::min);
+  def("max", terrama2::services::analysis::core::dcp::zonal::max);
+  def("mean", terrama2::services::analysis::core::dcp::zonal::mean);
+  def("median", terrama2::services::analysis::core::dcp::zonal::median);
+  def("sum", terrama2::services::analysis::core::dcp::zonal::sum);
+  def("standard_deviation", terrama2::services::analysis::core::dcp::zonal::standardDeviation);
+  def("variance", terrama2::services::analysis::core::dcp::zonal::variance);
+  def("count", terrama2::services::analysis::core::dcp::zonal::count);
+}
+
+void terrama2::services::analysis::core::python::MonitoredObject::registerDCPZonalHistoryFunctions()
 {
   using namespace boost::python;
 
   // Register operations for dcp.history
-  object dcpHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.history"))));
+  object dcpHistoryModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.zonal.history"))));
   // make "from terrama2.dcp import history" work
-  import("terrama2.dcp").attr("history") = dcpHistoryModule;
+  import("terrama2.dcp.zonal").attr("history") = dcpHistoryModule;
   // set the current scope to the new sub-module
   scope dcpHistoryScope = dcpHistoryModule;
 
   // export functions inside history namespace
-  def("min", terrama2::services::analysis::core::dcp::history::min);
-  def("max", terrama2::services::analysis::core::dcp::history::max);
-  def("mean", terrama2::services::analysis::core::dcp::history::mean);
-  def("median", terrama2::services::analysis::core::dcp::history::median);
-  def("sum", terrama2::services::analysis::core::dcp::history::sum);
-  def("standard_deviation", terrama2::services::analysis::core::dcp::history::standardDeviation);
-  def("variance", terrama2::services::analysis::core::dcp::history::variance);
+  def("min", terrama2::services::analysis::core::dcp::zonal::history::min);
+  def("max", terrama2::services::analysis::core::dcp::zonal::history::max);
+  def("mean", terrama2::services::analysis::core::dcp::zonal::history::mean);
+  def("median", terrama2::services::analysis::core::dcp::zonal::history::median);
+  def("sum", terrama2::services::analysis::core::dcp::zonal::history::sum);
+  def("standard_deviation", terrama2::services::analysis::core::dcp::zonal::history::standardDeviation);
+  def("variance", terrama2::services::analysis::core::dcp::zonal::history::variance);
 }
 
-void terrama2::services::analysis::core::python::MonitoredObject::registerDCPHistoryIntervalFunctions()
+void terrama2::services::analysis::core::python::MonitoredObject::registerDCPZonalHistoryIntervalFunctions()
 {
   using namespace boost::python;
 
   // Register operations for dcp.history
-  object dcpHistoryIntervalModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.history.interval"))));
+  object dcpHistoryIntervalModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.zonal.history.interval"))));
   // make "from terrama2.dcp import history" work
-  import("terrama2.dcp.history").attr("interval") = dcpHistoryIntervalModule;
+  import("terrama2.dcp.zonal.history").attr("interval") = dcpHistoryIntervalModule;
   // set the current scope to the new sub-module
   scope dcpHistoryIntervalScope = dcpHistoryIntervalModule;
 
   // export functions inside history namespace
-  def("min", terrama2::services::analysis::core::dcp::history::interval::min);
-  def("max", terrama2::services::analysis::core::dcp::history::interval::max);
-  def("mean", terrama2::services::analysis::core::dcp::history::interval::mean);
-  def("median", terrama2::services::analysis::core::dcp::history::interval::median);
-  def("sum", terrama2::services::analysis::core::dcp::history::interval::sum);
-  def("standard_deviation", terrama2::services::analysis::core::dcp::history::interval::standardDeviation);
-  def("variance", terrama2::services::analysis::core::dcp::history::interval::variance);
+  def("min", terrama2::services::analysis::core::dcp::zonal::history::interval::min);
+  def("max", terrama2::services::analysis::core::dcp::zonal::history::interval::max);
+  def("mean", terrama2::services::analysis::core::dcp::zonal::history::interval::mean);
+  def("median", terrama2::services::analysis::core::dcp::zonal::history::interval::median);
+  def("sum", terrama2::services::analysis::core::dcp::zonal::history::interval::sum);
+  def("standard_deviation", terrama2::services::analysis::core::dcp::zonal::history::interval::standardDeviation);
+  def("variance", terrama2::services::analysis::core::dcp::zonal::history::interval::variance);
 }
 
-void terrama2::services::analysis::core::python::MonitoredObject::registerDCPInfluenceFunctions()
+void terrama2::services::analysis::core::python::MonitoredObject::registerDCPZonalInfluenceFunctions()
 {
   using namespace boost::python;
 
   // Register operations for dcp.history
-  object dcpInfluenceModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.influence"))));
+  object dcpInfluenceModule(handle<>(borrowed(PyImport_AddModule("terrama2.dcp.zonal.influence"))));
 
-  import("terrama2.dcp").attr("influence") = dcpInfluenceModule;
+  import("terrama2.dcp.zonal").attr("influence") = dcpInfluenceModule;
   // set the current scope to the new sub-module
   scope dcpInfluenceScope = dcpInfluenceModule;
 
 
   // export functions inside history namespace
-  def("by_attribute", terrama2::services::analysis::core::dcp::influence::python::byAttribute);
+  def("by_attribute", terrama2::services::analysis::core::dcp::zonal::influence::python::byAttribute);
 
-  def("by_rule", terrama2::services::analysis::core::dcp::influence::python::byRule,
+  def("by_rule", terrama2::services::analysis::core::dcp::zonal::influence::python::byRule,
       dcpInfluenceByRule_overloads(args("dataSeriesName", "buffer"), "Influence by rule operator"));
 }
 

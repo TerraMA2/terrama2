@@ -51,7 +51,7 @@
 #include <terralib/geometry/MultiPolygon.h>
 
 
-double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticOperation statisticOperation,
+double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(StatisticOperation statisticOperation,
     const std::string& dataSeriesName,
     const std::string& attribute,
     const std::string& dateFilterBegin,
@@ -264,7 +264,7 @@ double terrama2::services::analysis::core::dcp::history::operatorImpl(StatisticO
 }
 
 
-double terrama2::services::analysis::core::dcp::history::sum(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::history::sum(const std::string& dataSeriesName,
     const std::string& attribute,
     const std::string& dateFilter,
     boost::python::list ids)
@@ -272,7 +272,7 @@ double terrama2::services::analysis::core::dcp::history::sum(const std::string& 
   return operatorImpl(StatisticOperation::SUM, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
-double terrama2::services::analysis::core::dcp::history::mean(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::history::mean(const std::string& dataSeriesName,
     const std::string& attribute,
     const std::string& dateFilter,
     boost::python::list ids)
@@ -280,7 +280,7 @@ double terrama2::services::analysis::core::dcp::history::mean(const std::string&
   return operatorImpl(StatisticOperation::MEAN, dataSeriesName, attribute, dateFilter, "",  ids);
 }
 
-double terrama2::services::analysis::core::dcp::history::min(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::history::min(const std::string& dataSeriesName,
    const std::string& attribute,
    const std::string& dateFilter,
    boost::python::list ids)
@@ -288,7 +288,7 @@ double terrama2::services::analysis::core::dcp::history::min(const std::string& 
   return operatorImpl(StatisticOperation::MIN, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
-double terrama2::services::analysis::core::dcp::history::max(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::history::max(const std::string& dataSeriesName,
    const std::string& attribute,
    const std::string& dateFilter,
    boost::python::list ids)
@@ -296,7 +296,7 @@ double terrama2::services::analysis::core::dcp::history::max(const std::string& 
   return operatorImpl(StatisticOperation::MAX, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
-double terrama2::services::analysis::core::dcp::history::median(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::history::median(const std::string& dataSeriesName,
     const std::string& attribute,
     const std::string& dateFilter,
     boost::python::list ids)
@@ -304,7 +304,7 @@ double terrama2::services::analysis::core::dcp::history::median(const std::strin
   return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
-double terrama2::services::analysis::core::dcp::history::standardDeviation(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::history::standardDeviation(const std::string& dataSeriesName,
    const std::string& attribute,
    const std::string& dateFilter,
    boost::python::list ids)
@@ -312,7 +312,7 @@ double terrama2::services::analysis::core::dcp::history::standardDeviation(const
   return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, attribute, dateFilter, "", ids);
 }
 
-double terrama2::services::analysis::core::dcp::history::variance(const std::string& dataSeriesName,
+double terrama2::services::analysis::core::dcp::zonal::history::variance(const std::string& dataSeriesName,
     const std::string& attribute,
     const std::string& dateFilter,
     boost::python::list ids)

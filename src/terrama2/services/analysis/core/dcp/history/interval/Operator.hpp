@@ -50,12 +50,14 @@ namespace terrama2
       {
         namespace dcp
         {
-          namespace history
+          namespace zonal
           {
-            namespace interval
+            namespace history
             {
+              namespace interval
+              {
 
-              /*!
+                /*!
               \brief Calculates the sum of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
@@ -68,11 +70,11 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double sum(const std::string& dataSeriesName, const std::string& attribute,
-                       const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                       boost::python::list ids);
+                double sum(const std::string& dataSeriesName, const std::string& attribute,
+                           const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                           boost::python::list ids);
 
-            /*!
+                /*!
               \brief Calculates the mean of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
@@ -85,11 +87,11 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double mean(const std::string& dataSeriesName, const std::string& attribute,
-                        const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                        boost::python::list ids);
+                double mean(const std::string& dataSeriesName, const std::string& attribute,
+                            const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                            boost::python::list ids);
 
-            /*!
+                /*!
               \brief Calculates the min of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
@@ -102,11 +104,11 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double min(const std::string& dataSeriesName, const std::string& attribute,
-                       const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                       boost::python::list ids);
+                double min(const std::string& dataSeriesName, const std::string& attribute,
+                           const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                           boost::python::list ids);
 
-            /*!
+                /*!
               \brief Calculates the max of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
@@ -119,11 +121,11 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double max(const std::string& dataSeriesName, const std::string& attribute,
-                       const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                       boost::python::list ids);
+                double max(const std::string& dataSeriesName, const std::string& attribute,
+                           const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                           boost::python::list ids);
 
-            /*!
+                /*!
               \brief Calculates the median of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
@@ -136,11 +138,11 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double median(const std::string& dataSeriesName, const std::string& attribute,
-                          const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                          boost::python::list ids);
+                double median(const std::string& dataSeriesName, const std::string& attribute,
+                              const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                              boost::python::list ids);
 
-            /*!
+                /*!
               \brief Calculates the standard deviation of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
@@ -153,11 +155,11 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double standardDeviation(const std::string& dataSeriesName, const std::string& attribute,
-                                     const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                                     boost::python::list ids);
+                double standardDeviation(const std::string& dataSeriesName, const std::string& attribute,
+                                         const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                                         boost::python::list ids);
 
-            /*!
+                /*!
               \brief Calculates the variance of historic DCP data.
 
               In case of an error or no data available it will return NAN(Not A Number).
@@ -170,12 +172,13 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double variance(const std::string& dataSeriesName, const std::string& attribute,
-                            const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                            boost::python::list ids);
+                double variance(const std::string& dataSeriesName, const std::string& attribute,
+                                const std::string& dateFilterBegin, const std::string& dateFilterEnd,
+                                boost::python::list ids);
 
-            } // end namespace interval
-          }   // end namespace history
+              } // end namespace interval
+            }   // end namespace history
+          }     // end namespace zonal
         }     // end namespace dcp
       }       // end namespace core
     }         // end namespace analysis
