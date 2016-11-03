@@ -134,16 +134,17 @@ Analysis.list = function(restriction) {
  * @param {number} projectId - A current project identifier
  * @param {Analysis | Object} analysisObject - An analysis object values to update
  * @param {Schedule | Object} scheduleObject - A schedule object values to update
+ * @param {Object} storagerObject - A storager object values to update (dataseries)
  * @return {Promise<Analysis>} A bluebird promise with analysis instance
  */
-Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject) {
+Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject, storagerObject) {
   return new PromiseClass(function(resolve, reject) {
     DataManager.orm.transaction(function(t) {
       var options = {
         transaction: t
       };
 
-      return DataManager.updateAnalysis(analysisId, analysisObject, scheduleObject, options)
+      return DataManager.updateAnalysis(analysisId, analysisObject, scheduleObject, storagerObject, options)
         .then(function() {
           return DataManager.getAnalysis({id: analysisId, project_id: projectId}, options);
         })
@@ -156,11 +157,11 @@ Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject
           return analysisInstance;        
         });
     })
-
+    // on commit
     .then(function(analysis) {
       return resolve(analysis);
     })
-    
+    // on rollback
     .catch(function(err) {
       return reject(err);
     });

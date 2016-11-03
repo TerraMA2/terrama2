@@ -245,3 +245,7 @@
   font-size: 4em;
   color:white;            
 }
+
+bootstrap-decorator span {
+  margin-right: 20px !important;
+}

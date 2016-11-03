@@ -22,7 +22,7 @@ var nodeContextPort = process.argv[3];
 // setting currentContext
 Database.setCurrentContext(nodeContext);
 
-Database.init(nodeContext).then(function (sequelize) {
+return Database.init(nodeContext).then(function (sequelize) {
   var app = require('../app');
   var io = require('../io');
   var debug = require('debug')('webapp:server');
@@ -55,7 +55,7 @@ Database.init(nodeContext).then(function (sequelize) {
    */
   var server = http.createServer(app);
 
-  PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
+  return PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
 
     // storing active connections
     var connections = {};

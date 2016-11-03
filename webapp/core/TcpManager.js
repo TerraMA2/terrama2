@@ -1,15 +1,15 @@
 "use strict";
 
 var Signals = require('./Signals.js');
-var SSH = require("./SSHDispatcher");
+var Process = require('./Process');
+var Executor = require('./executors/Local');
+var SSH = require("./executors/SSH");
 var Utils = require('./Utils');
 var _ = require('lodash');
 var Service = require('./Service');
 var NodeUtils = require('util');
 var EventEmitter = require('events').EventEmitter;
 var ServiceType = require('./Enums').ServiceType;
-var Process = require('./Process');
-var Executor = require('./Executor');
 var Promise = require('bluebird');
 
 // Facades
@@ -273,15 +273,15 @@ TcpManager.prototype.startService = function(serviceInstance) {
       instance.setAdapter(new Executor());
     }
 
-    instance.connect(serviceInstance).then(function() {
-      instance.startService().then(function(code) {
+    return instance.connect(serviceInstance).then(function() {
+      return instance.startService().then(function(code) {
         // self.emit("serviceStarted", serviceInstance);
         resolve(code);
       }).catch(function(err) {
         // self.emit('error', serviceInstance, err);
         reject(err);
       }).finally(function() {
-        instance.disconnect();
+        return instance.disconnect();
       });
     }).catch(function(err) {
       console.log('ssh startservice error');

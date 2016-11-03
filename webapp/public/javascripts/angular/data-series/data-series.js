@@ -1,9 +1,11 @@
 angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
-  .controller("ListController", ['$scope', 'DataSeriesFactory', 'Socket', 'i18n',
-  function($scope, DataSeriesFactory,Socket, i18n) {
+  .controller("ListController", ['$scope', 'DataSeriesFactory', 'Socket', 'i18n', '$window',
+  function($scope, DataSeriesFactory,Socket, i18n, $window) {
     $scope.i18n = i18n;
     var isDynamic = false;
     var queryParams = {};
+
+    var config = $window.configuration;
 
     Socket.on('errorResponse', function(response){
       $scope.display = true;
@@ -17,8 +19,8 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
       $scope.alertBox.message = i18n.__("The process was started successfully");
     })
 
-    if (configuration.dataSeriesType == "static") {
-      $scope.dataSeriesType = configuration.dataSeriesType;
+    if (config.dataSeriesType == "static") {
+      $scope.dataSeriesType = config.dataSeriesType;
     } else {
       $scope.dataSeriesType = 'dynamic';
       queryParams['collector'] = true;
@@ -45,12 +47,12 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
         $scope.alertLevel = "alert-success";
         $scope.alertBox.message = data.name + i18n.__(" removed");
       },
-      showRunButton: configuration.showRunButton,
+      showRunButton: config.showRunButton,
       canRun: function(object){
-        var foundCollector = configuration.collectors.find(function(collector){
+        var foundCollector = config.collectors.find(function(collector){
           return collector.output_data_series == object.id;
         });
-        var foundAnalysis = configuration.analysis.find(function(analysi){
+        var foundAnalysis = config.analysis.find(function(analysi){
           return analysi.dataSeries.id == object.id;
         })
         return foundCollector || foundAnalysis;
@@ -68,10 +70,10 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     $scope.alertLevel = "alert-success";
     $scope.alertBox = {
       title: i18n.__("Data Series"),
-      message: configuration.message
+      message: config.message
     };
     $scope.resetState = function() { $scope.display = false; };
-    $scope.display = configuration.message !== "";
+    $scope.display = config.message !== "";
 
     DataSeriesFactory.get(queryParams).success(function(data) {
       $scope.model = data instanceof Array ? data : [];
@@ -100,15 +102,13 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
         instance.model_type = value;
       });
       $scope.fields = [{key: 'name', as: i18n.__("Name")}, {key: "model_type", as: i18n.__("Type")}];
-    }).error(function(err) {
-
     });
 
-    $scope.link = configuration.link || null;
+    $scope.link = config.link || null;
 
-    $scope.linkToAdd = configuration.linkToAdd || null;
+    $scope.linkToAdd = config.linkToAdd || null;
 
-    $scope.iconFn = configuration.iconFn || null;
+    $scope.iconFn = config.iconFn || null;
 
-    $scope.iconProperties = configuration.iconProperties || {};
+    $scope.iconProperties = config.iconProperties || {};
   }]);
