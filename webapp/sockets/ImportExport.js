@@ -206,6 +206,19 @@ var ImportExport = function(io) {
                           $id: analysis.output_dataseries_id
                         }
                       });
+                      // if there grid analysis, check if there data series id, like resolution data series id.
+                      // it must be changed, since it should be a different id
+                      if (analysis.grid && analysis.grid.analysis_id) {
+                        // TODO: It must retrieve all data series, instead retrieve one per once
+                        if (analysis.grid.resolution_data_series_id) {
+                          analysis.grid.resolution_data_series_id = Utils.find(output.DataSeries, {$id: analysis.grid.resolution_data_series_id}).id;
+                        }
+
+                        if (analysis.grid.area_of_interest_data_series_id) {
+                          analysis.grid.area_of_interest_data_series_id = Utils.find(output.DataSeries, 
+                                                                                    {$id: analysis.grid.area_of_interest_data_series_id}).id;
+                        }
+                      }
 
                       if (dataSeriesOutput.data_series_semantics.data_series_type_name === Enums.DataSeriesType.DCP) {
                         // TODO:
@@ -219,10 +232,10 @@ var ImportExport = function(io) {
                 }
 
                 return Promise.all(promises);
-              }).catch(_emitError);
-            }).catch(_emitError);
-          }).catch(_emitError);
-        }).catch(_emitError);
+              });
+            });
+          });
+        });
       }).then(function() {
         console.log("Commited");
         client.emit("importResponse", {
@@ -232,17 +245,17 @@ var ImportExport = function(io) {
       }).catch(function(err){
         // remove cached data in DataManager
         if (output.Projects && output.Projects.length > 0) {
-          var projects = Utils.removeAll(DataManager.data.projects, {id: output.Projects.map(function(proj) { return proj.id; }) });
+          var projects = Utils.removeAll(DataManager.data.projects, {id: {$in: output.Projects.map(function(proj) { return proj.id; }) }});
           console.log("Removed " + projects.length + " projects");
         }
 
         if (output.DataSeries && output.DataSeries.length > 0) {
-          var ds = Utils.removeAll(DataManager.data.dataSeries, {id: output.DataSeries.map(function(ds) { return ds.id; }) });
+          var ds = Utils.removeAll(DataManager.data.dataSeries, {id: {$in: output.DataSeries.map(function(ds) { return ds.id; }) }});
           console.log("Removed " + ds.length + " data series");
         }
 
         if (output.DataProviders && output.DataProviders.length > 0) {
-          var providers = Utils.removeAll(DataManager.data.dataProviders, {id: output.DataProviders.map(function(prov) { return prov.id; }) });
+          var providers = Utils.removeAll(DataManager.data.dataProviders, {id: {$in: output.DataProviders.map(function(prov) { return prov.id; }) }});
           console.log("Removed " + providers.length + " providers");
         }
 

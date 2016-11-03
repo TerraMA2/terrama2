@@ -47,9 +47,11 @@ namespace terrama2
       {
         namespace dcp
         {
-          namespace influence
+          namespace zonal
           {
-            /*
+            namespace influence
+            {
+              /*
              \brief Returns the list with identifiers of DCPs that influence the given data series based on the values of the given attributes.
 
              This method will return a list with the DCP dataset identifiers for each monitored object,
@@ -59,10 +61,10 @@ namespace terrama2
              \param attributeList List of attributes that contain the DCP ID to be used.
              \return The list with identifiers of DCPs that influence the given data series.
              */
-            std::vector<DataSetId> byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList);
+              std::vector<DataSetId> byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList);
 
 
-            /*
+              /*
              \brief Returns the list with identifiers of DCPs that influence the given data series.
 
              It will create a buffer around the DCP position and determine the influence using the configured
@@ -71,9 +73,10 @@ namespace terrama2
              \param attributeList List of attributes that contain the DCP ID to be used.
              \return The list with identifiers of DCPs that influence the given data series.
              */
-            std::vector<DataSetId> byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer);
+              std::vector<DataSetId> byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer);
 
-          } // end namespace influence
+            } // end namespace influence
+          }   // end namespace zonal
         }   // end namespace dcp
       }     // end namespace core
     }       // end namespace analysis

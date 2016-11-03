@@ -43,7 +43,7 @@
                   ng-repeat="(dsId, inter) in intersection"
                   ng-click="onIntersectionDataSeriesClick(inter.data_series)"
                   style="cursor:pointer;"
-                  ng-class="{'active': selectedIntersection && selectedIntersection.id === ds.id}">
+                  ng-class="{'active': selectedIntersection && selectedIntersection.id == dsId}">
                 <td>{{ inter.data_series.name }}</td>
                 <td>{{ inter.data_series.data_series_semantics.name }}</td>
                 <td class="pull-cell-left">

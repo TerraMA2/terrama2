@@ -168,7 +168,7 @@ namespace terrama2
         size_t verifyNumberOfThreads(size_t numberOfThreads) const;
 
         //! Sends the process finished signal
-        void sendProcessFinishedSignal(const ProcessId processId, const bool success);
+        void sendProcessFinishedSignal(const ProcessId processId, const bool success, QJsonObject jsonAnswer = QJsonObject());
 
         bool stop_;
         std::mutex  mutex_; //!< Mutex for thread safety
