@@ -110,10 +110,9 @@ int main(int argc, char* argv[])
   analysis->name = "Analysis";
   analysis->active = true;
 
-  std::string script = "moBuffer = Buffer()\n"
-          "aggregationBuffer = Buffer(BufferType.object_plus_buffer, 2., \"km\")\n"
-          "x = occurrence.aggregation.count(\"Occurrence\", moBuffer, \"500d\", aggregationBuffer, \"\")\n"
-          "add_value(\"aggregation_count\", x)\n";
+  std::string script = "aggregationBuffer = Buffer(BufferType.Out_union, 2., \"km\")\n"
+                       "x = occurrence.aggregation.count(\"Occurrence\", \"500d\", aggregationBuffer)\n"
+                       "add_value(\"aggregation_count\", x)\n";
 
 
   analysis->script = script;
@@ -209,6 +208,7 @@ int main(int argc, char* argv[])
 
   analysis->analysisDataSeriesList = analysisDataSeriesList;
 
+  analysis->schedule.id = 1;
   analysis->schedule.frequency = 1;
   analysis->schedule.frequencyUnit = "min";
 

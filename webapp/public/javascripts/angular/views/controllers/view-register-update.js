@@ -232,7 +232,7 @@
         /**
          * Retrieve all data series
          */
-        return DataSeriesService.list({schema: "all"}).then(function(dataSeries) {
+        return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
           self.dataSeries = dataSeries;
 
           var styleCache = config.view.style;
@@ -391,7 +391,7 @@
      */
     self.close = function() {
       self.MessageBoxService.reset();
-    }
+    };
     /**
      * It handles file upload to retrieve xml style
      */

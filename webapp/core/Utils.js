@@ -463,7 +463,7 @@ var Utils = module.exports = {
   getTimezonesGUI: function() {
     var output = [];
     for(var i = -12; i < 13; ++i) {
-      var val = i < 0 ? i.toString() : "+" + i;
+      var val = i < 0 ? i.toString() : ((i === 0) ? i.toString() : "+" + i);
       output.push({ name: val, value: val });
     }
     return output;
@@ -534,12 +534,14 @@ var Utils = module.exports = {
    * 
    * @param {Object} valuesObject - A javascript object to iterate
    * @param {Function} operationIter - A callback to be called in object iteration. It should return something (object)
+   * @param {any} extra - An extra values to iterate. It will be passed through function iteration
+   * @returns {Array<?>}
    */
-  generateArrayFromObject: function(valuesObject, operationIter) {
+  generateArrayFromObject: function(valuesObject, operationIter, extra) {
     var metadataArr = [];
     for(var k in valuesObject) {
       if (valuesObject.hasOwnProperty(k)) {
-        metadataArr.push(operationIter(k, valuesObject[k]));
+        metadataArr.push(operationIter(k, valuesObject[k], extra));
       }
     }
     return metadataArr;
@@ -734,5 +736,15 @@ var Utils = module.exports = {
    */
   format: function() {
     return util.format.apply(this, arguments);
+  },
+
+  /**
+   * It performs a array concat with arguments values.
+   * 
+   * @param {any[]} array - Array of elements to concatenate
+   * @param {...any} [values] - The values to concatenate
+   */
+  concat: function() {
+    return _.concat.apply(this, arguments);
   }
 };

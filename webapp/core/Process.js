@@ -29,11 +29,13 @@ Process.prototype.disconnect = function() {
   var self = this;
 
   return new Promise(function(resolve, reject) {
-    self.adapter.disconnect().then(function() {
-      resolve();
-    }).catch(function(err) {
-      reject(err);
-    });
+    return self.adapter.disconnect()
+      .then(function() {
+        return resolve();
+      })
+      .catch(function(err) {
+        return reject(err);
+      });
   });
 };
 
@@ -48,10 +50,11 @@ Process.prototype.startService = function(command) {
 
     var command = util.format("%s %s %s", executable, serviceTypeString, port);
 
-    self.adapter.startService(command).then(function(code) {
-      resolve(code);
-    }).catch(function(err) {
-      reject(err);
-    });
+    return self.adapter.startService(command)
+      .then(function(code) {
+        return resolve(code);
+      }).catch(function(err) {
+        return reject(err);
+      });
   });
 };

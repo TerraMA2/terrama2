@@ -5,42 +5,51 @@
 
       <div class="col-md-4">
         <div class="form-group">
-          <label>{{ i18n.__('Output Format') }}:</label>
-            <select id="storageFormat" class="form-control" name="format" ng-model="storager.format"
+          <label ng-bind="i18n.__('Output Format')">:</label>
+            <select id="storageFormat" 
+                    class="form-control" 
+                    name="format" 
+                    ng-model="storager.format"
                     ng-disabled="isUpdating"
                     ng-change="onStoragerFormatChange()"
-                    ng-options="format.name for format in storagerFormats | filter: { collector: false }" ng-required="dataSeries.access == 'COLLECT'">
+                    ng-options="format.name for format in storagerFormats | filter: { collector: false }" 
+                    ng-required="dataSeries.access == 'COLLECT'">
           </select>
         </div>
       </div>
 
       <div class="col-md-4">
         <div class="form-group" terrama2-show-errors>
-          <label>{{ i18n.__('Data Store') }}:</label>
-          <select class="form-control" name="storager_data_provider_id" ng-model="storager_data_provider_id"
-                  ng-disabled="isUpdating"
-                  ng-options="provider.id as provider.name for provider in dataProvidersStorager" ng-required="storager.format.name">
+          <label ng-bind="i18n.__('Data Store')">:</label>
+          <select class="form-control" 
+                  name="storager_data_provider_id" 
+                  ng-model="storager_data_provider_id"
+                  ng-options="provider.id as provider.name for provider in dataProvidersStorager" 
+                  ng-required="storager.format.name">
             <option></option>
           </select>
 
           <label class="help-block text-danger"
-                 ng-show="forms.storagerDataForm.storager_data_provider_id.$dirty && forms.storagerDataForm.storager_data_provider_id.$error.required">
-            {{ i18n.__("Data Store is required") }}
+                 ng-show="forms.storagerDataForm.storager_data_provider_id.$dirty && forms.storagerDataForm.storager_data_provider_id.$error.required"
+                 ng-bind="i18n.__('Data Store is required')">
           </label>
         </div>
       </div>
 
       <div class="col-md-4">
         <div class="form-group" terrama2-show-errors>
-          <label>{{ i18n.__('Service') }}:</label>
-          <select id="storageService" class="form-control" name="service" ng-model="storager_service"
+          <label ng-bind="i18n.__('Service')">:</label>
+          <select id="storageService" 
+                  class="form-control" 
+                  name="service" 
+                  ng-model="storager_service"
                   ng-required="storager.format.name"
                   ng-options="service.id as service.name for service in services">
           </select>
 
           <label class="help-block text-danger"
-                 ng-show="forms.storagerDataForm.service.$dirty && forms.storagerDataForm.service.$error.required">
-            {{ i18n.__("Service is required") }}
+                 ng-show="forms.storagerDataForm.service.$dirty && forms.storagerDataForm.service.$error.required"
+                 ng-bind="i18n.__('Service is required')">
           </label>
         </div>
       </div>
