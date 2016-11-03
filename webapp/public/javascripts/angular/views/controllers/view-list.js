@@ -55,6 +55,26 @@
       as: i18n.__("Description")
     }];
 
+    /**
+     * It handles socket error.
+     * 
+     * @param {Object} response - Response object with error message value
+     * @param {Object} response.message - Error message
+     */
+    Socket.on('errorResponse', function(response){
+      self.MessageBoxService.danger(i18n.__("View"), response.message);
+    });
+
+    /**
+     * It handles process run feedback. It just show message box with success message
+     * 
+     * @param {Object} response - Response object
+     * @param {Object} response.service - TerraMA² service id to determines which service called
+     */
+    Socket.on('runResponse', function(response){
+      self.MessageBoxService.success(i18n.__("View"), i18n.__("The process was started successfully")); 
+    });
+
     // Initializing async modules
     $q.all([ViewService.init()])
       .then(function() {
