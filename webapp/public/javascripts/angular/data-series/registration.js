@@ -150,6 +150,17 @@ angular.module('terrama2.dataseries.registration', [
         $scope.dcpsStorager = [];
       });
 
+      $scope.$on("clearStoreForm", function(event){
+          $scope.modelStorager = {};
+          $scope.formStorager = [];
+          $scope.schemaStorager = {};
+          $scope.storager.format = {};
+          $scope.storager_service = undefined;
+          $scope.dcpsStorager = [];
+          $scope.storager_data_provider_id = undefined;
+          $scope.$broadcast("clearSchedule");
+      });
+
       $scope.$on('storagerFormatChange', function(event, args) {
         $scope.formatSelected = args.format;
         // todo: fix it. It is hard code
@@ -170,8 +181,11 @@ angular.module('terrama2.dataseries.registration', [
           $scope.dcpsStorager = [];
           $scope.dataProvidersList.forEach(function(dataProvider) {
             data.data_providers_semantics.forEach(function(demand) {
-              if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
+              if (dataProvider.data_provider_type.id == demand.data_provider_type_id){
+                if ($scope.storager.format.data_series_type_name == 'GRID' && dataProvider.data_provider_type.id != 1 )
+                  return;
                 $scope.dataProvidersStorager.push(dataProvider);
+              }
             })
           });
 
@@ -311,6 +325,19 @@ angular.module('terrama2.dataseries.registration', [
         }
       }
 
+      var clearStoreForm = function(){
+        $scope.showStoragerForm = false;
+        $scope.schedule = {};
+        $scope.scheduleOptions = {};
+        $scope.$broadcast('clearStoreForm');
+      }
+      var clearFilterForm = function(){
+        console.log('limpando filter');
+      }
+      var clearIntersectionForm = function(){
+        console.log('limpando intersection');
+      }
+
       // wizard global properties
       $scope.wizard = {
         general: {
@@ -326,15 +353,21 @@ angular.module('terrama2.dataseries.registration', [
           required: false,
           formName: 'storagerForm',
           secondForm: 'storagerDataForm',
-          disabled: true
+          disabled: true,
+          optional: true,
+          clearForm: clearStoreForm
         },
         filter: {
           required: false,
-          disabled: true
+          disabled: true,
+          optional: true,
+          clearForm: clearFilterForm
         },
         intersection: {
           required: false,
-          disabled: true
+          disabled: true,
+          optional: true,
+          clearForm: clearIntersectionForm
         }
       };
 
@@ -666,15 +699,9 @@ angular.module('terrama2.dataseries.registration', [
         var firstStepValid = $scope.forms.generalDataForm.$valid;
         if (firstStepValid){
           $scope.wizard.parameters.disabled = false;
-          $scope.wizard.store.disabled = false;
-          $scope.wizard.filter.disabled = false;
-          $scope.wizard.intersection.disabled = false;
         } 
         else {
           $scope.wizard.parameters.disabled = true;
-          $scope.wizard.store.disabled = true;
-          $scope.wizard.filter.disabled = true;
-          $scope.wizard.intersection.disabled = true;
         }
         return firstStepValid;
       };
@@ -873,9 +900,16 @@ angular.module('terrama2.dataseries.registration', [
         $scope.storager.format = {};
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
+        clearStoreForm();
 
         $scope.dataSeriesSemantics.forEach(function(dSemantics) {
           if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {
+            if ($scope.dataSeries.semantics.data_series_type_name == "OCCURRENCE" && dSemantics.code == "OCCURRENCE-wfp"){
+              return;
+            }
+            if ($scope.dataSeries.semantics.data_series_type_name == "DCP" && dSemantics.data_format_name !== "POSTGIS"){
+              return;
+            }
             $scope.storagerFormats.push(Object.assign({}, dSemantics));
           }
         });
