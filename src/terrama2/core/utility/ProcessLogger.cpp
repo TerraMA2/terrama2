@@ -207,9 +207,13 @@ void terrama2::core::ProcessLogger::error(const std::string& description, Regist
   query.bind_arg(1, static_cast<int>(Status::ERROR));
   query.bind_arg(2, now->toString());
 
+  std::string escapedDescription(description);
+  // TODO: Remove it when terralib escape work properly
+  std::replace(escapedDescription.begin(), escapedDescription.end(), '\'', ' ');
+
   boost::format queryMessages("INSERT INTO " + messagesTableName_ + " (log_id, type, description, timestamp) VALUES(" + QString::number(registerId).toStdString() + ", %1%, '%2%', '%3%')");
   queryMessages.bind_arg(1, static_cast<int>(MessageType::ERROR_MESSAGE));
-  queryMessages.bind_arg(2, description);
+  queryMessages.bind_arg(2, escapedDescription);
   queryMessages.bind_arg(3, now->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
