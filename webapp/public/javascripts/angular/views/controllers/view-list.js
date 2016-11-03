@@ -1,8 +1,9 @@
 (function() {
-  'use strict';
+  "use strict";
 
   angular.module("terrama2.views.controllers.viewlist", [
     "terrama2",
+    "terrama2.services",
     "terrama2.views.services",
     "terrama2.table",
     "terrama2.components.messagebox.services",
@@ -13,14 +14,22 @@
    * It handles TerraMA² View Listing.
    * @class ViewList
    */
-  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window) {
+  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket) {
     var self = this;
 
     // getting config from template
-    var config = $window.configuration || config;
+    var config = $window.configuration || {};
 
+    /**
+     * TerraMA² ViewService DAO
+     * @type {ViewService}
+     */
     self.ViewService = ViewService;
 
+    /**
+     * MessageBox object to handle message dialogs
+     * @type {MessageBoxService}
+     */
     self.MessageBoxService = MessageBoxService;
 
     // token message
@@ -46,55 +55,83 @@
       as: i18n.__("Description")
     }];
 
-    /**
-     * A URL to insert a new view
-     * @type {string}
-     */
-    self.linkToAdd = "/configuration/views/new";
-    self.link = function(object) {
-      return "/configuration/views/edit/" + object.id;
-    };
+    // Initializing async modules
+    $q.all([ViewService.init()])
+      .then(function() {
+        self.model = ViewService.list();
 
-    /**
-     * Icon properties to display in table like size, type (img/icon)
-     * @type {Object}
-     */
-    self.iconProperties = {
-      type: "img",
-      width: 64,
-      height: 64
-    };
+        /**
+         * A URL to insert a new view
+         * @type {string}
+         */
+        self.linkToAdd = "/configuration/views/new";
 
-    /**
-     * Icon functor to make URL pointing to icon.
-     * 
-     * @todo It should retrive a overview of layer
-     * @returns {string}
-     */
-    self.icon = function(object) {
-      return "/images/map-display.png";
-    }
+        /**
+         * It makes a link to View edit
+         * 
+         * @param {View} object - Selected view
+         * @returns {string}
+         */
+        self.link = function(object) {
+          return "/configuration/views/edit/" + object.id;
+        };
 
-    /**
-     * Functor to make URL to remove selected view
-     * @param {Object}
-     */
-    self.remove = function(object) {
-      return "/api/View/" + object.id + "/delete";
-    };
+        /**
+         * Icon properties to display in table like size, type (img/icon)
+         * @type {Object}
+         */
+        self.iconProperties = {
+          type: "img",
+          width: 64,
+          height: 64
+        };
 
-    /**
-     * It retrieves all views registered
-     */
-    self.ViewService.list()
-      .then(function(views) {
-        self.model = views;
+        /**
+         * Icon functor to make URL pointing to icon.
+         * 
+         * @todo It should retrive a overview of layer
+         * @returns {string}
+         */
+        self.icon = function(object) {
+          return "/images/map-display.png";
+        };
+
+        /**
+         * Functor to make URL to remove selected view
+         * @param {Object}
+         */
+        self.remove = function(object) {
+          return "/api/View/" + object.id + "/delete";
+        };
+
+        /**
+         * Defines a properties to TerraMA² Table handle.
+         * 
+         * @type {Object}
+         */
+        self.extra = {
+          showRunButton: true,
+          canRun: function(object) {
+            return object;
+          },
+          /**
+           * It defines a process run button, in order to run now
+           * 
+           * @param {View} object - Selected view
+           */
+          run: function(object){        
+            var process_ids = {
+              "ids":[object.id],
+              "service_instance": object.service_instance_id
+            };
+            Socket.emit('run', process_ids);        
+          }
+        };
       })
-
       .catch(function(err) {
-        $log.info("Could not list views " + err.toString());
+        $log.log("Could not load Views due " + err.toString() + ". Please refresh page (F5)");
       });
   }
 
-  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window"];
+  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket"];
 } ());

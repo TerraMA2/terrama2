@@ -52,7 +52,7 @@ function TcpService() {
   /**
    * It register a service with listener and append it into registered service list
    * 
-   * @param {ServiceInstance} service
+   * @param {Service} service - TerraMA² Service instance
    * @returns {Promise} When finishes
    */
   this.register = function(service) {

@@ -2,16 +2,18 @@
 
 var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
+var PromiseModule = require("./../../core/Promise");
 
 module.exports = function(app) {
   return function(request, response) {
-    var _redirectToHome = function(err) {
-      console.log(err);
-      response.redirect("/");
-    };
+    return PromiseModule
+      .all([
+        DataManager.listCollectors(),
+        DataManager.listAnalysis(),
+        DataManager.listViews()
+      ])
 
-    DataManager.listCollectors().then(function(collectors) {
-      DataManager.listAnalysis().then(function(analysisList) {
+      .spread(function(collectors, analysisList, views) {
         var outputAnalysis = [];
         analysisList.forEach(function(analysis) {
           outputAnalysis.push(analysis.rawObject());
@@ -22,12 +24,21 @@ module.exports = function(app) {
           outputCollectors.push(collector.rawObject());
         });
 
+        var outputViews = views.map(function(view) {
+          return view.rawObject();
+        });
+
         return response.render("configuration/status", {
           "Enums": Enums,
           "analysis": outputAnalysis,
-          "collectors": outputCollectors
+          "collectors": outputCollectors,
+          "views": outputViews
         });
-      }).catch(_redirectToHome);
-    }).catch(_redirectToHome);
+      })
+
+      .catch(function(err) {
+        console.log(err);
+        return response.redirect("/");
+      });
   };
 };

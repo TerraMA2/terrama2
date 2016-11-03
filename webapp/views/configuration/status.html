@@ -17,7 +17,8 @@
   }
   var configuration = {
     collectors: {[ collectors|json|safe ]} || {},
-    analysis: {[ analysis|json|safe ]} || {}
+    analysis: {[ analysis|json|safe ]} || {},
+    views: {[ views|json|safe ]} || {}
   }
 </script>
 <!-- Socket.io -->
@@ -64,7 +65,7 @@
             <span ng-bind="element.name"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Message') }}" showMoreInfo="true" fillModal="setModalMessages(element.message)">
-            <span ng-bind="(element.message.length > 15) ? ((element.message | limitTo:15) + "...") : element.message"></span>
+            <span ng-bind="(element.message.length > 15) ? ((element.message | limitTo:15) + '...') : element.message"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Date') }}">
             <span title="{{ element.date.calendar() }}" ng-bind="element.date.fromNow()"></span>
