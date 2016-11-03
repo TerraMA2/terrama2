@@ -24,6 +24,9 @@ var ServiceType = require("./../../../core/Enums").ServiceType;
 // DataManager
 var DataManager = require("./../../../core/DataManager");
 
+// TerraMA² Service model
+var Service = require("./../../../core/data-model/Service");
+
 /**
  * It handles TCP service manipulation
  * @emits #serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
@@ -94,30 +97,43 @@ TcpService.prototype.constructor = TcpService;
 /**
  * It initializes service listeners based on database service
  * 
+ * @param {boolean} shouldConnect - Flag to determine if tries to connect on running service
  * @returns {Promise}
  */
-TcpService.prototype.init = function() {
+TcpService.prototype.init = function(shouldConnect) {
   var self = this;
+  return new PromiseClass(function(resolve) {
     // register listeners
-  return DataManager.listServiceInstances()
-    .then(function(instances) {
-      // TODO: throw exception
-      if (!self.$loaded) {
-        // registering tcp manager listener
-        TcpManager.on("statusReceived", onStatusReceived);
-        TcpManager.on("logReceived", onLogReceived);
-        TcpManager.on("stop", onStop);
-        TcpManager.on("close", onClose);
-        TcpManager.on("tcpError", onError);
+    return DataManager.listServiceInstances()
+      .then(function(instances) {
+        // TODO: throw exception
+        var promises = [];
+        if (!self.$loaded) {
+          // registering tcp manager listener
+          TcpManager.on("statusReceived", onStatusReceived);
+          TcpManager.on("logReceived", onLogReceived);
+          TcpManager.on("stop", onStop);
+          TcpManager.on("close", onClose);
+          TcpManager.on("tcpError", onError);
 
-        self.$loaded = true;
-        instances.forEach(function(instance) {
-          self.register(instance);
-        });
-      }
-      // passing next promise without any error
-      return null;
-    });
+          self.$loaded = true;
+          instances.forEach(function(instance) {
+            // register cache
+            self.register(instance);
+            // tries to connect automatically on running services
+            promises.push(self.$sendStatus(instance));
+          });
+        }
+
+        return Promise.all(promises)
+          .then(function() {
+            return resolve();
+          })
+          .catch(function(err) {
+            return resolve();
+          });
+      });
+  });
 };
 
 /**
@@ -233,6 +249,30 @@ TcpService.prototype.run = function(processObject) {
 }; // end run
 
 /**
+ * It performs service status through TcpManager.
+ * 
+ * @private
+ * @param {Service} service - TerraMA² service instance to send 
+ * @returns {Promise}
+ */
+TcpService.prototype.$sendStatus = function(service) {
+  var self = this;
+  return new PromiseClass(function(resolve, reject) {
+    // notify every one with loading
+    self.emit("serviceRequestingStatus", service.id);
+
+    return TcpManager.connect(service)
+      .then(function() {
+        TcpManager.emit("statusService", service);
+        return resolve();
+      })
+      .catch(function(err) {
+        return reject(err);
+      });
+  });
+};
+
+/**
  * Listener for handling status signal. When it called, it tries to connect to the socket and retrieve a
  * life time using STATUS_SIGNAL.
  * 
@@ -244,13 +284,7 @@ TcpService.prototype.status = function(json) {
   return new PromiseClass(function(resolve, reject) {
     return DataManager.getServiceInstance({id: json.service})
       .then(function(instance) {
-        // notify every one with loading
-        self.emit("serviceRequestingStatus", json.service);
-
-        return TcpManager.connect(instance)
-          .then(function() {
-            return TcpManager.emit("statusService", instance);
-          });
+        return self.$sendStatus(instance);
       })
 
       .then(function() {

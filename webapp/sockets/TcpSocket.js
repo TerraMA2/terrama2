@@ -65,6 +65,16 @@ var TcpSocket = function(io) {
 
   // Socket connection event
   iosocket.on('connection', function(client) {
+    function onProcessRun(resp) {
+      client.emit("runResponse", resp);
+    }
+
+    TcpService.on("processRun", onProcessRun);
+
+    function onDisconnect() {
+      TcpService.removeListener ("processRun", onProcessRun);
+    }
+
     /**
      * Listener for handling client start request. When called,
      * it retrieves a service instance and tries to start TerraMA² service executable.
@@ -125,11 +135,12 @@ var TcpSocket = function(io) {
     }
 
     // registering socket io listeners
-    client.on('start', onStartRequest);
-    client.on('run', onRunRequest);
-    client.on('status', onStatusRequest);
-    client.on('stop', onStopRequest);
-    client.on('log', onLogRequest);
+    client.on("start", onStartRequest);
+    client.on("run", onRunRequest);
+    client.on("status", onStatusRequest);
+    client.on("stop", onStopRequest);
+    client.on("log", onLogRequest);
+    client.on("disconnect", onDisconnect);
   });
 };
 
