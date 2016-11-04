@@ -13,8 +13,20 @@
   /**
    * It handles TerraMA² View Listing.
    * @class ViewList
+   * 
+   * @param {angular.IScope} $scope - Angular scope
+   * @param {Object} i18n - TerraMA² i18n module
+   * @param {angular.ILog} $log - Angular log module
+   * @param {MessageBoxService} MessageBoxService - TerraMA² Message dialog object
+   * @param {angluar.IWindow} $window - Angular window module
+   * @param {angular.IQ} $q - Angular promiser module
+   * @param {Object} Socket - TerraMA² Socket io module
    */
   function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket) {
+    /**
+     * View List controller
+     * @type {ViewList}
+     */
     var self = this;
 
     // getting config from template
@@ -27,7 +39,7 @@
     self.ViewService = ViewService;
 
     /**
-     * MessageBox object to handle message dialogs
+     * MessageBox object to handle message dialogs (Singleton)
      * @type {MessageBoxService}
      */
     self.MessageBoxService = MessageBoxService;
@@ -78,6 +90,7 @@
     // Initializing async modules
     $q.all([ViewService.init()])
       .then(function() {
+        // Setting loaded views into model
         self.model = ViewService.list();
 
         /**
@@ -152,6 +165,9 @@
         $log.log("Could not load Views due " + err.toString() + ". Please refresh page (F5)");
       });
   }
-
+  /**
+   * ViewList controllers dependencies. Important when minify js scripts
+   * @type {string[]}
+   */
   ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket"];
 } ());

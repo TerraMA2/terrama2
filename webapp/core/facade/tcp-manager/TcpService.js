@@ -29,9 +29,9 @@ var Service = require("./../../../core/data-model/Service");
 
 /**
  * It handles TCP service manipulation
- * @emits #serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
- * @emits #serviceStatus When user request for service status in order to determines if service is running properly
- * @emits #serviceRequestingStatus When user is requesting for status. Useful to notify all listeners
+ * @emits TcpService#serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
+ * @emits TcpService#serviceStatus When user request for service status in order to determines if service is running properly
+ * @emits TcpService#serviceRequestingStatus When user is requesting for status. Useful to notify all listeners
  */
 function TcpService() {
   EventEmitter.apply(this, arguments);
@@ -72,6 +72,8 @@ function TcpService() {
       TcpManager.registerListeners(service);
       // register cached service
       _registeredServices.push(service.id);
+      // ensure promise resolves
+      return resolve();
     });
   };
 
