@@ -142,7 +142,7 @@ int main(int argc, char** argv)
   }
   catch (const te::Exception& e)
   {
-    std::cerr << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;
+    std::cerr << boost::get_error_info<te::ErrorDescription>(e) << std::endl;
     return 1;
   }
   catch (const boost::exception& e)
