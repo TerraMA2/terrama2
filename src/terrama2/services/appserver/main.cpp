@@ -131,6 +131,8 @@ createService(const std::string& serviceType)
 
 int main(int argc, char* argv[])
 {
+  std::setlocale(LC_ALL, "en_US.UTF-8");
+  
   try
   {
     std::string appName = boost::filesystem::basename(argv[0]);

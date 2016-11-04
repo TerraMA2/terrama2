@@ -108,6 +108,13 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
+    if(!analysis_->outputGridPtr)
+    {
+      QString errMsg(QObject::tr("Invalid analysis output grid."));
+      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
+    }
+
+
     // First call, need to call sample for each dataset raster and store the result in the context.
     auto gridMap = getGridMap(dataManager, dataSeries->id, dateDiscardBefore, dateDiscardAfter);
 
@@ -124,7 +131,8 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
           throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
         }
 
-        auto cachedRaster = addRaster(key, dsRaster);
+        auto cachedRaster = std::make_shared<te::mem::CachedRaster>(200, *dsRaster, 1);
+        rasterMap_[key].push_back(cachedRaster);
         auto interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
         std::shared_ptr<terrama2::core::SynchronizedInterpolator> syncInterpolator = std::make_shared<terrama2::core::SynchronizedInterpolator>(cachedRaster.get(), interpolationMethod);
         interpolatorMap_.emplace(cachedRaster, syncInterpolator);
@@ -133,14 +141,6 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 
     return rasterMap_[key];
   }
-}
-
-std::shared_ptr<te::rst::Raster> terrama2::services::analysis::core::BaseContext::addRaster(ObjectKey key, std::shared_ptr<te::rst::Raster> raster)
-{
-  auto cachedRaster = std::make_shared<te::mem::CachedRaster>(200, *raster, 1);
-  rasterMap_[key].push_back(cachedRaster);
-
-  return cachedRaster;
 }
 
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >

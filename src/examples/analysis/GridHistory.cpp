@@ -53,14 +53,6 @@ int main(int argc, char* argv[])
 
     DataManagerPtr dataManager(new DataManager());
 
-    QUrl uri;
-    uri.setScheme("postgis");
-    uri.setHost(QString::fromStdString(TERRAMA2_DATABASE_HOST));
-    uri.setPort(std::stoi(TERRAMA2_DATABASE_PORT));
-    uri.setUserName(QString::fromStdString(TERRAMA2_DATABASE_USERNAME));
-    uri.setPassword(QString::fromStdString(TERRAMA2_DATABASE_PASSWORD));
-    uri.setPath(QString::fromStdString("/" + TERRAMA2_DATABASE_DBNAME));
-
     // DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
