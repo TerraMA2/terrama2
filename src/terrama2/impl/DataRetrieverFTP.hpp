@@ -93,7 +93,8 @@ namespace terrama2
         virtual std::string retrieveData(const std::string& mask,
                                          const Filter& filter,
                                          std::shared_ptr<terrama2::core::FileRemover> remover,
-                                         const std::string& temporaryFolder = "") override;
+                                         const std::string& temporaryFolder = "",
+                                         const std::string& folderPath = "") override;
 
         /*!
          * \brief write_response - data to be written in file.

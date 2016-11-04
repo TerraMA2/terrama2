@@ -42,6 +42,9 @@
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Utils.hpp"
 
+// TerraLib
+#include <terralib/core/uri/URI.h>
+
 // Libcurl
 #include <curl/curl.h>
 
@@ -119,7 +122,8 @@ size_t terrama2::core::DataRetrieverFTP::write_vector(void* ptr, size_t size, si
 std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& mask,
                                                            const Filter& filter,
                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                           const std::string& temporaryFolderUri)
+                                                           const std::string& temporaryFolderUri,
+                                                           const std::string& folderPath)
 {
   std::string downloadFolderUri = temporaryFolderUri;
   if(temporaryFolderUri.empty())
@@ -141,12 +145,14 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   curlwrapper_.init();
   try
   {
+    te::core::URI uriInput(dataProvider_->uri + (folderPath.empty() ? "/" : folderPath + "/"));
+
     // Get a file listing from server
     if(curlwrapper_.fcurl())
     {
       std::string block;
-      std::string uriInput = dataProvider_->uri+"/";
-      std::vector<std::string> vectorFiles = curlwrapper_.getListFiles(uriInput, &terrama2::core::DataRetrieverFTP::write_vector, block);
+
+      std::vector<std::string> vectorFiles = curlwrapper_.getListFiles(uriInput.uri(), &terrama2::core::DataRetrieverFTP::write_vector, block);
 
       std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
@@ -168,7 +174,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
           // Performs the download of files in the vectorNames
           if(curlwrapper_.fcurl())
           {
-            std::string uriOrigin = dataProvider_->uri +"/"+file;
+            std::string uriOrigin = uriInput.uri() + file;
 
             QUrl url(QString::fromStdString(downloadFolderUri));
             std::string filePath = url.path().toStdString()+"/"+file;
