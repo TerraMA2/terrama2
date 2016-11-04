@@ -135,12 +135,9 @@ void terrama2::core::initializeTerralib()
   // Load all the config files for the plugins.
   std::vector<te::core::PluginInfo> v_pInfo;
 
-  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(
-      te::core::FindInTerraLibPath(plugins_path + "/te.da.pgis.teplg.json")));
-  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(
-      te::core::FindInTerraLibPath(plugins_path + "/te.da.gdal.teplg.json")));
-  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(
-      te::core::FindInTerraLibPath(plugins_path + "/te.da.ogr.teplg.json")));
+  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(plugins_path + "/te.da.pgis.teplg.json"));
+  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(plugins_path + "/te.da.gdal.teplg.json"));
+  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(plugins_path + "/te.da.ogr.teplg.json"));
 
   // Insert all the plugins stored in the vector from a given PluginInfo.
   v_pInfo = te::core::plugin::TopologicalSort(v_pInfo);
