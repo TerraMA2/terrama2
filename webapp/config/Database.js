@@ -171,8 +171,8 @@ Database.prototype.finalize = function() {
       sequelize.close();
     }
 
-    resolve();
-  })
+    return resolve();
+  });
 };
 
 module.exports = new Database();
