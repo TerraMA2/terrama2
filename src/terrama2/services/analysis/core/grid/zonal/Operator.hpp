@@ -65,7 +65,11 @@ namespace terrama2
               \return A double value with the result.
             */
             double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                                const std::string& dataSeriesName, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "", terrama2::services::analysis::core::Buffer buffer = Buffer());
+                                const std::string& dataSeriesName,
+                                const std::string& dateDiscardBefore,
+                                const std::string& dateDiscardAfter,
+                                const size_t band,
+                                terrama2::services::analysis::core::Buffer buffer);
 
             /*!
               \brief Calculates the number of pixels inside the monitored object.
@@ -76,7 +80,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            double count(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Calculates the sum of zonal grid data.
@@ -87,7 +91,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double sum(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            double sum(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Calculates the mean of zonal grid data.
@@ -99,7 +103,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double mean(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            double mean(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Calculates the min of zonal grid data.
@@ -111,7 +115,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            double min(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Calculates the max of zonal grid data.
@@ -126,7 +130,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double max(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            double max(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Calculates the median of zonal grid data.
@@ -138,7 +142,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double median(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            double median(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Calculates the standard deviation of zonal grid data.
@@ -149,7 +153,7 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double standardDeviation(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            double standardDeviation(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Calculates the variance of zonal grid data.
@@ -160,12 +164,12 @@ namespace terrama2
 
               \return A double value with the result.
             */
-            double variance(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer = Buffer());
+            double variance(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
             /*!
               \brief Populates the vector \e values with the values of the pixels inside the \e polygon area.
             */
-            void appendValues(te::rst::Raster* raster, int band, te::gm::Polygon* polygon, std::vector<double>& values);
+            void appendValues(te::rst::Raster* raster, size_t band, te::gm::Polygon* polygon, std::vector<double>& values);
           } /* zonal */
         }   // end namespace grid
       }     // end namespace core

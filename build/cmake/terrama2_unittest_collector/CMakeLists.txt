@@ -53,7 +53,6 @@ add_executable(terrama2_unittest_collector ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_
 
 target_link_libraries(terrama2_unittest_collector terrama2_core
                                                   terrama2_collector_core
-                                                  terralib_mod_plugin
                                                   terralib_mod_common
                                                   terralib_mod_rp
                                                   ${GTEST_BOTH_LIBRARIES}

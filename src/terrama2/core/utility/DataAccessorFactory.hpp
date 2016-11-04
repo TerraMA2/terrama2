@@ -60,7 +60,7 @@ namespace terrama2
         //! DataAccessor constructor function.
         typedef std::function<DataAccessorPtr (terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries)> FactoryFnctType;
         //! Register a new DataAccessor constructor associated with the DataSeriesSemantics.
-        bool add(const std::string& semanticsCode, FactoryFnctType f);
+        void add(const std::string& semanticsCode, FactoryFnctType f);
         //! Remove the DataAccessor constructor associated with the DataSeriesSemantics.
         void remove(const std::string& semanticsCode);
         //! Check if there is a DataAccessor constructor associated with the DataSeriesSemantics.
