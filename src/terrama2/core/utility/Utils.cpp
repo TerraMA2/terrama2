@@ -43,7 +43,7 @@
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common/UnitsOfMeasureManager.h>
 #include <terralib/common.h>
-#include <terralib/plugin.h>
+#include <terralib/core/plugin.h>
 #include <terralib/geometry/Geometry.h>
 #include <terralib/sa/core/Utils.h>
 #include <terralib/srs/SpatialReferenceSystemManager.h>
@@ -129,22 +129,24 @@ void terrama2::core::initializeTerralib()
   // Initialize the Terralib support
   auto& terralib = TerraLib::getInstance();
   terralib.initialize();
+  te::core::plugin::InitializePluginSystem();
 
-  te::plugin::PluginInfo* info;
   std::string plugins_path = te::core::FindInTerraLibPath("share/terralib/plugins");
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.pgis.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
+  // Load all the config files for the plugins.
+  std::vector<te::core::PluginInfo> v_pInfo;
 
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.gdal.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
+  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(plugins_path + "/te.da.pgis.teplg.json"));
+  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(plugins_path + "/te.da.gdal.teplg.json"));
+  v_pInfo.push_back(te::core::JSONPluginInfoSerializer(plugins_path + "/te.da.ogr.teplg.json"));
 
-  info = te::plugin::GetInstalledPlugin(plugins_path + "/te.da.ogr.teplg");
-  te::plugin::PluginManager::getInstance().add(info);
+  // Insert all the plugins stored in the vector from a given PluginInfo.
+  v_pInfo = te::core::plugin::TopologicalSort(v_pInfo);
 
-  te::plugin::PluginManager::getInstance().loadAll();
-
-
-
+  for(const te::core::PluginInfo& pinfo : v_pInfo)
+  {
+    te::core::PluginManager::instance().insert(pinfo);
+    te::core::PluginManager::instance().load(pinfo.name);
+  }
 
   // Base of Time measure: second
   te::common::UnitOfMeasurePtr uomSecond(new te::common::UnitOfMeasure(te::common::UOM_second,"SECOND", "s", te::common::MeasureType::Time));
@@ -197,6 +199,17 @@ void terrama2::core::initializeTerralib()
 
 void terrama2::core::finalizeTerralib()
 {
+  // get all the loaded plugins
+  std::vector<te::core::PluginInfo> pVec = te::core::PluginManager::instance().getLoadedPlugins();
+    // unload it in the reverse order
+  for (auto plugin = pVec.rbegin(); plugin != pVec.rend(); ++plugin)
+  {
+    te::core::PluginManager::instance().stop(plugin->name);
+    te::core::PluginManager::instance().unload(plugin->name);
+  }
+  te::core::PluginManager::instance().clear();
+
+  te::core::plugin::FinalizePluginSystem();
   TerraLib::getInstance().finalize();
 }
 

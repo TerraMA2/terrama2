@@ -6,36 +6,45 @@
    * It defines a TerraMA² View Service DAO.
    * 
    * @class ViewService
+   * 
+   * @param {BaseService} BaseService - Angular TerraMA² base service module
+   * @param {angular.IQ} $q - Angular promiser module 
    */
-  function ViewService($q, $http) {
+  function ViewService(BaseService, $q) {
+    this.BaseService = BaseService;
     this.$q = $q;
-    this.$http = $http;
     this.$baseUrl = "/api/View";
+    this.model = [];
   }
 
   /**
-   * It performs a web request to the Views API
-   * 
-   * @param {string} url - A well-formed URL to make request
-   * @param {method} method - Request method.
-   * @param {Object} options - A extra request options
-   * @returns {ng.IPromise}
+   * Module dependencies injection
+   * @type {string[]}
    */
-  ViewService.prototype.$request = function(url, method, options) {
-    var self = this;
-    var defer = self.$q.defer();
+  ViewService.$inject = ["BaseService", "$q"];
 
-    self.$http(Object.assign({
-      url: url,
-      method: method
-    }, options)).success(function(data) {
-      return defer.resolve(data);
-    }).error(function(err) {
-      return defer.reject(err);
-    });
+  /**
+   * It retrieves all data series semantics and cache them in model.
+   * 
+   * @param {Object} restriction
+   * @returns {angular.IPromise<Object[]>}
+   */
+  ViewService.prototype.init = function(restriction) {
+    var defer = this.BaseService.$q.defer();
+    var self = this;
+
+    this.BaseService
+      .$request(this.$baseUrl, "GET", {params: restriction})
+      .then(function(data) {
+        self.model = data;
+        return defer.resolve(data);
+      })
+      .catch(function(err) {
+        return defer.reject(err);
+      })
 
     return defer.promise;
-  }
+  };
 
   /**
    * It performs a view creation on API call.
@@ -44,7 +53,7 @@
    * @returns {ng.IPromise}
    */
   ViewService.prototype.create = function(viewObject) {
-    return this.$request(this.$baseUrl, "POST", {
+    return this.BaseService.$request(this.$baseUrl, "POST", {
       data: viewObject,
       headers: {
         "Content-Type": "application/json"
@@ -59,9 +68,7 @@
    * @returns {ng.IPromise}
    */
   ViewService.prototype.list = function(restriction) {
-    return this.$request(this.$baseUrl, "GET", {
-      params: restriction
-    });
+    return this.BaseService.$filter('filter')(this.model, restriction);
   };
   
   /**
@@ -72,9 +79,7 @@
    * @returns {ng.IPromise}
    */
   ViewService.prototype.get = function(viewId, restriction) {
-    return this.$request(this.$baseUrl + "/" + viewId, "GET", {
-      params: restriction
-    });
+    return this.BaseService.get(this.model, restriction);
   };
 
   /**
@@ -85,7 +90,7 @@
    * @returns {ng.IPromise}
    */
   ViewService.prototype.update = function(viewId, viewObject) {
-    return this.$request(this.$baseUrl + "/" + viewId, "PUT", {
+    return this.BaseService.$request(this.$baseUrl + "/" + viewId, "PUT", {
       data: viewObject
     });
   };

@@ -61,7 +61,6 @@ foreach(FILE ${TERRAMA2_SRC_FILES})
    target_link_libraries(${EXAMPLE} terrama2_core
                                     terrama2_analysis_core
                                     terrama2_impl
-                                    terralib_mod_plugin
                                     terralib_mod_common
                                     ${PYTHON_LIBRARIES})
 endforeach()

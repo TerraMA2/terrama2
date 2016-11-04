@@ -17,7 +17,7 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
       $scope.display = true;
       $scope.alertLevel = "alert-success";
       $scope.alertBox.message = i18n.__("The process was started successfully");
-    })
+    });
 
     if (config.dataSeriesType == "static") {
       $scope.dataSeriesType = config.dataSeriesType;
