@@ -332,10 +332,13 @@ angular.module('terrama2.dataseries.registration', [
         $scope.$broadcast('clearStoreForm');
       }
       var clearFilterForm = function(){
-        console.log('limpando filter');
+        $scope.filter.date = {};
+        $scope.filter.filterArea = "1";
       }
       var clearIntersectionForm = function(){
-        console.log('limpando intersection');
+        for (var key in $scope.intersection) {
+          $scope.removeDataSeries(key);
+        }
       }
 
       // wizard global properties
@@ -536,7 +539,7 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       // removing data series from intersection list
-      $scope.removeDataSeries = function(dataSeriesId, index) {
+      $scope.removeDataSeries = function(dataSeriesId) {
         if (!dataSeriesId) { return; }
 
         var dataSeries = $scope.intersection[dataSeriesId].data_series;
