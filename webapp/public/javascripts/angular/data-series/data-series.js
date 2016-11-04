@@ -1,11 +1,16 @@
-angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
-  .controller("ListController", ['$scope', 'DataSeriesFactory', 'Socket', 'i18n', '$window',
-  function($scope, DataSeriesFactory,Socket, i18n, $window) {
+angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox', 'terrama2.administration.services.iservices'])
+  .controller("ListController", ['$scope', 'DataSeriesFactory', 'Socket', 'i18n', '$window', 'Service',
+  function($scope, DataSeriesFactory,Socket, i18n, $window, Service) {
     $scope.i18n = i18n;
+    $scope.disabledButtons = {};
     var isDynamic = false;
     var queryParams = {};
 
+    var serviceCache = {};
+
     var config = $window.configuration;
+
+    Service.init();
 
     Socket.on('errorResponse', function(response){
       $scope.display = true;
@@ -17,6 +22,28 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
       $scope.display = true;
       $scope.alertLevel = "alert-success";
       $scope.alertBox.message = i18n.__("The process was started successfully");
+    });
+
+    Socket.on('statusResponse', function(response) {
+      if(response.message !== undefined) {
+        if(response.online) {
+          Socket.emit('run', serviceCache[response.service].process_ids);
+        } else {
+          var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+
+          $scope.display = true;
+          $scope.alertLevel = "alert-error";
+
+          if(service != null) {
+            $scope.alertBox.message = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+          } else {
+            $scope.alertBox.message = i18n.__("Service not active");
+          }
+        }
+
+        delete $scope.disabledButtons[serviceCache[response.service].service_id];
+        delete serviceCache[response.service];
+      }
     });
 
     if (config.dataSeriesType == "static") {
@@ -57,13 +84,24 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
         })
         return foundCollector || foundAnalysis;
       },
-      run: function(object){        
+      run: function(object){
         var service_instance = this.canRun(object);
-        var process_ids = {
-          "ids":[service_instance.id],
-          "service_instance": service_instance.service_instance_id
-        }        
-        Socket.emit('run', process_ids);        
+
+        serviceCache[service_instance.service_instance_id] = {
+          "process_ids": {
+            "ids": [service_instance.id],
+            "service_instance": service_instance.service_instance_id
+          },
+          "service_id": object.id,
+          "service_name": object.name
+        };
+
+        $scope.disabledButtons[object.id] = true;
+
+        Socket.emit('status', {service: service_instance.service_instance_id});
+      },
+      disabledButtons: function(object){
+        return $scope.disabledButtons[object.id];
       }
     };
     $scope.method = "{[ method ]}";
