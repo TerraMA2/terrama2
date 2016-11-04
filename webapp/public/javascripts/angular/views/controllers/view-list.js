@@ -19,8 +19,17 @@
     // getting config from template
     var config = $window.configuration || config;
 
+    /**
+     * TerraMA² View Service DAO
+     * 
+     * @type {ViewService}
+     */
     self.ViewService = ViewService;
 
+    /**
+     * TerraMA² Message Dialog Object (Singleton)
+     * @type {MessageBoxService}
+     */
     self.MessageBoxService = MessageBoxService;
 
     // token message
@@ -73,7 +82,7 @@
      */
     self.icon = function(object) {
       return "/images/map-display.png";
-    }
+    };
 
     /**
      * Functor to make URL to remove selected view
