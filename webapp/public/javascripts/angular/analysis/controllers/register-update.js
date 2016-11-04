@@ -912,7 +912,7 @@
 
           return request
             .then(function(data) {
-              window.location = "/configuration/analysis?token=" + (data.token || data.data.token);
+              window.location = "/configuration/analysis?token=" + (data.token || (data.data || {}).token);
             })
             .catch(function(err) {
               $log.log(err);

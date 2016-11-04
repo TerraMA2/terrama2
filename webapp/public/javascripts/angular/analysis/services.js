@@ -77,9 +77,9 @@
     var self = this;
     this.BaseService
       .$request(this.url, "POST", {data: analysisObject})
-      .then(function(analysis) {
-        self.model.push(analysisObject);
-        return defer.resolve(analysisObject);
+      .then(function(response) {
+        self.model.push((response || {}).result);
+        return defer.resolve(response);
       })
       .catch(function(err) {
         return defer.reject(err);
