@@ -33,6 +33,7 @@ return Database.init(nodeContext).then(function (sequelize) {
   var DataManager = require("../core/DataManager");
   var TcpManager = require("../core/TcpManager");
   var PortScanner = require("./../core/PortScanner");
+  var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
   var currentContext = Database.getContextConfig();
 
@@ -61,59 +62,69 @@ return Database.init(nodeContext).then(function (sequelize) {
     var connections = {};
 
     // getting db configuration and initializes data manager
-    DataManager.init(function(error) {
+    return DataManager.init(function(error) {
       if (error) {
         console.log(error);
         process.exit(1);
         return;
       }
 
-      if (debugMessage) {
-        console.log(debugMessage);
-      }
-      console.log("Initializing TerraMA2 on port " + port);
-      /**
-       * Listen on provided port, on all network interfaces.
-       */
+      // loading terrama2 data
+      return DataManager.load()
+        .then(function() {
+          // initialize service listeners
+          return TcpService.init()
+            .finally(function() {
+              if (debugMessage) {
+                console.log(debugMessage);
+              }
+              console.log("Initializing TerraMA2 on port " + port);
+              /**
+               * Listen on provided port, on all network interfaces.
+               */
+              server.listen(port);
 
-      server.listen(port);
+              // approach for handling connections and remove it to avoid unclosed nodejs server
+              server.on('connection', function(conn) {
+                var key = conn.remoteAddress + ':' + conn.remotePort;
+                connections[key] = conn;
 
-      // approach for handling connections and remove it to avoid unclosed nodejs server
-      server.on('connection', function(conn) {
-        var key = conn.remoteAddress + ':' + conn.remotePort;
-        connections[key] = conn;
+                conn.on('close', function() {
+                  delete connections[key];
+                })
+              });
 
-        conn.on('close', function() {
-          delete connections[key];
-        })
-      });
+              server.on('error', onError);
+              server.on('listening', onListening);
+              server.on('close', onClose);
 
-      server.on('error', onError);
-      server.on('listening', onListening);
-      server.on('close', onClose);
+              // detecting sigint error and then close server
+              process.on('SIGINT', function(){
+                DataManager.finalize().then(function() {
+                  var _closeServer = function() {
+                    server.close(function() {
+                      console.log("TerraMA2 finalized");
+                    });
 
-      // detecting sigint error and then close server
-      process.on('SIGINT', function(){
-        DataManager.finalize().then(function() {
-          var _closeServer = function() {
-            server.close(function() {
-              console.log("TerraMA2 finalized");
-            });
+                    for (var key in connections)
+                      connections[key].destroy();
+                  };
 
-            for (var key in connections)
-              connections[key].destroy();
-          };
+                  TcpService.finalize();
+                  TcpManager.disconnect();
 
-          TcpManager.disconnect();
+                  _closeServer();
+                });
+              });
 
-          _closeServer();
+              io.attach(server);
+              load('sockets').into(io);
+            })
+        }).catch(function(err) {
+          console.log("Could not load datamanager: " + err.message);
+          process.exit(1);
         });
-      });
-
-      io.attach(server);
-      load('sockets').into(io);
     });
-
   });
 
   /**

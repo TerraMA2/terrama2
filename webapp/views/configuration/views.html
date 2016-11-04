@@ -14,6 +14,9 @@
   };
 </script>
 
+<!-- Socket.io -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
 <script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 
@@ -30,7 +33,7 @@
   <terrama2-box title="i18n.__('Views')">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
-                            close="ctrl.close()">
+                           close="ctrl.close()">
       </terrama2-alert-box2>
     </div>
 
@@ -40,7 +43,8 @@
                       icon="ctrl.icon"
                       icon-properties="ctrl.iconProperties"
                       link-to-add="ctrl.linkToAdd"
-                      remove="ctrl.remove(object);">
+                      remove="ctrl.remove(object);"
+                      extra="ctrl.extra">
       </terrama2-table>
   </terrama2-box> <!-- end col md 6 -->
 

@@ -132,7 +132,8 @@ function _getClient(connection) {
 */
 var logs = {
   collectors: [],
-  analysis: []
+  analysis: [],
+  views: []
 };
 
 /**
@@ -226,6 +227,9 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
       case ServiceType.ANALYSIS:
         array = logs.analysis;
         break;
+      case ServiceType.VIEW:
+        array = logs.views;
+        break;
       default:
         this.emit('tcpError', null, new Error("Invalid service type id"));
         return;
@@ -276,10 +280,10 @@ TcpManager.prototype.startService = function(serviceInstance) {
     return instance.connect(serviceInstance).then(function() {
       return instance.startService().then(function(code) {
         // self.emit("serviceStarted", serviceInstance);
-        resolve(code);
+        return resolve(code);
       }).catch(function(err) {
         // self.emit('error', serviceInstance, err);
-        reject(err);
+        return reject(err);
       }).finally(function() {
         return instance.disconnect();
       });
@@ -397,6 +401,9 @@ TcpManager.prototype.initialize = function(client) {
         break;
       case ServiceType.ANALYSIS:
         target = logs.analysis;
+        break;
+      case ServiceType.VIEW:
+        target = logs.views;
         break;
     }
 
