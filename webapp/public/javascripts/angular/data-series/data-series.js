@@ -25,7 +25,7 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     })
 
     Socket.on('statusResponse', function(response) {
-      if(response.message !== undefined) {
+      if(response.checking === undefined) {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
         } else {
