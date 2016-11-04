@@ -168,31 +168,31 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   std::string fileName = mask;
   size_t pos = fileName.find("%YYYY");
   if(pos != std::string::npos)
-    fileName.replace(pos, 4, zeroPadNumber(year, 4));
+    fileName.replace(pos, 5, zeroPadNumber(year, 4));
 
   pos = fileName.find("%YY");
   if(pos != std::string::npos)
-    fileName.replace(pos, 2, zeroPadNumber(year, 2));
+    fileName.replace(pos, 3, zeroPadNumber(year, 2));
 
   pos = fileName.find("%MM");
   if(pos != std::string::npos)
-    fileName.replace(pos, 2, zeroPadNumber(month, 2));
+    fileName.replace(pos, 3, zeroPadNumber(month, 2));
 
   pos = fileName.find("%DD");
   if(pos != std::string::npos)
-    fileName.replace(pos, 2, zeroPadNumber(day, 2));
+    fileName.replace(pos, 3, zeroPadNumber(day, 2));
 
   pos = fileName.find("%hh");
   if(pos != std::string::npos)
-    fileName.replace(pos, 2, zeroPadNumber(hour, 2));
+    fileName.replace(pos, 3, zeroPadNumber(hour, 2));
 
   pos = fileName.find("%mm");
   if(pos != std::string::npos)
-    fileName.replace(pos, 2, zeroPadNumber(minutes, 2));
+    fileName.replace(pos, 3, zeroPadNumber(minutes, 2));
 
   pos = fileName.find("%ss");
   if(pos != std::string::npos)
-    fileName.replace(pos, 2, zeroPadNumber(seconds, 2));
+    fileName.replace(pos, 3, zeroPadNumber(seconds, 2));
 
   return fileName;
 }
