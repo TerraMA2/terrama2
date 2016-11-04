@@ -186,8 +186,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
           auto multiPolygon = std::static_pointer_cast<te::gm::MultiPolygon>(geomResult);
           for(auto geom : multiPolygon->getGeometries())
           {
-            auto polygon = dynamic_cast<te::gm::Polygon*>(geom);
-            assert(polygon);
+            auto polygon = static_cast<te::gm::Polygon*>(geom);
             polygon->transform(raster->getSRID());
             appendValues(raster.get(), band, polygon, values);
           }
