@@ -48,7 +48,7 @@
 #include <terralib/geometry/Utils.h>
 #include <terralib/raster/PositionIterator.h>
 
-void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Raster* raster, int band, te::gm::Polygon* polygon, std::vector<double>& values)
+void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Raster* raster, size_t band, te::gm::Polygon* polygon, std::vector<double>& values)
 {
   //raster values can always be read as double
   auto it = te::rst::PolygonIterator<double>::begin(raster, polygon);
@@ -65,11 +65,12 @@ void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Rast
 }
 
 double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-    const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
+                                                                     const std::string& dataSeriesName,
+                                                                     const std::string& dateDiscardBefore,
+                                                                     const std::string& dateDiscardAfter,
+                                                                     const size_t band,
+                                                                     terrama2::services::analysis::core::Buffer buffer)
 {
-  //FIXME: getting from first band
-  int band = 0;
-
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
@@ -148,7 +149,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
     }
 
     auto datasets = dataSeries->datasetList;
-    for(auto dataset : datasets)
+    for(const auto& dataset : datasets)
     {
       auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, dateDiscardAfter);
 
@@ -166,7 +167,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
       }
 
       std::vector<double> values;
-      for(auto raster : rasterList)
+      for(const auto& raster : rasterList)
       {
         geomResult->transform(raster->getSRID());
         //no intersection between the raster and the object geometry
@@ -185,7 +186,9 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
           auto multiPolygon = std::static_pointer_cast<te::gm::MultiPolygon>(geomResult);
           for(auto geom : multiPolygon->getGeometries())
           {
-            auto polygon = static_cast<te::gm::Polygon*>(geom);
+            auto polygon = dynamic_cast<te::gm::Polygon*>(geom);
+            assert(polygon);
+            polygon->transform(raster->getSRID());
             appendValues(raster.get(), band, polygon, values);
           }
         }
@@ -229,43 +232,42 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   }
 }
 
-double terrama2::services::analysis::core::grid::zonal::count(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::count(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", "", band, buffer);
 }
 
-
-double terrama2::services::analysis::core::grid::zonal::min(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::min(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::max(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::max(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::mean(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::mean(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::median(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::median(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::standardDeviation(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::standardDeviation(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::variance(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::variance(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::sum(const std::string& dataSeriesName, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::sum(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, "", "", buffer);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, "", "", band, buffer);
 }
