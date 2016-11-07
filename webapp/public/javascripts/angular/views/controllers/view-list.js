@@ -41,6 +41,13 @@
     self.ViewService = ViewService;
 
     /**
+     * Helper to reset alert box instance
+     */
+    self.close = function() {
+      self.MessageBoxService.reset();
+    };
+
+    /**
      * MessageBox object to handle message dialogs (Singleton)
      * @type {MessageBoxService}
      */
@@ -116,10 +123,14 @@
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
         } else {
-          var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+          if(serviceCache[response.service] != undefined) {
+            var service = Service.get(serviceCache[response.service].process_ids.service_instance);
 
-          if(service != null) {
-            self.MessageBoxService.danger(i18n.__("View"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
+            if(service != null) {
+              self.MessageBoxService.danger(i18n.__("View"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
+            } else {
+              self.MessageBoxService.danger(i18n.__("View"), "Service not active");
+            }
           } else {
             self.MessageBoxService.danger(i18n.__("View"), "Service not active");
           }

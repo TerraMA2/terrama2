@@ -29,13 +29,17 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
         } else {
-          var service = Service.get(serviceCache[response.service].process_ids.service_instance);
-
           $scope.display = true;
           $scope.alertLevel = "alert-error";
 
-          if(service != null) {
-            $scope.alertBox.message = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+          if(serviceCache[response.service] != undefined) {
+            var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+
+            if(service != null) {
+              $scope.alertBox.message = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+            } else {
+              $scope.alertBox.message = i18n.__("Service not active");
+            }
           } else {
             $scope.alertBox.message = i18n.__("Service not active");
           }
