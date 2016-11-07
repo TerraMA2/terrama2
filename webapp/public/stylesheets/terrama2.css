@@ -254,3 +254,7 @@ bootstrap-decorator span {
   background: #ececec;
   background-color: #ececec;
 }
+
+.enable-button-click {
+  cursor: pointer !important;
+}
