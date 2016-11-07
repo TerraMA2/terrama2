@@ -7,7 +7,8 @@
     "terrama2.views.services",
     "terrama2.table",
     "terrama2.components.messagebox.services",
-    "terrama2.components.messagebox"])
+    "terrama2.components.messagebox",
+    "terrama2.administration.services.iservices"])
   .controller("ViewList", ViewList);
 
   /**
@@ -21,8 +22,9 @@
    * @param {angluar.IWindow} $window - Angular window module
    * @param {angular.IQ} $q - Angular promiser module
    * @param {Object} Socket - TerraMA² Socket io module
+   * @param {Service} Service - TerraMA² Service object
    */
-  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket) {
+  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket, Service) {
     /**
      * View List controller
      * @type {ViewList}
@@ -68,6 +70,23 @@
     }];
 
     /**
+     * Control to disable the run buttons
+     * @type {Object}
+     */
+    $scope.disabledButtons = {};
+
+    /**
+     * Keeps services data
+     * @type {Object}
+     */
+    var serviceCache = {};
+
+    /**
+     * Starts the module 'Service'
+     */
+    Service.init();
+
+    /**
      * It handles socket error.
      *
      * @param {Object} response - Response object with error message value
@@ -84,7 +103,31 @@
      * @param {Object} response.service - TerraMA² service id to determines which service called
      */
     Socket.on('runResponse', function(response){
-      self.MessageBoxService.success(i18n.__("View"), i18n.__("The process was started successfully")); 
+      self.MessageBoxService.success(i18n.__("View"), i18n.__("The process was started successfully"));
+    });
+
+    /**
+     * It handles process status feedback.
+     *
+     * @param {Object} response - Response object
+     */
+    Socket.on('statusResponse', function(response) {
+      if(response.checking === undefined || (!response.checking && response.status == 400)) {
+        if(response.online) {
+          Socket.emit('run', serviceCache[response.service].process_ids);
+        } else {
+          var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+
+          if(service != null) {
+            self.MessageBoxService.danger(i18n.__("View"), i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
+          } else {
+            self.MessageBoxService.danger(i18n.__("View"), "Service not active");
+          }
+        }
+
+        delete $scope.disabledButtons[serviceCache[response.service].service_id];
+        delete serviceCache[response.service];
+      }
     });
 
     // Initializing async modules
@@ -153,11 +196,21 @@
            * @param {View} object - Selected view
            */
           run: function(object){
-            var process_ids = {
-              "ids":[object.id],
-              "service_instance": object.service_instance_id
+            serviceCache[object.service_instance_id] = {
+              "process_ids": {
+                "ids":[object.id],
+                "service_instance": object.service_instance_id
+              },
+              "service_id": object.id,
+              "service_name": object.name
             };
-            Socket.emit('run', process_ids);
+
+            $scope.disabledButtons[object.id] = true;
+
+            Socket.emit('status', {service: object.service_instance_id});
+          },
+          disabledButtons: function(object){
+            return $scope.disabledButtons[object.id];
           }
         };
       })
@@ -169,5 +222,5 @@
    * ViewList controllers dependencies. Important when minify js scripts
    * @type {string[]}
    */
-  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket"];
+  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service"];
 } ());
