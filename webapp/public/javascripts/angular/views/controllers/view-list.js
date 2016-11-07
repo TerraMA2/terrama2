@@ -13,7 +13,7 @@
   /**
    * It handles TerraMA² View Listing.
    * @class ViewList
-   * 
+   *
    * @param {angular.IScope} $scope - Angular scope
    * @param {Object} i18n - TerraMA² i18n module
    * @param {angular.ILog} $log - Angular log module
@@ -69,7 +69,7 @@
 
     /**
      * It handles socket error.
-     * 
+     *
      * @param {Object} response - Response object with error message value
      * @param {Object} response.message - Error message
      */
@@ -79,7 +79,7 @@
 
     /**
      * It handles process run feedback. It just show message box with success message
-     * 
+     *
      * @param {Object} response - Response object
      * @param {Object} response.service - TerraMA² service id to determines which service called
      */
@@ -101,7 +101,7 @@
 
         /**
          * It makes a link to View edit
-         * 
+         *
          * @param {View} object - Selected view
          * @returns {string}
          */
@@ -121,7 +121,7 @@
 
         /**
          * Icon functor to make URL pointing to icon.
-         * 
+         *
          * @todo It should retrive a overview of layer
          * @returns {string}
          */
@@ -139,7 +139,7 @@
 
         /**
          * Defines a properties to TerraMA² Table handle.
-         * 
+         *
          * @type {Object}
          */
         self.extra = {
@@ -149,15 +149,15 @@
           },
           /**
            * It defines a process run button, in order to run now
-           * 
+           *
            * @param {View} object - Selected view
            */
-          run: function(object){        
+          run: function(object){
             var process_ids = {
               "ids":[object.id],
               "service_instance": object.service_instance_id
             };
-            Socket.emit('run', process_ids);        
+            Socket.emit('run', process_ids);
           }
         };
       })
