@@ -36,6 +36,7 @@
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/SemanticsManager.hpp>
+#include <terralib/Exception.h>
 
 // GoogleMock
 #include <gmock/gmock.h>
@@ -137,6 +138,11 @@ int main(int argc, char** argv)
   catch (const terrama2::Exception& e)
   {
     std::cerr << boost::get_error_info<terrama2::ErrorDescription>(e) << std::endl;
+    return 1;
+  }
+  catch (const te::Exception& e)
+  {
+    std::cerr << boost::get_error_info<te::ErrorDescription>(e) << std::endl;
     return 1;
   }
   catch (const boost::exception& e)

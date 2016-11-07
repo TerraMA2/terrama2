@@ -60,6 +60,7 @@ namespace po = boost::program_options;
 #include <iostream>
 #include <utility>
 #include <tuple>
+#include <clocale>
 
 // Qt
 #include <QCoreApplication>
@@ -131,6 +132,8 @@ createService(const std::string& serviceType)
 
 int main(int argc, char* argv[])
 {
+  std::setlocale(LC_ALL, "en_US.UTF-8");
+
   try
   {
     std::string appName = boost::filesystem::basename(argv[0]);

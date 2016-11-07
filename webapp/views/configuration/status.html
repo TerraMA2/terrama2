@@ -17,7 +17,8 @@
   }
   var configuration = {
     collectors: {[ collectors|json|safe ]} || {},
-    analysis: {[ analysis|json|safe ]} || {}
+    analysis: {[ analysis|json|safe ]} || {},
+    views: {[ views|json|safe ]} || {}
   }
 </script>
 <!-- Socket.io -->
@@ -50,7 +51,7 @@
 
         <terrama2-table-header link="linkToAdd"></terrama2-table-header>
 
-        <terrama2-table-view expression="element in model | filter:searchInput | orderBy: 'last_process_timestamp' track by $index">
+        <terrama2-table-view expression="element in model | filter:searchInput | orderBy: '-date' track by $index">
           <terrama2-td title="">
             <img ng-if="iconFn(element)" ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
           </terrama2-td>
@@ -64,7 +65,7 @@
             <span ng-bind="element.name"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Message') }}" showMoreInfo="true" fillModal="setModalMessages(element.message)">
-            <span ng-bind="(element.message.length > 15) ? ((element.message | limitTo:15) + "...") : element.message"></span>
+            <span ng-bind="(element.message.length > 15) ? ((element.message | limitTo:15) + '...') : element.message"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Date') }}">
             <span title="{{ element.date.calendar() }}" ng-bind="element.date.fromNow()"></span>
@@ -75,10 +76,6 @@
     </div><!-- /.box-body -->
     <!-- Modal to show messages-->
     <terrama2-modal-messages>{{modalMessages}}</terrama2-modal-messages>
-
-    <!--<div class="overlay" ng-show="loading">
-      <i class="fa fa-refresh fa-spin"></i>
-    </div>-->
 
   </div><!-- /.box -->
 

@@ -26,16 +26,8 @@ module.exports = function (app) {
         app.locals.collapsed = false;
         return response.redirect('/')
       })
-    })(request, response, next)
-  },
-    function(request, response, next) {
-      DataManager.load().then(function() {
-        next()
-      }).catch(function(err) {
-        console.log("Could not load datamanager: " + err.message);
-      })
-    }
-  );
+    })(request, response, next);
+  });
 
   app.get('/logout', controller.logout);
 };

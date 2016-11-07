@@ -99,6 +99,11 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
           targetMessage = "Analysis ";
           targetKey = "dataSeries";
           break;
+        case globals.enums.ServiceType.VIEW:
+          targetArray = configuration.views;
+          targetMessage = "View ";
+          targetKey = "";
+          break;
       }
 
       var logArray = response.logs;
@@ -126,7 +131,7 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
 
           var currentProcess = _findOne(targetArray, logProcess.process_id);
 
-          var obj = currentProcess[targetKey];
+          var obj = currentProcess[targetKey] || {name: currentProcess.name};
 
           out.name = obj.name;
           var messageString = "";

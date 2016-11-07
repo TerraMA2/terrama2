@@ -59,7 +59,7 @@ std::string terrama2::core::DataAccessorGeoTiff::dataSourceType() const { return
 
 std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorGeoTiff::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
-  return DataAccessorFile::internalCreateCompleteDataSet(dataSetType, true, false);
+  return DataAccessorFile::internalCreateCompleteDataSet(dataSetType, true, true);
 }
 
 void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
