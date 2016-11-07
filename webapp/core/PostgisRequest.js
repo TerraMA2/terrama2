@@ -29,7 +29,7 @@ PostgisRequest.prototype.request = function() {
 
     client.connect(function(err) {
       if (err) {
-        var errorMessage = "Error in postgis connection: ";
+        var errorMessage = "Error in PostGIS connection: ";
         switch (err.code) {
           case 'ENOTFOUND':
           case "ENETUNREACH": // host not found
