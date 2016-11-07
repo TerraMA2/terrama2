@@ -3222,11 +3222,11 @@ var DataManager = module.exports = {
         ]
       }, options);
 
-      models.db.Analysis.findOne(opts).then(function(analysisResult) {
+      return models.db.Analysis.findOne(opts).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
-        self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
-          self.getDataSeries({id: analysisOutputDataSet.data_series_id}).then(function(analysisOutputDataSeries) {
+        return self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
+          return self.getDataSeries({id: analysisOutputDataSet.data_series_id}).then(function(analysisOutputDataSeries) {
             analysisInstance.setDataSeries(analysisOutputDataSeries);
             analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
               var ds = Utils.find(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
@@ -3237,14 +3237,14 @@ var DataManager = module.exports = {
 
             resolve(analysisInstance);
           }).catch(function(err) {
-            reject(err);
+            return reject(err);
           });
         }).catch(function(err) {
-          reject(err);
+          return reject(err);
         });
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
+        return reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
       });
     });
   },

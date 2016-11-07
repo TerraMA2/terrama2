@@ -26,8 +26,9 @@ module.exports = function(app) {
       var analysisObject = request.body.analysis;
       var storager = request.body.storager;
       var scheduleObject = request.body.schedule;
+      var shouldRun = request.body.run;
 
-      AnalysisFacade.save(analysisObject, storager, scheduleObject, app.locals.activeProject.id)
+      return AnalysisFacade.save(analysisObject, storager, scheduleObject, app.locals.activeProject.id, shouldRun)
         .then(function(analysisResult) {
           var token = Utils.generateToken(app, TokenCode.SAVE, analysisResult.name);
 
@@ -45,9 +46,10 @@ module.exports = function(app) {
         var analysisObject = request.body.analysis;
         var scheduleObject = request.body.schedule;
         var storager = request.body.storager;
+        var shouldRun = request.body.run;
 
         return AnalysisFacade
-          .update(parseInt(analysisId), app.locals.activeProject.id, analysisObject, scheduleObject, storager)
+          .update(parseInt(analysisId), app.locals.activeProject.id, analysisObject, scheduleObject, storager, shouldRun)
           .then(function(analysisInstance) {
             // generating token
             var token = Utils.generateToken(app, TokenCode.UPDATE, analysisInstance.name);

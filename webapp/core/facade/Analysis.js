@@ -10,18 +10,21 @@ var DataManager = require("./../DataManager");
 var PromiseClass = require("bluebird");
 var AnalysisError = require("./../Exceptions").AnalysisError;
 var Utils = require("./../Utils");
-var TcpManager = require("../../core/TcpManager");
+var TcpService = require("../../core/facade/tcp-manager/TcpService");
 
 /**
+ * It handles a Analysis Registration concept.
+ * 
  * @param {Object} analysisObject - An analysis object structure
  * @param {Object} storager - A storager object
  * @param {Object} scheduleObject - An schedule object structure
  * @param {number=} projectId - A current project id
+ * @param {boolean} shouldRun - Flag to determines if analysis must run immediatly after saving process 
  * @return {Promise<Analysis>} a bluebird promise with Analysis instance value
  *
  * @example
  */
-Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
+Analysis.save = function(analysisObject, storager, scheduleObject, projectId, shouldRun) {
   return new PromiseClass(function(resolve, reject) {
     try {
       analysisObject.type = Utils.getAnalysisType(analysisObject.type_id);
@@ -66,27 +69,21 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
                 analysisResult.setSchedule(scheduleResult);
                 analysisResult.setDataSeries(dataSeriesResult);
 
-                // send tcp
-                DataManager.listServiceInstances({}).then(function(services) {
-                  services.forEach(function(service) {
-                    try {
-                      TcpManager.emit('sendData', service, {
-                        "DataSeries": [analysisResult.dataSeries.toObject()],
-                        "Analysis": [analysisResult.toObject()]
+                // async call. We should not wait for execution
+                TcpService.send({
+                  "DataSeries": [analysisResult.dataSeries.toObject()],
+                  "Analysis": [analysisResult.toObject()]
+                })
+                  .then(function() {
+                    if (shouldRun) {
+                      return TcpService.run({
+                        "ids": [analysisResult.id],
+                        "service_instance": analysisResult.instance_id
                       });
-                    } catch (e) {
-                      console.log(e);
                     }
+                    return null;
                   });
-
-                  console.log(JSON.stringify({
-                    "DataSeries": [analysisResult.dataSeries.toObject()],
-                    "Analysis": [analysisResult.toObject()]
-                  }));
-                }).catch(function(err) {
-                  console.log(err);
-                });
-
+                // throwing promise chain
                 return analysisResult;
               });
             });
@@ -135,9 +132,10 @@ Analysis.list = function(restriction) {
  * @param {Analysis | Object} analysisObject - An analysis object values to update
  * @param {Schedule | Object} scheduleObject - A schedule object values to update
  * @param {Object} storagerObject - A storager object values to update (dataseries)
+ * @param {boolean} shouldRun - Flag to determines if analysis must run immediatly after saving process 
  * @return {Promise<Analysis>} A bluebird promise with analysis instance
  */
-Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject, storagerObject) {
+Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject, storagerObject, shouldRun) {
   return new PromiseClass(function(resolve, reject) {
     DataManager.orm.transaction(function(t) {
       var options = {
@@ -150,10 +148,19 @@ Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject
         })
 
         .then(function(analysisInstance) {
-          Utils.sendDataToServices(DataManager, TcpManager, {
+          TcpService.send({
             "DataSeries": [analysisInstance.dataSeries.toObject()],
             "Analysis": [analysisInstance.toObject()]
-          });
+          })
+            .then(function() {
+              if (shouldRun) {
+                return TcpService.run({
+                  ids: [analysisInstance.id],
+                  service_instance: [analysisInstance.instance_id]
+                })
+              }
+            });
+
           return analysisInstance;        
         });
     })
@@ -184,18 +191,7 @@ Analysis.delete = function(analysisId, projectId) {
           "DataSeries": [analysis.dataSeries.id]
         };
 
-        DataManager.listServiceInstances().then(function(servicesInstance) {
-          servicesInstance.forEach(function (service) {
-            try {
-              TcpManager.emit('removeData', service, objectToSend);
-
-            } catch (e) {
-              console.log(e);
-            }
-          });
-        }).catch(function(err) {
-          console.log(err);
-        });
+        TcpService.remove(objectToSend, analysisId);
 
         return resolve(analysis);
       }).catch(function(err) {
