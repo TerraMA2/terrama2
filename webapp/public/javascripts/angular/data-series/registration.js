@@ -325,19 +325,84 @@ angular.module('terrama2.dataseries.registration', [
         }
       };
 
+      // clear optional forms
       var clearStoreForm = function(){
         $scope.showStoragerForm = false;
         $scope.schedule = {};
         $scope.scheduleOptions = {};
+        $scope.advanced.store.disabled = true;
         $scope.$broadcast('clearStoreForm');
+        var enableStore = angular.element('#store-collapse');
+        var storebox = angular.element('#store-box');
+        if (!storebox.hasClass('collapsed-box')){
+          enableStore.click();
+        }
       }
+      
       var clearFilterForm = function(){
         $scope.filter.date = {};
         $scope.filter.filterArea = "1";
+        $scope.advanced.filter.disabled = true;
+        var enableFilter = angular.element('#filter-collapse');
+        var filterbox = angular.element('#filter-box');
+        if (!filterbox.hasClass('collapsed-box')){
+          enableFilter.click();
+        }
       }
+
       var clearIntersectionForm = function(){
         for (var key in $scope.intersection) {
           $scope.removeDataSeries(key);
+        }
+        $scope.advanced.intersection.disabled = true;
+        var enableIntersection = angular.element('#intersection-collapse');
+        var intersectionbox = angular.element('#intersection-box');
+        if (!intersectionbox.hasClass('collapsed-box')){
+          enableIntersection.click();
+        }
+      }
+
+      // open optional form in advanced mode
+      var openStoreForm = function(){
+        $scope.advanced.store.disabled = false;
+        var enableStore = angular.element('#store-collapse');
+        // set disabled to false, to open form
+        enableStore.attr("disabled", false);
+        enableStore.click();
+      }
+
+      var openFilterForm = function(){
+        $scope.advanced.filter.disabled = false;
+        var enableFilter = angular.element('#filter-collapse');
+        // set disabled to false, to open form
+        enableFilter.attr("disabled", false);
+        enableFilter.click();
+      }
+
+      var openIntersectionForm = function(){
+        $scope.advanced.intersection.disabled = false;
+        var enableIntersection = angular.element('#intersection-collapse');
+        // set disabled to false, to open form
+        enableIntersection.attr("disabled", false);
+        enableIntersection.click();
+      }
+
+      // advanced global properties
+      $scope.advanced = {
+        store: {
+          disabled: true,
+          clearForm: clearStoreForm,
+          openForm: openStoreForm
+        },
+        filter: {
+          disabled: true,
+          clearForm: clearFilterForm,
+          openForm: openFilterForm
+        },
+        intersection: {
+          disabled: true,
+          clearForm: clearIntersectionForm,
+          openForm: openIntersectionForm
         }
       }
 

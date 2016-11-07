@@ -249,3 +249,8 @@
 bootstrap-decorator span {
   margin-right: 20px !important;
 }
+
+#store-box > div.disabled, #filter-box > div.disabled, #intersection-box > div.disabled{
+  background: #ececec;
+  background-color: #ececec;
+}
