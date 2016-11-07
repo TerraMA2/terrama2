@@ -1374,6 +1374,7 @@ angular.module('terrama2.dataseries.registration', [
         }
         // checking parameters form (semantics) is invalid
         if ($scope.dcps.length === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
+          makeDialog("alert-danger", "There are invalid fields on form", true);
           return;
         }
 
