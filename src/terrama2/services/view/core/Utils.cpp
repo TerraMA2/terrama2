@@ -144,13 +144,7 @@ void terrama2::services::view::core::createGeoserverShapefile(terrama2::core::Da
     }
   }
 
-
-  std::map<std::string, std::string> connInfo;
-  connInfo["URI"] = shpFilename;
-  connInfo["DRIVER"] = "ESRI Shapefile";
-
-  std::shared_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR");
-  dsOGR->setConnectionInfo(connInfo);
+  std::shared_ptr<te::da::DataSource> dsOGR = te::da::DataSourceFactory::make("OGR", "file://"+shpFilename);
   dsOGR->open();
 
   ds->moveBeforeFirst();
@@ -158,7 +152,6 @@ void terrama2::services::view::core::createGeoserverShapefile(terrama2::core::Da
   te::da::Create(dsOGR.get(), dt, ds);
 
   dsOGR->close();
-  connInfo.clear();
 
   createGeoserverPropertiesFile(outputFolder, exhibitionName, dataSeries->id);
 }

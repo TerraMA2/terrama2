@@ -71,7 +71,7 @@
           </span>
           <i class="fa fa-upload"></i>
         </button>
-        
+
         <a ng-href="{{ linkToAdd }}"
            class="btn btn-default pull-right"
            data-toggle="tooltip"
@@ -80,7 +80,7 @@
            style="margin-top: 24px;margin-right: 10px;">
            <i class="fa fa-plus"></i>
          </a>
-         
+
       </div>
     </div>
   </div>
@@ -179,8 +179,9 @@
           </td>
 
           <td ng-if="extra.showRunButton" ng-disabled class="pull-cell-left">
-            <button ng-disabled="!extra.canRun(element)" 
+            <button ng-disabled="!extra.canRun(element) || extra.disabledButtons(element)"
                     class="btn btn-default btn-sm"
+                    ng-class="{ 'loading-button': extra.disabledButtons(element) }"
                     ng-click="extra.run(element)">
               <span class="glyphicon glyphicon-play"></span>
               <span class="hidden-xs">{{ i18n.__('Run') }}</span>
@@ -188,7 +189,7 @@
           </td>
 
           <td ng-if="isFunction(remove)" class="pull-cell-left">
-            <button class="btn btn-sm btn-danger" 
+            <button class="btn btn-sm btn-danger"
                     ng-click="confirmRemoval(element)"
                     data-toggle="tooltip"
                     data-placement="top"
