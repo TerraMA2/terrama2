@@ -24,6 +24,7 @@
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/views/services.js"></script>
 <script src="/javascripts/angular/views/controllers/view-list.js"></script>
+<script src="/javascripts/angular/services/services.js"></script>
 
 {% endblock %}
 
@@ -32,12 +33,10 @@
 <div ng-controller="ViewList as ctrl">
   <terrama2-box title="i18n.__('Views')">
     <div class="col-md-12">
-      <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
-                           close="ctrl.close()">
-      </terrama2-alert-box2>
+      <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
     </div>
 
-      <terrama2-table fields="ctrl.fields" 
+      <terrama2-table fields="ctrl.fields"
                       model="ctrl.model"
                       link="ctrl.link"
                       icon="ctrl.icon"

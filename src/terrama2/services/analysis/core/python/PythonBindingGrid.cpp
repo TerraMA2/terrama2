@@ -77,6 +77,22 @@ void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
   def("sample", terrama2::services::analysis::core::grid::sample, gridSample_overloads(args("dataSeriesName", "band"), "Grid sample operator."));
 }
 
+// pragma to silence python macros warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+
+// // Declaration needed for default parameter restriction
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridHistorySum_overloads, terrama2::services::analysis::core::grid::history::sum, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridHistoryMin_overloads, terrama2::services::analysis::core::grid::history::min, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridHistoryMax_overloads, terrama2::services::analysis::core::grid::history::max, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridHistoryMean_overloads, terrama2::services::analysis::core::grid::history::mean, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridHistoryMedian_overloads, terrama2::services::analysis::core::grid::history::median, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridHistoryStandardDeviation_overloads, terrama2::services::analysis::core::grid::history::standardDeviation, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridHistoryVariance_overloads, terrama2::services::analysis::core::grid::history::variance, 2, 3)
+
+// closing "-Wunused-local-typedef" pragma
+#pragma GCC diagnostic pop
+
 void terrama2::services::analysis::core::python::Grid::registerGridHistoryFunctions()
 {
   using namespace boost::python;
@@ -95,6 +111,14 @@ void terrama2::services::analysis::core::python::Grid::registerGridHistoryFuncti
   def("median", terrama2::services::analysis::core::grid::history::median);
   def("standard_deviation", terrama2::services::analysis::core::grid::history::standardDeviation);
   def("variance", terrama2::services::analysis::core::grid::history::variance);
+
+  def("sum", terrama2::services::analysis::core::grid::history::sum, gridHistorySum_overloads(args("dataSeriesName", "DateBegin", "band"), "History sum operator."));
+  def("min", terrama2::services::analysis::core::grid::history::min, gridHistoryMin_overloads(args("dataSeriesName", "DateBegin", "band"), "History min operator."));
+  def("max", terrama2::services::analysis::core::grid::history::max, gridHistoryMax_overloads(args("dataSeriesName", "DateBegin", "band"), "History max operator."));
+  def("mean", terrama2::services::analysis::core::grid::history::mean, gridHistoryMean_overloads(args("dataSeriesName", "DateBegin", "band"), "History mean operator."));
+  def("median", terrama2::services::analysis::core::grid::history::median, gridHistoryMedian_overloads(args("dataSeriesName", "DateBegin", "band"), "History median operator."));
+  def("standard_deviation", terrama2::services::analysis::core::grid::history::standardDeviation, gridHistoryStandardDeviation_overloads(args("dataSeriesName", "DateBegin", "band"), "History standard deviation operator."));
+  def("variance", terrama2::services::analysis::core::grid::history::variance, gridHistoryVariance_overloads(args("dataSeriesName", "DateBegin", "band"), "History variance operator."));
 }
 
 // pragma to silence python macros warnings

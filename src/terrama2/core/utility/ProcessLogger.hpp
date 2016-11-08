@@ -37,6 +37,7 @@
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/core/uri/URI.h>
 
 // Qt
 #include <QJsonObject>
@@ -166,7 +167,7 @@ namespace terrama2
         * \brief Reset connection to log database information
         * \param connInfo Datasource connection information.
         */
-        virtual void setConnectionInfo(const std::map<std::string, std::string>& connInfo) noexcept;
+        virtual void setConnectionInfo(const te::core::URI& uri) noexcept;
 
       protected:
 

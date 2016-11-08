@@ -96,7 +96,7 @@ te::dt::AbstractData* terrama2::core::DataAccessor::stringToDouble(te::da::DataS
   }
   catch(const std::invalid_argument& e)
   {
-    TERRAMA2_LOG_ERROR() << e.what();
+    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid argument: %1").arg(e.what());
   }
 
   catch(std::exception& e)

@@ -234,7 +234,7 @@
   top: 0;
   left: 0;
   height:100%;
-  width:100%; 
+  width:100%;
   filter: alpha(opacity=60);
   opacity: 0.6;
   background: #000;
@@ -243,9 +243,16 @@
 .terrama2-splace h2 {
   text-align: center;
   font-size: 4em;
-  color:white;            
+  color:white;
 }
 
 bootstrap-decorator span {
   margin-right: 20px !important;
+}
+
+.loading-button {
+  background-image: url(../images/loader.gif);
+  background-size: 25px;
+  background-repeat: no-repeat;
+  background-position: center;
 }
