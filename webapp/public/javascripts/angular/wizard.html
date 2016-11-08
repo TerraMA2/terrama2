@@ -8,7 +8,7 @@
     <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display" extra="extraProperties"></terrama2-alert-box>
   </div>
 
-  <wizard on-finish="save()" template="/javascripts/angular/templates/terrama2-wizard.html">
+  <wizard template="/javascripts/angular/templates/terrama2-wizard.html">
     <wz-step wz-title="{{ i18n.__('General') }}" canexit="isFirstStepValid" wz-data="wizard.general">
       <div class="col-md-12">
         <form name="forms.generalDataForm">
@@ -19,7 +19,12 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+          <terrama2-drop-down-button text="i18n.__('Save')" 
+                                      css="{button: 'btn-primary', group: 'pull-right'}"
+                                      css-style="{group: {'margin-left': '10px;'}}">
+            <li><a href="javascript::void()" data-ng-click="save(false);" wz-finish ng-bind="i18n.__('Save')"></a></li>
+            <li><a href="javascript::void()" ng-class="{'terrama2-disabled': !isDynamic}" data-ng-click="isDynamic && save(true);" wz-finish ng-bind="i18n.__('Save and Run')"></a></li>
+          </terrama2-drop-down-button>
         </div>
       </div>
     </wz-step>
@@ -44,7 +49,12 @@
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+          <terrama2-drop-down-button text="i18n.__('Save')" 
+                                      css="{button: 'btn-primary', group: 'pull-right'}"
+                                      css-style="{group: {'margin-left': '10px;'}}">
+            <li><a href="javascript::void()" data-ng-click="save(false);" wz-finish ng-bind="i18n.__('Save')"></a></li>
+            <li><a href="javascript::void()" ng-class="{'terrama2-disabled': !isDynamic}" data-ng-click="isDynamic && save(true);" wz-finish ng-bind="i18n.__('Save and Run')"></a></li>
+          </terrama2-drop-down-button>
         </div>
       </div>
 
@@ -58,22 +68,30 @@
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+          <terrama2-drop-down-button text="i18n.__('Save')" 
+                                      css="{button: 'btn-primary', group: 'pull-right'}"
+                                      css-style="{group: {'margin-left': '10px;'}}">
+            <li><a href="javascript::void()" data-ng-click="save(false);" wz-finish ng-bind="i18n.__('Save')"></a></li>
+            <li><a href="javascript::void()" data-ng-click="save(true);" wz-finish ng-bind="i18n.__('Save and Run')"></a></li>
+          </terrama2-drop-down-button>
         </div>
       </div>
     </wz-step>
 
     <wz-step wz-title="{{ i18n.__('Filters') }}" wz-disabled="{{ !isDynamic }}">
       <div class="col-md-12">
-
         <div ng-include="'/javascripts/angular/filter.html'"></div>
-
       </div>
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+          <terrama2-drop-down-button text="i18n.__('Save')" 
+                                      css="{button: 'btn-primary', group: 'pull-right'}"
+                                      css-style="{group: {'margin-left': '10px;'}}">
+            <li><a href="javascript::void()" data-ng-click="save(false);" wz-finish ng-bind="i18n.__('Save')"></a></li>
+            <li><a href="javascript::void()" data-ng-click="save(true);" wz-finish ng-bind="i18n.__('Save and Run')"></a></li>
+          </terrama2-drop-down-button>
         </div>
       </div>
     </wz-step>
@@ -87,7 +105,13 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+
+          <terrama2-drop-down-button text="i18n.__('Save')" 
+                                      css="{button: 'btn-primary', group: 'pull-right'}"
+                                      css-style="{group: {'margin-left': '10px;'}}">
+            <li><a href="javascript::void()" data-ng-click="save(false);" wz-finish ng-bind="i18n.__('Save')"></a></li>
+            <li><a href="javascript::void()" data-ng-click="save(true);" wz-finish ng-bind="i18n.__('Save and Run')"></a></li>
+          </terrama2-drop-down-button>
         </div>
       </div>
     </wz-step>

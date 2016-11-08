@@ -256,3 +256,13 @@ bootstrap-decorator span {
   background-repeat: no-repeat;
   background-position: center;
 }
+
+.terrama2-disabled {
+  text-decoration:none;
+  color:#bbb;
+  cursor: not-allowed;
+}
+
+.terrama2-disabled:hover {
+  color: white;
+}

@@ -18,6 +18,7 @@ module.exports = function(app) {
       var serviceId = request.body.service;
       var intersection = request.body.intersection;
       var active = request.body.active;
+      var shouldRun = request.body.run;
 
       DataManager.orm.transaction(function(t) {
         var options = {
@@ -44,7 +45,12 @@ module.exports = function(app) {
 
               console.log("OUTPUT: ", JSON.stringify(output));
 
-              TcpService.send(output);
+              TcpService.send(output)
+                .then(function() {
+                  if (shouldRun) {
+                    return TcpService.run({"ids": [collector.id], "service_instance": collector.service_instance_id});
+                  }
+                });
 
               return collectorResult.output;
             });
@@ -143,6 +149,7 @@ module.exports = function(app) {
       var filterObject = request.body.filter;
       var serviceId = request.body.service;
       var intersection = request.body.intersection;
+      var shouldRun = request.body.run;
 
       DataManager.orm.transaction(function(t) {
         var options = {
@@ -254,7 +261,12 @@ module.exports = function(app) {
                   };
 
                   // tcp sending
-                  TcpService.send(output);
+                  TcpService.send(output)
+                    .then(function() {
+                      if (shouldRun) {
+                        return TcpService.run({"ids": [collector.id], "service_instance": collector.service_instance_id});
+                      }
+                    });
 
                   return dataSeriesOutput;
                 });
