@@ -1,13 +1,14 @@
 "use strict";
 
-angular.module('terrama2.datetimepicker', ['terrama2'])
+angular.module('terrama2.datetimepicker', ['terrama2', 'ae-datetimepicker'])
   .directive('terrama2DatetimePicker', function() {
     return {
       restrict: 'EA',
       templateUrl: '/javascripts/angular/datetimepicker/templates/datetimepicker.html',
       scope: {
         dateTime: '=ngModel',
-        options: '=?'
+        options: '=?',
+        onChange: '&'
       }
     };
   })
@@ -24,18 +25,19 @@ angular.module('terrama2.datetimepicker', ['terrama2'])
         afterLabel: '=',
         options: '=?'
       },
+      controllerAs: 'vm',
       controller: function($scope) {
-        $scope.i18n = i18n;
-        $scope.options = angular.extend({}, {
-          format: "YYYY/MM/DD HH:mm:ss",
-          sideBySide: true,
-          toolbarPlacement: 'top',
-          allowInputToggle: false,
-          useCurrent: false
-        }, $scope.options);
 
-        $scope.beforeOptions = angular.extend({}, $scope.options, {maxDate: $scope.afterDatetime});
-        $scope.afterOptions = angular.extend({}, $scope.options, {minDate: $scope.beforeDatetime});
+        this.optionsFrom = {sideBySide: true, toolbarPlacement: 'top', allowInputToggle: false, useCurrent: false};
+        this.optionsTo = {sideBySide: true, toolbarPlacement: 'top', allowInputToggle: false, useCurrent: false};
+
+        this.update = function (dateFrom, dateTo) {
+            this.optionsFrom.maxDate = dateTo;
+            this.optionsTo.minDate = dateFrom;
+        };
+
+        $scope.i18n = i18n;
+
       }
     }
   });

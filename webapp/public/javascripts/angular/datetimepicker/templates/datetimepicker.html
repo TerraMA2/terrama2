@@ -1,8 +1,8 @@
 <div class="row">
   <div class='col-md-12 col-sm-12'>
     <div class="form-group">
-      <div class='input-group date' terrama2-datetime options="{{ options }}" data-ng-model="dateTime" id="{{ identifier }}">
-        <input type='text' class="form-control" ng-model="dateTime" format-datetime="options.format" />
+      <div class='input-group date' datetimepicker options="options" data-ng-model="dateTime" id="{{ identifier }}" on-change="onChange">
+        <input type='text' class="form-control" ng-model="dateTime" />
         <span class="input-group-addon">
           <span class="glyphicon glyphicon-calendar"></span>
         </span>
