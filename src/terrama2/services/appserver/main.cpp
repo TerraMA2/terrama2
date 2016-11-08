@@ -192,6 +192,7 @@ int main(int argc, char* argv[])
 
       QCoreApplication app(argc, argv);
 
+      // Changes in the initialization order may cause locale problems
       std::locale::global(std::locale::classic());
 
       std::shared_ptr<terrama2::core::DataManager> dataManager;
