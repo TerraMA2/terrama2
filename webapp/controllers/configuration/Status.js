@@ -3,6 +3,7 @@
 var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
 var PromiseModule = require("./../../core/Promise");
+var makeTokenParameters = require('./../../core/Utils').makeTokenParameters;
 
 module.exports = function(app) {
   return function(request, response) {
@@ -28,12 +29,26 @@ module.exports = function(app) {
           return view.rawObject();
         });
 
-        return response.render("configuration/status", {
-          "Enums": Enums,
-          "analysis": outputAnalysis,
-          "collectors": outputCollectors,
-          "views": outputViews
-        });
+        if(request.query.token !== undefined) {
+          var parameters = makeTokenParameters(request.query.token, app);
+          var renderParams = {
+            "Enums": Enums,
+            "analysis": outputAnalysis,
+            "collectors": outputCollectors,
+            "views": outputViews,
+            "parameters": parameters
+          };
+        } else {
+          var renderParams = {
+            "Enums": Enums,
+            "analysis": outputAnalysis,
+            "collectors": outputCollectors,
+            "views": outputViews,
+            "parameters": null
+          };
+        }
+
+        return response.render("configuration/status", renderParams);
       })
 
       .catch(function(err) {
