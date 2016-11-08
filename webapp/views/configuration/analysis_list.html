@@ -20,16 +20,22 @@
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
 <script src="/javascripts/angular/services.js"></script>
+<script src="/javascripts/angular/services/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 
 <script>
 
-  angular.module('terrama2.analysis', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
-    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', 'Socket', 'i18n', '$log',
-    function($scope, $http, AnalysisFactory, Socket, i18n, $log) {
+  angular.module('terrama2.analysis', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.administration.services.iservices'])
+    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', 'Socket', 'i18n', '$log', 'Service',
+    function($scope, $http, AnalysisFactory, Socket, i18n, $log, Service) {
       $scope.model = [];
       $scope.i18n = i18n;
+      $scope.disabledButtons = {};
+
+      var serviceCache = {};
+
+      Service.init();
 
       Socket.on('errorResponse', function(response){
         $scope.display = true;
@@ -42,6 +48,32 @@
         $scope.alertLevel = "alert-success";
         $scope.alertBox.message = i18n.__("The process was started successfully");
       })
+
+      Socket.on('statusResponse', function(response) {
+        if(response.checking === undefined || (!response.checking && response.status == 400)) {
+          if(response.online) {
+            Socket.emit('run', serviceCache[response.service].process_ids);
+          } else {
+            $scope.display = true;
+            $scope.alertLevel = "alert-error";
+
+            if(serviceCache[response.service] != undefined) {
+              var service = Service.get(serviceCache[response.service].process_ids.service_instance);
+
+              if(service != null) {
+                $scope.alertBox.message = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+              } else {
+                $scope.alertBox.message = i18n.__("Service not active");
+              }
+            } else {
+              $scope.alertBox.message = i18n.__("Service not active");
+            }
+          }
+
+          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+          delete serviceCache[response.service];
+        }
+      });
 
       var restriction = {
         project_id: "{[ activeProject.id ]}"
@@ -82,13 +114,25 @@
           $scope.alertBox.message = data.name + " removed";
         },
         showRunButton: true,
-        canRun: true,
+        canRun: function(object){
+          return true;
+        },
         run: function(object){
-          var process_ids = {
-            "ids":[object.id],
-            "service_instance": object.service_instance_id
+          serviceCache[object.service_instance_id] = {
+            "process_ids": {
+              "ids":[object.id],
+              "service_instance": object.service_instance_id
+            },
+            "service_id": object.id,
+            "service_name": object.name
           };
-          Socket.emit('run', process_ids);
+
+          $scope.disabledButtons[object.id] = true;
+
+          Socket.emit('status', {service: object.service_instance_id});
+        },
+        disabledButtons: function(object){
+          return $scope.disabledButtons[object.id];
         }
       };
 
@@ -126,8 +170,7 @@
 <div ng-controller="ListController">
   <terrama2-box title="i18n.__('Analysis')">
     <div class="col-md-12">
-      <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display">
-      </terrama2-alert-box>
+      <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
     </div>
 
     <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" link-to-add="linkToAdd" context="'analysis'" remove="remove(object);" extra="extra">
