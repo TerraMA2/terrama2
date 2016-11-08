@@ -27,6 +27,9 @@ var DataManager = require("./../../../core/DataManager");
 // TerraMA² Service model
 var Service = require("./../../../core/data-model/Service");
 
+// TerraMA² RegisteredView model
+var RegisteredView = require("./../../../core/data-model/RegisteredView");
+
 /**
  * It handles TCP service manipulation
  * @emits TcpService#serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
@@ -117,6 +120,7 @@ TcpService.prototype.init = function(shouldConnect) {
           TcpManager.on("stop", onStop);
           TcpManager.on("close", onClose);
           TcpManager.on("tcpError", onError);
+          TcpManager.on("processFinished", onProcessFinished);
 
           self.$loaded = true;
           instances.forEach(function(instance) {
@@ -397,7 +401,7 @@ TcpService.prototype.send = function(data, serviceId) {
 };
 
 /**
- * Listener for remove data from C++ services. It does not emits signal.
+ * Listener for remove data from C++ services. It does not emits signal even exception.
  * @param {Object} data - A given arguments sent by client
  * @param {Analysis[]} data.Analysis - A list of Analysis to send
  * @param {Collectors[]} data.Collectors - A list of Collectors to send
@@ -529,6 +533,22 @@ function onStatusReceived(service, response) {
       loading: false,
       online: Object.keys(response).length > 0
     });
+  }
+}
+
+/**
+ * It emits a signal depending Process. 
+ * If service is View, it emits #viewReceived with the registered view object.
+ * 
+ * @param {Object|RegisteredView} resp - any object
+ * @returns {void}
+ */
+function onProcessFinished(resp) {
+  // broadcast to everyone
+  if (resp instanceof RegisteredView) {
+    tcpService.emit("viewReceived", resp);
+  } else {
+    tcpService.emit("processFinished", resp);
   }
 }
 
