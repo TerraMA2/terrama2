@@ -205,7 +205,7 @@ angular.module('terrama2.analysis.registration', [
       // filtering formats
       $scope.storagerFormats = [];
       $scope.dataSeriesSemantics.forEach(function(dSemantics) {
-        if(dSemantics.data_series_type_name === semanticsType) {
+        if(dSemantics.data_series_type_name === semanticsType && dSemantics.temporality != globals.enums.TemporalityType.STATIC) {
           $scope.storagerFormats.push(Object.assign({}, dSemantics));
         }
       });

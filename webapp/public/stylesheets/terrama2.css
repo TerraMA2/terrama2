@@ -178,8 +178,8 @@
 }
 
 .terrama2-table table{
-  height:300px !important;              // <-- Select the height of the table
-  display: -moz-groupbox !important;    // Firefox Bad Effect
+  height:300px !important;
+  display: -moz-groupbox !important;
 }
 
 .terrama2-table-tbody tbody {
@@ -248,6 +248,15 @@
 
 bootstrap-decorator span {
   margin-right: 20px !important;
+}
+
+#store-box > div.disabled, #filter-box > div.disabled, #intersection-box > div.disabled{
+  background: #ececec;
+  background-color: #ececec;
+}
+
+.enable-button-click {
+  cursor: pointer !important;
 }
 
 .loading-button {
