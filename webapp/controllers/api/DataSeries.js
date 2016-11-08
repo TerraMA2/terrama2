@@ -1,7 +1,8 @@
 "use strict";
 
 var DataManager = require("../../core/DataManager");
-var TcpManager = require('../../core/TcpManager');
+var PromiseClass = require("./../../core/Promise");
+var TcpService = require('./../../core/facade/tcp-manager/TcpService');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
 var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
@@ -43,7 +44,7 @@ module.exports = function(app) {
 
               console.log("OUTPUT: ", JSON.stringify(output));
 
-              Utils.sendDataToServices(DataManager, TcpManager, output);
+              TcpService.send(output);
 
               return collectorResult.output;
             });
@@ -56,7 +57,7 @@ module.exports = function(app) {
 
             console.log("OUTPUT: ", JSON.stringify(output));
 
-            Utils.sendDataToServices(DataManager, TcpManager, output);
+            TcpService.send(output);
 
             return dataSeriesResult;
           });
@@ -236,7 +237,7 @@ module.exports = function(app) {
                 })
                 // retrieve updated data series input and output
                 .then(function() {
-                  return Promise.all([
+                  return PromiseClass.all([
                       DataManager.getDataSeries({id: collector.data_series_output}),
                       DataManager.getDataSeries({id: collector.data_series_input})
                     ]);
@@ -253,7 +254,7 @@ module.exports = function(app) {
                   };
 
                   // tcp sending
-                  Utils.sendDataToServices(DataManager, TcpManager, output);
+                  TcpService.send(output);
 
                   return dataSeriesOutput;
                 });
@@ -264,7 +265,7 @@ module.exports = function(app) {
               return DataManager.getDataSeries({id: dataSeriesId})
                 .then(function(dataSeries) {
                   // tcp sending
-                  Utils.sendDataToServices(DataManager, TcpManager, {
+                  TcpService.send({
                     "DataSeries": [dataSeries.toObject()]
                   });
                   return dataSeries;
@@ -287,72 +288,42 @@ module.exports = function(app) {
       var id = request.params.id;
 
       if (id) {
-        DataManager.getDataSeries({id: id}).then(function(dataSeriesResult) {
-          DataManager.getCollector({data_series_output: id}).then(function(collectorResult) {
-            DataManager.removeDataSerie({id: id}).then(function() {
-              DataManager.removeDataSerie({id: collectorResult.data_series_input}).then(function() {
-                DataManager.removeSchedule({id: collectorResult.schedule.id}).then(function() {
-                  var objectToSend = {
-                    "Collectors": [collectorResult.id],
-                    "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
-                    "Schedule": [collectorResult.schedule.id]
-                  };
+        return PromiseClass.all([
+            DataManager.getDataSeries({id: id}),
+            DataManager.getCollector({data_series_output: id})
+          ])
+          .spread(function(dataSeriesResult, collectorResult) {
+            return PromiseClass.all([
+                DataManager.removeDataSerie({id: id}),
+                DataManager.removeDataSerie({id: collectorResult.data_series_input}),
+                DataManager.removeSchedule({id: collectorResult.schedule.id})
+              ])
+            .then(function() {
+              var objectToSend = {
+                "Collectors": [collectorResult.id],
+                "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
+                "Schedule": [collectorResult.schedule.id]
+              };
 
-                  if (Object.keys(collectorResult.intersection).length > 0) {
-                    // TODO: add intersection in object to send
-                  }
+              TcpService.remove(objectToSend);
 
-                  DataManager.listServiceInstances().then(function(services) {
-                    services.forEach(function (service) {
-                      try {
-                        TcpManager.emit('removeData', service, objectToSend);
-                      } catch (e) {
-                        console.log(e);
-                      }
-                    });
-
-                    return response.json({status: 200, name: dataSeriesResult.name});
-                  }).catch(function(err) {
-                    return Utils.handleRequestError(response, err, 400);
-                  });
-                }).catch(function(err) {
-                  Utils.handleRequestError(response, err, 400);
-                });
-              }).catch(function(err) {
-                Utils.handleRequestError(response, err, 400);
-              });
-            }).catch(function(err) {
-              Utils.handleRequestError(response, err, 400);
+              return response.json({status: 200, name: dataSeriesResult.name});
             });
           }).catch(function(err) {
             // if not find collector, it is processing data series or analysis data series
-            DataManager.removeDataSerie({id: dataSeriesResult.id}).then(function() {
+            return DataManager.removeDataSerie({id: dataSeriesResult.id})
+              .then(function() {
+                var objectToSend = {
+                  "DataSeries": [dataSeriesResult.id]
+                };
 
-              var objectToSend = {
-                "DataSeries": [dataSeriesResult.id]
-              };
+                TcpService.remove(objectToSend);
 
-              DataManager.listServiceInstances().then(function(services) {
-                services.forEach(function (service) {
-                  try {
-                    TcpManager.emit('removeData', service, objectToSend);
-                  } catch (e) {
-                    console.log(e);
-                  }
-                });
-
-                response.json({status: 200, name: dataSeriesResult.name});
-              }).catch(function(err) {
-                return Utils.handleRequestError(response, err, 400);
+                return response.json({status: 200, name: dataSeriesResult.name});
+              }).catch(function(error) {
+                Utils.handleRequestError(response, error, 400);
               });
-
-            }).catch(function(error) {
-              Utils.handleRequestError(response, error, 400);
-            });
           });
-        }).catch(function(err) {
-          Utils.handleRequestError(response, err, 400);
-        });
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);
       }

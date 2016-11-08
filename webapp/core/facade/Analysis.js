@@ -7,7 +7,7 @@
 var Analysis = module.exports = { };
 
 var DataManager = require("./../DataManager");
-var PromiseClass = require("bluebird");
+var PromiseClass = require("./../Promise");
 var AnalysisError = require("./../Exceptions").AnalysisError;
 var Utils = require("./../Utils");
 var TcpService = require("../../core/facade/tcp-manager/TcpService");

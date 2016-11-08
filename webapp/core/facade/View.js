@@ -2,10 +2,10 @@
   'use strict';
 
   var DataManager = require("./../DataManager");
-  var TcpManager = require("./../TcpManager");
+  var TcpService = require("./../facade/tcp-manager/TcpService");
   var Enums = require("./../Enums");
   var Utils = require("./../Utils");
-  var PromiseClass = require("bluebird");
+  var PromiseClass = require("./../Promise");
   /**
    * @type {RequestFactory}
    */
@@ -36,7 +36,7 @@
       objToSend.Views.push(args.toObject());
     }
 
-    Utils.sendDataToServices(DataManager, TcpManager, objToSend);
+    TcpService.send(objToSend);
   }
   /**
    * It applies a save operation and send views to the service
@@ -203,9 +203,7 @@
       
       .then(function(view) {
         // removing views from tcp services
-        Utils.removeDataSignal(DataManager, TcpManager, {
-          "Views": [view.id]
-        });
+        TcpService.remove({"Views": [view.id]});
 
         return resolve(view);
       })

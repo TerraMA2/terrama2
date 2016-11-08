@@ -1303,14 +1303,14 @@ var DataManager = module.exports = {
 
       var provider = Utils.remove(self.data.dataProviders, dataProviderParam);
       if (provider) {
-        models.db.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
+        return models.db.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
           // remove data series
           var dataSeriesList = Utils.removeAll(self.data.dataSeries, {data_provider_id: provider.id});
           dataSeriesList.forEach(function(dataSeries) {
             var dSets = Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
           });
 
-          return resolve(provider, dataSeriesList);
+          return resolve({dataProvider: provider, dataSeries: dataSeriesList});
         }).catch(function(err) {
           console.log(err);
           return reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
@@ -3260,7 +3260,7 @@ var DataManager = module.exports = {
   removeAnalysis: function(analysisParam, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
+      return self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
         return models.db.Analysis.destroy(Utils.extend({where: {id: analysisParam.id}}, options)).then(function() {
           return self.removeDataSerie({id: analysisResult.dataSeries.id}, options).then(function() {
             return self.removeSchedule({id: analysisResult.schedule.id}, options).then(function() {
@@ -3296,7 +3296,7 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      models.db.View.findAll(Utils.extend({
+      return models.db.View.findAll(Utils.extend({
         include: [ 
           {
             model: models.db.Schedule,
@@ -3495,7 +3495,7 @@ var DataManager = module.exports = {
         })
 
         .catch(function(err) {
-          return reject(new exceptions.RegisteredViewErrorr(
+          return reject(new exceptions.RegisteredViewError(
             Utils.format("Coult not save Registered View due %s", err.toString())));
         });
     });

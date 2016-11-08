@@ -2,7 +2,7 @@
 
 // Dependencies
 var util = require('util');
-var Promise = require('bluebird');
+var Promise = require('./../../Promise');
 
 /**
  * It defines a generic interface to handle command executors

@@ -3,7 +3,6 @@
 var DataManager = require("../../core/DataManager.js");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
-var TcpManager = require("../../core/TcpManager");
 var AnalysisError = require("./../../core/Exceptions").AnalysisError;
 var AnalysisFacade = require("./../../core/facade/Analysis");
 
