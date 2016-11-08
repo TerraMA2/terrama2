@@ -57,7 +57,6 @@
 #include <QDebug>
 #include <QTemporaryFile>
 #include <QTemporaryDir>
-#include <QLocale>
 #include <QFile>
 #include <QByteArray>
 
@@ -123,7 +122,7 @@ bool terrama2::core::Unpack::isCompressed(std::string uri)
 
 std::string terrama2::core::Unpack::decompress(std::string uri,
                                                std::shared_ptr<terrama2::core::FileRemover> remover,
-                                               const std::string& temporaryFolder) 
+                                               const std::string& temporaryFolder)
 {
   QString unpackFolder = QString::fromStdString(temporaryFolder);
   if(temporaryFolder.empty())

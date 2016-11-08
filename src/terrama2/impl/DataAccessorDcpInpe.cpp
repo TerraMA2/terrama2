@@ -84,7 +84,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorDcpInpe::stringToTimestamp(te:
     boost::posix_time::ptime boostDate;
 
     //mask to convert DateTime string to Boost::ptime
-    std::locale format(std::locale::classic(), new boost::posix_time::time_input_facet("%m/%d/%Y %H:%M:%S"));
+    std::locale format(std::locale(), new boost::posix_time::time_input_facet("%m/%d/%Y %H:%M:%S"));
 
     std::istringstream stream(dateTime);//create stream
     stream.imbue(format);//set format
