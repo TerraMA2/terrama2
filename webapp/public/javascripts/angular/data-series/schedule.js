@@ -31,6 +31,11 @@ angular.module("terrama2.schedule", ['terrama2'])
           return parseInt(value);
         };
 
+        $scope.$on("clearSchedule", function(event){
+          $scope.isFrequency = false;
+          $scope.isSchedule = false;
+        })
+
         $scope.$on("updateSchedule", function(event, scheduleObject) {
           debugger;
           if (scheduleObject.schedule_unit) {
