@@ -36,9 +36,9 @@ terrama2::services::analysis::core::AnalysisLogger::AnalysisLogger()
 {
 }
 
-void terrama2::services::analysis::core::AnalysisLogger::setConnectionInfo(const std::map<std::string, std::string>& connInfo) noexcept
+void terrama2::services::analysis::core::AnalysisLogger::setConnectionInfo(const te::core::URI& uri) noexcept
 {
-  terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
+  terrama2::core::ProcessLogger::setConnectionInfo(uri);
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   std::string tableName = "analysis_"+std::to_string(serviceManager.instanceId());

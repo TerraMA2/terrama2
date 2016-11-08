@@ -47,9 +47,9 @@ void terrama2::services::collector::core::CollectorLogger::addOutput(std::string
   addValue("output", value, registerID);
 }
 
-void terrama2::services::collector::core::CollectorLogger::setConnectionInfo(const std::map<std::string, std::string>& connInfo) noexcept
+void terrama2::services::collector::core::CollectorLogger::setConnectionInfo(const te::core::URI& uri) noexcept
 {
-  terrama2::core::ProcessLogger::setConnectionInfo(connInfo);
+  terrama2::core::ProcessLogger::setConnectionInfo(uri);
 
   auto& serviceManager = terrama2::core::ServiceManager::getInstance();
   std::string tableName = "collector_"+std::to_string(serviceManager.instanceId());

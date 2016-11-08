@@ -242,7 +242,7 @@ namespace te
       MOCK_CONST_METHOD2(getAsString,
                          std::string(std::size_t, int));
       MOCK_CONST_METHOD2(getAsString,
-                         std::string(std::string, int));
+                         std::string(const std::string&, int));
       MOCK_CONST_METHOD1(isNull,
                          bool(std::size_t i));
       MOCK_CONST_METHOD1(isNull,

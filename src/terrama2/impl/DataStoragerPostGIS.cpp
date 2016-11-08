@@ -55,17 +55,8 @@ void terrama2::core::DataStoragerPostGIS::store(DataSetSeries series, DataSetPtr
     throw DataProviderException() << ErrorDescription(errMsg);
   }
 
-  QUrl url(dataProvider_->uri.c_str());
-
-  std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS"));
-  std::map<std::string, std::string> connInfo{{"PG_HOST", url.host().toStdString()},
-                                              {"PG_PORT", std::to_string(url.port())},
-                                              {"PG_USER", url.userName().toStdString()},
-                                              {"PG_PASSWORD", url.password().toStdString()},
-                                              {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
-                                              {"PG_CONNECT_TIMEOUT", "4"},
-                                              {"PG_CLIENT_ENCODING", "UTF-8"}};
-  datasourceDestination->setConnectionInfo(connInfo);
+  te::core::URI uri(dataProvider_->uri);
+  std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("POSTGIS", uri));
 
   OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination); Q_UNUSED(openClose);
   if(!datasourceDestination->isOpened())
