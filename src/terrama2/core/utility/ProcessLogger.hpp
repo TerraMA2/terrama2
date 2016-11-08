@@ -37,6 +37,7 @@
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/core/uri/URI.h>
 
 // Qt
 #include <QJsonObject>
