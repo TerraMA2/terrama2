@@ -401,11 +401,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
     // creates a DataSource to the data and filters the dataset,
     // also joins if the DCP comes from separated files
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType()));
-    std::map<std::string, std::string> connInfo;
-
-    connInfo["URI"] = typePrefix() + fileInfo.absolutePath().toStdString() + "/" + name;
-    datasource->setConnectionInfo(connInfo);
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), "file://"+typePrefix() + fileInfo.absolutePath().toStdString() + "/" + name));
 
     //RAII for open/closing the datasource
     OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
