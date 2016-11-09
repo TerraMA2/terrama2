@@ -2,6 +2,7 @@
 
 var AbstractRequest = require('./AbstractRequest');
 var Promise = require('bluebird');
+var Exceptions = require("./Exceptions");
 var fs = require('fs');
 var Form = require("./Enums").Form;
 var UriPattern = require("./Enums").Uri;
@@ -17,9 +18,13 @@ FileRequest.prototype.constructor = FileRequest;
 FileRequest.prototype.request = function() {
   var self = this;
   return new Promise(function(resolve, reject) {
-    fs.stat(self.params[self.syntax().PATHNAME], function(err, stats) {
-      //TODO: validate (local/remote)
-      return resolve(true);
+    // TODO: validate remote
+
+    fs.stat(self.params[self.syntax().PATHNAME], function(err, stat) {
+      if(err == null) {
+        if(stat.isDirectory()) return resolve();
+        else return reject(new Exceptions.ConnectionError("Invalid path"));
+      } else return reject(new Exceptions.ConnectionError("Invalid path"));
     });
   });
 };
