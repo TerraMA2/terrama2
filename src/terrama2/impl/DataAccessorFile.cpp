@@ -272,7 +272,7 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
   return true;
 }
 
-std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorFile::getFolderMask(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "folder", false);
 }
@@ -293,6 +293,39 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
   std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
   return std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 }
+
+
+QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const std::string& uri, const std::string& foldersMask) const
+{
+  QUrl baseUrl;
+  baseUrl = QUrl(QString::fromStdString(uri));
+
+  QFileInfoList folders;
+
+  QDir dir(baseUrl.path());
+  QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+  if(fileInfoList.empty())
+  {
+    QString errMsg = QObject::tr("No file in folder: %1.").arg(QString::fromStdString(uri));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw NoDataException() << ErrorDescription(errMsg);
+  }
+
+  for(const auto& fileInfo : fileInfoList)
+  {
+    std::string folderPath = fileInfo.absoluteFilePath().toStdString();
+
+    std::string folder = folderPath.substr(folderPath.find_last_of('/')+1);
+
+    if(!terramaMaskMatch(foldersMask, folder))
+      continue;
+
+    folders.push_back(fileInfo);
+  }
+
+  return folders;
+}
+
 
 QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::string& uri,
                                                                     const std::string& mask,
