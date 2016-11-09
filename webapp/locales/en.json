@@ -1,8 +1,4 @@
 {
-<<<<<<< 1ee144bc504c1e99f23a31e5b4925bdb92b3d791
 	"Data Server protocol is required": "Data Server protocol is required",
 	"DataSeries": "DataSeries"
-=======
-	"Data Server protocol is required": "Data Server protocol is required"
->>>>>>> improving the 'Check Connection' button for FTP data providers
 }
