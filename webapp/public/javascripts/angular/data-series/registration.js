@@ -1307,7 +1307,7 @@ angular.module('terrama2.dataseries.registration', [
             break;
           case "OCCURRENCE":
           case "GRID":
-          case "STATIC_DATA":
+          case "GEOMETRIC_OBJECT":
             var format = $scope.model;
 
             var dataSet = {
