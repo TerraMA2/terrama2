@@ -300,41 +300,44 @@ module.exports = function(app) {
       var id = request.params.id;
 
       if (id) {
-        return PromiseClass.all([
-            DataManager.getDataSeries({id: id}),
-            DataManager.getCollector({data_series_output: id})
-          ])
-          .spread(function(dataSeriesResult, collectorResult) {
-            return PromiseClass.all([
-                DataManager.removeDataSerie({id: id}),
-                DataManager.removeDataSerie({id: collectorResult.data_series_input}),
-                DataManager.removeSchedule({id: collectorResult.schedule.id})
-              ])
-            .then(function() {
-              var objectToSend = {
-                "Collectors": [collectorResult.id],
-                "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
-                "Schedule": [collectorResult.schedule.id]
-              };
+        return DataManager.getDataSeries({id: id})
+          .then(function(dataSeriesResult) {
+            return DataManager.getCollector({data_series_output: id})
+              .then(function(collectorResult) {
+                return PromiseClass.all([
+                    DataManager.removeDataSerie({id: id}),
+                    DataManager.removeDataSerie({id: collectorResult.data_series_input}),
+                    DataManager.removeSchedule({id: collectorResult.schedule.id})
+                  ])
+                  .then(function() {
+                    var objectToSend = {
+                      "Collectors": [collectorResult.id],
+                      "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
+                      "Schedule": [collectorResult.schedule.id]
+                    };
 
-              TcpService.remove(objectToSend);
+                    TcpService.remove(objectToSend);
 
-              return response.json({status: 200, name: dataSeriesResult.name});
-            });
-          }).catch(function(err) {
-            // if not find collector, it is processing data series or analysis data series
-            return DataManager.removeDataSerie({id: dataSeriesResult.id})
-              .then(function() {
-                var objectToSend = {
-                  "DataSeries": [dataSeriesResult.id]
-                };
+                    return response.json({status: 200, name: dataSeriesResult.name});
+                  });
+              })
+              
+              .catch(function(err) {
+                // if not find collector, it is processing data series or analysis data series
+                return DataManager.removeDataSerie({id: id})
+                  .then(function() {
+                    var objectToSend = {
+                      "DataSeries": [id]
+                    };
 
-                TcpService.remove(objectToSend);
+                    TcpService.remove(objectToSend);
 
-                return response.json({status: 200, name: dataSeriesResult.name});
-              }).catch(function(error) {
-                Utils.handleRequestError(response, error, 400);
-              });
+                    return response.json({status: 200, name: dataSeriesResult.name});
+                  });
+              })
+          })
+          .catch(function(error) {
+            Utils.handleRequestError(response, error, 400);
           });
       } else {
         Utils.handleRequestError(response, new DataSeriesError("Missing dataseries id"), 400);

@@ -1430,7 +1430,7 @@ var DataManager = module.exports = {
           output = new DataModel.DataSeries(obj);
 
           // if there DataSets to save too
-          if (dataSeriesObject.dataSets || dataSeriesObject.dataSets.length > 0) {
+          if (dataSeriesObject.dataSets && dataSeriesObject.dataSets.length > 0) {
             var dataSets = [];
             for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
               var dSet = dataSeriesObject.dataSets[i];
@@ -2791,7 +2791,7 @@ var DataManager = module.exports = {
         .then(function(scriptLanguage) {
           scriptLanguageResult = scriptLanguage;
           // checking if there is historical data to save
-          if (_.isEmpty(analysisObject.historical)) {
+          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate && !analysisObject.historical.endDate)) {
             return null;
           }
           return self.addHistoricalData(analysisResult.id, analysisObject.historical, options);
