@@ -71,7 +71,7 @@ namespace terrama2
 
         virtual std::string getFolderMask(DataSetPtr dataSet) const;
 
-        virtual QFileInfoList getFoldersList(const std::string& uri, const std::string& foldersMask) const;
+        virtual QFileInfoList getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const;
 
         /*!
          * \brief Search in a folder and return a list of files that match the mask and filter

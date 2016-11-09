@@ -295,35 +295,80 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 }
 
 
-QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const std::string& uri, const std::string& foldersMask) const
+QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const
 {
-  QUrl baseUrl;
-  baseUrl = QUrl(QString::fromStdString(uri));
-
   QFileInfoList folders;
 
-  QDir dir(baseUrl.path());
-  QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-  if(fileInfoList.empty())
+  std::size_t found = foldersMask.find_first_of('/');
+
+  std::string mask;
+
+  if(found != std::string::npos)
   {
-    QString errMsg = QObject::tr("No file in folder: %1.").arg(QString::fromStdString(uri));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw NoDataException() << ErrorDescription(errMsg);
+    std::size_t begin = 0;
+
+    if(found == 0)
+    {
+      begin = foldersMask.find_first_not_of('/');
+      std::string tempMask = foldersMask.substr(begin);
+      found = tempMask.find_first_of('/');
+      mask = foldersMask.substr(begin, found);
+      found++;
+    }
+    else
+    {
+      mask = foldersMask.substr(begin, found);
+    }
+  }
+  else
+  {
+    mask = foldersMask;
   }
 
-  for(const auto& fileInfo : fileInfoList)
+  for(const auto& uri : uris)
   {
-    std::string folderPath = fileInfo.absoluteFilePath().toStdString();
+    QUrl baseUrl;
+    baseUrl = QUrl(uri.absoluteFilePath());
 
-    std::string folder = folderPath.substr(folderPath.find_last_of('/')+1);
-
-    if(!terramaMaskMatch(foldersMask, folder))
+    QDir dir(baseUrl.path());
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+    if(fileInfoList.empty())
+    {
       continue;
+    }
 
-    folders.push_back(fileInfo);
+    for(const auto& fileInfo : fileInfoList)
+    {
+      std::string folderPath = fileInfo.absoluteFilePath().toStdString();
+
+      std::string folder = folderPath.substr(folderPath.find_last_of('/')+1);
+
+      if(!terramaMaskMatch(mask, folder))
+        continue;
+
+      folders.push_back(fileInfo);
+    }
   }
 
-  return folders;
+  std::string nextMask = "";
+
+  if(found != std::string::npos)
+    nextMask = foldersMask.substr(found+1);
+
+  if(nextMask.empty())
+  {
+    return folders;
+  }
+  else if(!folders.empty())
+  {
+    return getFoldersList(folders, nextMask);
+  }
+  else
+  {
+    QString errMsg = QObject::tr("No directory matches the mask.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return QFileInfoList();
+  }
 }
 
 

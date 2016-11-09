@@ -39,9 +39,30 @@
 
 void TsDataAccessorFile::testGetFoldersList()
 {
+  // Valid folders
   QTemporaryDir dir(QDir::tempPath() + QString::fromStdString("/2016"));
-  QTemporaryDir dir2(QDir::tempPath() + QString::fromStdString("/2020"));
-  QTemporaryDir dir3(QDir::tempPath() + QString::fromStdString("/folder"));
+
+  QTemporaryDir subdir1(dir.path() + QString::fromStdString("/10"));
+  QTemporaryDir subdir2(dir.path() + QString::fromStdString("/11"));
+  QTemporaryDir subdir3(dir.path() + QString::fromStdString("/12"));
+
+  QTemporaryDir subdir4(subdir1.path() + QString::fromStdString("/03"));
+  QTemporaryDir subdir5(subdir3.path() + QString::fromStdString("/11"));
+
+  QTemporaryDir subdir6(subdir4.path() + QString::fromStdString("/final"));
+  QTemporaryDir subdir7(subdir4.path() + QString::fromStdString("/final"));
+
+  QTemporaryDir subdir8(subdir5.path() + QString::fromStdString("/final"));
+
+  // Invalid folders
+
+  QTemporaryDir dir2(QDir::tempPath() + QString::fromStdString("/2016"));
+
+  QTemporaryDir subdir9(dir2.path() + QString::fromStdString("/03"));
+  QTemporaryDir subdir10(subdir9.path() + QString::fromStdString("/aa"));
+
+  QTemporaryDir dir3(QDir::tempPath() + QString::fromStdString("/2020"));
+  QTemporaryDir dir4(QDir::tempPath() + QString::fromStdString("/folder"));
 
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
@@ -51,8 +72,21 @@ void TsDataAccessorFile::testGetFoldersList()
 
   TestDataAccessorFile da(dataProviderPtr, dataSeriesPtr);
 
-  QFileInfoList foldersList = da.getFoldersList(QDir::tempPath().toStdString(), "2016*");
+  QFileInfoList fileList;
 
-  if(foldersList.size() != 1)
-    QFAIL("Wrong number of folders matched!");
+  fileList.push_back(QDir::tempPath());
+
+  {
+    QFileInfoList foldersList = da.getFoldersList(fileList, "/%YYYY*/%MM*/%DD*/final*");
+
+    if(foldersList.size() < 3)
+      QFAIL("Wrong number of folders matched!");
+  }
+
+  {
+    QFileInfoList foldersList = da.getFoldersList(fileList, "%YYYY*/%MM*/%DD*/final*");
+
+    if(foldersList.size() < 3)
+      QFAIL("Wrong number of folders matched!");
+  }
 }
