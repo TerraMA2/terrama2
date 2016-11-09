@@ -100,19 +100,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
                                                             std::shared_ptr<FileRemover> remover) const
 {
   std::string mask = getCtlFilename(dataset);
-
-  std::string folderPath = "";
-
-  try
-  {
-    folderPath = getProperty(dataset, dataSeries_, "folder", false);
-  }
-  catch(UndefinedTagException& /*e*/)
-  {
-    // Do nothing
-  }
-
-  std::string uri = dataRetriever->retrieveData(mask, filter, remover, "", folderPath);
+  std::string uri = dataRetriever->retrieveData(mask, filter, remover);
 
   QUrl url(QString::fromStdString(uri));
   QDir dir(url.path());

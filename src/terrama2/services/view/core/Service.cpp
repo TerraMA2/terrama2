@@ -530,7 +530,7 @@ QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(const 
     QUrl url;
     try
     {
-      url = QUrl(QString::fromStdString(inputDataProvider->uri+"/"+dataAccessor->getFolder(dataset)));
+      url = QUrl(QString::fromStdString(inputDataProvider->uri+"/"+dataAccessor->getFolderMask(dataset)));
     }
     catch(const terrama2::core::UndefinedTagException& /*e*/)
     {
