@@ -1,7 +1,7 @@
 'use strict';
 
 var AbstractRequest = require('./AbstractRequest');
-var Client = require('jsftp');
+var Client = require('ftp');
 var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var Form = require("./Enums").Form;
@@ -21,12 +21,33 @@ FtpRequest.prototype.request = function() {
   return  new Promise(function(resolve, reject) {
     var config = {
       user: self.params[self.syntax().USER],
-      pass: self.params[self.syntax().PASSWORD],
+      password: self.params[self.syntax().PASSWORD],
       host: self.params[self.syntax().HOST],
       port: self.params[self.syntax().PORT]
     };
 
-    var client = new Client(config);
+    var client = new Client();
+
+    client.on('ready', function() {
+      client.list(self.params[self.syntax().PATHNAME], function(err, list) {
+        if(err) {
+          var error;
+          switch (err.code) {
+            case 450:
+              error = new Exceptions.ConnectionError("Invalid path");
+              break;
+            default:
+              error = new Exceptions.ConnectionError("Error in connection");
+          }
+
+          client.end();
+          return reject(error);
+        } else {
+          client.end();
+          return resolve();
+        }
+      });
+    });
 
     client.on('error', function(err) {
       var error;
@@ -34,31 +55,23 @@ FtpRequest.prototype.request = function() {
       switch (err.code) {
         case "ENOTFOUND":
         case 421:
-          var generic = "Host not found";
-          var hostError = new Exceptions.ValidationErrorItem(generic, syntax.HOST, config.user);
-          error = new Exceptions.ConnectionError("Host not found", [hostError]);
+          error = new Exceptions.ConnectionError("Host not found");
           break;
         case "ECONNREFUSED":
+          error = new Exceptions.ConnectionError("Error in connection, check the host and the port");
+          break;
         case 530:
-          var genericMessage = "Username or password does not match";
-          var userError = new Exceptions.ValidationErrorItem(genericMessage, syntax.USER, config.user);
-          var passwordError = new Exceptions.ValidationErrorItem(genericMessage, syntax.PASSWORD, config.pass);
-          error = new Exceptions.ConnectionError("Connection refused. " + genericMessage, [userError, passwordError]);
+          error = new Exceptions.ConnectionError("Username or password does not match");
           break;
         default:
           error = new Exceptions.ConnectionError("Error in connection");
       }
 
+      client.end();
       return reject(error);
     });
 
-    client.raw.quit(function(err, data) {
-      if (err) {
-        return reject(err);
-      }
-
-      return resolve();
-    });
+    client.connect(config);
   });
 };
 
