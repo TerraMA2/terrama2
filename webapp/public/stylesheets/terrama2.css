@@ -264,5 +264,20 @@ bootstrap-decorator span {
 }
 
 .terrama2-disabled:hover {
-  color: white;
+  background-color: white !important;
+}
+
+.terrama2-button-dropdown {
+  padding: 0 !important;
+  background-color: #3c8dbc !important;
+  border-color: #3c8dbc !important;
+}
+
+.terrama2-button-dropdown li > a {
+  color: white !important;
+  padding: 6px 20px !important;
+}
+
+.terrama2-button-dropdown li > a:hover {
+  background-color: #367fa9 !important;
 }

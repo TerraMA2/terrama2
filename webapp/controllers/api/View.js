@@ -34,8 +34,9 @@
 
       post: function(request, response) {
         var viewObject = request.body;
+        var shouldRun = request.body.run;
 
-        ViewFacade.save(viewObject, app.locals.activeProject.id)
+        ViewFacade.save(viewObject, app.locals.activeProject.id, shouldRun)
           .then(function(view) {
             // generating token
             var token = Utils.generateToken(app, TokenCode.SAVE, view.name);
@@ -49,8 +50,9 @@
       
       put: function(request, response) {
         var viewId = parseInt(request.params.id);
+        var shouldRun = request.body.run;
 
-        ViewFacade.update(viewId, request.body, app.locals.activeProject.id)
+        ViewFacade.update(viewId, request.body, app.locals.activeProject.id, shouldRun)
           .then(function(view) {
             var token = Utils.generateToken(app, TokenCode.UPDATE, view.name);
             return response.json({status: 200, result: view.toObject(), token: token});

@@ -109,11 +109,15 @@
 </div>
 
 <div class="box-footer">
-  <terrama2-drop-down-button text="i18n.__('Save')" 
-                             css="{button: 'btn-primary', group: 'pull-right'}"
-                             css-style="{group: {'margin-left': '10px;'}}">
-    <li><a href="javascript::void()" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
-    <li><a href="javascript::void()" data-ng-click="save(true);" ng-bind="i18n.__('Save and Run')"></a></li>
-  </terrama2-drop-down-button>
+  <div class="btn-group pull-right" style="margin-left: 10px;">
+    <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
+    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="caret"></span>
+      <span class="sr-only"></span>
+    </button>
+    <ul class="dropdown-menu terrama2-button-dropdown">
+      <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
+    </ul>
+  </div>
   <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
 </div>

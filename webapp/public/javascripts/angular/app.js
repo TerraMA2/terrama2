@@ -627,41 +627,6 @@ terrama2Application.directive("terrama2Content", function() {
   };
 });
 
-/**
- * @example
- * 
- * <terrama2-drop-down-button css="">
- *   <li>Option 1</li>
- *   <li>Option 2</li>
- *   <li>Option N</li>
- * </terrama2-drop-down-button>
- */
-terrama2Application.directive("terrama2DropDownButton", function() {
-  return {
-    restrict: "E",
-    transclude: true,
-    scope: {
-      css: "=css",
-      cssStyle: "=cssStyle",
-      buttonText: "=text"
-    },
-    controller: function($scope) {
-      console.log($scope);
-    },
-    template: function(element, attrs) {
-      return "<div class=\"btn-group\" ng-class=\"css.group\" ng-style=\"cssStyle.group\" style=\"margin-left: 10px;\">" +
-        "<button type=\"button\" class=\"btn dropdown-toggle\" ng-class=\"css.button\" ng-style=\"cssStyle.button\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
-        "{{ buttonText }} <span class=\"caret\"></span>" +
-        "</button>" +
-        "<ul class=\"dropdown-menu\" ng-class=\"css.dropdown\" ng-style=\"cssStyle.dropdown\" ng-transclude>" +
-        "</ul>" +
-      "</div>";
-    },
-    link: function(scope, element, attrs, transclude) {
-    }
-  };
-});
-
 terrama2Application.directive('terrama2Fluid', function($window) {
   return {
     restrict: "A",

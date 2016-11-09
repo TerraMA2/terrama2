@@ -307,9 +307,16 @@
     </terrama2-box>
 
     <div class="box-footer">
-      <button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="ctrl.save();">
-        <span ng-bind="i18n.__('OK')"></span>
-      </button>
+      <div class="btn-group pull-right" style="margin-left: 10px;">
+        <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="ctrl.save(true);"></button>
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="caret"></span>
+          <span class="sr-only"></span>
+        </button>
+        <ul class="dropdown-menu terrama2-button-dropdown">
+          <li><a href="javascript::void();" data-ng-click="ctrl.save(false);" ng-bind="i18n.__('Save')"></a></li>
+        </ul>
+      </div>
       <a href="/configuration/views/" class="btn btn-primary pull-right" style="margin-left: 10px;">
         <span ng-bind="i18n.__('Cancel')"></span>
       </a>
