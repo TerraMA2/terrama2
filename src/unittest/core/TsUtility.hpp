@@ -57,8 +57,9 @@ private slots:
   void testTimeUtilsScheduleSeconds();
 
   void ValidMask();
-  void invalidValidMask();
+  void invalidMask();
   void testTerramaMask2Regex();
+  void testTerramaMaskMatch();
 
   void testValidDataSetName();
   void testValidDataSetNameCompress();
