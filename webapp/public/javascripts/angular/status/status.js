@@ -169,4 +169,11 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
       end: 2
     })
 
+    if(configuration.parameters.message !== undefined && configuration.parameters.message !== null && configuration.parameters.message !== "") {
+      $scope.alertBox.title = i18n.__("Project");
+      $scope.alertBox.message = configuration.parameters.message;
+      $scope.alertLevel = "alert-success";
+      $scope.display = true;
+    }
+
   }])
