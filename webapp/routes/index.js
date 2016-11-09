@@ -3,6 +3,8 @@ module.exports = function (app) {
 
   app.get('/', controller);
 
+  app.get('/firstAccess', controller);
+
   app.post('/userDefaults', function(request, response) {
     app.locals.collapsed = !(request.body.collapsed == "true");
     return response.json({status: 200, collapsed: app.locals.collapsed});
