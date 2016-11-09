@@ -322,7 +322,6 @@ void TsDataAccessorDcpToa5::TestFailDataSourceInvalid()
 
     std::unique_ptr<te::da::MockDataSource> mock_(new ::testing::NiceMock<te::da::MockDataSource>());
 
-    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillRepeatedly(Return());
     EXPECT_CALL(*mock_, open()).WillRepeatedly(Return());
     EXPECT_CALL(*mock_, isOpened()).WillRepeatedly(Return(false));
     EXPECT_CALL(*mock_, close()).WillRepeatedly(Return());
@@ -401,7 +400,6 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
 
     auto create_MockDataSourceTransactor = [](te::da::MockDataSourceTransactor* mockDataSourceTransactor)-> te::da::MockDataSourceTransactor* {return mockDataSourceTransactor;};
 
-    EXPECT_CALL(*mock_, setConnectionInfo(_)).WillOnce(Return());
     EXPECT_CALL(*mock_, open()).WillOnce(Return());
     EXPECT_CALL(*mock_, isOpened()).WillOnce(Return(true));
     EXPECT_CALL(*mock_, DataSourceTransactoPtrReturn()).WillOnce(::testing::Invoke(std::bind(create_MockDataSourceTransactor, mockDataSourceTransactor.release())));

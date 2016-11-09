@@ -34,6 +34,7 @@
 // TerraLib
 #include <terralib/common/Singleton.h>
 #include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/core/uri/URI.h>
 
 namespace terrama2
 {
@@ -110,16 +111,16 @@ namespace terrama2
         void setShuttingDownProcessInitiated();
 
         //! Update connection to log database parameters
-        void setLogConnectionInfo(std::map<std::string, std::string> connInfo);
+        void setLogConnectionInfo(const te::core::URI& logDbUri);
         //! Get connection to database parameters.
-        virtual std::map<std::string, std::string> logConnectionInfo() const;
+        virtual te::core::URI logConnectionInfo() const;
 
 
       signals:
         //! Signal emited when the listening is changed
         void listeningPortUpdated(int);
         void numberOfThreadsUpdated(size_t);
-        void logConnectionInfoUpdated(const std::map<std::string, std::string>&);
+        void logConnectionInfoUpdated(const te::core::URI&);
 
       protected:
         friend class te::common::Singleton<ServiceManager>;
@@ -140,7 +141,7 @@ namespace terrama2
         int numberOfThreads_ = 0;
         std::shared_ptr< te::dt::TimeInstantTZ > startTime_;
         bool serviceLoaded_ = false;
-        std::map<std::string, std::string> connInfo_;
+        te::core::URI logDbUri_;
         bool isShuttingDown_ = false;
     };
   }

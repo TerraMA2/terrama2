@@ -55,7 +55,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
 
   /**
    * It will replace terrama2-alert-box and terrama2-message-box
-   * 
+   *
    */
   .directive("terrama2AlertBox2", function() {
     return {
@@ -127,11 +127,11 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
         };
 
         // setting default close function
-        if (!$scope.close) {
+        //if (!$scope.close) {
           $scope.close = function() {
             $scope.display = false;
           };
-        }
+        //}
 
         $scope.$watch("display", function(val) {
           console.log(val);

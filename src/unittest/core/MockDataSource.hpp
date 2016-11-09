@@ -70,7 +70,7 @@ namespace te
         /*!
        * \brief Class constructor
       */
-        MockDataSource() = default;
+        MockDataSource() : DataSource("") {}
 
         /*!
        * \brief Class destructor
@@ -327,23 +327,23 @@ namespace te
         MOCK_METHOD2(renameDataSet,
                      void(const std::string& name, const std::string& newName));
         MOCK_METHOD4(add,
-                     void(std::string, DataSet*, std::map<std::string, std::string>, std::size_t));
+                     void(const std::string&, DataSet*, const std::map<std::string, std::string>&, std::size_t));
         MOCK_METHOD0(getEncoding,
                      te::core::EncodingType());
         MOCK_METHOD2(remove,
-                     void(std::string, te::da::ObjectIdSet));
+                     void(const std::string&, const te::da::ObjectIdSet*));
         MOCK_METHOD6(update,
-                     void(std::string, DataSet*, const std::vector<std::size_t>& properties, te::da::ObjectIdSet, std::map<std::string, std::string>& options, std::size_t));
+                     void(const std::string&, DataSet*, const std::vector<std::size_t>& properties, const te::da::ObjectIdSet*, const std::map<std::string, std::string>& options, std::size_t));
         MOCK_METHOD4(update,
                      void(const std::string& datasetName, DataSet* dataset, const std::vector< std::set<int> >& properties, const std::vector<size_t>& ids));
         MOCK_METHOD1(create,
-                     void(const std::map<std::string, std::string>& dsInfo));
+                     void(const std::string& connInfo));
         MOCK_METHOD1(drop,
-                     void(const std::map<std::string, std::string>& dsInfo));
+                     void(const std::string& connInfo));
         MOCK_METHOD1(exists,
-                     bool(const std::map<std::string, std::string>& dsInfo));
+                     bool(const std::string& connInfo));
         MOCK_METHOD1(getDataSourceNames,
-                     std::vector<std::string>(const std::map<std::string, std::string>& dsInfo));
+                     std::vector<std::string>(const std::string& connInfo));
         MOCK_METHOD1(getEncodings,
                      std::vector<te::core::EncodingType>(const std::map<std::string, std::string>& dsInfo));
     };

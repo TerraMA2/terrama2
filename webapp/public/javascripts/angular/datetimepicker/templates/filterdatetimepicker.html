@@ -2,17 +2,36 @@
   <div class='col-md-6'>
     <div class="form-group">
       <label>{{ i18n.__(beforeLabel || "Ignores data previous to") }}:</label>
-      <terrama2-datetime-picker data-ng-model="beforeDatetime"
-                                options="{format: 'DD/MM/YYYY HH:mm:ss', sideBySide: true, useCurrent: false, toolbarPlacement: 'top', allowInputToggle: true, maxDate: afterDatetime}">
-      </terrama2-datetime-picker>
+      <div class="row">
+        <div class='col-md-12 col-sm-12'>
+          <div class="form-group">
+            <div class='input-group date' datetimepicker options="vm.optionsFrom" data-ng-model="beforeDatetime" id="{{ identifier }}" on-change="vm.update(beforeDatetime, afterDatetime)">
+              <input type='text' class="form-control"/>
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
   <div class='col-md-6'>
     <div class="form-group">
       <label>{{ i18n.__(afterLabel || "Ignores data after") }}:</label>
-      <terrama2-datetime-picker data-ng-model="afterDatetime"
-                                options="{format: 'DD/MM/YYYY HH:mm:ss', sideBySide: true, useCurrent: false, toolbarPlacement: 'top', allowInputToggle: true, minDate: beforeDatetime}">
-      </terrama2-datetime-picker>
+      <div class="row">
+        <div class='col-md-12 col-sm-12'>
+          <div class="form-group">
+            <div class='input-group date' datetimepicker options="vm.optionsTo" data-ng-model="afterDatetime" id="{{ identifier }}" on-change="vm.update(beforeDatetime, afterDatetime)">
+              <input type='text' class="form-control"/>
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

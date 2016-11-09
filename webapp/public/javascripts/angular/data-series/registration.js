@@ -150,6 +150,17 @@ angular.module('terrama2.dataseries.registration', [
         $scope.dcpsStorager = [];
       });
 
+      $scope.$on("clearStoreForm", function(event){
+          $scope.modelStorager = {};
+          $scope.formStorager = [];
+          $scope.schemaStorager = {};
+          $scope.storager.format = {};
+          $scope.storager_service = undefined;
+          $scope.dcpsStorager = [];
+          $scope.storager_data_provider_id = undefined;
+          $scope.$broadcast("clearSchedule");
+      });
+
       $scope.$on('storagerFormatChange', function(event, args) {
         $scope.formatSelected = args.format;
         // todo: fix it. It is hard code
@@ -170,9 +181,12 @@ angular.module('terrama2.dataseries.registration', [
           $scope.dcpsStorager = [];
           $scope.dataProvidersList.forEach(function(dataProvider) {
             data.data_providers_semantics.forEach(function(demand) {
-              if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
+              if (dataProvider.data_provider_type.id == demand.data_provider_type_id){
+                if ($scope.storager.format.data_series_type_name == 'GRID' && dataProvider.data_provider_type.id != 1 )
+                  return;
                 $scope.dataProvidersStorager.push(dataProvider);
-            });
+              }
+            })
           });
 
           if ($scope.dataProvidersStorager.length > 0)
@@ -252,7 +266,7 @@ angular.module('terrama2.dataseries.registration', [
 
             if (!outputDataseries)
               return;
-
+              
             // fill out default
             if ($scope.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
               $scope.modelStorager = $scope.prepareFormatToForm(outputDataseries.dataSets[0].format);
@@ -311,6 +325,87 @@ angular.module('terrama2.dataseries.registration', [
         }
       };
 
+      // clear optional forms
+      var clearStoreForm = function(){
+        $scope.showStoragerForm = false;
+        $scope.schedule = {};
+        $scope.scheduleOptions = {};
+        $scope.advanced.store.disabled = true;
+        $scope.$broadcast('clearStoreForm');
+        var enableStore = angular.element('#store-collapse');
+        var storebox = angular.element('#store-box');
+        if (!storebox.hasClass('collapsed-box')){
+          enableStore.click();
+        }
+      }
+      
+      var clearFilterForm = function(){
+        $scope.filter.date = {};
+        $scope.filter.filterArea = "1";
+        $scope.advanced.filter.disabled = true;
+        var enableFilter = angular.element('#filter-collapse');
+        var filterbox = angular.element('#filter-box');
+        if (!filterbox.hasClass('collapsed-box')){
+          enableFilter.click();
+        }
+      }
+
+      var clearIntersectionForm = function(){
+        for (var key in $scope.intersection) {
+          $scope.removeDataSeries(key);
+        }
+        $scope.advanced.intersection.disabled = true;
+        var enableIntersection = angular.element('#intersection-collapse');
+        var intersectionbox = angular.element('#intersection-box');
+        if (!intersectionbox.hasClass('collapsed-box')){
+          enableIntersection.click();
+        }
+      }
+
+      // open optional form in advanced mode
+      var openStoreForm = function(){
+        $scope.advanced.store.disabled = false;
+        var enableStore = angular.element('#store-collapse');
+        // set disabled to false, to open form
+        enableStore.attr("disabled", false);
+        enableStore.click();
+      }
+
+      var openFilterForm = function(){
+        $scope.advanced.filter.disabled = false;
+        var enableFilter = angular.element('#filter-collapse');
+        // set disabled to false, to open form
+        enableFilter.attr("disabled", false);
+        enableFilter.click();
+      }
+
+      var openIntersectionForm = function(){
+        $scope.advanced.intersection.disabled = false;
+        var enableIntersection = angular.element('#intersection-collapse');
+        // set disabled to false, to open form
+        enableIntersection.attr("disabled", false);
+        enableIntersection.click();
+      }
+
+      // advanced global properties
+      $scope.advanced = {
+        store: {
+          disabled: true,
+          clearForm: clearStoreForm,
+          openForm: openStoreForm
+        },
+        filter: {
+          disabled: true,
+          clearForm: clearFilterForm,
+          openForm: openFilterForm
+        },
+        intersection: {
+          disabled: true,
+          clearForm: clearIntersectionForm,
+          openForm: openIntersectionForm
+        }
+      }
+
       // wizard global properties
       $scope.wizard = {
         general: {
@@ -319,12 +414,28 @@ angular.module('terrama2.dataseries.registration', [
         },
         parameters: {
           required: true,
-          formName: 'parametersForm'
+          formName: 'parametersForm',
+          disabled: true
         },
         store: {
           required: false,
           formName: 'storagerForm',
-          secondForm: 'storagerDataForm'
+          secondForm: 'storagerDataForm',
+          disabled: true,
+          optional: true,
+          clearForm: clearStoreForm
+        },
+        filter: {
+          required: false,
+          disabled: true,
+          optional: true,
+          clearForm: clearFilterForm
+        },
+        intersection: {
+          required: false,
+          disabled: true,
+          optional: true,
+          clearForm: clearIntersectionForm
         }
       };
 
@@ -399,7 +510,7 @@ angular.module('terrama2.dataseries.registration', [
 
 
       // wizard helper
-      var isWizardStepValid = function(form, isSchemaForm) {
+      var isWizardStepValid = function() {
         $scope.$broadcast('formFieldValidation');
         $scope.$broadcast('schemaFormValidate');
         var w = WizardHandler.wizard();
@@ -493,7 +604,7 @@ angular.module('terrama2.dataseries.registration', [
       };
 
       // removing data series from intersection list
-      $scope.removeDataSeries = function(dataSeriesId, index) {
+      $scope.removeDataSeries = function(dataSeriesId) {
         if (!dataSeriesId) { return; }
 
         var dataSeries = $scope.intersection[dataSeriesId].data_series;
@@ -665,8 +776,15 @@ angular.module('terrama2.dataseries.registration', [
 
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
-        isWizardStepValid($scope.forms.generalDataForm);
-        return true;
+        isWizardStepValid();
+        var firstStepValid = $scope.forms.generalDataForm.$valid;
+        if (firstStepValid){
+          $scope.wizard.parameters.disabled = false;
+        } 
+        else {
+          $scope.wizard.parameters.disabled = true;
+        }
+        return firstStepValid;
       };
 
       $scope.isSecondStepValid = function(obj) {
@@ -682,12 +800,12 @@ angular.module('terrama2.dataseries.registration', [
             this["wzData"].error = false;
             return true;
           }
-        !isWizardStepValid($scope.forms.parametersForm, true);
+        isWizardStepValid();
         return true;
       };
 
       $scope.isThirdStepValid = function(obj) {
-        !isWizardStepValid($scope.forms.storagerForm);
+        isWizardStepValid();
         return true;
       };
       //. end wizard validations
@@ -805,10 +923,7 @@ angular.module('terrama2.dataseries.registration', [
               $scope.dataSeries.semantics = semantics;
               $scope.onDataSemanticsChange();
             }
-          });
-        } else if (semanticsList.length > 0) {
-          $scope.dataSeries.semantics = semanticsList[0];
-          $scope.onDataSemanticsChange();
+          })
         }
 
       }).error(function(err) {
@@ -866,9 +981,16 @@ angular.module('terrama2.dataseries.registration', [
         $scope.storager.format = {};
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
+        clearStoreForm();
 
         $scope.dataSeriesSemantics.forEach(function(dSemantics) {
           if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {
+            if ($scope.dataSeries.semantics.data_series_type_name == "OCCURRENCE" && dSemantics.code == "OCCURRENCE-wfp"){
+              return;
+            }
+            if ($scope.dataSeries.semantics.data_series_type_name == "DCP" && dSemantics.data_format_name !== "POSTGIS"){
+              return;
+            }
             $scope.storagerFormats.push(Object.assign({}, dSemantics));
           }
         });
@@ -1256,7 +1378,7 @@ angular.module('terrama2.dataseries.registration', [
         $scope.alertBox.message = "";
 
         if ($scope.isWizard) {
-          isWizardStepValid(null, false);
+          isWizardStepValid();
         }
 
         if($scope.forms.generalDataForm.$invalid) {
@@ -1265,6 +1387,7 @@ angular.module('terrama2.dataseries.registration', [
         }
         // checking parameters form (semantics) is invalid
         if ($scope.dcps.length === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
+          makeDialog("alert-danger", "There are invalid fields on form", true);
           return;
         }
 

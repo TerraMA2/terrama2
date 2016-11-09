@@ -356,21 +356,7 @@ void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr data
       throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
     }
 
-
-    QUrl url(outputDataProvider->uri.c_str());
-
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS"));
-
-    std::map<std::string, std::string> connInfo {{"PG_HOST", url.host().toStdString()},
-                                                 {"PG_PORT", std::to_string(url.port())},
-                                                 {"PG_USER", url.userName().toStdString()},
-                                                 {"PG_PASSWORD", url.password().toStdString()},
-                                                 {"PG_DB_NAME", url.path().section("/", 1, 1).toStdString()},
-                                                 {"PG_CONNECT_TIMEOUT", "4"},
-                                                 {"PG_CLIENT_ENCODING", "UTF-8"}
-    };
-    datasource->setConnectionInfo(connInfo);
-
+    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS", outputDataProvider->uri));
 
     // RAII for open/closing the datasource
     terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);

@@ -34,7 +34,10 @@ module.exports = function(app) {
         app.locals.activeProject = {id: project.id, name: project.name};
 
         // Redirect for start application
-        response.redirect("/configuration/status");
+        if(request.params.token !== undefined)
+          response.redirect("/configuration/status?token=" + request.params.token);
+        else
+          response.redirect("/configuration/status");
       }).catch(function(err) {
         console.log(err);
         response.render('base/404');

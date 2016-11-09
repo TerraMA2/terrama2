@@ -47,7 +47,7 @@ te::da::MockDataSet* createMockDataSet()
   te::da::MockDataSet* mockDataSet(new te::da::MockDataSet());
 
   EXPECT_CALL(*mockDataSet, moveNext()).WillRepeatedly(::testing::Return(true));
-  EXPECT_CALL(*mockDataSet, getAsString(::testing::An<std::string>(),::testing::_)).WillRepeatedly(::testing::Return(""));
+  EXPECT_CALL(*mockDataSet, getAsString(::testing::An<const std::string&>(),::testing::_)).WillRepeatedly(::testing::Return(""));
   EXPECT_CALL(*mockDataSet, getAsString(::testing::An<std::size_t>(),::testing::_)).WillRepeatedly(::testing::Return(""));
   EXPECT_CALL(*mockDataSet, isNull(std::string())).WillRepeatedly(::testing::Return(false));
   EXPECT_CALL(*mockDataSet, getNumProperties()).WillRepeatedly(::testing::Return(0));

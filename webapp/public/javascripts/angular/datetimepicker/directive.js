@@ -1,6 +1,7 @@
 "use strict";
 
-angular.module('terrama2.datetimepicker', ['terrama2'])
+angular.module('terrama2.datetimepicker', ['terrama2', 'ae-datetimepicker'])
+  .constant('locales', {en_US: 'en', pt_BR: 'pt-br', es_ES: 'es', fr_FR: 'fr'})
   .directive('terrama2DatetimePicker', function() {
     return {
       restrict: 'EA',
@@ -12,7 +13,7 @@ angular.module('terrama2.datetimepicker', ['terrama2'])
     };
   })
 
-  .directive('terrama2FilterDatetimePicker', function(i18n) {
+  .directive('terrama2FilterDatetimePicker', function(i18n, locales) {
     return {
       restrict: 'EA',
       templateUrl: '/javascripts/angular/datetimepicker/templates/filterdatetimepicker.html',
@@ -24,18 +25,20 @@ angular.module('terrama2.datetimepicker', ['terrama2'])
         afterLabel: '=',
         options: '=?'
       },
+      controllerAs: 'vm',
       controller: function($scope) {
-        $scope.i18n = i18n;
-        $scope.options = angular.extend({}, {
-          format: "YYYY/MM/DD HH:mm:ss",
-          sideBySide: true,
-          toolbarPlacement: 'top',
-          allowInputToggle: false,
-          useCurrent: false
-        }, $scope.options);
 
-        $scope.beforeOptions = angular.extend({}, $scope.options, {maxDate: $scope.afterDatetime});
-        $scope.afterOptions = angular.extend({}, $scope.options, {minDate: $scope.beforeDatetime});
+        $scope.i18n = i18n;
+        var locale = locales[i18n.userLanguage];
+
+        this.optionsFrom = {locale: locale, sideBySide: true, toolbarPlacement: 'top', allowInputToggle: true, useCurrent: false,  format: 'L HH:mm'};
+        this.optionsTo = {locale: locale, sideBySide: true, toolbarPlacement: 'top', allowInputToggle: true, useCurrent: false,  format: 'L HH:mm'};
+
+        this.update = function (dateFrom, dateTo) {
+            this.optionsFrom.maxDate = dateTo;
+            this.optionsTo.minDate = dateFrom;
+        };
+
       }
     }
   });

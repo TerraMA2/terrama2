@@ -17,7 +17,7 @@
         <select class="form-control"
                 name="semantics"
                 ng-model="dataSeries.semantics"
-                ng-options="i18n.__(semantics.name) for semantics in dataSeriesSemantics" 
+                ng-options="i18n.__(semantics.name) for semantics in dataSeriesSemantics | filter: { data_series_type_name: '!ANALYSIS_MONITORED_OBJECT' }" 
                 ng-disabled="isUpdating"
                 ng-change="onDataSemanticsChange();" required>
         </select>

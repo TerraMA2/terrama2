@@ -41,7 +41,9 @@ angular.module('terrama2.projects')
         }).success(function(project) {
           console.log(project);
           $scope.errorFound = "";
-          $window.location.href = "/configuration/projects?token=" + project.token;
+
+          //$window.location.href = "/configuration/projects?token=" + project.token;
+          $window.location.href = "/configuration/projects/" + $scope.project.name + "/activate/" + project.token;
         }).error(function(err) {
           $scope.errorFound = err.message;
           console.log(err);
