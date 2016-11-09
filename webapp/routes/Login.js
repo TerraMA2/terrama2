@@ -24,7 +24,7 @@ module.exports = function (app) {
         }
 
         app.locals.collapsed = false;
-        return response.redirect('/')
+        return response.redirect('/firstAccess')
       })
     })(request, response, next);
   });
