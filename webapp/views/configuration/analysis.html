@@ -70,7 +70,10 @@
 <script type="text/javascript" src="/bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
 <!-- Bootstrap datetimepicker -->
 <script type="text/javascript" src="/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-
+  <script type="text/javascript" src="/bower_components/moment/locale/pt-br.js"></script>
+  <script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
+  <script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
+  <script type="text/javascript" src="/bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
 <!-- TerraMA2 Datetimepicker -->
 <script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
 <!-- Socket.io -->
@@ -191,8 +194,11 @@
             <div class="form-group has-feedback" terrama2-show-errors>
               <label>{{ i18n.__("Instance") }}:</label>
               <select class="form-control" name="instance" ng-model="ctrl.analysis.instance_id" required>
-                <option ng-repeat="instance in ctrl.instances" value="{{ instance.id }}">{{ instance.name }}</option>
-                <option ng-if="ctrl.instances.length == 0" value="">{{ i18n.__('No analysis instance found') }}</option>
+                <option ng-repeat="instance in ctrl.instances"                                                                  
+                        value="{{ instance.id }}"                                                                               
+                        ng-init="ctrl.analysis.instance_id = ctrl.instances[0].id.toString()" ng-bind="instance.name"></option> 
+                <option ng-if="ctrl.instances.length == 0" value="" ng-bind="i18n.__('No analysis instance found')"></option>
+
               </select>
 
               <span class="help-block" ng-show="forms.generalDataForm.instance.$dirty && forms.generalDataForm.instance.$error.required">
@@ -221,7 +227,8 @@
       <!-- /.row -->
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Store')" css="ctrl.css">
+    <terrama2-box title="i18n.__('Store')" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
+
       <div class="row">
 
         <form name="forms.storagerDataForm">
@@ -285,7 +292,7 @@
 
     <terrama2-box title="ctrl.semanticsSelected + ' ' + i18n.__('Data Series')" 
                   css="ctrl.css" 
-                  ng-show="ctrl.analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'">
+                  ng-show="ctrl.analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'  && forms.generalDataForm.type.$valid">
       <div class="row">
         <div class="col-md-12">
           <form name="forms.targetDataSeriesForm">
@@ -331,7 +338,7 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="ctrl.dataSeriesBoxName" css="ctrl.css">
+    <terrama2-box title="ctrl.dataSeriesBoxName" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
       <div class="row">
         <div class="col-md-12">
           <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
@@ -379,7 +386,7 @@
       </div><!--./row-->
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Reprocessing Historical Data')" css="ctrl.css">
+    <terrama2-box title="i18n.__('Reprocessing Historical Data')" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
       <div class="row">
         <form name="forms.historicalForm" novalidate>
           <terrama2-filter-datetime-picker before-label="'Start Date'" 
@@ -393,7 +400,7 @@
 
     <terrama2-box title="i18n.__('Grid configuration')" 
                   css="ctrl.css"
-                  ng-show="ctrl.analysis.type_id == {[ Enums.AnalysisType.GRID ]}">
+                  ng-show="ctrl.analysis.type_id == {[ Enums.AnalysisType.GRID ]} && forms.generalDataForm.type.$valid">
       <div class="row">
         <form name="forms.gridForm">
           <div class="col-md-12">
@@ -564,7 +571,7 @@
 
     <terrama2-box title="i18n.__('Influence Area')" 
                   css="ctrl.css" 
-                  ng-show="ctrl.analysis.type_id == 1">
+                  ng-show="ctrl.analysis.type_id == 1  && forms.generalDataForm.type.$valid">
       <div class="row">
         <div class="col-md-12">
           <form name="forms.influenceForm">
@@ -668,7 +675,7 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Script')" css="ctrl.css">
+    <terrama2-box title="i18n.__('Script')" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
       <div class="row">
 
         <div class="col-md-12">
