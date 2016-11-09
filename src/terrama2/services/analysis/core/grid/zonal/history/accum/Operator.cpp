@@ -94,6 +94,14 @@ double terrama2::services::analysis::core::grid::zonal::history::accum::operator
 
   try
   {
+    auto timeBefore = getAbsTimeFromString(dateDiscardBefore);
+    auto timeAfter = getAbsTimeFromString(dateDiscardAfter);
+
+    // in history operators  time before is greater than time after
+    auto time = timeBefore - timeAfter;
+    if(time <= 0)
+      return NAN;
+      
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
       return NAN;
@@ -183,16 +191,8 @@ double terrama2::services::analysis::core::grid::zonal::history::accum::operator
     for(const auto& pair : valuesMap)
       values.push_back(pair.second.first);
 
-    auto timeBefore = getAbsTimeFromString(dateDiscardBefore);
-    auto timeAfter = getAbsTimeFromString(dateDiscardAfter);
-
-    // in history operators  time before is greater than time after
-    auto time = timeBefore - timeAfter;
-    if(time <= 0)
-      return NAN;
-
     terrama2::services::analysis::core::calculateStatistics(values, cache);
-    return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation)/time;
+    return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
   }
   catch(const terrama2::Exception& e)
   {
