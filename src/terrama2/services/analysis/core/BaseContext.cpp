@@ -108,17 +108,17 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
       throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
     }
 
-    if(!analysis_->outputGridPtr)
+    int interpolationMethod = 1;
+    if(analysis_->outputGridPtr)
     {
-      QString errMsg(QObject::tr("Invalid analysis output grid."));
-      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
+      interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
     }
 
 
     // First call, need to call sample for each dataset raster and store the result in the context.
     auto gridMap = getGridMap(dataManager, dataSeries->id, dateDiscardBefore, dateDiscardAfter);
 
-    std::for_each(gridMap.begin(), gridMap.end(), [this, datasetId, key](decltype(*gridMap.begin()) it)
+    std::for_each(gridMap.begin(), gridMap.end(), [this, datasetId, key, interpolationMethod](decltype(*gridMap.begin()) it)
     {
       if(it.first->id == datasetId)
       {
@@ -133,7 +133,6 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 
         auto cachedRaster = std::make_shared<te::mem::CachedRaster>(200, *dsRaster, 1);
         rasterMap_[key].push_back(cachedRaster);
-        auto interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
         std::shared_ptr<terrama2::core::SynchronizedInterpolator> syncInterpolator = std::make_shared<terrama2::core::SynchronizedInterpolator>(cachedRaster.get(), interpolationMethod);
         interpolatorMap_.emplace(cachedRaster, syncInterpolator);
       }
