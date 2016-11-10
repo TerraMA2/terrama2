@@ -34,6 +34,6 @@ DataSetOccurrence.prototype.toObject = function() {
  */
 DataSetOccurrence.prototype.rawObject = function() {
   return this.toObject();
-}
+};
 
 module.exports = DataSetOccurrence;

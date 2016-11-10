@@ -221,10 +221,21 @@ terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<Fi
       // download the file to a temporary location
       // if not, just get the DataProvider uri
       std::string uri;
+
       if(dataRetriever->isRetrivable())
         uri = retrieveData(dataRetriever, dataset, filter, remover);
       else
-        uri = dataProvider_->uri;
+      {
+        try
+        {
+          std::string folderPath = getProperty(dataset, dataSeries_, "folder", false);
+          uri = dataProvider_->uri + "/" + folderPath;
+        }
+        catch(UndefinedTagException& e)
+        {
+          uri = dataProvider_->uri;
+        }
+      }
 
       DataSetSeries tempSeries = getSeries(uri, filter, dataset, remover);
       series.emplace(dataset, tempSeries);

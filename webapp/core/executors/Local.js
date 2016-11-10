@@ -96,7 +96,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
           console.log("Unknown platform");
           self.platform = OS.UNKNOWN;
       }
-    }
+    };
 
     if (self.adapter instanceof LocalSystemAdapter) {
       child = spawnAsync(command, commandArgs, options);

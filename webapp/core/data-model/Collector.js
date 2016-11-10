@@ -84,7 +84,7 @@ Collector.prototype.setInputOutputMap = function (inputOutputModel) {
     } else {
       output.push(element);
     }
-  })
+  });
   this.input_output_map = output;
 };
 
@@ -100,7 +100,7 @@ Collector.prototype.rawObject = function () {
       intersectionArray.push(intersect.toObject());
     else
       intersectionArray.push(intersect);
-  })
+  });
   obj.intersection = intersectionArray;
   return obj;
 };
@@ -132,8 +132,8 @@ Collector.prototype.toObject = function() {
     input_data_series: this.data_series_input,
     output_data_series: this.data_series_output,
     input_output_map: this.input_output_map || [],
-    schedule: this['schedule'] instanceof BaseClass ? this['schedule'].toObject() : this['schedule'],
-    filter: this['filter'] instanceof BaseClass ? this.filter.toObject() : this.filter,
+    schedule: this.schedule instanceof BaseClass ? this.schedule.toObject() : this.schedule,
+    filter: this.filter instanceof BaseClass ? this.filter.toObject() : this.filter,
     intersection: intersectionOutput,
     active: this.active
   });

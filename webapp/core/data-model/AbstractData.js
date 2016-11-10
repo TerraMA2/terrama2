@@ -30,7 +30,7 @@ AbstractData.prototype.toObject = function() {
  */
 AbstractData.prototype.rawObject = function() {
   return {};
-}
+};
 
 /**
  * It transforms the object to JSON.
