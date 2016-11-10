@@ -194,15 +194,44 @@ TcpService.prototype.start = function(json) {
         if (exitCode !== 0) {
           throw new Error(Utils.format("Not executed successfully. Exit Code: %s", exitCode));
         }
-        // delay to start service. We are not able to detect if service is already running, 
-        // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
-        return PromiseClass.delay(3000)
-          .then(function() {
-            return TcpManager.connect(service)
-              .then(function() {
-                return TcpManager.statusService(service);
-              });
-          });
+
+        /**
+         * It defines how many times NodeJS tried to connect in service
+         * @type {number}
+         */
+        var times = 0;
+        
+        /**
+         * It handles service connection. By default, when OS starts, the virtual memory is too low. It turns out
+         * low performance during process execution. In this case, the TerraMA² wont initialize properly. We tried to increase timeout, 
+         * but sometimes it occurs. In order to avoid it, we try to connect three times with default interval. 
+         * If connection success, resolve promise chain. Otherwise, break recursion, rejecting promise error chain.
+         * @returns {Promise}
+         */
+        var connectionRepeat = function() {
+          // delay to start service. We are not able to detect if service is already running, 
+          // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
+          return PromiseClass.delay(3000)
+            .then(function() {
+              return TcpManager.connect(service)
+                .then(function() {
+                  return TcpManager.statusService(service);
+                })
+                .catch(function(err) {
+                  // once tried three times, throw err in order to continue promise chain
+                  if (times === 3) {
+                    console.log("TerraMA² Service is not running.");
+                    throw err;
+                  }
+                  times += 1;
+                  console.log("Failed to connect. Retrying... " + times);
+                  // auto call
+                  return connectionRepeat();
+                });
+            });
+        };
+
+        return connectionRepeat();
       })
       // on sucess starting, resolve promise
       .then(function() {
