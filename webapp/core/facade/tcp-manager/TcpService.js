@@ -194,15 +194,37 @@ TcpService.prototype.start = function(json) {
         if (exitCode !== 0) {
           throw new Error(Utils.format("Not executed successfully. Exit Code: %s", exitCode));
         }
-        // delay to start service. We are not able to detect if service is already running, 
-        // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
-        return PromiseClass.delay(3000)
-          .then(function() {
-            return TcpManager.connect(service)
-              .then(function() {
-                return TcpManager.statusService(service);
-              });
-          });
+
+        var times = 0;
+        
+        /**
+         * It handles service connection. If 
+         * @returns {Promise}
+         */
+        var connectionRepeat = function() {
+          // delay to start service. We are not able to detect if service is already running, 
+          // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
+          return PromiseClass.delay(3000)
+            .then(function() {
+              return TcpManager.connect(service)
+                .then(function() {
+                  return TcpManager.statusService(service);
+                })
+                .catch(function(err) {
+                  // once tried three times, throw err in order to continue promise chain
+                  if (times === 2) {
+                    console.log("TerraMA² Service is not running.");
+                    throw err;
+                  }
+                  times += 1;
+                  console.log("Failed to connect. Retrying... " + times);
+                  // auto call
+                  return connectionRepeat();
+                });
+            });
+        };
+
+        return connectionRepeat();
       })
       // on sucess starting, resolve promise
       .then(function() {
