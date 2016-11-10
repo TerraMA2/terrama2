@@ -198,7 +198,10 @@ TcpService.prototype.start = function(json) {
         var times = 0;
         
         /**
-         * It handles service connection. If 
+         * It handles service connection. By default, when OS starts, the virtual memory is too low. It turns out
+         * low performance during process execution. In this case, the TerraMA² wont initialize properly. We tried to increase timeout, 
+         * but sometimes it occurs. In order to avoid it, we try to connect three times with default interval. 
+         * If connection success, resolve promise chain. Otherwise, break recursion, rejecting promise error chain.
          * @returns {Promise}
          */
         var connectionRepeat = function() {
