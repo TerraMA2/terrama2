@@ -30,6 +30,8 @@
 #include "../utility/DataStoragerFactory.hpp"
 #include "../../Exception.hpp"
 
+#include <terralib/Exception.h>
+
 // Qt
 #include <QString>
 
@@ -89,13 +91,21 @@ void terrama2::core::StoragerManager::store(terrama2::core::DataSetSeries series
       removeUriFromQueue(uri);
       throw;
     }
-    catch(boost::exception& e)
+    catch(const te::Exception& e)
     {
       removeUriFromQueue(uri);
-      TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
-      throw DataStoragerException() << ErrorDescription(boost::diagnostic_information(e).c_str());
+      auto errMsg = boost::get_error_info<te::ErrorDescription>(e);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataStoragerException() << ErrorDescription(QString::fromStdString(*errMsg));
     }
-    catch(std::exception& e)
+    catch(const boost::exception& e)
+    {
+      removeUriFromQueue(uri);
+      auto errMsg = boost::diagnostic_information(e);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataStoragerException() << ErrorDescription(QString::fromStdString(errMsg));
+    }
+    catch(const std::exception& e)
     {
       removeUriFromQueue(uri);
       TERRAMA2_LOG_ERROR() << e.what();

@@ -49,7 +49,7 @@
 
 template<class T>
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                                                                  int band,
+                                                                                  const size_t band,
                                                                                   te::gm::Geometry* geom,
                                                                                   std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
 {
@@ -117,7 +117,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
 
 template<class T>
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                  int band,
+                  const size_t band,
                   te::gm::Polygon* polygon,
     std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
 {
@@ -131,7 +131,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
 
 template<class T>
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                  int band,
+                  const size_t band,
                   te::gm::Line* line,
     std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
 {
@@ -143,11 +143,11 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
   appendValues(rasterList, band, rasterIt, end, valuesMap);
 }
 
-template<class T>
+template<template<class> class U, class T>
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                    int band,
-                    te::rst::AbstractPositionIterator<T>& rasterIt,
-                    te::rst::AbstractPositionIterator<T>& end,
+                    const size_t band,
+                    U<T>& rasterIt,
+                    U<T>& end,
                     std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
 {
   for(; rasterIt != end; ++rasterIt)
@@ -176,7 +176,7 @@ void terrama2::services::analysis::core::grid::zonal::history::prec::appendValue
 
 template<class T>
 void terrama2::services::analysis::core::grid::zonal::history::prec::appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                  int band,
+                  const size_t band,
                   std::vector<te::gm::Point*> pointSet,
     std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap)
 {

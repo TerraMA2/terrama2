@@ -1,6 +1,7 @@
 
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/Logger.hpp>
@@ -93,7 +94,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     analysis->name = "Analysis";
     analysis->active = true;
 
-    std::string script = "x = grid.zonal.history.prec.max(\"geotiff 1\", \"30d\")\n"
+    std::string script = "x = grid.zonal.history.accum.max(\"geotiff 1\", \"30d\")\n"
                          "add_value(\"max\", x)\n"
                          "return";
 
@@ -107,8 +108,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProvider1Ptr(dataProvider);
     dataProvider->name = "Provider";
-    dataProvider->uri += TERRAMA2_DATA_DIR;
-    dataProvider->uri += "/shapefile";
+    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/shapefile";
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
     dataProvider->active = true;
@@ -148,9 +148,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     // DataProvider information
     terrama2::core::DataProvider* dataProvider2 = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProvider2Ptr(dataProvider2);
-    dataProvider2->uri = "file://";
-    dataProvider2->uri += TERRAMA2_DATA_DIR;
-    dataProvider2->uri += "/geotiff";
+    dataProvider2->uri = "file://"+TERRAMA2_DATA_DIR+"/geotiff";
 
     dataProvider2->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider2->dataProviderType = "FILE";
@@ -165,7 +163,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     terrama2::core::DataSeries* dataSeries2 = new terrama2::core::DataSeries();
     terrama2::core::DataSeriesPtr dataSeries2Ptr(dataSeries2);
-    dataSeries2->semantics = semanticsManager.getSemantics("GRID-geotiff");
+    dataSeries2->semantics = semanticsManager.getSemantics("GRID-static_geotiff");
     dataSeries2->name = "geotiff 1";
     dataSeries2->id = 2;
     dataSeries2->dataProviderId = 2;
@@ -204,18 +202,13 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
 
     service.setLogger(logger);
     service.start();
-    service.addProcessToSchedule(analysisPtr);
-
+    service.addToQueue(analysisPtr->id, terrama2::core::TimeUtils::nowUTC());
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
     timer.start(10000);
     app.exec();
   }
-
-
-
-
 
   return 0;
 }

@@ -6,7 +6,7 @@ var ValidationError = require('./../../core/Exceptions').ValidationError;
 var RequestFactory = require("../../core/RequestFactory");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
-var TcpManager = require("./../../core/TcpManager");
+var TcpService = require("./../../core/facade/tcp-manager/TcpService");
 
 module.exports = function(app) {
   return {
@@ -27,11 +27,11 @@ module.exports = function(app) {
         var projectName = dataProviderReceived.project;
 
         // check project
-        DataManager.getProject({name: projectName}).then(function(project) {
+        return DataManager.getProject({name: projectName}).then(function(project) {
           // getting intent id
-          DataManager.getDataProviderIntent({name: dataProviderReceived.data_provider_intent_name || requester.intent()}).then(function(intentResult) {
+          return DataManager.getDataProviderIntent({name: dataProviderReceived.data_provider_intent_name || requester.intent()}).then(function(intentResult) {
             // getting provider type id
-            DataManager.getDataProviderType({name: uriObject[requester.syntax().SCHEME]}).then(function(typeResult) {
+            return DataManager.getDataProviderType({name: uriObject[requester.syntax().SCHEME]}).then(function(typeResult) {
               var dataProviderObject = {
                 name: dataProviderReceived.name,
                 uri: requester.uri,
@@ -43,8 +43,8 @@ module.exports = function(app) {
               };
 
               // try to save
-              DataManager.addDataProvider(dataProviderObject).then(function(result) {
-                Utils.sendDataToServices(DataManager, TcpManager, {
+              return DataManager.addDataProvider(dataProviderObject).then(function(result) {
+                TcpService.send({
                   "DataProviders": [result.toObject()]
                 });
                 // generating token
@@ -66,19 +66,17 @@ module.exports = function(app) {
       };
 
       // check connection
-      requester.request().then(function() {
-        _makeProvider();
-      }).catch(function(err) {
-        _makeProvider();
-      });
-
+      return requester.request()
+        .finally(function() {
+          _makeProvider();
+        });
     },
 
     get: function(request, response) {
       var name = request.query.name;
 
       if (name) {
-        DataManager.getDataProvider({name: name, project_id: app.locals.activeProject.id}).then(function(dataProvider) {
+        return DataManager.getDataProvider({name: name, project_id: app.locals.activeProject.id}).then(function(dataProvider) {
           response.json(dataProvider.toObject());
         }).catch(function(err) {
           response.status(400);
@@ -108,9 +106,9 @@ module.exports = function(app) {
 
       if (dataProviderId) {
         dataProviderId = parseInt(dataProviderId);
-        DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
-          DataManager.getDataProvider({id: dataProviderId, project_id: app.locals.activeProject.id}).then(function(dProvider) {
-            Utils.sendDataToServices(DataManager, TcpManager, {
+        return DataManager.updateDataProvider(dataProviderId, toUpdate).then(function() {
+          return DataManager.getDataProvider({id: dataProviderId, project_id: app.locals.activeProject.id}).then(function(dProvider) {
+            TcpService.send({
               "DataProviders": [dProvider.toObject()]
             });
             // generating token
@@ -136,23 +134,16 @@ module.exports = function(app) {
       var id = request.params.id;
       if (id) {
         id = parseInt(id);
-        DataManager.getDataProvider({id: id}).then(function(dProvider) {
-          DataManager.removeDataProvider({id: id}).then(function(dataProvider, dataSeries) {
-            DataManager.listServiceInstances({})
-              .then(function(services) {
-                var objectToSend = {
-                  "DataProvider": [dProvider.id],
-                  "DataSeries": dataSeries.map(function(dSeries) { return dSeries.id; })
-                };
-
-                services.forEach(function(service) {
-                  TcpManager.emit('removeData', service, objectToSend);
-                });
-              });
+        return DataManager.getDataProvider({id: id}).then(function(dProvider) {
+          return DataManager.removeDataProvider({id: id}).then(function(result) {
+            var dataSeries = result.dataSeries;
+            var dataProvider = result.dataProvider;
+            TcpService.remove({
+              "DataProvider": [dProvider.id],
+              "DataSeries": dataSeries.map(function(dSeries) { return dSeries.id; })
+            });
             // generating token
             return response.json({status: 200, name: dProvider.name});
-          }).catch(function(err) {
-            Utils.handleRequestError(response, err, 400);
           });
         }).catch(function(err) {
           Utils.handleRequestError(response, err, 400);

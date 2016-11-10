@@ -1,7 +1,7 @@
 "use strict";
 
 var Client = require('ssh2').Client;
-var Promise = require("bluebird");
+var Promise = require("./../Promise");
 var fs = require('fs');
 var util = require('util');
 var Utils = require("./../Utils");

@@ -9,7 +9,7 @@
    *
    * @param {}
    * @property {Object} ioSocket - Sockets IO object.
-   * @property {TcpManager} TcpManager - TerraMA² Tcp Manager
+   * @property {TcpService} TcpService - TerraMA² Tcp Manager
    * @property {DataManager} DataManager - TerraMA² Data Manager
    * @property {Object} Utils - TerraMA² global utility module
    * @property {ServiceType} ServiceType - TerraMA² Service Type enum  
@@ -18,26 +18,19 @@
     // Sockets object
     var ioSocket = io.sockets;
     // TerraMA² Tcp Manager
-    var TcpManager = require("./../core/TcpManager");
+    var TcpService = require("./../core/facade/tcp-manager/TcpService");
     var DataManager = require("./../core/DataManager");
     var ServiceType = require("./../core/Enums").ServiceType;
     var Utils = require("./../core/Utils");
 
-    // retrieving all view services before client connection
-    DataManager.listServiceInstances({service_type_id: ServiceType.VIEW})
-      .then(function(services) {
-        // register listener to each view service
-        services.forEach(function(service) {
-          TcpManager.registerListeners(service);
-        });
-      })
-      
-      .catch(function(err) {
-        console.log("error", Utils.format(
-          "Could not retrieve available view Service due %s.\nPlease reload page",
-          err.toString()
-        ));
-      });
+    /**
+     * Defines a registered view listener. Triggered when C++ services done view execution and TerraMA² WebApp re-save in database
+     * 
+     * @param {RegisteredView} registeredView - TerraMA² RegisteredView
+     */
+    TcpService.on("viewReceived", function(registeredView) {
+      ioSocket.emit("viewReceived", registeredView.toObject());
+    });
 
     // Socket connection event
     ioSocket.on('connection', function(client) {
@@ -50,7 +43,7 @@
        */
       function onViewRequest() {
         // TODO: filter user permission
-        DataManager.listRegisteredViews()
+        return DataManager.listRegisteredViews()
           .then(function(views) {
             return client.emit("viewResponse", views.map(function(view) {
               return view.toObject();
@@ -61,33 +54,9 @@
             return client.emit("error", err.toString());
           });
       }
-      /**
-       * It handles client disconnect. 
-       * 
-       * @todo Un-register listeners 
-       */
-      function onDisconnect() {
-        console.log("Disconnected");
-        TcpManager.removeListener('processFinished', onProcessFinished);
-      }
-      /**
-       * It emits a received registered view to the listeners
-       * 
-       * @param {RegisteredView}
-       * @returns {void}
-       */
-      function onProcessFinished(registeredView) {
-        // broadcast to everyone
-        console.log(registeredView.toObject());
-        ioSocket.emit("viewReceived", registeredView.toObject());
-      }
-
-      // registering Tcp Manager events listeners
-      TcpManager.on("processFinished", onProcessFinished);
 
       // Registering front end client listeners
       client.on("viewRequest", onViewRequest);
-      client.on("disconnect", onDisconnect);
     });
   };
 
