@@ -19,8 +19,9 @@ DcpToa5.identifier = function() {
 };
 
 DcpToa5.prototype.schema = function() {
-  var dcpSchema = Utils.extend(Dcp.schema.call(this), Utils.getFolderSchema());
+  var dcpSchema = Dcp.schema.call(this);
 
+  dcpSchema.properties = Utils.extend(dcpSchema.properties, Utils.getFolderSchema());
   dcpSchema.properties.mask = {
     type: Form.Field.TEXT,
     title: "Mask"
@@ -45,7 +46,7 @@ DcpToa5.prototype.form = function() {
     },
     {
       key: 'timezone',
-      htmlClass: "col-md-6",
+      htmlClass: "col-md-4",
       type: 'select',
       titleMap: Utils.getTimezonesGUI()
     }

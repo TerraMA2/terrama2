@@ -42,7 +42,7 @@ WildFire.prototype.form = function() {
     Utils.getFolderForm(),
     {
       key: 'mask',
-      htmlClass: 'col-md-12'
+      htmlClass: 'col-md-6'
     }
   ].concat(Occurrence.prototype.form.call(this));
 };
