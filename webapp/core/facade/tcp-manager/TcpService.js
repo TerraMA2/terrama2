@@ -591,7 +591,7 @@ function onServiceVersionReceived(service, response) {
   var version = Application.get().version;
   tcpService.emit("serviceVersion", {
     service: service.id,
-    response: response,
+    response: response.replace("TerraMA2", ""),
     current: version,
     match: response.endsWith(version)
   });
