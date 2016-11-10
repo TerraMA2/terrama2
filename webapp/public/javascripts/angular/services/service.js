@@ -59,6 +59,14 @@
           service.online = response.online;
         });
 
+        $scope.socket.on("serviceVersion", function(response) {
+          if (!response.match) {
+            $scope.display = true;
+            $scope.alertLevel = "alert-warning";
+            $scope.alertBox.message = i18n.__("TerraMA² versions mismatch. Expected " + response.current + " " +i18n.__("got") + " " + response.response );
+          }
+        });
+
         $scope.socket.on('stopResponse', function(response) {
           var service = getModel(response.service);
 

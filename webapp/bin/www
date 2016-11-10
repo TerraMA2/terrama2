@@ -24,6 +24,7 @@ Database.setCurrentContext(nodeContext);
 
 return Database.init(nodeContext).then(function (sequelize) {
   var app = require('../app');
+  var Application = require("./../core/Application");
   var io = require('../io');
   var debug = require('debug')('webapp:server');
   var http = require('http');
@@ -31,7 +32,6 @@ return Database.init(nodeContext).then(function (sequelize) {
   var portNumber = '36000';
   var PluginLoader = require("../core/PluginLoader");
   var DataManager = require("../core/DataManager");
-  var TcpManager = require("../core/TcpManager");
   var PortScanner = require("./../core/PortScanner");
   var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
@@ -111,7 +111,7 @@ return Database.init(nodeContext).then(function (sequelize) {
                   };
 
                   TcpService.finalize();
-                  TcpManager.disconnect();
+                  TcpService.disconnect();
 
                   _closeServer();
                 });

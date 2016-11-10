@@ -10,7 +10,7 @@ var Service = require('./Service');
 var NodeUtils = require('util');
 var EventEmitter = require('events').EventEmitter;
 var ServiceType = require('./Enums').ServiceType;
-var Promise = require('bluebird');
+var PromiseClass = require('./Promise');
 
 // Facades
 var ProcessFinished = require("./facade/tcp-manager/ProcessFinished");
@@ -255,7 +255,7 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
  * This method sends a UPDATE_SERVICE_SIGNAL with service instance values to tcp socket.
  * 
  * @param {ServiceInstance} serviceInstance - a terrama2 service instance
- * @return {Promise} a bluebird promise
+ * @return {PromiseClass} a bluebird PromiseClass
  */
 TcpManager.prototype.updateService = function(serviceInstance) {
   this.$send(serviceInstance, serviceInstance.toObject(), Signals.UPDATE_SERVICE_SIGNAL);
@@ -265,12 +265,12 @@ TcpManager.prototype.updateService = function(serviceInstance) {
  * This method connects via ssh to service host and sends terminal command to start service.
  * 
  * @param {ServiceInstance} serviceInstance - a terrama2 service instance
- * @return {Promise} a bluebird promise
+ * @return {PromiseClass} a bluebird PromiseClass
  */
 TcpManager.prototype.startService = function(serviceInstance) {
   var self = this;
 
-  return new Promise(function(resolve, reject) {
+  return new PromiseClass(function(resolve, reject) {
     var instance = new Process();
     if (serviceInstance.host && serviceInstance.host !== "") {
       instance.setAdapter(new SSH());
@@ -279,15 +279,21 @@ TcpManager.prototype.startService = function(serviceInstance) {
     }
 
     return instance.connect(serviceInstance).then(function() {
-      return instance.startService().then(function(code) {
-        // self.emit("serviceStarted", serviceInstance);
-        return resolve(code);
-      }).catch(function(err) {
-        // self.emit('error', serviceInstance, err);
-        return reject(err);
-      }).finally(function() {
-        return instance.disconnect();
-      });
+      return PromiseClass.all([
+          instance.adapter.execute(Utils.format("%s --version", serviceInstance.pathToBinary)),
+          instance.startService()
+        ])
+        .spread(function(versionResponse, startResponse) {
+          self.emit("serviceVersion", serviceInstance, versionResponse.data);
+
+          return resolve(startResponse.code);
+        })
+        .catch(function(err) {
+          return reject(err);
+        })
+        .finally(function() {
+          return instance.disconnect();
+        });
     }).catch(function(err) {
       console.log('ssh startservice error');
       console.log(err);
@@ -299,7 +305,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
 /**
  This method sends STATUS_SIGNAL and waits for tcp client response.
  @param {ServiceInstance} serviceInstance - a terrama2 service instance
- @return {Promise} a bluebird promise
+ @return {PromiseClass} a bluebird PromiseClass
  */
 TcpManager.prototype.statusService = function(serviceInstance) {
   var self = this;
@@ -324,7 +330,7 @@ TcpManager.prototype.statusService = function(serviceInstance) {
 
 TcpManager.prototype.connect = function(serviceInstance) {
   var self = this;
-  return new Promise(function(resolve, reject) {
+  return new PromiseClass(function(resolve, reject) {
     try {
       var client = _getClient(serviceInstance);
 
