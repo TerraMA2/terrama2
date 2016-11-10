@@ -156,19 +156,6 @@ EnumService.prototype.init = function() {
 EnumService.$inject = ["BaseService"];
 
 /**
- * It tries to parse a value to number/int
- * 
- * @param {?} value - A javascript value
- * @return {number | ?} a number value or same value if it is a number
- */
-terrama2Application.factory("TryCaster", function() {
-  return function(value) {
-    if (isNaN(value))
-      return value;
-    return parseInt(value);
-  }
-});
-/**
  * It parses a URI using HTML a tag.
  * 
  * @param {string} uriString - An URI
@@ -180,7 +167,7 @@ terrama2Application.factory("URIParser", function() {
   return function(uriString) {
     parser.href = uriString;
     return parser;
-  }
+  };
 });
 /**
  * It parses a terrama2 date to a moment date object.
@@ -201,7 +188,7 @@ terrama2Application.factory("MakeMetadata", function() {
       output[meta.key] = meta.value;
     });
     return output;
-  }
+  };
 });
 
 /**
@@ -221,7 +208,7 @@ terrama2Application.factory("StringFormat", function() {
     }
     
     return theString;
-  }
+  };
 });
 
 /**
@@ -240,8 +227,8 @@ terrama2Application.factory("MetaDotReader", function() {
       object = output;
     }
     return output;
-  }
-})
+  };
+});
 
 // Helper for display invalid fields from form
 terrama2Application.factory('FormHelper', function() {
@@ -249,7 +236,7 @@ terrama2Application.factory('FormHelper', function() {
     angular.forEach(form.$error, function (field) {
       angular.forEach(field, function(errorField){
         errorField.$setDirty();
-      })
+      });
     });
   };
 });
@@ -466,7 +453,7 @@ terrama2Application.directive('terrama2Form', function() {
         });
       }
     }
-  }
+  };
 });
 
 terrama2Application.directive('terrama2BoxOverlay', function() {
@@ -506,8 +493,6 @@ terrama2Application.directive('terrama2Datetime', function($timeout) {
           console.log(element);
           if (!!e.date) {
             scope.$apply(function () {
-              console.log(element);
-              console.log(scope);
               ngModelCtrl.$setViewValue(e.date);
             });
           }
@@ -639,20 +624,35 @@ terrama2Application.directive("terrama2Content", function() {
     link: function(scope, element, attrs) {
       scope.divClass = attrs.class || "row";
     }
-  }
+  };
 });
 
 terrama2Application.directive('terrama2Fluid', function($window) {
-    return {
-      restrict: "A",
-      link: function(scope, element, attrs) {
-        angular.element($window).bind('scroll', function() {
-          if (this.pageYOffset > 200) {
-            element.addClass("terrama2-fluid");
-          } else {
-            element.removeClass("terrama2-fluid");
-          }
-        });
+  return {
+    restrict: "A",
+    link: function(scope, element, attrs) {
+      var windowElement = angular.element($window);
+
+      /**
+       * Helper to handle window size and add/remove class depending resolution
+       * 
+       * @return {void}
+       */
+      function resizeComponent() {
+        if ($window.pageYOffset > 200) {
+          element.addClass("terrama2-fluid");
+        } else {
+          element.removeClass("terrama2-fluid");
+        }
       }
-    };
+
+      // Auto call to resize at first time
+      resizeComponent();
+
+      // Performs resize component on page scroll
+      windowElement.bind('scroll', function() {
+        return resizeComponent();
+      });
+    }
+  };
 });

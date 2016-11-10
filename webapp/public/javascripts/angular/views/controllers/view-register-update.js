@@ -401,9 +401,10 @@
 
     /**
      * It performs a save operation. It applies a form validation and try to save
+     * @param {boolean} shouldRun - Determines if service should auto-run after save process
      * @returns {void}
      */
-    self.save = function() {
+    self.save = function(shouldRun) {
       // broadcasting each one terrama2 field directive validation 
       $scope.$broadcast("formFieldValidation");
       // broadcasting schema form validation
@@ -477,6 +478,11 @@
         }
       } // end if isDynamic
 
+      /**
+       * It contains a view model with flag "run" to determines if service should run
+       * @type {Object}
+       */
+      var mergedView = angular.merge(self.view, {run: shouldRun});
       // tries to save
       var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
       operation.then(function(response) {

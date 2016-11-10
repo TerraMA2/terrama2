@@ -25,20 +25,20 @@ module.exports = function(app) {
             break;
         }
 
-        DataManager.listServiceInstances(restriction).then(function(services) {
+        return DataManager.listServiceInstances(restriction).then(function(services) {
           var output = [];
           services.forEach(function(service) {
             output.push(service.rawObject());
           });
           return response.json(output);
         }).catch(function(err) {
-          Utils.handleRequestError(response, err, 400);
+          return Utils.handleRequestError(response, err, 400);
         });
       } else {
-        DataManager.getServiceInstance({id: serviceId}).then(function(service) {
-          response.json({status: 200, result: service.rawObject()});
+        return DataManager.getServiceInstance({id: serviceId}).then(function(service) {
+          return response.json({status: 200, result: service.rawObject()});
         }).catch(function(err) {
-          Utils.handleRequestError(response, err, 400);
+          return Utils.handleRequestError(response, err, 400);
         });
       }
     },
@@ -46,12 +46,12 @@ module.exports = function(app) {
     post: function(request, response) {
       var serviceObject = request.body.service;
       serviceObject.log = request.body.log;
-      DataManager.addServiceInstance(serviceObject).then(function(service) {
+      return DataManager.addServiceInstance(serviceObject).then(function(service) {
         var token = Utils.generateToken(app, TokenCode.SAVE, service.name);
         console.log(token);
         return response.json({status: 200, token: token});
       }).catch(function(err) {
-        Utils.handleRequestError(response, err, 400);
+        return Utils.handleRequestError(response, err, 400);
       });
     },
 
@@ -134,16 +134,16 @@ module.exports = function(app) {
 
     delete: function(request, response) {
       var serviceId = request.params.id;
-      DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
-        DataManager.removeServiceInstance({id: serviceId}).then(function() {
+      return DataManager.getServiceInstance({id: serviceId}).then(function(serviceInstance) {
+        return DataManager.removeServiceInstance({id: serviceId}).then(function() {
           // stopping service
           TcpManager.stopService(serviceInstance);
           return response.json({status: 200, name: serviceInstance.name});
         }).catch(function(err) {
-          Utils.handleRequestError(response, err, 400);
+          return Utils.handleRequestError(response, err, 400);
         });
       }).catch(function(err) {
-        Utils.handleRequestError(response, err, 400);
+        return Utils.handleRequestError(response, err, 400);
       });
     }
   };

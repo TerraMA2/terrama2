@@ -1303,14 +1303,14 @@ var DataManager = module.exports = {
 
       var provider = Utils.remove(self.data.dataProviders, dataProviderParam);
       if (provider) {
-        models.db.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
+        return models.db.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
           // remove data series
           var dataSeriesList = Utils.removeAll(self.data.dataSeries, {data_provider_id: provider.id});
           dataSeriesList.forEach(function(dataSeries) {
             var dSets = Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
           });
 
-          return resolve(provider, dataSeriesList);
+          return resolve({dataProvider: provider, dataSeries: dataSeriesList});
         }).catch(function(err) {
           console.log(err);
           return reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
@@ -1430,7 +1430,7 @@ var DataManager = module.exports = {
           output = new DataModel.DataSeries(obj);
 
           // if there DataSets to save too
-          if (dataSeriesObject.dataSets || dataSeriesObject.dataSets.length > 0) {
+          if (dataSeriesObject.dataSets && dataSeriesObject.dataSets.length > 0) {
             var dataSets = [];
             for(var i = 0; i < dataSeriesObject.dataSets.length; ++i) {
               var dSet = dataSeriesObject.dataSets[i];
@@ -2791,7 +2791,7 @@ var DataManager = module.exports = {
         .then(function(scriptLanguage) {
           scriptLanguageResult = scriptLanguage;
           // checking if there is historical data to save
-          if (_.isEmpty(analysisObject.historical)) {
+          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate && !analysisObject.historical.endDate)) {
             return null;
           }
           return self.addHistoricalData(analysisResult.id, analysisObject.historical, options);
@@ -3222,11 +3222,11 @@ var DataManager = module.exports = {
         ]
       }, options);
 
-      models.db.Analysis.findOne(opts).then(function(analysisResult) {
+      return models.db.Analysis.findOne(opts).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
-        self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
-          self.getDataSeries({id: analysisOutputDataSet.data_series_id}).then(function(analysisOutputDataSeries) {
+        return self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
+          return self.getDataSeries({id: analysisOutputDataSet.data_series_id}).then(function(analysisOutputDataSeries) {
             analysisInstance.setDataSeries(analysisOutputDataSeries);
             analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
               var ds = Utils.find(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
@@ -3237,14 +3237,14 @@ var DataManager = module.exports = {
 
             resolve(analysisInstance);
           }).catch(function(err) {
-            reject(err);
+            return reject(err);
           });
         }).catch(function(err) {
-          reject(err);
+          return reject(err);
         });
       }).catch(function(err) {
         console.log(err);
-        reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
+        return reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
       });
     });
   },
@@ -3260,7 +3260,7 @@ var DataManager = module.exports = {
   removeAnalysis: function(analysisParam, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
+      return self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
         return models.db.Analysis.destroy(Utils.extend({where: {id: analysisParam.id}}, options)).then(function() {
           return self.removeDataSerie({id: analysisResult.dataSeries.id}, options).then(function() {
             return self.removeSchedule({id: analysisResult.schedule.id}, options).then(function() {
@@ -3296,7 +3296,7 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      models.db.View.findAll(Utils.extend({
+      return models.db.View.findAll(Utils.extend({
         include: [ 
           {
             model: models.db.Schedule,
@@ -3495,7 +3495,7 @@ var DataManager = module.exports = {
         })
 
         .catch(function(err) {
-          return reject(new exceptions.RegisteredViewErrorr(
+          return reject(new exceptions.RegisteredViewError(
             Utils.format("Coult not save Registered View due %s", err.toString())));
         });
     });
