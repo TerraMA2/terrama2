@@ -67,16 +67,16 @@ namespace terrama2
             ~AnalysisExecutor() = default;
 
             //! Default copy constructor
-            AnalysisExecutor(const AnalysisExecutor& other) = default;
+            AnalysisExecutor(const AnalysisExecutor& other) = delete;
 
             //! Default move constructor
-            AnalysisExecutor(AnalysisExecutor&& other) = default;
+            AnalysisExecutor(AnalysisExecutor&& other) = delete;
 
             //! Default const assignment operator
-            AnalysisExecutor& operator=(const AnalysisExecutor& other) = default;
+            AnalysisExecutor& operator=(const AnalysisExecutor& other) = delete;
 
             //! Default assignment operator
-            AnalysisExecutor& operator=(AnalysisExecutor&& other) = default;
+            AnalysisExecutor& operator=(AnalysisExecutor&& other) = delete;
 
 
             /*!
