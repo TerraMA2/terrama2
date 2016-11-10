@@ -145,7 +145,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   curlwrapper_.init();
   try
   {
-    te::core::URI uriInput(dataProvider_->uri + (folderPath.empty() ? "/" : folderPath + "/"));
+    te::core::URI uriInput(dataProvider_->uri + "/" + folderPath + "/");
 
     // Get a file listing from server
     if(curlwrapper_.fcurl())
