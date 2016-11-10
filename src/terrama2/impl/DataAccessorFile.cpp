@@ -272,7 +272,7 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
   return true;
 }
 
-std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorFile::getFolderMask(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "folder", false);
 }
