@@ -195,6 +195,10 @@ TcpService.prototype.start = function(json) {
           throw new Error(Utils.format("Not executed successfully. Exit Code: %s", exitCode));
         }
 
+        /**
+         * It defines how many times NodeJS tried to connect in service
+         * @type {number}
+         */
         var times = 0;
         
         /**
@@ -215,7 +219,7 @@ TcpService.prototype.start = function(json) {
                 })
                 .catch(function(err) {
                   // once tried three times, throw err in order to continue promise chain
-                  if (times === 2) {
+                  if (times === 3) {
                     console.log("TerraMA² Service is not running.");
                     throw err;
                   }
