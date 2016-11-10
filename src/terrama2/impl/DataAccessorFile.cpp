@@ -313,7 +313,9 @@ QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoLi
       std::string tempMask = foldersMask.substr(begin);
       found = tempMask.find_first_of('/');
       mask = foldersMask.substr(begin, found);
-      found++;
+
+      if(found != std::string::npos)
+        found++;
     }
     else
     {
@@ -327,10 +329,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoLi
 
   for(const auto& uri : uris)
   {
-    QUrl baseUrl;
-    baseUrl = QUrl(uri.absoluteFilePath());
-
-    QDir dir(baseUrl.path());
+    QDir dir(uri.absoluteFilePath());
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
     if(fileInfoList.empty())
     {
@@ -461,8 +460,27 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     timezone = "UTC+00";
   }
 
+  QFileInfoList baseUriList, foldersList, newFileInfoList;
+
+  baseUriList.append(url.toString(QUrl::RemoveScheme));
+
+  try
+  {
+    foldersList = getFoldersList(baseUriList, getFolderMask(dataSet));
+  }
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
+  {
+    foldersList = baseUriList;
+  }
+
+  if(foldersList.empty())
+    foldersList = baseUriList;
+
   //fill file list
-  QFileInfoList newFileInfoList = getDataFileInfoList(url.toString().toStdString(), getMask(dataSet), timezone, filter, remover);
+  for(auto& folderURI : foldersList)
+  {
+    newFileInfoList.append(getDataFileInfoList(folderURI.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
+  }
 
   bool first = true;
   for(const auto& fileInfo : newFileInfoList)

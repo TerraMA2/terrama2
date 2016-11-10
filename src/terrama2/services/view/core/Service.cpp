@@ -528,14 +528,8 @@ QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(const 
   {
     // TODO: mask in folder
     QUrl url;
-    try
-    {
-      url = QUrl(QString::fromStdString(inputDataProvider->uri+"/"+dataAccessor->getFolderMask(dataset)));
-    }
-    catch(const terrama2::core::UndefinedTagException& /*e*/)
-    {
-      url = QUrl(QString::fromStdString(inputDataProvider->uri));
-    }
+
+    url = QUrl(QString::fromStdString(inputDataProvider->uri));
 
     //get timezone of the dataset
     std::string timezone;
@@ -549,19 +543,35 @@ QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(const 
       timezone = "UTC+00";
     }
 
-    QFileInfoList tempFileInfoList = dataAccessor->getDataFileInfoList(url.toString().toStdString(),
-                                                                       dataAccessor->getMask(dataset),
-                                                                       timezone,
-                                                                       filter,
-                                                                       remover);
+    QFileInfoList baseUriList, foldersList;
 
-    if(tempFileInfoList.empty())
+    baseUriList.append(url.toString(QUrl::RemoveScheme));
+
+    try
     {
-      TERRAMA2_LOG_WARNING() << tr("No data in folder: %1").arg(url.toString());
-      continue;
+      foldersList = dataAccessor->getFoldersList(baseUriList, dataAccessor->getFolderMask(dataset));
+    }
+    catch(const terrama2::core::UndefinedTagException& /*e*/)
+    {
+      foldersList = baseUriList;
     }
 
-    fileInfoList.append(tempFileInfoList);
+    for(auto& folderURI : foldersList)
+    {
+      QFileInfoList tempFileInfoList = dataAccessor->getDataFileInfoList(folderURI.absoluteFilePath().toStdString(),
+                                                                         dataAccessor->getMask(dataset),
+                                                                         timezone,
+                                                                         filter,
+                                                                         remover);
+
+      if(tempFileInfoList.empty())
+      {
+        TERRAMA2_LOG_WARNING() << tr("No data in folder: %1").arg(folderURI.absoluteFilePath());
+        continue;
+      }
+
+      fileInfoList.append(tempFileInfoList);
+    }
   }
 
   return fileInfoList;
