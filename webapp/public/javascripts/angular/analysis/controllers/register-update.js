@@ -721,7 +721,7 @@
         };
 
         // save function
-        self.save = function() {
+        self.save = function(shouldRun) {
           $scope.$broadcast('formFieldValidation');
 
           self.analysis_script_error = false;
@@ -899,7 +899,8 @@
           var objectToSend = {
             analysis: analysisToSend,
             storager: storager,
-            schedule: scheduleValues
+            schedule: scheduleValues,
+            run: shouldRun
           };
           /**
            * Target object request (update/insert)

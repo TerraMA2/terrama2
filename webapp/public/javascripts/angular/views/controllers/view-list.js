@@ -197,6 +197,14 @@
          * @type {Object}
          */
         self.extra = {
+          removeOperationCallback: function(err, data) {
+            MessageBoxService.reset();
+            if (err) {
+              MessageBoxService.danger(i18n.__("View"), err.message);
+              return;
+            }
+            MessageBoxService.danger(i18n.__("View"), data.name + i18n.__(" removed"));
+          },
           showRunButton: true,
           canRun: function(object) {
             return object;

@@ -16,7 +16,8 @@ var Promise = require('bluebird');
 var ProcessFinished = require("./facade/tcp-manager/ProcessFinished");
 
 /**
- * It handles entire TCP communication between TerraMA² NodeJS application and C++ Services
+ * It handles entire TCP communication between TerraMA² NodeJS application and C++ Services.
+ * Do not use it directly. Prefer to use TcpService.js
  * 
  * @inherits EventEmitter
  * @class TcpManager

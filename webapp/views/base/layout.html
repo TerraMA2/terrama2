@@ -211,6 +211,11 @@
 
   <script type="text/javascript">
     $(document).ready(function(){
+      // lock all tags with terrama2-disabled class
+      $("body").on("click", ".terrama2-disabled", function(event) {
+        event.preventDefault();
+      });
+
       var collapsed = {[ collapsed ]};
 
       $("#collapseButton").click(function(event) {
@@ -235,7 +240,6 @@
   <!-- Angular JS -->
   <script src="/bower_components/angular/angular.min.js"></script>
   <!-- Internationalization -->
-  <!--<script src="/bower_components/i18n-node-angular/dist/i18n-node-angular.min.js"></script>-->
   <script src="/bower_components/i18n-node-angular/i18n-node-angular.js"></script>
   <!-- TerraMA² Angular Module -->
   <script src="/javascripts/angular/app.js"></script>

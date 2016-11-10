@@ -27,6 +27,9 @@ var DataManager = require("./../../../core/DataManager");
 // TerraMA² Service model
 var Service = require("./../../../core/data-model/Service");
 
+// TerraMA² RegisteredView model
+var RegisteredView = require("./../../../core/data-model/RegisteredView");
+
 /**
  * It handles TCP service manipulation
  * @emits TcpService#serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
@@ -117,6 +120,7 @@ TcpService.prototype.init = function(shouldConnect) {
           TcpManager.on("stop", onStop);
           TcpManager.on("close", onClose);
           TcpManager.on("tcpError", onError);
+          TcpManager.on("processFinished", onProcessFinished);
 
           self.$loaded = true;
           instances.forEach(function(instance) {
@@ -350,6 +354,84 @@ TcpService.prototype.stop = function(json) {
 }; // end client stop listener
 
 /**
+ * Listener for handling data to be sent to C++ services. It does not emits signal.
+ * 
+ * @param {Object} data - A given arguments sent by client
+ * @param {Analysis[]} data.Analysis - A list of Analysis to send
+ * @param {Collectors[]} data.Collectors - A list of Collectors to send
+ * @param {Views[]} data.Views - A list of Views to send
+ * @param {DataSeries[]} data.DataSeries - A list of DataSeries to send
+ * @param {DataProviders[]} data.DataProviders - A list of DataProviders to send
+ * @param {number} service - A TerraMA² service instance to send. When typed, it send only for this.
+ */
+TcpService.prototype.send = function(data, serviceId) {
+  var self = this;
+  return new PromiseClass(function(resolve, reject) {
+    /**
+     * Target promiser to expose Database Retriever. It might be listServiceInstances or getServiceInstance
+     * @type {Promise<Service|Services[]>}
+     */
+    var promiser;
+    if (serviceId) {
+      promiser = DataManager.getServiceInstance({id: serviceId});
+    } else {
+      promiser = DataManager.listServiceInstances();
+    }
+
+    return promiser
+      .then(function(services) {
+        var _sendData = function(service) {
+          try {
+            TcpManager.emit('sendData', service, data);
+          } catch(err) { }
+        };
+        if (services instanceof Array) { // listServiceInstances
+          services.forEach(function(service) {
+            _sendData(service);
+          });
+        } else { // getServiceInstance
+          _sendData(services);
+        }
+        return resolve();
+      })
+      .catch(function(err) {
+        return reject(err);
+      });
+  });
+};
+
+/**
+ * Listener for remove data from C++ services. It does not emits signal even exception.
+ * @param {Object} data - A given arguments sent by client
+ * @param {Analysis[]} data.Analysis - A list of Analysis to send
+ * @param {Collectors[]} data.Collectors - A list of Collectors to send
+ * @param {Views[]} data.Views - A list of Views to send
+ * @param {DataSeries[]} data.DataSeries - A list of DataSeries to send
+ * @param {DataProviders[]} data.DataProviders - A list of DataProviders to send
+ * @param {number} service - A TerraMA² service instance to send. When typed, it send only for this.
+ */
+TcpService.prototype.remove = function(data, serviceId) {
+  var self = this;
+  return new PromiseClass(function(resolve, reject) {
+    return DataManager.listServiceInstances()
+      .then(function(services) {
+        services.forEach(function (service) {
+          try {
+            TcpService.emit('removeData', service, data);
+          } catch (e) {
+            console.log(e);
+          }
+        });
+        return resolve();
+      })
+      .catch(function(err) {
+        console.log(err);
+        return reject(err);
+      });
+  });
+};
+
+/**
  * Listener for handling Log request signal. When called, it maps the cached logs and if necessary request
  * for others through LOG_SIGNAL in socket communication.
  * 
@@ -451,6 +533,22 @@ function onStatusReceived(service, response) {
       loading: false,
       online: Object.keys(response).length > 0
     });
+  }
+}
+
+/**
+ * It emits a signal depending Process. 
+ * If service is View, it emits #viewReceived with the registered view object.
+ * 
+ * @param {Object|RegisteredView} resp - any object
+ * @returns {void}
+ */
+function onProcessFinished(resp) {
+  // broadcast to everyone
+  if (resp instanceof RegisteredView) {
+    tcpService.emit("viewReceived", resp);
+  } else {
+    tcpService.emit("processFinished", resp);
   }
 }
 

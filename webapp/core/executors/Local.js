@@ -1,6 +1,6 @@
 'use strict';
 
-var Promise = require('bluebird');
+var Promise = require('./../Promise');
 var spawnAsync = require('child_process').spawn;
 var execAsync = require("child_process").exec;
 var OS = require('./../Enums').OS;

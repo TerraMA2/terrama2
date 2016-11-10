@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Socket responsible for handling Tcp events from TcpManager in front end application.
+ * Socket responsible for handling Tcp events from TcpService in front end application.
  * @class TcpSocket
  *
  * @author Raphael Willian da Costa
@@ -13,9 +13,6 @@ var TcpSocket = function(io) {
 
   // Sockets object
   var iosocket = io.sockets;
-
-  // TcpManager
-  var TcpManager = require('./../core/TcpManager');
 
   // TerraMA2 Utils
   var Utils = require('./../core/Utils');

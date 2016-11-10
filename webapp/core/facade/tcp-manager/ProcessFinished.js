@@ -1,7 +1,7 @@
 (function() {
   'use strict';
   var Utils = require("./../../Utils");
-  var PromiseClass = require("bluebird");
+  var PromiseClass = require("./../../Promise");
   var ServiceTypeError = require("./../../Exceptions").ServiceTypeError;
   var RegisteredViewError = require("./../../Exceptions").RegisteredViewError;
   var ServiceType = require("./../../Enums").ServiceType;
