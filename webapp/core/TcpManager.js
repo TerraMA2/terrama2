@@ -89,11 +89,11 @@ TcpManager.prototype.makebuffer = function(signal, object) {
 
     // // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(signal, 4);
+
+    return buffer;
   } catch (e) {
     throw e;
   }
-
-  return buffer;
 };
 
 /**
@@ -157,7 +157,7 @@ TcpManager.prototype.$send = function(serviceInstance, data, signal) {
     console.log(e);
     this.emit('tcpError', serviceInstance, new Error("Could not send data to service", e));
   }
-}
+};
 
 /**
  * This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
@@ -177,7 +177,7 @@ TcpManager.prototype.sendData = function(serviceInstance, data) {
  */
 TcpManager.prototype.startProcess = function(serviceInstance, data){
   this.$send(serviceInstance, data, Signals.START_PROCESS_SIGNAL);
-}
+};
 
 /**
  * This method sends a REMOVE_DATA_SIGNAL with bytearray to tcp socket. It is async

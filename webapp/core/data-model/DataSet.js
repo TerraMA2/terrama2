@@ -18,8 +18,8 @@ function DataSet(params) {
   this.data_series_id = params.data_series_id;
   this.active = params.active || false;
 
-  if (params['DataSetFormats'])
-    this.setFormat(params['DataSetFormats']);
+  if (params.DataSetFormats)
+    this.setFormat(params.DataSetFormats);
   else
     this.format = params.format || {};
 }

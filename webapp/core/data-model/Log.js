@@ -24,8 +24,8 @@ Log.prototype.rawObject = function() {
     password: this.password,
     database: this.database,
     service_instance_id: this.service_instance_id
-  }
-}
+  };
+};
 
 Log.prototype.toObject = function() {
   return Object.assign(AbstractClass.prototype.toObject.call(this), {

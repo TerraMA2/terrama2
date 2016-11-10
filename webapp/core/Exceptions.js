@@ -29,7 +29,7 @@ errors.BaseError = function(message) {
   */
   this.toStr = function() {
     return self.message;
-  }
+  };
 };
 util.inherits(errors.BaseError, Error);
 

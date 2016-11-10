@@ -104,7 +104,7 @@
    */
   RegisteredView.prototype.setDataSeries = function(dataSeries) {
     this.dataSeries = dataSeries;
-  }
+  };
   /**
    * It sets parent view
    *
@@ -126,7 +126,7 @@
    */
   RegisteredView.prototype.rawObject = function() {
     return this.toObject();
-  }
+  };
   /**
    * Retrieves a standard representation used in TCP communication
    *

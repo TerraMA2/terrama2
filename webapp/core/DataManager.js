@@ -1398,7 +1398,7 @@ var DataManager = module.exports = {
             return resolve(analysisFilter.match(analysisList, {dataSeries: self.data.dataSeries}));
           })
           
-          .catch(function(err) { return reject(err) });
+          .catch(function(err) { return reject(err); });
       } else {
         var dataSeriesFound = Utils.filter(self.data.dataSeries, restriction);
         dataSeriesFound.forEach(function(dataSeries) {
@@ -1524,7 +1524,7 @@ var DataManager = module.exports = {
         .catch(function(err) {
           return reject(new Error(Utils.format("Could not upsert data set format %s", err.toString())));
         });
-    })
+    });
   },
   /**
    * It updates a DataSeries object. It should be an object containing object filled out with identifier
@@ -2745,7 +2745,7 @@ var DataManager = module.exports = {
         })
         .catch(function(err) {
           return reject(new Error(Utils.format("Could not save analysis metadata due ", err.toString())));
-        })
+        });
     });
   },
 
@@ -2948,7 +2948,7 @@ var DataManager = module.exports = {
             // update analysis data series metadata
             if (!Utils.isEmpty(element.metadata || {})) {
               var dsMetaArr = Utils.generateArrayFromObject(element.metadata, function(key, value, analysisDsId) {
-                return {"key": key, "value": value, "analysis_data_series_id": analysisDsId}
+                return {"key": key, "value": value, "analysis_data_series_id": analysisDsId};
               }, element.id);
               promises.push(models.db.AnalysisDataSeriesMetadata.update(dsMetaArr[0], Utils.extend({
                 fields: ['key', 'value'],
@@ -3484,7 +3484,7 @@ var DataManager = module.exports = {
           var promises = registeredViewObject.layers_list.map(function(layer) {
             // TODO: Currently, layer is a object {layer: layerName}. It must be removed. Layer must be a string
             return self.addLayer(viewResult.id, {name: layer.layer}, options);
-          })
+          });
           return Promise.all(promises)
             .then(function(layers) {
               return self.getView({id: viewResult.view_id})
@@ -3548,7 +3548,7 @@ var DataManager = module.exports = {
                     static: staticDataSeries,
                     analysis: analysisDataSeries,
                     dynamic: dynamicDataSeries
-                  }
+                  };
                 });
             });
         })
@@ -3645,6 +3645,7 @@ var DataManager = module.exports = {
    * @return {Promise<DataModel.RegisteredView>}
    */
   upsertLayer: function(restriction, layersObject, options) {
+    var self = this;
     return new Promise(function(resolve, reject) {
       models.db.Layer.findOne(Utils.extend({
         where: restriction
@@ -3659,7 +3660,7 @@ var DataManager = module.exports = {
               }
             }, options));
           } else {
-            return self.addLayer(restriction.registered_view_id || layersObject.registered_view_id, layersObject, options)
+            return self.addLayer(restriction.registered_view_id || layersObject.registered_view_id, layersObject, options);
           }
         })
         // on success insert|update
