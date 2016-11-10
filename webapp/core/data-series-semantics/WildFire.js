@@ -1,6 +1,7 @@
 var Occurrence = require('./Occurrence');
 var Enums = require('./../Enums');
 var Form = Enums.Form;
+var Utils = require("./../Utils");
 
 var WildFire = function(args) {
   Occurrence.call(this, args);
@@ -16,12 +17,12 @@ WildFire.identifier = function() {
 WildFire.prototype.schema = function() {
   var occurrenceSchema = Occurrence.prototype.schema.call(this);
 
-  var properties = {
+  var properties = Utils.extend(Utils.getFolderSchema(), {
     mask: {
       type: Form.Field.TEXT,
       title: "Mask"
     }
-  };
+  });
 
   if (occurrenceSchema.hasOwnProperty('properties')) {
     occurrenceSchema.properties.srid = properties.srid;
@@ -38,6 +39,7 @@ WildFire.prototype.schema = function() {
 
 WildFire.prototype.form = function() {
   return [
+    Utils.getFolderForm(),
     {
       key: 'mask',
       htmlClass: 'col-md-12'

@@ -746,5 +746,34 @@ var Utils = module.exports = {
    */
   concat: function() {
     return _.concat.apply(this, arguments);
+  },
+
+  /**
+   * It just builds a folder object used in schema form redraw
+   * 
+   * @returns {Object}
+   */
+  getFolderSchema: function() {
+    return {
+      folder: {
+        "type": Enums.Form.Field.TEXT,
+        "title": "Folder",
+        "x-schema-form": {
+          "pattern": "[^:!&'()*+,;=\[\]{}]*"
+        }
+      }
+    };
+  },
+
+  /**
+   * It just builds a folder object form representation for schema form
+   * 
+   * @returns {Object}
+   */
+  getFolderForm: function() {
+    return {
+      key: "folder",
+      htmlClass: "col-md-6 col-sm-12 terrama2-schema-form"
+    };
   }
 };

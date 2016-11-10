@@ -19,7 +19,8 @@ DcpInpe.identifier = function() {
 };
 
 DcpInpe.prototype.schema = function() {
-  var dcpSchema = Dcp.schema.call(this);
+  var dcpSchema = Utils.extend(Dcp.schema.call(this), Utils.getFolderSchema());
+
   dcpSchema.properties.mask = {
     type: Form.Field.TEXT,
     title: "Mask"
@@ -37,6 +38,7 @@ DcpInpe.prototype.schema = function() {
 
 DcpInpe.prototype.form = function() {
   return [
+    Utils.getFolderForm(),
     {
       key: 'mask',
       htmlClass: "col-md-6"
