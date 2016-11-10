@@ -220,8 +220,6 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     }
     else
     {
-      auto startTime = terrama2::core::TimeUtils::nowUTC();
-
       auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
       if(pqIt == processingQueue_.end())
       {

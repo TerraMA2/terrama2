@@ -37,6 +37,7 @@
 #include "Shared.hpp"
 #include "../../../core/Typedef.hpp"
 
+#include <limits>
 
 namespace terrama2
 {

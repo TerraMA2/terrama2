@@ -49,16 +49,19 @@
 #include <terralib/geometry/Utils.h>
 #include <terralib/raster/PositionIterator.h>
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::getAbsTimeFromString(const std::string& timeStr)
+double terrama2::services::analysis::core::grid::zonal::history::accum::getAbsTimeFromString(const std::string& timeStr)
 {
   auto begin = timeStr.find_first_of("0123456789");
   auto end = timeStr.find_last_of("0123456789");
+
+  if(begin == std::string::npos || end == std::string::npos)
+    return NAN;
 
   auto time = timeStr.substr(begin, end-begin);
   return std::stod(time);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+double terrama2::services::analysis::core::grid::zonal::history::accum::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
     const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
   OperatorCache cache;
@@ -93,7 +96,7 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
 
 
   try
-  {
+  {    
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
       return NAN;
@@ -167,7 +170,10 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
       prec::appendValues(rasterList, band, geomResult.get() , valuesMap);
 
       if(!valuesMap.empty())
+      {
+        hasData = true;
         break;
+      }
     }
 
     if(exceptionOccurred)
@@ -183,16 +189,8 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
     for(const auto& pair : valuesMap)
       values.push_back(pair.second.first);
 
-    auto timeBefore = getAbsTimeFromString(dateDiscardBefore);
-    auto timeAfter = getAbsTimeFromString(dateDiscardAfter);
-
-    // in history operators  time before is greater than time after
-    auto time = timeBefore - timeAfter;
-    if(time <= 0)
-      return NAN;
-
     terrama2::services::analysis::core::calculateStatistics(values, cache);
-    return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation)/time;
+    return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
   }
   catch(const terrama2::Exception& e)
   {
@@ -212,43 +210,43 @@ double terrama2::services::analysis::core::grid::zonal::history::ratio::operator
   }
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::accum::count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", "", 0, buffer);
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, dateDiscardBefore, "", 0, buffer);
 }
 
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::accum::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::accum::max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::accum::mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::accum::median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::accum::standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::accum::variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::history::ratio::sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::history::accum::sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, dateDiscardBefore, "", band, buffer);
 }

@@ -1,6 +1,6 @@
 {
   "name": "terrama2-webapp",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0-alpha5",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
