@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/zonal/history/ratio/Operator.hpp
+  \file terrama2/services/analysis/core/grid/zonal/history/Operator.hpp
 
   \brief Contains grid zonal analysis operators.
 
