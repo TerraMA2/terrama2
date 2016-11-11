@@ -2,8 +2,8 @@
 
 var app = angular.module("terrama2.dataprovider.registration", ['terrama2', 'schemaForm', 'terrama2.components.messagebox']);
 
-app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n",
-  function($scope, $http, $q, $window, $httpParamSerializer, $location, i18n) {
+app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout",
+  function($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout) {
     $scope.i18n = i18n;
     var model = {}
 
@@ -103,9 +103,59 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
           }
 
           $scope.$broadcast('schemaFormRedraw');
+          $timeout(function(){
+            if ($scope.dataProvider.protocol === "POSTGIS"){
+              var databaseInput = angular.element('#database');
+              databaseInput.attr('list', 'databaseList');
+            }
+          });
         }
       });
     };
+
+    // listen connectino data to get database
+    $scope.$watch('model', function(){
+      if ($scope.dataProvider.protocol !== "POSTGIS" || !$scope.forms.connectionForm.hostname || !$scope.forms.connectionForm.port || !$scope.forms.connectionForm.user){
+        return;
+      }
+      console.log($scope.model);
+      console.log('changed');
+    }, true);
+
+
+    var getDatabaseList = function(){
+      var timeOut = $q.defer();
+      var result = $q.defer();
+      var expired = false;
+      setTimeout(function() {
+        expired = true;
+        timeOut.resolve();
+      }, 1000 * $scope.timeOutSeconds);
+
+      var params = $scope.model;
+      params.protocol = $scope.dataProvider.protocol;
+
+      var httpRequest = $http({
+        method: "GET",
+        url: "/uri/",
+        params: params,
+        timeout: timeOut.promise
+      });
+
+      httpRequest.success(function(data) {
+        result.resolve(data);
+      });
+
+      httpRequest.error(function(err) {
+        if (expired) {
+          result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
+        } else {
+          result.reject(err);
+        }
+      });
+
+      return result.promise;
+    }
 
     $scope.isValidDataProviderTypeForm = function(form) {
       return $scope.forms.connectionForm.$valid;
