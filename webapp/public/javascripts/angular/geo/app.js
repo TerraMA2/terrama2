@@ -113,7 +113,7 @@ angular.module("terrama2.components.geo", ["terrama2"])
         geojson.crs.properties.name += model.srid;
         return geojson;
       }
-    }
+    };
   })
 
   .factory("GeoJsonBuilder", function(Geometry, Polygon, Point) {
@@ -132,5 +132,5 @@ angular.module("terrama2.components.geo", ["terrama2"])
         default:
           return {};
       }
-    }
-  })
+    };
+  });
