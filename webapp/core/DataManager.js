@@ -2791,7 +2791,7 @@ var DataManager = module.exports = {
         .then(function(scriptLanguage) {
           scriptLanguageResult = scriptLanguage;
           // checking if there is historical data to save
-          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate && !analysisObject.historical.endDate)) {
+          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate || !analysisObject.historical.endDate)) {
             return null;
           }
           return self.addHistoricalData(analysisResult.id, analysisObject.historical, options);
@@ -2999,12 +2999,14 @@ var DataManager = module.exports = {
 
             return self.updateHistoricalData({id: analysisInstance.historicalData.id}, historicalData, options);
           } else {
-            // save
-            return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
+            if (analysisObject.historical.startDate || analysisObject.historical.endDate) {
+              // save
+              return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
+            }
           }
-        } else {
-          return null;
         }
+        
+        return null;
       })
       // Update Analysis DCP or Grid if there is
       .then(function() {
