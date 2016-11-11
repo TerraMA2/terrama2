@@ -2791,7 +2791,7 @@ var DataManager = module.exports = {
         .then(function(scriptLanguage) {
           scriptLanguageResult = scriptLanguage;
           // checking if there is historical data to save
-          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate && !analysisObject.historical.endDate)) {
+          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate || !analysisObject.historical.endDate)) {
             return null;
           }
           return self.addHistoricalData(analysisResult.id, analysisObject.historical, options);
@@ -2999,12 +2999,14 @@ var DataManager = module.exports = {
 
             return self.updateHistoricalData({id: analysisInstance.historicalData.id}, historicalData, options);
           } else {
-            // save
-            return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
+            if (analysisObject.historical.startDate || analysisObject.historical.endDate) {
+              // save
+              return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
+            }
           }
-        } else {
-          return null;
         }
+        
+        return null;
       })
       // Update Analysis DCP or Grid if there is
       .then(function() {
@@ -3020,8 +3022,15 @@ var DataManager = module.exports = {
               }
             }
             Object.assign(gridObject, analysisObject.grid);
+
+            // If no area of interest typed, reset interest box. It is important because when there is no bounded box but there is
+            // in database, it will keep, since undefined !== null.
+            if (Utils.isEmpty(gridObject.area_of_interest_bounded)) {
+              gridObject.area_of_interest_bounded = null;
+              gridObject.area_of_interest_box = null;
+            }
             
-            return models.db.AnalysisOutputGrid.update(analysisObject.grid, Utils.extend({
+            return models.db.AnalysisOutputGrid.update(gridObject, Utils.extend({
               fields: ['area_of_interest_box', 'srid', 'resolution_x',
                         'resolution_y', 'interpolation_dummy',
                         'area_of_interest_type', 'resolution_type',
