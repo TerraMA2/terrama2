@@ -460,24 +460,37 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     timezone = "UTC+00";
   }
 
-  QFileInfoList baseUriList, foldersList, newFileInfoList;
-
-  baseUriList.append(url.toString(QUrl::RemoveScheme));
-
+  std::string folderMask;
   try
   {
-    foldersList = getFoldersList(baseUriList, getFolderMask(dataSet));
+    folderMask = getFolderMask(dataSet);
   }
   catch(const terrama2::core::UndefinedTagException& /*e*/)
   {
-    foldersList = baseUriList;
+    folderMask = "";
   }
 
-  if(foldersList.empty())
-    foldersList = baseUriList;
+  QFileInfoList baseUriList;
+  baseUriList.append(url.toString(QUrl::RemoveScheme));
+
+  if(!folderMask.empty())
+  {
+    QFileInfoList foldersList = getFoldersList(baseUriList, folderMask);
+
+    if(foldersList.empty())
+    {
+      QString errMsg = QObject::tr("No folders struct in dataset: %1.").arg(dataSet->id);
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
+    baseUriList = foldersList;
+  }
+
+  QFileInfoList newFileInfoList;
 
   //fill file list
-  for(auto& folderURI : foldersList)
+  for(auto& folderURI : baseUriList)
   {
     newFileInfoList.append(getDataFileInfoList(folderURI.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
   }
