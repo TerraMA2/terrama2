@@ -6,8 +6,8 @@ var Utils = require("./../Utils");
 
 /**
  * It defines a GrADS semantics representation
- * 
- * @param {Object} args - An arguments to build a grads value. It may be a orm model instance or just a object 
+ *
+ * @param {Object} args - An arguments to build a grads value. It may be a orm model instance or just a object
  * @constructor
  */
 var Grads = module.exports = function(args) {
@@ -35,6 +35,24 @@ Grads.prototype.schema = function() {
         type: Form.Field.NUMBER,
         title: "SRID"
       },
+      timezone: {
+        type: Form.Field.TEXT,
+        title: "Timezone"
+      },
+      number_of_bands: {
+        type: Form.Field.NUMBER,
+        title: "Number of Bands",
+        default: 1
+      },
+      value_multiplier: {
+        type: Form.Field.NUMBER,
+        title: "Multiplier",
+        default: 1
+      },
+      binary_file_mask: {
+        type: Form.Field.TEXT,
+        title: "Binary File Mask"
+      },
       bytes_before: {
         type: Form.Field.NUMBER,
         title: "Bytes Before",
@@ -45,12 +63,20 @@ Grads.prototype.schema = function() {
         title: "Bytes After",
         default: 0
       },
-      timezone: {
+      temporal: {
+        type: Form.Field.CHECKBOX,
+        title: "Temporal"
+      },
+      time_interval: {
+        type: Form.Field.NUMBER,
+        title: "Time Interval"
+      },
+      time_interval_unit: {
         type: Form.Field.TEXT,
-        title: "Timezone"
+        title: "Time Interval Unit"
       }
     }),
-    required: ['ctl_filename', 'srid', 'bytes_before', 'bytes_after', 'timezone']
+    required: ['ctl_filename', 'srid', 'timezone', 'number_of_bands', 'value_multiplier', 'bytes_before', 'bytes_after', 'time_interval', 'time_interval_unit']
   };
 };
 
@@ -59,25 +85,53 @@ Grads.prototype.form = function() {
     Utils.getFolderForm(),
     {
       key: 'ctl_filename',
-      htmlClass: "col-md-6 terrama2-schema-form"
+      htmlClass: "col-md-6 terrama2-schema-form grads-form-item"
     },
     {
       key: 'srid',
-      htmlClass: "col-md-6 terrama2-schema-form"
-    },
-    {
-      key: 'bytes_before',
-      htmlClass: "col-md-6 terrama2-schema-form"
-    },
-    {
-      key: 'bytes_after',
-      htmlClass: "col-md-6 terrama2-schema-form"
+      htmlClass: "col-md-3 terrama2-schema-form grads-form-item"
     },
     {
       key: 'timezone',
-      htmlClass: "col-md-6 terrama2-schema-form",
+      htmlClass: "col-md-3 terrama2-schema-form grads-form-item",
       type: 'select',
       titleMap: Utils.getTimezonesGUI()
+    },
+    {
+      key: 'number_of_bands',
+      htmlClass: "col-md-3 terrama2-schema-form grads-form-item"
+    },
+    {
+      key: 'value_multiplier',
+      htmlClass: "col-md-3 terrama2-schema-form grads-form-item"
+    },
+    {
+      key: 'binary_file_mask',
+      htmlClass: "col-md-6 terrama2-schema-form grads-form-item"
+    },
+    {
+      key: 'bytes_before',
+      htmlClass: "col-md-3 terrama2-schema-form grads-form-item"
+    },
+    {
+      key: 'bytes_after',
+      htmlClass: "col-md-3 terrama2-schema-form grads-form-item"
+    },
+    {
+      key: 'temporal',
+      htmlClass: "col-md-2 terrama2-schema-form grads-form-item"
+    },
+    {
+      key: 'time_interval',
+      htmlClass: "col-md-2 terrama2-schema-form grads-form-item",
+      condition: "model.temporal"
+    },
+    {
+      key: 'time_interval_unit',
+      htmlClass: "col-md-2 terrama2-schema-form grads-form-item",
+      type: 'select',
+      titleMap: [{ name: 'Minute', value: 'minute' }, { name: 'Hour', value: 'hour' }, { name: 'Day', value: 'day' }],
+      condition: "model.temporal"
     }
   ];
 };

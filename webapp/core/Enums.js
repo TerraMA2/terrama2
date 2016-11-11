@@ -12,11 +12,11 @@ module.exports = {
       /**
        * It represents a fieldset
        */
-      OBJECT: 'object', 
+      OBJECT: 'object',
       /**
        * It represents an array, a tab set
        */
-      ARRAY: 'array', 
+      ARRAY: 'array',
       /**
        * It represents either select (combobox) or a simple text
        */
@@ -39,7 +39,7 @@ module.exports = {
        *     "default": "Default Value"
        *   }
        * };
-       * 
+       *
        * // combobox
        * var properties = {
        *   combo: {
@@ -47,7 +47,7 @@ module.exports = {
        *     title: "Combobox"
        *   }
        * };
-       * 
+       *
        * var form = [
        *   {
        *     key: 'combo',
@@ -105,19 +105,19 @@ module.exports = {
   ServiceType: {
     /**
      * Defines a Collector service
-     * 
+     *
      * @type {number}
      */
     COLLECTOR: 1,
     /**
      * Defines a Analysis service
-     * 
+     *
      * @type {number}
      */
     ANALYSIS: 2,
     /**
      * Defines a View service
-     * 
+     *
      * @type {number}
      */
     VIEW: 3
@@ -347,7 +347,7 @@ module.exports = {
   },
   /**
    * List of available operators for deep search using Utils.find and Utils.filter
-   * 
+   *
    * @readonly
    * @enum {string}
    */
