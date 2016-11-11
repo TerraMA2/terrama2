@@ -37,6 +37,6 @@ DataSetMonitored.prototype.toObject = function() {
  */
 DataSetMonitored.prototype.rawObject = function() {
   return this.toObject();
-}
+};
 
 module.exports = DataSetMonitored;

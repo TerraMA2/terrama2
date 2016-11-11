@@ -180,7 +180,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
 
 {
   std::string mask = getMask(dataSet);
-  std::string folder = getFolder(dataSet);
 
   QTemporaryDir tempBaseDir;
   if(!tempBaseDir.isValid())
@@ -191,10 +190,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   }
 
   QDir tempDir(tempBaseDir.path());
-  tempDir.mkdir(QString::fromStdString(folder));
-  tempDir.cd(QString::fromStdString(folder));
 
-  QUrl url((uri+"/"+folder+"/"+mask).c_str());
+  QUrl url((uri+"/"+mask).c_str());
   QFileInfo originalInfo(url.path());
 
   QFile file(url.path());

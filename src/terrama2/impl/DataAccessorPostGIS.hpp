@@ -66,7 +66,10 @@ namespace terrama2
 
       protected:
         // Doc in base class
-        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const override;
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever,
+                                         DataSetPtr dataSet,
+                                         const Filter& filter,
+                                         std::shared_ptr<FileRemover> remover) const override;
 
         virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const;
 

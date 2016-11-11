@@ -23,7 +23,7 @@ GridGeoTiff.prototype.constructor = GridGeoTiff;
 
 GridGeoTiff.prototype.schema = function() {
   return {
-    properties: {
+    properties: Utils.extend(Utils.getFolderSchema(), {
       mask: {
         type: Form.Field.TEXT,
         title: "Mask"
@@ -32,13 +32,14 @@ GridGeoTiff.prototype.schema = function() {
         type: Form.Field.TEXT,
         title: "Timezone"
       }
-    },
+    }),
     required: ['mask', 'timezone']
   };
 };
 
 GridGeoTiff.prototype.form = function() {
   return [
+    Utils.getFolderForm(),
     {
       key: 'mask',
       htmlClass: "col-md-6 terrama2-schema-form"
