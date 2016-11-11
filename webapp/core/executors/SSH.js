@@ -31,13 +31,13 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
 
       // detecting OS
       // win
-      self.execute("ipconfig").then(function(code) {
+      self.execute("ipconfig").then(function(resp) {
         self.platform = Enums.OS.WIN;
       }).catch(function(err) {
         // detecting MAC or Linux
         return self.execute("uname");
       }).finally(function() {
-        resolve();
+        return resolve();
       });
     });
 
@@ -100,6 +100,8 @@ SSHDispatcher.prototype.execute = function(command) {
     self.client.exec(command, function(err, stream) {
       if (err) { return reject(err); }
 
+      var responseMessage = "";
+
       stream.on('exit', function(code, signal) {
         console.log("ssh-EXIT: ", code, signal);
       });
@@ -108,14 +110,14 @@ SSHDispatcher.prototype.execute = function(command) {
         console.log('code: ' + code + ', signal: ' + signal);
 
         if (code === 0) {
-          resolve(code);
+          return resolve({code: code, data: responseMessage.replace("\n", "")});
         } else {
           reject(new Error("Error occurred while remote command: code \"" + code + "\", signal: \"" + signal + "\""));
         }
       }).on('data', function(data) {
+        var dataStr = data.toString();
         // detecting OS
         if (command === "uname") {
-          var dataStr = data.toString();
           var platform = dataStr.substring(0, dataStr.indexOf('\n'));
           switch(platform) {
             case Enums.OS.LINUX:
@@ -129,6 +131,7 @@ SSHDispatcher.prototype.execute = function(command) {
               console.log("Unknown platform");
               self.platform = Enums.OS.UNKNOWN;
           }
+          responseMessage = dataStr;
         }
 
         console.log('ssh-STDOUT: ' + data);
