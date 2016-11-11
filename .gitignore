@@ -2,10 +2,12 @@
 .DS_Store
 *.user
 *.*~
+*_terrama2.log
 webapp/node_modules
 webapp/npm-debug*
 webapp/public/externals
 webapp/bower_components
+webapp/*_terrama2.log
 webmonitor/node_modules
 webmonitor/public/external
 webmonitor/bower_components
