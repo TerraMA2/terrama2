@@ -280,6 +280,7 @@ bootstrap-decorator span {
   padding: 0 !important;
   background-color: #3c8dbc !important;
   border-color: #3c8dbc !important;
+  min-width: 133px !important;
 }
 
 .terrama2-button-dropdown li > a {
