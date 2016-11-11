@@ -59,9 +59,9 @@ namespace terrama2
       MOCK_CONST_METHOD1(start,
                          RegisterId(ProcessId processId));
       MOCK_CONST_METHOD2(error,
-                         void(const std::string description, const RegisterId registerId));
+                         void(const std::string& description, const RegisterId registerId));
       MOCK_CONST_METHOD2(done,
-                         void(const std::shared_ptr< te::dt::TimeInstantTZ > dataTimestamp, const RegisterId registerId));
+                         void(const std::shared_ptr< te::dt::TimeInstantTZ >& dataTimestamp, const RegisterId registerId));
       MOCK_CONST_METHOD1(getLastProcessTimestamp,
                          std::shared_ptr<te::dt::TimeInstantTZ>(const ProcessId processId));
       MOCK_CONST_METHOD1(getDataLastTimestamp,
