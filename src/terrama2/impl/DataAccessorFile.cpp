@@ -272,7 +272,7 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
   return true;
 }
 
-std::string terrama2::core::DataAccessorFile::getFolder(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorFile::getFolderMask(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "folder", false);
 }
@@ -293,6 +293,83 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
   std::unique_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
   return std::shared_ptr<te::da::DataSet>(te::da::CreateAdapter(datasetOrig.release(), converter.get(), true));
 }
+
+
+QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const
+{
+  QFileInfoList folders;
+
+  std::size_t found = foldersMask.find_first_of('/');
+
+  std::string mask;
+
+  if(found != std::string::npos)
+  {
+    std::size_t begin = 0;
+
+    if(found == 0)
+    {
+      begin = foldersMask.find_first_not_of('/');
+      std::string tempMask = foldersMask.substr(begin);
+      found = tempMask.find_first_of('/');
+      mask = foldersMask.substr(begin, found);
+
+      if(found != std::string::npos)
+        found++;
+    }
+    else
+    {
+      mask = foldersMask.substr(begin, found);
+    }
+  }
+  else
+  {
+    mask = foldersMask;
+  }
+
+  for(const auto& uri : uris)
+  {
+    QDir dir(uri.absoluteFilePath());
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+    if(fileInfoList.empty())
+    {
+      continue;
+    }
+
+    for(const auto& fileInfo : fileInfoList)
+    {
+      std::string folderPath = fileInfo.absoluteFilePath().toStdString();
+
+      std::string folder = folderPath.substr(folderPath.find_last_of('/')+1);
+
+      if(!terramaMaskMatch(mask, folder))
+        continue;
+
+      folders.push_back(fileInfo);
+    }
+  }
+
+  std::string nextMask = "";
+
+  if(found != std::string::npos)
+    nextMask = foldersMask.substr(found+1);
+
+  if(nextMask.empty())
+  {
+    return folders;
+  }
+  else if(!folders.empty())
+  {
+    return getFoldersList(folders, nextMask);
+  }
+  else
+  {
+    QString errMsg = QObject::tr("No directory matches the mask.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return QFileInfoList();
+  }
+}
+
 
 QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::string& uri,
                                                                     const std::string& mask,
@@ -383,8 +460,40 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     timezone = "UTC+00";
   }
 
+  std::string folderMask;
+  try
+  {
+    folderMask = getFolderMask(dataSet);
+  }
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
+  {
+    folderMask = "";
+  }
+
+  QFileInfoList baseUriList;
+  baseUriList.append(url.toString(QUrl::RemoveScheme));
+
+  if(!folderMask.empty())
+  {
+    QFileInfoList foldersList = getFoldersList(baseUriList, folderMask);
+
+    if(foldersList.empty())
+    {
+      QString errMsg = QObject::tr("No folders struct in dataset: %1.").arg(dataSet->id);
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
+    baseUriList = foldersList;
+  }
+
+  QFileInfoList newFileInfoList;
+
   //fill file list
-  QFileInfoList newFileInfoList = getDataFileInfoList(url.toString().toStdString(), getMask(dataSet), timezone, filter, remover);
+  for(auto& folderURI : baseUriList)
+  {
+    newFileInfoList.append(getDataFileInfoList(folderURI.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
+  }
 
   bool first = true;
   for(const auto& fileInfo : newFileInfoList)
