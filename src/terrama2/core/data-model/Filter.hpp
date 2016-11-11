@@ -33,20 +33,23 @@
 //TerraMA2
 #include "../../Config.hpp"
 #include "../Typedef.hpp"
+#include "../utility/Utils.hpp"
 
 //STL
 #include <memory>
 
+#include <boost/functional/hash.hpp>
+
 //terralib
 
 #include <terralib/geometry/Geometry.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 // Forward declaration
 namespace te
 {
   namespace dt { class TimeInstantTZ; }
 }
-
 
 namespace terrama2
 {
@@ -86,8 +89,48 @@ namespace terrama2
 
       //operator bool() const { return dataSetId != 0; }
     };
-
   } // end namespace core
 }   // end namespace terrama2
+
+namespace std
+{
+    template<> struct hash<terrama2::core::Filter>
+    {
+        size_t operator()(terrama2::core::Filter const& filter) const
+        {
+          size_t hash = 0;
+
+          if(filter.discardBefore)
+          {
+            auto discardBefore = filter.discardBefore->toString();
+            size_t const hBefore = SuperFastHash(discardBefore.c_str(), discardBefore.size());
+            boost::hash_combine(hash, hBefore);
+          }
+
+          if(filter.discardAfter)
+          {
+            auto discardAfter = filter.discardAfter->toString();
+            size_t const hAfter = SuperFastHash(discardAfter.c_str(), discardAfter.size());
+            boost::hash_combine(hash, hAfter);
+          }
+
+          if(filter.region)
+          {
+            auto region = filter.region->toString();
+            size_t const hRegion = SuperFastHash(region.c_str(), region.size());
+            boost::hash_combine(hash, hRegion);
+          }
+
+          if(filter.value)
+          {
+            boost::hash_combine(hash, *filter.value);
+          }
+
+          boost::hash_combine(hash, filter.lastValue);
+
+          return hash;
+        }
+    };
+}
 
 #endif  // __TERRAMA2_CORE_DATA_MODEL_FILTER_HPP__
