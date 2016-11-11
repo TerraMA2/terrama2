@@ -393,13 +393,14 @@ void TsUtility::ValidMask()
 
 }
 
-void TsUtility::invalidValidMask()
+void TsUtility::invalidMask()
 {
   std::string mask = "%MM-hhssmm.file";
 
   if(terrama2::core::isValidDatedMask(mask))
     QFAIL("Should not be here!");
 }
+
 
 void TsUtility::testTerramaMask2Regex()
 {
@@ -418,6 +419,19 @@ void TsUtility::testTerramaMask2Regex()
 
   QCOMPARE(regex, maskConverted);
 }
+
+
+void TsUtility::testTerramaMaskMatch()
+{
+  std::string mask = "%YYYY";
+
+  if(!terrama2::core::terramaMaskMatch(mask, "2016"))
+    QFAIL("Should not be here!");
+
+  if(terrama2::core::terramaMaskMatch(mask, "invalid"))
+    QFAIL("Should not be here!");
+}
+
 
 void TsUtility::testValidDataSetName()
 {

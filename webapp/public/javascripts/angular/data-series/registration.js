@@ -937,6 +937,12 @@ angular.module('terrama2.dataseries.registration', [
       // change form: advanced or wizard
       $scope.onFormView = function() {
         $scope.isWizard = !$scope.isWizard;
+        if ($scope.isUpdating) {
+          // fixing storager loading
+          $timeout(function() {
+            $scope.onStoragerFormatChange();
+          }, 1000);
+        }
       };
 
       // parameters to handle fields display

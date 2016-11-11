@@ -3,6 +3,7 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
   function($scope, DataSeriesFactory,Socket, i18n, $window, Service) {
     $scope.i18n = i18n;
     $scope.disabledButtons = {};
+    $scope.orderBy = "name";
     var isDynamic = false;
     var queryParams = {};
 
