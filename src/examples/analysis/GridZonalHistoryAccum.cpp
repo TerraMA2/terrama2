@@ -15,7 +15,6 @@
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
-#include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/Shared.hpp>
 

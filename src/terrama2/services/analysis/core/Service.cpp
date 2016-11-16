@@ -274,6 +274,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
   if(pqIt != processingQueue_.end())
     processingQueue_.erase(pqIt);
 
+  sendProcessFinishedSignal(analysisId, success);
 
   // Verify if there is another execution for the same analysis waiting
   auto& startTimeQueue = waitQueue_[analysisId];
@@ -293,7 +294,4 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
     //wake loop thread
     mainLoopCondition_.notify_one();
   }
-
-  sendProcessFinishedSignal(analysisId, success);
-
 }
