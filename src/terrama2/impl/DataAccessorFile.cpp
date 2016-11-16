@@ -415,6 +415,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
       QFileInfoList fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
 //TODO: creating a unique list of files, they have to be in the same folder! Control files and data files together
 //      newFileInfoList.append(fileList);
+      // TODO: verify if the uncompressed files matches the mask?
       for(const auto& fileI : fileList)
         pathSet.insert(fileI.absoluteFilePath());
     }
@@ -507,6 +508,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     std::string completeBaseName = fileInfo.completeBaseName().toStdString();
 
     std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
+
+    // TODO: getDataFileInfoList already do this, need to do again? Is it to get the timestamp?
     // Verify if the file name matches the mask
     if(!isValidDataSetName(getMask(dataSet), filter, timezone, name, thisFileTimestamp))
       continue;
