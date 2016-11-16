@@ -40,7 +40,7 @@ Grads.prototype.schema = function() {
         title: "Timezone"
       },
       number_of_bands: {
-        type: Form.Field.NUMBER,
+        type: Form.Field.INTEGER,
         title: "Number of Bands",
         default: 1
       },

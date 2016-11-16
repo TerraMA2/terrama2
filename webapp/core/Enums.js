@@ -62,6 +62,10 @@ module.exports = {
        */
       NUMBER: "number",
       /**
+       * It will creates a html integer input.
+       */
+      INTEGER: "integer",
+      /**
        * It will creates a html checkbox input. <input type="checkbox">
        */
       CHECKBOX: "boolean",
