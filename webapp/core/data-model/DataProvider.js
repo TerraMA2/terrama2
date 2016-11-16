@@ -48,7 +48,7 @@ DataProvider.prototype.rawObject = function() {
     description: this.description,
     uri: this.uri,
     active: this.active
-  }
-}
+  };
+};
 
 module.exports = DataProvider;

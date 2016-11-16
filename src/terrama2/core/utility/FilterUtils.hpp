@@ -62,6 +62,8 @@ namespace terrama2
     */
     bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
 
+    bool terramaMaskMatch(const std::string& mask, const std::string& string);
+
     /*!
       \brief Check timestamp is between a valid period.
 

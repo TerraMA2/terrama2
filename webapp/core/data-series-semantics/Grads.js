@@ -26,7 +26,7 @@ Grads.prototype.constructor = Grads;
 
 Grads.prototype.schema = function() {
   return {
-    properties: {
+    properties: Utils.extend(Utils.getFolderSchema(), {
       ctl_filename: {
         type: Form.Field.TEXT,
         title: "CTL File"
@@ -49,13 +49,14 @@ Grads.prototype.schema = function() {
         type: Form.Field.TEXT,
         title: "Timezone"
       }
-    },
+    }),
     required: ['ctl_filename', 'srid', 'bytes_before', 'bytes_after', 'timezone']
   };
 };
 
 Grads.prototype.form = function() {
   return [
+    Utils.getFolderForm(),
     {
       key: 'ctl_filename',
       htmlClass: "col-md-6 terrama2-schema-form"

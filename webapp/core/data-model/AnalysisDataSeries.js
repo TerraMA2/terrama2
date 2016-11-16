@@ -10,7 +10,7 @@ var AnalysisDataSeries = module.exports = function(params) {
   if (params.AnalysisDataSeriesType)
     this.type = params.AnalysisDataSeriesType.get();
   else
-    this.type = params.type || {}
+    this.type = params.type || {};
 
   if (params.AnalysisDataSeriesMetadata)
     this.setMetadata(params.AnalysisDataSeriesMetadata);
@@ -31,11 +31,11 @@ AnalysisDataSeries.prototype.setMetadata = function(metadataObject) {
     this.metadata = Utils.formatMetadataFromDB(metadataObject);
   else
     this.metadata = metadataObject;
-}
+};
 
 AnalysisDataSeries.prototype.setDataSeries = function(dataSeries) {
   this.dataSeries = dataSeries;
-}
+};
 
 AnalysisDataSeries.prototype.toObject = function() {
   return Object.assign(BaseClass.prototype.toObject.call(this), {
@@ -52,4 +52,4 @@ AnalysisDataSeries.prototype.rawObject = function() {
 
   obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;
   return obj;
-}
+};

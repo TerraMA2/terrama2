@@ -180,7 +180,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
 
 {
   std::string mask = getMask(dataSet);
-  std::string folder = getFolder(dataSet);
+  std::string folder = getFolderMask(dataSet);
 
   QTemporaryDir tempBaseDir;
   if(!tempBaseDir.isValid())

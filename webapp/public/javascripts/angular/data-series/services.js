@@ -60,7 +60,7 @@
         return defer.reject(err);
       });
     return defer.promise;
-  }
+  };
   /**
    * It retrieves all data series from API
    * 
@@ -122,7 +122,7 @@
       })
       .catch(function(err) {
         return defer.reject(err);
-      })
+      });
 
     return defer.promise;
   };

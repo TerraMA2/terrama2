@@ -545,5 +545,7 @@
 		" ": "Analysis will not able to generate a output data. "
 	},
 	"Static GeoTIFF grid": "Static GeoTIFF grid",
-	"PostGIS occurrence": "PostGIS occurrence"
+	"PostGIS occurrence": "PostGIS occurrence",
+	"Save": "Save",
+	"Save and Run": "Save and Run"
 }

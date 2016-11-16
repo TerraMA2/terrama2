@@ -114,6 +114,13 @@ var TcpSocket = function(io) {
     iosocket.emit("statusResponse", resp);
   });
 
+  /**
+   * Defines a listener for TerraMA² Service version. Triggered only when starting TerraMA² service
+   */
+  TcpService.on("serviceVersion", function(resp) {
+    iosocket.emit("serviceVersion", resp);
+  });
+
   // Socket connection event
   iosocket.on('connection', function(client) {
     /**

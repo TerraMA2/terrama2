@@ -18,8 +18,8 @@ function DataSet(params) {
   this.data_series_id = params.data_series_id;
   this.active = params.active || false;
 
-  if (params['DataSetFormats'])
-    this.setFormat(params['DataSetFormats']);
+  if (params.DataSetFormats)
+    this.setFormat(params.DataSetFormats);
   else
     this.format = params.format || {};
 }
@@ -50,6 +50,9 @@ DataSet.prototype.setFormat = function(formats) {
  * @inherits AbstractData:toObject
  */
 DataSet.prototype.toObject = function() {
+  if (this.format && this.format.folder) {
+    this.format.folder = this.format.folder.toString();
+  }
   return Object.assign(AbstractClass.prototype.toObject.call(this), {
     id: this.id,
     data_series_id: this.data_series_id,
