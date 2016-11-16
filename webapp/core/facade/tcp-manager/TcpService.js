@@ -34,6 +34,12 @@ var RegisteredView = require("./../../../core/data-model/RegisteredView");
 var Application = require("./../../Application");
 
 /**
+ * It defines TerraMA² webapp metadata (package.json)
+ * @type {Object}
+ */
+var webapp = Application.get("metadata");
+
+/**
  * It handles TCP service manipulation. Use  it to be pipe between front-end and back-end application
  * 
  * @class TcpService
@@ -588,7 +594,7 @@ function onStatusReceived(service, response) {
  * @param {string} response - Response version
  */
 function onServiceVersionReceived(service, response) {
-  var version = Application.get().version;
+  var version = webapp.version;
   tcpService.emit("serviceVersion", {
     service: service.id,
     response: response.replace("TerraMA2", ""),

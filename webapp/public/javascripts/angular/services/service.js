@@ -89,6 +89,7 @@
           service.loading = false;
           service.online = false;
           service.requestingForClose = false;
+          service.stoping = false;
         });
 
         $scope.socket.on('errorResponse', function(response) {
@@ -177,10 +178,6 @@
                   }
                 }
               });
-
-              $scope.socket.once('statusResponse', function(response) {
-                $scope.extra.service.starting = false;
-              });
             },
 
             stopAll: function() {
@@ -193,9 +190,8 @@
                 }
               });
 
-              $scope.socket.once('closeResponse', function(response) {
-                $scope.extra.service.stoping = false;
-              });
+              $scope.extra.service.stoping = false;
+              $scope.extra.service.starting = false;
             },
 
             hasServiceOffline: function() {

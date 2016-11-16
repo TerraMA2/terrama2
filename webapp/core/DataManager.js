@@ -22,6 +22,7 @@
  * TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 */
 
+var Application = require("./Application");
 var modelsFn = require("../models");
 var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
@@ -98,7 +99,7 @@ var DataManager = module.exports = {
   init: function(callback) {
     var self = this;
 
-      var dbConfig = Database.getContextConfig().db;
+      var dbConfig = Application.getContextConfig().db;
 
       models = modelsFn();
       models.load(orm);
