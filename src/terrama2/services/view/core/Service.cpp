@@ -62,6 +62,10 @@ terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::service
   : dataManager_(dataManager)
 {
   connectDataManager();
+
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
+
+  QObject::connect(&serviceManager, &terrama2::core::ServiceManager::viewAdditionalInfoUpdated, this, &terrama2::services::view::core::Service::setMapsServer);
 }
 
 bool terrama2::services::view::core::Service::hasDataOnQueue() noexcept
@@ -264,7 +268,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       // Check if the view can be done by the maps server
       bool mapsServerGeneration = false;
 
-      if(!maps_server_uri.uri().empty())
+      if(!MapsServerUri_.uri().empty())
       {
         if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GEOTIFF")
         {
@@ -278,7 +282,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
       if(mapsServerGeneration)
       {
-        GeoServer geoserver(maps_server_uri);
+        GeoServer geoserver(MapsServerUri_);
 
         geoserver.registerWorkspace();
 
@@ -599,4 +603,23 @@ void terrama2::services::view::core::Service::notifyWaitQueue(ViewId viewId)
     mainLoopCondition_.notify_one();
   }
 
+}
+
+void terrama2::services::view::core::Service::setMapsServer(const QJsonObject& obj) noexcept
+{
+  if(obj["service"].toString().toStdString() != "view")
+  {
+    TERRAMA2_LOG_ERROR() << tr("Service additional information does not belong to this service!");
+  }
+  else
+  {
+    if(!obj.contains("maps_server_uri"))
+    {
+      TERRAMA2_LOG_ERROR() << tr("Missing the Maps Server URI in service additional info!");
+    }
+    else
+    {
+      MapsServerUri_ = te::core::URI(obj["maps_server_uri"].toString().toStdString());
+    }
+  }
 }

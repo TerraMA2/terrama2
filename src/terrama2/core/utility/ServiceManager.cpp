@@ -121,6 +121,15 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
   +"/"+logDatabaseObj["PG_DB_NAME"].toString().toStdString());
 
   setLogConnectionInfo(uri);
+
+  if(obj.contains("maps_server_uri"))
+  {
+    QJsonObject additionalInfo;
+    additionalInfo.insert("service", QString("view"));
+    additionalInfo.insert("maps_server_uri", obj["maps_server_uri"]);
+
+    emit viewAdditionalInfoUpdated(additionalInfo);
+  }
 }
 
 void terrama2::core::ServiceManager::setLogConnectionInfo(const te::core::URI& logDbUri)

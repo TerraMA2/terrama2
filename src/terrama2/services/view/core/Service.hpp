@@ -90,6 +90,8 @@ namespace terrama2
           */
           void notifyWaitQueue(ViewId viewId);
 
+          void setMapsServer(const QJsonObject& obj) noexcept;
+
         protected:
 
           // comments on base class
@@ -116,7 +118,7 @@ namespace terrama2
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
           std::deque<ViewId> viewQueue_;//!< View queue
-          te::core::URI maps_server_uri;
+          te::core::URI MapsServerUri_;
         };
 
       } // end namespace core
