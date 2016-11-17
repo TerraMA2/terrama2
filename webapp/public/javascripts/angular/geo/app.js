@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module("terrama2.components.geo", ["terrama2"])
+angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
   .constant("Geometry", {
     "POLYGON": "Polygon",
     "POINT": "Point"
@@ -126,7 +126,6 @@ angular.module("terrama2.components.geo", ["terrama2"])
       switch(geometry) {
         case Geometry.POLYGON:
           return Polygon.build(model);
-          return
         case Geometry.POINT:
           return Point.build(model);
         default:
