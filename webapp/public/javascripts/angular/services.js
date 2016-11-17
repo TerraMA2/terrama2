@@ -96,7 +96,7 @@ angular.module("terrama2.services", ['terrama2'])
 
   factory("Socket", function($rootScope) {
     var socket = io.connect(window.location.origin, {
-      reconnect: false // it avoids to socket io reconnect automatically. 
+      reconnect: false // it avoids to socket io reconnect automatically.
     });
 
     return {
@@ -254,9 +254,9 @@ angular.module("terrama2.services", ['terrama2'])
     };
     /**
      * It reads XML file loaded from dialog
-     * 
+     *
      * @param {Blob} fileBlob - A javascript blob with file result
-     * @param {Function<Error|string>} callback - A callback function to handle reader async. 
+     * @param {Function<Error|string>} callback - A callback function to handle reader async.
      */
     dialogs.readAsXML = function(fileBlob, callback) {
       if (!fileBlob) {
@@ -282,7 +282,7 @@ angular.module("terrama2.services", ['terrama2'])
 
   /**
    * It saves a javascript object as JSON file.
-   * 
+   *
    * @throws {Error} When data is an invalid JSON
    * @param {Object} data - A javascript object to be saved
    * @param {string} fileName - A file name output

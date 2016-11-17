@@ -266,7 +266,7 @@ angular.module('terrama2.dataseries.registration', [
 
             if (!outputDataseries)
               return;
-              
+
             // fill out default
             if ($scope.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
               $scope.modelStorager = $scope.prepareFormatToForm(outputDataseries.dataSets[0].format);
@@ -338,7 +338,7 @@ angular.module('terrama2.dataseries.registration', [
           enableStore.click();
         }
       }
-      
+
       var clearFilterForm = function(){
         $scope.filter.date = {};
         $scope.filter.filterArea = "1";
@@ -767,7 +767,7 @@ angular.module('terrama2.dataseries.registration', [
         var firstStepValid = $scope.forms.generalDataForm.$valid;
         if (firstStepValid){
           $scope.wizard.parameters.disabled = false;
-        } 
+        }
         else {
           $scope.wizard.parameters.disabled = true;
         }
@@ -837,7 +837,7 @@ angular.module('terrama2.dataseries.registration', [
         description: inputDataSeries.description,
         access: $scope.hasCollector ? "COLLECT" : "PROCESSING",
         semantics: inputSemantics.code || "",
-        active: inputDataSeries.active
+        active: (inputDataSeries.dataSets != undefined && inputDataSeries.dataSets[0] != undefined && inputDataSeries.dataSets[0].active != undefined ? inputDataSeries.dataSets[0].active : true)
       };
 
       // getting semantics
@@ -1133,7 +1133,7 @@ angular.module('terrama2.dataseries.registration', [
         }
       };
 
-      $scope.changeDataProvider = function() {  
+      $scope.changeDataProvider = function() {
         console.log($scope.dataSeries);
       };
 
