@@ -25,6 +25,10 @@ module.exports = function(sequelize, DataTypes) {
       temporality: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      allow_direct_access: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
       }
     },
     {
