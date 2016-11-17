@@ -270,7 +270,7 @@ angular.module('terrama2.dataseries.registration', [
             // fill out default
             if ($scope.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
               $scope.modelStorager = $scope.prepareFormatToForm(outputDataseries.dataSets[0].format);
-              if(typeof 0 === "number") {
+              if(typeof $scope.modelStorager.timezone === "number") {
                 $scope.modelStorager.timezone = ($scope.modelStorager.timezone > 0 ? "+" + $scope.modelStorager.timezone.toString() : $scope.modelStorager.timezone.toString());
               }
             }
@@ -491,7 +491,7 @@ angular.module('terrama2.dataseries.registration', [
         for(var k in fmt) {
           if (fmt.hasOwnProperty(k)) {
             // checking if a number
-            if (isNaN(fmt[k])) {
+            if (isNaN(fmt[k]) || typeof fmt[k] == "boolean") {
               output[k] = fmt[k];
             } else {
               output[k] = parseInt(fmt[k]);
@@ -1048,7 +1048,9 @@ angular.module('terrama2.dataseries.registration', [
               });
             } else {
               $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-              if(typeof 0 === "number") {
+              $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
+
+              if(typeof $scope.model.timezone === "number") {
                 $scope.model.timezone = ($scope.model.timezone > 0 ? "+" + $scope.model.timezone.toString() : $scope.model.timezone.toString());
               }
             }
