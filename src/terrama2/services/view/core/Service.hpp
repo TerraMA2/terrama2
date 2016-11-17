@@ -115,8 +115,8 @@ namespace terrama2
                                            const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
-
           std::deque<ViewId> viewQueue_;//!< View queue
+          te::core::URI maps_server_uri;
         };
 
       } // end namespace core

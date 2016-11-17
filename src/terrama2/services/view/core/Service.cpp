@@ -264,7 +264,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       // Check if the view can be done by the maps server
       bool mapsServerGeneration = false;
 
-      if(!viewPtr->maps_server_uri.uri().empty())
+      if(!maps_server_uri.uri().empty())
       {
         if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GEOTIFF")
         {
@@ -278,7 +278,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
       if(mapsServerGeneration)
       {
-        GeoServer geoserver(viewPtr->maps_server_uri);
+        GeoServer geoserver(maps_server_uri);
 
         geoserver.registerWorkspace();
 
