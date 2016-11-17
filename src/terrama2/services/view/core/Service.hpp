@@ -118,7 +118,7 @@ namespace terrama2
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
           std::deque<ViewId> viewQueue_;//!< View queue
-          te::core::URI MapsServerUri_;
+          te::core::URI mapsServerUri_;
         };
 
       } // end namespace core

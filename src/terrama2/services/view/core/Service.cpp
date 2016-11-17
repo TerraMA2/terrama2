@@ -268,7 +268,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       // Check if the view can be done by the maps server
       bool mapsServerGeneration = false;
 
-      if(!MapsServerUri_.uri().empty())
+      if(!mapsServerUri_.uri().empty())
       {
         if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GEOTIFF")
         {
@@ -282,7 +282,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
       if(mapsServerGeneration)
       {
-        GeoServer geoserver(MapsServerUri_);
+        GeoServer geoserver(mapsServerUri_);
 
         geoserver.registerWorkspace();
 
@@ -619,7 +619,7 @@ void terrama2::services::view::core::Service::setMapsServer(const QJsonObject& o
     }
     else
     {
-      MapsServerUri_ = te::core::URI(obj["maps_server_uri"].toString().toStdString());
+      mapsServerUri_ = te::core::URI(obj["maps_server_uri"].toString().toStdString());
     }
   }
 }
