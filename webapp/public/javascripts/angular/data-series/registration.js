@@ -547,6 +547,12 @@ angular.module('terrama2.dataseries.registration', [
             return;
           }
 
+          // validating store when form is enabled
+          if (name == 'storagerForm' && !$scope.storager.format.id){
+            wizardStep.wzData.error = true;
+            return;
+          }
+
           var condition = $scope.forms[name].$invalid;
           var secondName = wizardStep.wzData.secondForm;
 
@@ -799,7 +805,7 @@ angular.module('terrama2.dataseries.registration', [
         } 
         else {
           $scope.wizard.parameters.disabled = true;
-            $scope.wizard.store.disabled = true;
+          $scope.wizard.store.disabled = true;
         }
         return firstStepValid;
       };
@@ -1004,6 +1010,7 @@ angular.module('terrama2.dataseries.registration', [
         $scope.storager.format = {};
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
+        delete $scope.wizard.store.error;
         clearStoreForm();
 
         if ($scope.dataSeries.semantics.allow_direct_access === false){
