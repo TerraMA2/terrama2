@@ -361,6 +361,7 @@
                          ng-blur="ctrl.onMapsServerURIChange()">
 
                   <span class="form-control-feedback glyphicon" 
+                        ng-show="mapsServerForm.address.$dirty"
                         ng-class="{'glyphicon-ok': mapsServerForm.address.$valid, 'glyphicon-remove': mapsServerForm.address.$invalid }">
                   </span>
                   <!-- required -->

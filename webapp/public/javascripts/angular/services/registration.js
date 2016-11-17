@@ -33,6 +33,11 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
   self.service = {sshPort: 22};
 
   /**
+   * It defines a log instance model. It tries to get values from service model. If there is, update mode
+   */
+  self.log = {port: 5432};
+
+  /**
    * It defines a Maps Object URI (View Services only)
    * @type {Object}
    */
@@ -68,18 +73,48 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       var config = $window.configuration;
 
       /**
+       * Flag to handle update and save mode
+       * 
+       * @type {boolean} 
+       */
+      self.update = config.service.name ? true : false;
+
+      /**
        * It handles when user type maps server URI (for View Services). It parses the content and tries to re-fill other fields
        * with port, user and password.
        */
       self.onMapsServerURIChange = function() {
+        if (!self.mapsServer.address) {
+          return;
+        }
         var targetURI = (!self.mapsServer.address.startsWith("http:") && !self.mapsServer.address.startsWith("https:")) ? "http://" + self.mapsServer.address : self.mapsServer.address;
         var uriObject = URIParser(targetURI);
         if (uriObject && uriObject.length !== 0) {
           self.mapsServer.address = uriObject.protocol + "//" + uriObject.hostname + uriObject.pathname;
-          self.mapsServer.port = parseInt(uriObject.port === "" ? "80" : uriObject.port) || 8080;
-          self.mapsServer.user = uriObject.username;
-          self.mapsServer.password = uriObject.password;
+          self.mapsServer.port = parseInt(uriObject.port === "" ? "80" : uriObject.port) || self.mapsServer.port ||8080;
+          self.mapsServer.user = uriObject.username || self.mapsServer.user;
+          self.mapsServer.password = uriObject.password || self.mapsServer.password;
         }
+      };
+
+      /**
+       * It fills out GUI interface with Service model, log and maps server parameters
+       * Used in "Update" mode
+       */
+      var fillGUI = function() {
+        self.service = angular.merge(self.service, config.service);
+
+        if (self.service.service_type_id) {
+          self.service.service_type_id = self.service.service_type_id.toString();
+        }
+
+        if (parseInt(self.service.service_type_id) === Service.types.VIEW) {
+          self.mapsServer.address = self.service.maps_server_uri;
+
+          self.onMapsServerURIChange();
+        }
+
+        self.log = self.service.log;
       };
 
       /**
@@ -101,38 +136,14 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        */
       self.i18n = i18n;
 
-      self.service = angular.merge(self.service, config.service);
-
-      if (self.service.service_type_id) {
-        self.service.service_type_id = self.service.service_type_id.toString();
-      }
-
-      /**
-       * Flag to handle update and save mode
-       * 
-       * @type {boolean} 
-       */
-      self.update = self.service.name ? true : false;
-
       if (self.update) {
-        self.service.isLocal = true;
-
-        if (parseInt(self.service.service_type_id) === Service.types.VIEW) {
-          self.mapsServer.address = self.service.maps_server_uri;
-
-          self.onMapsServerURIChange();
-        }
+        fillGUI();
       }
 
       // Defining default threads number
       if (!self.service.numberOfThreads) {
         self.service.numberOfThreads = 0;
       }
-
-      /**
-       * It defines a log instance model. It tries to get values from service model. If there is, update mode
-       */
-      self.log = self.service.log || {};
 
       /**
        * Flag to determines service form submit (save/update)
@@ -181,7 +192,9 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       var ports = [];
       self.services.forEach(function(service) {
         self.config.availableDatabases.push(Object.assign({name: service.name}, service.log));
-        ports.push(service.port);
+        if (self.service.id !== service.id) {
+          ports.push(service.port);
+        }
       });
 
       Socket.emit('suggestPortNumber', {ports: ports, host: self.service.host});
