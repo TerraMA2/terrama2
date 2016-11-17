@@ -292,6 +292,13 @@ bootstrap-decorator span {
   background-color: #367fa9 !important;
 }
 
+/*
+  It fixes intersection nav to include check icon
+*/
+.nav > li > a {
+  padding: 10px 8px !important;
+}
+
 /**
  *
  * It handles Mozila FireFox CSS specific styles

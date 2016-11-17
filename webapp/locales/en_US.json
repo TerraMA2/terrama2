@@ -547,5 +547,6 @@
 	"Static GeoTIFF grid": "Static GeoTIFF grid",
 	"PostGIS occurrence": "PostGIS occurrence",
 	"Save": "Save",
-	"Save and Run": "Save and Run"
+	"Save and Run": "Save and Run",
+	"Projection SRID": "Projection SRID"
 }
