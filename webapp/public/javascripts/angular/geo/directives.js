@@ -4,7 +4,7 @@ var app = angular.module('terrama2.components.geo');
 
 app.run(function($templateCache) {
   $templateCache.put("bounded-box.html",
-  "<form name='boundedForm'>" +
+  "<form name='filterForm.boundedForm'>" +
     "<div class=\"col-md-12 terrama2-nopadding-box\">" +
       "<div class=\"col-md-6\">" +
         "<div class=\"form-group\" terrama2-show-errors>" +
@@ -75,7 +75,7 @@ app.run(function($templateCache) {
   "</form>");
 });
 
-app.directive("terrama2BoundedBox", function(i18n, Polygon) {
+app.directive("terrama2BoundedBox", function(i18n, Polygon, FilterForm) {
   return {
     restrict: "E",
     templateUrl: "bounded-box.html",
@@ -85,6 +85,7 @@ app.directive("terrama2BoundedBox", function(i18n, Polygon) {
       isRequired: "="
     },
     controller: function($scope) {
+      $scope.filterForm = FilterForm;
       $scope.i18n = i18n;
     },
     link: function(scope, element, attrs, ngModelController) {
