@@ -913,7 +913,7 @@ var DataManager = module.exports = {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
             fields: ['name', 'description', 'port', 
                      'numberOfThreads', 'runEnviroment', 'host', 
-                     'sshUser', 'sshPort', 'pathToBinary'],
+                     'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
             where: { id: serviceId }
           }, options))
           .then(function() {
@@ -3378,7 +3378,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "maps_server_uri", "data_series_id", "style", "active", "service_instance_id"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id"],
           where: restriction
         }, options))
 
