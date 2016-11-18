@@ -19,68 +19,52 @@
 <!-- TerraMA2 -->
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/services/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
 <script type="text/javascript" src="/javascripts/angular/services/registration.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div class="modal fade modal-danger" id="sshModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span></button>
-        <h4 class="modal-title">{{ i18n.__("Connection") }}</h4>
-      </div>
-      <div class="modal-body">
-        <p>{{ i18n.__("Host connection") }}: <i class="fa" ng-class="{'fa-check': ssh.isValid, 'fa-times': !ssh.isValid, 'fa-spinner': ssh.isLoading}"></i></p>
-        <p>{{ i18n.__("Database connection") }}: <i class="fa" ng-class="{'fa-check': db.isValid, 'fa-times': !db.isValid, 'fa-spinner': db.isLoading}"></i></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="col-md-12" ng-controller="RegistrationController">
+<div class="col-md-12" ng-controller="RegisterUpdate as ctrl">
   <terrama2-box title="i18n.__('Service Registration')">
     <div class="row">
       <div class="col-md-12">
-        <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display" extra="extraProperties"></terrama2-alert-box>
+        <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
 
-        <terrama2-modal-box ng-show="isCheckingConnection" title="i18n.__('Connection')" modal-id="'modalConnection'">
+        <terrama2-modal-box ng-show="ctrl.isCheckingConnection" title="i18n.__('Connection')" modal-id="'modalConnection'">
           <div class="panel-group">
-            <div class="panel panel-default" ng-class="{'panel-danger': !ssh.isValid && ssh.message, 'panel-success': ssh.isValid}">
+            <div class="panel panel-default" ng-class="{'panel-danger': !ctrl.ssh.isValid && ctrl.ssh.message, 'panel-success': ctrl.ssh.isValid}">
               <div class="panel-heading">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" href="#sshError">{{ i18n.__("Host connection") }}:</a>
-                  <span ng-if="ssh.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                  <span ng-if="!ssh.isLoading && ssh.isValid" class="glyphicon glyphicon-ok"></span>
-                  <span ng-if="!ssh.isLoading && !ssh.isValid" class="glyphicon glyphicon-remove"></span>
+                  <a data-toggle="collapse" href="#sshError" ng-bind="i18n.__('Host connection')">:</a>
+                  <span ng-if="ctrl.ssh.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                  <span ng-if="!ctrl.ssh.isLoading && ctrl.ssh.isValid" class="glyphicon glyphicon-ok"></span>
+                  <span ng-if="!ctrl.ssh.isLoading && !ctrl.ssh.isValid" class="glyphicon glyphicon-remove"></span>
                 </h4>
               </div>
-              <div ng-if="!ssh.isValid && ssh.message" id="sshError" class="panel-collapse collapse in">
+              <div ng-if="!ctrl.ssh.isValid && ctrl.ssh.message" id="sshError" class="panel-collapse collapse in">
                 <div class="panel-body">
-                  <span class="text-danger">{{ ssh.message }}</span>
+                  <span class="text-danger" ng-bind="ctrl.ssh.message"></span>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="panel-group">
-            <div class="panel panel-default" ng-class="{'panel-danger': !db.isValid && db.message, 'panel-success': db.isValid}">
+            <div class="panel panel-default" ng-class="{'panel-danger': !ctrl.db.isValid && ctrl.db.message, 'panel-success': ctrl.db.isValid}">
               <div class="panel-heading">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" href="#dbError">{{ i18n.__("DB connection") }}:</a>
-                  <span ng-if="db.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                  <span ng-if="!db.isLoading && db.isValid" class="glyphicon glyphicon-ok"></span>
-                  <span ng-if="!db.isLoading && !db.isValid" class="glyphicon glyphicon-remove"></span>
+                  <a data-toggle="collapse" href="#dbError" ng-bind="i18n.__('DB connection')">:</a>
+                  <span ng-if="ctrl.db.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                  <span ng-if="!ctrl.db.isLoading && ctrl.db.isValid" class="glyphicon glyphicon-ok"></span>
+                  <span ng-if="!ctrl.db.isLoading && !ctrl.db.isValid" class="glyphicon glyphicon-remove"></span>
                 </h4>
               </div>
-              <div ng-if="!db.isValid && db.message" id="dbError" class="panel-collapse collapse in">
+              <div ng-if="!ctrl.db.isValid && db.message" id="dbError" class="panel-collapse collapse in">
                 <div class="panel-body">
-                  <span class="text-danger">{{ db.message }}</span>
+                  <span class="text-danger" ng-bind="ctrl.db.message"></span>
                 </div>
               </div>
             </div>
@@ -90,13 +74,13 @@
       </div>
 
       <form name="serviceForm">
-        <terrama2-box title="i18n.__('Information')" css="css">
+        <terrama2-box title="i18n.__('Information')" css="ctrl.css">
           <div class="row">
             <div class="col-md-12">
               <div class="col-md-7">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Name") }}:</label>
-                  <input class="form-control" name="name" ng-model="service.name" placeholder="{{ i18n.__('Service  Name') }}" type="text" required>
+                  <input class="form-control" name="name" ng-model="ctrl.service.name" placeholder="{{ i18n.__('Service  Name') }}" type="text" required>
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.name.$dirty" ng-class="{'glyphicon-ok': serviceForm.name.$valid, 'glyphicon-remove': serviceForm.name.$invalid }"></span>
 
@@ -107,7 +91,7 @@
               <div class="col-md-3">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Type") }}:</label>
-                  <select class="form-control" name="type" ng-disabled="update" ng-model="service.service_type_id" required>
+                  <select class="form-control" name="type" ng-disabled="ctrl.update" ng-model="ctrl.service.service_type_id" required>
                     <option value="1">{{ i18n.__('Collector') }}</option>
                     <option value="2">{{ i18n.__('Analysis') }}</option>
                     <option value="3">{{ i18n.__('View') }}</option>
@@ -125,7 +109,7 @@
                 <div class="form-group">
                   <div class="checkbox">
                     <label style="font-weight: 700; margin-top:19px;">
-                      <input type="checkbox" name="active" ng-model="service.isLocal" ng-init="initService(true)"> Local Service
+                      <input type="checkbox" name="active" ng-model="ctrl.service.isLocal" ng-init="ctrl.initService(true)"> Local Service
                     </label>
                   </div>
                 </div>
@@ -136,20 +120,20 @@
               <div class="col-md-12">
                 <div class="form-group">
                   <label>{{ i18n.__("Description") }}:</label>
-                  <textarea class="form-control" ng-model="service.description" rows="3" placeholder="{{ i18n.__('Service Description') }}"></textarea>
+                  <textarea class="form-control" ng-model="ctrl.service.description" rows="3" placeholder="{{ i18n.__('Service Description') }}"></textarea>
                 </div>
               </div>
             </div>
           </div>
         </terrama2-box>
 
-        <terrama2-box title="i18n.__('Host')" css="css">
+        <terrama2-box title="i18n.__('Host')" css="ctrl.css">
           <div class="row">
-            <div class="col-md-12" ng-show="!service.isLocal">
+            <div class="col-md-12" ng-show="!ctrl.service.isLocal">
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Address") }}:</label>
-                  <input class="form-control" name="host" ng-model="service.host" placeholder="{{ i18n.__('Ssh Hostname') }}" type="text" ng-required="!service.isLocal">
+                  <input class="form-control" name="host" ng-model="ctrl.service.host" placeholder="{{ i18n.__('Ssh Hostname') }}" type="text" ng-required="!ctrl.service.isLocal">
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.host.$dirty" ng-class="{'glyphicon-ok': serviceForm.host.$valid, 'glyphicon-remove': serviceForm.host.$invalid }"></span>
 
@@ -160,15 +144,21 @@
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Port") }}:</label>
-                  <input class="form-control" name="sshPort" ng-model="service.sshPort" placeholder="{{ i18n.__('Ssh Port') }}" type="number" min="1" max="65535" ng-required="!service.isLocal">
+                  <input class="form-control" name="sshPort" ng-model="ctrl.service.sshPort" placeholder="{{ i18n.__('Ssh Port') }}" type="number" min="1" max="65535" ng-required="!ctrl.service.isLocal">
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.sshPort.$dirty" ng-class="{'glyphicon-ok': serviceForm.sshPort.$valid, 'glyphicon-remove': serviceForm.sshPort.$invalid }"></span>
 
                   <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.required">{{ i18n.__('Ssh port is required') }}</span>
 
                   <!-- invalid number: min/max -->
-                  <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && (serviceForm.sshPort.$error.min || serviceForm.sshPort.$error.max)">{{ i18n.__('Invalid range of ports. A valid port is from 1 to 65535') }}</span>
+                  <span class="help-block has-error" 
+                        ng-show="serviceForm.sshPort.$dirty && (serviceForm.sshPort.$error.min || serviceForm.sshPort.$error.max)"
+                        ng-bind="i18n.__('Invalid range of ports. A valid port is from 1 to 65535')">
+                  </span>
 
-                  <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.number">{{ i18n.__('Ssh port is invalid') }}</span>
+                  <span class="help-block has-error" 
+                        ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.number"
+                        ng-bind="i18n.__('Ssh port is invalid')">
+                  </span>
                 </div>
               </div>
             </div>
@@ -177,7 +167,7 @@
               <div class="col-md-12">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Service Executable Path") }}:</label>
-                  <input class="form-control" name="path" ng-model="service.pathToBinary" placeholder="{{ i18n.__('Script path to run') }}" type="text" required>
+                  <input class="form-control" name="path" ng-model="ctrl.service.pathToBinary" placeholder="{{ i18n.__('Script path to run') }}" type="text" required>
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.path.$dirty" ng-class="{'glyphicon-ok': serviceForm.path.$valid, 'glyphicon-remove': serviceForm.path.$invalid }"></span>
 
@@ -187,10 +177,10 @@
             </div>
 
             <div class="col-md-12">
-              <div class="col-md-6" ng-show="!service.isLocal">
+              <div class="col-md-6" ng-show="!ctrl.service.isLocal">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("User") }}:</label>
-                  <input class="form-control" name="user" ng-model="service.sshUser" placeholder="{{ i18n.__('Ssh username') }}" type="text" ng-required="!service.isLocal">
+                  <input class="form-control" name="user" ng-model="ctrl.service.sshUser" placeholder="{{ i18n.__('Ssh username') }}" type="text" ng-required="!ctrl.service.isLocal">
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.user.$dirty" ng-class="{'glyphicon-ok': serviceForm.user.$valid, 'glyphicon-remove': serviceForm.user.$invalid }"></span>
 
@@ -198,15 +188,18 @@
                 </div>
               </div>
 
-              <div ng-class="{'col-md-12': service.isLocal, 'col-md-6': !service.isLocal}">
+              <div ng-class="{'col-md-12': ctrl.service.isLocal, 'col-md-6': !ctrl.service.isLocal}">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Service Port") }}:</label>
-                  <input class="form-control" name="port" ng-model="service.port" placeholder="{{ i18n.__('Service Port') }}" type="number" min="1" max="65535" service-validation required>
+                  <input class="form-control" name="port" ng-model="ctrl.service.port" placeholder="{{ i18n.__('Service Port') }}" type="number" min="1" max="65535" service-validation required>
 
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.port.$dirty" ng-class="{'glyphicon-ok': serviceForm.port.$valid, 'glyphicon-remove': serviceForm.port.$invalid }"></span>
 
                   <!-- invalid number: min/max -->
-                  <span class="help-block has-error" ng-show="serviceForm.port.$dirty && (serviceForm.port.$error.min || serviceForm.port.$error.max)">{{ i18n.__('Invalid range of ports. A valid port is from 1 to 65535') }}</span>
+                  <span class="help-block has-error" 
+                        ng-show="serviceForm.port.$dirty && (serviceForm.port.$error.min || serviceForm.port.$error.max)"
+                        ng-bind="i18n.__('Invalid range of ports. A valid port is from 1 to 65535')">
+                  </span>
 
                   <span class="help-block has-error" ng-show="serviceForm.port.$dirty && serviceForm.port.$error.required">{{ i18n.__('Service port is required') }}</span>
 
@@ -226,7 +219,7 @@
                          data-placement="top"
                          title="{{ i18n.__('When the value is 0, it will use thread number supported by the server') }}"
                          name="numberOfThreads"
-                         ng-model="service.numberOfThreads"
+                         ng-model="ctrl.service.numberOfThreads"
                          placeholder="Number of thread to run"
                          required=""
                          type="number" min="0">
@@ -239,7 +232,7 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label>{{ i18n.__("Enviroment") }}:</label>
-                  <textarea class="form-control" style="max-width: 100%; max-height: 200px;" ng-model="service.runEnviroment" rows="6" placeholder="Enviroment Variables"></textarea>
+                  <textarea class="form-control" style="max-width: 100%; max-height: 200px;" ng-model="ctrl.service.runEnviroment" rows="6" placeholder="Enviroment Variables"></textarea>
                 </div>
               </div>
             </div>
@@ -248,32 +241,46 @@
       </form>
       <!-- ./form serviceForm -->
 
-      <terrama2-box title="i18n.__('Log')" css="css">
+      <terrama2-box title="i18n.__('Log')" css="ctrl.css">
         <div class="row">
           <form name="logForm">
             <div class="col-md-12">
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Host") }}:</label>
-                  <input class="form-control" name="host" ng-model="log.host" placeholder="{{ i18n.__('Log hostname') }}" type="text" required>
+                  <input class="form-control" name="host" ng-model="ctrl.log.host" placeholder="{{ i18n.__('Log hostname') }}" type="text" required>
 
-                  <span class="form-control-feedback glyphicon" ng-show="logForm.host.$dirty" ng-class="{'glyphicon-ok': logForm.host.$valid, 'glyphicon-remove': logForm.host.$invalid }"></span>
+                  <span class="form-control-feedback glyphicon" 
+                        ng-show="logForm.host.$dirty" 
+                        ng-class="{'glyphicon-ok': logForm.host.$valid, 'glyphicon-remove': logForm.host.$invalid }"></span>
 
-                  <span class="help-block has-error" ng-show="logForm.host.$dirty && logForm.host.$error.required">{{ i18n.__('Log host is required') }}</span>
+                  <span class="help-block has-error" 
+                        ng-show="logForm.host.$dirty && logForm.host.$error.required"
+                        ng-bind="i18n.__('Log host is required')">
+                  </span>
                 </div>
               </div>
 
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Port") }}:</label>
-                  <input class="form-control" name="port" ng-model="log.port" placeholder="{{ i18n.__('Log port number') }}" type="number" min="1" max="65535" required>
+                  <input class="form-control" name="port" ng-model="ctrl.log.port" placeholder="{{ i18n.__('Log port number') }}" type="number" min="1" max="65535" required>
 
-                  <span class="form-control-feedback glyphicon" ng-show="logForm.port.$dirty" ng-class="{'glyphicon-ok': logForm.port.$valid, 'glyphicon-remove': logForm.port.$invalid }"></span>
+                  <span class="form-control-feedback glyphicon" 
+                        ng-show="logForm.port.$dirty" 
+                        ng-class="{'glyphicon-ok': logForm.port.$valid, 'glyphicon-remove': logForm.port.$invalid }">
+                  </span>
 
                   <!-- invalid number: min/max -->
-                  <span class="help-block has-error" ng-show="logForm.port.$dirty && (logForm.port.$error.min || logForm.port.$error.max)">{{ i18n.__('Invalid range of ports. A valid port is from 1 to 65535') }}</span>
+                  <span class="help-block has-error" 
+                        ng-show="logForm.port.$dirty && (logForm.port.$error.min || logForm.port.$error.max)"
+                        ng-bind="{{ i18n.__('Invalid range of ports. A valid port is from 1 to 65535')">
+                  </span>
 
-                  <span class="help-block has-error" ng-show="logForm.port.$dirty && logForm.port.$error.required">{{ i18n.__('Port is required') }}</span>
+                  <span class="help-block has-error" 
+                        ng-show="logForm.port.$dirty && logForm.port.$error.required"
+                        ng-bind="i18n.__('Port is required')">
+                  </span>
                 </div>
               </div>
             </div>
@@ -282,20 +289,28 @@
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("User") }}:</label>
-                  <input class="form-control" name="user" ng-model="log.user" placeholder="{{ i18n.__('Log username') }}" type="text" required>
+                  <input class="form-control" name="user" ng-model="ctrl.log.user" placeholder="{{ i18n.__('Log username') }}" type="text" required>
 
-                  <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
+                  <span class="form-control-feedback glyphicon" 
+                        ng-show="logForm.user.$dirty"
+                        ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
 
-                  <span class="help-block has-error" ng-show="logForm.user.$dirty && logForm.user.$error.required">{{ i18n.__('User is required') }}</span>
+                  <span class="help-block has-error" 
+                        ng-show="logForm.user.$dirty && logForm.user.$error.required"
+                        ng-bind="i18n.__('User is required')">
+                  </span>
                 </div>
               </div>
 
               <div class="col-md-6">
                 <div class="form-group has-feedback" terrama2-show-errors>
                   <label>{{ i18n.__("Password") }}:</label>
-                  <input class="form-control" name="password" ng-model="log.password" placeholder="{{ i18n.__('Log password') }}" type="password">
+                  <input class="form-control" name="password" ng-model="ctrl.log.password" placeholder="{{ i18n.__('Log password') }}" type="password">
 
-                  <span class="form-control-feedback glyphicon" ng-show="logForm.user.$dirty" ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }"></span>
+                  <span class="form-control-feedback glyphicon" 
+                        ng-show="logForm.user.$dirty" 
+                        ng-class="{'glyphicon-ok': logForm.user.$valid, 'glyphicon-remove': logForm.user.$invalid }">
+                  </span>
                 </div>
               </div>
             </div>
@@ -307,18 +322,112 @@
 
                   <input class="form-control"
                          name="database"
-                         ng-model="log.database"
+                         ng-model="ctrl.log.database"
                          placeholder="{{ i18n.__('Log database name') }}"
                          type="text"
                          required>
 
-                  <terrama2-auto-complete ng-model="log.database" model="config.availableDatabases"></terrama2-auto-complete>
+                  <terrama2-auto-complete ng-model="ctrl.log.database" model="ctrl.config.availableDatabases"></terrama2-auto-complete>
 
-                  <span class="form-control-feedback glyphicon" ng-show="logForm.database.$dirty" ng-class="{'glyphicon-ok': logForm.database.$valid, 'glyphicon-remove': logForm.database.$invalid }"></span>
+                  <span class="form-control-feedback glyphicon" 
+                        ng-show="logForm.database.$dirty" 
+                        ng-class="{'glyphicon-ok': logForm.database.$valid, 'glyphicon-remove': logForm.database.$invalid }">
+                  </span>
 
-                  <span class="help-block has-error" ng-show="logForm.database.$dirty && logForm.database.$error.required">{{ i18n.__('Database name is required') }}</span>
+                  <span class="help-block has-error" 
+                        ng-show="logForm.database.$dirty && logForm.database.$error.required"
+                        ng-bind="i18n.__('Database name is required')">
+                  </span>
                 </div>
               </div>
+            </div>
+          </form>
+        </div>
+      </terrama2-box>
+
+      <terrama2-box title="i18n.__('Maps Server Parameters')" css="ctrl.css" ng-show="ctrl.service.service_type_id == 3">
+        <div class="row">
+          <form name="mapsServerForm" novalidate>
+            <div class="col-md-12">
+              <div class="col-md-8">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label><span ng-bind="i18n.__('Address')"></span>:</label>
+                  <input class="form-control"
+                         name="address" 
+                         ng-model="ctrl.mapsServer.address"
+                         placeholder="{{ i18n.__('Maps Server URI') }}"
+                         type="text"
+                         ng-required="ctrl.service.service_type_id == 3"
+                         ng-blur="ctrl.onMapsServerURIChange()">
+
+                  <span class="form-control-feedback glyphicon" 
+                        ng-show="mapsServerForm.address.$dirty"
+                        ng-class="{'glyphicon-ok': mapsServerForm.address.$valid, 'glyphicon-remove': mapsServerForm.address.$invalid }">
+                  </span>
+                  <!-- required -->
+                  <span class="help-block has-error" 
+                        ng-show="mapsServerForm.address.$dirty && mapsServerForm.address.$error.required"
+                        ng-bind="i18n.__('Maps Server URI is required for View Services')">
+                  </span>
+                </div>
+              </div>
+              <!-- ./col-md-8 -->
+
+              <div class="col-md-4">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label><span ng-bind="i18n.__('Port')"></span>:</label>
+                  <input class="form-control" name="addressPort" ng-model="ctrl.mapsServer.port" placeholder="{{ i18n.__('Port number') }}" type="number" min="1" max="65535" required>
+
+                  <span class="form-control-feedback glyphicon" 
+                        ng-show="mapsServerForm.addressPort.$dirty"
+                        ng-class="{'glyphicon-ok': mapsServerForm.addressPort.$valid, 'glyphicon-remove': mapsServerForm.addressPort.$invalid }">
+                  </span>
+
+                  <!-- invalid number: min/max -->
+                  <span class="help-block has-error" 
+                        ng-show="mapsServerForm.addressPort.$dirty && (mapsServerForm.addressPort.$error.min || mapsServerForm.addressPort.$error.max)"
+                        ng-bind="i18n.__('Invalid range of ports. A valid port is from 1 to 65535')">
+                  </span>
+
+                  <span class="help-block has-error" 
+                        ng-show="mapsServerForm.addressPort.$dirty && mapsServerForm.addressPort.$error.required"
+                        ng-bind="i18n.__('Service port is required')">
+                  </span>
+
+                  <span class="help-block has-error" 
+                        ng-show="mapsServerForm.addressPort.$dirty && mapsServerForm.addressPort.$error.number"
+                        ng-bind="i18n.__('Service port is invalid')">
+                  </span>
+                </div>
+              </div>
+              <!-- ./col-md-4 -->
+            </div>
+
+            <div class="col-md-12">
+              <div class="col-md-6">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label>{{ i18n.__("User") }}:</label>
+                  <input class="form-control" name="addressUser" ng-model="ctrl.mapsServer.user" placeholder="{{ i18n.__('Log username') }}" type="text">
+
+                  <span class="form-control-feedback glyphicon" 
+                        ng-show="mapsServerForm.addressUser.$dirty" 
+                        ng-class="{'glyphicon-ok': mapsServerForm.addressUser.$valid, 'glyphicon-remove': mapsServerForm.addressUser.$invalid }"></span>
+
+                  <span class="help-block has-error" 
+                        ng-show="mapsServerForm.addressUser.$dirty && mapsServerForm.addressUser.$error.required">{{ i18n.__('User is required') }}</span>
+                </div>
+              </div>
+              <!-- ./col-md-6 -->
+
+              <div class="col-md-6">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label>{{ i18n.__("Password") }}:</label>
+                  <input class="form-control" name="password" ng-model="ctrl.mapsServer.password" placeholder="{{ i18n.__('Log password') }}" type="password">
+
+                  <span class="form-control-feedback glyphicon" ng-show="mapsServerForm.password.$dirty" ng-class="{'glyphicon-ok': mapsServerForm.password.$valid, 'glyphicon-remove': mapsServerForm.password.$invalid }"></span>
+                </div>
+              </div>
+              <!-- ./col-md-6 -->
             </div>
           </form>
         </div>
@@ -327,11 +436,11 @@
     <!-- /.row -->
 
     <div class="box-footer">
-      <button type="submit" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalConnection" style="margin-left: 10px; width: 135px;" ng-click="checkConnection()">
+      <button type="submit" class="btn btn-primary pull-right" id="serviceSaveButton" data-ng-click="ctrl.save()" style="margin-left: 10px;">{{ i18n.__("OK") }}</button>
+      <button type="submit" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalConnection" style="margin-left: 10px; width: 135px;" ng-click="ctrl.checkConnection()">
         <span class="loading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
         <span class="text">{{ i18n.__("Check Connection") }}</span>
       </button>
-      <button type="submit" class="btn btn-primary pull-right" id="serviceSaveButton" data-ng-click="save()" style="margin-left: 10px;">{{ i18n.__("OK") }}</button>
       <a ng-href="/administration/services" class="btn btn-primary pull-right" id="serviceCancelButton" style="margin-left: 10px;">{{ i18n.__("Cancel") }}</a>
     </div>
 

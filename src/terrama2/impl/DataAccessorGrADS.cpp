@@ -221,16 +221,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
                                                                            terrama2::core::DataSetPtr dataSet,
                                                                            std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  QUrl url;
-  try
-  {
-    std::string folder = getFolder(dataSet);
-    url = QUrl(QString::fromStdString(uri + "/" + folder));
-  }
-  catch(UndefinedTagException&)
-  {
-    url = QUrl(QString::fromStdString(uri));
-  }
+  QUrl url(QString::fromStdString(uri));
 
   QDir dir(url.path());
   QFileInfoList fileInfoList = dir.entryInfoList(

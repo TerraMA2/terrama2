@@ -3,12 +3,6 @@
 'use strict';
 
 /**
- * Module dependencies.
- */
-
-var Database = require('./../config/Database');
-
-/**
  * It defines which context nodejs should initialize. The context names are available in {@link config/config.terrama2}
  * @typeof {string}
  */
@@ -19,28 +13,40 @@ var nodeContext = process.argv[2];
  */
 var nodeContextPort = process.argv[3];
 
+/**
+ * It defines TerraMA² global configuration (Singleton). Make sure it initializes before everything
+ * 
+ * @type {Application}
+ */
+var Application = require("./../core/Application");
+
 // setting currentContext
-Database.setCurrentContext(nodeContext);
+Application.setCurrentContext(nodeContext);
+
+/**
+ * Module dependencies.
+ */
+var Database = require('./../config/Database');
 
 return Database.init(nodeContext).then(function (sequelize) {
   var app = require('../app');
+  var HTTPFactory = require("./../config/HTTPFactory");
   var io = require('../io');
   var debug = require('debug')('webapp:server');
-  var http = require('http');
+  var http = require('https');
   var load = require('express-load');
   var portNumber = '36000';
   var PluginLoader = require("../core/PluginLoader");
   var DataManager = require("../core/DataManager");
-  var TcpManager = require("../core/TcpManager");
   var PortScanner = require("./../core/PortScanner");
   var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
-  var currentContext = Database.getContextConfig();
+  var settings = Application.getContextConfig();
 
   var debugMessage = "";
 
-  if (PortScanner.isValidPort(currentContext.port)) {
-    portNumber = currentContext.port;
+  if (PortScanner.isValidPort(settings.port)) {
+    portNumber = settings.port;
   } else {
     debugMessage = "No valid port found. The default port " + portNumber + " will be used";
   }
@@ -54,7 +60,7 @@ return Database.init(nodeContext).then(function (sequelize) {
   /**
    * Create HTTP server.
    */
-  var server = http.createServer(app);
+  var server = HTTPFactory.create(app, settings);
 
   return PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
 
@@ -111,7 +117,7 @@ return Database.init(nodeContext).then(function (sequelize) {
                   };
 
                   TcpService.finalize();
-                  TcpManager.disconnect();
+                  TcpService.disconnect();
 
                   _closeServer();
                 });

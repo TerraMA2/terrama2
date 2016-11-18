@@ -111,6 +111,17 @@
   };
 
   /**
+   * It performs a update operation in ServiceInstanceFactory.
+   * 
+   * @param {number} serviceId - TerraMA² Service identifier 
+   * @param {Object} serviceObject - a javascript object with service values
+   * @returns {Object}
+   */
+  Service.prototype.update = function(serviceId, serviceObject) {
+    return this.factory.put(serviceId, serviceObject);
+  };
+
+  /**
    * It performs a save operation in ServiceInstanceFactory.
    * 
    * @param {Object} serviceObject - a javascript object with service values

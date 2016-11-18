@@ -22,6 +22,7 @@
  * TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 */
 
+var Application = require("./Application");
 var modelsFn = require("../models");
 var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
@@ -98,7 +99,7 @@ var DataManager = module.exports = {
   init: function(callback) {
     var self = this;
 
-      var dbConfig = Database.getContextConfig().db;
+      var dbConfig = Application.getContextConfig().db;
 
       models = modelsFn();
       models.load(orm);
@@ -133,7 +134,6 @@ var DataManager = module.exports = {
 
         // default services
         var collectorService = {
-          id: 1,
           name: "Local Collector",
           description: "Local service for Collect",
           port: 6543,
@@ -150,7 +150,6 @@ var DataManager = module.exports = {
         };
 
         var analysisService = Object.assign({}, collectorService);
-        analysisService.id = 2;
         analysisService.name = "Local Analysis";
         analysisService.description = "Local service for Analysis";
         analysisService.port = 6544;
@@ -160,7 +159,6 @@ var DataManager = module.exports = {
         inserts.push(self.addServiceInstance(analysisService));
 
         var viewService = Object.assign({}, collectorService);
-        viewService.id = 3;
         viewService.name = "Local View";
         viewService.description = "Local service for View";
         viewService.port = 6546;
@@ -912,7 +910,7 @@ var DataManager = module.exports = {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
             fields: ['name', 'description', 'port', 
                      'numberOfThreads', 'runEnviroment', 'host', 
-                     'sshUser', 'sshPort', 'pathToBinary'],
+                     'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
             where: { id: serviceId }
           }, options))
           .then(function() {
@@ -1398,7 +1396,7 @@ var DataManager = module.exports = {
             return resolve(analysisFilter.match(analysisList, {dataSeries: self.data.dataSeries}));
           })
           
-          .catch(function(err) { return reject(err) });
+          .catch(function(err) { return reject(err); });
       } else {
         var dataSeriesFound = Utils.filter(self.data.dataSeries, restriction);
         dataSeriesFound.forEach(function(dataSeries) {
@@ -1524,7 +1522,7 @@ var DataManager = module.exports = {
         .catch(function(err) {
           return reject(new Error(Utils.format("Could not upsert data set format %s", err.toString())));
         });
-    })
+    });
   },
   /**
    * It updates a DataSeries object. It should be an object containing object filled out with identifier
@@ -2745,7 +2743,7 @@ var DataManager = module.exports = {
         })
         .catch(function(err) {
           return reject(new Error(Utils.format("Could not save analysis metadata due ", err.toString())));
-        })
+        });
     });
   },
 
@@ -2791,7 +2789,7 @@ var DataManager = module.exports = {
         .then(function(scriptLanguage) {
           scriptLanguageResult = scriptLanguage;
           // checking if there is historical data to save
-          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate && !analysisObject.historical.endDate)) {
+          if (_.isEmpty(analysisObject.historical) || (!analysisObject.historical.startDate || !analysisObject.historical.endDate)) {
             return null;
           }
           return self.addHistoricalData(analysisResult.id, analysisObject.historical, options);
@@ -2948,7 +2946,7 @@ var DataManager = module.exports = {
             // update analysis data series metadata
             if (!Utils.isEmpty(element.metadata || {})) {
               var dsMetaArr = Utils.generateArrayFromObject(element.metadata, function(key, value, analysisDsId) {
-                return {"key": key, "value": value, "analysis_data_series_id": analysisDsId}
+                return {"key": key, "value": value, "analysis_data_series_id": analysisDsId};
               }, element.id);
               promises.push(models.db.AnalysisDataSeriesMetadata.update(dsMetaArr[0], Utils.extend({
                 fields: ['key', 'value'],
@@ -2999,12 +2997,14 @@ var DataManager = module.exports = {
 
             return self.updateHistoricalData({id: analysisInstance.historicalData.id}, historicalData, options);
           } else {
-            // save
-            return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
+            if (analysisObject.historical.startDate || analysisObject.historical.endDate) {
+              // save
+              return self.addHistoricalData(analysisInstance.id, analysisObject.historical, options);
+            }
           }
-        } else {
-          return null;
         }
+        
+        return null;
       })
       // Update Analysis DCP or Grid if there is
       .then(function() {
@@ -3020,8 +3020,15 @@ var DataManager = module.exports = {
               }
             }
             Object.assign(gridObject, analysisObject.grid);
+
+            // If no area of interest typed, reset interest box. It is important because when there is no bounded box but there is
+            // in database, it will keep, since undefined !== null.
+            if (Utils.isEmpty(gridObject.area_of_interest_bounded)) {
+              gridObject.area_of_interest_bounded = null;
+              gridObject.area_of_interest_box = null;
+            }
             
-            return models.db.AnalysisOutputGrid.update(analysisObject.grid, Utils.extend({
+            return models.db.AnalysisOutputGrid.update(gridObject, Utils.extend({
               fields: ['area_of_interest_box', 'srid', 'resolution_x',
                         'resolution_y', 'interpolation_dummy',
                         'area_of_interest_type', 'resolution_type',
@@ -3368,7 +3375,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "maps_server_uri", "data_series_id", "style", "active", "service_instance_id"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id"],
           where: restriction
         }, options))
 
@@ -3484,7 +3491,7 @@ var DataManager = module.exports = {
           var promises = registeredViewObject.layers_list.map(function(layer) {
             // TODO: Currently, layer is a object {layer: layerName}. It must be removed. Layer must be a string
             return self.addLayer(viewResult.id, {name: layer.layer}, options);
-          })
+          });
           return Promise.all(promises)
             .then(function(layers) {
               return self.getView({id: viewResult.view_id})
@@ -3548,7 +3555,7 @@ var DataManager = module.exports = {
                     static: staticDataSeries,
                     analysis: analysisDataSeries,
                     dynamic: dynamicDataSeries
-                  }
+                  };
                 });
             });
         })
@@ -3645,6 +3652,7 @@ var DataManager = module.exports = {
    * @return {Promise<DataModel.RegisteredView>}
    */
   upsertLayer: function(restriction, layersObject, options) {
+    var self = this;
     return new Promise(function(resolve, reject) {
       models.db.Layer.findOne(Utils.extend({
         where: restriction
@@ -3659,7 +3667,7 @@ var DataManager = module.exports = {
               }
             }, options));
           } else {
-            return self.addLayer(restriction.registered_view_id || layersObject.registered_view_id, layersObject, options)
+            return self.addLayer(restriction.registered_view_id || layersObject.registered_view_id, layersObject, options);
           }
         })
         // on success insert|update

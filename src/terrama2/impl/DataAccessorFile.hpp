@@ -59,14 +59,19 @@ namespace terrama2
 
         using terrama2::core::DataAccessor::getSeries;
         // Doc in base class
-        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataset, const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
+        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever,
+                                         DataSetPtr dataset,
+                                         const Filter& filter,
+                                         std::shared_ptr<terrama2::core::FileRemover> remover) const override;
         // Doc in base class
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
         //! Recover file mask
         virtual std::string getMask(DataSetPtr dataset) const;
 
-        virtual std::string getFolder(DataSetPtr dataSet) const;
+        virtual std::string getFolderMask(DataSetPtr dataSet) const;
+
+        virtual QFileInfoList getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const;
 
         /*!
          * \brief Search in a folder and return a list of files that match the mask and filter

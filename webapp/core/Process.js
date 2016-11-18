@@ -1,6 +1,6 @@
 "use strict";
 
-var Promise = require('bluebird');
+var PromiseClass = require('./Promise');
 var util = require('util');
 var Utils = require('./Utils');
 
@@ -15,7 +15,7 @@ Process.prototype.setAdapter = function(adapter) {
 
 Process.prototype.connect = function(serviceInstance) {
   var self = this;
-  return new Promise(function(resolve, reject) {
+  return new PromiseClass(function(resolve, reject) {
     self.serviceInstance = serviceInstance;
     self.adapter.connect(serviceInstance).then(function(code) {
       resolve(code);
@@ -28,7 +28,7 @@ Process.prototype.connect = function(serviceInstance) {
 Process.prototype.disconnect = function() {
   var self = this;
 
-  return new Promise(function(resolve, reject) {
+  return new PromiseClass(function(resolve, reject) {
     return self.adapter.disconnect()
       .then(function() {
         return resolve();
@@ -42,7 +42,7 @@ Process.prototype.disconnect = function() {
 Process.prototype.startService = function(command) {
   var self = this;
 
-  return new Promise(function(resolve, reject) {
+  return new PromiseClass(function(resolve, reject) {
     var serviceInstance = self.serviceInstance;
     var executable = serviceInstance.pathToBinary;
     var port = serviceInstance.port.toString();

@@ -30,11 +30,23 @@ var Service = require("./../../../core/data-model/Service");
 // TerraMA² RegisteredView model
 var RegisteredView = require("./../../../core/data-model/RegisteredView");
 
+// TerraMA² App Metadata
+var Application = require("./../../Application");
+
 /**
- * It handles TCP service manipulation
- * @emits TcpService#serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
- * @emits TcpService#serviceStatus When user request for service status in order to determines if service is running properly
- * @emits TcpService#serviceRequestingStatus When user is requesting for status. Useful to notify all listeners
+ * It defines TerraMA² webapp metadata (package.json)
+ * @type {Object}
+ */
+var webapp = Application.get("metadata");
+
+/**
+ * It handles TCP service manipulation. Use  it to be pipe between front-end and back-end application
+ * 
+ * @class TcpService
+ * @emits #serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
+ * @emits #serviceStatus When user request for service status in order to determines if service is running properly
+ * @emits #serviceRequesting Status When user is requesting for status. Useful to notify all listeners
+ * @emits #serviceVersion When TerraMA² retrieves a version of C++ services
  */
 function TcpService() {
   EventEmitter.apply(this, arguments);
@@ -121,6 +133,7 @@ TcpService.prototype.init = function(shouldConnect) {
           TcpManager.on("close", onClose);
           TcpManager.on("tcpError", onError);
           TcpManager.on("processFinished", onProcessFinished);
+          TcpManager.on("serviceVersion", onServiceVersionReceived);
 
           self.$loaded = true;
           instances.forEach(function(instance) {
@@ -157,6 +170,8 @@ TcpService.prototype.finalize = function() {
       TcpManager.removeListener("stop", onStop);
       TcpManager.removeListener("close", onClose);
       TcpManager.removeListener("tcpError", onError);
+      TcpManager.removeListener("processFinished", onProcessFinished);
+      TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
       self.$loaded = false;
     }
     // resetting cache
@@ -194,15 +209,44 @@ TcpService.prototype.start = function(json) {
         if (exitCode !== 0) {
           throw new Error(Utils.format("Not executed successfully. Exit Code: %s", exitCode));
         }
-        // delay to start service. We are not able to detect if service is already running, 
-        // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
-        return PromiseClass.delay(3000)
-          .then(function() {
-            return TcpManager.connect(service)
-              .then(function() {
-                return TcpManager.statusService(service);
-              });
-          });
+
+        /**
+         * It defines how many times NodeJS tried to connect in service
+         * @type {number}
+         */
+        var times = 0;
+        
+        /**
+         * It handles service connection. By default, when OS starts, the virtual memory is too low. It turns out
+         * low performance during process execution. In this case, the TerraMA² wont initialize properly. We tried to increase timeout, 
+         * but sometimes it occurs. In order to avoid it, we try to connect three times with default interval. 
+         * If connection success, resolve promise chain. Otherwise, break recursion, rejecting promise error chain.
+         * @returns {Promise}
+         */
+        var connectionRepeat = function() {
+          // delay to start service. We are not able to detect if service is already running, 
+          // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
+          return PromiseClass.delay(3000)
+            .then(function() {
+              return TcpManager.connect(service)
+                .then(function() {
+                  return TcpManager.statusService(service);
+                })
+                .catch(function(err) {
+                  // once tried three times, throw err in order to continue promise chain
+                  if (times === 3) {
+                    console.log("TerraMA² Service is not running.");
+                    throw err;
+                  }
+                  times += 1;
+                  console.log("Failed to connect. Retrying... " + times);
+                  // auto call
+                  return connectionRepeat();
+                });
+            });
+        };
+
+        return connectionRepeat();
       })
       // on sucess starting, resolve promise
       .then(function() {
@@ -497,6 +541,13 @@ TcpService.prototype.log = function(json) {
 }; // end log listener
 
 /**
+ * It destroys opened sockets
+ */
+TcpService.prototype.disconnect = function() {
+  TcpManager.disconnect();
+};
+
+/**
  * TcpService Singleton. It will be exported
  * @type {TcpService}
  */
@@ -534,6 +585,22 @@ function onStatusReceived(service, response) {
       online: Object.keys(response).length > 0
     });
   }
+}
+
+/**
+ * It handles service version retrieved during TerraMA² C++ service initialization. It emits #serviceVersion with service and response
+ * 
+ * @param {Service} service - TerraMA² service
+ * @param {string} response - Response version
+ */
+function onServiceVersionReceived(service, response) {
+  var version = webapp.version;
+  tcpService.emit("serviceVersion", {
+    service: service.id,
+    response: response.replace("TerraMA2", ""),
+    current: version,
+    match: response.endsWith(version)
+  });
 }
 
 /**

@@ -59,6 +59,14 @@
           service.online = response.online;
         });
 
+        $scope.socket.on("serviceVersion", function(response) {
+          if (!response.match) {
+            $scope.display = true;
+            $scope.alertLevel = "alert-warning";
+            $scope.alertBox.message = i18n.__("It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is " + response.current + " " +i18n.__("but the TerraMA² service version is") + " " + response.response + ". " +i18n.__("Some operations may not work properly"));
+          }
+        });
+
         $scope.socket.on('stopResponse', function(response) {
           var service = getModel(response.service);
 
@@ -81,6 +89,7 @@
           service.loading = false;
           service.online = false;
           service.requestingForClose = false;
+          service.stoping = false;
         });
 
         $scope.socket.on('errorResponse', function(response) {
@@ -169,10 +178,6 @@
                   }
                 }
               });
-
-              $scope.socket.once('statusResponse', function(response) {
-                $scope.extra.service.starting = false;
-              });
             },
 
             stopAll: function() {
@@ -185,9 +190,8 @@
                 }
               });
 
-              $scope.socket.once('closeResponse', function(response) {
-                $scope.extra.service.stoping = false;
-              });
+              $scope.extra.service.stoping = false;
+              $scope.extra.service.starting = false;
             },
 
             hasServiceOffline: function() {
