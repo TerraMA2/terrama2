@@ -1610,7 +1610,7 @@ var DataManager = module.exports = {
                 var dataSet = dataSeries.dataSets[j];
 
                 if (formatArray[0].data_set_id === dataSet.id) {
-                  dataSet.format = Utils.formatMetadataFromDB(dataSetFormatArray[i]);
+                  dataSet.format = Utils.formatMetadataFromDB(dataSetFormatArray[i], String);
                 }
               }
             }
