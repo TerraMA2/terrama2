@@ -66,10 +66,16 @@ namespace terrama2
             */
             double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                 const std::string& dataSeriesName,
-                                const std::string& dateDiscardBefore,
-                                const std::string& dateDiscardAfter,
                                 const size_t band,
                                 terrama2::services::analysis::core::Buffer buffer);
+
+            double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                                const std::string& dataSeriesName,
+                                const terrama2::core::Filter& filter,
+                                const size_t band,
+                                terrama2::services::analysis::core::Buffer buffer,
+                                terrama2::services::analysis::core::MonitoredObjectContextPtr context,
+                                OperatorCache cache);
 
             /*!
               \brief Calculates the number of pixels inside the monitored object.
@@ -166,10 +172,6 @@ namespace terrama2
             */
             double variance(const std::string& dataSeriesName, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
-            /*!
-              \brief Populates the vector \e values with the values of the pixels inside the \e polygon area.
-            */
-            void appendValues(te::rst::Raster* raster, size_t band, te::gm::Polygon* polygon, std::vector<double>& values);
           } /* zonal */
         }   // end namespace grid
       }     // end namespace core

@@ -43,6 +43,8 @@
 #include "Analysis.hpp"
 #include "Typedef.hpp"
 
+#include <boost/functional/hash.hpp>
+
 // Python
 #include <Python.h>
 
@@ -77,7 +79,17 @@ namespace terrama2
                dateFilterBegin_(dateFilterBegin),
                dateFilterEnd_(dateFilterEnd)
            {
-             hash_ = std::hash<std::string>()(static_cast<char>(objectId_) + dateFilterBegin_ + dateFilterEnd_);
+             hash_ = 0;
+             boost::hash_combine(hash_, objectId_);
+             boost::hash_combine(hash_, std::hash<std::string>()(dateFilterBegin_ + dateFilterEnd_));
+           }
+
+           inline ObjectKey(uint32_t objectId, const terrama2::core::Filter& filter)
+             : objectId_(objectId)
+           {
+             hash_ = 0;
+             boost::hash_combine(hash_, objectId_);
+             boost::hash_combine(hash_, std::hash<terrama2::core::Filter>()(filter));
            }
 
            inline std::size_t hashCode() const
@@ -160,7 +172,7 @@ namespace terrama2
             BaseContext& operator=(const BaseContext& other) = default;
             BaseContext& operator=(BaseContext&& other) = default;
 
-            inline std::set<std::string> getErrors() const { return errorsSet_; }
+            inline const std::set<std::string>& getErrors() const { return errorsSet_; }
 
             /*!
               \brief Returns a weak pointer to the data manager.
@@ -189,7 +201,7 @@ namespace terrama2
               \return A vector of smart pointers to the raster.
             */
             std::vector< std::shared_ptr<te::rst::Raster> > getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
-                const DataSetId datasetId, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
+                const DataSetId datasetId, const terrama2::core::Filter& filter = terrama2::core::Filter());
 
             std::shared_ptr<terrama2::core::SynchronizedInterpolator> getInterpolator(std::shared_ptr<te::rst::Raster> raster);
 
@@ -197,6 +209,8 @@ namespace terrama2
             std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > getSeriesMap(DataSeriesId dataSeriesId,
                 const std::string& dateDiscardBefore = "",
                 const std::string& dateDiscardAfter = "");
+
+            std::unique_ptr<te::dt::TimeInstantTZ> getTimeFromString(const std::string& timeString);
 
           protected:
             /*!
@@ -206,9 +220,7 @@ namespace terrama2
               if they are not set only the last raster is returned.
             */
             std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
-            getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
-
-            terrama2::core::Filter createFilter(const std::string& dateDiscardBefore = "", const std::string& dateDiscardAfter = "");
+            getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, const terrama2::core::Filter& filter = terrama2::core::Filter());
 
             virtual std::shared_ptr<te::rst::Raster> resampleRaster(std::shared_ptr<te::rst::Raster> raster) { return raster; }
 

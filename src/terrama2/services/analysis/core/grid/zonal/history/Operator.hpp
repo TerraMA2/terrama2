@@ -60,7 +60,11 @@ namespace terrama2
               */
               boost::python::list list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
-
+              double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                                  const std::string& dataSeriesName,
+                                  const std::string& dateDiscardBefore,
+                                  const size_t band,
+                                  terrama2::services::analysis::core::Buffer buffer);
               /*!
                 \brief Calculates the sum of zonal grid data.
 

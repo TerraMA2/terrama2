@@ -113,10 +113,13 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
     auto grid = outputRaster->getGrid();
     auto coord = grid->gridToGeo(cache.column, cache.row);
 
+    terrama2::core::Filter filter;
+    filter.lastValue = true;
+
     auto datasets = dataSeries->datasetList;
-    for(auto dataset : datasets)
+    for(const auto& dataset : datasets)
     {
-      auto rasterList = context->getRasterList(dataSeries, dataset->id);
+      auto rasterList = context->getRasterList(dataSeries, dataset->id, filter);
       //sanity check, if no date range only the last raster should be returned
       if(rasterList.size() > 1)
       {

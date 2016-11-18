@@ -34,6 +34,8 @@
 // TerraMA2
 #include "../../../../BufferMemory.hpp"
 
+#include <boost/functional/hash.hpp>
+
 // STL
 #include <string>
 
@@ -53,6 +55,15 @@ namespace terrama2
             {
               namespace accum
               {
+                //Cantor pairing function for hashing the pair (column X row) https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+                struct PairHash
+                {
+                  std::size_t operator()(const std::pair<int, int>& pair) const
+                  {
+                    return 0.5*(pair.first+pair.second)*(pair.first+pair.second+1)+pair.second;
+                  }
+                };
+
                 //! Get absolute time from the timeStr string.
                 double getAbsTimeFromString(const std::string& timeStr);
 
@@ -168,6 +179,15 @@ namespace terrama2
                   \return A double value with the result.
                 */
                 double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+
+                std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>
+                 getAccumulatedMap(const std::string& dataSeriesName,
+                                   const std::string& dateDiscardBefore,
+                                   const std::string& dateDiscardAfter,
+                                   const size_t band,
+                                   terrama2::services::analysis::core::Buffer buffer,
+                                   terrama2::services::analysis::core::MonitoredObjectContextPtr context,
+                                   OperatorCache cache);
               } /* ratio */
             }
           } /* zonal */

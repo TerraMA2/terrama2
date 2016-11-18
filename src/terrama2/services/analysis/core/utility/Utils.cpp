@@ -66,7 +66,9 @@ terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::c
       return AnalysisType::GRID_TYPE;
   }
 
-  throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid analysis type"));
+  QString errMsg = QObject::tr("Invalid analysis type");
+  TERRAMA2_LOG_ERROR() << errMsg;
+  throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
 
 }
 

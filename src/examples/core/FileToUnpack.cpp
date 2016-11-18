@@ -2,6 +2,7 @@
 // TerraMA2
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/Unpack.hpp>
+#include <terrama2/Config.hpp>
 
 // STL
 #include <iostream>

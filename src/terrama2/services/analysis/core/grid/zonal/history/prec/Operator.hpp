@@ -67,50 +67,6 @@ namespace terrama2
             {
               namespace prec
               {
-                //Cantor pairing function for hashing the pair (column X row) https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-                struct PairHash
-                {
-                  std::size_t operator()(const std::pair<int, int>& pair) const
-                  {
-                    return 0.5*(pair.first+pair.second)*(pair.first+pair.second+1)+pair.second;;
-                  }
-                };
-
-                /*!
-                  \brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the geometry.
-
-                  This method will call the geometry type especific method.
-                */
-                template<class T>
-                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  const size_t band,
-                                  te::gm::Geometry* geom,
-                                  std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap);
-                //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the polygon.
-                template<class T>
-                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  const size_t band,
-                                  te::gm::Polygon* polygon,
-                                  std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& values);
-                //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the line.
-                template<class T>
-                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  const size_t band,
-                                  te::gm::Line* line,
-                                  std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap);
-                //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the point set.
-                template<class T>
-                void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  const size_t band,
-                                  std::vector<te::gm::Point*> pointSet,
-                                  std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap);
-
-              template<template<class> class U, class T>
-              void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  const size_t band,
-                                  U<T>& rasterIt,
-                                  U<T>& end,
-                                  std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap);
                 /*!
                   \brief Implementation of grid zonal operator.
 
@@ -215,8 +171,6 @@ namespace terrama2
                   \return A double value with the result.
                 */
                 double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
-
-                void appendValues(te::rst::Raster* raster, te::gm::Polygon* polygon, std::vector<double>& values);
               } /* prec */
             }
           } /* zonal */
