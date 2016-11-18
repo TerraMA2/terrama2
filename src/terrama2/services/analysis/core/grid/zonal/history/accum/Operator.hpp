@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/zonal/history/ratio/Operator.hpp
+  \file terrama2/services/analysis/core/grid/zonal/history/accum/Operator.hpp
 
   \brief Contains grid zonal history ratio operators to monitored object analysis.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_RATIO_OPERATOR_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_RATIO_OPERATOR_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_ACCUM_OPERATOR_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_ACCUM_OPERATOR_HPP__
 
 // TerraMA2
 #include "../../../../BufferMemory.hpp"
@@ -51,7 +51,7 @@ namespace terrama2
           {
             namespace history
             {
-              namespace ratio
+              namespace accum
               {
                 //! Get absolute time from the timeStr string.
                 double getAbsTimeFromString(const std::string& timeStr);
@@ -177,4 +177,4 @@ namespace terrama2
   }         // end namespace services
 }           // end namespace terrama2
 
-#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_RATIO_OPERATOR_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_ACCUM_OPERATOR_HPP__

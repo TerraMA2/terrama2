@@ -19,7 +19,7 @@ var LocalSystemAdapter = module.exports = function() { };
 
 // dependencies
 var Utils = require("./../../Utils");
-var PromiseClass = require("bluebird");
+var PromiseClass = require("./../../Promise");
 
 /**
  * It will generates command to use in executor. The output might be: nohup COMMAND &

@@ -27,6 +27,8 @@ PostgisRequest.prototype.request = function() {
 
     var client = new pg.Client(self.uri);
 
+    client.on('error', function(err) { });
+
     client.connect(function(err) {
       if (err) {
         var errorMessage = "Error in PostGIS connection: ";

@@ -104,7 +104,7 @@
    */
   RegisteredView.prototype.setDataSeries = function(dataSeries) {
     this.dataSeries = dataSeries;
-  }
+  };
   /**
    * It sets parent view
    *
@@ -117,7 +117,6 @@
       viewObj = view.get();
     }
     this.view = new View(viewObj);
-    this.$uriObject = URIBuilder.buildObject(this.view.mapsServerUri, URISyntax);
   };
   /**
    * Get real representation of RegisteredView
@@ -126,7 +125,7 @@
    */
   RegisteredView.prototype.rawObject = function() {
     return this.toObject();
-  }
+  };
   /**
    * Retrieves a standard representation used in TCP communication
    *

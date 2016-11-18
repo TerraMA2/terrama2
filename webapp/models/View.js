@@ -42,11 +42,6 @@
         allowNull: false,
         comment: "XML style script"
       },
-      maps_server_uri: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        comment: "Map server connection URI"
-      },
       active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

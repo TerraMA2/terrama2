@@ -221,6 +221,12 @@ angular.module('terrama2.dataseries.registration', [
             // fill filter
             var filter = collector.filter || {};
 
+            if (filter.discard_before || filter.discard_after || filter.region){
+              $scope.advanced.filter.disabled = false;
+              $scope.wizard.filter.disabled = false;
+              $scope.wizard.filter.error = false;
+            }
+
             if (filter.discard_before) {
               $scope.filter.date.beforeDate = DateParser(filter.discard_before);
             }
@@ -300,9 +306,10 @@ angular.module('terrama2.dataseries.registration', [
     "WizardHandler",
     'UniqueNumber',
     "Polygon",
+    "FilterForm",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -427,12 +434,14 @@ angular.module('terrama2.dataseries.registration', [
         },
         filter: {
           required: false,
+          formName: 'filterForm',
           disabled: true,
           optional: true,
           clearForm: clearFilterForm
         },
         intersection: {
           required: false,
+          formName: 'intersectionForm',
           disabled: true,
           optional: true,
           clearForm: clearIntersectionForm
@@ -519,21 +528,38 @@ angular.module('terrama2.dataseries.registration', [
         w.getEnabledSteps().forEach(function(wizardStep) {
           var data = wizardStep.wzData || {};
           var name = data.formName || "";
+          var disabled = data.disabled;
 
-          if (name) {
-            var condition = $scope.forms[name].$invalid;
-            var secondName = wizardStep.wzData.secondForm;
-
-            if (secondName)
-              condition = condition || $scope.forms[secondName].$invalid;
-
-            if (name === "parametersForm" && $scope.dcps.length > 0) {
-              // reset form to initial state
-              $scope.forms[name].$setPristine();
-              condition = false;
-            }
-            wizardStep.wzData.error = condition;
+          if (disabled){
+            delete wizardStep.wzData.error;
+            return;
           }
+
+          //validating filter form
+          if (name === 'filterForm') {
+            if (FilterForm.boundedForm){
+              var condition = FilterForm.boundedForm.$invalid;
+              wizardStep.wzData.error = condition;
+            }
+            else {
+              delete wizardStep.wzData.error;
+            }
+            return;
+          }
+
+          var condition = $scope.forms[name].$invalid;
+          var secondName = wizardStep.wzData.secondForm;
+
+          if (secondName)
+            condition = condition || $scope.forms[secondName].$invalid;
+
+          if (name === "parametersForm" && $scope.dcps.length > 0) {
+            // reset form to initial state
+            $scope.forms[name].$setPristine();
+            condition = false;
+          }
+          wizardStep.wzData.error = condition;
+          
         });
       };
 
@@ -791,7 +817,7 @@ angular.module('terrama2.dataseries.registration', [
         return true;
       };
 
-      $scope.isThirdStepValid = function(obj) {
+      $scope.validateSteps = function(obj) {
         isWizardStepValid();
         return true;
       };
@@ -932,6 +958,12 @@ angular.module('terrama2.dataseries.registration', [
       // change form: advanced or wizard
       $scope.onFormView = function() {
         $scope.isWizard = !$scope.isWizard;
+        if ($scope.isUpdating) {
+          // fixing storager loading
+          $timeout(function() {
+            $scope.onStoragerFormatChange();
+          }, 1000);
+        }
       };
 
       // parameters to handle fields display
@@ -1021,6 +1053,9 @@ angular.module('terrama2.dataseries.registration', [
 
           // fill out
           if ($scope.isUpdating) {
+            $scope.wizard.parameters.disabled = false;
+            $scope.wizard.parameters.error = false;
+            $scope.wizard.general.error = false;
             if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
               // TODO: prepare format as dcp item
 
@@ -1055,6 +1090,9 @@ angular.module('terrama2.dataseries.registration', [
             }
 
             if ($scope.hasCollector) {
+              $scope.wizard.store.disabled = false;
+              $scope.wizard.store.error = false;
+              $scope.advanced.store.disabled = false;
               $scope.storagerFormats.some(function(storagerFmt) {
                 if (storagerFmt.id == outputDataseries.data_series_semantics.id) {
                   $scope.storager.format = storagerFmt;
@@ -1062,6 +1100,10 @@ angular.module('terrama2.dataseries.registration', [
                   return true;
                 }
               });
+            }
+            if (Object.keys($scope.intersection).length > 0) {
+              $scope.wizard.intersection.disabled = false;
+              $scope.advanced.intersection.disabled = false;
             }
 
           } else {
@@ -1157,7 +1199,8 @@ angular.module('terrama2.dataseries.registration', [
           filter: object.filterValues,
           service: object.serviceOutput,
           intersection: object.intersection,
-          active: object.active
+          active: object.active,
+          run: $scope.shouldRun
         };
         if ($scope.isUpdating) {
           request = DataSeriesFactory.put(configuration.dataSeries.input.id, data);
@@ -1266,7 +1309,6 @@ angular.module('terrama2.dataseries.registration', [
 
       // it prepares dataseries object, schedule and filter object
       var _save = function() {
-
         var dataToSend = Object.assign({}, $scope.dataSeries);
         dataToSend.data_series_semantic_id = $scope.dataSeries.semantics.id;
 
@@ -1307,7 +1349,7 @@ angular.module('terrama2.dataseries.registration', [
             break;
           case "OCCURRENCE":
           case "GRID":
-          case "STATIC_DATA":
+          case "GEOMETRIC_OBJECT":
             var format = $scope.model;
 
             var dataSet = {
@@ -1357,7 +1399,8 @@ angular.module('terrama2.dataseries.registration', [
         };
       };
 
-      $scope.save = function() {
+      $scope.save = function(shouldRun) {
+        $scope.shouldRun = shouldRun;
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
         $scope.display = false;
@@ -1421,128 +1464,6 @@ angular.module('terrama2.dataseries.registration', [
         }
 
         $scope.alertBox.title = "Data Series Registration";
-
-        // it prepares dataseries object, schedule and filter object
-        var _save = function() {
-
-          var dataToSend = Object.assign({}, $scope.dataSeries);
-          dataToSend.data_series_semantic_id = $scope.dataSeries.semantics.id;
-
-          var semantics = Object.assign({}, dataToSend.semantics);
-          delete dataToSend.semantics;
-
-          dataToSend.dataSets = [];
-
-          $scope.errorFound = false;
-
-          switch(semantics.data_series_type_name) {
-            case "DCP":
-              $scope.dcps.forEach(function(dcp) {
-                var format = {};
-                for(var key in dcp) {
-                  if (dcp.hasOwnProperty(key))
-                    if (key !== "latitude" && key !== "longitude" && key !== "active")
-                      format[key] = dcp[key];
-                }
-                var dataSetStructure = {
-                  active: $scope.dataSeries.active,
-                  format: format,
-                  position: {
-                    type: 'Point',
-                    coordinates: [dcp.latitude, dcp.longitude],
-                    crs: {
-                      type: 'name',
-                      properties : {
-                        name: "EPSG:" + dcp.projection
-                      }
-                    }
-                  }
-                };
-
-                dataToSend.dataSets.push(dataSetStructure);
-              });
-
-              break;
-            case "OCCURRENCE":
-            case "GRID":
-						case "GEOMETRIC_OBJECT":
-              var format = $scope.model;
-
-              var dataSet = {
-                semantics: semantics,
-                active: $scope.dataSeries.active,
-                format: format
-              };
-              dataToSend.dataSets.push(dataSet);
-              break;
-
-            default:
-              break;
-          }
-
-          var filterValues = Object.assign({}, $scope.filter);
-          if ($scope.filter.filterArea === $scope.filterTypes.AREA.value) {
-            filterValues.region = Polygon.build($scope.filter.area || {});
-          }
-
-          var scheduleValues = Object.assign({}, $scope.schedule);
-          switch(scheduleValues.scheduleHandler) {
-            case "seconds":
-            case "minutes":
-            case "hours":
-              scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
-              break;
-            case "weeks":
-            case "monthly":
-            case "yearly":
-              // todo: verify
-              var dt = scheduleValues.schedule_time;
-              scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
-              scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
-              break;
-
-            default:
-              break;
-          }
-
-          console.log(dataToSend);
-
-          return {
-            dataSeries: dataToSend,
-            schedule: scheduleValues,
-            filter: filterValues
-          };
-        };
-
-        // it dispatches post operation to nodejs
-        var _sendRequest = function(object) {
-          var request = null;
-          var data = {
-            dataSeries: object.dataToSend,
-            schedule: object.scheduleValues,
-            filter: object.filterValues,
-            service: object.serviceOutput,
-            intersection: object.intersection,
-            active: object.active
-          };
-          if ($scope.isUpdating) {
-            request = DataSeriesFactory.put(configuration.dataSeries.input.id, data);
-          } else {
-            request = DataSeriesFactory.post(data);
-          }
-
-          request.then(function(data) {
-            console.log(data);
-            $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
-          }).catch(function(err) {
-            $scope.alertLevel = "alert-danger";
-            $scope.alertBox.message = err.message || err.data.message;
-            $scope.display = true;
-            $scope.extraProperties = {};
-            console.log(err);
-          });
-        };
 
         if ($scope.dataSeries.access == 'COLLECT') {
           // getting values from another controller

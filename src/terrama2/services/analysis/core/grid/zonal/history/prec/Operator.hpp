@@ -83,33 +83,33 @@ namespace terrama2
                 */
                 template<class T>
                 void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  int band,
+                                  const size_t band,
                                   te::gm::Geometry* geom,
                                   std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap);
                 //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the polygon.
                 template<class T>
                 void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  int band,
+                                  const size_t band,
                                   te::gm::Polygon* polygon,
                                   std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& values);
                 //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the line.
                 template<class T>
                 void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  int band,
+                                  const size_t band,
                                   te::gm::Line* line,
                                   std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap);
                 //!\brief Populates a map of coordinates to the accumulated value and number of occurrences, intesecting the point set.
                 template<class T>
                 void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  int band,
+                                  const size_t band,
                                   std::vector<te::gm::Point*> pointSet,
                                   std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap);
 
-              template<class T>
+              template<template<class> class U, class T>
               void appendValues(const std::vector< std::shared_ptr<te::rst::Raster> >& rasterList,
-                                  int band,
-                                  te::rst::AbstractPositionIterator<T>& rasterIt,
-                                  te::rst::AbstractPositionIterator<T>& end,
+                                  const size_t band,
+                                  U<T>& rasterIt,
+                                  U<T>& end,
                                   std::unordered_map<std::pair<int, int>, std::pair<T, int>, PairHash>& valuesMap);
                 /*!
                   \brief Implementation of grid zonal operator.

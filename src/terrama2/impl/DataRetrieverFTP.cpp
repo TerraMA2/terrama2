@@ -42,6 +42,9 @@
 #include "../core/utility/FilterUtils.hpp"
 #include "../core/utility/Utils.hpp"
 
+// TerraLib
+#include <terralib/core/uri/URI.h>
+
 // Libcurl
 #include <curl/curl.h>
 
@@ -119,14 +122,18 @@ size_t terrama2::core::DataRetrieverFTP::write_vector(void* ptr, size_t size, si
 std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& mask,
                                                            const Filter& filter,
                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                           const std::string& temporaryFolderUri)
+                                                           const std::string& temporaryFolderUri,
+                                                           const std::string& folderPath)
 {
-  std::string downloadFolderUri = temporaryFolderUri;
+  std::string downloadBaseFolderUri = temporaryFolderUri;
+  std::string downloadFolderUri = temporaryFolderUri + "/" + folderPath + "/";
+
   if(temporaryFolderUri.empty())
   {
     boost::filesystem::path tempDir = boost::filesystem::temp_directory_path();
     boost::filesystem::path tempTerrama(tempDir.string()+"/terrama2");
-    boost::filesystem::path downloadDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
+    boost::filesystem::path downloadBaseDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
+    boost::filesystem::path downloadDir(downloadBaseDir.string() + "/" + folderPath + "/");
 
     // Create the directory where you will download the files.
     QDir dir(QString::fromStdString(downloadDir.string()));
@@ -134,19 +141,23 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       dir.mkpath(QString::fromStdString(downloadDir.string()));
 
     std::string scheme = "file://";
-    downloadFolderUri = scheme+downloadDir.string();
-    remover->addTemporaryFolder(downloadFolderUri);
+    downloadBaseFolderUri = scheme+downloadBaseDir.string();
+    remover->addTemporaryFolder(downloadBaseFolderUri);
+
+    downloadFolderUri = scheme + downloadDir.string();
   }
 
   curlwrapper_.init();
   try
   {
+    te::core::URI uriInput(dataProvider_->uri + "/" + folderPath + "/");
+
     // Get a file listing from server
     if(curlwrapper_.fcurl())
     {
       std::string block;
-      std::string uriInput = dataProvider_->uri+"/";
-      std::vector<std::string> vectorFiles = curlwrapper_.getListFiles(uriInput, &terrama2::core::DataRetrieverFTP::write_vector, block);
+
+      std::vector<std::string> vectorFiles = curlwrapper_.getListFiles(uriInput.uri(), &terrama2::core::DataRetrieverFTP::write_vector, block);
 
       std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
@@ -168,7 +179,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
           // Performs the download of files in the vectorNames
           if(curlwrapper_.fcurl())
           {
-            std::string uriOrigin = dataProvider_->uri +"/"+file;
+            std::string uriOrigin = uriInput.uri() + file;
 
             QUrl url(QString::fromStdString(downloadFolderUri));
             std::string filePath = url.path().toStdString()+"/"+file;
@@ -213,7 +224,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
   }
 
   // returns the absolute path of the folder that contains the files that have been made the download.
-  return downloadFolderUri;
+  return downloadBaseFolderUri;
 }
 
 terrama2::core::DataRetrieverPtr terrama2::core::DataRetrieverFTP::make(DataProviderPtr dataProvider)

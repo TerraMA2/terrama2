@@ -1,6 +1,6 @@
 'use strict';
 
-var Promise = require('bluebird');
+var Promise = require('./../Promise');
 var spawnAsync = require('child_process').spawn;
 var execAsync = require("child_process").exec;
 var OS = require('./../Enums').OS;
@@ -96,16 +96,18 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
           console.log("Unknown platform");
           self.platform = OS.UNKNOWN;
       }
-    }
+    };
 
     if (self.adapter instanceof LocalSystemAdapter) {
       child = spawnAsync(command, commandArgs, options);
 
       child.unref();
       //todo: remove it, since it just forcing resolve promise
-      return resolve(0);
+      return resolve({code: 0});
     } else {
       child = execAsync(command);
+
+      var responseMessage = "";
 
       child.on('close', function(code, signal) {
         console.log("LocalExecutor close ", code, signal);
@@ -113,7 +115,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
           return reject(new Error("Error: exit code " + code));
         }
 
-        return resolve(code);
+        return resolve({code: code, data: responseMessage.replace("\n", "")});
       });
 
       child.on('error', function(err) {
@@ -124,11 +126,14 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
         if (command === "uname") {
           defineAdapter(data.toString());
         }
+
+        responseMessage = data.toString();
       });
 
       // stream for handling errors data
       child.stderr.on('data', function(data) {
         console.log("LocalExecutor Error: ", data.toString());
+        responseMessage = data.toString();
       });
     } 
   });

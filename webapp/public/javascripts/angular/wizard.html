@@ -1,14 +1,14 @@
 <div class="row">
   <div class="col-md-12">
     <div style="padding-bottom: 50px;">
-      <a ui-sref="advanced" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 5px;"></i>{{ i18n.__('Expert mode') }}</a>
-      <a ui-sref="wizard" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Wizard mode') }}</a>
+      <a ui-sref="advanced" class="btn btn-default pull-right" ng-show="isWizard" ng-click="onFormView()"><i class="fa fa-gear" style="margin-right: 3px;"></i>{{ i18n.__('Expert mode') }}</a>
+      <a ui-sref="wizard" class="btn btn-default pull-right" ng-show="!isWizard" ng-click="onFormView()"><i class="fa fa-magic" style="margin-right: 3px;"></i>{{ i18n.__('Wizard mode') }}</a>
     </div>
     <!-- alert box -->
     <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display" extra="extraProperties"></terrama2-alert-box>
   </div>
 
-  <wizard on-finish="save()" template="/javascripts/angular/templates/terrama2-wizard.html">
+  <wizard template="/javascripts/angular/templates/terrama2-wizard.html">
     <wz-step wz-title="{{ i18n.__('General') }}" canexit="isFirstStepValid" wz-data="wizard.general">
       <div class="col-md-12">
         <form name="forms.generalDataForm">
@@ -19,7 +19,19 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+
+          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
+
+          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic">
+            <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only"></span>
+            </button>
+            <ul class="dropdown-menu terrama2-button-dropdown">
+              <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </wz-step>
@@ -43,14 +55,25 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+          <button class="btn btn-primary" type="submit" ng-show="isDynamic" wz-next>{{ i18n.__('Next') }}</button>
+          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
+
+          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic">
+            <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only"></span>
+            </button>
+            <ul class="dropdown-menu terrama2-button-dropdown">
+              <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
+            </ul>
+          </div>
         </div>
       </div>
 
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Store') }}" canexit="isThirdStepValid" wz-disabled="{{ !isDynamic }}" wz-data="wizard.store" canenter="!wizard.store.disabled">
+    <wz-step wz-title="{{ i18n.__('Store') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.store" canenter="!wizard.store.disabled">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
       </div>
@@ -58,27 +81,44 @@
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+
+          <div class="btn-group pull-right" style="margin-left: 3px;">
+            <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only"></span>
+            </button>
+            <ul class="dropdown-menu terrama2-button-dropdown">
+              <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Filters') }}" wz-disabled="{{ !isDynamic }}" wz-data="wizard.filter" canenter="!wizard.filter.disabled">
+    <wz-step wz-title="{{ i18n.__('Filters') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.filter" canenter="!wizard.filter.disabled">
       <div class="col-md-12">
-
         <div ng-include="'/javascripts/angular/filter.html'"></div>
-
       </div>
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+          <button class="btn btn-primary" type="submit" ng-show="isDynamic && semantics !== 'GRID'" wz-next>{{ i18n.__('Next') }}</button>
+          <div class="btn-group pull-right" style="margin-left: 3px;">
+            <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only"></span>
+            </button>
+            <ul class="dropdown-menu terrama2-button-dropdown">
+              <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Intersection') }}" wz-disabled="{{ !isDynamic || semantics === 'GRID' }} " wz-data="wizard.intersection" canenter="!wizard.intersection.disabled">
+    <wz-step wz-title="{{ i18n.__('Intersection') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic || semantics === 'GRID' }} " wz-data="wizard.intersection" canenter="!wizard.intersection.disabled">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/intersection.html'">
         </div>
@@ -87,7 +127,17 @@
       <div class="col-md-12">
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" wz-finish>{{ i18n.__('OK') }}</button>
+
+          <div class="btn-group pull-right" style="margin-left: 3px;">
+            <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only"></span>
+            </button>
+            <ul class="dropdown-menu terrama2-button-dropdown">
+              <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </wz-step>

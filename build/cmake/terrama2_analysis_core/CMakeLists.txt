@@ -64,8 +64,8 @@ file(GLOB TERRAMA2_GRID_ZONAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terram
 file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/*.cpp)
 file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/*.hpp)
 
-file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/ratio/*.cpp)
-file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_RATIO_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/ratio/*.hpp)
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/accum/*.cpp)
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_RATIO_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/accum/*.hpp)
 
 file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/prec/*.cpp)
 file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_PREC_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/prec/*.hpp)

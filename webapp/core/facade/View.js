@@ -2,10 +2,10 @@
   'use strict';
 
   var DataManager = require("./../DataManager");
-  var TcpManager = require("./../TcpManager");
+  var TcpService = require("./../facade/tcp-manager/TcpService");
   var Enums = require("./../Enums");
   var Utils = require("./../Utils");
-  var PromiseClass = require("bluebird");
+  var PromiseClass = require("./../Promise");
   /**
    * @type {RequestFactory}
    */
@@ -23,8 +23,9 @@
    * Helper to send views via TCP
    * 
    * @param {Array|Object} args A view values to send
+   * @param {boolean} shouldRun - A flag to defines if service should run context view
    */
-  function sendView(args) {
+  function sendView(args, shouldRun) {
     var objToSend = {
       "Views": []
     };
@@ -36,23 +37,26 @@
       objToSend.Views.push(args.toObject());
     }
 
-    Utils.sendDataToServices(DataManager, TcpManager, objToSend);
+    TcpService.send(objToSend)
+      .then(function() {
+        if (shouldRun && !(args instanceof Array)) {
+          return TcpService.run({"ids": [args.id], "service_instance": args.serviceInstanceId});
+        }
+      });
   }
   /**
    * It applies a save operation and send views to the service
    * 
    * @param {Object} viewObject - A view object to save
    * @param {number} projectId - A project identifier
+   * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
    * @returns {Promise<View>}
    */
-  View.save = function(viewObject, projectId) {
+  View.save = function(viewObject, projectId, shouldRun) {
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t) {
-        var requester = RequestFactory.build(viewObject.serverUriObject);
         var options = {transaction: t};
 
-        // setting built uri
-        viewObject.maps_server_uri = requester.uri;
         // setting current project scope
         viewObject.project_id = projectId;
         // setting empty style if there is not
@@ -79,7 +83,7 @@
 
       .then(function(view) {
         // sending to the services
-        sendView(view);
+        sendView(view, shouldRun);
 
         return resolve(view);
       })
@@ -100,11 +104,14 @@
     return new PromiseClass(function(resolve, reject) {
       if (viewId) {
         return DataManager.getView({id: viewId})
-          .then(function(view) { return resolve(view.toObject()); })
-          .catch(function(err) { return reject(err); });
+          .then(function(view) { 
+            return resolve(view.toObject()); })
+          .catch(function(err) { 
+            return reject(err); 
+          });
       }
 
-      DataManager.listViews({project_id: projectId})
+      return DataManager.listViews({project_id: projectId})
         .then(function(views) {
           return resolve(views.map(function(view) {
             return view.toObject();
@@ -122,9 +129,10 @@
    * @param {number} viewId - View Identifier
    * @param {Object} viewObject - View object values
    * @param {number} projectId - A project identifier
+   * @param {boolean} shouldRun - Flag to determines if service should execute immediately after save process
    * @returns {Promise<View>}
    */
-  View.update = function(viewId, viewObject, projectId) {
+  View.update = function(viewId, viewObject, projectId, shouldRun) {
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t) {
         var options = {transaction: t};
@@ -157,9 +165,6 @@
           })
 
           .then(function() {
-            var requester = RequestFactory.build(viewObject.serverUriObject);
-            // setting built uri
-            viewObject.maps_server_uri = requester.uri;
             return DataManager.updateView({id: viewId}, viewObject, options)
               .then(function() {
                 return DataManager.getView({id: viewId}, options);
@@ -168,7 +173,7 @@
       })
 
       .then(function(view) {
-        sendView(view);
+        sendView(view, shouldRun);
 
         return resolve(view);
       })
@@ -203,9 +208,7 @@
       
       .then(function(view) {
         // removing views from tcp services
-        Utils.removeDataSignal(DataManager, TcpManager, {
-          "Views": [view.id]
-        });
+        TcpService.remove({"Views": [view.id]});
 
         return resolve(view);
       })

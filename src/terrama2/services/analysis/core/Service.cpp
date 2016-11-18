@@ -220,8 +220,6 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
     }
     else
     {
-      auto startTime = terrama2::core::TimeUtils::nowUTC();
-
       auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), analysisId);
       if(pqIt == processingQueue_.end())
       {
@@ -276,6 +274,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
   if(pqIt != processingQueue_.end())
     processingQueue_.erase(pqIt);
 
+  sendProcessFinishedSignal(analysisId, success);
 
   // Verify if there is another execution for the same analysis waiting
   auto& startTimeQueue = waitQueue_[analysisId];
@@ -295,7 +294,9 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
     //wake loop thread
     mainLoopCondition_.notify_one();
   }
+}
 
-  sendProcessFinishedSignal(analysisId, success);
+void terrama2::services::analysis::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
+{
 
 }
