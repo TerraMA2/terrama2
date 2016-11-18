@@ -76,7 +76,7 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 
   try
   {
-    folderPath = getProperty(dataset, dataSeries_, "folder", false);
+    folderPath = getFolderMask(dataset);
   }
   catch(UndefinedTagException& /*e*/)
   {
