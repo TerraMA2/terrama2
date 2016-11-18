@@ -33,6 +33,7 @@ var Database = require('../config/Database');
 var orm = Database.getORM();
 var fs = require('fs');
 var path = require('path');
+var logger = require("./Logger");
 var Filters = require("./filters");
 
 // data model
@@ -163,6 +164,7 @@ var DataManager = module.exports = {
         viewService.description = "Local service for View";
         viewService.port = 6546;
         viewService.service_type_id = Enums.ServiceType.VIEW;
+        viewService.maps_server_uri = "http://admin:geoserver@localhost:8080/geoserver";
 
         inserts.push(self.addServiceInstance(collectorService));
         inserts.push(self.addServiceInstance(viewService));
@@ -307,7 +309,7 @@ var DataManager = module.exports = {
         // it will match each of semantics with providers
         return Promise.all(inserts)
           .catch(function(err) {
-            console.log(err);
+            logger.debug(err);
             return null;
           }).finally(function() {
             return self.listSemanticsProvidersType()
@@ -387,7 +389,7 @@ var DataManager = module.exports = {
                         });
                       });
                   }).catch(function(err) {
-                    console.log(err);
+                    logger.debug(err);
                     return callback();
                   });
             });
@@ -398,7 +400,7 @@ var DataManager = module.exports = {
         return orm.sync().then(function () {
           return fn();
         }).catch(function(err) {
-          console.log(err);
+          logger.debug(err);
           return fn();
         });
       }).catch(function(err) {
@@ -463,7 +465,7 @@ var DataManager = module.exports = {
       // helper for clean up DataManager and reject promise
       var _rejectClean = function(err) {
         clean();
-        console.log("CLEAN: ", err);
+        logger.error("CLEAN: ", err);
         reject(err);
       };
 
@@ -683,7 +685,7 @@ var DataManager = module.exports = {
               Utils.removeAll(self.data.dataSeries, {dataProvider: {project_id: project.id}});
               return resolve();
             }).catch(function(err) {
-              console.log("Remove Project: ", err);
+              logger.error("Remove Project: ", err);
               return reject(new exceptions.ProjectError("Could not remove project with data provider associated"));
             });
           });
@@ -732,7 +734,7 @@ var DataManager = module.exports = {
         }, options)).then(function() {
           return resolve();
         }).catch(function(err) {
-          console.log(err);
+          logger.error(err);
           return reject(new exceptions.UserError("Could not update user.", err.errors));
         });
       }).catch(function(err) {
@@ -799,12 +801,12 @@ var DataManager = module.exports = {
 
           return resolve(service);
         }).catch(function(err) {
-          console.log(err);
+          logger.error(err);
           return Utils.rollbackPromises([serviceResult.destroy()], new Error("Could not save log: " + err.message), reject);
         });
 
       }).catch(function(e) {
-        console.log(e);
+        logger.error(e);
         var message = "Could not save service instance: ";
         if (e.errors) { message += e.errors[0].message; }
         return reject(new Error(message));
@@ -834,7 +836,7 @@ var DataManager = module.exports = {
 
         return resolve(output);
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new Error("Could not retrieve services " + err.message));
       });
     });
@@ -882,7 +884,7 @@ var DataManager = module.exports = {
               .then(function() {
                 return resolve();
               }).catch(function(err) {
-                console.log(err);
+                logger.error(err);
                 return reject(new Error("Could not remove service instance. " + err.message));
               });
           }).catch(function(err) {
@@ -1002,7 +1004,7 @@ var DataManager = module.exports = {
       models.db.DataProviderType.findOne(Utils.extend({where: restriction}, options)).then(function(typeResult) {
         return resolve(typeResult.get());
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new Error("Could not retrieve DataProviderType " + err.message));
       });
     });
@@ -1021,7 +1023,7 @@ var DataManager = module.exports = {
       models.db.DataProviderIntent.findOne(Utils.extend({where: restriction}, options)).then(function(intentResult) {
         return resolve(intentResult.get());
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new Error("Could not retrieve DataProviderIntent " + err.message));
       });
     });
@@ -1167,7 +1169,7 @@ var DataManager = module.exports = {
           });
           return resolve(output);
         }).catch(function(err) {
-          console.log(err);
+          logger.error(err);
           return reject(err);
         });
     });
@@ -1192,12 +1194,12 @@ var DataManager = module.exports = {
 
           return resolve(dProvider);
         }).catch(function(err) {
-          console.log(err);
+          logger.error(err);
           return reject(err);
         });
       }).catch(function(err){
         var message = "Could not save data provider due: ";
-        console.log(err.errors);
+        logger.error(err.errors);
         if (err.errors) {
           err.errors.forEach(function(e) { message += e.message + "; "; });
         } else {
@@ -1310,7 +1312,7 @@ var DataManager = module.exports = {
 
           return resolve({dataProvider: provider, dataSeries: dataSeriesList});
         }).catch(function(err) {
-          console.log(err);
+          logger.error(err);
           return reject(new exceptions.DataProviderError("Could not remove DataProvider with a collector associated", err));
         });
       } else {
@@ -1459,7 +1461,7 @@ var DataManager = module.exports = {
           return reject(err);
         });
       }).catch(function(err){
-        console.log(err);
+        logger.error(err);
         return reject(new exceptions.DataSeriesError("Could not save data series due: ", err.errors || []));
       });
     });
@@ -1551,7 +1553,7 @@ var DataManager = module.exports = {
       }, options))
       // on data series update, update format
         .then(function() {
-          return self.getDataSeriesSemantics({id: dataSeriesObject.data_series_semantic_id}, options);
+          return self.getDataSeriesSemantics({id: dataSeriesObject.data_series_semantics_id}, options);
         })
 
         .then(function(dataSeriesSemantics) {
@@ -1655,7 +1657,7 @@ var DataManager = module.exports = {
           Utils.removeAll(self.data.dataSets, {data_series_id: dataSeries.id});
           return resolve(status);
         }).catch(function (err) {
-          console.log(err);
+          logger.error(err);
           return reject(new exceptions.DataSeriesError("Could not remove DataSeries " + err.message));
         });
       } else {
@@ -1693,7 +1695,7 @@ var DataManager = module.exports = {
         var onSuccess = function(dSet) {
           var output;
           output = DataModel.DataSetFactory.build(Object.assign(Utils.clone(dSet.get()), dataSet.get()));
-          console.log(output);
+          logger.debug(output);
           output.semantics = dataSeriesSemantic;
 
           // save dataformat
@@ -1730,7 +1732,7 @@ var DataManager = module.exports = {
                 return resolve(output);
               });
             }).catch(function (err) {
-              console.log(err);
+              logger.error(err);
               return reject(new exceptions.DataFormatError("Could not save data format: ", err));
             });
           } else {// todo: validate it
@@ -1740,14 +1742,14 @@ var DataManager = module.exports = {
         };
 
         var onError = function(err) {
-          console.log(err);
+          logger.error(err);
           return reject(new exceptions.DataSetError("Could not save data set." + err.message));
         };
 
         // rollback data set function if any error occurred
         var rollback = function(dataSet) {
           return dataSet.destroy().then(function() {
-            console.log("rollback");
+            logger.error("rollback");
             return reject(new exceptions.DataSetError("Invalid data set type. DataSet destroyed"));
           }).catch(onError);
         };
@@ -2001,7 +2003,7 @@ var DataManager = module.exports = {
             });
           }).catch(function(err) {
             // rollback data series
-            console.log(err);
+            logger.error(err);
             return reject(err);
           });
         }).catch(function(err) {
@@ -2070,7 +2072,7 @@ var DataManager = module.exports = {
       models.db.Schedule.destroy(Utils.extend({where: {id: restriction.id}}, options)).then(function() {
         return resolve();
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new exceptions.ScheduleError("Could not remove schedule " + err.message));
       });
     });
@@ -2172,17 +2174,17 @@ var DataManager = module.exports = {
                     collector.filter = filterResult;
                     return resolve(collector);
                   }).catch(function(err) {
-                    console.log(err);
+                    logger.error(err);
                     return reject(new exceptions.CollectorError("Could not save collector filter: " + err.toString()));
                   });
               }
             }).catch(function(err) {
-              console.log(err);
+              logger.error(err);
               return reject(new exceptions.CollectorError("Could not save collector input/output " + err.toString()));
             });
         });
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new exceptions.CollectorError("Could not save collector: ", err));
       });
     });
@@ -2208,7 +2210,7 @@ var DataManager = module.exports = {
       models.db.Collector.update(values, opts).then(function() {
         return resolve();
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new exceptions.CollectorError("Could not update collector " + err.toString()));
       });
     });
@@ -2331,11 +2333,11 @@ var DataManager = module.exports = {
 
           return resolve(output);
         }).catch(function(err) {
-          console.log(err);
+          logger.error(err);
           return reject(new exceptions.CollectorError("Could not retrieve collector data series output: " + err.toString()));
         });
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new exceptions.CollectorError("Could not retrieve collector: " + err.message));
       });
     });
@@ -2390,15 +2392,15 @@ var DataManager = module.exports = {
               collectorInstance.dataSeriesOutput = dataSeries;
               return resolve(collectorInstance);
             }).catch(function(err) {
-              console.log("Retrieved null while getting collector");
+              logger.error("Retrieved null while getting collector", err);
               return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
             });
         } else {
-          console.log("Retrieved null while getting collector");
+          logger.error("Retrieved null while getting collector", collectorResult);
           return reject(new exceptions.CollectorError("Could not find collector. "));
         }
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
       });
     });
@@ -2523,7 +2525,7 @@ var DataManager = module.exports = {
         }
       }).catch(function(err) {
         // todo: improve error message
-        console.log(err);
+        logger.error(err);
         return reject(new Error("Could not save filter. " + err.toString()));
       });
     });
@@ -2577,7 +2579,7 @@ var DataManager = module.exports = {
       }, options)).then(function() {
         return resolve();
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new Error("Could not update filter " + err.toString()));
       });
     });
@@ -2624,7 +2626,7 @@ var DataManager = module.exports = {
               return resolve(outputGrid);
             });
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new exceptions.AnalysisError("Could not save analysis output grid " + err.toString()));
       });
     });
@@ -2652,7 +2654,7 @@ var DataManager = module.exports = {
         output.areaOfInterestBoxWKT = outputGrid.dataValues.interest_box;
         return resolve(output);
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new Error("Analysis output grid not found " + err.toString()));
       });
     });
@@ -2854,7 +2856,7 @@ var DataManager = module.exports = {
 
                   return resolve(analysisInstance);
                 }).catch(function(err) {
-                  console.log(err);
+                  logger.error(err);
                   // rollback analysis data series
                   Utils.rollbackPromises([
                     self.removeAnalysis({id: analysisResult.id}, options)
@@ -2887,7 +2889,7 @@ var DataManager = module.exports = {
         
         .catch(function(err) {
           // rollback data series
-          console.log(err);
+          logger.error(err);
           return reject(new exceptions.AnalysisError("Could not save analysis " + err.toString()));
         });
     });
@@ -3070,7 +3072,7 @@ var DataManager = module.exports = {
         dataSeries.description = "Generated by analysis " + analysisObject.name;
         dataSeries.data_provider_id = analysisObject.data_provider_id;
         dataSeries.dataSets[0].format = storagerObject.format;
-        dataSeries.data_series_semantic_id = dataSeries.data_series_semantics.id;
+        dataSeries.data_series_semantics_id = dataSeries.data_series_semantics.id;
         return self.updateDataSeries(analysisInstance.dataSeries.id, dataSeries, options);
       })
       
@@ -3095,7 +3097,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var _reject = function(err) {
-        console.log(err);
+        logger.error(err);
         reject(err);
       };
 
@@ -3250,7 +3252,7 @@ var DataManager = module.exports = {
           return reject(err);
         });
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(new exceptions.AnalysisError("Could not retrieve Analysis " + err.message));
       });
     });
@@ -3273,19 +3275,19 @@ var DataManager = module.exports = {
             return self.removeSchedule({id: analysisResult.schedule.id}, options).then(function() {
               return resolve();
             }).catch(function(err) {
-              console.log("Could not remove analysis schedule ", err);
+              logger.error("Could not remove analysis schedule ", err);
               return reject(err);
             });
           }).catch(function(err) {
-            console.log("Could not remove output data series ", err);
+            logger.error("Could not remove output data series ", err);
             return reject(err);
           });
         }).catch(function(err) {
-          console.log(err);
+          logger.error(err);
           return reject(new exceptions.AnalysisError("Could not remove Analysis with a collector associated", err));
         });
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return reject(err);
       });
     });

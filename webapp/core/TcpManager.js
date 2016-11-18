@@ -1,6 +1,7 @@
 "use strict";
 
 var Signals = require('./Signals.js');
+var logger = require("./Logger");
 var Process = require('./Process');
 var Executor = require('./executors/Local');
 var SSH = require("./executors/SSH");
@@ -148,13 +149,12 @@ TcpManager.prototype.$send = function(serviceInstance, data, signal) {
   try {
     var client = _getClient(serviceInstance);
     var buffer = this.makebuffer(signal, data);
-    console.log(buffer);
-    console.log("BufferToString: ", buffer.toString());
-    console.log("BufferToString size: ", buffer.length);
+    logger.debug(buffer);
+    logger.debug("BufferToString: ", buffer.toString());
+    logger.debug("BufferToString size: ", buffer.length);
 
     client.send(buffer);
   } catch (e) {
-    console.log(e);
     this.emit('tcpError', serviceInstance, new Error("Could not send data to service", e));
   }
 };
@@ -206,8 +206,8 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
 
     var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
 
-    console.log("Buffer: ", buffer);
-    console.log("BufferToString: ", buffer.toString());
+    logger.debug("Buffer: ", buffer);
+    logger.debug("BufferToString: ", buffer.toString());
 
     var client = _getClient(serviceInstance);
 
@@ -246,7 +246,6 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
     client.log(buffer);
 
   } catch (e) {
-    console.log(e);
     this.emit('tcpError', serviceInstance, new Error("Could not send data LOG_SIGNAL to service", e));
   }
 };
@@ -295,8 +294,6 @@ TcpManager.prototype.startService = function(serviceInstance) {
           return instance.disconnect();
         });
     }).catch(function(err) {
-      console.log('ssh startservice error');
-      console.log(err);
       return reject(err);
     });
   });
@@ -311,7 +308,7 @@ TcpManager.prototype.statusService = function(serviceInstance) {
   var self = this;
   try {
     var buffer = self.makebuffer(Signals.STATUS_SIGNAL, {});
-    console.log(buffer);
+    logger.debug(buffer);
 
     var client = _getClient(serviceInstance);
 
@@ -343,7 +340,6 @@ TcpManager.prototype.connect = function(serviceInstance) {
         self.initialize(client);
         return resolve();
       }).catch(function(err) {
-        console.log(err);
         return reject(err);
       });
     } catch (e) {
@@ -392,7 +388,7 @@ TcpManager.prototype.initialize = function(client) {
   var self = this;
   if (!client.isOpen() || client.isRegistered()) { return; }
 
-  console.log("Registering listeners " + client.service.name);
+  logger.debug("Registering listeners " + client.service.name);
   this.registered = true;
 
   var onStatus = function(response) {
@@ -445,7 +441,7 @@ TcpManager.prototype.initialize = function(client) {
         })
         
         .catch(function(err) {
-          console.log(err);
+          logger.warn(err);
         });
     }
   };
@@ -479,7 +475,7 @@ TcpManager.prototype.initialize = function(client) {
 
   // remove listener
   self.on('removeListeners', function() {
-    console.log("Removing listener from " + client.service.name);
+    logger.debug("Removing listener from " + client.service.name);
 
     client.removeListener('status', onStatus);
     client.removeListener('log', onLog);
@@ -501,7 +497,7 @@ TcpManager.prototype.disconnect = function() {
   for(var k in clients) {
     if (clients.hasOwnProperty(k)) {
       clients[k].socket.destroy();
-      console.log(clients[k].service.name + " socket destroyed");
+      logger.debug(clients[k].service.name + " socket destroyed");
     }
   }
 };

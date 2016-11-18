@@ -1292,7 +1292,7 @@ angular.module('terrama2.dataseries.registration', [
         var outputDataSeries = {
           name: dSeriesName,
           description: dataObject.dataSeries.description,
-          data_series_semantic_id: values.semantics.id,
+          data_series_semantics_id: values.semantics.id,
           data_provider_id: values.data_provider,
           dataSets: out
         };
@@ -1310,7 +1310,7 @@ angular.module('terrama2.dataseries.registration', [
       // it prepares dataseries object, schedule and filter object
       var _save = function() {
         var dataToSend = Object.assign({}, $scope.dataSeries);
-        dataToSend.data_series_semantic_id = $scope.dataSeries.semantics.id;
+        dataToSend.data_series_semantics_id = $scope.dataSeries.semantics.id;
 
         var semantics = Object.assign({}, dataToSend.semantics);
         delete dataToSend.semantics;

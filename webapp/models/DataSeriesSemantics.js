@@ -51,6 +51,7 @@ module.exports = function(sequelize, DataTypes) {
           DataSeriesSemantics.hasMany(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: "data_series_semantics_id",
               allowNull: false
             }
           });
