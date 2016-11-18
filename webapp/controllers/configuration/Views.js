@@ -19,7 +19,6 @@ module.exports = function(app) {
         .then(function(view) {
           return response.render("configuration/view", {view: view.rawObject()});
         }).catch(function(err) {
-          console.log(err);
           return response.render("base/404");
         });
     }

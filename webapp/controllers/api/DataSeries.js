@@ -1,5 +1,6 @@
 "use strict";
 
+var logger = require("./../../core/Logger");
 var DataManager = require("../../core/DataManager");
 var PromiseClass = require("./../../core/Promise");
 var TcpService = require('./../../core/facade/tcp-manager/TcpService');
@@ -43,7 +44,7 @@ module.exports = function(app) {
                 "Collectors": [collector.toObject()]
               };
 
-              console.log("OUTPUT: ", JSON.stringify(output));
+              logger.debug("OUTPUT: ", JSON.stringify(output));
 
               TcpService.send(output)
                 .then(function() {
@@ -61,7 +62,7 @@ module.exports = function(app) {
               "DataSeries": [dataSeriesResult.toObject()]
             };
 
-            console.log("OUTPUT: ", JSON.stringify(output));
+            logger.debug("OUTPUT: ", JSON.stringify(output));
 
             TcpService.send(output);
 
@@ -115,7 +116,6 @@ module.exports = function(app) {
 
       if (!schema) {
         if (collector) {
-          console.log("has collector ", collector);
           restriction.Collector = {};
         }
       } else {
@@ -136,7 +136,7 @@ module.exports = function(app) {
           });
           response.json(output);
         }).catch(function(err) {
-          console.log(err);
+          logger.error(err);
           return Utils.handleRequestError(response, err, 400);
         });
       }
