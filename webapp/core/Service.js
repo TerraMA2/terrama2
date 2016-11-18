@@ -142,7 +142,15 @@ var Service = module.exports = function(serviceInstance) {
   self.socket.on('error', function(err) {
     callbackError(err);
     self.emit("serviceError", err);
-    logger.debug("client error: ", err.toString());
+    var errMessage;
+    switch(err.code) {
+      case "ECONNREFUSED":
+        errMessage = "Connection refused.";
+        break;
+      default:
+        errMessage = err.toString();
+    }
+    logger.debug("client error: ", new Error(errMessage).toString());
   });
 
   self.isOpen = function() {

@@ -150,8 +150,8 @@ TcpManager.prototype.$send = function(serviceInstance, data, signal) {
     var client = _getClient(serviceInstance);
     var buffer = this.makebuffer(signal, data);
     logger.debug(buffer);
-    logger.debug"BufferToString: ", buffer.toString());
-    logger.debug"BufferToString size: ", buffer.length);
+    logger.debug("BufferToString: ", buffer.toString());
+    logger.debug("BufferToString size: ", buffer.length);
 
     client.send(buffer);
   } catch (e) {
