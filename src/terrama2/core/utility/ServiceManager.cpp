@@ -122,13 +122,9 @@ void terrama2::core::ServiceManager::updateService(const QJsonObject& obj)
 
   setLogConnectionInfo(uri);
 
-  if(obj.contains("maps_server_uri"))
+  if(obj.contains("additional_info"))
   {
-    QJsonObject additionalInfo;
-    additionalInfo.insert("service", QString("view"));
-    additionalInfo.insert("maps_server_uri", obj["maps_server_uri"]);
-
-    emit viewAdditionalInfoUpdated(additionalInfo);
+    emit additionalInfoUpdated(obj["additional_info"].toObject());
   }
 }
 

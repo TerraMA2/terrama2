@@ -28,7 +28,9 @@ Service.prototype.toObject = function() {
     listening_port: this.port,
     number_of_threads: this.numberOfThreads,
     log_database: this.log instanceof AbstractClass ? this.log.toObject() : this.log,
-    maps_server_uri: this.maps_server_uri
+    additional_info: {
+      maps_server_uri: this.maps_server_uri
+    }
   });
 };
 

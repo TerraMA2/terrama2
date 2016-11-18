@@ -90,7 +90,11 @@ namespace terrama2
           */
           void notifyWaitQueue(ViewId viewId);
 
-          void setMapsServer(const QJsonObject& obj) noexcept;
+          /*!
+           * \brief Receive a jSon and update service information with it
+           * \param obj jSon with additional information for service
+           */
+          virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
 
         protected:
 

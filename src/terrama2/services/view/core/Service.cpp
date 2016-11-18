@@ -62,10 +62,6 @@ terrama2::services::view::core::Service::Service(std::weak_ptr<terrama2::service
   : dataManager_(dataManager)
 {
   connectDataManager();
-
-  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-
-  QObject::connect(&serviceManager, &terrama2::core::ServiceManager::viewAdditionalInfoUpdated, this, &terrama2::services::view::core::Service::setMapsServer);
 }
 
 bool terrama2::services::view::core::Service::hasDataOnQueue() noexcept
@@ -605,21 +601,14 @@ void terrama2::services::view::core::Service::notifyWaitQueue(ViewId viewId)
 
 }
 
-void terrama2::services::view::core::Service::setMapsServer(const QJsonObject& obj) noexcept
+void terrama2::services::view::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
 {
-  if(obj["service"].toString().toStdString() != "view")
+  if(!obj.contains("maps_server_uri"))
   {
-    TERRAMA2_LOG_ERROR() << tr("Service additional information does not belong to this service!");
+    TERRAMA2_LOG_ERROR() << tr("Missing the Maps Server URI in service additional info!");
   }
   else
   {
-    if(!obj.contains("maps_server_uri"))
-    {
-      TERRAMA2_LOG_ERROR() << tr("Missing the Maps Server URI in service additional info!");
-    }
-    else
-    {
-      mapsServerUri_ = te::core::URI(obj["maps_server_uri"].toString().toStdString());
-    }
+    mapsServerUri_ = te::core::URI(obj["maps_server_uri"].toString().toStdString());
   }
 }
