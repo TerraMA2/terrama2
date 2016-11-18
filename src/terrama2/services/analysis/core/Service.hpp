@@ -106,6 +106,12 @@ namespace terrama2
              */
             virtual void start(size_t threadNumber = 0) override;
 
+            /*!
+             * \brief Receive a jSon and update service information with it
+             * \param obj jSon with additional information for service
+             */
+            virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
+
           protected:
 
             /*!

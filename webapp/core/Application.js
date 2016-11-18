@@ -28,6 +28,8 @@ var _context = "default";
  * It defines a TerraMA² Application metadata.
  * 
  * It loads WebApp metadata (package.json), Database configuration (config/config.terrama2)
+ * 
+ * @class Application
  */
 function Application() {
   this.load();

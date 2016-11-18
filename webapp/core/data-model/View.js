@@ -32,11 +32,6 @@
      */
     this.description = params.description;
     /**
-     * View server URI. The server may be a GeoServer
-     * @type {string}
-     */
-    this.mapsServerUri = params.maps_server_uri || params.mapsServerUri;
-    /**
      * View style script
      * @type {string}
      */
@@ -90,7 +85,6 @@
       id: this.id,
       name: this.name,
       description: this.description,
-      maps_server_uri: this.mapsServerUri,
       style: this.style,
       dataseries_id: this.dataSeries,
       schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
