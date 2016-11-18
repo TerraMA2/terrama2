@@ -556,5 +556,6 @@
 		"TypeError": " self.$watch is not a function"
 	},
 	"Port number": "Port number",
-	"OGR static data file": "OGR static data file"
+	"OGR static data file": "OGR static data file",
+	"Output format is required": "Output format is required"
 }
