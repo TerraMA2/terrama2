@@ -993,7 +993,7 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.initializing) {
           $scope.initializing = false;
         } else {
-          if (val && Object.keys(val).length == 0) {
+          if ((val && Object.keys(val).length == 0) || val == null) {
             $scope.dataSeries.access = 'PROCESSING';
           } else {
             $scope.dataSeries.access = 'COLLECT';
