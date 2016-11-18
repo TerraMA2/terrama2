@@ -23,7 +23,6 @@ module.exports = function(app) {
           );
           return response.render("configuration/view", {view: output});
         }).catch(function(err) {
-          console.log(err);
           return response.render("base/404");
         });
     }

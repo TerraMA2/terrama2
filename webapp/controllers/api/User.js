@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = function(app) {
+  var logger = require("./../../core/Logger");
   var DataManager = require("./../../core/DataManager");
   var Utils = require("./../../core/Utils");
   var TokenCode = require("./../../core/Enums").TokenCode;
-
 
   return {
     get: function(request, response) {
@@ -12,7 +12,6 @@ module.exports = function(app) {
 
       var _handleError = function(err) {
         var errors = err.getErrors ? err.getErrors() : [];
-        console.log(err);
         response.statusCode(400);
         response.json({status: 400, message: err.toString(), errors: errors});
       };
@@ -52,7 +51,7 @@ module.exports = function(app) {
         });
       }).catch(function(err) {
         var errors = err.getErrors ? err.getErrors() : [];
-        console.log(err);
+        logger.error(err);
         response.statusCode = 400;
         response.json({status: 400, message: err.toString(), errors: errors});
       });

@@ -39,7 +39,6 @@ module.exports = function(app) {
         else
           response.redirect("/configuration/status");
       }).catch(function(err) {
-        console.log(err);
         response.render('base/404');
       });
     }

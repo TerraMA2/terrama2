@@ -20,6 +20,7 @@ var LocalSystemAdapter = module.exports = function() { };
 // dependencies
 var Utils = require("./../../Utils");
 var PromiseClass = require("./../../Promise");
+var logger = require("./../../Logger");
 
 /**
  * It will generates command to use in executor. The output might be: nohup COMMAND &
@@ -62,7 +63,7 @@ LocalSystemAdapter.prototype.executeCommand = function(executor, command, servic
     var commandArgs = self.commandArgs(command);
     var localCommand = "nohup";
 
-    console.log(localCommand, commandArgs);
+    logger.debug(localCommand, commandArgs);
 
     return executor
       .execute(localCommand, commandArgs)

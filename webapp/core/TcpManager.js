@@ -343,7 +343,6 @@ TcpManager.prototype.connect = function(serviceInstance) {
         self.initialize(client);
         return resolve();
       }).catch(function(err) {
-        console.log(err);
         return reject(err);
       });
     } catch (e) {

@@ -95,7 +95,6 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId, sh
       })
 
       .catch(function(err) {
-        console.log(err);
         return reject(err);
       });
     } catch (err) {

@@ -1,6 +1,7 @@
 "use strict";
 
 var Client = require('ssh2').Client;
+var logger = require("./../Logger");
 var Promise = require("./../Promise");
 var fs = require('fs');
 var util = require('util');
@@ -46,7 +47,7 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
     });
 
     self.client.on('error', function(err) {
-      console.log(err);
+      logger.error("Error in SSH connection.", err);
       self.connected = false;
       return reject(new Error("Error while connecting. " + err.message));
     });
@@ -103,11 +104,11 @@ SSHDispatcher.prototype.execute = function(command) {
       var responseMessage = "";
 
       stream.on('exit', function(code, signal) {
-        console.log("ssh-EXIT: ", code, signal);
+        logger.debug("ssh-EXIT: ", code, signal);
       });
 
       stream.on('close', function(code, signal) {
-        console.log('code: ' + code + ', signal: ' + signal);
+        logger.debug('code: ' + code + ', signal: ' + signal);
 
         if (code === 0) {
           return resolve({code: code, data: responseMessage.replace("\n", "")});
@@ -128,15 +129,15 @@ SSHDispatcher.prototype.execute = function(command) {
               self.platform = platform;
               self.adapter = new LocalSystemAdapter();
             default:
-              console.log("Unknown platform");
+              logger.debug("Unknown platform");
               self.platform = Enums.OS.UNKNOWN;
           }
           responseMessage = dataStr;
         }
 
-        console.log('ssh-STDOUT: ' + data);
+        logger.debug('ssh-STDOUT: ' + data);
       }).stderr.on('data', function(data) {
-        console.log('ssh-STDERR: ' + data);
+        logger.debug('ssh-STDERR: ' + data);
       });
     });
   });
@@ -157,8 +158,6 @@ SSHDispatcher.prototype.startService = function(commandType) {
       var enviromentVars = serviceInstance.runEnviroment;
 
       var command = util.format("%s %s %s", executable, serviceTypeString, port);
-
-      console.log("Platform " + self.platform);
 
       var _handleError = function(err, code) {
         reject(err, code);
@@ -183,11 +182,11 @@ SSHDispatcher.prototype.startService = function(commandType) {
       // checking if there enviromentVars to be exported
       if (enviromentVars) {
         self.execute(enviromentVars).then(function(code) {
-          console.log("Success setting enviroment vars");
-          console.log(code);
+          logger.debug("Success setting enviroment vars");
+          logger.debug(code);
           _executeCommand();
         }).catch(function(err, code) {
-          console.log("**Could not export enviroment vars**");
+          logger.error("**Could not export enviroment vars** ", enviromentVars);
           reject(err, code);
         });
       } else {

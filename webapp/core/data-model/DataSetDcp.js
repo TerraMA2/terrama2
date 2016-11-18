@@ -2,6 +2,7 @@
 
 // Baseclass
 var DataSet = require('./DataSet');
+var logger = require("./../Logger");
 // helpers
 var isString = require("./../Utils").isString;
 
@@ -31,7 +32,7 @@ DataSetDcp.prototype.setPosition = function(position) {
       this.position = JSON.parse(position);
     } catch (e) {
       // ???
-      console.log("Error during position parse. " + e.toString());
+      logger.debug("Error during position parse. " + e.toString());
       this.position = position;
     }
   } else { // null / object
