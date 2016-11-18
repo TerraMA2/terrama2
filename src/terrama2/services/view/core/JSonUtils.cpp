@@ -58,7 +58,6 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("imageResolutionWidth", static_cast<int32_t>(view->imageResolutionWidth));
   obj.insert("imageResolutionHeight", static_cast<int32_t>(view->imageResolutionHeight));
   obj.insert("srid", static_cast<int32_t>(view->srid));
-  obj.insert("maps_server_uri", QString(view->maps_server_uri.uri().c_str()));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
 
   DataSeriesId dataSeriesID = view->dataSeriesList.at(0);
@@ -93,7 +92,6 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("active")
      || !json.contains("dataseries_id")
      || !json.contains("style")
-     || !json.contains("maps_server_uri")
      || !json.contains("schedule"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
@@ -116,9 +114,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
 
   view->stylesPerDataSeries.emplace(dataseriesID, json["style"].toString().toStdString());
 
-  view->maps_server_uri = te::core::URI(json["maps_server_uri"].toString().toStdString());
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
-
 
   view->imageName = json["imageName"].toString().toStdString();
   view->imageType = te::map::ImageType(json["imageType"].toInt());

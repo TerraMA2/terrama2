@@ -93,6 +93,12 @@ namespace terrama2
             */
             void notifyWaitQueue(CollectorId collectorId);
 
+            /*!
+             * \brief Receive a jSon and update service information with it
+             * \param obj jSon with additional information for service
+             */
+            virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
+
           protected:
             // comments on base class
             virtual bool hasDataOnQueue() noexcept override;

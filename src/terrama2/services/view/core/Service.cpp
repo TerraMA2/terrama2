@@ -264,7 +264,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
       // Check if the view can be done by the maps server
       bool mapsServerGeneration = false;
 
-      if(!viewPtr->maps_server_uri.uri().empty())
+      if(!mapsServerUri_.uri().empty())
       {
         if(dataFormat != "OGR" && dataFormat != "POSTGIS" && dataFormat != "GEOTIFF")
         {
@@ -278,7 +278,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
       if(mapsServerGeneration)
       {
-        GeoServer geoserver(viewPtr->maps_server_uri);
+        GeoServer geoserver(mapsServerUri_);
 
         geoserver.registerWorkspace();
 
@@ -599,4 +599,16 @@ void terrama2::services::view::core::Service::notifyWaitQueue(ViewId viewId)
     mainLoopCondition_.notify_one();
   }
 
+}
+
+void terrama2::services::view::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
+{
+  if(!obj.contains("maps_server_uri"))
+  {
+    TERRAMA2_LOG_ERROR() << tr("Missing the Maps Server URI in service additional info!");
+  }
+  else
+  {
+    mapsServerUri_ = te::core::URI(obj["maps_server_uri"].toString().toStdString());
+  }
 }

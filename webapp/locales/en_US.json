@@ -548,5 +548,13 @@
 	"PostGIS occurrence": "PostGIS occurrence",
 	"Save": "Save",
 	"Save and Run": "Save and Run",
-	"Projection SRID": "Projection SRID"
+	"Projection SRID": "Projection SRID",
+	"Geometric Object": "Geometric Object",
+	"Maps Server URI": "Maps Server URI",
+	"Maps Server URI is required for View Services": "Maps Server URI is required for View Services",
+	"An error occurred during TerraMA² Service Page loading": {
+		"TypeError": " self.$watch is not a function"
+	},
+	"Port number": "Port number",
+	"OGR static data file": "OGR static data file"
 }
