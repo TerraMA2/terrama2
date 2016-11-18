@@ -117,7 +117,6 @@
       viewObj = view.get();
     }
     this.view = new View(viewObj);
-    this.$uriObject = URIBuilder.buildObject(this.view.mapsServerUri, URISyntax);
   };
   /**
    * Get real representation of RegisteredView

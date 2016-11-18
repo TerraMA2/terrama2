@@ -135,7 +135,6 @@ var DataManager = module.exports = {
 
         // default services
         var collectorService = {
-          id: 1,
           name: "Local Collector",
           description: "Local service for Collect",
           port: 6543,
@@ -152,7 +151,6 @@ var DataManager = module.exports = {
         };
 
         var analysisService = Object.assign({}, collectorService);
-        analysisService.id = 2;
         analysisService.name = "Local Analysis";
         analysisService.description = "Local service for Analysis";
         analysisService.port = 6544;
@@ -162,7 +160,6 @@ var DataManager = module.exports = {
         inserts.push(self.addServiceInstance(analysisService));
 
         var viewService = Object.assign({}, collectorService);
-        viewService.id = 3;
         viewService.name = "Local View";
         viewService.description = "Local service for View";
         viewService.port = 6546;
@@ -914,7 +911,7 @@ var DataManager = module.exports = {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
             fields: ['name', 'description', 'port', 
                      'numberOfThreads', 'runEnviroment', 'host', 
-                     'sshUser', 'sshPort', 'pathToBinary'],
+                     'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
             where: { id: serviceId }
           }, options))
           .then(function() {
@@ -3379,7 +3376,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "maps_server_uri", "data_series_id", "style", "active", "service_instance_id"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id"],
           where: restriction
         }, options))
 
