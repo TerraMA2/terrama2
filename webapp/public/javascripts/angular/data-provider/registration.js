@@ -5,7 +5,7 @@ var app = angular.module("terrama2.dataprovider.registration", ['terrama2', 'sch
 app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout",
   function($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout) {
     $scope.i18n = i18n;
-    var model = {}
+    var model = {};
 
     var conf = configuration;
     if (conf.dataProvider.uriObject) {
@@ -66,7 +66,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     }
 
     $scope.redirectUrl = makeRedirectUrl();
-
+  
     $scope.errorFound = false;
     $scope.isEditing = conf.isEditing;
     $scope.alertBox = {};
@@ -113,15 +113,19 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       });
     };
 
-    // listen connectino data to get database
+    // listen connection data to get database list
+    
+    $scope.dbList = [];
+    var timeoutPromise;
     $scope.$watch('model', function(){
-      if ($scope.dataProvider.protocol !== "POSTGIS" || !$scope.forms.connectionForm.hostname || !$scope.forms.connectionForm.port || !$scope.forms.connectionForm.user){
-        return;
-      }
-      console.log($scope.model);
-      console.log('changed');
+      $timeout.cancel(timeoutPromise);
+      timeoutPromise = $timeout(function(){
+        if ($scope.dataProvider.protocol !== "POSTGIS" || !$scope.forms.connectionForm.hostname || !$scope.forms.connectionForm.port || !$scope.forms.connectionForm.user){
+          return;
+        }
+        var datas = getDatabaseList();
+      }, 1000);
     }, true);
-
 
     var getDatabaseList = function(){
       var timeOut = $q.defer();
