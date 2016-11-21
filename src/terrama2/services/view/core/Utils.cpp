@@ -57,11 +57,11 @@
 #include <QTextStream>
 #include <QString>
 
-void terrama2::services::view::core::createGeoserverShapefile(terrama2::core::DataManagerPtr dataManager,
-                                                              terrama2::core::DataSetPtr dataset,
-                                                              const terrama2::core::Filter& filter,
-                                                              const std::string& exhibitionName,
-                                                              const std::string& outputFolder)
+void terrama2::services::view::core::createGeoserverTempMosaic(terrama2::core::DataManagerPtr dataManager,
+                                                               terrama2::core::DataSetPtr dataset,
+                                                               const terrama2::core::Filter& filter,
+                                                               const std::string& exhibitionName,
+                                                               const std::string& outputFolder)
 {
 
 
