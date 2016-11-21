@@ -49,6 +49,10 @@ Grads.prototype.schema = function() {
         title: "Multiplier",
         default: 1
       },
+      data_type: {
+        type: Form.Field.TEXT,
+        title: "Data Type"
+      },
       binary_file_mask: {
         type: Form.Field.TEXT,
         title: "Binary File Mask"
@@ -76,7 +80,7 @@ Grads.prototype.schema = function() {
         title: "Time Interval Unit"
       }
     }),
-    required: ['ctl_filename', 'srid', 'timezone', 'number_of_bands', 'value_multiplier', 'bytes_before', 'bytes_after', 'time_interval', 'time_interval_unit']
+    required: ['ctl_filename', 'srid', 'timezone', 'number_of_bands', 'value_multiplier', 'data_type', 'bytes_before', 'bytes_after', 'time_interval', 'time_interval_unit']
   };
 };
 
@@ -89,21 +93,27 @@ Grads.prototype.form = function() {
     },
     {
       key: 'srid',
-      htmlClass: "col-md-3 terrama2-schema-form grads-form-item"
+      htmlClass: "col-md-2 terrama2-schema-form grads-form-item"
     },
     {
       key: 'timezone',
-      htmlClass: "col-md-3 terrama2-schema-form grads-form-item",
+      htmlClass: "col-md-2 terrama2-schema-form grads-form-item",
       type: 'select',
       titleMap: Utils.getTimezonesGUI()
     },
     {
       key: 'number_of_bands',
-      htmlClass: "col-md-3 terrama2-schema-form grads-form-item"
+      htmlClass: "col-md-2 terrama2-schema-form grads-form-item"
     },
     {
       key: 'value_multiplier',
-      htmlClass: "col-md-3 terrama2-schema-form grads-form-item"
+      htmlClass: "col-md-2 terrama2-schema-form grads-form-item"
+    },
+    {
+      key: 'data_type',
+      htmlClass: "col-md-4 terrama2-schema-form grads-form-item",
+      type: 'select',
+      titleMap: [{ name: 'Integer (INT16)', value: 'INT16' }, { name: 'Float (FLOAT32)', value: 'FLOAT32' }]
     },
     {
       key: 'binary_file_mask',
