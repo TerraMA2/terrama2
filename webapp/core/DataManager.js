@@ -852,9 +852,15 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
+<<<<<<< 470a209f0a0659d463926ebca1a84406f7b0c9a0
             fields: ['name', 'description', 'port', 
                      'numberOfThreads', 'runEnviroment', 'host', 
                      'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
+=======
+            fields: ['name', 'description', 'port',
+                     'numberOfThreads', 'runEnviroment', 'host',
+                     'sshUser', 'sshPort', 'pathToBinary'],
+>>>>>>> improving importation
             where: { id: serviceId }
           }, options))
           .then(function() {
@@ -3228,9 +3234,13 @@ var DataManager = module.exports = {
    * @param {Object} restriction.dataSet - TerraMA² Output data set restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
+<<<<<<< 470a209f0a0659d463926ebca1a84406f7b0c9a0
+=======
+   * @param {boolean} ignoreAnalysisDsMetaDataSeries - Flag that indicates if the AnalysisDsMetaDataSeries should be ignored
+>>>>>>> improving importation
    * @return {Promise<DataModel.Analysis>}
    */
-  getAnalysis: function(restriction, options) {
+  getAnalysis: function(restriction, options, ignoreAnalysisDsMetaDataSeries) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var restrict = Object.assign({}, restriction || {});
@@ -3280,7 +3290,7 @@ var DataManager = module.exports = {
             analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
               var ds = Utils.find(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
               var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
-              analysisDsMeta.setDataSeries(ds);
+              if(ignoreAnalysisDsMetaDataSeries == undefined || ignoreAnalysisDsMetaDataSeries == null || !ignoreAnalysisDsMetaDataSeries) analysisDsMeta.setDataSeries(ds);
               analysisInstance.addAnalysisDataSeries(analysisDsMeta);
             });
 
