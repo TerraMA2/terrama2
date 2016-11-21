@@ -381,11 +381,11 @@ var ImportExport = function(io) {
           promises.push(DataManager.getDataSeries({id: target.id}).then(function(dataSeries) {
             output.DataSeries.push(addID(dataSeries));
 
-            if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
-              promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+            promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+              if(!isInArray(dataProvider.id, output.DataProviders)) {
                 output.DataProviders.push(addID(dataProvider));
-              }));
-            }
+              }
+            }));
           }));
         }
       }
@@ -400,29 +400,29 @@ var ImportExport = function(io) {
           promises.push(DataManager.getCollector({id: target.id}).then(function(collector) {
             output.Collectors.push(addID(collector));
 
-            if(!isInArray(collector.data_series_input, output.DataSeries)) {
-              promises.push(DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
+            promises.push(DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
+              if(!isInArray(dataSeries.id, output.DataSeries)) {
                 output.DataSeries.push(addID(dataSeries));
 
-                if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
-                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                  if(!isInArray(dataProvider.id, output.DataProviders)) {
                     output.DataProviders.push(addID(dataProvider));
-                  }));
-                }
-              }));
-            }
+                  }
+                }));
+              }
+            }));
 
-            if(!isInArray(collector.data_series_output, output.DataSeries)) {
-              promises.push(DataManager.getDataSeries({id: collector.data_series_output}).then(function(dataSeries) {
+            promises.push(DataManager.getDataSeries({id: collector.data_series_output}).then(function(dataSeries) {
+              if(!isInArray(dataSeries.id, output.DataSeries)) {
                 output.DataSeries.push(addID(dataSeries));
 
-                if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
-                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                  if(!isInArray(dataProvider.id, output.DataProviders)) {
                     output.DataProviders.push(addID(dataProvider));
-                  }));
-                }
-              }));
-            }
+                  }
+                }));
+              }
+            }));
           }));
         }
       }
@@ -443,17 +443,17 @@ var ImportExport = function(io) {
               rawAnalysis.analysis_dataseries_list[j].$id = rawAnalysis.analysis_dataseries_list[j].id;
               delete rawAnalysis.analysis_dataseries_list[j].id;
 
-              if(!isInArray(rawAnalysis.analysis_dataseries_list[j].data_series_id, output.DataSeries)) {
-                promises.push(DataManager.getDataSeries({id: rawAnalysis.analysis_dataseries_list[j].data_series_id}).then(function(dataSeries) {
+              promises.push(DataManager.getDataSeries({id: rawAnalysis.analysis_dataseries_list[j].data_series_id}).then(function(dataSeries) {
+                if(!isInArray(dataSeries.id, output.DataSeries)) {
                   output.DataSeries.push(addID(dataSeries));
 
-                  if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
-                    promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                    if(!isInArray(dataProvider.id, output.DataProviders)) {
                       output.DataProviders.push(addID(dataProvider));
-                    }));
-                  }
-                }));
-              }
+                    }
+                  }));
+                }
+              }));
             }
 
             output.Analysis.push(rawAnalysis);
@@ -471,17 +471,17 @@ var ImportExport = function(io) {
           promises.push(DataManager.getView({id: target.id}).then(function(view) {
             output.Views.push(addID(view));
 
-            if(!isInArray(view.data_series_id, output.DataSeries)) {
-              promises.push(DataManager.getDataSeries({id: view.data_series_id}).then(function(dataSeries) {
+            promises.push(DataManager.getDataSeries({id: view.data_series_id}).then(function(dataSeries) {
+              if(!isInArray(dataSeries.id, output.DataSeries)) {
                 output.DataSeries.push(addID(dataSeries));
 
-                if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
-                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                  if(!isInArray(dataProvider.id, output.DataProviders)) {
                     output.DataProviders.push(addID(dataProvider));
-                  }));
-                }
-              }));
-            }
+                  }
+                }));
+              }
+            }));
           }));
         }
       }
