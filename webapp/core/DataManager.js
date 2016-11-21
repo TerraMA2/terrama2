@@ -3230,7 +3230,7 @@ var DataManager = module.exports = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<DataModel.Analysis>}
    */
-  getAnalysis: function(restriction, options) {
+  getAnalysis: function(restriction, options, ignoreAnalysisDsMetaDataSeries) {
     var self = this;
     return new Promise(function(resolve, reject) {
       var restrict = Object.assign({}, restriction || {});
@@ -3280,7 +3280,7 @@ var DataManager = module.exports = {
             analysisResult.AnalysisDataSeries.forEach(function(analysisDataSeries) {
               var ds = Utils.find(self.data.dataSeries, {id: analysisDataSeries.data_series_id});
               var analysisDsMeta = new DataModel.AnalysisDataSeries(analysisDataSeries.get());
-              analysisDsMeta.setDataSeries(ds);
+              if(ignoreAnalysisDsMetaDataSeries == undefined || ignoreAnalysisDsMetaDataSeries == null || !ignoreAnalysisDsMetaDataSeries) analysisDsMeta.setDataSeries(ds);
               analysisInstance.addAnalysisDataSeries(analysisDsMeta);
             });
 
