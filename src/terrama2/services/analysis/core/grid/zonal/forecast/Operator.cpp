@@ -289,6 +289,9 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
                                                                                 const size_t var,
                                                                                 terrama2::services::analysis::core::Buffer buffer = Buffer())
 {
+  //TODO: not implemented
+  assert(0);
+  
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
@@ -397,6 +400,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
         double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
 
+//TODO: not implemented!!!
         int bandBegin = 1 + /*horario do raster*/ + secondsToBefore/interval;
         int bandEnd = 1 + /*horario do raster*/ + secondsToAfter/interval;
 
