@@ -55,20 +55,6 @@ namespace terrama2
             {
               namespace accum
               {
-
-                //! Hash function for coordinates as key of a unordered_map
-                struct PairHash
-                {
-                  std::size_t operator()(const std::pair<int, int>& pair) const
-                  {
-                    size_t hash = 0;
-                    boost::hash_combine(hash, pair.first);
-                    boost::hash_combine(hash, pair.second);
-
-                    return hash;
-                  }
-                };
-
                 //! Get absolute time from the timeStr string.
                 double getAbsTimeFromString(const std::string& timeStr);
 
@@ -185,7 +171,7 @@ namespace terrama2
                 */
                 double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
-                std::unordered_map<std::pair<int, int>, std::pair<double, int>, PairHash>
+                std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int>>  >
                  getAccumulatedMap(const std::string& dataSeriesName,
                                    const std::string& dateDiscardBefore,
                                    const std::string& dateDiscardAfter,

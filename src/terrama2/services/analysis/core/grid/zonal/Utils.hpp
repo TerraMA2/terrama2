@@ -57,15 +57,6 @@ namespace terrama2
           {
             namespace utils
             {
-              //Cantor pairing function for hashing the pair (column X row) https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-              struct PairHash
-              {
-                std::size_t operator()(const std::pair<int, int>& pair) const
-                {
-                  return 0.5*(pair.first+pair.second)*(pair.first+pair.second+1)+pair.second;;
-                }
-              };
-
               struct mapValueIsLesser
               {
                   template<class U, class T>

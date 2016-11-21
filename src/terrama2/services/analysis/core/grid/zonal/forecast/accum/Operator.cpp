@@ -141,7 +141,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
 
     /////////////////////////////////////////////////////////////////
     //map of sum of values for each pixel
-    std::unordered_map<std::pair<int, int>, std::pair<double, int>, prec::PairHash> valuesMap;
+    std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int>>  > valuesMap;
 
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)
