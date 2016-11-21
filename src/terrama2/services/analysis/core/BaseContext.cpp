@@ -186,7 +186,7 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
   }
 }
 
-std::unique_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::BaseContext::getTimeFromString(const std::string& timeString)
+std::unique_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::BaseContext::getTimeFromString(const std::string& timeString) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
@@ -199,12 +199,10 @@ std::unique_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::BaseC
 }
 
 std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >
-terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataSeriesId,
-    const std::string& dateDiscardBefore,
-    const std::string& dateDiscardAfter)
+terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataSeriesId, const terrama2::core::Filter& filter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  ObjectKey key(dataSeriesId, dateDiscardBefore, dateDiscardAfter);
+  ObjectKey key(dataSeriesId, filter);
 
   auto dataManager = getDataManager().lock();
 
@@ -225,10 +223,6 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
 
     terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
     std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
-
-    terrama2::core::Filter filter;
-    filter.discardBefore = getTimeFromString(dateDiscardBefore);
-    filter.discardAfter = getTimeFromString(dateDiscardAfter);
 
     auto gridSeries = accessorGrid->getGridSeries(filter, remover_);
 

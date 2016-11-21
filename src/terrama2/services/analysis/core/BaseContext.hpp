@@ -73,18 +73,7 @@ namespace terrama2
        struct ObjectKey
        {
          public:
-
-           inline ObjectKey(uint32_t objectId, std::string dateFilterBegin = "", std::string dateFilterEnd = "")
-             : objectId_(objectId),
-               dateFilterBegin_(dateFilterBegin),
-               dateFilterEnd_(dateFilterEnd)
-           {
-             hash_ = 0;
-             boost::hash_combine(hash_, objectId_);
-             boost::hash_combine(hash_, std::hash<std::string>()(dateFilterBegin_ + dateFilterEnd_));
-           }
-
-           inline ObjectKey(uint32_t objectId, const terrama2::core::Filter& filter)
+           inline ObjectKey(uint32_t objectId, const terrama2::core::Filter& filter = terrama2::core::Filter())
              : objectId_(objectId)
            {
              hash_ = 0;
@@ -103,20 +92,8 @@ namespace terrama2
              return objectId_;
            }
 
-           inline std::string getDateFilterBegin() const
-           {
-             return dateFilterBegin_;
-           }
-
-           inline std::string getDateFilterEnd() const
-           {
-             return dateFilterEnd_;
-           }
-
          private:
            uint32_t objectId_; //!< Object identifier.
-           std::string dateFilterBegin_; //!< Begin date restriction.
-           std::string dateFilterEnd_; //!< End date restriction.
            std::size_t hash_; //! Hash code.
        };
 
@@ -138,18 +115,7 @@ namespace terrama2
           */
           bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            if(lhs.getObjectId() < rhs.getObjectId())
-            {
-              return true;
-            }
-            else if(lhs.getObjectId() > rhs.getObjectId())
-            {
-              return false;
-            }
-            else
-            {
-              return lhs.getDateFilterBegin().compare(rhs.getDateFilterBegin()) < 0;
-            }
+            return lhs.hashCode() < rhs.hashCode();
           }
         };
 
@@ -157,7 +123,7 @@ namespace terrama2
         {
           bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
           {
-            return lhs.getObjectId() == rhs.getObjectId()&& lhs.getDateFilterBegin() == rhs.getDateFilterBegin() && lhs.getDateFilterEnd() == rhs.getDateFilterEnd();
+            return lhs.hashCode() == rhs.hashCode();
           }
         };
 
@@ -207,10 +173,9 @@ namespace terrama2
 
 
             std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > getSeriesMap(DataSeriesId dataSeriesId,
-                const std::string& dateDiscardBefore = "",
-                const std::string& dateDiscardAfter = "");
+                const terrama2::core::Filter& filter = terrama2::core::Filter());
 
-            std::unique_ptr<te::dt::TimeInstantTZ> getTimeFromString(const std::string& timeString);
+            std::unique_ptr<te::dt::TimeInstantTZ> getTimeFromString(const std::string& timeString) const;
 
           protected:
             /*!

@@ -230,7 +230,11 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto seriesList = context->getSeriesMap(dataSeries->id, dateDiscardBefore, "0s");
+    terrama2::core::Filter filter;
+    filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
+    filter.discardAfter = context->getTimeFromString("0s");
+
+    auto seriesList = context->getSeriesMap(dataSeries->id, filter);
     for(auto pair : seriesList)
     {
       auto series = pair.second;
