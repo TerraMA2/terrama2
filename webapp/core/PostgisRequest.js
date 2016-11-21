@@ -4,6 +4,7 @@ var Promise = require("bluebird");
 var ConnectionError = require("./Exceptions").ConnectionError;
 var Form = require('./Enums').Form;
 var UriPattern = require("./Enums").Uri;
+var PostGISObjects = require("./Enums").PostGISObjects;
 var Utils = require("./Utils");
 
 
@@ -91,11 +92,19 @@ PostgisRequest.prototype.get = function (){
         }
         return reject(new ConnectionError(errorMessage));
       }
-      var databases = client.query("SELECT datname FROM pg_database WHERE datistemplate = false;");
-      databases.on('row', (row) => {
+      var query;
+      switch (self.params.objectToGet){
+        case PostGISObjects.DATABASE:
+          query = "SELECT datname FROM pg_database WHERE datistemplate = false;";
+          break;
+        default:
+          break;
+      }
+      var queryResult = client.query(query);
+      queryResult.on('row', (row) => {
         results.push(row);
       });
-      databases.on('end', () => {
+      queryResult.on('end', () => {
         client.end();
         resolve(results);
       })

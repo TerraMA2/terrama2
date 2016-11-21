@@ -132,6 +132,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
       var params = $scope.model;
       params.protocol = $scope.dataProvider.protocol;
+      params.objectToGet = "database";
 
       var httpRequest = $http({
         method: "GET",
