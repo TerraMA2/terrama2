@@ -89,11 +89,11 @@ std::shared_ptr<terrama2::core::SynchronizedInterpolator> terrama2::services::an
 
 std::vector< std::shared_ptr<te::rst::Raster> >
 terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::core::DataSeriesPtr& dataSeries,
-    const DataSetId datasetId, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter)
+    const DataSetId datasetId, const terrama2::core::Filter& filter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key(datasetId, dateDiscardBefore, dateDiscardAfter);
+  ObjectKey key(datasetId, filter);
 
   try
   {
@@ -114,9 +114,8 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
       interpolationMethod = static_cast<int>(analysis_->outputGridPtr->interpolationMethod);
     }
 
-
     // First call, need to call sample for each dataset raster and store the result in the context.
-    auto gridMap = getGridMap(dataManager, dataSeries->id, dateDiscardBefore, dateDiscardAfter);
+    auto gridMap = getGridMap(dataManager, dataSeries->id, filter);
 
     std::for_each(gridMap.begin(), gridMap.end(), [this, datasetId, key, interpolationMethod](decltype(*gridMap.begin()) it)
     {
@@ -145,11 +144,10 @@ terrama2::services::analysis::core::BaseContext::getRasterList(const terrama2::c
 std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
 terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::analysis::core::DataManagerPtr dataManager,
     DataSeriesId dataSeriesId,
-    const std::string& dateDiscardBefore,
-    const std::string& dateDiscardAfter)
+    const terrama2::core::Filter& filter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  ObjectKey key(dataSeriesId, dateDiscardBefore, dateDiscardAfter);
+  ObjectKey key(dataSeriesId, filter);
 
   try
   {
@@ -174,7 +172,6 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    terrama2::core::Filter filter = createFilter(dateDiscardBefore, dateDiscardAfter);
     auto gridSeries = accessorGrid->getGridSeries(filter, remover_);
 
     if(!gridSeries)
@@ -189,57 +186,23 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
   }
 }
 
-terrama2::core::Filter terrama2::services::analysis::core::BaseContext::createFilter(const std::string& dateDiscardBefore, const std::string& dateDiscardAfter)
+std::unique_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::BaseContext::getTimeFromString(const std::string& timeString) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  terrama2::core::Filter filter;
 
-  filter.discardAfter = startTime_;
-  if(!dateDiscardBefore.empty() || !dateDiscardAfter.empty())
-  {
-    if(!dateDiscardBefore.empty())
-    {
-      boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
-      double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
-      //TODO: PAULO: review losing precision
-      ldt -= boost::posix_time::seconds(seconds);
+  boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
+  double seconds = terrama2::core::TimeUtils::convertTimeString(timeString, "SECOND", "h");
+  //TODO: PAULO: review losing precision
+  ldt -= boost::posix_time::seconds(seconds);
 
-      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-      filter.discardBefore = std::move(titz);
-
-      filter.lastValue = false;
-    }
-
-    if(!dateDiscardAfter.empty())
-    {
-      boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
-      double seconds = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
-      ldt -= boost::posix_time::seconds(seconds);
-
-      std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-      filter.discardAfter = std::move(titz);
-
-      filter.lastValue = false;
-    }
-  }
-  else
-  {
-    // no filter set
-    // use start date as last value
-    filter.discardAfter = std::unique_ptr<te::dt::TimeInstantTZ>(static_cast<te::dt::TimeInstantTZ*>(startTime_->clone()));
-    filter.lastValue = true;
-  }
-
-  return filter;
+  return std::unique_ptr<te::dt::TimeInstantTZ>(new te::dt::TimeInstantTZ(ldt));
 }
 
 std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >
-terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataSeriesId,
-    const std::string& dateDiscardBefore,
-    const std::string& dateDiscardAfter)
+terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataSeriesId, const terrama2::core::Filter& filter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  ObjectKey key(dataSeriesId, dateDiscardBefore, dateDiscardAfter);
+  ObjectKey key(dataSeriesId, filter);
 
   auto dataManager = getDataManager().lock();
 
@@ -261,7 +224,6 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
     terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
     std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
 
-    terrama2::core::Filter filter = createFilter(dateDiscardBefore, dateDiscardAfter);
     auto gridSeries = accessorGrid->getGridSeries(filter, remover_);
 
     if(!gridSeries)

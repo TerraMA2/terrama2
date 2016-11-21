@@ -44,8 +44,8 @@ namespace terrama2
   {
     enum class DataProviderIntent
     {
-      COLLECTOR_INTENT,//!< DataProvider exclusively used as source for collecting data.
-      PROCESS_INTENT//!< DataProvider used as source for processing data, mey be used for collecting.
+      COLLECTOR_INTENT = 1,//!< DataProvider exclusively used as source for collecting data.
+      PROCESS_INTENT = 2//!< DataProvider used as source for processing data, may be used for collecting.
     };
 
     /*!

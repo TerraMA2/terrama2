@@ -20,7 +20,7 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/zonal/history/Operator.hpp
+  \file terrama2/services/analysis/core/grid/zonal/forecast/Operator.hpp
 
   \brief Contains grid zonal analysis operators.
 
@@ -28,8 +28,8 @@
 */
 
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_OPERATOR_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_OPERATOR_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_FORECAST_OPERATOR_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_FORECAST_OPERATOR_HPP__
 
 // TerraMA2
 #include "../../../BufferMemory.hpp"
@@ -49,8 +49,26 @@ namespace terrama2
         {
           namespace zonal
           {
-            namespace history
+            namespace forecast
             {
+              /*!
+                \brief Implementation of grid forecast operator.
+
+                In case of an error or no data available it will return NAN(Not A Number).
+
+                \param statisticOperation The statistic operation chosen by the user.
+                \param dataSeriesName DataSeries name.
+                \param dateFilter Time filter for the data.
+
+                \return A double value with the result.
+              */
+              double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                                  const std::string& dataSeriesName,
+                                  const std::string& dateDiscardBefore,
+                                  const std::string& dateDiscardAfter,
+                                  const size_t var,
+                                  terrama2::services::analysis::core::Buffer buffer = Buffer());
+
               /*!
                 \brief Calculates the number of raster images are available for the area and time constrains.
               */
@@ -60,11 +78,6 @@ namespace terrama2
               */
               boost::python::list list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
-              double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                                  const std::string& dataSeriesName,
-                                  const std::string& dateDiscardBefore,
-                                  const size_t band,
-                                  terrama2::services::analysis::core::Buffer buffer);
               /*!
                 \brief Calculates the sum of zonal grid data.
 
@@ -74,7 +87,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+              double sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               /*!
                 \brief Calculates the mean of zonal grid data.
@@ -86,7 +99,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+              double mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               /*!
                 \brief Calculates the min of zonal grid data.
@@ -98,7 +111,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+              double min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               /*!
                 \brief Calculates the max of zonal grid data.
@@ -113,7 +126,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+              double max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               /*!
                 \brief Calculates the median of zonal grid data.
@@ -125,7 +138,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+              double median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               /*!
                 \brief Calculates the standard deviation of zonal grid data.
@@ -136,7 +149,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+              double standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               /*!
                 \brief Calculates the variance of zonal grid data.
@@ -147,7 +160,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+              double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
             }
           } /* zonal */
         }   // end namespace grid
@@ -156,4 +169,4 @@ namespace terrama2
   }         // end namespace services
 }           // end namespace terrama2
 
-#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_OPERATOR_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_FORECAST_OPERATOR_HPP__

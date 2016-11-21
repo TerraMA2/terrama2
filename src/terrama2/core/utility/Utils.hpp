@@ -39,6 +39,8 @@
 // STL
 #include <string>
 
+#include <terralib/geometry/Coord2D.h>
+
 // Forward declaration
 class QJsonDocument;
 
@@ -110,7 +112,7 @@ namespace terrama2
     double convertDistanceUnit(double distance, const std::string& fromUnit, const std::string& targetUnit);
 
     DataSeriesType dataSeriesTypeFromString(const std::string& type);
-    
+
     DataSeriesTemporality dataSeriesTemporalityFromString(const std::string& temporality);
 
     bool isValidColumn(size_t value);
@@ -134,5 +136,14 @@ namespace terrama2
     te::gm::Coord2D GetCentroidCoord(te::gm::Geometry* geom);
   } // end namespace core
 }   // end namespace terrama2
+
+
+namespace std
+{
+    template<> struct hash<terrama2::core::Filter>
+    {
+        size_t operator()(terrama2::core::Filter const& filter) const;
+    };
+}
 
 #endif // __TERRAMA2_CORE_UTILS_HPP__
