@@ -741,7 +741,7 @@ var ImportExport = function(io) {
       }
 
       Promise.all(promises).then(function() {
-        client.emit("exportResponse", { status: 200, data: output });
+        client.emit("exportResponse", {status: 200, data: output});
       }).catch(_emitError);
     });
   });
