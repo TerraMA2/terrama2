@@ -34,6 +34,7 @@
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/DataSeries.hpp"
 #include "../data-model/DataSet.hpp"
+#include "../data-model/Filter.hpp"
 
 // STL
 #include <string>
@@ -136,6 +137,13 @@ namespace terrama2
   } // end namespace core
 }   // end namespace terrama2
 
-uint32_t SuperFastHash (const char * data, int len);
+
+namespace std
+{
+    template<> struct hash<terrama2::core::Filter>
+    {
+        size_t operator()(terrama2::core::Filter const& filter) const;
+    };
+}
 
 #endif // __TERRAMA2_CORE_UTILS_HPP__

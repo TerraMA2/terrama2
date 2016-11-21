@@ -36,6 +36,7 @@
 
 #include "../../../core/data-model/Filter.hpp"
 #include "../../../core/utility/FileRemover.hpp"
+#include "../../../core/utility/Utils.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
 #include "../../../core/data-access/SynchronizedInterpolator.hpp"
 #include "../../../core/Shared.hpp"
