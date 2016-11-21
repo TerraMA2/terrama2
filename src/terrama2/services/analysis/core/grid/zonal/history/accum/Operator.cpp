@@ -61,7 +61,7 @@ double terrama2::services::analysis::core::grid::zonal::history::accum::getAbsTi
   return std::stod(time);
 }
 
-std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int>>  >
+std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > >
 terrama2::services::analysis::core::grid::zonal::history::accum::getAccumulatedMap(const std::string& dataSeriesName,
                                                                         const std::string& dateDiscardBefore,
                                                                         const std::string& dateDiscardAfter,
@@ -108,7 +108,7 @@ terrama2::services::analysis::core::grid::zonal::history::accum::getAccumulatedM
 
   /////////////////////////////////////////////////////////////////
   //map of sum of values for each pixel
-  std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int>>  > valuesMap;
+  std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > > valuesMap;
 
   terrama2::core::Filter filter;
   filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
