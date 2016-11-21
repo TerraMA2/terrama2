@@ -361,6 +361,7 @@ var ImportExport = function(io) {
         return false;
       };
 
+<<<<<<< 0edc0babb5ab971397e7ceb665575865cec6f2ff
       /*var recursivelyDelete = function(item) {
         checkForDependencies(item._id).then(function() {
           return getChildrenCategories(item._id);
@@ -478,6 +479,8 @@ var ImportExport = function(io) {
         })
       };
 
+=======
+>>>>>>> improving importation
       var promises = [];
       if(json.Projects) {
         target = json.Projects[0] || {};
@@ -529,6 +532,7 @@ var ImportExport = function(io) {
       } // end if projects
 
       if(json.DataProviders) {
+<<<<<<< 0edc0babb5ab971397e7ceb665575865cec6f2ff
         for(var i = 0, dataProvidersLength = json.DataProviders.length; i < dataProvidersLength; i++) {
           promises.push(
             DataManager.getDataProvider({id: json.DataProviders[i].id}).then(function(dataProvider) {
@@ -538,10 +542,20 @@ var ImportExport = function(io) {
               }
             })
           );
+=======
+        output.DataProviders = [];
+
+        for(var i = 0, dataProvidersLength = json.DataProviders.length; i < dataProvidersLength; i++) {
+          target = json.DataProviders[i];
+          promises.push(DataManager.getDataProvider({id: target.id}).then(function(dataProvider) {
+            output.DataProviders.push(addID(dataProvider));
+          }));
+>>>>>>> improving importation
         }
       }
 
       if(json.DataSeries) {
+<<<<<<< 0edc0babb5ab971397e7ceb665575865cec6f2ff
         for(var i = 0, dataSeriesLength = json.DataSeries.length; i < dataSeriesLength; i++) {
           promises.push(
             getDataSeries(json.DataSeries[i].id)
@@ -651,10 +665,64 @@ var ImportExport = function(io) {
               }
             })
           );
+=======
+        output.DataSeries = [];
+        if(output.DataProviders == undefined) output.DataProviders = [];
+
+        for(var i = 0, dataSeriesLength = json.DataSeries.length; i < dataSeriesLength; i++) {
+          target = json.DataSeries[i];
+          promises.push(DataManager.getDataSeries({id: target.id}).then(function(dataSeries) {
+            output.DataSeries.push(addID(dataSeries));
+
+            if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
+              promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                output.DataProviders.push(addID(dataProvider));
+              }));
+            }
+          }));
+        }
+      }
+
+      if(json.Collectors) {
+        output.Collectors = [];
+        if(output.DataSeries == undefined) output.DataSeries = [];
+        if(output.DataProviders == undefined) output.DataProviders = [];
+
+        for(var i = 0, collectorsLength = json.Collectors.length; i < collectorsLength; i++) {
+          target = json.Collectors[i];
+          promises.push(DataManager.getCollector({id: target.id}).then(function(collector) {
+            output.Collectors.push(addID(collector));
+
+            if(!isInArray(collector.data_series_input, output.DataSeries)) {
+              promises.push(DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
+                output.DataSeries.push(addID(dataSeries));
+
+                if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
+                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                    output.DataProviders.push(addID(dataProvider));
+                  }));
+                }
+              }));
+            }
+
+            if(!isInArray(collector.data_series_output, output.DataSeries)) {
+              promises.push(DataManager.getDataSeries({id: collector.data_series_output}).then(function(dataSeries) {
+                output.DataSeries.push(addID(dataSeries));
+
+                if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
+                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                    output.DataProviders.push(addID(dataProvider));
+                  }));
+                }
+              }));
+            }
+          }));
+>>>>>>> improving importation
         }
       }
 
       if(json.Analysis) {
+<<<<<<< 0edc0babb5ab971397e7ceb665575865cec6f2ff
         for(var i = 0, analysisLength = json.Analysis.length; i < analysisLength; i++) {
           promises.push(
             DataManager.getAnalysis({id: json.Analysis[i].id}, null, true).then(function(analysis) {
@@ -704,10 +772,43 @@ var ImportExport = function(io) {
               }
             })
           );
+=======
+        output.Analysis = [];
+        if(output.DataSeries == undefined) output.DataSeries = [];
+        if(output.DataProviders == undefined) output.DataProviders = [];
+
+        for(var i = 0, analysisLength = json.Analysis.length; i < analysisLength; i++) {
+          target = json.Analysis[i];
+          promises.push(DataManager.getAnalysis({id: target.id}, null, true).then(function(analysis) {
+            var rawAnalysis = analysis.rawObject();
+            rawAnalysis.$id = rawAnalysis.id;
+            delete rawAnalysis.id;
+
+            for(var j = 0, analysisDSLength = rawAnalysis.analysis_dataseries_list.length; j < analysisDSLength; j++) {
+              rawAnalysis.analysis_dataseries_list[j].$id = rawAnalysis.analysis_dataseries_list[j].id;
+              delete rawAnalysis.analysis_dataseries_list[j].id;
+
+              if(!isInArray(rawAnalysis.analysis_dataseries_list[j].data_series_id, output.DataSeries)) {
+                promises.push(DataManager.getDataSeries({id: rawAnalysis.analysis_dataseries_list[j].data_series_id}).then(function(dataSeries) {
+                  output.DataSeries.push(addID(dataSeries));
+
+                  if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
+                    promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                      output.DataProviders.push(addID(dataProvider));
+                    }));
+                  }
+                }));
+              }
+            }
+
+            output.Analysis.push(rawAnalysis);
+          }));
+>>>>>>> improving importation
         }
       }
 
       if(json.Views) {
+<<<<<<< 0edc0babb5ab971397e7ceb665575865cec6f2ff
         for(var i = 0, viewsLength = json.Views.length; i < viewsLength; i++) {
           promises.push(
             DataManager.getView({id: json.Views[i].id}).then(function(view) {
@@ -729,6 +830,29 @@ var ImportExport = function(io) {
               }
             })
           );
+=======
+        output.Views = [];
+        if(output.DataSeries == undefined) output.DataSeries = [];
+        if(output.DataProviders == undefined) output.DataProviders = [];
+
+        for(var i = 0, viewsLength = json.Views.length; i < viewsLength; i++) {
+          target = json.Views[i];
+          promises.push(DataManager.getView({id: target.id}).then(function(view) {
+            output.Views.push(addID(view));
+
+            if(!isInArray(view.data_series_id, output.DataSeries)) {
+              promises.push(DataManager.getDataSeries({id: view.data_series_id}).then(function(dataSeries) {
+                output.DataSeries.push(addID(dataSeries));
+
+                if(!isInArray(dataSeries.data_provider_id, output.DataProviders)) {
+                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                    output.DataProviders.push(addID(dataProvider));
+                  }));
+                }
+              }));
+            }
+          }));
+>>>>>>> improving importation
         }
       }
 
