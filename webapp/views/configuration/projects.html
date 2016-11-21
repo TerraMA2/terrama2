@@ -59,7 +59,8 @@
           return;
         }
 
-        SaveAs(result.data, result.data.Projects[0].name + ".terrama2");
+        //SaveAs(result.data, result.data.Projects[0].name + ".terrama2");
+        SaveAs(result.data, "export.terrama2");
       });
 
       socket.on("importResponse", function(result) {
@@ -123,7 +124,21 @@
             return;
           }
           $scope.extra.isExporting = true;
-          socket.emit("export", {"Projects": [element]});
+          //socket.emit("export", {"Projects": [element]});
+
+          socket.emit("export", {
+            "Analysis":    [{"id": 1}, {"id": 2}]
+          });
+
+          /*
+          "Projects":      [{"id": 1}],
+          "DataProviders": [{"id": 1}, {"id": 2}],
+          "DataSeries":    [{"id": 1}, {"id": 2}],
+          "Collectors":    [],
+          "Analysis":      [{"id": 1}, {"id": 2}],
+          "Views":         []
+          */
+
         },
 
         import: function() {
@@ -136,7 +151,7 @@
             $scope.alertLevel = "alert-danger";
             $scope.alertBox.message = err.toString();
             $scope.extra.isImporting = false;
-          } 
+          }
 
           FileDialog.openFile(function(err, input) {
             if (err) {
@@ -158,8 +173,8 @@
                   $scope.display = false;
                 }
 
-                if (!json.hasOwnProperty("Projects") || 
-                    !json.hasOwnProperty("DataSeries") || 
+                if (!json.hasOwnProperty("Projects") ||
+                    !json.hasOwnProperty("DataSeries") ||
                     !json.hasOwnProperty("DataProviders") ||
                     !json.hasOwnProperty("Analysis")) {
                   setError(new Error("Invalid configuration file"));
@@ -196,7 +211,7 @@
           <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
         </div>
 
-        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" 
+        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties"
                         link-to-add="linkToAdd" icon="iconFn" context="'project'" remove="remove(object)"
                         extra="extra" order-by="'name'"></terrama2-table>
       </div>
