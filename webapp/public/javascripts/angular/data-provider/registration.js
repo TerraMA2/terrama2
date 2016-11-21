@@ -123,18 +123,12 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
         if ($scope.dataProvider.protocol !== "POSTGIS" || !$scope.forms.connectionForm.hostname || !$scope.forms.connectionForm.port || !$scope.forms.connectionForm.user){
           return;
         }
-        var datas = getDatabaseList();
+        getDatabaseList();
       }, 1000);
     }, true);
 
     var getDatabaseList = function(){
-      var timeOut = $q.defer();
       var result = $q.defer();
-      var expired = false;
-      setTimeout(function() {
-        expired = true;
-        timeOut.resolve();
-      }, 1000 * $scope.timeOutSeconds);
 
       var params = $scope.model;
       params.protocol = $scope.dataProvider.protocol;
@@ -142,20 +136,18 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
       var httpRequest = $http({
         method: "GET",
         url: "/uri/",
-        params: params,
-        timeout: timeOut.promise
+        params: params
       });
 
       httpRequest.success(function(data) {
+        $scope.dbList = data.data.map(function(item, index){
+          return item.datname;
+        });
         result.resolve(data);
       });
 
       httpRequest.error(function(err) {
-        if (expired) {
-          result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
-        } else {
-          result.reject(err);
-        }
+        result.reject(err);
       });
 
       return result.promise;
