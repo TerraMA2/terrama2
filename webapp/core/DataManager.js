@@ -302,7 +302,8 @@ var DataManager = module.exports = {
             name: semanticsElement.name,
             data_format_name: semanticsElement.format,
             data_series_type_name: semanticsElement.type,
-            collector: semanticsElement.collector || false
+            collector: semanticsElement.collector || false,
+            allow_direct_access: semanticsElement.allow_direct_access
           }));
         });
 
