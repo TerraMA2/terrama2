@@ -223,18 +223,12 @@ terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<Fi
       std::string uri;
 
       if(dataRetriever->isRetrivable())
+      {
         uri = retrieveData(dataRetriever, dataset, filter, remover);
+      }
       else
       {
-        try
-        {
-          std::string folderPath = getProperty(dataset, dataSeries_, "folder", false);
-          uri = dataProvider_->uri + "/" + folderPath;
-        }
-        catch(UndefinedTagException& e)
-        {
-          uri = dataProvider_->uri;
-        }
+        uri = dataProvider_->uri;
       }
 
       DataSetSeries tempSeries = getSeries(uri, filter, dataset, remover);

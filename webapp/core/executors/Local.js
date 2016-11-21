@@ -1,6 +1,7 @@
 'use strict';
 
 var Promise = require('./../Promise');
+var logger = require("./../Logger");
 var spawnAsync = require('child_process').spawn;
 var execAsync = require("child_process").exec;
 var OS = require('./../Enums').OS;
@@ -93,7 +94,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
           self.adapter = new LocalSystemAdapter();
           break;
         default:
-          console.log("Unknown platform");
+          logger.debug("Unknown platform. Setting default to " + OS.UNKNOWN);
           self.platform = OS.UNKNOWN;
       }
     };
@@ -110,7 +111,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
       var responseMessage = "";
 
       child.on('close', function(code, signal) {
-        console.log("LocalExecutor close ", code, signal);
+        logger.debug("LocalExecutor close ", code, signal);
         if (code !== 0) {
           return reject(new Error("Error: exit code " + code));
         }
@@ -119,7 +120,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
       });
 
       child.on('error', function(err) {
-        console.log(err);
+        logger.error(err);
       });
 
       child.stdout.on('data', function(data) {
@@ -132,7 +133,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
 
       // stream for handling errors data
       child.stderr.on('data', function(data) {
-        console.log("LocalExecutor Error: ", data.toString());
+        logger.error("LocalExecutor Error: ", data.toString());
         responseMessage = data.toString();
       });
     } 

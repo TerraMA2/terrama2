@@ -308,8 +308,6 @@
               }
             }
 
-            $scope.model = config.view ? config.view.serverUriObject || {} : {port: 8080};
-
             if (self.httpSyntax.display) {
               $scope.form = self.httpSyntax.display;
             } else {
@@ -411,14 +409,10 @@
       $scope.$broadcast("schemaFormValidate");
 
       if ($scope.forms.viewForm.$invalid || 
-          $scope.forms.connectionForm.$invalid ||
           $scope.forms.dataSeriesForm.$invalid ||
           $scope.forms.styleForm.$invalid) {
         return;
       }
-
-      self.view.serverUriObject = $scope.model;
-      self.view.serverUriObject.protocol = self.httpSyntax.name;
 
       // setting style
       if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {

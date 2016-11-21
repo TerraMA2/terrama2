@@ -48,7 +48,6 @@ module.exports = function(app) {
       serviceObject.log = request.body.log;
       return DataManager.addServiceInstance(serviceObject).then(function(service) {
         var token = Utils.generateToken(app, TokenCode.SAVE, service.name);
-        console.log(token);
         return response.json({status: 200, token: token});
       }).catch(function(err) {
         return Utils.handleRequestError(response, err, 400);
@@ -116,14 +115,12 @@ module.exports = function(app) {
         var token = Utils.generateToken(app, TokenCode.UPDATE, newServiceInstance.name);
         if (TcpManager.isServiceConnected(serviceInstance)) {
           try {
-            console.log("Should restart? - " + shouldRestart);
             if (shouldRestart) {
               TcpManager.emit('stopService', serviceInstance);
             } else {
               TcpManager.emit('updateService', serviceInstance);
             }
           } catch(e) {
-            console.log(e);
           }
         } else { shouldRestart = false; }
         return response.json({status: 200, token: token, service: serviceInstance.id, restart: shouldRestart});

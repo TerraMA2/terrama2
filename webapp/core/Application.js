@@ -1,8 +1,36 @@
 var fs = require("fs");
 var path = require("path");
 
-var _data = {};
+/**
+ * It defines a cache object (private) with TerraMA² settings
+ * @type {Object}
+ */
+var _data = {
+  /**
+   * TerraMA² webapp metadata
+   * @type {Object}
+   */
+  "metadata": {},
+  /**
+   * It defines a global terrama2 settings (config.terrama2). It contains database config, etc.
+   * @type {Object}
+   */
+  "settings": {}
+};
 
+/**
+ * It defines which context TerraMA² should run. (default "default")
+ * @type {string}
+ */
+var _context = "default";
+
+/**
+ * It defines a TerraMA² Application metadata.
+ * 
+ * It loads WebApp metadata (package.json), Database configuration (config/config.terrama2)
+ * 
+ * @class Application
+ */
 function Application() {
   this.load();
 }
@@ -13,18 +41,58 @@ function Application() {
  * @throws TypeError When read content is not a valid json
  */
 Application.prototype.load = function() {
+  // reading TerraMA² webapp metadata
   var buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"));
 
-  _data.name = buffer.name;
-  _data.version = buffer.version;
-  _data.fullName = buffer.name + " " + buffer.version;
+  _data.metadata.name = buffer.name;
+  _data.metadata.version = buffer.version;
+  _data.metadata.fullName = buffer.name + " " + buffer.version;
+
+  // reading TerraMA² config.json
+  buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/config.terrama2"), "utf-8"));
+
+  _data.settings = buffer;
 };
 
 /**
- * It retrieves a copy of TerraMA² running aplication metadata. It contains name, version
+ * It sets current terrama2 context
+ *
+ * @throws {Error} When a contexts is not in config.terrama2 
+ * @param {string} context
+ * @returns {void}
+ */
+Application.prototype.setCurrentContext = function(context) {
+  if (!context) {
+    return;
+  }
+  // checking if there is a context in configuration file
+  if (_data.settings && !_data.settings.hasOwnProperty(context)) {
+    var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/config.terrama2\"", context);
+    throw new Error(msg);
+  }
+
+  _context = context;
+};
+
+/**
+ * It retrieves a current context config
+ * 
  * @returns {Object}
  */
-Application.prototype.get = function() {
+Application.prototype.getContextConfig = function() {
+  return _data.settings[_context];
+};
+
+/**
+ * It retrieves a copy of TerraMA² running aplication settings. It contains name, version
+ * 
+ * @param {string} settingName - Defines which values want to return. It retrieves a copy of real object in order to keep safe. Used it as much as possible for performance reasons
+ * @returns {Object}
+ */
+Application.prototype.get = function(settingName) {
+  if (settingName) {
+    return Object.assign({}, _data[settingName]);
+  }
   return Object.assign({}, _data);
 };
 

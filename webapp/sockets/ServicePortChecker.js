@@ -56,7 +56,7 @@ var ServicePortChecker = function(io) {
 
       var ordenedPorts = ports.sort();
       var size = ordenedPorts.length;
-      var startPort = 10000;
+      var startPort = 6544;
       var endPort = 65535;
 
       if (size > 0) {

@@ -295,3 +295,8 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
     mainLoopCondition_.notify_one();
   }
 }
+
+void terrama2::services::analysis::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
+{
+
+}

@@ -142,6 +142,8 @@ namespace terrama2
         virtual void addProcessToSchedule(ProcessPtr process) noexcept;
         void setLogger(std::shared_ptr<ProcessLogger> logger) noexcept;
 
+        virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept = 0;
+
       protected:
 
         TimerPtr createTimer(const terrama2::core::Schedule& schedule, ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> lastProcess) const;

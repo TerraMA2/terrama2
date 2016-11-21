@@ -1,6 +1,7 @@
 'use strict';
 
 var net = require('net');
+var logger = require("./Logger");
 var Promise = require('bluebird');
 var Utils = require('./Utils');
 var EventEmitter = require('events').EventEmitter;
@@ -88,8 +89,8 @@ var Service = module.exports = function(serviceInstance) {
 
   self.socket.on('data', function(byteArray) {
     self.answered = true;
-    console.log("client received: ", byteArray);
-    console.log("client " + self.service.name +" received: ", byteArray.toString());
+    logger.debug("client received: ", byteArray);
+    logger.debug("client " + self.service.name +" received: ", byteArray.toString());
 
     try  {
       var parsed = parseByteArray(byteArray);
@@ -120,7 +121,7 @@ var Service = module.exports = function(serviceInstance) {
         callbackSuccess(parsed);
       }
     } catch (e) {
-      console.log("Error parsing bytearray: ", e);
+      logger.debug("Error parsing bytearray: ", e);
       self.emit("serviceError", e);
       if (callbackError) {
         callbackError(e);
@@ -130,18 +131,26 @@ var Service = module.exports = function(serviceInstance) {
   });
 
   self.socket.on('drain', function() {
-    console.log('drained');
+    logger.debug('drained');
   });
 
   self.socket.on('close', function(byteArray) {
     self.emit('close', byteArray);
-    console.log("client closed: ", byteArray);
+    logger.debug("client closed: ", byteArray);
   });
 
   self.socket.on('error', function(err) {
     callbackError(err);
     self.emit("serviceError", err);
-    console.log("client error: ", err);
+    var errMessage;
+    switch(err.code) {
+      case "ECONNREFUSED":
+        errMessage = "Connection refused.";
+        break;
+      default:
+        errMessage = err.toString();
+    }
+    logger.debug("client error: ", new Error(errMessage).toString());
   });
 
   self.isOpen = function() {
@@ -191,7 +200,7 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.writeData(buffer, null, null, function() {
-      console.log("Sent all");
+      logger.debug("Sent all");
     });
   };
 

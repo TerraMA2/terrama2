@@ -137,6 +137,18 @@ bool terrama2::core::isValidDataSetName(const std::string& mask,
   return true;
 }
 
+
+bool terrama2::core::terramaMaskMatch(const std::string& mask, const std::string& string)
+{
+  auto regexString = terramaMask2Regex(mask);
+
+  boost::regex expression(regexString);
+  boost::match_results< std::string::const_iterator > match;
+
+  return boost::regex_match(string, match, expression, boost::match_default);
+}
+
+
 bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
 {
   if(filter.discardBefore)

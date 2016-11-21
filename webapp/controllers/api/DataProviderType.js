@@ -1,3 +1,4 @@
+var logger = require("./../../core/Logger");
 var RequestFactory = require("../../core/RequestFactory");
 
 module.exports = function(app) {
@@ -17,7 +18,7 @@ module.exports = function(app) {
 
         response.json(output);
       }).catch(function(err) {
-        console.log(err);
+        logger.error(err);
         response.status(400);
         response.json({status: 400, message: "Could not retrieve data provider types from database. DataManager should be initialized before!"});
       });

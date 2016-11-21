@@ -1,5 +1,6 @@
 "use strict";
 
+var logger = require("./../../core/Logger");
 var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
 var PromiseModule = require("./../../core/Promise");
@@ -52,7 +53,7 @@ module.exports = function(app) {
       })
 
       .catch(function(err) {
-        console.log(err);
+        logger.error(err);
         return response.redirect("/");
       });
   };

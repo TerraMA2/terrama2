@@ -25,6 +25,10 @@ module.exports = function(sequelize, DataTypes) {
       temporality: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      allow_direct_access: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
       }
     },
     {
@@ -51,6 +55,7 @@ module.exports = function(sequelize, DataTypes) {
           DataSeriesSemantics.hasMany(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
+              name: "data_series_semantics_id",
               allowNull: false
             }
           });

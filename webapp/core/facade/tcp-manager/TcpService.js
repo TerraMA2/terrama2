@@ -7,31 +7,43 @@
 var EventEmitter = require("events").EventEmitter;
 
 /**
+ * TerraMA² logger library
+ * @type {winston.Logger}
+ */
+var logger = require("./../../Logger");
+
+/**
  * It defines a Promiser module used in TerraMA² application
  * @type {bluebird.Promise}
  */
 var PromiseClass = require("./../../Promise");
 
 // TerraMA2 Utils
-var Utils = require("./../../../core/Utils");
+var Utils = require("./../../Utils");
 
 // TcpManager
-var TcpManager = require("./../../../core/TcpManager");
+var TcpManager = require("./../../TcpManager");
 
 // TerraMA2 Enums
-var ServiceType = require("./../../../core/Enums").ServiceType;
+var ServiceType = require("./../../Enums").ServiceType;
 
 // DataManager
-var DataManager = require("./../../../core/DataManager");
+var DataManager = require("./../../DataManager");
 
 // TerraMA² Service model
-var Service = require("./../../../core/data-model/Service");
+var Service = require("./../../data-model/Service");
 
 // TerraMA² RegisteredView model
-var RegisteredView = require("./../../../core/data-model/RegisteredView");
+var RegisteredView = require("./../../data-model/RegisteredView");
 
 // TerraMA² App Metadata
 var Application = require("./../../Application");
+
+/**
+ * It defines TerraMA² webapp metadata (package.json)
+ * @type {Object}
+ */
+var webapp = Application.get("metadata");
 
 /**
  * It handles TCP service manipulation. Use  it to be pipe between front-end and back-end application
@@ -229,11 +241,11 @@ TcpService.prototype.start = function(json) {
                 .catch(function(err) {
                   // once tried three times, throw err in order to continue promise chain
                   if (times === 3) {
-                    console.log("TerraMA² Service is not running.");
+                    logger.error(Utils.format("TerraMA² Service %s is not running.", service.name));
                     throw err;
                   }
                   times += 1;
-                  console.log("Failed to connect. Retrying... " + times);
+                  logger.warn(Utils.format("Failed to connect %s. Retrying... %s", service.name, times));
                   // auto call
                   return connectionRepeat();
                 });
@@ -248,8 +260,8 @@ TcpService.prototype.start = function(json) {
       })
       // on any error
       .catch(function(err) {
-        console.log(err);
         var exception = new Error(Utils.format("Error occurred during start service %s. %s", json.service, err.toString()));
+        logger.error(exception);
         // emits exception before reject promise
         self.emit("serviceError", {
           exception: exception,
@@ -286,7 +298,7 @@ TcpService.prototype.run = function(processObject) {
         return resolve();
       })
       .catch(function(err) {
-        console.log(err);
+        logger.debug(err);
         return reject(err);
       });
   });
@@ -350,7 +362,7 @@ TcpService.prototype.status = function(json) {
       })
 
       }).catch(function(err) {
-        console.log(err);
+        logger.debug(err);
         self.emit("serviceError", {
           exception: err,
           message: err.toString(),
@@ -380,7 +392,7 @@ TcpService.prototype.stop = function(json) {
 
         return resolve();
       }).catch(function(err) {
-        console.log(err);
+        logger.debug(err);
         self.emit("serviceError", {
           exception: err,
           message: err.toString(),
@@ -455,15 +467,15 @@ TcpService.prototype.remove = function(data, serviceId) {
       .then(function(services) {
         services.forEach(function (service) {
           try {
-            TcpService.emit('removeData', service, data);
+            TcpManager.emit('removeData', service, data);
           } catch (e) {
-            console.log(e);
+            logger.debug(e);
           }
         });
         return resolve();
       })
       .catch(function(err) {
-        console.log(err);
+        logger.debug(err);
         return reject(err);
       });
   });
@@ -588,7 +600,7 @@ function onStatusReceived(service, response) {
  * @param {string} response - Response version
  */
 function onServiceVersionReceived(service, response) {
-  var version = Application.get().version;
+  var version = webapp.version;
   tcpService.emit("serviceVersion", {
     service: service.id,
     response: response.replace("TerraMA2", ""),
@@ -653,7 +665,7 @@ function onStop(service) {
  * @param {Object} response - Socket Response Object
  */
 function onClose(service, response) {
-  console.log(response);
+  logger.debug(response);
   tcpService.emit("serviceStop", {
     status: 400,
     service: service.id,

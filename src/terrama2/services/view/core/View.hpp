@@ -78,12 +78,6 @@ namespace terrama2
           uint32_t imageResolutionHeight = 0; //!< Height resolution of view in pixels
 
           uint32_t srid = 0; //!< SRID to aplly in view
-
-          // Parameter to register view in GeoServer
-          te::core::URI maps_server_uri;
-
-          // TODO: view filter it's only the bounding box?
-          //VINICIUS: filter to get only the last if the dataset contains many registers
         };
 
         void makeView(ViewId viewId, std::shared_ptr< terrama2::services::view::core::ViewLogger > logger, std::weak_ptr<DataManager> weakDataManager);

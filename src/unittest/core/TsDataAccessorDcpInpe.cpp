@@ -378,7 +378,7 @@ void TsDataAccessorDcpInpe::TestOK()
     //DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/PCD_serrmar_INPE";
+    dataProvider->uri = TERRAMA2_DATA_DIR;
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -392,6 +392,7 @@ void TsDataAccessorDcpInpe::TestOK()
 
     terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
     dataSet->active = true;
+    dataSet->format.emplace("folder", "/PCD_serrmar_INPE");
     dataSet->format.emplace("mask", "30885.txt");
     dataSet->format.emplace("timezone", "+00");
 
@@ -412,7 +413,7 @@ void TsDataAccessorDcpInpe::TestOK()
     std::string uri = dataProvider->uri;
     std::string mask = dataSet->format.at("mask");
 
-    QUrl url((uri+"/"+mask).c_str());
+    QUrl url((uri+"/PCD_serrmar_INPE/"+mask).c_str());
     QFile file(url.path());
     file.open(QIODevice::QIODevice::ReadOnly);
 

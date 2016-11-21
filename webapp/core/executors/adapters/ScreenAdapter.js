@@ -2,6 +2,7 @@
 
 // Dependencies
 var util = require('util');
+var logger = require("./../../Logger");
 var Promise = require('./../../Promise');
 
 /**
@@ -48,7 +49,7 @@ ScreenAdapter.prototype.executeCommand = function(executor, command, serviceInst
   var self = this;
   return new Promise(function(resolve, reject) {
     var screenCommand = self.make(serviceInstance, command);
-    console.log(screenCommand);
+    logger.debug(screenCommand);
     var commandArgs = self.commandArgs(command);
 
     return executor.execute(screenCommand, commandArgs)

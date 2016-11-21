@@ -1,233 +1,403 @@
-angular.module('terrama2.administration.services.registration',
-  ['terrama2.services',
-  'terrama2.components.messagebox']
-).controller('RegistrationController', ['$scope', '$window', 'ServiceInstanceFactory', 'Socket', 'i18n',
-  function($scope, $window, ServiceInstanceFactory, Socket, i18n) {
-    var socket = Socket;
+angular.module('terrama2.administration.services.registration', [
+  'terrama2.services',
+  'terrama2.administration.services.iservices',
+  'terrama2.components.messagebox',
+  'terrama2.components.messagebox.services'
+])
 
-    // setting defaults
-    $scope.css = {'boxType': 'box-solid'};
+.controller('RegisterUpdate', RegisterUpdate);
 
-    $scope.initService = function(state) {
-      $scope.service = $scope.service || {};
+/**
+ * It handles TerraMA² Service Registration and Service Update
+ * 
+ * @class RegisterUpdate
+ */
+function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18n, $q, URIParser) {
+  var self = this;
+  /**
+   * It defines a TerraMA² box styles
+   * @type {Object}
+   */
+  self.css = {'boxType': 'box-solid'};
 
-      if ($scope.update && $scope.service.host && $scope.service.host !== "")
-        $scope.service.isLocal = false;
-      else
-        $scope.service.isLocal = state;
-    };
+  /**
+   * It defines MessageBox object handling
+   * @type {MessageBoxService}
+   */
+  self.MessageBoxService = MessageBoxService;
 
-    $scope.isCheckingConnection = false;
-    $scope.services = [];
-    $scope.i18n = i18n;
+  /**
+   * It defines a service model. If there global service, so adapts to Update mode. Otherwise, use Register Mode
+   * @type {Object}
+   */
+  self.service = {sshPort: 22};
 
-    $scope.service = angular.equals({}, configuration.service) ? {sshPort: 22} : configuration.service;
-    if ($scope.service.service_type_id) {
-      $scope.service.service_type_id = $scope.service.service_type_id.toString();
+  /**
+   * It defines a log instance model. It tries to get values from service model. If there is, update mode
+   */
+  self.log = {port: 5432};
+
+  /**
+   * It defines a Maps Object URI (View Services only)
+   * @type {Object}
+   */
+  self.mapsServer = {};
+
+  /**
+   * It forces active (on/off) in Active service
+   * 
+   * @param {boolean} state - Initial state
+   */
+  self.initService = function(state) {
+    self.service = self.service || {};
+
+    if (self.update && self.service.host && self.service.host !== "") {
+      self.service.isLocal = false;
+    } else {
+      self.service.isLocal = state;
     }
+  };
 
-    // Defining default threads number
-    if (!$scope.service.numberOfThreads) {
-      $scope.service.numberOfThreads = 0;
-    }
+  // Initializing Async services.
+  $q
+    .all([
+      i18n.ensureLocaleIsLoaded(),
+      Service.init()
+    ])
+    // on success, bind all functions
+    .then(function() {
+      /**
+       * It defines a global config
+       * @type {Object}
+       */
+      var config = $window.configuration;
 
-    // setting log instance
-    $scope.log = $scope.service.log || {};
+      /**
+       * Flag to handle update and save mode
+       * 
+       * @type {boolean} 
+       */
+      self.update = config.service.name ? true : false;
 
-    $scope.update = $scope.service.name ? true : false;
+      /**
+       * It handles when user type maps server URI (for View Services). It parses the content and tries to re-fill other fields
+       * with port, user and password.
+       */
+      self.onMapsServerURIChange = function() {
+        if (!self.mapsServer.address) {
+          return;
+        }
+        var targetURI = (!self.mapsServer.address.startsWith("http:") && !self.mapsServer.address.startsWith("https:")) ? "http://" + self.mapsServer.address : self.mapsServer.address;
+        var uriObject = URIParser(targetURI);
+        if (uriObject && uriObject.length !== 0) {
+          self.mapsServer.address = uriObject.protocol + "//" + uriObject.hostname + uriObject.pathname;
+          self.mapsServer.port = parseInt(uriObject.port === "" ? "80" : uriObject.port) || self.mapsServer.port ||8080;
+          self.mapsServer.user = uriObject.username || self.mapsServer.user;
+          self.mapsServer.password = uriObject.password || self.mapsServer.password;
+        }
+      };
 
-    $scope.alertBox = {};
-    $scope.display = false;
-    $scope.alertLevel = null;
-    $scope.isChecking = false;
-    $scope.resetState = function() {
-      $scope.display = false;
-      $scope.alertBox.message = "";
-    };
+      /**
+       * It fills out GUI interface with Service model, log and maps server parameters
+       * Used in "Update" mode
+       */
+      var fillGUI = function() {
+        self.service = angular.merge(self.service, config.service);
 
-    $scope.extraProperties = {};
-    $scope.config = {
-      availableDatabases: []
-    };
+        if (self.service.service_type_id) {
+          self.service.service_type_id = self.service.service_type_id.toString();
+        }
 
-    // Getting all service instance to suggest database names
-    ServiceInstanceFactory.get().success(function(services) {
-      $scope.services = services;
+        if (parseInt(self.service.service_type_id) === Service.types.VIEW) {
+          self.mapsServer.address = self.service.maps_server_uri;
 
-      if ($scope.update)
-        return;
+          self.onMapsServerURIChange();
+        }
 
-      // process
-      var ports = [];
-      services.forEach(function(service) {
-        $scope.config.availableDatabases.push(Object.assign({name: service.name}, service.log));
-        ports.push(service.port);
+        self.log = self.service.log;
+      };
+
+      /**
+       * Flag to handle connection validation
+       * @type {boolean}
+       */
+      self.isCheckingConnection = false;
+
+      /**
+       * It defines a list of cached services
+       * 
+       * @type {Service[]}
+       */
+      self.services = Service.list();
+
+      /**
+       * Internationalization module
+       * @type {Object}
+       */
+      self.i18n = i18n;
+
+      if (self.update) {
+        fillGUI();
+      }
+
+      // Defining default threads number
+      if (!self.service.numberOfThreads) {
+        self.service.numberOfThreads = 0;
+      }
+
+      /**
+       * Flag to determines service form submit (save/update)
+       * 
+       * @type {boolean}
+       */
+      self.isChecking = false;
+
+      /**
+       * It just reset message box panel in order to hide
+       */
+      self.close = function() {
+        MessageBoxService.reset();
+      };
+
+      self.extraProperties = {};
+
+      /**
+       * Cache list. Used to auto-complete database during registration based in other services
+       */
+      self.config = {
+        /**
+         * It defines a cached list of databases from other services. Used to auto-complete
+         * @type {string[]}
+         */
+        availableDatabases: []
+      };
+
+      /**
+       * Listener for handling service port check
+       * 
+       * @param {Object} response
+       * @param {Object?} response.error - An error occurred
+       * @param {Object} response.port - A port value ok
+       */ 
+      Socket.on('suggestPortNumberResponse', function(response) {
+        if (response.error) {
+          console.log("ERROR");
+        } else {
+          console.log("OK");
+          self.service.port = response.port;
+        }
       });
 
-      socket.emit('suggestPortNumber', {ports: ports, host: $scope.service.host})
-    }).error(function(err) {
-      console.log(err);
-    });
-
-    // adding service port check listener
-    socket.on('suggestPortNumberResponse', function(response) {
-      console.log(response);
-      if (response.error) {
-        console.log("ERROR");
-      } else {
-        console.log("OK");
-        $scope.service.port = response.port;
-      }
-    });
-
-    // watching service type changed
-    $scope.$watch('service.service_type_id', function(value) {
-      switch(value) {
-        case "1": // collect
-        case "2": // analysis
-          $scope.service.pathToBinary = $scope.service.pathToBinary || "terrama2_service";
-          break;
-        default: // none
-          break;
-      }
-    });
-
-    $scope.checkConnection = function() {
-      if (!socket) {
-        // TODO: error message
-        return;
-      }
-
-      $scope.isCheckingConnection = true;
-      $scope.ssh = {
-        isLoading: true
-      };
-
-      $scope.db = {
-        isLoading: true
-      };
-
-      setTimeout(function() {
-        // SSH
-        socket.emit('testSSHConnectionRequest',
-          {
-            host: $scope.service.host,
-            port: $scope.service.sshPort,
-            username: $scope.service.sshUser,
-            isLocal: $scope.service.isLocal,
-            pathToBinary: $scope.service.pathToBinary
-          }
-        );
-        socket.on('testSSHConnectionResponse', function(result) {
-          $scope.ssh.isLoading = false;
-          if (result.error) {
-            $scope.modalType = "modal-danger";
-            $scope.ssh.isValid = false;
-            $scope.ssh.message = result.message;
-          } else {
-            $scope.modalType = "modal-success";
-            $scope.ssh.isValid = true;
-          }
-        });
-
-        var logCredentials = Object.assign({}, $scope.log);
-        if (logCredentials && (logCredentials.host === "localhost" || logCredentials.host.startsWith("127."))) {
-          logCredentials.host = $scope.service.host || logCredentials.host;
+      // Getting all service instance to suggest database names
+      var ports = [];
+      self.services.forEach(function(service) {
+        self.config.availableDatabases.push(Object.assign({name: service.name}, service.log));
+        if (self.service.id !== service.id) {
+          ports.push(service.port);
         }
+      });
 
-        socket.emit('testDbConnection', logCredentials);
-        socket.on('testDbConnectionResponse', function(result) {
-          $scope.db.isLoading = false;
-          if (result.error) {
-            $scope.modalType = "modal-danger";
-            $scope.db.isValid = false;
-            $scope.db.message = result.message;
-          } else {
-            $scope.modalType = "modal-success";
-            $scope.db.isValid = true;
-            $scope.db.message = "";
-          }
-        })
-      }, 1000);
-    };
+      Socket.emit('suggestPortNumber', {ports: ports, host: self.service.host});
 
-    $scope._save = function() {
-      $scope.isChecking = true;
-      $scope.display = false;
-      $scope.alertBox.title = "Service Registration";
-      var request;
-
-      if ($scope.update) {
-        request = ServiceInstanceFactory.put($scope.service.id, {
-          service: $scope.service,
-          log: $scope.log
-        });
-      }
-      else {
-        request = ServiceInstanceFactory.post({
-          service: $scope.service,
-          log: $scope.log
-        });
-      }
-
-      request.success(function(data) {
-        $window.location.href = "/administration/services?token=" + data.token+"&service="+data.service + "&restart="+data.restart;
-      }).error(function(err) {
-        console.log(err);
-        $scope.display = true;
-        $scope.alertLevel = "alert-danger";
-        $scope.alertBox.message = err.message;
-      }).finally(function() {
-        $scope.isChecking = false;
-      })
-    };
-
-    socket.on('testPortNumberResponse', function(response) {
-      if (response.error) {
-        if (configuration.service.port !== $scope.service.port) {
-          $scope.alertLevel = "alert-danger";
-          $scope.alertBox.message = response.message;
-          $scope.display = true;
+      /**
+       * Watcher for handling Service Type change. It just fill path to binary if there is not setTimeout
+       * 
+       * @param {any} value - Current value
+       */ 
+      $scope.$watch('ctrl.service.service_type_id', function(value) {
+        if (!value) {
           return;
         }
-      }
 
-      // continue save process
+        switch(parseInt(value)) {
+          case Service.types.COLLECTOR: // collect
+          case Service.types.ANALYSIS: // analysis
+          case Service.types.VIEW:
+            self.service.pathToBinary = self.service.pathToBinary || "terrama2_service";
+            break;
+          default: // none
+            break;
+        }
+      });
 
-      // checking port number with a registered service
-      for(var i = 0; i < $scope.services.length; ++i) {
-        var service = $scope.services[i];
-
-        if (service.id !== $scope.service.id && service.port === $scope.service.port) {
-          $scope.alertLevel = "alert-warning";
-          $scope.alertBox.title = i18n.__("Service Registration");
-          $scope.alertBox.message = i18n.__("There is already a service registered in same port ") + service.port + " (" + service.name + ")";
-          $scope.display = true;
-          $scope.extraProperties.confirmButtonFn = $scope._save;
-          $scope.extraProperties.object = {};
+      /**
+       * It checks remote connection of:
+       * - SSH (path to file)
+       * - DB Log
+       * 
+       * @returns {void}
+       */
+      self.checkConnection = function() {
+        if (!Socket) {
+          // TODO: error message
           return;
         }
-      }
 
-      $scope._save();
+        self.isCheckingConnection = true;
+        self.ssh = {
+          isLoading: true
+        };
+
+        self.db = {
+          isLoading: true
+        };
+
+        setTimeout(function() {
+          // SSH
+          Socket.emit('testSSHConnectionRequest',
+            {
+              host: self.service.host,
+              port: self.service.sshPort,
+              username: self.service.sshUser,
+              isLocal: self.service.isLocal,
+              pathToBinary: self.service.pathToBinary
+            }
+          );
+          Socket.on('testSSHConnectionResponse', function(result) {
+            self.ssh.isLoading = false;
+            if (result.error) {
+              self.modalType = "modal-danger";
+              self.ssh.isValid = false;
+              self.ssh.message = result.message;
+            } else {
+              self.modalType = "modal-success";
+              self.ssh.isValid = true;
+            }
+          });
+
+          var logCredentials = Object.assign({}, self.log);
+          if (logCredentials && (logCredentials.host === "localhost" || logCredentials.host.startsWith("127."))) {
+            logCredentials.host = self.service.host || logCredentials.host;
+          }
+
+          Socket.emit('testDbConnection', logCredentials);
+          Socket.on('testDbConnectionResponse', function(result) {
+            self.db.isLoading = false;
+            if (result.error) {
+              self.modalType = "modal-danger";
+              self.db.isValid = false;
+              self.db.message = result.message;
+            } else {
+              self.modalType = "modal-success";
+              self.db.isValid = true;
+              self.db.message = "";
+            }
+          })
+        }, 1000);
+      };
+
+      /**
+       * Hidden save. It performs update or insert service instance
+       * 
+       * @returns {void}
+       */
+      self._save = function() {
+        self.isChecking = true;
+        var request;
+
+        if (self.update) {
+          request = Service.update(self.service.id, {
+            service: self.service,
+            log: self.log
+          });
+        }
+        else {
+          request = Service.create({
+            service: self.service,
+            log: self.log
+          });
+        }
+
+        request
+          .success(function(data) {
+            $window.location.href = "/administration/services?token=" + data.token+"&service="+data.service + "&restart="+data.restart;
+          })
+          .error(function(err) {
+            console.log(err);
+            MessageBoxService.danger(i18n.__("Service Registration"), err.message);
+          })
+          .finally(function() {
+            self.isChecking = false;
+          });
+      };
+
+      /**
+       * It handles Test port number response. Used after saving. On valid validation, it 
+       * save/update service. If a error found, it notifies user. 
+       * 
+       * @param {Object} response - Response object
+       * @param {boolean} response.error - Determines if error occurred
+       */
+      Socket.on('testPortNumberResponse', function(response) {
+        if (response.error) {
+          if (config.service.port !== self.service.port) {
+            MessageBoxService.danger(i18n.__("Service Registration"), response.message);
+            return;
+          }
+        }
+
+        // continue save process
+
+        // checking port number with a registered service
+        for(var i = 0; i < self.services.length; ++i) {
+          var service = self.services[i];
+
+          if (service.id !== self.service.id && service.port === self.service.port) {
+            MessageBoxService.warning(i18n.__("Service Registration"),
+                                      i18n.__("There is already a service registered in same port ") + service.port + " (" + service.name + ")");
+            self.extraProperties.confirmButtonFn = self._save;
+            self.extraProperties.object = {};
+            return;
+          }
+        }
+
+        self._save();
+      });
+
+      /**
+       * It handles TerraMA² Service Save button. It emits form validation and wait for socket response in order to notify user about port values
+       */
+      self.save = function() {
+        $scope.$broadcast('formFieldValidation');
+
+        if ($scope.serviceForm.$invalid || $scope.logForm.$invalid) {
+          return;
+        }
+
+        // validating enviroment
+        if (self.service.runEnviroment) {
+          self.service.runEnviroment = self.service.runEnviroment.split("\n").join(" ");
+        }
+
+        if (self.service.isLocal) {
+          self.service.host = "";
+        }
+
+        // if it is a view service, validate maps server parameters
+        if (self.service.service_type_id == Service.types.VIEW) {
+          if ($scope.mapsServerForm.$invalid) {
+            return;
+          }
+
+          var uriObject = URIParser(self.mapsServer.address);
+          uriObject.username = self.mapsServer.user;
+          uriObject.password = self.mapsServer.password;
+          uriObject.port = self.mapsServer.port;
+          self.service.maps_server_uri = uriObject.href;
+        } else {
+          delete self.service.maps_server_uri;
+        }
+
+        // testing port number
+        Socket.emit('testPortNumber', {port: self.service.port});
+      };
+    })
+    // on error
+    .catch(function(err) {
+      MessageBoxService.danger(i18n.__("Service"), 
+                               i18n.__("An error occurred during TerraMA² Service Page loading." + err.toString()));
     });
+}
 
-    $scope.save = function() {
-      $scope.$broadcast('formFieldValidation');
-
-      if ($scope.serviceForm.$invalid || $scope.logForm.$invalid) {
-        return;
-      }
-
-      // validating enviroment
-      if ($scope.service.runEnviroment)
-        $scope.service.runEnviroment = $scope.service.runEnviroment.split("\n").join(" ");
-
-      if ($scope.service.isLocal) {
-        $scope.service.host = "";
-      }
-
-      // testing port number
-      socket.emit('testPortNumber', {port: $scope.service.port});
-    }
-  }]);
+// Injecting dependencies
+RegisterUpdate.$inject = ["$scope", "$window", "Service", "MessageBoxService", "Socket", "i18n", "$q", "URIParser"];

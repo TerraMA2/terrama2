@@ -17,13 +17,8 @@ module.exports = function(app) {
     edit: function(request, response) {
       DataManager.getView({id: parseInt(request.params.id)})
         .then(function(view) {
-          var output = Object.assign(
-            {serverUriObject: UriBuilder.buildObject(view.mapsServerUri, UriSyntax)},
-            view.rawObject()
-          );
-          return response.render("configuration/view", {view: output});
+          return response.render("configuration/view", {view: view.rawObject()});
         }).catch(function(err) {
-          console.log(err);
           return response.render("base/404");
         });
     }

@@ -90,6 +90,12 @@ namespace terrama2
           */
           void notifyWaitQueue(ViewId viewId);
 
+          /*!
+           * \brief Receive a jSon and update service information with it
+           * \param obj jSon with additional information for service
+           */
+          virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
+
         protected:
 
           // comments on base class
@@ -115,8 +121,8 @@ namespace terrama2
                                            const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
-
           std::deque<ViewId> viewQueue_;//!< View queue
+          te::core::URI mapsServerUri_;
         };
 
       } // end namespace core

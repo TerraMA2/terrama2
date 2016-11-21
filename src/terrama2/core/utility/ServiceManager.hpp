@@ -121,6 +121,7 @@ namespace terrama2
         void listeningPortUpdated(int);
         void numberOfThreadsUpdated(size_t);
         void logConnectionInfoUpdated(const te::core::URI&);
+        void additionalInfoUpdated(const QJsonObject&);
 
       protected:
         friend class te::common::Singleton<ServiceManager>;

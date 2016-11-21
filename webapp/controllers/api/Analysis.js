@@ -1,5 +1,6 @@
 "use strict";
 
+var logger = require("./../../core/Logger");
 var DataManager = require("../../core/DataManager.js");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
@@ -33,7 +34,7 @@ module.exports = function(app) {
 
           return response.json({status: 200, result: analysisResult.toObject(), token: token});
         }).catch(function(err) {
-          console.log(err);
+          logger.error(Utils.format("Could not save analysis %s", err.toString()));
           Utils.handleRequestError(response, err, 400);
         });
     },
@@ -54,8 +55,7 @@ module.exports = function(app) {
             var token = Utils.generateToken(app, TokenCode.UPDATE, analysisInstance.name);
             response.json({status: 200, result: analysisInstance.toObject(), token: token});
           }).catch(function(err) {
-            console.log("Error while retrieving updated analysis");
-            console.log(err);
+            logger.error(Utils.format("%s %s", "Error while retrieving updated analysis", err.toString()));
             Utils.handleRequestError(response, err, 400);
           });
       } else {

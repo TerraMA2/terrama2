@@ -38,7 +38,8 @@
 
 // STL
 #include <string>
-
+#include <map>
+#include <list>
 
 namespace terrama2
 {
@@ -233,7 +234,7 @@ namespace terrama2
              */
             void getMapWMS(const std::string& savePath,
                            const std::string& fileName,
-                           const std::list<std::pair<std::string, std::string>> layersAndStyles,
+                           const std::list<std::pair<std::string, std::string> > layersAndStyles,
                            const te::gm::Envelope env,
                            const uint32_t width,
                            const uint32_t height,

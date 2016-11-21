@@ -17,8 +17,6 @@ HttpRequest.prototype.constructor = HttpRequest;
 HttpRequest.prototype.request = function() {
   var self = this;
   return  new Promise(function(resolve, reject) {
-
-    console.log(self.uri);
     Requester(self.uri, function(err, resp, body) {
       if (err)
         reject(new Exceptions.ConnectionError("Error in http request"));

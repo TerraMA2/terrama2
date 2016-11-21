@@ -40,7 +40,9 @@
 terrama2::core::Service::Service()
   : stop_(false)
 {
+  auto& serviceManager = terrama2::core::ServiceManager::getInstance();
 
+  QObject::connect(&serviceManager, &terrama2::core::ServiceManager::additionalInfoUpdated, this, &terrama2::core::Service::updateAdditionalInfo);
 }
 
 terrama2::core::Service::~Service()

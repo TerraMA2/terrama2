@@ -55,7 +55,6 @@ void TsJsonUtils::testToJSon()
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
-    view->maps_server_uri = te::core::URI("http://locahost:8080/geoserver");
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -119,7 +118,6 @@ void TsJsonUtils::testGoNBackJSon()
     view->imageResolutionWidth = 800;
     view->imageResolutionHeight = 600;
     view->srid = 4326;
-    view->maps_server_uri = te::core::URI("http://locahost:8080/geoserver");
 
     terrama2::core::Schedule schedule;
     schedule.id = 1;
@@ -150,7 +148,6 @@ void TsJsonUtils::testGoNBackJSon()
     QCOMPARE(viewBackPtr->imageResolutionWidth, viewPtr->imageResolutionWidth);
     QCOMPARE(viewBackPtr->imageResolutionHeight, viewPtr->imageResolutionHeight);
     QCOMPARE(viewBackPtr->srid, viewPtr->srid);
-    QCOMPARE(viewBackPtr->maps_server_uri.uri(), viewPtr->maps_server_uri.uri());
 
     QCOMPARE(viewBackPtr->schedule.id, viewPtr->schedule.id);
     QCOMPARE(viewBackPtr->schedule.frequency, viewPtr->schedule.frequency);

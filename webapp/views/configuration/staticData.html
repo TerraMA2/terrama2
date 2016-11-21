@@ -56,12 +56,15 @@
   <terrama2-box title="i18n.__('Static Data')">
     <div class="row">
       <div class="col-md-12">
-       <div class="col-md-12">
-         <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
-       </div>
+        <div class="col-md-12">
+          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+        </div>
 
-       <terrama2-table fields="fields" model="model" icon="iconFn" link="link" icon-properties="iconProperties" link-to-add="linkToAdd" remove="remove(object)" extra="extra"></terrama2-table>
-     </div>
+        <terrama2-table fields="fields" model="model" icon="iconFn" link="link" 
+                       icon-properties="iconProperties" link-to-add="linkToAdd"
+                       remove="remove(object)" extra="extra" order-by="orderBydata">
+        </terrama2-table>
+      </div>
     </div>
   </terrama2-box>
 </div> <!-- end col md 12 -->

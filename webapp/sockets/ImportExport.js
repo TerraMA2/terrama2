@@ -125,7 +125,7 @@ var ImportExport = function(io) {
 
               dataSeries.forEach(function(dSeries) {
                 // preparing to insert in DataBase
-                dSeries.data_series_semantic_id = dSeries.data_series_semantics.id;
+                dSeries.data_series_semantics_id = dSeries.data_series_semantics.id;
                 dSeries.data_provider_id = Utils.find(output.DataProviders, {$id: dSeries.data_provider_id}).id;
                 dSeries.dataSets.forEach(function(dSet) {
                   dSet.$id = dSet.id;

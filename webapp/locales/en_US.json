@@ -545,5 +545,18 @@
 		" ": "Analysis will not able to generate a output data. "
 	},
 	"Static GeoTIFF grid": "Static GeoTIFF grid",
-	"PostGIS occurrence": "PostGIS occurrence"
+	"PostGIS occurrence": "PostGIS occurrence",
+	"Save": "Save",
+	"Save and Run": "Save and Run",
+	"Projection SRID": "Projection SRID",
+	"Geometric Object": "Geometric Object",
+	"Maps Server URI": "Maps Server URI",
+	"Maps Server URI is required for View Services": "Maps Server URI is required for View Services",
+	"An error occurred during TerraMA² Service Page loading": {
+		"TypeError": " self.$watch is not a function"
+	},
+	"Port number": "Port number",
+	"OGR static data file": "OGR static data file",
+	"Output format is required": "Output format is required",
+	"It should have at least one dcp": "It should have at least one dcp"
 }

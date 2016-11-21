@@ -37,7 +37,6 @@ angular.module("terrama2.schedule", ['terrama2'])
         })
 
         $scope.$on("updateSchedule", function(event, scheduleObject) {
-          debugger;
           if (scheduleObject.schedule_unit) {
             $scope.model.scheduleHandler = scheduleObject.schedule_unit;
             $scope.model.schedule = scheduleObject.schedule;

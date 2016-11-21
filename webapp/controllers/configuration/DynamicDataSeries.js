@@ -42,8 +42,6 @@ module.exports = function(app) {
         promises.push(DataManager.getDataSeries({id: collectorResult.data_series_output}));
 
         Promise.all(promises).then(function(dataSeriesResults) {
-          console.log(dataSeriesResults);
-          console.log(dataSeriesResults[0].dataSets[0].format);
           response.render('configuration/dataset', {
             state: "dynamic",
             type: "dynamic",
@@ -54,8 +52,6 @@ module.exports = function(app) {
             },
             collector: collectorResult.rawObject()
           });
-        }).catch(function(err) {
-          console.log(err);
         });
       }).catch(function(err) {
         // check if analysis dataseries

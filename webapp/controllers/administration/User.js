@@ -1,3 +1,4 @@
+var logger = require("./../../core/Logger");
 var User = require('../../config/Database').getORM().import('../../models/User.js');
 var Utils = require("../../core/Utils");
 var TokenCode = require('../../core/Enums').TokenCode;
@@ -155,7 +156,7 @@ module.exports = function(app) {
           User.destroy({where: {id: userId}}).then(function() {
             response.json({status:200, name: name});
           }).catch(function(err) {
-            console.log("Remove user: ", err);
+            logger.debug("Remove user: ", err);
             Utils.handleRequestError(response, new UserError("Could not remove user ", err), 400);
           });
         }).catch(function(err) {

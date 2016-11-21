@@ -73,7 +73,7 @@
 
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Store') }}" canexit="isThirdStepValid" wz-disabled="{{ !isDynamic }}" wz-data="wizard.store" canenter="!wizard.store.disabled">
+    <wz-step wz-title="{{ i18n.__('Store') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.store" canenter="!wizard.store.disabled">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/storager.html'"></div>
       </div>
@@ -96,7 +96,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Filters') }}" wz-disabled="{{ !isDynamic }}" wz-data="wizard.filter" canenter="!wizard.filter.disabled">
+    <wz-step wz-title="{{ i18n.__('Filters') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.filter" canenter="!wizard.filter.disabled">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/filter.html'"></div>
       </div>
@@ -118,7 +118,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Intersection') }}" wz-disabled="{{ !isDynamic || semantics === 'GRID' }} " wz-data="wizard.intersection" canenter="!wizard.intersection.disabled">
+    <wz-step wz-title="{{ i18n.__('Intersection') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic || semantics === 'GRID' }} " wz-data="wizard.intersection" canenter="!wizard.intersection.disabled">
       <div class="col-md-12">
         <div ng-include="'/javascripts/angular/data-series/templates/intersection.html'">
         </div>

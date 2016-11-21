@@ -113,8 +113,8 @@ DataSeries.prototype.rawObject = function() {
     name: this.name,
     description: this.description,
     data_provider_id: this.data_provider_id,
-    data_series_semantic_id: this.data_series_semantic_id,
-    data_series_semantic_code: this.data_series_semantics.code,
+    data_series_semantics_id: this.data_series_semantics_id,
+    data_series_semantics_code: this.data_series_semantics.code,
     data_series_semantics: this.data_series_semantics,
     dataSets: dSets
   };

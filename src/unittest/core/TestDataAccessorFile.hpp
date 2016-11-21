@@ -20,51 +20,24 @@
 */
 
 /*!
-  \file unittest/core/TsUtility.hpp
+  \file terrama2/codebase/src/unittest/core/TestDataAccessFile.hpp
 
-  \brief Tests for Core Utility class
+  \brief DataAccessFile class for tests
 
   \author Vinicius Campanha
 */
 
-//TerraMA2
+#include <terrama2/impl/DataAccessorFile.hpp>
 
-
-//QT
-#include <QtTest/QTest>
-
-
-class TsUtility : public QObject
+class TestDataAccessorFile : public terrama2::core::DataAccessorFile
 {
-  Q_OBJECT
+  public:
+    TestDataAccessorFile(terrama2::core::DataProviderPtr dataProvider, terrama2::core::DataSeriesPtr dataSeries, const bool checkSemantics = true)
+      : terrama2::core::DataAccessor(dataProvider, dataSeries, checkSemantics),
+        terrama2::core::DataAccessorFile(dataProvider, dataSeries, checkSemantics) {}
 
-public:
-
-
-private slots:
-
-  void testTimerNoFrequencyException();
-  void testTimerInvalidUnitException();
-  void testFrequencyTimer();
-  void testFrequencyTimerBase();
-  void testFrequencyTimerFirstExecutionEarly();
-  void testFrequencyTimerFirstExecutionLater();
-  void testScheduleTimer();
-
-  void testTimeUtilsAddMonth();
-  void testTimeUtilsAddDay();
-  void testTimeUtilsAddYear();
-  void testTimeUtilsScheduleSeconds();
-
-  void ValidMask();
-  void invalidMask();
-  void testTerramaMask2Regex();
-  void testTerramaMaskMatch();
-
-  void testValidDataSetName();
-  void testValidDataSetNameCompress();
-  void testValidDataSetNameCompressError();
-  void testValidDataSetName2DigitsYear();
-  void testValidDataSetName2DigitsYear1900();
-  void testIgnoreArchiveExtension();
+    std::string dataSourceType() const override
+    {
+      return "";
+    }
 };

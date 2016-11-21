@@ -55,11 +55,8 @@
   View.save = function(viewObject, projectId, shouldRun) {
     return new PromiseClass(function(resolve, reject) {
       DataManager.orm.transaction(function(t) {
-        var requester = RequestFactory.build(viewObject.serverUriObject);
         var options = {transaction: t};
 
-        // setting built uri
-        viewObject.maps_server_uri = requester.uri;
         // setting current project scope
         viewObject.project_id = projectId;
         // setting empty style if there is not
@@ -107,8 +104,11 @@
     return new PromiseClass(function(resolve, reject) {
       if (viewId) {
         return DataManager.getView({id: viewId})
-          .then(function(view) { return resolve(view.toObject()); })
-          .catch(function(err) { return reject(err); });
+          .then(function(view) { 
+            return resolve(view.toObject()); })
+          .catch(function(err) { 
+            return reject(err); 
+          });
       }
 
       return DataManager.listViews({project_id: projectId})
@@ -165,9 +165,6 @@
           })
 
           .then(function() {
-            var requester = RequestFactory.build(viewObject.serverUriObject);
-            // setting built uri
-            viewObject.maps_server_uri = requester.uri;
             return DataManager.updateView({id: viewId}, viewObject, options)
               .then(function() {
                 return DataManager.getView({id: viewId}, options);

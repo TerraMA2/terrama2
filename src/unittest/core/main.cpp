@@ -45,6 +45,7 @@
 #include "TsUtility.hpp"
 #include "TsProcessLogger.hpp"
 #include "TsDataRetrieverFTP.hpp"
+#include "TsDataAccessorFile.hpp"
 #include "TsDataAccessorDcpInpe.hpp"
 #include "TsDataAccessorDcpToa5.hpp"
 #include "TsDataAccessorGeoTiff.hpp"
@@ -77,6 +78,16 @@ int main(int argc, char** argv)
     {
       TsDataRetrieverFTP testDataRetrieverFTP;
       ret += QTest::qExec(&testDataRetrieverFTP, argc, argv);
+    }
+    catch(...)
+    {
+
+    }
+
+    try
+    {
+      TsDataAccessorFile testDataAccessorFile;
+      ret += QTest::qExec(&testDataAccessorFile, argc, argv);
     }
     catch(...)
     {

@@ -130,6 +130,9 @@ namespace terrama2
             * \note Convert string to TimeInstantTZ. Format recognized: YYYY-mm-dd HH:MM:SS".
          */
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const;
+
+
+        void readTOA5file(const QFileInfo& fileInfo, const std::string& saveUri) const;
     };
   }
 }

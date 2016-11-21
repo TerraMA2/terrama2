@@ -175,13 +175,68 @@ void terrama2::core::DataAccessorDcpToa5::addColumns(std::shared_ptr<te::da::Dat
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(const std::string& uri,
-                                                                   const terrama2::core::Filter& filter,
-                                                                   terrama2::core::DataSetPtr dataSet, std::shared_ptr<FileRemover> remover) const
-
+                                                                             const terrama2::core::Filter& filter,
+                                                                             terrama2::core::DataSetPtr dataSet,
+                                                                             std::shared_ptr<FileRemover> remover) const
 {
-  std::string mask = getMask(dataSet);
+  QUrl url(QString::fromStdString(uri));
+
+  //get timezone of the dataset
+  std::string timezone;
+  try
+  {
+    timezone = getTimeZone(dataSet);
+  }
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
+  {
+    //if timezone is not defined
+    timezone = "UTC+00";
+  }
+
+  std::string folderMask;
+  try
+  {
+    folderMask = getFolderMask(dataSet);
+  }
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
+  {
+    folderMask = "";
+  }
+
+  QFileInfoList pathList;
+  pathList.append(url.toString(QUrl::RemoveScheme));
+
+  if(!folderMask.empty())
+  {
+    QFileInfoList foldersList = getFoldersList(pathList, folderMask);
+
+    if(foldersList.empty())
+    {
+      QString errMsg = QObject::tr("No folders struct in dataset: %1.").arg(dataSet->id);
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
+    pathList = foldersList;
+  }
+
+  QFileInfoList newFileInfoList;
+
+  //fill file list
+  for(auto& folderURI : pathList)
+  {
+    newFileInfoList.append(getDataFileInfoList(folderURI.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
+  }
+
+  if(newFileInfoList.empty())
+  {
+    QString errMsg = QObject::tr("No files found in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+  }
 
   QTemporaryDir tempBaseDir;
+
   if(!tempBaseDir.isValid())
   {
     QString errMsg = QObject::tr("Can't create temporary folder.");
@@ -189,23 +244,39 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
     throw DataAccessException() << ErrorDescription(errMsg);
   }
 
-  QDir tempDir(tempBaseDir.path());
+  // create formated TOA 5 files with the same folders structure
+  for(auto& file : newFileInfoList)
+  {
+    QUrl fileUrl("file://" + file.absolutePath());
+    QString saveDir = fileUrl.toString(QUrl::RemoveScheme);
 
-  QUrl url((uri+"/"+mask).c_str());
-  QFileInfo originalInfo(url.path());
+    saveDir.replace(url.toString(QUrl::RemoveScheme), tempBaseDir.path());
 
-  QFile file(url.path());
-  QFile tempFile(tempDir.path()+"/"+originalInfo.fileName());
+    readTOA5file(file, saveDir.toStdString());
+  }
+
+  return DataAccessorFile::getSeries(tempBaseDir.path().toStdString(), filter, dataSet, remover);
+}
+
+void terrama2::core::DataAccessorDcpToa5::readTOA5file(const QFileInfo& fileInfo,
+                                                       const std::string& saveUri) const
+{
+  QDir dir(QString::fromStdString(saveUri));
+  if(!dir.exists())
+    dir.mkpath(QString::fromStdString(saveUri));
+
+  QFile file(fileInfo.absoluteFilePath());
+  QFile tempFile(dir.path()+"/"+fileInfo.fileName());
   if(!file.open(QIODevice::ReadOnly))
   {
-    QString errMsg = QObject::tr("Can't open file: dataset %1.").arg(dataSet->id);
+    QString errMsg = QObject::tr("Can't open TOA5 file: %1").arg(fileInfo.absoluteFilePath());
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessException() << ErrorDescription(errMsg);
   }
 
   if(!tempFile.open(QIODevice::ReadWrite))
   {
-    QString errMsg = QObject::tr("Can't open temporary file: dataset %1.").arg(dataSet->id);
+    QString errMsg = QObject::tr("Can't open TOA5 file: %1").arg(dir.path()+"/"+fileInfo.fileName());
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessException() << ErrorDescription(errMsg);
   }
@@ -220,15 +291,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   //read all file
   tempFile.write(file.readAll()); //headers line
 
-  //update file path
-  std::string tempUri = "file://"+tempBaseDir.path().toStdString();
-
   file.close();
   tempFile.close();
-
-  auto dataSeries = terrama2::core::DataAccessorFile::getSeries(tempUri, filter, dataSet, remover);
-
-  return dataSeries;
 }
 
 terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpToa5::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)

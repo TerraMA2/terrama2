@@ -31,7 +31,7 @@
 // TerraMA2
 #include "Geoserver.hpp"
 #include "Exception.hpp"
-#include "../serialization//Serialization.hpp"
+#include "../serialization/Serialization.hpp"
 #include "../../core/JSonUtils.hpp"
 #include "../../../../core/utility/Logger.hpp"
 

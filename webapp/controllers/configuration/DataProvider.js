@@ -1,5 +1,6 @@
 "use strict";
 
+var logger = require("./../../core/Logger");
 var DataManager = require("../../core/DataManager");
 var Utils = require('../../helpers/Utils');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
@@ -53,7 +54,7 @@ module.exports = function(app) {
           redirectTo: redirectTo
         });
       }).catch(function(err) {
-        console.log(err);
+        logger.debug(err);
         response.render("base/404");
       });
     }

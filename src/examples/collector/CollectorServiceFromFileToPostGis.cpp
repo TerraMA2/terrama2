@@ -31,6 +31,7 @@
 #include <terrama2/core/Shared.hpp>
 
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
@@ -45,6 +46,7 @@
 #include <terrama2/services/collector/core/Service.hpp>
 #include <terrama2/services/collector/core/DataManager.hpp>
 #include <terrama2/services/collector/core/Collector.hpp>
+#include <terrama2/services/analysis/core/Service.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 
@@ -172,7 +174,7 @@ int main(int argc, char* argv[])
 
       terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
       terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
-      collector->id = 1;
+      collector->id = 777;
       collector->projectId = 1;
       collector->serviceInstanceId = 1;
 
@@ -181,6 +183,8 @@ int main(int argc, char* argv[])
       collector->inputOutputMap.emplace(1, 2);
 
       dataManager->add(collectorPtr);
+
+      service.addToQueue(collectorPtr->id, terrama2::core::TimeUtils::nowUTC());
 
       QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

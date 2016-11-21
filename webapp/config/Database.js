@@ -1,10 +1,12 @@
-var Promise = require('bluebird');
+var Application = require("./../core/Application");
+var Promise = require('./../core/Promise');
 var pg = require('pg');
 var util = require('util');
 var fs = require('fs');
 var path = require('path');
 var Sequelize = require('./Sequelize');
 var Connection = require("sequelize").Connection;
+var logger = require("./../core/Logger");
 
 /**
  * @type {Connection}
@@ -20,12 +22,6 @@ var Database = function(pathToConfig) {
   if (pathToConfig === undefined || !pathToConfig) {
     pathToConfig = path.join(__dirname, 'config.terrama2');
   }
-
-  /**
-   * It stores a config.terrama2 settings
-   * @type {Object} config
-   */
-  this.config = JSON.parse(fs.readFileSync(pathToConfig, 'utf-8'));
 
   /**
    * It defines a current context key
@@ -54,35 +50,6 @@ Database.prototype.getORM = function() {
 };
 
 /**
- * It retrieves a current context config
- * 
- * @returns {Object}
- */
-Database.prototype.getContextConfig = function() {
-  return this.config[this.currentContext];
-};
-
-/**
- * It sets current terrama2 context
- *
- * @throws {Error} When a contexts is not in config.terrama2 
- * @param {string} context
- * @returns {void}
- */
-Database.prototype.setCurrentContext = function(context) {
-  if (!context) {
-    return;
-  }
-  // checking if there is a context in configuration file
-  if (this.config && !this.config.hasOwnProperty(context)) {
-    var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/config.terrama2\"", context);
-    throw new Error(msg);
-  }
-
-  this.currentContext = context;
-};
-
-/**
  * It initializes database, creating database, schema and postgis support. Once prepared, it retrieves a ORM instance
  * 
  * @returns {Promise<Connection>}
@@ -95,7 +62,7 @@ Database.prototype.init = function() {
       return resolve(sequelize);
     }
 
-    var currentContext = self.getContextConfig();
+    var currentContext = Application.getContextConfig();
 
     /**
      * Current database configuration context
@@ -147,9 +114,9 @@ Database.prototype.init = function() {
       client.query(databaseQuery, function(err) {
         if (err) {
           if (err.code === "42P04") {
-            console.log(err.toString());
+            logger.debug(err.toString());
           } else {
-            console.log(err);
+            logger.warn(err);
           }
         }
         client.end();

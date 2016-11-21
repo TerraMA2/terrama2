@@ -3,12 +3,6 @@
 'use strict';
 
 /**
- * Module dependencies.
- */
-
-var Database = require('./../config/Database');
-
-/**
  * It defines which context nodejs should initialize. The context names are available in {@link config/config.terrama2}
  * @typeof {string}
  */
@@ -19,15 +13,33 @@ var nodeContext = process.argv[2];
  */
 var nodeContextPort = process.argv[3];
 
+/**
+ * It defines TerraMA² global configuration (Singleton). Make sure it initializes before everything
+ * 
+ * @type {Application}
+ */
+var Application = require("./../core/Application");
+
+/**
+ * It defines TerraMA² logger library
+ * @type {winston.Logger}
+ */
+var logger = require("./../core/Logger");
+
 // setting currentContext
-Database.setCurrentContext(nodeContext);
+Application.setCurrentContext(nodeContext);
+
+/**
+ * Module dependencies.
+ */
+var Database = require('./../config/Database');
 
 return Database.init(nodeContext).then(function (sequelize) {
   var app = require('../app');
-  var Application = require("./../core/Application");
+  var HTTPFactory = require("./../config/HTTPFactory");
   var io = require('../io');
   var debug = require('debug')('webapp:server');
-  var http = require('http');
+  var http = require('https');
   var load = require('express-load');
   var portNumber = '36000';
   var PluginLoader = require("../core/PluginLoader");
@@ -35,12 +47,12 @@ return Database.init(nodeContext).then(function (sequelize) {
   var PortScanner = require("./../core/PortScanner");
   var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
-  var currentContext = Database.getContextConfig();
+  var settings = Application.getContextConfig();
 
   var debugMessage = "";
 
-  if (PortScanner.isValidPort(currentContext.port)) {
-    portNumber = currentContext.port;
+  if (PortScanner.isValidPort(settings.port)) {
+    portNumber = settings.port;
   } else {
     debugMessage = "No valid port found. The default port " + portNumber + " will be used";
   }
@@ -54,7 +66,7 @@ return Database.init(nodeContext).then(function (sequelize) {
   /**
    * Create HTTP server.
    */
-  var server = http.createServer(app);
+  var server = HTTPFactory.create(app, settings);
 
   return PluginLoader.initialize(__dirname + "/../plugins/").then(function() {
 
@@ -64,7 +76,7 @@ return Database.init(nodeContext).then(function (sequelize) {
     // getting db configuration and initializes data manager
     return DataManager.init(function(error) {
       if (error) {
-        console.log(error);
+        logger.error(error);
         process.exit(1);
         return;
       }
@@ -76,9 +88,9 @@ return Database.init(nodeContext).then(function (sequelize) {
           return TcpService.init()
             .finally(function() {
               if (debugMessage) {
-                console.log(debugMessage);
+                logger.debug(debugMessage);
               }
-              console.log("Initializing TerraMA2 on port " + port);
+              logger.info("Initializing TerraMA2 on port " + port);
               /**
                * Listen on provided port, on all network interfaces.
                */
@@ -103,7 +115,7 @@ return Database.init(nodeContext).then(function (sequelize) {
                 DataManager.finalize().then(function() {
                   var _closeServer = function() {
                     server.close(function() {
-                      console.log("TerraMA2 finalized");
+                      logger.info("TerraMA2 finalized");
                     });
 
                     for (var key in connections)
@@ -121,7 +133,7 @@ return Database.init(nodeContext).then(function (sequelize) {
               load('sockets').into(io);
             })
         }).catch(function(err) {
-          console.log("Could not load datamanager: " + err.message);
+          logger.error("Could not load datamanager: " + err.message);
           process.exit(1);
         });
     });
@@ -161,11 +173,11 @@ return Database.init(nodeContext).then(function (sequelize) {
     // handle specific listen errors with friendly messages
     switch (error.code) {
       case 'EACCES':
-        console.error(bind + ' requires elevated privileges');
+        logger.error(bind + ' requires elevated privileges');
         process.exit(1);
         break;
       case 'EADDRINUSE':
-        console.error(bind + ' is already in use');
+        logger.error(bind + ' is already in use');
         process.exit(1);
         break;
       default:
@@ -192,6 +204,6 @@ return Database.init(nodeContext).then(function (sequelize) {
     debug('Listening on ' + bind);
   }
 }).catch(function(err) {
-  console.error("Could not initialize TerraMA2 database " + err.toString());
+  logger.error("Could not initialize TerraMA2 database " + err.stack);
   process.exit(1);
 });

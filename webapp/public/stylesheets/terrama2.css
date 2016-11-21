@@ -280,6 +280,7 @@ bootstrap-decorator span {
   padding: 0 !important;
   background-color: #3c8dbc !important;
   border-color: #3c8dbc !important;
+  min-width: 133px !important;
 }
 
 .terrama2-button-dropdown li > a {
@@ -293,4 +294,27 @@ bootstrap-decorator span {
 
 .grads-form-item {
   margin-bottom: 25px !important;
+}
+
+
+/*
+  It fixes intersection nav to include check icon
+*/
+.nav > li > a {
+  padding: 10px 8px !important;
+}
+
+/**
+ *
+ * It handles Mozila FireFox CSS specific styles
+ *
+ */
+@-moz-document url-prefix() {
+    /*
+      It fixes the position of dropdown icon on layer explorer. Without it, the icon will overflow to the next li item
+    */
+    .enable-button-click {
+      cursor: pointer !important;
+      margin-top: -20px !important;
+    }
 }

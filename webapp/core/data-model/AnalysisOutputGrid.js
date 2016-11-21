@@ -1,6 +1,7 @@
 "use strict";
 
 // dependencies
+var logger = require("./../Logger");
 var BaseClass = require("./AbstractData");
 var Utils = require('./../Utils');
 
@@ -48,7 +49,7 @@ AnalysisOutputGrid.prototype.setAreaOfInterestBox = function(areaOfInterestBox) 
     try {
       this.areaOfInterestBox = JSON.parse(areaOfInterestBox);
     } catch (e) {
-      console.log("Error during AreaOfInterestBox parse. " + e.toString());
+      logger.debug("Error during AreaOfInterestBox parse. " + e.toString());
       this.areaOfInterestBox = areaOfInterestBox;
     }
   } else {
