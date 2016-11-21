@@ -6,6 +6,7 @@ var fs = require('fs');
 var path = require('path');
 var Sequelize = require('./Sequelize');
 var Connection = require("sequelize").Connection;
+var logger = require("./../core/Logger");
 
 /**
  * @type {Connection}
@@ -113,9 +114,9 @@ Database.prototype.init = function() {
       client.query(databaseQuery, function(err) {
         if (err) {
           if (err.code === "42P04") {
-            console.log(err.toString());
+            logger.debug(err.toString());
           } else {
-            console.log(err);
+            logger.warn(err);
           }
         }
         client.end();

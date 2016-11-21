@@ -1,4 +1,5 @@
 var Sequelize = require('sequelize');
+var logger = require("./../core/Logger");
 
 /**
  * It defines a Sequelize ORM initialization. It depends TerraMA² database config
@@ -11,5 +12,6 @@ var Sequelize = require('sequelize');
  * @returns {Sequelize.Instance}
  */
 module.exports = function(config) {
+  config.logging = logger.info;
   return new Sequelize(config.database, config.username, config.password, config);
 };
