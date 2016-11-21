@@ -55,12 +55,17 @@ namespace terrama2
             {
               namespace accum
               {
-                //Cantor pairing function for hashing the pair (column X row) https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+
+                //! Hash function for coordinates as key of a unordered_map
                 struct PairHash
                 {
                   std::size_t operator()(const std::pair<int, int>& pair) const
                   {
-                    return 0.5*(pair.first+pair.second)*(pair.first+pair.second+1)+pair.second;
+                    size_t hash = 0;
+                    boost::hash_combine(hash, pair.first);
+                    boost::hash_combine(hash, pair.second);
+
+                    return hash;
                   }
                 };
 
