@@ -20,39 +20,54 @@
 */
 
 /*!
-  \file terrama2/services/view/Typedef.hpp
+  \file terrama2/services/view/core/MapsServer.hpp
 
-  \brief Type definitions for View Service.
+  \brief
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
-#define __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
+#ifndef __TERRAMA2_SERVICES_VIEW_CORE_MAPS_SERVER_HPP__
+#define __TERRAMA2_SERVICES_VIEW_CORE_MAPS_SERVER_HPP__
 
-// STL
-#include <cstdint>
+#include "../../../core/Shared.hpp"
+
+// TerraLib
+#include <terralib/core/uri/URI.h>
+
+// Qt
+#include <QJsonArray>
+
+// STD
 #include <unordered_map>
 
-// TerraMA2
-#include "../../../core/Shared.hpp"
-#include "../../../core/Typedef.hpp"
-
-//! Unique identifier of a View
-typedef ProcessId ViewId;
-
-// Forward declaration
 namespace terrama2
 {
-  namespace core
+  namespace services
   {
-    struct DataSetSeries;
+    namespace view
+    {
+      namespace core
+      {
+        class MapsServer
+        {
+          public:
+
+            MapsServer(te::core::URI uri) : uri_(uri) {}
+
+            virtual ~MapsServer() = default;
+
+            virtual QJsonArray generateLayers(std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > dataSeriesProviders) = 0;
+
+          protected:
+
+            te::core::URI uri_;     /*!< The address of the Maps Server */
+        };
+      }
+    }
   }
+
 }
 
-typedef std::unordered_map< terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > SeriesMap;
 
-//! MapsServerType code
-typedef std::string MapsServerType;
-
-#endif // __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
+#endif //__TERRAMA2_SERVICES_VIEW_CORE_MAPS_SERVER_HPP__

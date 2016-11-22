@@ -246,7 +246,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
     lock.unlock();
 
     /////////////////////////////////////////////////////////////////////////
-
+/*
     for(auto dataSeriesProvider : dataSeriesProviders)
     {
       terrama2::core::DataSeriesPtr inputDataSeries = dataSeriesProvider.first;
@@ -279,7 +279,8 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
       if(mapsServerGeneration)
       {
-        GeoServer geoserver(mapsServerUri_);
+        MapsServerPtr geoserver(mapsServerUri_);
+//        GeoServer geoserver(mapsServerUri_);
 
         geoserver.registerWorkspace();
 
@@ -292,7 +293,6 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
           geoserver.registerStyle(styleName, itStyle->second);
         }
 
-        QFileInfoList fileInfoList;
         QJsonArray layersArray;
 
         terrama2::core::DataAccessorPtr dataAccessor =
@@ -339,12 +339,11 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
             else
             {
               // Get the list of layers to register
-              auto files = dataSeriesFileList(datasets,
-                                              inputDataProvider,
-                                              filter,
-                                              remover,
-                                              std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
-              fileInfoList.append(files);
+              auto fileInfoList = dataSeriesFileList(datasets,
+                                                     inputDataProvider,
+                                                     filter,
+                                                     remover,
+                                                     std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
 
               for(auto& fileInfo : fileInfoList)
               {
@@ -401,7 +400,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
               }
               catch (...)
               {
-                /* code */
+
               }
 
               if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
@@ -496,7 +495,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     sendProcessFinishedSignal(viewId, true, jsonAnswer);
     notifyWaitQueue(viewId);
-
+*/
     return;
   }
   catch(const terrama2::Exception& e)

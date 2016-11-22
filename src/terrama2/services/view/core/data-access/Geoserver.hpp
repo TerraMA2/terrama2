@@ -30,6 +30,9 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
 
+// TerraMA2
+#include "../MapsServer.hpp"
+#include "../Shared.hpp"
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
@@ -54,7 +57,7 @@ namespace terrama2
 
             This class stores a address to a GeoServer and the workspace in the server.
           */
-        class GeoServer
+        class GeoServer : public MapsServer
         {
           public:
 
@@ -68,7 +71,7 @@ namespace terrama2
             /*!
              * \brief GeoServer class default destructor
              */
-            ~GeoServer() = default;
+            virtual ~GeoServer() = default;
 
             /*!
              * \brief Return the working uri
@@ -271,9 +274,13 @@ namespace terrama2
             void registerPostGisDataStore(const std::string& dataStoreName,
                                    std::map<std::string, std::string> connInfo) const;
 
+            virtual QJsonArray generateLayers(std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > dataSeriesProviders) override;
+
+
+            static MapsServerPtr make(te::core::URI uri);
+
           private:
 
-            te::core::URI uri_;     /*!< The address of the GeoServer */
             std::string workspace_ = "terrama2"; /*!< A workspace to work in GeoServer */
 
         };

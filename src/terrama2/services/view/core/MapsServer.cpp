@@ -20,39 +20,12 @@
 */
 
 /*!
-  \file terrama2/services/view/Typedef.hpp
+  \file terrama2/services/view/core/MapsServer.cpp
 
-  \brief Type definitions for View Service.
+  \brief
 
   \author Vinicius Campanha
 */
 
-#ifndef __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
-#define __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__
+#include "MapsServer.hpp"
 
-// STL
-#include <cstdint>
-#include <unordered_map>
-
-// TerraMA2
-#include "../../../core/Shared.hpp"
-#include "../../../core/Typedef.hpp"
-
-//! Unique identifier of a View
-typedef ProcessId ViewId;
-
-// Forward declaration
-namespace terrama2
-{
-  namespace core
-  {
-    struct DataSetSeries;
-  }
-}
-
-typedef std::unordered_map< terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > SeriesMap;
-
-//! MapsServerType code
-typedef std::string MapsServerType;
-
-#endif // __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__

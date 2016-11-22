@@ -46,7 +46,7 @@
 
 
 terrama2::services::view::core::GeoServer::GeoServer(const te::core::URI uri)
-  : uri_(uri)
+  : MapsServer(uri)
 {
 
 }
@@ -750,4 +750,14 @@ void terrama2::services::view::core::GeoServer::getMapWMS(const std::string& sav
   te::core::URI uriRequest(request);
 
   wms.makeFileRequest(uriRequest.uri(), fileName);
+}
+
+QJsonArray terrama2::services::view::core::GeoServer::generateLayers(std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > dataSeriesProviders)
+{
+  return QJsonArray();
+}
+
+terrama2::services::view::core::MapsServerPtr terrama2::services::view::core::GeoServer::make(te::core::URI uri)
+{
+  return std::make_shared<GeoServer>(uri);
 }
