@@ -163,3 +163,9 @@
   </div>
   <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
 </div>
+
+
+<!-- List with database tables -->
+<datalist id='databaseTableList'>
+    <option ng-repeat="table in tableList" value="{{table}}">
+</datalist>

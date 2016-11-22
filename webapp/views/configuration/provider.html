@@ -116,6 +116,12 @@
       <i class="fa fa-refresh fa-spin"></i>
     </div>
   </terrama2-box>
+
+  <!-- List with database of postgis -->
+  <datalist id='databaseList'>
+      <option ng-repeat="db in dbList" value="{{db}}">
+  </datalist>
+
 </div> <!-- end col md 12 -->
 
 {% endblock %}

@@ -359,5 +359,15 @@ module.exports = {
     LESS_THAN: "$lt",
     LESS_EQUAL: "$le",
     IN: "$in"
+  },
+
+  /**
+   * List of available objects to query in PostGIS
+   */
+
+  PostGISObjects: {
+    DATABASE: "database",
+    TABLE: "table",
+    COLUMN: "column"
   }
 };
