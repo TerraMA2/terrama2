@@ -132,8 +132,22 @@ module.exports = {
     GEOMETRIC_OBJECT: "GEOMETRIC_OBJECT"
   },
 
+  /**
+   * It defines Data Series Semantics Type. Used to identify the kind of data series
+   * 
+   * @type {string}
+   * @readonly
+   */
   TemporalityType: {
+    /**
+     * Used to describe STATIC data series
+     * @type {string}
+     */
     STATIC: 'STATIC',
+    /**
+     * Used to describe DYNAMIC data series
+     * @type {string}
+     */
     DYNAMIC: 'DYNAMIC'
   },
 

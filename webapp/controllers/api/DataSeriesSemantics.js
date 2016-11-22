@@ -3,16 +3,18 @@ var Utils = require("../../core/Utils");
 var DataSeriesSemanticsError = require("../../core/Exceptions").DataSeriesSemanticsError;
 var DataSeriesSemanticsFactory = require('./../../core/data-series-semantics/Factory');
 var TemporalityType = require('./../../core/Enums').TemporalityType;
-var Promise = require("bluebird");
+var Promise = require("./../../core/Promise");
+var logger = require("./../../core/Logger");
 
 function makeMetadata(identifier) {
   var semanticsStructure = DataSeriesSemanticsFactory.build({code: identifier});
+  var GUIValues = semanticsStructure.gui;
 
   return {
-    form: semanticsStructure.form(),
-    schema: semanticsStructure.schema(),
-    demand: semanticsStructure.demand(),
-    metadata: semanticsStructure.metadata()
+    form: GUIValues.form,
+    schema: GUIValues.schema,
+    demand: semanticsStructure.providers_type_list,
+    metadata: semanticsStructure.metadata || {}
   };
 }
 

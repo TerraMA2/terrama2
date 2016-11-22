@@ -5,7 +5,19 @@
     "type": "OCCURRENCE",
     "temporality": "DYNAMIC",
     "format": "POSTGIS",
-    "providers_type_list": ["POSTGIS"]
+    "providers_type_list": ["POSTGIS"],
+    "gui": {
+      "schema": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name"
+          }
+        },
+        "required": ["table_name"]
+      },
+      "form": ["*"]
+    }
   },
   {
     "name": "INPE's Wildland Fire Program",
@@ -21,6 +33,31 @@
       "longitude_property": "lon",
       "timezone": "UTM+00",
       "srid": "4326"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        }
+      ]
     }
   },
   {
@@ -29,7 +66,32 @@
     "type": "GEOMETRIC_OBJECT",
     "temporality": "STATIC",
     "format": "OGR",
-    "providers_type_list": ["FILE"]
+    "providers_type_list": ["FILE"],
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        }
+      ]
+    }
   },
   {
     "name": "PostGIS static data",
@@ -37,7 +99,19 @@
     "type": "GEOMETRIC_OBJECT",
     "temporality": "STATIC",
     "format": "POSTGIS",
-    "providers_type_list": ["POSTGIS"]
+    "providers_type_list": ["POSTGIS"],
+    "gui": {
+      "schema": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name"
+          }
+        },
+        "required": ["table_name"]
+      },
+      "form": ["*"]
+    }
   },
   {
     "name": "Static GeoTIFF grid",
@@ -48,6 +122,31 @@
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
       "timestamp_property": "file_timestamp"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        }
+      ]
     }
   },
   {
@@ -59,6 +158,91 @@
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
       "timestamp_property": "N/A"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "projection": {
+            "type": "number",
+            "title": "SRID"
+          }
+        },
+        "required": []
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        },
+        {
+          "key": "timezone",
+          "htmlClass": "col-md-4",
+          "type": "select",
+          "titleMap": [
+            {"name": "-12", "value": "-12"},
+            {"name": "-11", "value": "-11"},
+            {"name": "-10", "value": "-10"},
+            {"name": "-9", "value": "-9"},
+            {"name": "-8", "value": "-8"},
+            {"name": "-7", "value": "-7"},
+            {"name": "-6", "value": "-6"},
+            {"name": "-5", "value": "-5"},
+            {"name": "-4", "value": "-4"},
+            {"name": "-3", "value": "-3"},
+            {"name": "-2", "value": "-2"},
+            {"name": "-1", "value": "-1"},
+            {"name": "0", "value": "0"},
+            {"name": "1", "value": "1"},
+            {"name": "2", "value": "2"},
+            {"name": "3", "value": "3"},
+            {"name": "4", "value": "4"},
+            {"name": "5", "value": "5"},
+            {"name": "6", "value": "6"},
+            {"name": "7", "value": "7"},
+            {"name": "8", "value": "8"},
+            {"name": "9", "value": "9"},
+            {"name": "10", "value": "10"},
+            {"name": "11", "value": "11"},
+            {"name": "12", "value": "12"}
+          ]
+        },
+        {
+          "key": "latitude",
+          "htmlClass": "col-md-2"
+        },
+        {
+          "key": "longitude",
+          "htmlClass": "col-md-2"
+        },
+        {
+          "key": "projection",
+          "htmlClass": "col-md-2"
+        }
+      ]
     }
   },
   {
@@ -72,6 +256,91 @@
       "timestamp_property": "TIMESTAMP",
       "record_property": "RECORD",
       "station_property": "Estacao_ID"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "projection": {
+            "type": "number",
+            "title": "SRID"
+          }
+        },
+        "required": []
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        },
+        {
+          "key": "timezone",
+          "htmlClass": "col-md-4",
+          "type": "select",
+          "titleMap": [
+            {"name": "-12", "value": "-12"},
+            {"name": "-11", "value": "-11"},
+            {"name": "-10", "value": "-10"},
+            {"name": "-9", "value": "-9"},
+            {"name": "-8", "value": "-8"},
+            {"name": "-7", "value": "-7"},
+            {"name": "-6", "value": "-6"},
+            {"name": "-5", "value": "-5"},
+            {"name": "-4", "value": "-4"},
+            {"name": "-3", "value": "-3"},
+            {"name": "-2", "value": "-2"},
+            {"name": "-1", "value": "-1"},
+            {"name": "0", "value": "0"},
+            {"name": "1", "value": "1"},
+            {"name": "2", "value": "2"},
+            {"name": "3", "value": "3"},
+            {"name": "4", "value": "4"},
+            {"name": "5", "value": "5"},
+            {"name": "6", "value": "6"},
+            {"name": "7", "value": "7"},
+            {"name": "8", "value": "8"},
+            {"name": "9", "value": "9"},
+            {"name": "10", "value": "10"},
+            {"name": "11", "value": "11"},
+            {"name": "12", "value": "12"}
+          ]
+        },
+        {
+          "key": "latitude",
+          "htmlClass": "col-md-2"
+        },
+        {
+          "key": "longitude",
+          "htmlClass": "col-md-2"
+        },
+        {
+          "key": "projection",
+          "htmlClass": "col-md-2"
+        }
+      ]
     }
   },
   {
@@ -80,7 +349,19 @@
     "type": "DCP",
     "temporality": "DYNAMIC",
     "format": "POSTGIS",
-    "providers_type_list": ["POSTGIS"]
+    "providers_type_list": ["POSTGIS"],
+    "gui": {
+      "schema": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name"
+          }
+        },
+        "required": ["table_name"]
+      },
+      "form": ["*"]
+    }
   },
   {
     "name": "Monitored object analysis result",
@@ -88,7 +369,19 @@
     "type": "ANALYSIS_MONITORED_OBJECT",
     "temporality": "DYNAMIC",
     "format": "POSTGIS",
-    "providers_type_list": ["POSTGIS"]
+    "providers_type_list": ["POSTGIS"],
+    "gui": {
+      "schema": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name"
+          }
+        },
+        "required": ["table_name"]
+      },
+      "form": ["*"]
+    }
   },
   {
     "name": "GeoTIFF grid",
@@ -99,6 +392,41 @@
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
       "timestamp_property": "file_timestamp"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          }
+        },
+        "required": ["mask", "timezone"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        },
+        {
+          "key": "timezone",
+          "htmlClass": "col-md-6 terrama2-schema-form",
+          "type": "select",
+          "titleMap": "Utils.getTimezonesGUI()"
+        }
+      ]
     }
   },
   {
@@ -112,6 +440,84 @@
     "allow_direct_access": false,
     "metadata": {
       "timestamp_property": "file_timestamp"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "ctl_filename": {
+            "type": "string",
+            "title": "CTL File"
+          },
+          "srid": {
+            "type": "number",
+            "title": "SRID"
+          },
+          "bytes_before": {
+            "type": "number",
+            "title": "Bytes Before",
+            "default": 0
+          },
+          "bytes_after": {
+            "type": "number",
+            "title": "Bytes After",
+            "default": 0
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          }
+        }
+      },
+      "form": [
+        {
+          "key": "ctl_filename",
+          "htmlClass": "col-md-6 terrama2-schema-form"
+        },
+        {
+          "key": "srid",
+          "htmlClass": "col-md-6 terrama2-schema-form"
+        },
+        {
+          "key": "bytes_before",
+          "htmlClass": "col-md-6 terrama2-schema-form"
+        },
+        {
+          "key": "bytes_after",
+          "htmlClass": "col-md-6 terrama2-schema-form"
+        },
+        {
+          "key": "timezone",
+          "htmlClass": "col-md-6 terrama2-schema-form",
+          "type": "select",
+          "titleMap": [
+            {"name": "-12", "value": "-12"},
+            {"name": "-11", "value": "-11"},
+            {"name": "-10", "value": "-10"},
+            {"name": "-9", "value": "-9"},
+            {"name": "-8", "value": "-8"},
+            {"name": "-7", "value": "-7"},
+            {"name": "-6", "value": "-6"},
+            {"name": "-5", "value": "-5"},
+            {"name": "-4", "value": "-4"},
+            {"name": "-3", "value": "-3"},
+            {"name": "-2", "value": "-2"},
+            {"name": "-1", "value": "-1"},
+            {"name": "0", "value": "0"},
+            {"name": "1", "value": "1"},
+            {"name": "2", "value": "2"},
+            {"name": "3", "value": "3"},
+            {"name": "4", "value": "4"},
+            {"name": "5", "value": "5"},
+            {"name": "6", "value": "6"},
+            {"name": "7", "value": "7"},
+            {"name": "8", "value": "8"},
+            {"name": "9", "value": "9"},
+            {"name": "10", "value": "10"},
+            {"name": "11", "value": "11"},
+            {"name": "12", "value": "12"}
+          ]
+        }
+      ]
     }
   }
 ]
