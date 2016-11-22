@@ -322,18 +322,19 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
             {
               QUrl url(QString::fromStdString(inputDataProvider->uri));
 
-              std::string layerName = "name";
+              std::string layerName = viewPtr->viewName;
+              int geomSRID;
 
               for(auto& dataset : datasets)
               {
-                createGeoserverTempMosaic(dataManager, dataset, filter, layerName, url.path().toStdString());
+                geomSRID = createGeoserverTempMosaic(dataManager, dataset, filter, layerName, url.path().toStdString());
+
+                geoserver.registerMosaicCoverage(layerName + "coveragestore", url.path().toStdString(), layerName, geomSRID);
+
+                QJsonObject layer;
+                layer.insert("layer", QString::fromStdString(layerName));
+                layersArray.push_back(layer);
               }
-
-              geoserver.registerMosaicCoverage(layerName + "coveragestore", url.path().toStdString(), layerName, "4326");
-
-              QJsonObject layer;
-              layer.insert("layer", QString::fromStdString(layerName));
-              layersArray.push_back(layer);
             }
             else
             {

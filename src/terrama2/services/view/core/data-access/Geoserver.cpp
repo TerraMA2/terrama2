@@ -449,7 +449,7 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
 void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std::string& coverageStoreName,
                                                                        const std::string& mosaicPath,
                                                                        const std::string& coverageName,
-                                                                       const std::string& srid,
+                                                                       const int srid,
                                                                        const std::string& style) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
@@ -484,7 +484,7 @@ void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std
   std::string xml = "<coverage>"
                     "<enabled>true</enabled>"
                     "<srs>EPSG:"
-                    + srid +
+                    + std::to_string(srid) +
                     "</srs>"
                     "<metadata>"
                     "<entry key=\"time\">"

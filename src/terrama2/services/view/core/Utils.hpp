@@ -42,7 +42,16 @@ namespace terrama2
     {
       namespace core
       {
-        void createGeoserverTempMosaic(terrama2::core::DataManagerPtr dataManager, terrama2::core::DataSetPtr dataset, const terrama2::core::Filter& filter, const std::string& exhibitionName, const std::string& outputFolder);
+        /*!
+         * \brief createGeoserverTempMosaic
+         * \param dataManager
+         * \param dataset
+         * \param filter
+         * \param exhibitionName
+         * \param outputFolder
+         * \return Return the geometry SRID
+         */
+        int createGeoserverTempMosaic(terrama2::core::DataManagerPtr dataManager, terrama2::core::DataSetPtr dataset, const terrama2::core::Filter& filter, const std::string& exhibitionName, const std::string& outputFolder);
 
         void createGeoserverPropertiesFile(const std::string& outputFolder, const std::string& exhibitionName, DataSeriesId dataSeriesId);
 

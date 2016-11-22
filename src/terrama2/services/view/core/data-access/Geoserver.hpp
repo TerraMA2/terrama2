@@ -174,7 +174,7 @@ namespace terrama2
             void registerMosaicCoverage(const std::string& coverageStoreName,
                                         const std::string& mosaicPath,
                                         const std::string& coverageName,
-                                        const std::string& srid,
+                                        const int srid,
                                         const std::string& style = "") const;
 
             /*!
