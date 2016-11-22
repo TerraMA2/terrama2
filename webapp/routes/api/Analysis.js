@@ -7,4 +7,6 @@ module.exports = function (app) {
   app.post('/api/Analysis/', passport.isAuthenticated, controller.post);
   app.put('/api/Analysis/:id', passport.isAuthenticated, controller.put);
   app.delete('/api/Analysis/:id/delete', passport.isAuthenticated, controller.delete);
+
+  app.post("/api/Analysis/validate", passport.isAuthenticated, controller.validate);
 };

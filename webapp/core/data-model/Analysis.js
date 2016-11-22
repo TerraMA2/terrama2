@@ -49,7 +49,7 @@ var Analysis = module.exports = function(params) {
   if (params.AnalysisType) {
     this.type = params.AnalysisType.get();
   } else {
-    this.type = params.type || {};
+    this.type = params.type || {id: Utils.isString(params.type_id) ? parseInt(params.type_id) : params.type_id};
   }
 
   /**
@@ -84,11 +84,7 @@ var Analysis = module.exports = function(params) {
    */
   this.analysis_dataseries_list = [];
 
-  if (params.Schedule) {
-    this.schedule = new Schedule(params.Schedule.get() || {});
-  } else {
-    this.schedule = params.schedule;
-  }
+  this.schedule = new Schedule(params.Schedule? params.Schedule.get() : params.schedule || {});
 
   /**
    * @name Analysis#instance_id
@@ -114,7 +110,7 @@ var Analysis = module.exports = function(params) {
   if (params.ReprocessingHistoricalDatum) {
     this.setHistoricalData(params.ReprocessingHistoricalDatum);
   } else {
-    this.setHistoricalData(params.historicalData);
+    this.setHistoricalData(params.historicalData || params.historical);
   }
 };
 

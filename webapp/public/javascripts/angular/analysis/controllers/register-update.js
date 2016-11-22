@@ -22,11 +22,13 @@
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
-                                    Socket, DateParser, MessageBoxService, Polygon) {
+                                    Socket, DateParser, MessageBoxService, Polygon, $window) {
     var self = this;
     $scope.i18n = i18n;
 
-    var config = configuration;
+    var config = $window.configuration;
+
+    var Globals = $window.globals;
     /**
      * It defines a style for TerraMA² box directive
      * @type {Object}
@@ -106,6 +108,12 @@
       self.MessageBoxService.reset();
     };
 
+    /**
+     * It handles Analysis Validation. It is important disable/enable button
+     * @type {boolean}
+     */
+    self.validating = false;
+
     // initializing async services
     $q
       .all([
@@ -180,9 +188,9 @@
          * It defines enums used to handling DCP and Grid
          * @todo Angular EnumService
          */
-        self.interpolationMethods = globals.enums.InterpolationMethod;
-        self.interestAreaTypes = globals.enums.InterestAreaType;
-        self.resolutionTypes = globals.enums.ResolutionType;
+        self.interpolationMethods = Globals.enums.InterpolationMethod;
+        self.interestAreaTypes = Globals.enums.InterestAreaType;
+        self.resolutionTypes = Globals.enums.ResolutionType;
 
         /**
          * It defines a target data series that should be monitored/grid or even DCP
@@ -267,7 +275,7 @@
           analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
             var ds = analysisDs.dataSeries;
 
-            if (analysisDs.type === globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
+            if (analysisDs.type === Globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
               self.selectedDataSeriesList.push(ds);
             } else {
               self.filteredDataSeries.some(function(filteredDs) {
@@ -288,7 +296,7 @@
             self.metadata[ds.name] = Object.assign({id: analysisDs.id, alias: analysisDs.alias}, analysisDs.metadata);
           });
 
-          if (analysisInstance.type.id === globals.enums.AnalysisType.GRID) {
+          if (analysisInstance.type.id === Globals.enums.AnalysisType.GRID) {
             // fill interpolation
             debugger;
             self.analysis.grid = {
@@ -327,7 +335,7 @@
                 maxY: coordinates[0][2][1]
               };
             }
-          } else if (analysisInstance.type.id === globals.enums.AnalysisType.DCP) {
+          } else if (analysisInstance.type.id === Globals.enums.AnalysisType.DCP) {
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
             self.analysis.metadata.INFLUENCE_RADIUS = Number(analysisInstance.metadata.INFLUENCE_RADIUS);
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
@@ -427,7 +435,7 @@
             DataSeriesService.list().forEach(function(dSeries) {
               var semantics = dSeries.data_series_semantics;
 
-              if (semantics.temporality == globals.enums.TemporalityType.DYNAMIC){
+              if (semantics.temporality === Globals.enums.TemporalityType.DYNAMIC){
                 dSeries.isDynamic = true;
                 self.buffers.dynamic.push(dSeries);
               } else {
@@ -439,7 +447,7 @@
             DataSeriesService.list().forEach(function(dSeries) {
               var semantics = dSeries.data_series_semantics;
 
-              if (semantics.temporality === globals.enums.TemporalityType.STATIC) {
+              if (semantics.temporality === Globals.enums.TemporalityType.STATIC) {
                 // skip target data series in additional data
                 if (self.targetDataSeries && self.targetDataSeries.id !== dSeries.id) {
                   dSeries.isDynamic = false;
@@ -553,7 +561,7 @@
 
             DataProviderService.list().forEach(function(dataProvider) {
               self.currentSemantics.metadata.demand.forEach(function(demand) {
-                if (dataProvider.data_provider_type.name == demand) {
+                if (dataProvider.data_provider_type.name === demand) {
                   self.dataProviders.push(dataProvider);
                 }
               });
@@ -720,12 +728,24 @@
           self.analysis.metadata.INFLUENCE_RADIUS_UNIT = format;
         };
 
-        // save function
-        self.save = function(shouldRun) {
+        /**
+         * It prepares analysis object to send via API
+         * 
+         * @throws Error when there invalid values
+         * @returns {Analysis} Front-end Analysis to send
+         */
+        self.$prepare = function(shouldRun) {
           $scope.$broadcast('formFieldValidation');
 
           self.analysis_script_error = false;
           // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
+
+          /**
+           * Defines a common message for empty fields
+           * @type {string}
+           */
+          var errMessageEmptyFields = i18n.__("There are invalid fields on form");
+
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
           if ($scope.forms.generalDataForm.$invalid ||
               $scope.forms.storagerDataForm.$invalid ||
@@ -733,8 +753,7 @@
               scheduleForm.$invalid ||
               $scope.forms.targetDataSeriesForm.$invalid ||
               $scope.forms.scriptForm.$invalid) {
-            MessageBoxService.danger(i18n.__("Analysis"), i18n.__("There are invalid fields on form"));
-            return;
+            throw new Error(errMessageEmptyFields);
           }
 
           // checking script form if there any "add_value"
@@ -769,7 +788,7 @@
             message = "Please fill at least a add_value() in script field.";
           }
           if (hasScriptError(expression, i18n.__(message))) {
-            return;
+            throw new Error(self.analysis_script_error_message);
           }
 
           // checking dataseries analysis
@@ -782,20 +801,18 @@
           });
 
           if (hasError) {
-            MessageBoxService.danger(i18n.__("Analysis"), 
-                                     i18n.__("Invalid data series. Please fill out alias in ") + dataSeriesError.name);
-            return;
+            throw new Error(i18n.__("Invalid data series. Please fill out alias in ") + dataSeriesError.name);
           }
 
           // cheking influence form: DCP and influence form valid
           if (self.analysis.type_id == 1) {
             var form = $scope.forms.influenceForm;
             if (form.$invalid) {
-              return;
+              throw new Error(errMessageEmptyFields);
             }
-          } else if (self.analysis.type_id == globals.enums.AnalysisType.GRID) {
+          } else if (self.analysis.type_id == Globals.enums.AnalysisType.GRID) {
             if ($scope.forms.gridForm.$invalid) {
-              return;
+              throw new Error(errMessageEmptyFields);
             }
           }
 
@@ -825,14 +842,14 @@
           // target data series
           var analysisTypeId;
           switch(typeId) {
-            case globals.enums.AnalysisType.DCP:
-              analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
+            case Globals.enums.AnalysisType.DCP:
+              analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
               break;
-            case globals.enums.AnalysisType.GRID:
-              analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
+            case Globals.enums.AnalysisType.GRID:
+              analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
               break;
-            case globals.enums.AnalysisType.MONITORED:
-              analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
+            case Globals.enums.AnalysisType.MONITORED:
+              analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
               self.metadata[self.targetDataSeries.name]['identifier'] = self.identifier;
               // setting monitored object id in output data series format
               self.modelStorager.monitored_object_id = self.targetDataSeries.id;
@@ -844,7 +861,7 @@
           var analysisToSend = Object.assign({}, self.analysis);
 
           // setting target data series metadata (monitored object, dcp..)
-          if (typeId !== globals.enums.AnalysisType.GRID) {
+          if (typeId !== Globals.enums.AnalysisType.GRID) {
             analysisDataSeriesArray.push(_makeAnalysisDataSeries(self.targetDataSeries, analysisTypeId));
           } else {
             // checking geojson
@@ -853,7 +870,7 @@
 
               var boundedForm = (angular.element('form[name="boundedForm"]').scope() || {boundedForm: {}}).boundedForm;
               if (boundedForm.$invalid) {
-                return;
+                throw new Error(errMessageEmptyFields);
               }
 
               var bounded = self.analysis.grid.area_of_interest_bounded;
@@ -865,7 +882,7 @@
           // preparing analysis data series
           self.selectedDataSeriesList.forEach(function(selectedDS) {
             // additional data
-            var analysisDataSeries = _makeAnalysisDataSeries(selectedDS, globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE);
+            var analysisDataSeries = _makeAnalysisDataSeries(selectedDS, Globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE);
             analysisDataSeriesArray.push(analysisDataSeries);
           });
 
@@ -895,30 +912,64 @@
               break;
           }
 
-          // sending post operation
-          var objectToSend = {
+          return {
             analysis: analysisToSend,
             storager: storager,
             schedule: scheduleValues,
             run: shouldRun
           };
-          /**
-           * Target object request (update/insert)
-           * @type {angular.IPromise<any>}
-           */
-          var request;
+        };
 
-          if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
-          else { request = AnalysisService.create(objectToSend); }
+        /**
+         * It retrieves built analysis and send to Remove host in order to validate. Before build, it performs same
+         * validation etep as in save operation
+         */
+        self.validate = function() {
+          self.validating = true;
+          try {
+            var buildAnalysis = self.$prepare(false);
+            console.log(buildAnalysis);
 
-          return request
-            .then(function(data) {
-              window.location = "/configuration/analysis?token=" + (data.token || (data.data || {}).token);
-            })
-            .catch(function(err) {
-              $log.log(err);
-              MessageBoxService.danger(i18n.__("Analysis"), err.message);
-            });
+            AnalysisService.validate(buildAnalysis)
+              .then(function(response) {
+                MessageBoxService.success(i18n.__("Analysis"), response);
+              })
+
+              .catch(function(err) {
+                MessageBoxService.danger(i18n.__("Analysis"), err);
+                self.validating = false;
+              });
+          } catch(err) {
+            self.validating = false;
+            MessageBoxService.danger(i18n.__("Analysis"), err.toString());
+          }
+        };
+
+        // save function
+        self.save = function(shouldRun) {
+          try {
+            var objectToSend = self.$prepare(shouldRun);
+
+            /**
+             * Target object request (update/insert)
+             * @type {angular.IPromise<any>}
+             */
+            var request;
+
+            if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
+            else { request = AnalysisService.create(objectToSend); }
+
+            return request
+              .then(function(data) {
+                window.location = "/configuration/analysis?token=" + (data.token || (data.data || {}).token);
+              })
+              .catch(function(err) {
+                MessageBoxService.danger(i18n.__("Analysis"), err.message);
+              });
+          } catch (e) {
+            MessageBoxService.danger(i18n.__("Analysis"), err.toString());
+            return;
+          }
         };
       })
 
@@ -928,18 +979,19 @@
   }
   // Injecting angular dependencies in controller
   RegisterUpdateController.$inject = [
-    '$scope',
-    '$q',
-    '$log',
-    'i18n',
-    'Service',
-    'DataSeriesService',
-    'DataSeriesSemanticsService',
-    'AnalysisService',
-    'DataProviderService',
-    'Socket',
-    'DateParser',
-    'MessageBoxService',
-    'Polygon'
+    "$scope",
+    "$q",
+    "$log",
+    "i18n",
+    "Service",
+    "DataSeriesService",
+    "DataSeriesSemanticsService",
+    "AnalysisService",
+    "DataProviderService",
+    "Socket",
+    "DateParser",
+    "MessageBoxService",
+    "Polygon",
+    "$window"
   ];
 } ());

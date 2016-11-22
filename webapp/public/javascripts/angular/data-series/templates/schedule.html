@@ -1,17 +1,23 @@
 <div class="row">
   <form name="scheduleForm">
     <div class="col-md-7">
-      <div class="form-group" style="top:30px;">
+      <div class="form-group" style="top:30px;" terrama2-show-errors>
         <label>{{ i18n.__('Type') }}:</label>
         <select class="form-control" name="schedule"
                 ng-disabled="options.disabled"
                 ng-model="model.scheduleHandler"
-                ng-change="onScheduleChange(model.scheduleHandler)">
+                ng-change="onScheduleChange(model.scheduleHandler)"
+                required>
           <option value="seconds">{{ i18n.__('Seconds') }}</option>
           <option value="minutes">{{ i18n.__('Minutes') }}</option>
           <option value="hours">{{ i18n.__('Hours') }}</option>
           <option value="weeks">{{ i18n.__('Weekly') }}</option>
         </select>
+
+        <label class="help-block text-danger" 
+               ng-show="scheduleForm.schedule.$dirty && scheduleForm.schedule.$error.required"
+               ng-bind="i18n.__('Schedule Type is required')">
+        </label>
       </div>
     </div>
 

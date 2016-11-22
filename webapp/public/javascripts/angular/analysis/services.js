@@ -67,6 +67,16 @@
   };
 
   /**
+   * It sends a built analysis in order to validate in backend
+   * 
+   * @param {Object} analysisObject - A javascript object with analysis values
+   * @returns {angular.IPromise<any>} Response object with status code to identify state mode
+   */
+  AnalysisService.prototype.validate = function(analysisObject) {
+    return this.BaseService.$request(this.url + "/validate", "POST", {data: analysisObject});
+  };
+
+  /**
    * It creates a analysis resource on remote host using API POST and then retrieve the resource created.
    * 
    * @param {Object} analysisObject - A javascript object with analysis values

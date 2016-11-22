@@ -26,13 +26,16 @@ var TcpSocket = function(io) {
   // common TcpService module
   var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
+  // TODO: remove it, since It also include TcpService. It must be changed
+  var AnalysisFacade = require("./../core/facade/Analysis");
+
   /**
    * It describes when service is ready to start and notify all listeners
    * 
    * @param {Object} resp - Response object
    * @param {number} resp.service - TerraMA² Service ID
    */
-  TcpService.on("serviceStarting", (resp) => {
+  TcpService.on("serviceStarting", function(resp) {
     iosocket.emit("statusResponse", {
       status: 200,
       loading: true,
@@ -124,6 +127,13 @@ var TcpSocket = function(io) {
   // Socket connection event
   iosocket.on('connection', function(client) {
     /**
+     * Listener for handling Analysis Validation from TerraMA² services (front)
+     */
+    function onAnalysisValidateReceived(resp) {
+      client.emit("analysisValidation", resp);
+    }
+
+    /**
      * Listener for handling Process Run from TerraMA² TcpService.
      * 
      * @todo It will emits serviceError in order to notify user that service is not running.
@@ -140,13 +150,20 @@ var TcpSocket = function(io) {
      */
     TcpService.on("processRun", onProcessRun);
 
+    /** 
+     * Register the analysis validation listener.
+     * It must be removed on socket disconnection
+     */
+    TcpService.on("analysisValidation", onAnalysisValidateReceived);
+
     /**
      * It just define on front-end socket disconnection. It remove a process run listener due it is the only one registered each one user
      * 
      * @returns {void}
      */
     function onDisconnect() {
-      TcpService.removeListener ("processRun", onProcessRun);
+      TcpService.removeListener("processRun", onProcessRun);
+      TcpService.on("analysisValidation", onAnalysisValidateReceived);
     }
 
     /**
@@ -215,6 +232,7 @@ var TcpSocket = function(io) {
     client.on("stop", onStopRequest);
     client.on("log", onLogRequest);
     client.on("disconnect", onDisconnect);
+
   });
 };
 

@@ -11,6 +11,8 @@ var PromiseClass = require("./../Promise");
 var AnalysisError = require("./../Exceptions").AnalysisError;
 var Utils = require("./../Utils");
 var TcpService = require("../../core/facade/tcp-manager/TcpService");
+// TerraMA² Analysis Simulator that generates a dummy analysis
+var AnalysisBuilder = require("./simulation/AnalysisBuilder");
 
 /**
  * It handles a Analysis Registration concept.
@@ -199,5 +201,43 @@ Analysis.delete = function(analysisId, projectId) {
     }).catch(function(err) {
       return reject(err);
     });
+  });
+};
+
+/**
+ * It handles a Analysis Validation. It emits a dummy analysis to C++ services in order to check if 
+ * it will able to generate a result 
+ * 
+ * @param {Object} analysisObject - An analysis object structure
+ * @param {Object} storager - A storager object
+ * @param {Object} scheduleObject - An schedule object structure
+ * @param {number=} projectId - A current project id 
+ * @return {Promise<Analysis>} A promise with analysis sent
+ */
+Analysis.validate = function(analysisObject, storagerObject, scheduleObject, projectId) {
+  return new PromiseClass(function(resolve, reject) {
+    analysisObject.schedule = scheduleObject;
+    analysisObject.project_id = projectId;
+    // Todo: remove it
+    analysisObject.script_language_id = 1;
+
+    return PromiseClass.all([
+        analysisObject,
+        storagerObject,
+        DataManager.getScriptLanguage({id: analysisObject.script_language_id})
+      ])
+      .spread(function(analysis, storager, scriptLanguage) {
+        var dummyAnalysis = AnalysisBuilder(analysis, storager);
+        dummyAnalysis.setAnalysisOutputGrid(analysis.grid || {});
+        dummyAnalysis.setScriptLanguage(scriptLanguage);
+
+        TcpService.validateProcess({"Analysis": dummyAnalysis.toObject()}, dummyAnalysis.instance_id);
+
+        return resolve(dummyAnalysis);
+      })
+      
+      .catch(function(err) {
+        return reject(err);
+      });
   });
 };

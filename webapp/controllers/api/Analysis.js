@@ -74,6 +74,20 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new AnalysisError("Missing analysis id"), 400);
       }
+    },
+
+    validate: function(request, response) {
+      var analysisObject = request.body.analysis;
+      var storager = request.body.storager;
+      var scheduleObject = request.body.schedule;
+      return AnalysisFacade.validate(analysisObject, storager, scheduleObject)
+        .then(function(builtAnalysis) {
+          return response.json({status: 200});
+        })
+
+        .catch(function(err) {
+          return Utils.handleRequestError(response, err, 400);
+        });
     }
   };
 };

@@ -30,6 +30,7 @@
 
 <script src="/javascripts/angular/table/table.js"></script>
 <script src="/javascripts/angular/services.js"></script>
+<script src="/javascripts/angular/alert-box/services.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script src="/javascripts/angular/status/status.js"></script>
 
@@ -47,7 +48,7 @@
 
       <div class="col-md-12">
         <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+          <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
         <terrama2-table-header link="linkToAdd"></terrama2-table-header>

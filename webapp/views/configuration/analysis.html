@@ -739,6 +739,19 @@
           <li><a href="javascript::void();" ng-show="ctrl.schedule.frequency_start_time" ng-bind="i18n.__('Save and Run')" data-ng-click="ctrl.save(true);"></a></li>
         </ul>
       </div>
+      <button type="button" 
+              class="btn btn-primary pull-right"
+              style="margin-left: 10px;"
+              data-toggle="tooltip"
+              data-placement="top"
+              title="{{ i18n.__('It performs Analysis Validation in order to check if it will able to generate a valid data series') }}"
+              ng-click="ctrl.validate()"
+              ng-disabled="ctrl.validating">
+        <span class="loading" ng-show="ctrl.validating">
+          <i class="fa fa-refresh fa-spin"></i>
+        </span>
+        <span ng-bind="i18n.__('Validate')" ng-show="!ctrl.validating"></span>
+      </button>
       <!--<button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="ctrl.save();" id="analysisSaveButton">{{ i18n.__('OK') }}</button>-->
       <a href="/configuration/analysis/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
     </div>

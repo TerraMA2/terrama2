@@ -1,14 +1,20 @@
-angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
-  .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n',
-  function($scope, $HttpTimeout, Socket, i18n) {
+angular.module("terrama2.status", [
+    "terrama2.services",
+    "terrama2.table",
+    "terrama2.components.messagebox.services",
+    "terrama2.components.messagebox"
+  ])
+  .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n', "MessageBoxService", "$window",
+  function($scope, $HttpTimeout, Socket, i18n, MessageBoxService, $window) {
+    var config = $window.configuration;
+    var Globals = $window.globals;
+
     $scope.i18n = i18n;
-    $scope.alertBox = {};
-    $scope.display = false;
-    $scope.alertLevel = "";
+    $scope.MessageBoxService = MessageBoxService;
     var cachedIcons = {};
-    cachedIcons[globals.enums.StatusLog.DONE] = "/images/check.png";
-    cachedIcons[globals.enums.StatusLog.ERROR] = "/images/warning.png";
-    cachedIcons[globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
+    cachedIcons[Globals.enums.StatusLog.DONE] = "/images/check.png";
+    cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/warning.png";
+    cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
 
     // injecting socket in angular scope
     $scope.socket = Socket;
@@ -59,7 +65,11 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     //Set messages to show in modal
     $scope.setModalMessages = function(messages){
       $scope.modalMessages = messages;
-    }
+    };
+
+    $scope.close = function() {
+      MessageBoxService.reset();
+    };
 
     // socket listeners
     $scope.socket.on('closeResponse', function(response) {
@@ -72,10 +82,8 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
       $scope.loading = false;
 
       if (response.service === 0) {
-        $scope.alertBox.title = "Status";
-        $scope.alertBox.message = $scope.i18n.__("Could not retrieve log. Please check if there a service running in Administration Dashboard");
-        $scope.alertLevel = "alert-warning";
-        $scope.display = true;
+        MessageBoxService.warning(i18n.__("Status"),
+                                  i18n.__("Could not retrieve log. Please check if there a service running in Administration Dashboard"));
       }
     });
 
@@ -89,18 +97,18 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
       var targetMessage = "";
       var targetKey = "";
       switch(serviceType) {
-        case globals.enums.ServiceType.COLLECTOR:
-          targetArray = configuration.collectors;
+        case Globals.enums.ServiceType.COLLECTOR:
+          targetArray = config.collectors;
           targetMessage = "Collector";
           targetKey = "dataSeriesOutput";
           break;
-        case globals.enums.ServiceType.ANALYSIS:
-          targetArray = configuration.analysis;
+        case Globals.enums.ServiceType.ANALYSIS:
+          targetArray = config.analysis;
           targetMessage = "Analysis ";
           targetKey = "dataSeries";
           break;
-        case globals.enums.ServiceType.VIEW:
-          targetArray = configuration.views;
+        case Globals.enums.ServiceType.VIEW:
+          targetArray = config.views;
           targetMessage = "View ";
           targetKey = "";
           break;
@@ -116,7 +124,7 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
             output = element;
             return true;
           }
-        })
+        });
         return output;
       };
 
@@ -136,7 +144,7 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
           out.name = obj.name;
           var messageString = "";
           if (logMessage.messages && logMessage.messages.length > 0){
-            for (message in logMessage.messages){
+            for (var message in logMessage.messages){
               if (logMessage.messages[message].description)
                 messageString += logMessage.messages[message].description + ". ";
             }
@@ -144,36 +152,33 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
           }
           else{
             switch(logMessage.status) {
-              case globals.enums.StatusLog.DONE:
+              case Globals.enums.StatusLog.DONE:
                 out.message = "Done";
                 break;
-              case globals.enums.StatusLog.START:
+              case Globals.enums.StatusLog.START:
                 out.message = "Started";
                 break;
-              case globals.enums.StatusLog.DOWNLOADED:
+              case Globals.enums.StatusLog.DOWNLOADED:
                 out.message = "Downloaded";
                 break;
-              case globals.enums.StatusLog.ERROR:
+              case Globals.enums.StatusLog.ERROR:
                 out.message = "Error";
                 break;
             }
           }
 
           $scope.model.push(out)
-        })
-      })
+        });
+      });
     });
 
     $scope.socket.emit('log', {
       begin: 0,
       end: 2
-    })
+    });
 
-    if(configuration.parameters.message !== undefined && configuration.parameters.message !== null && configuration.parameters.message !== "") {
-      $scope.alertBox.title = i18n.__("Project");
-      $scope.alertBox.message = configuration.parameters.message;
-      $scope.alertLevel = "alert-success";
-      $scope.display = true;
+    if(config.parameters.message !== undefined && config.parameters.message !== null && config.parameters.message !== "") {
+      MessageBoxService.success(i18n.__("Project"), config.parameters.message);
     }
 
-  }])
+  }]);
