@@ -181,9 +181,6 @@ namespace terrama2
           protected:
             /*!
               \brief Return the a multimap of DataSetGridPtr to Raster
-
-              The parameters dateDiscardBefore and dateDiscardAfter are optional,
-              if they are not set only the last raster is returned.
             */
             std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >
             getGridMap(DataManagerPtr dataManager, DataSeriesId dataSeriesId, const terrama2::core::Filter& filter = terrama2::core::Filter());

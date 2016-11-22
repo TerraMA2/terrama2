@@ -66,7 +66,7 @@ namespace terrama2
                                 const std::string& dataSeriesName, const std::string& dateFilterEnd, const size_t band);
 
             /*!
-              \brief Calculates the sum of historic grid data.
+              \brief Calculates the sum of forecast grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -78,7 +78,7 @@ namespace terrama2
             double sum(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band = 0);
 
             /*!
-              \brief Calculates the mean of historic grid data.
+              \brief Calculates the mean of forecast grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -90,7 +90,7 @@ namespace terrama2
             double mean(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band = 0);
 
             /*!
-              \brief Calculates the min of historic grid data.
+              \brief Calculates the min of forecast grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -102,7 +102,7 @@ namespace terrama2
             double min(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band = 0);
 
             /*!
-              \brief Calculates the max of historic grid data.
+              \brief Calculates the max of forecast grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -117,7 +117,7 @@ namespace terrama2
             double max(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band = 0);
 
             /*!
-              \brief Calculates the median of historic grid data.
+              \brief Calculates the median of forecast grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -129,7 +129,7 @@ namespace terrama2
             double median(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band = 0);
 
             /*!
-              \brief Calculates the standard deviation of historic grid data.
+              \brief Calculates the standard deviation of forecast grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 
@@ -140,7 +140,7 @@ namespace terrama2
             double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilter, const size_t band = 0);
 
             /*!
-              \brief Calculates the variance of historic grid data.
+              \brief Calculates the variance of forecast grid data.
 
               In case of an error or no data available it will return NAN(Not A Number).
 

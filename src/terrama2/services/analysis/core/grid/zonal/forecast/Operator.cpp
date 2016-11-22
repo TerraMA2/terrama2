@@ -37,463 +37,219 @@
 //TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 
-int terrama2::services::analysis::core::grid::zonal::forecast::num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
-{
-
-  OperatorCache cache;
-  terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-
-  auto& contextManager = ContextManager::getInstance();
-  auto analysis = cache.analysisPtr;
-
-  try
-  {
-    terrama2::core::verify::analysisMonitoredObject(analysis);
-  }
-  catch (const terrama2::core::VerifyException&)
-  {
-    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return NAN;
-  }
-
-  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
-  try
-  {
-    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
-  }
-  catch(const terrama2::Exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return NAN;
-  }
-
-
-  try
-  {
-    // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
-    {
-      return NAN;
-    }
-
-    auto dataManagerPtr = context->getDataManager().lock();
-    if(!dataManagerPtr)
-    {
-      QString errMsg(QObject::tr("Invalid data manager."));
-      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    if(moDsContext->series.syncDataSet->size() == 0)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
-    if(!moGeom.get())
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-      throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-    }
-    auto geomResult = createBuffer(buffer, moGeom);
-
-    auto dataSeries = context->findDataSeries(dataSeriesName);
-    if(!dataSeries)
-    {
-      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    int count = 0;
-    auto datasets = dataSeries->datasetList;
-    for(auto dataset : datasets)
-    {
-      auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, "");
-
-      for (auto raster : rasterList)
-      {
-        auto extent = raster->getExtent();
-        if(!extent->intersects(*geomResult->getMBR()))
-          continue;
-
-        ++count;
-      }
-    }
-
-    return count;
-  }
-  catch(const terrama2::Exception& e)
-  {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return NAN;
-  }
-  catch(const std::exception& e)
-  {
-    context->addError(e.what());
-    return NAN;
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
-    return NAN;
-  }
-}
-
-boost::python::list terrama2::services::analysis::core::grid::zonal::forecast::list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer)
-{
-
-  OperatorCache cache;
-  terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-
-  auto& contextManager = ContextManager::getInstance();
-  auto analysis = cache.analysisPtr;
-
-  try
-  {
-    terrama2::core::verify::analysisMonitoredObject(analysis);
-  }
-  catch (const terrama2::core::VerifyException&)
-  {
-    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return {};
-  }
-
-  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
-  try
-  {
-    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
-  }
-  catch(const terrama2::Exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return {};
-  }
-
-  try
-  {
-    // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
-    {
-      return {};
-    }
-
-    auto dataManagerPtr = context->getDataManager().lock();
-    if(!dataManagerPtr)
-    {
-      QString errMsg(QObject::tr("Invalid data manager."));
-      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    if(moDsContext->series.syncDataSet->size() == 0)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
-    if(!moGeom.get())
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-      throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    auto geomResult = createBuffer(buffer, moGeom);
-
-    auto dataSeries = context->findDataSeries(dataSeriesName);
-    if(!dataSeries)
-    {
-      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    auto seriesList = context->getSeriesMap(dataSeries->id, dateDiscardBefore, "0s");
-    for(auto pair : seriesList)
-    {
-      auto series = pair.second;
-      auto teDataset = series.syncDataSet->dataset();
-      if(!teDataset->isEmpty())
-      {
-        std::size_t rasterColumn = te::da::GetFirstPropertyPos(teDataset.get(), te::dt::RASTER_TYPE);
-        if(rasterColumn == std::numeric_limits<size_t>::max())
-          continue;
-
-        std::size_t timestampColumn = te::da::GetFirstPropertyPos(teDataset.get(), te::dt::DATETIME_TYPE);
-        //no date column found
-        if(timestampColumn == std::numeric_limits<size_t>::max())
-          continue;
-
-        boost::python::list timeList;
-        teDataset->moveBeforeFirst();
-        while(teDataset->moveNext())
-        {
-          if(teDataset->isNull(rasterColumn) || teDataset->isNull(timestampColumn))
-            continue;
-
-          auto raster = teDataset->getRaster(rasterColumn);
-          auto extent = raster->getExtent();
-          if(!extent->intersects(*geomResult->getMBR()))
-            continue;
-
-          timeList.append(boost::python::object(teDataset->getDateTime(timestampColumn)->toString()));
-        }
-
-        return timeList;
-      }
-    }
-
-    return {};
-  }
-  catch(const terrama2::Exception& e)
-  {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return {};
-  }
-  catch(const std::exception& e)
-  {
-    context->addError(e.what());
-    return {};
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
-    return {};
-  }
-}
-
 double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                                                                 const std::string& dataSeriesName,
                                                                                 const std::string& dateDiscardBefore,
                                                                                 const std::string& dateDiscardAfter,
                                                                                 const size_t var,
-                                                                                terrama2::services::analysis::core::Buffer buffer = Buffer())
+                                                                                terrama2::services::analysis::core::Buffer buffer)
 {
+  return std::nan(nullptr);
   //TODO: not implemented
   assert(0);
   
-  OperatorCache cache;
-  terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  bool exceptionOccurred = false;
+//  OperatorCache cache;
+//  terrama2::services::analysis::core::python::readInfoFromDict(cache);
+//  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
+//  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+//  bool exceptionOccurred = false;
 
-  auto& contextManager = ContextManager::getInstance();
-  auto analysis = cache.analysisPtr;
+//  auto& contextManager = ContextManager::getInstance();
+//  auto analysis = cache.analysisPtr;
 
-  try
-  {
-    terrama2::core::verify::analysisMonitoredObject(analysis);
-  }
-  catch (const terrama2::core::VerifyException&)
-  {
-    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return NAN;
-  }
+//  try
+//  {
+//    terrama2::core::verify::analysisMonitoredObject(analysis);
+//  }
+//  catch (const terrama2::core::VerifyException&)
+//  {
+//    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+//    return NAN;
+//  }
 
-  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
-  try
-  {
-    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
-  }
-  catch(const terrama2::Exception& e)
-  {
-    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return NAN;
-  }
-
-
-  try
-  {
-    // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
-    {
-      return NAN;
-    }
-
-    bool hasData = false;
-
-    auto dataManagerPtr = context->getDataManager().lock();
-    if(!dataManagerPtr)
-    {
-      QString errMsg(QObject::tr("Invalid data manager."));
-      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
-    if(!moDsContext)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    if(moDsContext->series.syncDataSet->size() == 0)
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object data series."));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
-    if(!moGeom.get())
-    {
-      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
-      throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
-    }
-    auto geomResult = createBuffer(buffer, moGeom);
-
-    auto dataSeries = context->findDataSeries(dataSeriesName);
-    if(!dataSeries)
-    {
-      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
-
-    auto datasets = dataSeries->datasetList;
-    for(const auto& dataset : datasets)
-    {
-      auto rasterList = context->getRasterList(dataSeries, dataset->id);
-
-      //sanity check, only the last raster should be returned in forecast operations
-      if(rasterList.size() > 1)
-      {
-        QString errMsg(QObject::tr("Invalid list of raster for dataset: %1").arg(dataset->id));
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-
-      if(rasterList.empty())
-      {
-        QString errMsg(QObject::tr("Invalid raster for dataset: %1").arg(dataset->id));
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
-
-      std::vector<double> values;
-      const auto& raster = rasterList.front();
-
-      {
-        geomResult->transform(raster->getSRID());
-        //no intersection between the raster and the object geometry
-        if(!raster->getExtent()->intersects(*geomResult->getMBR()))
-          continue;
-
-        double interval = getBandTimeInterval(dataSeries);
-        double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
-        double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
-
-//TODO: not implemented!!!
-        int bandBegin = 1 + /*horario do raster*/ + secondsToBefore/interval;
-        int bandEnd = 1 + /*horario do raster*/ + secondsToAfter/interval;
+//  terrama2::services::analysis::core::MonitoredObjectContextPtr context;
+//  try
+//  {
+//    context = ContextManager::getInstance().getMonitoredObjectContext(cache.analysisHashCode);
+//  }
+//  catch(const terrama2::Exception& e)
+//  {
+//    TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+//    return NAN;
+//  }
 
 
+//  try
+//  {
+//    // In case an error has already occurred, there is nothing to be done
+//    if(!context->getErrors().empty())
+//    {
+//      return NAN;
+//    }
 
-        //TODO: check for other valid types
-        auto type = geomResult->getGeomTypeId();
-        if(type == te::gm::PolygonType)
-        {
-          auto polygon = std::static_pointer_cast<te::gm::Polygon>(geomResult);
-          appendValues(raster.get(), band, polygon.get(), values);
-        }
-        else if(type == te::gm::MultiPolygonType)
-        {
-          auto multiPolygon = std::static_pointer_cast<te::gm::MultiPolygon>(geomResult);
-          for(auto geom : multiPolygon->getGeometries())
-          {
-            auto polygon = static_cast<te::gm::Polygon*>(geom);
-            polygon->transform(raster->getSRID());
-            appendValues(raster.get(), band, polygon, values);
-          }
-        }
-      }
+//    bool hasData = false;
 
-      if(!values.empty())
-      {
-        terrama2::services::analysis::core::calculateStatistics(values, cache);
-        hasData = true;
-      }
+//    auto dataManagerPtr = context->getDataManager().lock();
+//    if(!dataManagerPtr)
+//    {
+//      QString errMsg(QObject::tr("Invalid data manager."));
+//      throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
+//    }
 
-      if(hasData)
-        break;
-    }
+//    std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
+//    if(!moDsContext)
+//    {
+//      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+//      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+//    }
 
-    if(exceptionOccurred)
-      return NAN;
+//    if(moDsContext->series.syncDataSet->size() == 0)
+//    {
+//      QString errMsg(QObject::tr("Could not recover monitored object data series."));
+//      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+//    }
 
-    if(!hasData && statisticOperation != StatisticOperation::COUNT)
-    {
-      return NAN;
-    }
+//    auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
+//    if(!moGeom.get())
+//    {
+//      QString errMsg(QObject::tr("Could not recover monitored object geometry."));
+//      throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
+//    }
+//    auto geomResult = createBuffer(buffer, moGeom);
 
-    return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
-  }
-  catch(const terrama2::Exception& e)
-  {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return NAN;
-  }
-  catch(const std::exception& e)
-  {
-    context->addError(e.what());
-    return NAN;
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
-    return NAN;
-  }
+//    auto dataSeries = context->findDataSeries(dataSeriesName);
+//    if(!dataSeries)
+//    {
+//      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
+//      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
+//      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+//    }
+
+//    auto datasets = dataSeries->datasetList;
+//    for(const auto& dataset : datasets)
+//    {
+//      auto rasterList = context->getRasterList(dataSeries, dataset->id);
+
+//      //sanity check, only the last raster should be returned in forecast operations
+//      if(rasterList.size() > 1)
+//      {
+//        QString errMsg(QObject::tr("Invalid list of raster for dataset: %1").arg(dataset->id));
+//        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+//      }
+
+//      if(rasterList.empty())
+//      {
+//        QString errMsg(QObject::tr("Invalid raster for dataset: %1").arg(dataset->id));
+//        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+//      }
+
+//      std::vector<double> values;
+//      const auto& raster = rasterList.front();
+
+//      {
+//        geomResult->transform(raster->getSRID());
+//        //no intersection between the raster and the object geometry
+//        if(!raster->getExtent()->intersects(*geomResult->getMBR()))
+//          continue;
+
+//        double interval = getBandTimeInterval(dataSeries);
+//        double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
+//        double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
+
+////TODO: not implemented!!!
+//        int bandBegin = 1 + /*horario do raster*/ + secondsToBefore/interval;
+//        int bandEnd = 1 + /*horario do raster*/ + secondsToAfter/interval;
+
+
+
+//        //TODO: check for other valid types
+//        auto type = geomResult->getGeomTypeId();
+//        if(type == te::gm::PolygonType)
+//        {
+//          auto polygon = std::static_pointer_cast<te::gm::Polygon>(geomResult);
+//          appendValues(raster.get(), band, polygon.get(), values);
+//        }
+//        else if(type == te::gm::MultiPolygonType)
+//        {
+//          auto multiPolygon = std::static_pointer_cast<te::gm::MultiPolygon>(geomResult);
+//          for(auto geom : multiPolygon->getGeometries())
+//          {
+//            auto polygon = static_cast<te::gm::Polygon*>(geom);
+//            polygon->transform(raster->getSRID());
+//            appendValues(raster.get(), band, polygon, values);
+//          }
+//        }
+//      }
+
+//      if(!values.empty())
+//      {
+//        terrama2::services::analysis::core::calculateStatistics(values, cache);
+//        hasData = true;
+//      }
+
+//      if(hasData)
+//        break;
+//    }
+
+//    if(exceptionOccurred)
+//      return NAN;
+
+//    if(!hasData && statisticOperation != StatisticOperation::COUNT)
+//    {
+//      return NAN;
+//    }
+
+//    return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
+//  }
+//  catch(const terrama2::Exception& e)
+//  {
+//    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+//    return NAN;
+//  }
+//  catch(const std::exception& e)
+//  {
+//    context->addError(e.what());
+//    return NAN;
+//  }
+//  catch(...)
+//  {
+//    QString errMsg = QObject::tr("An unknown exception occurred.");
+//    context->addError(errMsg.toStdString());
+//    return NAN;
+//  }
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, "", var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, "", var, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateDiscardBefore, "", var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateDiscardBefore, "", var, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateDiscardBefore, "", var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateDiscardBefore, "", var, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateDiscardBefore, "", var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateDiscardBefore, "", var, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateDiscardBefore, "", var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateDiscardBefore, "", var, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateDiscardBefore, "", var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateDiscardBefore, "", var, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t var, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateDiscardBefore, "", var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateDiscardBefore, "", var, buffer);
 }

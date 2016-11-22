@@ -222,9 +222,9 @@ double terrama2::services::analysis::core::getValue(terrama2::core::Synchronized
     const std::string& attribute, uint32_t i, int attributeType)
 {
   if(attribute.empty())
-    return NAN;
+    return std::nan(nullptr);
 
-  double value = NAN;
+  double value = std::nan(nullptr);
   switch(attributeType)
   {
     case te::dt::INT16_TYPE:
@@ -322,7 +322,7 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
     case StatisticOperation::VARIANCE:
       return cache.variance;
     default:
-      return NAN;
+      return std::nan(nullptr);
   }
 }
 
