@@ -79,12 +79,10 @@ PostgisRequest.prototype.get = function (){
           case "ECONNREFUSED": // port error
             errorMessage += "Invalid port number";
             break;
-          case "28P01": // username/password error
-            errorMessage += "Username or password does not match";
-            break;
+          case "28P01":
           case "28000": // username/password error
             errorMessage += "Username or password does not match";
-            break;
+            break; // username/password error
           case "3D000": // Database does not exist
             errorMessage += "Database does not exist";
             break;
@@ -100,7 +98,7 @@ PostgisRequest.prototype.get = function (){
             query = "SELECT datname FROM pg_database WHERE datistemplate = false;";
             break;
           case PostGISObjects.TABLE:
-            query = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';";
+            query = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' AND table_name NOT LIKE 'spatial_ref_sys';";
             break;
           case PostGISObjects.COLUMN:
             query = "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='" + self.params.table_name + "';";
