@@ -2,6 +2,7 @@ var AbstractRequest = require("./AbstractRequest");
 var pg = require('pg');
 var Promise = require("bluebird");
 var ConnectionError = require("./Exceptions").ConnectionError;
+var GetObjectError = require("./Exceptions").GetObjectError;
 var Form = require('./Enums').Form;
 var UriPattern = require("./Enums").Uri;
 var PostGISObjects = require("./Enums").PostGISObjects;
@@ -93,13 +94,24 @@ PostgisRequest.prototype.get = function (){
         return reject(new ConnectionError(errorMessage));
       }
       var query;
-      switch (self.params.objectToGet){
-        case PostGISObjects.DATABASE:
-          query = "SELECT datname FROM pg_database WHERE datistemplate = false;";
-          break;
-        default:
-          break;
+      if (self.params.objectToGet){
+        switch (self.params.objectToGet){
+          case PostGISObjects.DATABASE:
+            query = "SELECT datname FROM pg_database WHERE datistemplate = false;";
+            break;
+          case PostGISObjects.TABLE:
+            query = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';";
+            break;
+          case PostGISObjects.COLUMN:
+            query = "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='" + self.params.table_name + "';";
+            break;
+          default:
+            return reject(new GetObjectError("Invalid object to query"));
+        }
+      } else {
+        return reject(new GetObjectError("Invalid object to query"));
       }
+
       var queryResult = client.query(query);
       queryResult.on('row', (row) => {
         results.push(row);

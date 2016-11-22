@@ -84,7 +84,9 @@
                            name="attribute"
                            ng-model="attribute"
                            ng-disabled="!selectedIntersection || selectedIntersection.isGrid"
-                           ng-required="selectedIntersection">
+                           ng-required="selectedIntersection"
+                           id="attribute_name"
+                           list="tableColumnsList">
 
                     <label class="help-block text-danger"
                            ng-show="forms.intersectionForm.attribute.$dirty && forms.intersectionForm.attribute.$error.required">
@@ -137,4 +139,9 @@
     </div>
   </div>
 </div>
+
+<!-- List with database table columns-->
+<datalist id='tableColumnsList'>
+    <option ng-repeat="column in columnsList" value="{{column}}">
+</datalist>
 <!-- /.row -->
