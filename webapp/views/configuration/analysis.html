@@ -324,7 +324,9 @@
                 <input type="text" class="form-control"
                                    name="identifier"
                                    ng-model="ctrl.identifier"
-                                   ng-required="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
+                                   ng-required="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'"
+                                   id='attribute_identifier'
+                                   list='tableColumnsList'>
 
                 <!-- required -->
                 <span class="help-block"
@@ -744,6 +746,10 @@
     </div>
 
   </terrama2-box>
+  <!-- List with database tables -->
+  <datalist id='tableColumnsList'>
+      <option ng-repeat="column in ctrl.columnsList" value="{{column}}">
+  </datalist>
 </div> <!-- end col md 12 -->
 
 {% endblock %}
