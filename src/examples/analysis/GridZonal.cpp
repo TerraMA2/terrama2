@@ -121,7 +121,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
     terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
     dataSeries->dataProviderId = dataProvider->id;
     dataSeries->semantics = semanticsManager.getSemantics("STATIC_DATA-ogr");
-    dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;;
+    dataSeries->semantics.dataSeriesType = terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
     dataSeries->name = "Monitored Object";
     dataSeries->id = 1;
     dataSeries->dataProviderId = 1;
