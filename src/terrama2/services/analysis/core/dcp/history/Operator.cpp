@@ -81,11 +81,11 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return NAN;
+    return std::nan(nullptr);
   }
 
   // After the lock is released it's not allowed to return any value because it doesn't have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return std::nan(nullptr);.
   bool exceptionOccurred = false;
 
 
@@ -94,7 +94,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
-      return NAN;
+      return std::nan(nullptr);
     }
 
     std::vector<DataSetId> vecDCPIds;
@@ -102,7 +102,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
 
     if(vecDCPIds.empty())
     {
-      return NAN;
+      return std::nan(nullptr);
     }
 
     bool hasData = false;
@@ -120,7 +120,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
 
     // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
     // In case an exception is thrown, we need to catch it and set a flag.
-    // Once the code left the lock is acquired we should return NAN.
+    // Once the code left the lock is acquired we should return std::nan(nullptr);.
     {
       terrama2::services::analysis::core::python::OperatorLock operatorLock;
 
@@ -232,14 +232,14 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
     }
 
     if(values.empty() && statisticOperation != StatisticOperation::COUNT)
-      return NAN;
+      return std::nan(nullptr);
 
     if(exceptionOccurred)
-      return NAN;
+      return std::nan(nullptr);
 
     if(!hasData && statisticOperation != StatisticOperation::COUNT)
     {
-      return NAN;
+      return std::nan(nullptr);
     }
 
     double x = getOperationResult(cache, statisticOperation);
@@ -248,18 +248,18 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return NAN;
+    return std::nan(nullptr);
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    return NAN;
+    return std::nan(nullptr);
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    return NAN;
+    return std::nan(nullptr);
   }
 }
 

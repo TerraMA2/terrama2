@@ -70,15 +70,6 @@ namespace terrama2
                                   terrama2::services::analysis::core::Buffer buffer = Buffer());
 
               /*!
-                \brief Calculates the number of raster images are available for the area and time constrains.
-              */
-              int num(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
-              /*!
-                \brief Return the list of timestamps of the raster images available for the area and time constrains.
-              */
-              boost::python::list list(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
-
-              /*!
                 \brief Calculates the sum of zonal grid data.
 
                 In case of an error or no data available it will return NAN(Not A Number).

@@ -308,7 +308,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       ctlFile = fileInfo.absoluteFilePath().toStdString();
     }
 
-    auto gradsDescriptor = readDataDescriptor(ctlFile);;
+    auto gradsDescriptor = readDataDescriptor(ctlFile);
     gradsDescriptor.srid_ = getSrid(dataSet);
 
     // Reads the dataset name from CTL
