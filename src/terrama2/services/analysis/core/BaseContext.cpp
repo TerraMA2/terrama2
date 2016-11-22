@@ -62,7 +62,7 @@ terrama2::core::DataSeriesPtr terrama2::services::analysis::core::BaseContext::f
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   try
   {
-    return dataSeriesMap_.at(dataSeriesName);;
+    return dataSeriesMap_.at(dataSeriesName);
   }
   catch (const std::out_of_range&)
   {
