@@ -4,6 +4,7 @@
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/ProcessLogger.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
+#include <terrama2/Config.hpp>
 
 // STL
 #include <vector>

@@ -36,8 +36,6 @@
 #include "../Exception.hpp"
 #include "../../Config.hpp"
 
-
-
 // TerraLib
 #include <terralib/core/utils/Platform.h>
 #include <terralib/common/PlatformUtils.h>
@@ -53,6 +51,7 @@
 
 #include <ctime>
 #include <unordered_map>
+#include <functional>
 
 // Boost
 #include <boost/filesystem.hpp>
@@ -411,3 +410,38 @@ void terrama2::core::simplifyString(std::string& text)
   text.erase(std::remove_if(text.begin(), text.end(), [](char x){return !(std::isalnum(x) || x == ' ');}), text.end());
   std::replace(text.begin(), text.end(), ' ', '_');
 }
+
+size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter const& filter) const
+{
+  size_t hash = 0;
+
+  if(filter.discardBefore)
+  {
+    std::string discardBefore = filter.discardBefore->toString();
+    size_t const hBefore = std::hash<std::string>()(discardBefore);
+    boost::hash_combine(hash, hBefore);
+  }
+
+  if(filter.discardAfter)
+  {
+    std::string discardAfter = filter.discardAfter->toString();
+    size_t const hAfter = std::hash<std::string>()(discardAfter);
+    boost::hash_combine(hash, hAfter);
+  }
+
+  if(filter.region)
+  {
+    std::string region = filter.region->toString();
+    size_t const hRegion = std::hash<std::string>()(region);
+    boost::hash_combine(hash, hRegion);
+  }
+
+  if(filter.value)
+  {
+    boost::hash_combine(hash, *filter.value);
+  }
+
+  boost::hash_combine(hash, filter.lastValue);
+
+  return hash;
+};

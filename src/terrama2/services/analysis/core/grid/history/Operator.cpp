@@ -100,11 +100,15 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
     auto grid = outputRaster->getGrid();
     auto coord = grid->gridToGeo(cache.column, cache.row);
 
+    terrama2::core::Filter filter;
+    filter.discardBefore = context->getTimeFromString(dateFilterBegin);
+    filter.discardAfter = context->getTimeFromString(dateFilterEnd);
+
     auto datasets = dataSeries->datasetList;
     for(auto dataset : datasets)
     {
 
-      auto rasterList = context->getRasterList(dataSeries, dataset->id, dateFilterBegin, dateFilterEnd);
+      auto rasterList = context->getRasterList(dataSeries, dataset->id, filter);
       if(rasterList.empty())
       {
         QString errMsg(QObject::tr("Invalid raster for dataset: %1").arg(dataset->id));

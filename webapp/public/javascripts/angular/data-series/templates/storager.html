@@ -4,7 +4,7 @@
     <form name="forms.storagerDataForm">
 
       <div class="col-md-4">
-        <div class="form-group">
+        <div class="form-group" terrama2-show-errors>
           <label ng-bind="i18n.__('Output Format')">:</label>
             <select id="storageFormat" 
                     class="form-control" 
@@ -13,8 +13,12 @@
                     ng-disabled="isUpdating"
                     ng-change="onStoragerFormatChange()"
                     ng-options="format.name for format in storagerFormats | filter: { collector: false }" 
-                    ng-required="dataSeries.access == 'COLLECT'">
+                    required>
           </select>
+          <label class="help-block text-danger"
+                 ng-show="forms.storagerDataForm.format.$dirty && forms.storagerDataForm.format.$error.required"
+                 ng-bind="i18n.__('Output format is required')">
+          </label>
         </div>
       </div>
 
@@ -25,7 +29,7 @@
                   name="storager_data_provider_id" 
                   ng-model="storager_data_provider_id"
                   ng-options="provider.id as provider.name for provider in dataProvidersStorager" 
-                  ng-required="storager.format.name">
+                  required>
             <option></option>
           </select>
 
@@ -43,7 +47,7 @@
                   class="form-control" 
                   name="service" 
                   ng-model="storager_service"
-                  ng-required="storager.format.name"
+                  required
                   ng-options="service.id as service.name for service in services">
           </select>
 

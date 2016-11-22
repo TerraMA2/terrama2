@@ -154,7 +154,7 @@ angular.module('terrama2.dataseries.registration', [
           $scope.modelStorager = {};
           $scope.formStorager = [];
           $scope.schemaStorager = {};
-          $scope.storager.format = {};
+          $scope.storager.format = null;
           $scope.storager_service = undefined;
           $scope.dcpsStorager = [];
           $scope.storager_data_provider_id = undefined;
@@ -399,17 +399,20 @@ angular.module('terrama2.dataseries.registration', [
         store: {
           disabled: true,
           clearForm: clearStoreForm,
-          openForm: openStoreForm
+          openForm: openStoreForm,
+          optional: true
         },
         filter: {
           disabled: true,
           clearForm: clearFilterForm,
-          openForm: openFilterForm
+          openForm: openFilterForm,
+          optional: true
         },
         intersection: {
           disabled: true,
           clearForm: clearIntersectionForm,
-          openForm: openIntersectionForm
+          openForm: openIntersectionForm,
+          optional: true
         }
       }
 
@@ -544,6 +547,12 @@ angular.module('terrama2.dataseries.registration', [
             else {
               delete wizardStep.wzData.error;
             }
+            return;
+          }
+
+          // validating store when form is enabled
+          if (name == 'storagerForm' && !$scope.storager.format){
+            wizardStep.wzData.error = true;
             return;
           }
 
@@ -793,9 +802,17 @@ angular.module('terrama2.dataseries.registration', [
         var firstStepValid = $scope.forms.generalDataForm.$valid;
         if (firstStepValid){
           $scope.wizard.parameters.disabled = false;
+          if ($scope.dataSeries.semantics.allow_direct_access === false){
+            $scope.wizard.store.disabled = false;
+            $scope.advanced.store.disabled = false;
+            $scope.advanced.store.optional = false;
+          }
         } 
         else {
           $scope.wizard.parameters.disabled = true;
+          $scope.wizard.store.disabled = true;
+          $scope.advanced.store.disabled = true;
+          $scope.advanced.store.optional = true;
         }
         return firstStepValid;
       };
@@ -976,7 +993,7 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.initializing) {
           $scope.initializing = false;
         } else {
-          if (val && Object.keys(val).length == 0) {
+          if ((val && Object.keys(val).length == 0) || val == null) {
             $scope.dataSeries.access = 'PROCESSING';
           } else {
             $scope.dataSeries.access = 'COLLECT';
@@ -997,10 +1014,24 @@ angular.module('terrama2.dataseries.registration', [
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
-        $scope.storager.format = {};
+        $scope.storager.format = null;
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
+        delete $scope.wizard.store.error;
         clearStoreForm();
+
+        if ($scope.dataSeries.semantics.allow_direct_access === false){
+          $scope.wizard.store.required = true;
+          $scope.wizard.store.optional = false;
+          $scope.advanced.store.disabled = false;
+          $scope.advanced.store.optional = false;
+        }
+        else {
+          $scope.wizard.store.required = false;
+          $scope.wizard.store.optional = true;
+          $scope.advanced.store.disabled = true;
+          $scope.advanced.store.optional = true;
+        }
 
         $scope.dataSeriesSemantics.forEach(function(dSemantics) {
           if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {

@@ -109,6 +109,7 @@
     "format": "GRADS",
     "providers_type_list": ["FILE", "FTP"],
     "collector": true,
+    "allow_direct_access": false,
     "metadata": {
       "timestamp_property": "file_timestamp"
     }

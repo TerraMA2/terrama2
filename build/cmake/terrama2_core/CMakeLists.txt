@@ -24,13 +24,6 @@
 #  Author: Gilberto Ribeiro de Queiroz
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
-
-# file(GLOB_RECURSE TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.cpp)
-# file(GLOB_RECURSE TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.hpp)
-
 file(GLOB_RECURSE TERRAMA2_SRC_FILES
          ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/core/*.cpp)
 file(GLOB_RECURSE TERRAMA2_HDR_FILES
