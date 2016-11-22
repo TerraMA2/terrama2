@@ -244,17 +244,25 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
 
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
+    terrama2::core::Filter filter;
+    filter.discardBefore = getTimeFromString(dateFilterBegin);
+    filter.discardAfter = getTimeFromString(dateFilterEnd);
 
-    ObjectKey key(series.dataSet->id, dateFilterBegin, dateFilterEnd);
+    ObjectKey key(series.dataSet->id, filter);
     datasetMap_[key] = dataSeriesContext;
   }
 }
 
-std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> terrama2::services::analysis::core::MonitoredObjectContext::getContextDataset(const DataSetId datasetId, const std::string& dateFilterBegin, const std::string& dateFilterEnd) const
+std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries>
+terrama2::services::analysis::core::MonitoredObjectContext::getContextDataset(const DataSetId datasetId, const std::string& dateFilterBegin, const std::string& dateFilterEnd) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key(datasetId, dateFilterBegin, dateFilterEnd);
+  terrama2::core::Filter filter;
+  filter.discardBefore = getTimeFromString(dateFilterBegin);
+  filter.discardAfter = getTimeFromString(dateFilterEnd);
+
+  ObjectKey key(datasetId, filter);
 
   try
   {
@@ -270,7 +278,11 @@ bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const Da
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key(datasetId, dateFilterBegin, dateFilterEnd);
+  terrama2::core::Filter filter;
+  filter.discardBefore = getTimeFromString(dateFilterBegin);
+  filter.discardAfter = getTimeFromString(dateFilterEnd);
+
+  ObjectKey key(datasetId, filter);
 
   auto it = datasetMap_.find(key);
   return it != datasetMap_.end();
@@ -310,7 +322,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
 
 
   terrama2::core::Filter filter;
-
+  filter.discardBefore = getTimeFromString(dateFilterBegin);
   filter.discardAfter = startTime_;
 
   if(!dateFilterBegin.empty())
@@ -357,8 +369,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
       }
     }
 
-
-    ObjectKey key(series.dataSet->id, dateFilterBegin);
+    ObjectKey key(series.dataSet->id, filter);
     datasetMap_[key] = dataSeriesContext;
   }
 }
@@ -416,7 +427,10 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredO
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key(datasetId, dateFilter);
+  terrama2::core::Filter filter;
+  filter.discardBefore = getTimeFromString(dateFilter);
+
+  ObjectKey key(datasetId, filter);
 
   try
   {
@@ -432,6 +446,9 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(co
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-  ObjectKey key(datasetId, dateFilter);
+  terrama2::core::Filter filter;
+  filter.discardBefore = getTimeFromString(dateFilter);
+
+  ObjectKey key(datasetId, filter);
   bufferDcpMap_[key] = buffer;
 }

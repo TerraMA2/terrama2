@@ -48,6 +48,7 @@
 
 //Qt
 #include <QJsonArray>
+#include <QString>
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -55,7 +56,7 @@
 std::unique_lock<std::recursive_mutex> terrama2::core::DataManager::getLock()
 {
   std::unique_lock<std::recursive_mutex> lock(mtx_);
-  return std::move(lock);
+  return lock;
 }
 
 void terrama2::core::DataManager::add(DataProviderPtr provider)
@@ -125,7 +126,7 @@ void terrama2::core::DataManager::add(DataSeriesPtr dataseries)
     }
     catch (const std::out_of_range&)
     {
-      //Expected behavior 
+      //Expected behavior
     }
 
     dataseries_.emplace(dataseries->id, dataseries);

@@ -201,7 +201,7 @@ std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(
     }
   }
 
-  return std::move(expansible);
+  return expansible;
 }
 
 QString terrama2::core::DataAccessorGrADS::grad2TerramaMask(QString mask) const

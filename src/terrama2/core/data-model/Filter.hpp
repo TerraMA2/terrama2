@@ -37,16 +37,18 @@
 //STL
 #include <memory>
 
+#include <boost/functional/hash.hpp>
+
 //terralib
 
 #include <terralib/geometry/Geometry.h>
+#include <terralib/datatype/TimeInstantTZ.h>
 
 // Forward declaration
 namespace te
 {
   namespace dt { class TimeInstantTZ; }
 }
-
 
 namespace terrama2
 {
@@ -86,7 +88,6 @@ namespace terrama2
 
       //operator bool() const { return dataSetId != 0; }
     };
-
   } // end namespace core
 }   // end namespace terrama2
 

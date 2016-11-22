@@ -20,36 +20,22 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/grid/zonal/history/prec/Operator.hpp
+  \file terrama2/services/analysis/core/grid/zonal/history/accum/Operator.hpp
 
-  \brief Contains grid zonal analysis operators.
+  \brief Contains grid zonal history ratio operators to monitored object analysis.
 
   \author Jano Simas
 */
 
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_PREC_OPERATOR_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_PREC_OPERATOR_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_ACCUM_OPERATOR_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_ACCUM_OPERATOR_HPP__
 
 // TerraMA2
 #include "../../../../BufferMemory.hpp"
 
 // STL
 #include <string>
-
-//Terralib
-#include <terralib/raster/PositionIterator.h>
-
-namespace te
-{
-  namespace gm
-  {
-    class Geometry;
-    class Polygon;
-    class Point;
-    class Line;
-  } /* gm */
-} /* te */
 
 namespace terrama2
 {
@@ -63,10 +49,13 @@ namespace terrama2
         {
           namespace zonal
           {
-            namespace history
+            namespace forecast
             {
-              namespace prec
+              namespace accum
               {
+                //! Get absolute time from the timeStr string.
+                double getAbsTimeFromString(const std::string& timeStr);
+
                 /*!
                   \brief Implementation of grid zonal operator.
 
@@ -85,6 +74,15 @@ namespace terrama2
                                     const size_t band,
                                     terrama2::services::analysis::core::Buffer buffer = Buffer());
 
+                /*!
+                  \brief Calculates the number of pixels inside the monitored object.
+
+                  In case of an error or no data available it will return NAN(Not A Number).
+
+                  \param dataSeriesName DataSeries name.
+
+                  \return A double value with the result.
+                */
                 double count(const std::string& dataSeriesName, const std::string& dateDiscardBefore, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
                 /*!
@@ -101,8 +99,7 @@ namespace terrama2
                 /*!
                   \brief Calculates the mean of zonal grid data.
 
-
-                In case of an error or no data available it will return NAN(Not A Number).
+                  In case of an error or no data available it will return NAN(Not A Number).
 
                   \param dataSeriesName DataSeries name.
                   \param dateFilter Time filter for the data.
@@ -171,7 +168,7 @@ namespace terrama2
                   \return A double value with the result.
                 */
                 double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
-              } /* prec */
+              } /* ratio */
             }
           } /* zonal */
         }   // end namespace grid
@@ -180,4 +177,4 @@ namespace terrama2
   }         // end namespace services
 }           // end namespace terrama2
 
-#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_PREC_OPERATOR_HPP__
+#endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_HISTORY_ACCUM_OPERATOR_HPP__
