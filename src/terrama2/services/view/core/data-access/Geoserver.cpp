@@ -31,7 +31,7 @@
 // TerraMA2
 #include "Geoserver.hpp"
 #include "Exception.hpp"
-#include "../serialization//Serialization.hpp"
+#include "../serialization/Serialization.hpp"
 #include "../../core/JSonUtils.hpp"
 #include "../../../../core/utility/Logger.hpp"
 
@@ -351,8 +351,8 @@ void terrama2::services::view::core::GeoServer::uploadZipVectorFiles(const std::
 
 
 void terrama2::services::view::core::GeoServer::registerVectorFile(const std::string& dataStoreName,
-                                                                 const std::string& shpFilePath,
-                                                                 const std::string& extension) const
+                                                                   const std::string& shpFilePath,
+                                                                   const std::string& extension) const
 {
   te::ws::core::CurlWrapper cURLwrapper;
 
@@ -443,6 +443,80 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
     cURLwrapper.customRequest(layerStyle, "PUT",
                               "<layer><defaultStyle><name>" + style + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
   }
+}
+
+
+void terrama2::services::view::core::GeoServer::registerMosaicCoverage(const std::string& coverageStoreName,
+                                                                       const std::string& mosaicPath,
+                                                                       const std::string& coverageName,
+                                                                       const int srid,
+                                                                       const std::string& style) const
+{
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                       + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
+                       + "/external.imagemosaic?configure=all");
+
+  if(!uriPut.isValid())
+  {
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+  }
+
+  std::string path = "file://" + mosaicPath;
+
+  // Upload Coverage file
+  cURLwrapper.customRequest(uriPut, "PUT", path, "Content-Type: text/plain");
+
+  if(cURLwrapper.responseCode() != 201)
+  {
+    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+    TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+  }
+
+  te::core::URI uriPutUpdateCoverage(uri_.uri() + "/rest/workspaces/" + workspace_ + "/coveragestores/"
+                                     + QString(QUrl::toPercentEncoding(QString::fromStdString(coverageStoreName), "", "/")).toStdString()
+                                     + "/coverages/" + coverageName);
+
+  std::string xml = "<coverage>"
+                    "<enabled>true</enabled>"
+                    "<srs>EPSG:"
+                    + std::to_string(srid) +
+                    "</srs>"
+                    "<metadata>"
+                    "<entry key=\"time\">"
+                    "<dimensionInfo>"
+                    "<enabled>true</enabled>"
+                    "<presentation>CONTINUOUS_INTERVAL</presentation>"
+                    "<units>ISO8601</units>"
+                    "<defaultValue>"
+                    "<strategy>MAXIMUM</strategy>"
+                    "</defaultValue>"
+                    "</dimensionInfo>"
+                    "</entry>"
+                    "</metadata>"
+                    "</coverage>";
+
+  cURLwrapper.customRequest(uriPutUpdateCoverage, "PUT", xml, "Content-Type: text/xml");
+
+  if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+    TERRAMA2_LOG_ERROR() << errMsg << uriPutUpdateCoverage.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+  }
+
+  if(!style.empty())
+  {
+    te::core::URI layerStyle(uri_.uri() + "/rest/layers/" + coverageName + ".xml");
+
+    cURLwrapper.customRequest(layerStyle, "PUT",
+                              "<layer><defaultStyle><name>" + style + "</name><workspace>" + workspace_ + "</workspace></defaultStyle></layer>", "Content-Type: text/xml");
+  }
+
 }
 
 

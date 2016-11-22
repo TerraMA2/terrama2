@@ -307,9 +307,10 @@ angular.module('terrama2.dataseries.registration', [
     'UniqueNumber',
     "Polygon",
     "FilterForm",
+    "$q",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm, $q) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -675,6 +676,16 @@ angular.module('terrama2.dataseries.registration', [
         if (!$scope.intersection[dataSeries.id])
           $scope.intersection[dataSeries.id] = {};
 
+        if (!dataSeries.isGrid){
+          var dataProvider = $scope.dataProvidersList.filter(function(element) {
+            return element.id == dataSeries.data_provider_id;
+          });
+          if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4){
+            var table_name = dataSeries.dataSets[0].format.table_name;
+            listColumns(dataProvider[0], table_name);
+          }
+        }
+
         var intersection = $scope.intersection[dataSeries.id];
         if (!intersection.attributes) {
           intersection.data_series = dataSeries;
@@ -684,6 +695,34 @@ angular.module('terrama2.dataseries.registration', [
 
         $scope.forms.intersectionForm.$setPristine();
       };
+
+      var listColumns = function(dataProvider, table_name){
+        var result = $q.defer();
+
+        var params = getPostgisUriInfo(dataProvider.uri);
+        params.objectToGet = "column";
+        params.table_name = table_name;
+
+        var httpRequest = $http({
+          method: "GET",
+          url: "/uri/",
+          params: params
+        });
+
+        httpRequest.success(function(data) {
+          $scope.columnsList = data.data.map(function(item, index){
+            return item.column_name;
+          });
+          result.resolve(data);
+        });
+
+        httpRequest.error(function(err) {
+          result.reject(err);
+        });
+
+        return result.promise;
+
+      }
 
       $scope.isIntersectionEmpty = function() {
         return Object.keys($scope.intersection).length === 0;
@@ -1153,6 +1192,16 @@ angular.module('terrama2.dataseries.registration', [
           $scope.$broadcast('schemaFormRedraw');
 
           _processParameters();
+
+          $timeout(function(){
+            console.log($scope.dataSeriesSemantics);
+            if (!$scope.dataSeries.semantics || $scope.dataSeries.semantics.data_format_name != 'POSTGIS'){
+              return;
+            } else {
+              var tableInput = angular.element('#table_name');
+              tableInput.attr('list', 'databaseTableList');
+            }
+          });
         }).error(function(err) {
           console.log("Error in semantics change: ", err);
           $scope.model = {};
@@ -1161,6 +1210,69 @@ angular.module('terrama2.dataseries.registration', [
           $scope.$broadcast('schemaFormRedraw');
         });
       };
+
+      $scope.$watch("dataSeries.data_provider_id", function(val) {
+        if (!$scope.dataSeries.data_provider_id) {
+          return;
+        } else {
+          var dataProvider = $scope.dataProviders.filter(function(elem){
+            return elem.id == $scope.dataSeries.data_provider_id;
+          });
+          // Provider type of PostGIS is 4
+          if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4){
+            listTables(dataProvider[0]);
+          }
+        }
+      });
+
+      var listTables = function(dataProvider){
+        var result = $q.defer();
+
+        var params = getPostgisUriInfo(dataProvider.uri);
+        params.objectToGet = "table";
+
+        var httpRequest = $http({
+          method: "GET",
+          url: "/uri/",
+          params: params
+        });
+
+        httpRequest.success(function(data) {
+          $scope.tableList = data.data.map(function(item, index){
+            return item.table_name;
+          });
+          result.resolve(data);
+        });
+
+        httpRequest.error(function(err) {
+          result.reject(err);
+        });
+
+        return result.promise;
+      }
+
+      //help function to parse a URI
+      var getPostgisUriInfo = function(uri){
+        var params = {};
+        params.protocol = uri.split(':')[0];
+        var hostData = uri.split('@')[1];
+        if (hostData){
+          params.hostname = hostData.split(':')[0];
+          params.port = hostData.split(':')[1].split('/')[0];
+          params.database = hostData.split('/')[1];  
+        }  
+
+        var auth = uri.split('@')[0];
+        if (auth){
+          var userData = auth.split('://')[1];
+          if (userData){
+            params.user = userData.split(':')[0];
+            params.password = userData.split(':')[1];
+          }
+        }
+        
+        return params;
+      }
 
       $scope.onDataProviderClick = function(index) {
         var url = $window.location.pathname + "&type=" + params.state;
