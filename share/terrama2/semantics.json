@@ -24,6 +24,22 @@
     }
   },
   {
+    "name": "Lightning occurrence",
+    "code": "OCCURRENCE-lightning",
+    "type": "OCCURRENCE",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "Horario (GMT)",
+      "geometry_property": "position",
+      "latitude_property": "Latitude",
+      "longitude_property": "Longitude",
+      "timezone": "UTM+00",
+      "srid": "4326"
+    }
+  },
+  {
     "name": "OGR static data file",
     "code": "STATIC_DATA-ogr",
     "type": "GEOMETRIC_OBJECT",
