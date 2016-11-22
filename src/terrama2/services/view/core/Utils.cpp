@@ -96,21 +96,9 @@ void terrama2::services::view::core::createGeoserverTempMosaic(terrama2::core::D
   auto remover = std::make_shared<terrama2::core::FileRemover>();
   std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > dataMap = dataAccessor->getSeries(filter, remover);
 
-
+  te::mem::DataSet* ds;
   te::da::DataSetType* dt = new te::da::DataSetType(dataSeries->name);
-
-  te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("filename", te::dt::STRING_TYPE, true);
-
-  te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("geom", 0, te::gm::PolygonType, true);
-  geomProp->setSRID(dataAccessor->getSrid(dataset));
-
-  te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
-
-  dt->add(filenameProp);
-  dt->add(geomProp);
-  dt->add(timestampProp);
-
-  te::mem::DataSet* ds = new te::mem::DataSet(dt);
+  int geomSRID = 0;
 
   for(auto data : dataMap)
   {
@@ -128,6 +116,26 @@ void terrama2::services::view::core::createGeoserverTempMosaic(terrama2::core::D
     for(unsigned int row = 0; row < dataSetSeries.syncDataSet->size(); ++row)
     {
       auto raster = dataSetSeries.syncDataSet->getRaster(row, rasterProperty->getId());
+
+      // If is the first row, configure dataSet
+      if(row == 0)
+      {
+        geomSRID = raster->getSRID();
+
+        te::dt::SimpleProperty* filenameProp = new te::dt::SimpleProperty("filename", te::dt::STRING_TYPE, true);
+
+        te::gm::GeometryProperty* geomProp = new te::gm::GeometryProperty("geom", 0, te::gm::PolygonType, true);
+        geomProp->setSRID(geomSRID);
+
+        te::dt::DateTimeProperty* timestampProp = new te::dt::DateTimeProperty("timestamp", te::dt::TIME_INSTANT, true);
+
+        dt->add(filenameProp);
+        dt->add(geomProp);
+        dt->add(timestampProp);
+
+        ds = new te::mem::DataSet(dt);
+      }
+
       auto date = dataSetSeries.syncDataSet->getDateTime(row, datePropertyPos);
       std::shared_ptr<te::dt::TimeInstantTZ> tiTz(dynamic_cast<te::dt::TimeInstantTZ*>(date->clone()));
       auto boostTiTz = tiTz->getTimeInstantTZ();
