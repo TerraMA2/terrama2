@@ -70,7 +70,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   }
 
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return std::nan(nullptr);.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
@@ -81,7 +81,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return std::nan(nullptr);
+    return std::nan("");
   }
 
   try
@@ -89,7 +89,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
-      return std::nan(nullptr);
+      return std::nan("");
     }
 
 
@@ -299,7 +299,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
         if(statisticOperation == StatisticOperation::COUNT)
           return 0;
         else
-          return std::nan(nullptr);
+          return std::nan("");
       }
       catch(const terrama2::Exception& e)
       {
@@ -322,12 +322,12 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
     }
 
     if(exceptionOccurred)
-      return std::nan(nullptr);
+      return std::nan("");
 
 
     if(!hasData && statisticOperation != StatisticOperation::COUNT)
     {
-      return std::nan(nullptr);
+      return std::nan("");
     }
 
     return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
@@ -335,18 +335,18 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
 }
 

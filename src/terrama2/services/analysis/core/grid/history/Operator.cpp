@@ -173,7 +173,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return std::nan(nullptr);.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
@@ -186,7 +186,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
 
   terrama2::services::analysis::core::GridContextPtr context;
@@ -197,7 +197,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return std::nan(nullptr);
+    return std::nan("");
   }
 
   try
@@ -205,14 +205,14 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
-      return std::nan(nullptr);
+      return std::nan("");
     }
 
     bool hasData = false;
 
     // Frees the GIL, from now on it's not allowed to return any value because it doesn't have the interpreter lock.
     // In case an exception is thrown, we need to catch it and set a flag.
-    // Once the code left the lock is acquired we should return std::nan(nullptr);.
+    // Once the code left the lock is acquired we should return NAN.
 
     {
       terrama2::services::analysis::core::python::OperatorLock operatorLock;
@@ -236,11 +236,11 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
     }
 
     if(exceptionOccurred)
-      return std::nan(nullptr);
+      return std::nan("");
 
     if(!hasData && statisticOperation != StatisticOperation::COUNT)
     {
-      return std::nan(nullptr);
+      return std::nan("");
     }
 
     return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
@@ -248,18 +248,18 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
 }
 

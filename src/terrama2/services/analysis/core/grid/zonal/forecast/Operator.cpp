@@ -44,10 +44,10 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
                                                                                 const size_t var,
                                                                                 terrama2::services::analysis::core::Buffer buffer)
 {
-  return std::nan(nullptr);
+  return std::nan("");
   //TODO: not implemented
   assert(0);
-  
+
 //  OperatorCache cache;
 //  terrama2::services::analysis::core::python::readInfoFromDict(cache);
 //  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
