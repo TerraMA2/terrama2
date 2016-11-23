@@ -63,8 +63,7 @@ terrama2::core::Logger::Logger() : sink_(new text_sink)
 }
 
 terrama2::core::Logger::~Logger()
-{
-}
+= default;
 
 void terrama2::core::Logger::initialize()
 {
