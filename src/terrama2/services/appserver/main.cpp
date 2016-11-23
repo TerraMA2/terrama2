@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
       return TERRAMA2_FINALIZATION_ERROR;
     }
   }
-  catch(boost::program_options::required_option& e)
+  catch(boost::program_options::error& e)
   {
     std::cout << "Invalid options.See 'terrama2_service --help'\n" << std::endl;
     TERRAMA2_LOG_ERROR() << e.what();
