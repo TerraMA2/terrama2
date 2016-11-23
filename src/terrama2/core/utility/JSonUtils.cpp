@@ -489,9 +489,9 @@ QJsonObject terrama2::core::toJson(DataSetPtr dataSetPtr, DataSeriesSemantics se
   obj.insert("data_series_id", static_cast<int32_t>(dataSetPtr->dataSeriesId));
   obj.insert("active", dataSetPtr->active);
   QJsonObject format;
-  for(auto it = dataSetPtr->format.cbegin(); it != dataSetPtr->format.cend(); ++it)
+  for(const auto & it : dataSetPtr->format)
   {
-    format.insert(QString::fromStdString(it->first), QString::fromStdString(it->second));
+    format.insert(QString::fromStdString(it.first), QString::fromStdString(it.second));
   }
   obj.insert("format", format);
 
