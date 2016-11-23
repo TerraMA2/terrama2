@@ -235,7 +235,7 @@
             "title": "SRID"
           }
         },
-        "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
+        "required": ["mask", "timezone", "latitude", "longitude", "projection"]
       },
       "form": [
         {
@@ -244,16 +244,11 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6",
-          "copyValueTo": ["alias"]
-        },
-        {
-          "key": "alias",
-          "htmlClass": "col-md-6 terrama2-schema-form"
+          "htmlClass": "col-md-6"
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-6",
+          "htmlClass": "col-md-4",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
@@ -352,7 +347,7 @@
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-6",
+          "htmlClass": "col-md-4",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
