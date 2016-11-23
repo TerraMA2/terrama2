@@ -444,4 +444,4 @@ size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter cons
   boost::hash_combine(hash, filter.lastValue);
 
   return hash;
-};
+}
