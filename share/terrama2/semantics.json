@@ -214,6 +214,10 @@
             "type": "string",
             "title": "Mask"
           },
+          "alias": {
+            "type": "string",
+            "title": "Alias"
+          },
           "timezone": {
             "type": "string",
             "title": "Timezone"
@@ -231,7 +235,7 @@
             "title": "SRID"
           }
         },
-        "required": []
+        "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
       "form": [
         {
@@ -240,11 +244,16 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "copyValueTo": ["alias"]
+        },
+        {
+          "key": "alias",
+          "htmlClass": "col-md-6 terrama2-schema-form"
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-4",
+          "htmlClass": "col-md-6",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
@@ -330,7 +339,7 @@
             "title": "SRID"
           }
         },
-        "required": []
+        "required": ["mask", "timezone", "latitude", "longitude", "projection"]
       },
       "form": [
         {
@@ -343,7 +352,7 @@
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-4",
+          "htmlClass": "col-md-6",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
@@ -401,10 +410,6 @@
           "table_name": {
             "type": "string",
             "title": "Table Name"
-          },
-          "alias": {
-            "type": "string",
-            "alias": "Alias"
           }
         },
         "required": ["table_name"]
@@ -412,12 +417,7 @@
       "form": [
         {
           "key": "table_name",
-          "htmlClass": "col-md-6 terrama2-schema-form",
-          "copyValueTo": ["alias"]
-        },
-        {
-          "key": "alias",
-          "htmlClass": "col-md-6 terrama2-schema-form"
+          "htmlClass": "col-md-5 terrama2-schema-form"
         }
       ]
     }
