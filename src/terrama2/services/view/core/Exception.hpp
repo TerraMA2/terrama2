@@ -43,6 +43,8 @@ namespace terrama2
       {
         //! Base exception class for TerraMA2 view service.
         struct Exception : virtual terrama2::core::Exception{ };
+
+        struct MapsServerFactoryException : virtual Exception { };
       }
     } /* view */
   }   /* services */

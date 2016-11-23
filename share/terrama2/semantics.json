@@ -34,6 +34,49 @@
       "timezone": "UTM+00",
       "srid": "4326"
     },
+    "collector": true,
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Lightning occurrence",
+    "code": "OCCURRENCE-lightning",
+    "type": "OCCURRENCE",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["FILE", "FTP"],
+    "metadata": {
+      "timestamp_property": "Horario (GMT)",
+      "geometry_property": "position",
+      "latitude_property": "Latitude",
+      "longitude_property": "Longitude",
+      "timezone": "UTM+00",
+      "srid": "4326"
+    },
+    "collector": true,
     "gui": {
       "schema": {
         "properties": {
@@ -159,6 +202,7 @@
     "metadata": {
       "timestamp_property": "N/A"
     },
+    "collector": true,
     "gui": {
       "schema": {
         "properties": {
@@ -257,6 +301,7 @@
       "record_property": "RECORD",
       "station_property": "Estacao_ID"
     },
+    "collector": true,
     "gui": {
       "schema": {
         "properties": {

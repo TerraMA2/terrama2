@@ -131,7 +131,7 @@ namespace terrama2
 
       Spaces are replaced by "_".
     */
-    void simplifyString(std::string& text);
+    std::string simplifyString(std::string text);
 
     te::gm::Coord2D GetCentroidCoord(te::gm::Geometry* geom);
   } // end namespace core

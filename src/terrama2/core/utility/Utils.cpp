@@ -55,6 +55,7 @@
 
 // Boost
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 // QT
 #include <QFile>
@@ -274,14 +275,14 @@ te::gm::Coord2D terrama2::core::GetCentroidCoord(te::gm::Geometry* geom)
 
   if(geom->getGeomTypeId() == te::gm::PointType)
   {
-    te::gm::Point* p = ((te::gm::Point*)geom);
+    te::gm::Point* p = (static_cast<te::gm::Point*>(geom));
 
     coord.x = p->getX();
     coord.y = p->getY();
   }
   else if(geom->getGeomTypeId() == te::gm::PolygonType)
   {
-    te::gm::Point* p = ((te::gm::Polygon*)geom)->getCentroid();
+    te::gm::Point* p = (static_cast<te::gm::Polygon*>(geom))->getCentroid();
 
     coord.x = p->getX();
     coord.y = p->getY();
@@ -290,7 +291,7 @@ te::gm::Coord2D terrama2::core::GetCentroidCoord(te::gm::Geometry* geom)
   }
   else if(geom->getGeomTypeId() == te::gm::MultiPolygonType)
   {
-    te::gm::Point* p = ((te::gm::MultiPolygon*)geom)->getCentroid();
+    te::gm::Point* p = (static_cast<te::gm::MultiPolygon*>(geom))->getCentroid();
 
     coord.x = p->getX();
     coord.y = p->getY();
@@ -405,10 +406,12 @@ std::shared_ptr<te::gm::Geometry> terrama2::core::ewktToGeom(const std::string& 
   return geom;
 }
 
-void terrama2::core::simplifyString(std::string& text)
+std::string terrama2::core::simplifyString(std::string text)
 {
+  boost::trim(text);
   text.erase(std::remove_if(text.begin(), text.end(), [](char x){return !(std::isalnum(x) || x == ' ');}), text.end());
   std::replace(text.begin(), text.end(), ' ', '_');
+  return text;
 }
 
 size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter const& filter) const
