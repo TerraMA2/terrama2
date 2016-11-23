@@ -52,4 +52,7 @@ namespace terrama2
 
 typedef std::unordered_map< terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > SeriesMap;
 
+//! MapsServerType code
+typedef std::string MapsServerType;
+
 #endif // __TERRAMA2_SERVICES_VIEW_TYPEDEF_HPP__

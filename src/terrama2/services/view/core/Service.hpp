@@ -35,11 +35,7 @@
 #include "Shared.hpp"
 #include "DataManager.hpp"
 #include "ViewLogger.hpp"
-
-#include "../../../impl/DataAccessorFile.hpp"
 #include "../../../core/utility/Service.hpp"
-#include "../../../core/data-model/Filter.hpp"
-#include "../../../core/utility/FileRemover.hpp"
 
 // Qt
 #include "QFileInfoList"
@@ -111,14 +107,8 @@ namespace terrama2
           void connectDataManager();
 
           void viewJob(ViewId viewId,
-                       std::shared_ptr< terrama2::services::view::core::ViewLogger > logger,
+                       std::shared_ptr< ViewLogger > logger,
                        std::weak_ptr<DataManager> weakDataManager);
-
-          QFileInfoList dataSeriesFileList(const std::vector< terrama2::core::DataSetPtr > datasets,
-                                           const terrama2::core::DataProviderPtr inputDataProvider,
-                                           const terrama2::core::Filter filter,
-                                           const std::shared_ptr<terrama2::core::FileRemover> remover,
-                                           const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
           std::deque<ViewId> viewQueue_;//!< View queue
