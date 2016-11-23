@@ -384,8 +384,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     }
 
 
-    auto tableNameStr = intersectionDataSeries->name;
-    terrama2::core::simplifyString(tableNameStr);
+    auto tableNameStr = terrama2::core::simplifyString(intersectionDataSeries->name);
+    
     tableNameStr+="_band_%1";
     auto tableName = QString::fromStdString(tableNameStr);
 
