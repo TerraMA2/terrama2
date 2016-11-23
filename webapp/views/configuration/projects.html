@@ -19,7 +19,7 @@
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript">
   angular.module("terrama2.projects", ['terrama2', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.services'])
-    .controller("ProjectController", function($scope, $http, Socket, FileDialog, SaveAs, $log, i18n) {
+    .controller("ProjectController", function($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, AnalysisFactory) {
       $scope.model = [];
       $log.warn("initializing");
       var socket = Socket;
@@ -197,6 +197,8 @@
         $scope.model = projects;
         $scope.dataProviders = {};
         $scope.dataSeries = {};
+        $scope.analysis = {};
+        $scope.views = {};
 
         projects.map(function(project, index) {
           $http.get("/api/DataProvider/project/" + project.id, {}).success(function(dataProviders) {
@@ -224,6 +226,25 @@
           ).finally(function() {
             $scope.loading = false;
           });
+
+          AnalysisFactory.get({ project_id: project.id }).success(function(analysis) {
+            $scope.analysis[project.id] = analysis;
+          }).error(function(err) {
+            $log.info("Err in retrieving Analysis " + err);
+          }).finally(function() {
+            $scope.loading = false;
+          });
+
+          $http.get("/api/View", {}).success(function(views) {
+            $scope.views[project.id] = views;
+          }).error(function(err) {
+            console.log("Err in retrieving views");
+          }).finally(function() {
+            $scope.loading = false;
+          });
+
+
+
         });
       }).error(function(err) {
         console.log("Err in retrieving projects");
@@ -306,14 +327,9 @@
               </div>
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
-                  <li>
-                    <input type="checkbox" value="1" style="margin-right: 5px; float: left;"/><div style="float: left;">AN 1 - Test</div>
+                  <li ng-repeat="analysisItem in analysis[element.id]">
+                    <input type="checkbox" value="{{ analysisItem.id }}"/><div style="margin-top: -23px; margin-left: 18px;">{{ analysisItem.name }}</div>
                   </li>
-                  <div style="clear: both; height: 5px;"></div>
-                  <li>
-                    <input type="checkbox" value="1" style="margin-right: 5px; float: left;"/><div style="float: left;">AN 2 - Test</div>
-                  </li>
-                  <div style="clear: both; height: 5px;"></div>
                 </ul>
               </div>
             </div>
@@ -326,14 +342,9 @@
               </div>
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
-                  <li>
-                    <input type="checkbox" value="1" style="margin-right: 5px; float: left;"/><div style="float: left;">VI 1 - Test</div>
+                  <li ng-repeat="view in views[element.id]">
+                    <input type="checkbox" value="{{ view.id }}"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
                   </li>
-                  <div style="clear: both; height: 5px;"></div>
-                  <li>
-                    <input type="checkbox" value="1" style="margin-right: 5px; float: left;"/><div style="float: left;">VI 2 - Test</div>
-                  </li>
-                  <div style="clear: both; height: 5px;"></div>
                 </ul>
               </div>
             </div>
