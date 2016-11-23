@@ -214,10 +214,6 @@
             "type": "string",
             "title": "Mask"
           },
-          "alias": {
-            "type": "string",
-            "title": "Alias"
-          },
           "timezone": {
             "type": "string",
             "title": "Timezone"
