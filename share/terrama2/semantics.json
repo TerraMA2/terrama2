@@ -74,6 +74,31 @@
       "longitude_property": "Longitude",
       "timezone": "UTM+00",
       "srid": "4326"
+    },
+    "gui": {
+      "schema": {
+        "properties": {
+          "folder": {
+            "type": "string",
+            "title": "Folder"
+          },
+          "mask": {
+            "type": "string",
+            "title": "Mask"
+          }
+        },
+        "required": ["mask"]
+      },
+      "form": [
+        {
+          "key": "folder",
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+        },
+        {
+          "key": "mask",
+          "htmlClass": "col-md-6"
+        }
+      ]
     }
   },
   {
