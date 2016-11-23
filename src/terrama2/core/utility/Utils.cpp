@@ -55,6 +55,7 @@
 
 // Boost
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 // QT
 #include <QFile>
@@ -405,10 +406,12 @@ std::shared_ptr<te::gm::Geometry> terrama2::core::ewktToGeom(const std::string& 
   return geom;
 }
 
-void terrama2::core::simplifyString(std::string& text)
+std::string terrama2::core::simplifyString(std::string text)
 {
+  boost::trim(text);
   text.erase(std::remove_if(text.begin(), text.end(), [](char x){return !(std::isalnum(x) || x == ' ');}), text.end());
   std::replace(text.begin(), text.end(), ' ', '_');
+  return text;
 }
 
 size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter const& filter) const
