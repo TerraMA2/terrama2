@@ -30,9 +30,14 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_UTILS_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_UTILS_HPP__
 
-#include <memory>
+// TerraMA2
 #include "../../../core/Shared.hpp"
 #include "../../../core/data-model/Filter.hpp"
+#include "../../../core/utility/FileRemover.hpp"
+#include "../../../impl/DataAccessorFile.hpp"
+
+// STD
+#include <memory>
 
 namespace terrama2
 {
@@ -42,6 +47,9 @@ namespace terrama2
     {
       namespace core
       {
+
+        void registerFactories();
+
         /*!
          * \brief createGeoserverTempMosaic
          * \param dataManager
@@ -54,6 +62,12 @@ namespace terrama2
         int createGeoserverTempMosaic(terrama2::core::DataManagerPtr dataManager, terrama2::core::DataSetPtr dataset, const terrama2::core::Filter& filter, const std::string& exhibitionName, const std::string& outputFolder);
 
         void createGeoserverPropertiesFile(const std::string& outputFolder, const std::string& exhibitionName, DataSeriesId dataSeriesId);
+
+        QFileInfoList dataSeriesFileList(const std::vector< terrama2::core::DataSetPtr > datasets,
+                                         const terrama2::core::DataProviderPtr inputDataProvider,
+                                         const terrama2::core::Filter filter,
+                                         const std::shared_ptr<terrama2::core::FileRemover> remover,
+                                         const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor);
 
       } // end namespace core
     }   // end namespace view
