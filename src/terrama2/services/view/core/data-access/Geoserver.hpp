@@ -33,6 +33,9 @@
 // TerraMA2
 #include "../MapsServer.hpp"
 #include "../Shared.hpp"
+#include "../Typedef.hpp"
+#include "../ViewLogger.hpp"
+#include "../../../../core/Typedef.hpp"
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
@@ -72,6 +75,10 @@ namespace terrama2
              * \brief GeoServer class default destructor
              */
             virtual ~GeoServer() = default;
+
+            static MapsServerPtr make(te::core::URI uri);
+
+            static MapsServerType mapsServerType(){ return "GEOSERVER"; }
 
             /*!
              * \brief Return the working uri
@@ -272,12 +279,14 @@ namespace terrama2
              * \param connInfo The connection parameters to the Postgis BD
              */
             void registerPostGisDataStore(const std::string& dataStoreName,
-                                   std::map<std::string, std::string> connInfo) const;
+                                          const std::map<std::string, std::string> connInfo) const;
 
-            virtual QJsonArray generateLayers(std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > dataSeriesProviders) override;
+            virtual QJsonObject generateLayers(const ViewPtr viewPtr,
+                                               const std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
+                                               const std::shared_ptr<DataManager> dataManager,
+                                               const std::shared_ptr< ViewLogger > logger,
+                                               const RegisterId logId);
 
-
-            static MapsServerPtr make(te::core::URI uri);
 
           private:
 

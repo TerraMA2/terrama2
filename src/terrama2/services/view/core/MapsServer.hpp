@@ -30,7 +30,11 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_MAPS_SERVER_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_MAPS_SERVER_HPP__
 
+// TerraMA2
+#include "Shared.hpp"
+#include "ViewLogger.hpp"
 #include "../../../core/Shared.hpp"
+#include "../../../core/Typedef.hpp"
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
@@ -57,7 +61,11 @@ namespace terrama2
 
             virtual ~MapsServer() = default;
 
-            virtual QJsonArray generateLayers(std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr > dataSeriesProviders) = 0;
+            virtual QJsonObject generateLayers(const ViewPtr viewPtr,
+                                               const std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
+                                               const std::shared_ptr<DataManager> dataManager,
+                                               const std::shared_ptr< ViewLogger > logger,
+                                               const RegisterId logId) = 0;
 
           protected:
 

@@ -30,6 +30,7 @@
 // TerraMA2
 #include "MapsServerFactory.hpp"
 #include "MapsServer.hpp"
+#include "Exception.hpp"
 #include "../../../core/utility/Logger.hpp"
 
 // Qt
@@ -44,7 +45,7 @@ void terrama2::services::view::core::MapsServerFactory::add(const MapsServerType
   {
     QString errMsg = QObject::tr("A maps server factory for this type already exists!");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataRetrieverException() << ErrorDescription(errMsg);
+    throw MapsServerFactoryException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_.emplace(mapsServertype, f);
@@ -58,7 +59,7 @@ void terrama2::services::view::core::MapsServerFactory::remove(const MapsServerT
   {
     QString errMsg = QObject::tr("There is no registered maps server factory for this type.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataRetrieverException() << ErrorDescription(errMsg);
+    throw MapsServerFactoryException() << ErrorDescription(errMsg);
   }
 
   factoriesMap_.erase(it);
@@ -80,7 +81,7 @@ terrama2::services::view::core::MapsServerPtr terrama2::services::view::core::Ma
   {
     QString errMsg = QObject::tr("There is no registered maps server factory for this type.");
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
-    throw terrama2::core::DataRetrieverException() << ErrorDescription(errMsg);
+    throw MapsServerFactoryException() << ErrorDescription(errMsg);
   }
 
   return it->second(uri);

@@ -33,7 +33,6 @@
 // TerraMA2
 #include "Typedef.hpp"
 #include "Shared.hpp"
-#include "../../../core/data-model/DataProvider.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -54,20 +53,20 @@ namespace terrama2
         class MapsServerFactory : public te::common::Singleton<MapsServerFactory>
         {
           public:
-            //! DataRetriever constructor function.
+            //! MapsServer constructor function.
             typedef std::function< MapsServerPtr (te::core::URI uri)> FactoryFnctType;
-            //! Register a new DataRetriever constructor associated with the DataProviderType.
+            //! Register a new maps server constructor associated with the MapsServerType.
             void add(const MapsServerType& mapsServertype, FactoryFnctType f);
-            //! Remove the DataRetriever constructor associated with the DataProviderType.
+            //! Remove the maps server constructor associated with the MapsServerType.
             void remove(const MapsServerType& mapsServertype);
-            //PAULO: documentar!
+            //! Check if the maps server is registered
             bool find(const MapsServerType& mapsServertype);
 
             /*!
-          \brief Creates a DataRetriever
+            \brief Creates a maps server
 
-          The DataRetriever is constructed based on the DataProviderType of the DataProvider.
-        */
+            The maps server is constructed based on the MapsServerType.
+            */
             MapsServerPtr make(const te::core::URI uri,
                                const MapsServerType& mapsServertype) const;
 
@@ -84,7 +83,7 @@ namespace terrama2
             MapsServerFactory& operator=(const MapsServerFactory& other) = delete;
             MapsServerFactory& operator=(MapsServerFactory&& other) = delete;
 
-            std::map<DataProviderType, FactoryFnctType> factoriesMap_;
+            std::map<MapsServerType, FactoryFnctType> factoriesMap_;
         };
 
 
