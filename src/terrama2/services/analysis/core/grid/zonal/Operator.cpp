@@ -30,6 +30,7 @@
 
 
 #include "Operator.hpp"
+#include "Utils.hpp"
 #include "../../utility/Utils.hpp"
 #include "../../utility/Verify.hpp"
 #include "../../python/PythonInterpreter.hpp"
@@ -48,34 +49,13 @@
 #include <terralib/geometry/Utils.h>
 #include <terralib/raster/PositionIterator.h>
 
-void terrama2::services::analysis::core::grid::zonal::appendValues(te::rst::Raster* raster, size_t band, te::gm::Polygon* polygon, std::vector<double>& values)
-{
-  //raster values can always be read as double
-  auto it = te::rst::PolygonIterator<double>::begin(raster, polygon);
-  auto end = te::rst::PolygonIterator<double>::end(raster, polygon);
-
-  //there are pixels inside the object
-  if(it != end)
-  {
-    for(; it != end; ++it)
-    {
-      values.push_back(it[band]);
-    }
-  }
-}
-
 double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                                                      const std::string& dataSeriesName,
-                                                                     const std::string& dateDiscardBefore,
-                                                                     const std::string& dateDiscardAfter,
                                                                      const size_t band,
                                                                      terrama2::services::analysis::core::Buffer buffer)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
-  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
   auto analysis = cache.analysisPtr;
@@ -87,7 +67,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return NAN;
+    return std::nan(nullptr);
   }
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
@@ -98,16 +78,33 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return NAN;
+    return std::nan(nullptr);
   }
 
+  terrama2::core::Filter filter;
+  filter.lastValue = true;
 
+  return operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache);
+}
+
+double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+                                                                    const std::string& dataSeriesName,
+                                                                    const terrama2::core::Filter& filter,
+                                                                    const size_t band,
+                                                                    terrama2::services::analysis::core::Buffer buffer,
+                                                                    terrama2::services::analysis::core::MonitoredObjectContextPtr context,
+                                                                    OperatorCache cache)
+{
+
+  // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return std::nan(nullptr);.
+  bool exceptionOccurred = false;
   try
   {
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
-      return NAN;
+      return std::nan(nullptr);
     }
 
     bool hasData = false;
@@ -151,10 +148,10 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)
     {
-      auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, dateDiscardAfter);
+      auto rasterList = context->getRasterList(dataSeries, dataset->id, filter);
 
       //sanity check, if no date range only the last raster should be returned
-      if(dateDiscardBefore.empty() && rasterList.size() > 1)
+      if(!filter.discardBefore && rasterList.size() > 1)
       {
         QString errMsg(QObject::tr("Invalid list of raster for dataset: %1").arg(dataset->id));
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
@@ -174,23 +171,10 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
         if(!raster->getExtent()->intersects(*geomResult->getMBR()))
           continue;
 
-        //TODO: check for other valid types
-        auto type = geomResult->getGeomTypeId();
-        if(type == te::gm::PolygonType)
-        {
-          auto polygon = std::static_pointer_cast<te::gm::Polygon>(geomResult);
-          appendValues(raster.get(), band, polygon.get(), values);
-        }
-        else if(type == te::gm::MultiPolygonType)
-        {
-          auto multiPolygon = std::static_pointer_cast<te::gm::MultiPolygon>(geomResult);
-          for(auto geom : multiPolygon->getGeometries())
-          {
-            auto polygon = static_cast<te::gm::Polygon*>(geom);
-            polygon->transform(raster->getSRID());
-            appendValues(raster.get(), band, polygon, values);
-          }
-        }
+        std::map<std::pair<int, int>, double> tempValuesMap;
+        utils::getRasterValues<double>(geomResult.get(), raster, band, tempValuesMap);
+
+        transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
       }
 
       if(!values.empty())
@@ -204,11 +188,11 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
     }
 
     if(exceptionOccurred)
-      return NAN;
+      return std::nan(nullptr);
 
     if(!hasData && statisticOperation != StatisticOperation::COUNT)
     {
-      return NAN;
+      return std::nan(nullptr);
     }
 
     return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
@@ -216,57 +200,57 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return NAN;
+    return std::nan(nullptr);
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    return NAN;
+    return std::nan(nullptr);
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    return NAN;
+    return std::nan(nullptr);
   }
 }
 
 double terrama2::services::analysis::core::grid::zonal::count(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::COUNT, dataSeriesName, band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::min(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MIN, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::MIN, dataSeriesName, band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::max(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MAX, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::MAX, dataSeriesName, band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::mean(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::MEAN, dataSeriesName, band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::median(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::standardDeviation(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::variance(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, band, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::sum(const std::string& dataSeriesName, const size_t band, terrama2::services::analysis::core::Buffer buffer)
 {
-  return operatorImpl(StatisticOperation::SUM, dataSeriesName, "", "", band, buffer);
+  return operatorImpl(StatisticOperation::SUM, dataSeriesName, band, buffer);
 }

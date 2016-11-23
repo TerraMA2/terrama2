@@ -18,6 +18,21 @@ module.exports = function(app) {
       } catch(err) {
         handleRequestError(response, err, 400);
       }
+    },
+    //get request
+    get: function(request, response) {
+      var obj = request.query;
+
+      try {
+        var factoryResult = RequestFactory.build(obj);
+        factoryResult.get().then(function(data){
+          return response.json({status: 200, data: data});
+        }).catch(function(err){
+          handleRequestError(response, err, 400);
+        });
+      } catch(err) {
+        handleRequestError(response, err, 400);
+      }
     }
   }
 };

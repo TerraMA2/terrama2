@@ -61,14 +61,14 @@
 <div class="col-md-12" ng-if="isDynamic && form.length > 0">
   <div id="store-box" class="box box-default box-solid collapsed-box">
     <div class="box-header with-border" ng-class="{disabled: advanced.store.disabled}">
-      <span ng-if="advanced.store.disabled"
+      <span ng-if="advanced.store.disabled && advanced.store.optional"
           class="enable-button-click"
           ng-class="terrama2-font-black"
           data-toggle="tooltip" title="Add store configuration"
           ng-click="advanced.store.openForm()">
         <i class="fa fa-plus-circle"></i>
       </span>
-      <span ng-if="!advanced.store.disabled"
+      <span ng-if="!advanced.store.disabled && advanced.store.optional"
           class="enable-button-click"
           ng-class="terrama2-font-black"
           data-toggle="tooltip" title="Remove store configuration"
@@ -91,14 +91,14 @@
 <div class="col-md-12" ng-if="isDynamic && form.length > 0">
   <div id="filter-box" class="box box-default box-solid collapsed-box">
     <div class="box-header with-border" ng-class="{disabled: advanced.filter.disabled}">
-      <span ng-if="advanced.filter.disabled"
+      <span ng-if="advanced.filter.disabled && advanced.filter.optional"
           class="enable-button-click"
           ng-class="terrama2-font-black"
           data-toggle="tooltip" title="Add filter configuration"
           ng-click="advanced.filter.openForm()">
         <i class="fa fa-plus-circle"></i>
       </span>
-      <span ng-if="!advanced.filter.disabled"
+      <span ng-if="!advanced.filter.disabled && advanced.filter.optional"
           class="enable-button-click"
           ng-class="terrama2-font-black"
           data-toggle="tooltip" title="Remove filter configuration"
@@ -123,14 +123,14 @@
 <div class="col-md-12" ng-if="isDynamic && form.length > 0">
   <div id="intersection-box" class="box box-default box-solid collapsed-box">
     <div class="box-header with-border" ng-class="{disabled: advanced.intersection.disabled}">
-      <span ng-if="advanced.intersection.disabled" 
+      <span ng-if="advanced.intersection.disabled && advanced.intersection.optional" 
           class="enable-button-click"
           ng-class="terrama2-font-black"
           data-toggle="tooltip" title="Add intersection configuration"
           ng-click="advanced.intersection.openForm()">
         <i class="fa fa-plus-circle"></i>
       </span>
-      <span ng-if="!advanced.intersection.disabled" 
+      <span ng-if="!advanced.intersection.disabled && advanced.intersection.optional" 
           class="enable-button-click"
           ng-class="terrama2-font-black"
           data-toggle="tooltip" title="Remove intersection configuration"
@@ -163,3 +163,9 @@
   </div>
   <a href="/configuration/dynamic/dataseries/" class="btn btn-primary pull-right" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
 </div>
+
+
+<!-- List with database tables -->
+<datalist id='databaseTableList'>
+    <option ng-repeat="table in tableList" value="{{table}}">
+</datalist>

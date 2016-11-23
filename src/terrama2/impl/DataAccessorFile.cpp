@@ -76,7 +76,7 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 
   try
   {
-    folderPath = getProperty(dataset, dataSeries_, "folder", false);
+    folderPath = getFolderMask(dataset);
   }
   catch(UndefinedTagException& /*e*/)
   {
@@ -371,21 +371,17 @@ QFileInfoList terrama2::core::DataAccessorFile::getFoldersList(const QFileInfoLi
 }
 
 
-QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::string& uri,
+QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::string& absoluteFolderPath,
                                                                     const std::string& mask,
                                                                     const std::string& timezone,
                                                                     const Filter& filter,
                                                                     std::shared_ptr<terrama2::core::FileRemover> remover)
 {
-  QUrl url;
-
-  url = QUrl(QString::fromStdString(uri));
-
-  QDir dir(url.path());
+  QDir dir(QString::fromStdString(absoluteFolderPath));
   QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
   if(fileInfoList.empty())
   {
-    QString errMsg = QObject::tr("No file in folder: %1.").arg(QString::fromStdString(uri));
+    QString errMsg = QObject::tr("No file in folder: %1.").arg(QString::fromStdString(absoluteFolderPath));
     TERRAMA2_LOG_ERROR() << errMsg;
     throw NoDataException() << ErrorDescription(errMsg);
   }
@@ -471,12 +467,12 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     folderMask = "";
   }
 
-  QFileInfoList baseUriList;
-  baseUriList.append(url.toString(QUrl::RemoveScheme));
+  QFileInfoList basePathList;
+  basePathList.append(url.path());
 
   if(!folderMask.empty())
   {
-    QFileInfoList foldersList = getFoldersList(baseUriList, folderMask);
+    QFileInfoList foldersList = getFoldersList(basePathList, folderMask);
 
     if(foldersList.empty())
     {
@@ -485,15 +481,15 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
 
-    baseUriList = foldersList;
+    basePathList = foldersList;
   }
 
   QFileInfoList newFileInfoList;
 
   //fill file list
-  for(auto& folderURI : baseUriList)
+  for(auto& folderPath : basePathList)
   {
-    newFileInfoList.append(getDataFileInfoList(folderURI.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
+    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
   }
 
   bool first = true;

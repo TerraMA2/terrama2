@@ -287,112 +287,45 @@ var DataManager = module.exports = {
         inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
         inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
 
-        // semantics: temp code: TODO: fix
-        var semanticsJsonPath = path.join(__dirname, "../../share/terrama2/semantics.json");
-        var semanticsObject = JSON.parse(fs.readFileSync(semanticsJsonPath, 'utf-8'));
-
-        // storing semantics providers dependency
-        var semanticsWithProviders = {};
-
-        semanticsObject.forEach(function(semanticsElement) {
-          semanticsWithProviders[semanticsElement.code] = semanticsElement.providers_type_list;
-          inserts.push(self.addDataSeriesSemantics({
-            temporality: semanticsElement.temporality,
-            code: semanticsElement.code,
-            name: semanticsElement.name,
-            data_format_name: semanticsElement.format,
-            data_series_type_name: semanticsElement.type,
-            collector: semanticsElement.collector || false
-          }));
-        });
-
         // it will match each of semantics with providers
         return Promise.all(inserts)
           .catch(function(err) {
             logger.debug(err);
             return null;
           }).finally(function() {
-            return self.listSemanticsProvidersType()
-              .then(function(result) {
-                if (result.length !== 0) {
-                  callback();
-                  return;
-                }
-                /**
-                 * It represents a list of data providers type
-                 * @type {Array}
-                 */
-                var dataProvidersType;
+            // semantics: temp code: TODO: fix
+            var semanticsObject = Application.get("semantics");
 
-                return self.listDataProviderType()
-                  .then(function(dataProvidersTypeResult) {
-                    dataProvidersType = dataProvidersTypeResult;
-                    return self.listDataSeriesSemantics();
-                  })
-                  
-                  .then(function(semanticsList) {
-                    // adding metadata to semantics
-                    var semanticsProvidersArray = [];
+            // storing semantics providers dependency
+            var semanticsWithProviders = {};
 
-                    /**
-                     * It represents a list of metadata to be saved
-                     * @type {Array}
-                     */
-                    var semanticsMetadataArray = [];
-                    semanticsList.forEach(function(semantics) {
-                      var dependencies = semanticsWithProviders[semantics.code] || [];
+            var promises = [];
 
-                      for(var i = 0; i < dependencies.length; ++i) {
-                        var dependency = dependencies[i];
-
-                        for(var j = 0; j < dataProvidersType.length; ++j) {
-                          var providerType = dataProvidersType[j];
-                          if (dependency === providerType.name) {
-                            semanticsProvidersArray.push({
-                              data_provider_type_id: providerType.id,
-                              data_series_semantics_id: semantics.id
-                            });
-                            break;
-                          }
-                        }
-                      }
-                    });
-
-                    for (var i = 0; i < semanticsList.length; ++i) {
-                      var semantics = semanticsList[i];
-                      for(var j = 0; j < semanticsObject.length; ++j) {
-                        var element = semanticsObject[j];
-
-                        if (semantics.code === element.code) {
-                          if (element.metadata) {
-                            for(var key in element.metadata) {
-                              if (element.metadata.hasOwnProperty(key)) {
-                                semanticsMetadataArray.push({
-                                  key: key,
-                                  value: element.metadata[key],
-                                  data_series_semantics_id: semantics.id
-                                });
-                              }
-                            }
-                          }
-                          break;
-                        }
-                      }
-                    } // end for var i = 0; i < semanticsList.length
-
-                    return models.db.SemanticsProvidersType.bulkCreate(semanticsProvidersArray)
-                      .finally(function() {
-                        return models.db.SemanticsMetadata.bulkCreate(semanticsMetadataArray).then(function(res) {
-                          return callback();
-                        }).catch(function(err) {
-                          return callback();
-                        });
-                      });
-                  }).catch(function(err) {
-                    logger.debug(err);
-                    return callback();
-                  });
+            semanticsObject.forEach(function(semanticsElement) {
+              semanticsWithProviders[semanticsElement.code] = semanticsElement.providers_type_list;
+              promises.push(self.addDataSeriesSemantics({
+                temporality: semanticsElement.temporality,
+                code: semanticsElement.code,
+                name: semanticsElement.name,
+                data_format_name: semanticsElement.format,
+                data_series_type_name: semanticsElement.type,
+                collector: semanticsElement.collector || false,
+                allow_direct_access: semanticsElement.allow_direct_access
+              }, semanticsElement.providers_type_list, semanticsElement.metadata));
             });
+
+            return Promise.all(promises)
+              .then(function() {
+                logger.debug("DB initialized successfully");
+                return null;
+              })
+              .catch(function(err) {
+                logger.debug(err);
+                return null;
+              })
+              .finally(function() {
+                return callback();
+              });
           });
       };
 
@@ -978,7 +911,7 @@ var DataManager = module.exports = {
    */
   listDataProviderType: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.findAll(Utils.extend(restriction, options)).then(function(result) {
+      return models.db.DataProviderType.findAll(Utils.extend({where: restriction}, options)).then(function(result) {
         var output = [];
         result.forEach(function(element) {
           output.push(Utils.clone(element.get()));
@@ -1074,18 +1007,81 @@ var DataManager = module.exports = {
   /**
    * It saves DataSeriesSemantics in database.
    *
-   * @param {Object} semanticsObject - An object containing needed values to create DataSeriesSemantics object.
-   * @param {Object} options - A query options
+   * @param {Object} semanticsObject - An object containing the necessary values to create DataSeriesSemantics object.
+   * @param {string} semanticsObject.name - Semantics Name
+   * @param {string} semanticsObject.code - Semantics Code identifier. It must be unique
+   * @param {string} semanticsObject.data_format_name - TerraMA² Data format
+   * @param {string[]} dataProviderTypes - Defines a list of Data Provider types in order to determine which data provider type the semantics belongs
+   * @param {Object?} semanticsMetadata - Defines a list of extra metadata of semantics 
+   * @param {Object?} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
    * @return {Promise<Object>} - a 'bluebird' module with semantics instance or error callback.
    */
-  addDataSeriesSemantics: function(semanticsObject, options) {
+  addDataSeriesSemantics: function(semanticsObject, dataProviderTypes, semanticsMetadata, options) {
+    var self = this;
     return new Promise(function(resolve, reject){
-      models.db.DataSeriesSemantics.create(semanticsObject, options).then(function(semantics){
-        return resolve(Utils.clone(semantics.get()));
-      }).catch(function(e) {
-        return reject(e);
-      });
+      if (!dataProviderTypes || Utils.isEmpty(dataProviderTypes)) {
+        return reject(new exceptions.DataSeriesSemanticsError("Data provider types is required for new data series semantics"));
+      }
+
+      return self.listDataProviderType({name: {$in: dataProviderTypes}})
+        .then(function(typesResult) {
+          // ensure that given data provider types matches with retrieved
+          if (typesResult.length !== dataProviderTypes.length) {
+            logger.debug(semanticsObject);
+            return reject(new exceptions.DataSeriesSemanticsError(Utils.format(
+                "Data Provider Types does not match. Given %s but got %s",
+                dataProviderTypes,
+                typesResult.map(function(item) { return item.name; })
+              )));
+          }
+          return models.db.DataSeriesSemantics.create(semanticsObject, options)
+            .then(function(semantics){
+              var semanticsProvidersArray = [];
+              // building semantics with provider type
+              for(var i = 0; i < typesResult.length; ++i) {
+                var providerType = typesResult[i];
+                semanticsProvidersArray.push({
+                  data_provider_type_id: providerType.id,
+                  data_series_semantics_id: semantics.id
+                });
+              }
+              // add semantics data provider types
+              return Promise.all([
+                  semantics,
+                  models.db.SemanticsProvidersType.bulkCreate(semanticsProvidersArray)
+                ])
+                .spread(function(dataSeriesSemantics, providersTypeBulk) {
+                  if (Utils.isObject(semanticsMetadata)) {
+                    var semanticsMetadataArr = [];
+                    for(var k in semanticsMetadata) {
+                      if (semanticsMetadata.hasOwnProperty(k)) {
+                        semanticsMetadataArr.push({
+                          key: k,
+                          value: semanticsMetadata[k],
+                          data_series_semantics_id: dataSeriesSemantics.id
+                        })
+                      }
+                    }
+                    return models.db.SemanticsMetadata.bulkCreate(semanticsMetadataArr)
+                      .then(function() {
+                        // returning promise chain with semantics
+                        return dataSeriesSemantics;
+                      });
+                  }
+                  // returning promise chain with semantics
+                  return dataSeriesSemantics;
+                });
+            });
+        })
+        // on save process successfully 
+        .then(function(semantics) {
+          return resolve(Utils.clone(semantics.get()));
+        })
+        // on any error
+        .catch(function(e) {
+          return reject(e);
+        });
     });
   },
 

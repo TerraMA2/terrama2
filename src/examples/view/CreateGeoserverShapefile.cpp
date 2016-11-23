@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     // DataProvider information
     terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
     terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-    dataProvider->uri = "file:///home/jsimas/MyDevel/dpi/terrama2-build/data/grads";
+    dataProvider->uri = "file:///" + TERRAMA2_DATA_DIR + "/grads";
 
     dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
     dataProvider->dataProviderType = "FILE";
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     terrama2::core::DataSetGrid* dataSet1 = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetPtr dataSetPtr(dataSet1);
     dataSet1->active = true;
-    dataSet1->format.emplace("mask", "umin.%YYYY%MM%DD_%hh_mm.tif");
+    dataSet1->format.emplace("mask", "urmin_obs_ams_1km_%YYYY%MM%DD.tif");
     dataSet1->format.emplace("srid", "4326");
     dataSet1->id = 1;
     dataSet1->dataSeriesId = dataSeries1->id;
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 
     QUrl url(QString::fromStdString(dataProvider->uri));
     terrama2::core::Filter filter;
-    terrama2::services::view::core::createGeoserverShapefile(dataManager, dataSetPtr, filter, "Umin", url.path().toStdString());
+    terrama2::services::view::core::createGeoserverTempMosaic(dataManager, dataSetPtr, filter, "Umin", url.path().toStdString());
   }
 
   return 0;

@@ -22,7 +22,7 @@
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
-                                    Socket, DateParser, MessageBoxService, Polygon, $window) {
+                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window) {
     var self = this;
     $scope.i18n = i18n;
 
@@ -435,7 +435,7 @@
             DataSeriesService.list().forEach(function(dSeries) {
               var semantics = dSeries.data_series_semantics;
 
-              if (semantics.temporality === Globals.enums.TemporalityType.DYNAMIC){
+              if (semantics.temporality == globals.enums.TemporalityType.DYNAMIC){
                 dSeries.isDynamic = true;
                 self.buffers.dynamic.push(dSeries);
               } else {
@@ -447,7 +447,7 @@
             DataSeriesService.list().forEach(function(dSeries) {
               var semantics = dSeries.data_series_semantics;
 
-              if (semantics.temporality === Globals.enums.TemporalityType.STATIC) {
+              if (semantics.temporality === globals.enums.TemporalityType.STATIC) {
                 // skip target data series in additional data
                 if (self.targetDataSeries && self.targetDataSeries.id !== dSeries.id) {
                   dSeries.isDynamic = false;
@@ -509,8 +509,66 @@
               self.metadata[self.targetDataSeries.name] = {
                 alias: self.targetDataSeries.name
               };
+              var dataProvider = DataProviderService.list().filter(function(dProvider){
+                return dProvider.id == self.targetDataSeries.data_provider_id;
+              });
+              if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4){
+                var table_name = self.targetDataSeries.dataSets[0].format.table_name;
+                listColumns(dataProvider[0], table_name);
+              }
             }
           };
+
+          var listColumns = function(dataProvider, table_name){
+            var result = $q.defer();
+
+            var params = getPostgisUriInfo(dataProvider.uri);
+            params.objectToGet = "column";
+            params.table_name = table_name;
+
+            var httpRequest = $http({
+              method: "GET",
+              url: "/uri/",
+              params: params
+            });
+
+            httpRequest.success(function(data) {
+              self.columnsList = data.data.map(function(item, index){
+                return item.column_name;
+              });
+              result.resolve(data);
+            });
+
+            httpRequest.error(function(err) {
+              result.reject(err);
+            });
+
+            return result.promise;
+
+          }
+          
+          //help function to parse a URI
+          var getPostgisUriInfo = function(uri){
+            var params = {};
+            params.protocol = uri.split(':')[0];
+            var hostData = uri.split('@')[1];
+            if (hostData){
+              params.hostname = hostData.split(':')[0];
+              params.port = hostData.split(':')[1].split('/')[0];
+              params.database = hostData.split('/')[1];  
+            }  
+
+            var auth = uri.split('@')[0];
+            if (auth){
+              var userData = auth.split('://')[1];
+              if (userData){
+                params.user = userData.split(':')[0];
+                params.password = userData.split(':')[1];
+              }
+            }
+            
+            return params;
+          }
 
           // filtering formats
           self.storagerFormats = [];
@@ -561,7 +619,7 @@
 
             DataProviderService.list().forEach(function(dataProvider) {
               self.currentSemantics.metadata.demand.forEach(function(demand) {
-                if (dataProvider.data_provider_type.name === demand) {
+                if (dataProvider.data_provider_type.name == demand) {
                   self.dataProviders.push(dataProvider);
                 }
               });
@@ -979,19 +1037,20 @@
   }
   // Injecting angular dependencies in controller
   RegisterUpdateController.$inject = [
-    "$scope",
-    "$q",
-    "$log",
-    "i18n",
-    "Service",
-    "DataSeriesService",
-    "DataSeriesSemanticsService",
-    "AnalysisService",
-    "DataProviderService",
-    "Socket",
-    "DateParser",
-    "MessageBoxService",
-    "Polygon",
-    "$window"
+    '$scope',
+    '$q',
+    '$log',
+    'i18n',
+    'Service',
+    'DataSeriesService',
+    'DataSeriesSemanticsService',
+    'AnalysisService',
+    'DataProviderService',
+    'Socket',
+    'DateParser',
+    'MessageBoxService',
+    'Polygon',
+    '$http',
+    '$window'
   ];
 } ());

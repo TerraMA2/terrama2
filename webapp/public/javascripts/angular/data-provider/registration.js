@@ -2,10 +2,10 @@
 
 var app = angular.module("terrama2.dataprovider.registration", ['terrama2', 'schemaForm', 'terrama2.components.messagebox']);
 
-app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n",
-  function($scope, $http, $q, $window, $httpParamSerializer, $location, i18n) {
+app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout",
+  function($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout) {
     $scope.i18n = i18n;
-    var model = {}
+    var model = {};
 
     var conf = configuration;
     if (conf.dataProvider.uriObject) {
@@ -66,7 +66,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     }
 
     $scope.redirectUrl = makeRedirectUrl();
-
+  
     $scope.errorFound = false;
     $scope.isEditing = conf.isEditing;
     $scope.alertBox = {};
@@ -103,9 +103,56 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
           }
 
           $scope.$broadcast('schemaFormRedraw');
+          $timeout(function(){
+            if ($scope.dataProvider.protocol === "POSTGIS"){
+              var databaseInput = angular.element('#database');
+              databaseInput.attr('list', 'databaseList');
+            }
+          });
         }
       });
     };
+
+    // listen connection data to get database list
+    
+    $scope.dbList = [];
+    var timeoutPromise;
+    $scope.$watch('model', function(){
+      $timeout.cancel(timeoutPromise);
+      timeoutPromise = $timeout(function(){
+        if ($scope.dataProvider.protocol !== "POSTGIS" || !$scope.forms.connectionForm.hostname || !$scope.forms.connectionForm.port || !$scope.forms.connectionForm.user){
+          return;
+        }
+        getDatabaseList();
+      }, 1000);
+    }, true);
+
+    var getDatabaseList = function(){
+      var result = $q.defer();
+
+      var params = $scope.model;
+      params.protocol = $scope.dataProvider.protocol;
+      params.objectToGet = "database";
+
+      var httpRequest = $http({
+        method: "GET",
+        url: "/uri/",
+        params: params
+      });
+
+      httpRequest.success(function(data) {
+        $scope.dbList = data.data.map(function(item, index){
+          return item.datname;
+        });
+        result.resolve(data);
+      });
+
+      httpRequest.error(function(err) {
+        result.reject(err);
+      });
+
+      return result.promise;
+    }
 
     $scope.isValidDataProviderTypeForm = function(form) {
       return $scope.forms.connectionForm.$valid;

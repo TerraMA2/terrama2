@@ -36,8 +36,6 @@
 #include "../Exception.hpp"
 #include "../../Config.hpp"
 
-
-
 // TerraLib
 #include <terralib/core/utils/Platform.h>
 #include <terralib/common/PlatformUtils.h>
@@ -53,9 +51,11 @@
 
 #include <ctime>
 #include <unordered_map>
+#include <functional>
 
 // Boost
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 // QT
 #include <QFile>
@@ -275,14 +275,14 @@ te::gm::Coord2D terrama2::core::GetCentroidCoord(te::gm::Geometry* geom)
 
   if(geom->getGeomTypeId() == te::gm::PointType)
   {
-    te::gm::Point* p = ((te::gm::Point*)geom);
+    te::gm::Point* p = (static_cast<te::gm::Point*>(geom));
 
     coord.x = p->getX();
     coord.y = p->getY();
   }
   else if(geom->getGeomTypeId() == te::gm::PolygonType)
   {
-    te::gm::Point* p = ((te::gm::Polygon*)geom)->getCentroid();
+    te::gm::Point* p = (static_cast<te::gm::Polygon*>(geom))->getCentroid();
 
     coord.x = p->getX();
     coord.y = p->getY();
@@ -291,7 +291,7 @@ te::gm::Coord2D terrama2::core::GetCentroidCoord(te::gm::Geometry* geom)
   }
   else if(geom->getGeomTypeId() == te::gm::MultiPolygonType)
   {
-    te::gm::Point* p = ((te::gm::MultiPolygon*)geom)->getCentroid();
+    te::gm::Point* p = (static_cast<te::gm::MultiPolygon*>(geom))->getCentroid();
 
     coord.x = p->getX();
     coord.y = p->getY();
@@ -406,8 +406,45 @@ std::shared_ptr<te::gm::Geometry> terrama2::core::ewktToGeom(const std::string& 
   return geom;
 }
 
-void terrama2::core::simplifyString(std::string& text)
+std::string terrama2::core::simplifyString(std::string text)
 {
+  boost::trim(text);
   text.erase(std::remove_if(text.begin(), text.end(), [](char x){return !(std::isalnum(x) || x == ' ');}), text.end());
   std::replace(text.begin(), text.end(), ' ', '_');
+  return text;
 }
+
+size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter const& filter) const
+{
+  size_t hash = 0;
+
+  if(filter.discardBefore)
+  {
+    std::string discardBefore = filter.discardBefore->toString();
+    size_t const hBefore = std::hash<std::string>()(discardBefore);
+    boost::hash_combine(hash, hBefore);
+  }
+
+  if(filter.discardAfter)
+  {
+    std::string discardAfter = filter.discardAfter->toString();
+    size_t const hAfter = std::hash<std::string>()(discardAfter);
+    boost::hash_combine(hash, hAfter);
+  }
+
+  if(filter.region)
+  {
+    std::string region = filter.region->toString();
+    size_t const hRegion = std::hash<std::string>()(region);
+    boost::hash_combine(hash, hRegion);
+  }
+
+  if(filter.value)
+  {
+    boost::hash_combine(hash, *filter.value);
+  }
+
+  boost::hash_combine(hash, filter.lastValue);
+
+  return hash;
+};

@@ -74,6 +74,7 @@
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/filesystem/operations.hpp>
 
+#include <terralib/common/Exception.h>
 
 QString terrama2::core::Unpack::decompressGz(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
