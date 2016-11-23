@@ -82,6 +82,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   }
 
   terrama2::core::Filter filter;
+  filter.discardAfter = context->getStartTime();
   filter.lastValue = true;
 
   return operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache);
