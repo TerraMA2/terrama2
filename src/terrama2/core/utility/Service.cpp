@@ -138,9 +138,9 @@ void terrama2::core::Service::stop(bool holdStopSignal) noexcept
     }
 
     //wait for each collecting thread
-    for(size_t i = 0; i < processingThreadPool_.size(); ++i)
+    for(auto & thread : processingThreadPool_)
     {
-      auto&& future = std::move(processingThreadPool_.at(i));
+      auto&& future = std::move(thread);
       while(future.valid())
       {
         auto status = future.wait_for(std::chrono::seconds(1));

@@ -275,14 +275,14 @@ te::gm::Coord2D terrama2::core::GetCentroidCoord(te::gm::Geometry* geom)
 
   if(geom->getGeomTypeId() == te::gm::PointType)
   {
-    te::gm::Point* p = ((te::gm::Point*)geom);
+    te::gm::Point* p = (static_cast<te::gm::Point*>(geom));
 
     coord.x = p->getX();
     coord.y = p->getY();
   }
   else if(geom->getGeomTypeId() == te::gm::PolygonType)
   {
-    te::gm::Point* p = ((te::gm::Polygon*)geom)->getCentroid();
+    te::gm::Point* p = (static_cast<te::gm::Polygon*>(geom))->getCentroid();
 
     coord.x = p->getX();
     coord.y = p->getY();
@@ -291,7 +291,7 @@ te::gm::Coord2D terrama2::core::GetCentroidCoord(te::gm::Geometry* geom)
   }
   else if(geom->getGeomTypeId() == te::gm::MultiPolygonType)
   {
-    te::gm::Point* p = ((te::gm::MultiPolygon*)geom)->getCentroid();
+    te::gm::Point* p = (static_cast<te::gm::MultiPolygon*>(geom))->getCentroid();
 
     coord.x = p->getX();
     coord.y = p->getY();
