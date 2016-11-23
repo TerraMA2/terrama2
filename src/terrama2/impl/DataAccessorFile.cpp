@@ -76,7 +76,7 @@ std::string terrama2::core::DataAccessorFile::retrieveData(const DataRetrieverPt
 
   try
   {
-    folderPath = getFolderMask(dataset);
+    folderPath = getFolderMask(dataset, dataSeries_);
   }
   catch(UndefinedTagException& /*e*/)
   {
@@ -272,10 +272,6 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
   return true;
 }
 
-std::string terrama2::core::DataAccessorFile::getFolderMask(DataSetPtr dataSet) const
-{
-  return getProperty(dataSet, dataSeries_, "folder", false);
-}
 
 void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
                                                             std::shared_ptr<te::da::DataSet> dataSet,
@@ -460,7 +456,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   std::string folderMask;
   try
   {
-    folderMask = getFolderMask(dataSet);
+    folderMask = getFolderMask(dataSet, dataSeries_);
   }
   catch(const terrama2::core::UndefinedTagException& /*e*/)
   {
