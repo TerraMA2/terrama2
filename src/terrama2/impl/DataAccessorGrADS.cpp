@@ -103,7 +103,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 
   try
   {
-    folderPath = getFolderMask(dataset);
+    folderPath = getFolderMask(dataset, dataSeries_);
   }
   catch(UndefinedTagException& /*e*/)
   {
@@ -232,7 +232,20 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
                                                                            terrama2::core::DataSetPtr dataSet,
                                                                            std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  QUrl url(QString::fromStdString(uri));
+  std::string completeUri = uri;
+  try
+  {
+    std::string folderName = getFolderMask(dataSet, dataSeries_);
+    if(!folderName.empty())
+      completeUri += "/" + folderName;
+
+  }
+  catch(...)
+  {
+    // Nothing to be done, it will use the URI
+  }
+
+  QUrl url(QString::fromStdString(completeUri));
 
   QDir dir(url.path());
   QFileInfoList fileInfoList = dir.entryInfoList(
@@ -313,6 +326,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
     // Reads the dataset name from CTL
     std::string datasetMask = gradsDescriptor.datasetFilename_;
+
     if(gradsDescriptor.datasetFilename_[0] == '^')
     {
       gradsDescriptor.datasetFilename_.erase(0, 1);
@@ -320,6 +334,22 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     }
 
     datasetMask = grad2TerramaMask(QString::fromStdString(datasetMask)).toStdString();
+
+
+    // In case the user specified a binary file mask, use it instead of the one in the CTL file.
+    try
+    {
+      std::string binaryFileMask = getBinaryFileMask(dataSet);
+      if(!binaryFileMask.empty())
+      {
+        datasetMask = binaryFileMask;
+      }
+    }
+    catch(...)
+    {
+      // In case no binary file mask specified, use dataset mask in the CTL file.
+    }
+
 
     // Get complete list of files,
     // if compressed decompress and add files to the list
@@ -409,6 +439,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         TERRAMA2_LOG_WARNING() << errMsg;
         throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
       }
+
       auto raster = teDataSet->getRaster(0);
       if(raster.get() == nullptr)
       {
@@ -903,6 +934,29 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
                                                      DataSetPtr dataset) const
 {
 
+  try
+  {
+    int numBands = getNumberOfBands(dataset);
+    if(numBands > 0)
+      descriptor.tDef_->numValues_ = numBands;
+  }
+  catch(UndefinedTagException e)
+  {
+    // In case the didn't specify the number of bands it will use the number of bands in the file
+  }
+
+  try
+  {
+    double multiplier = getValueMultiplier(dataset);
+    descriptor.zDef_->numValues_ = 1;
+    descriptor.zDef_->values_.clear();
+    descriptor.zDef_->values_.push_back(multiplier);
+  }
+  catch(UndefinedTagException e)
+  {
+    // In case the didn't specify the number of bands it will use the number of bands in the file
+  }
+
   std::ofstream vrtfile;
   vrtfile.open(vrtFilename);
 
@@ -958,6 +1012,17 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     bool isSequential = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "SEQUENTIAL") != descriptor.vecOptions_.end();
 
     unsigned int dataTypeSizeBytes = 4; // Float32
+    try
+    {
+      std::string dataType = getDataType(dataset);
+      if(dataType == "INT16");
+        dataType = 2;
+    }
+    catch(...)
+    {
+    }
+
+
     unsigned int pixelOffset = dataTypeSizeBytes;
 
     if(!isSequential)
@@ -1029,6 +1094,61 @@ double terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetP
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
+
+int terrama2::core::DataAccessorGrADS::getNumberOfBands(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return std::atoi(dataset->format.at("number_of_bands").c_str());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for number of bands in dataset: %1.").arg(dataset->id);
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+
+double terrama2::core::DataAccessorGrADS::getValueMultiplier(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return std::atof(dataset->format.at("value_multiplier").c_str());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for number of bands in dataset: %1.").arg(dataset->id);
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessorGrADS::getDataType(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return dataset->format.at("data_type");
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for data type in dataset: %1.").arg(dataset->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessorGrADS::getBinaryFileMask(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return dataset->format.at("binary_file_mask");
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for binary file mask in dataset: %1.").arg(dataset->id);
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
 
 
 std::string terrama2::core::trim(const std::string& value)

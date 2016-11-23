@@ -209,6 +209,14 @@ namespace terrama2
 
         double getBytesAfter(DataSetPtr dataset) const;
 
+        int getNumberOfBands(terrama2::core::DataSetPtr dataset) const;
+
+        double getValueMultiplier(terrama2::core::DataSetPtr dataset) const;
+
+        std::string getDataType(terrama2::core::DataSetPtr dataset) const;
+
+        std::string getBinaryFileMask(terrama2::core::DataSetPtr dataset) const;
+
       protected:
         //! Returns the data source type.
         virtual std::string dataSourceType() const override;

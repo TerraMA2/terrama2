@@ -36,6 +36,7 @@
 #include "data-access/Geoserver.hpp"
 
 #include "../../../core/Shared.hpp"
+#include "../../../core/utility/Utils.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 
 #include "../../../core/data-model/DataSeries.hpp"
@@ -574,7 +575,7 @@ QFileInfoList terrama2::services::view::core::Service::dataSeriesFileList(const 
 
     try
     {
-      foldersList = dataAccessor->getFoldersList(baseUriList, dataAccessor->getFolderMask(dataset));
+      foldersList = dataAccessor->getFoldersList(baseUriList, terrama2::core::getFolderMask(dataset, nullptr));
     }
     catch(const terrama2::core::UndefinedTagException& /*e*/)
     {
