@@ -123,12 +123,16 @@
           if (!element) {
             return;
           }
-          $scope.extra.isExporting = true;
+          //$scope.extra.isExporting = true;
           //socket.emit("export", {"Projects": [element]});
 
-          socket.emit("export", {
+          /*socket.emit("export", {
             "Analysis":    [{"id": 1}, {"id": 2}]
-          });
+          });*/
+
+          $scope.idcorreto = element.id;
+
+          $('#exportModal').modal('show');
 
           /*
           "Projects":      [{"id": 1}],
@@ -191,6 +195,36 @@
 
       $http.get("/api/Project/", {}).success(function(projects) {
         $scope.model = projects;
+        $scope.dataProviders = {};
+        $scope.dataSeries = {};
+
+        projects.map(function(project, index) {
+          $http.get("/api/DataProvider/project/" + project.id, {}).success(function(dataProviders) {
+            $scope.dataProviders[project.id] = dataProviders;
+          }).error(function(err) {
+            console.log("Err in retrieving data providers");
+          }).finally(function() {
+            $scope.loading = false;
+          });
+
+          $http({
+            url: "/api/DataSeries/project/" + project.id,
+            method: "GET",
+            params: {
+              collector: true,
+              type: "dynamic",
+              ignoreAnalysisOutputDataSeries: true
+            }
+          }).then(
+            function(dataSeries) {
+              $scope.dataSeries[project.id] = dataSeries.data;
+            }, function(err) {
+              console.log("Err in retrieving data series");
+            }
+          ).finally(function() {
+            $scope.loading = false;
+          });
+        });
       }).error(function(err) {
         console.log("Err in retrieving projects");
       }).finally(function() {
@@ -219,6 +253,98 @@
     </div>
     <!-- ./row -->
   </terrama2-box>
-</div>
 
+  <div id="exportModal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+          <h4 class="modal-title">Project Export</h4>
+        </div>
+        <div class="modal-body">
+          <div ng-repeat="element in model" ng-show="element.id == idcorreto">
+            <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;"/><div style="float: left;">{{ element.name }}</div>
+            <div style="clear: both; height: 20px;"></div>
+            <div class="box collapsed-box">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">Data Servers</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="dataProvider in dataProviders[element.id]">
+                    <input type="checkbox" value="{{ dataProvider.id }}"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataProvider.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">Data Series</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="dataSerie in dataSeries[element.id]">
+                    <input type="checkbox" value="{{ dataSerie.id }}"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">Analysis</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li>
+                    <input type="checkbox" value="1" style="margin-right: 5px; float: left;"/><div style="float: left;">AN 1 - Test</div>
+                  </li>
+                  <div style="clear: both; height: 5px;"></div>
+                  <li>
+                    <input type="checkbox" value="1" style="margin-right: 5px; float: left;"/><div style="float: left;">AN 2 - Test</div>
+                  </li>
+                  <div style="clear: both; height: 5px;"></div>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">Views</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li>
+                    <input type="checkbox" value="1" style="margin-right: 5px; float: left;"/><div style="float: left;">VI 1 - Test</div>
+                  </li>
+                  <div style="clear: both; height: 5px;"></div>
+                  <li>
+                    <input type="checkbox" value="1" style="margin-right: 5px; float: left;"/><div style="float: left;">VI 2 - Test</div>
+                  </li>
+                  <div style="clear: both; height: 5px;"></div>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Export</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

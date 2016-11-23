@@ -77,6 +77,10 @@ module.exports = function(app) {
     },
 
     get: function(request, response) {
+      var dataProvider = request.params.dataProvider;
+      var project = request.params.project;
+      var ignoreAnalysisOutputDataSeries = request.query.ignoreAnalysisOutputDataSeries;
+
       var dataSeriesId = request.params.id;
       var dataSeriesTemporality = request.query.type;
       var schema = request.query.schema;
@@ -87,11 +91,25 @@ module.exports = function(app) {
       var dataSeriesTemporalityName;
 
       // list data series restriction
-      var restriction = {
-        dataProvider: {
-          project_id: app.locals.activeProject.id
-        }
-      };
+      if(dataProvider) {
+        var restriction = {
+          dataProvider: {
+            id: dataProvider
+          }
+        };
+      } else if(project) {
+        var restriction = {
+          dataProvider: {
+            project_id: project
+          }
+        };
+      } else {
+        var restriction = {
+          dataProvider: {
+            project_id: app.locals.activeProject.id
+          }
+        };
+      }
 
       if (dataSeriesTemporality) {
         // checking data series: static or dynamic to filter data series output
@@ -130,10 +148,34 @@ module.exports = function(app) {
       } else {
         DataManager.listDataSeries(restriction).then(function(dataSeriesList) {
           var output = [];
-          dataSeriesList.forEach(function(dataSeries) {
-            output.push(dataSeries.rawObject());
-          });
-          response.json(output);
+
+          if(ignoreAnalysisOutputDataSeries == true || ignoreAnalysisOutputDataSeries == 'true') {
+            DataManager.listAnalysis({}).then(function(analysisList) {
+              dataSeriesList.forEach(function(dataSeries) {
+                var addDataSeries = true;
+
+                analysisList.map(function(analysis) {
+                  dataSeries.dataSets.map(function(dataSet) {
+                    if(analysis.dataset_output == dataSet.id) {
+                      addDataSeries = false;
+                      return;
+                    }
+                  });
+
+                  if(!addDataSeries) return;
+                });
+
+                if(addDataSeries) output.push(dataSeries.rawObject());
+              });
+
+              response.json(output);
+            });
+          } else {
+            dataSeriesList.forEach(function(dataSeries) {
+              output.push(dataSeries.rawObject());
+            });
+            response.json(output);
+          }
         }).catch(function(err) {
           logger.error(err);
           return Utils.handleRequestError(response, err, 400);
