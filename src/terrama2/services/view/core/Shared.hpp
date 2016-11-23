@@ -45,6 +45,9 @@ namespace terrama2
         class DataManager;
         //! Shared smart pointer for DataManager
         typedef std::shared_ptr<terrama2::services::view::core::DataManager> DataManagerPtr;
+
+        class MapsServer;
+        typedef std::shared_ptr<terrama2::services::view::core::MapsServer> MapsServerPtr;
       }
     }
   }
