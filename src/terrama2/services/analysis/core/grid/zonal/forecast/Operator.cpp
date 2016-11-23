@@ -62,7 +62,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return NAN;
+    return std::nan("");
   }
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
@@ -73,7 +73,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return NAN;
+    return std::nan("");
   }
 
 
@@ -82,7 +82,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
-      return NAN;
+      return std::nan("");
     }
 
     bool hasData = false;
@@ -185,11 +185,11 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
     }
 
     if(exceptionOccurred)
-      return NAN;
+      return std::nan("");
 
     if(!hasData && statisticOperation != StatisticOperation::COUNT)
     {
-      return NAN;
+      return std::nan("");
     }
 
     return terrama2::services::analysis::core::getOperationResult(cache, statisticOperation);
@@ -197,18 +197,18 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return NAN;
+    return std::nan("");
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    return NAN;
+    return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    return NAN;
+    return std::nan("");
   }
 }
 

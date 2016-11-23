@@ -54,7 +54,7 @@ double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rs
   double noData = band->getProperty()->m_noDataValue;
   double value =  val.real();
   if(value == noData)
-    return std::nan(nullptr);
+    return std::nan("");
   else
     return value;
 }
@@ -73,7 +73,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
 
   terrama2::services::analysis::core::GridContextPtr context;
@@ -84,7 +84,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
   catch(const terrama2::Exception& e)
   {
     contextManager.addError(cache.analysisHashCode, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
 
   try
@@ -92,7 +92,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
     {
-      return std::nan(nullptr);
+      return std::nan("");
     }
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
@@ -152,22 +152,22 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       return getValue(raster, interpolator, column, row, bandIdx);
     }
 
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
 }
