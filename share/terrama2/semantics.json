@@ -214,6 +214,10 @@
             "type": "string",
             "title": "Mask"
           },
+          "alias": {
+            "type": "string",
+            "title": "Alias"
+          },
           "timezone": {
             "type": "string",
             "title": "Timezone"
@@ -231,7 +235,7 @@
             "title": "SRID"
           }
         },
-        "required": ["mask", "timezone", "latitude", "longitude", "projection"]
+        "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
       "form": [
         {
@@ -240,11 +244,16 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "copyValueTo": ["alias"]
+        },
+        {
+          "key": "alias",
+          "htmlClass": "col-md-6 terrama2-schema-form"
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-4",
+          "htmlClass": "col-md-6",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
@@ -313,6 +322,10 @@
             "type": "string",
             "title": "Mask"
           },
+          "alias": {
+            "type": "string",
+            "title": "Alias"
+          },
           "timezone": {
             "type": "string",
             "title": "Timezone"
@@ -330,7 +343,7 @@
             "title": "SRID"
           }
         },
-        "required": ["mask", "timezone", "latitude", "longitude", "projection"]
+        "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
       "form": [
         {
@@ -339,11 +352,16 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "copyValueTo": ["alias"]
+        },
+        {
+          "key": "alias",
+          "htmlClass": "col-md-6 terrama2-schema-form"
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-4",
+          "htmlClass": "col-md-6",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
@@ -413,6 +431,10 @@
           "projection": {
             "type": "number",
             "title": "SRID"
+          },
+	 	  "alias": {
+            "type": "string",
+            "title": "Alias"
           }
         },
         "required": ["table_name", "latitude", "longitude", "projection"]
@@ -420,6 +442,10 @@
       "form": [
         {
           "key": "table_name",
+          "htmlClass": "col-md-5 terrama2-schema-form"
+        },
+        {
+          "key": "alias",
           "htmlClass": "col-md-5 terrama2-schema-form"
         },
         {
