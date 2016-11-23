@@ -34,6 +34,7 @@
       "timezone": "UTM+00",
       "srid": "4326"
     },
+    "collector": true,
     "gui": {
       "schema": {
         "properties": {
@@ -75,6 +76,7 @@
       "timezone": "UTM+00",
       "srid": "4326"
     },
+    "collector": true,
     "gui": {
       "schema": {
         "properties": {
@@ -200,6 +202,7 @@
     "metadata": {
       "timestamp_property": "N/A"
     },
+    "collector": true,
     "gui": {
       "schema": {
         "properties": {
@@ -298,6 +301,7 @@
       "record_property": "RECORD",
       "station_property": "Estacao_ID"
     },
+    "collector": true,
     "gui": {
       "schema": {
         "properties": {
