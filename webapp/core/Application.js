@@ -15,7 +15,12 @@ var _data = {
    * It defines a global terrama2 settings (config.terrama2). It contains database config, etc.
    * @type {Object}
    */
-  "settings": {}
+  "settings": {},
+  /**
+   * It defines TerraMA² semantics loaded
+   * @type {any[]}
+   */
+  "semantics": []
 };
 
 /**
@@ -50,8 +55,11 @@ Application.prototype.load = function() {
 
   // reading TerraMA² config.json
   buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/config.terrama2"), "utf-8"));
-
   _data.settings = buffer;
+
+  // reading TerraMA² semantics.json
+  buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../../share/terrama2/semantics.json")));
+  _data.semantics = buffer;
 };
 
 /**
@@ -84,16 +92,16 @@ Application.prototype.getContextConfig = function() {
 };
 
 /**
- * It retrieves a copy of TerraMA² running aplication settings. It contains name, version
+ * It retrieves a TerraMA² running aplication settings. It contains name, version
  * 
- * @param {string} settingName - Defines which values want to return. It retrieves a copy of real object in order to keep safe. Used it as much as possible for performance reasons
+ * @param {string} settingName - Defines which values want to return. Used it as much as possible for performance reasons
  * @returns {Object}
  */
 Application.prototype.get = function(settingName) {
   if (settingName) {
-    return Object.assign({}, _data[settingName]);
+    return _data[settingName];
   }
-  return Object.assign({}, _data);
+  return _data;
 };
 
 /**
