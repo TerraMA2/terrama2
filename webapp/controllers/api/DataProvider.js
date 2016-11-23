@@ -74,8 +74,15 @@ module.exports = function(app) {
 
     get: function(request, response) {
       var name = request.query.name;
+      var project = request.params.project;
 
-      if (name) {
+      if(project) {
+        var output = [];
+        DataManager.listDataProviders({project_id: project}).forEach(function(element) {
+          output.push(element.rawObject());
+        });
+        response.json(output);
+      } else if(name) {
         return DataManager.getDataProvider({name: name, project_id: app.locals.activeProject.id}).then(function(dataProvider) {
           response.json(dataProvider.toObject());
         }).catch(function(err) {
