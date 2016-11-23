@@ -34,6 +34,7 @@
 #include "../../../../../../core/utility/Logger.hpp"
 #include "../../../../../../core/utility/TimeUtils.hpp"
 #include "../../../utility/Verify.hpp"
+#include "../Utils.hpp"
 
 //TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -147,6 +148,8 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
 
       auto currentTimestamp = context->getStartTime()->getTimeInstantTZ();
 
+      std::vector<double> values;
+
       {
         geomResult->transform(raster->getSRID());
         //no intersection between the raster and the object geometry
@@ -163,30 +166,19 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         int bandBegin = 1 + std::ceil(secondsPassed + secondsToBefore)/interval;
         int bandEnd = 1 + std::ceil(secondsPassed + secondsToAfter)/interval;
 
-//        //TODO: check for other valid types
-//        auto type = geomResult->getGeomTypeId();
-//        if(type == te::gm::PolygonType)
-//        {
-//          auto polygon = std::static_pointer_cast<te::gm::Polygon>(geomResult);
-//          appendValues(raster.get(), band, polygon.get(), values);
-//        }
-//        else if(type == te::gm::MultiPolygonType)
-//        {
-//          auto multiPolygon = std::static_pointer_cast<te::gm::MultiPolygon>(geomResult);
-//          for(auto geom : multiPolygon->getGeometries())
-//          {
-//            auto polygon = static_cast<te::gm::Polygon*>(geom);
-//            polygon->transform(raster->getSRID());
-//            appendValues(raster.get(), band, polygon, values);
-//          }
-//        }
+        std::map<std::pair<int, int>, double> tempValuesMap;
+        for(size_t band = bandBegin; band <= bandEnd; ++ band)
+        {
+          utils::getRasterValues<double>(geomResult.get(), raster, band, tempValuesMap);
+          transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
+        }
       }
 
-      // if(!values.empty())
-      // {
-      //   terrama2::services::analysis::core::calculateStatistics(values, cache);
-      //   hasData = true;
-      // }
+      if(!values.empty())
+      {
+        terrama2::services::analysis::core::calculateStatistics(values, cache);
+        hasData = true;
+      }
 
       if(hasData)
         break;
