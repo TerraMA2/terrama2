@@ -172,6 +172,12 @@ namespace terrama2
                                       const std::string& extension,
                                       const std::string& style = "") const;
 
+            void registerMosaicCoverage(const std::string& coverageStoreName,
+                                        const std::string& mosaicPath,
+                                        const std::string& coverageName,
+                                        const int srid,
+                                        const std::string& style = "") const;
+
             /*!
              * \brief Method to register a style in the GeoServer from a text file
              * \param name The name of the style

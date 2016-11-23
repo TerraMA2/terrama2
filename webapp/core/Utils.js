@@ -519,13 +519,21 @@ var Utils = module.exports = {
    *
    * Utils.formatMetadataFromDB(dbMetadata) -> {"foo": "bar", "foo2": "bar2"}
    * @param {Array<String>} values - An array of metadata values
+   * @param {Function} fn - A function to perform each iteration
    * @returns {Object}
    */
-  formatMetadataFromDB: function(values) {
+  formatMetadataFromDB: function(values, fn) {
     var metadata = {};
-    values.forEach(function(meta) {
-      metadata[meta.key] = meta.value;
-    });
+
+    if (this.isFunction(fn)) {
+      values.forEach(function(meta) {
+        metadata[meta.key] = fn(meta.value);
+      });
+    } else {
+      values.forEach(function(meta) {
+        metadata[meta.key] = meta.value;
+      });
+    }
 
     return metadata;
   },

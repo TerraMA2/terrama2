@@ -353,3 +353,17 @@ errors.RegisteredViewError = function(message) {
   this.name = 'RegisteredViewError';
 };
 util.inherits(errors.RegisteredViewError, errors.BaseError);
+
+
+/**
+ * Throw when query to get objects failed
+ * 
+ * @param {string} message Error message
+ * 
+ * @extends BaseError
+ */
+errors.GetObjectsError = function (message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'GetObjectsError';
+};
+util.inherits(errors.GetObjectsError, errors.BaseError);

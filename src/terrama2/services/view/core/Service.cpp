@@ -31,6 +31,7 @@
 #include "Service.hpp"
 #include "View.hpp"
 #include "MemoryDataSetLayer.hpp"
+#include "Utils.hpp"
 
 #include "data-access/Geoserver.hpp"
 
@@ -314,34 +315,58 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
         {
           if(dataProviderType == "FILE")
           {
-            // Get the list of layers to register
-            auto files = dataSeriesFileList(datasets,
-                                            inputDataProvider,
-                                            filter,
-                                            remover,
-                                            std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
-            fileInfoList.append(files);
+            terrama2::core::DataSeriesTemporality temporality = inputDataSeries->semantics.temporality;
 
-            for(auto& fileInfo : fileInfoList)
+            if(temporality == terrama2::core::DataSeriesTemporality::DYNAMIC
+               && dataFormat == "GEOTIFF")
             {
-              if(dataFormat == "OGR")
-              {
-                geoserver.registerVectorFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "datastore",
-                                             fileInfo.absoluteFilePath().toStdString(),
-                                             fileInfo.completeSuffix().toStdString());
-              }
-              else if(dataFormat == "GEOTIFF")
-              {
-                geoserver.registerCoverageFile(fileInfo.fileName().toStdString() ,
-                                               fileInfo.absoluteFilePath().toStdString(),
-                                               fileInfo.completeBaseName().toStdString(),
-                                               "geotiff",
-                                               styleName);
-              }
+              QUrl url(QString::fromStdString(inputDataProvider->uri));
 
-              QJsonObject layer;
-              layer.insert("layer", fileInfo.completeBaseName());
-              layersArray.push_back(layer);
+              std::string layerName = viewPtr->viewName;
+              int geomSRID;
+
+              for(auto& dataset : datasets)
+              {
+                geomSRID = createGeoserverTempMosaic(dataManager, dataset, filter, layerName, url.path().toStdString());
+
+                geoserver.registerMosaicCoverage(layerName + "coveragestore", url.path().toStdString(), layerName, geomSRID);
+
+                QJsonObject layer;
+                layer.insert("layer", QString::fromStdString(layerName));
+                layersArray.push_back(layer);
+              }
+            }
+            else
+            {
+              // Get the list of layers to register
+              auto files = dataSeriesFileList(datasets,
+                                              inputDataProvider,
+                                              filter,
+                                              remover,
+                                              std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
+              fileInfoList.append(files);
+
+              for(auto& fileInfo : fileInfoList)
+              {
+                if(dataFormat == "OGR")
+                {
+                  geoserver.registerVectorFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "datastore",
+                                               fileInfo.absoluteFilePath().toStdString(),
+                                               fileInfo.completeSuffix().toStdString());
+                }
+                else if(dataFormat == "GEOTIFF")
+                {
+                  geoserver.registerCoverageFile(fileInfo.fileName().toStdString() ,
+                                                 fileInfo.absoluteFilePath().toStdString(),
+                                                 fileInfo.completeBaseName().toStdString(),
+                                                 "geotiff",
+                                                 styleName);
+                }
+
+                QJsonObject layer;
+                layer.insert("layer", fileInfo.completeBaseName());
+                layersArray.push_back(layer);
+              }
             }
           }
           else if(dataProviderType == "POSTGIS")

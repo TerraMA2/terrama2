@@ -253,7 +253,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   }
   catch(const boost::exception& e)
   {
-    std::string errMsg = boost::diagnostic_information(e);;
+    std::string errMsg = boost::diagnostic_information(e);
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 

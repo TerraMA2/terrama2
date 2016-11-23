@@ -34,6 +34,8 @@
 // TerraMA2
 #include "../../../../BufferMemory.hpp"
 
+#include <boost/functional/hash.hpp>
+
 // STL
 #include <string>
 
@@ -168,6 +170,15 @@ namespace terrama2
                   \return A double value with the result.
                 */
                 double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
+
+                std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > >
+                 getAccumulatedMap(const std::string& dataSeriesName,
+                                   const std::string& dateDiscardBefore,
+                                   const std::string& dateDiscardAfter,
+                                   const size_t band,
+                                   terrama2::services::analysis::core::Buffer buffer,
+                                   terrama2::services::analysis::core::MonitoredObjectContextPtr context,
+                                   OperatorCache cache);
               } /* ratio */
             }
           } /* zonal */
