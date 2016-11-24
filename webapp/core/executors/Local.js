@@ -41,12 +41,12 @@ LocalExecutor.prototype.connect = function(serviceInstance) {
   return new Promise(function(resolve) {
     self.serviceInstance = serviceInstance;
     // detecting platform
-    return self.execute("ipconfig")
+    return self.execute("ipconfig", [], {})
       .then(function() {
         self.platform = OS.WIN;
       })
       .catch(function() {
-        return self.execute("uname");
+        return self.execute("uname", [], {});
       })
       .finally(function() {
         return resolve();
@@ -59,16 +59,10 @@ LocalExecutor.prototype.connect = function(serviceInstance) {
  * @param {string} command - Command to execute
  * @returns {Promise<string>}
  */
-LocalExecutor.prototype.execute = function(command, commandArgs) {
+LocalExecutor.prototype.execute = function(command, commandArgs, options) {
   var self = this;
   return new Promise(function(resolve, reject) {
-    var options = {
-      detached: true
-    };
-
-    if (command !== "uname" && command !== "ipconfig") {
-      options.stdio = "ignore";
-    }
+    options.detached = true;
 
     /**
      * It defines a executor type handler. For SSH, use exec. For nohup, use spawn 
@@ -100,11 +94,34 @@ LocalExecutor.prototype.execute = function(command, commandArgs) {
     };
 
     if (self.adapter instanceof LocalSystemAdapter) {
-      child = spawnAsync(command, commandArgs, options);
 
+      child = spawnAsync(command, commandArgs, options);
+      
+      if (options.stdio != 'ignore'){
+        var responseMessage = "";
+
+        child.stdout.on('data', function(data) {
+          responseMessage = data.toString();
+        });
+
+        child.on('close', function(code, signal) {
+          logger.debug("LocalExecutor close ", code, signal);
+          if (code !== 0) {
+            return reject(new Error("Error: exit code " + code));
+          }
+          return resolve({code: code, data: responseMessage.replace("\n", "")});
+        });
+
+        child.on('error', function(err) {
+          logger.error(err);
+        });
+
+      } else {
+        //todo: remove it, since it just forcing resolve promise
+        resolve({code: 0});
+      }
       child.unref();
-      //todo: remove it, since it just forcing resolve promise
-      return resolve({code: 0});
+
     } else {
       child = execAsync(command);
 
