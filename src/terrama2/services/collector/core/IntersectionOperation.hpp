@@ -117,6 +117,7 @@ namespace terrama2
         terrama2::core::DataSetSeries processGridIntersection(DataManagerPtr dataManager,
                                                                   core::IntersectionPtr intersection,
                                                                   terrama2::core::DataSetSeries collectedDataSetSeries,
+                                                                  std::vector<std::string> vecAttr,
                                                                   terrama2::core::DataSeriesPtr intersectionDataSeries);
       } // end namespace core
     }   // end namespace collector

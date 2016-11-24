@@ -37,6 +37,7 @@
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
+#include "../../../core/utility/Verify.hpp"
 #include "../../../core/data-access/DataAccessor.hpp"
 #include "../../../core/data-access/DataAccessorGrid.hpp"
 #include "../../../core/data-access/GridSeries.hpp"
@@ -85,7 +86,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processInters
     }
     else if(intersectionDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::GRID)
     {
-      collectedDataSetSeries = processGridIntersection(dataManager, intersection, collectedDataSetSeries, intersectionDataSeries);
+      collectedDataSetSeries = processGridIntersection(dataManager, intersection, collectedDataSetSeries, vecAttr, intersectionDataSeries);
     }
 
   }
@@ -245,8 +246,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
       if(!currGeom.get())
         continue;
 
-      assert(currGeom->getSRID() != 0);
-      assert(occurrenceSRID != 0);
+      terrama2::core::verify::srid(currGeom->getSRID());
+      terrama2::core::verify::srid(occurrenceSRID);
 
       if(currGeom->getSRID() != occurrenceSRID)
         currGeom->transform(occurrenceSRID);
@@ -322,6 +323,7 @@ te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::
 terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIntersection(DataManagerPtr dataManager,
     core::IntersectionPtr intersection,
     terrama2::core::DataSetSeries collectedDataSetSeries,
+    std::vector<std::string> vecAttr,
     terrama2::core::DataSeriesPtr intersectionDataSeries)
 {
   if(intersectionDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::GRID)
@@ -334,9 +336,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
 
   auto collectedData = collectedDataSetSeries.syncDataSet;
   auto collectedDataSetType = collectedDataSetSeries.teDataSetType;
-
-  std::shared_ptr<te::mem::DataSet> outputDs;
-  std::shared_ptr<te::da::DataSetType> outputDt;
 
   std::vector<te::dt::Property*> collectedProperties = collectedDataSetType->getProperties();
   auto dataProvider = dataManager->findDataProvider(intersectionDataSeries->dataProviderId);
@@ -362,11 +361,35 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   auto gridSeries = accessorGrid->getGridSeries(filter, remover);
   auto gridMap = gridSeries->gridMap();
 
+  std::vector<int> bands;
+  bands.reserve(vecAttr.size());
+  try
+  {
+    std::transform(vecAttr.cbegin(), vecAttr.cend(), back_inserter(bands), [](const std::string& val){ return std::stod(val); });
+  }
+  catch (const std::invalid_argument&)
+  {
+    QString errMsg(QObject::tr("Invalid value for band intersection.\nNot a number."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+  }
+
+  auto tableNameStr = terrama2::core::simplifyString(intersectionDataSeries->name) + "_band_%1";
+  auto propertyName = QString::fromStdString(tableNameStr);
+  std::shared_ptr<te::da::DataSetType> outputDt{dynamic_cast<te::da::DataSetType*>(collectedDataSetType.get()->clone())};
+
+  // Creates one property for each raster band
+  for(const auto& band : bands)
+  {
+    te::dt::Property* property = new te::dt::SimpleProperty(propertyName.arg(band).toStdString() , te::dt::DOUBLE_TYPE);
+    outputDt->add(property);
+  }
+
+  std::shared_ptr<te::mem::DataSet> outputDs = std::make_shared<te::mem::DataSet>(outputDt.get());
+
   for(auto it = gridMap.begin(); it != gridMap.end(); ++it)
   {
-
     auto raster = it->second;
-
     if(!raster)
     {
       QString errMsg(QObject::tr("Invalid raster for intersection data series"));
@@ -375,37 +398,12 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     }
 
     auto grid = raster->getGrid();
-
     if(!grid)
     {
       QString errMsg(QObject::tr("Invalid raster grid for intersection data series"));
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
     }
-
-
-    auto tableNameStr = terrama2::core::simplifyString(intersectionDataSeries->name);
-    
-    tableNameStr+="_band_%1";
-    auto tableName = QString::fromStdString(tableNameStr);
-
-    if(!outputDt)
-    {
-      outputDt.reset(dynamic_cast<te::da::DataSetType*>(collectedDataSetType.get()->clone()));
-
-      size_t nbands = raster->getNumberOfBands();
-
-      // Creates one property for each raster band
-      for(size_t band = 0; band < nbands; ++band)
-      {
-        te::dt::Property* property = new te::dt::SimpleProperty(tableName.arg(band).toStdString() , te::dt::DOUBLE_TYPE);
-        outputDt->add(property);
-      }
-
-
-      outputDs.reset(new te::mem::DataSet(outputDt.get()));
-    }
-
 
     for(unsigned int i = 0; i < collectedData->size(); ++i)
     {
@@ -420,10 +418,9 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       {
         std::string name = collectedProperties[j]->getName();
 
-        if(!collectedData->isNull(i, collectedProperties[j]->getName()))
+        if(!collectedData->isNull(i, name))
         {
-          auto ad = collectedData->getValue(i, collectedProperties[j]->getName());
-
+          auto ad = collectedData->getValue(i, name);
           if(!ad)
             continue;
 
@@ -431,16 +428,10 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
         }
       }
 
-      if(raster->getSRID() == 0)
-      {
-        QString errMsg(QObject::tr("Undefined SRID for data series: %1").arg(intersectionDataSeries->id));
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-      }
+      terrama2::core::verify::srid(raster->getSRID());
 
       // Transform the occurrence to the raster projection
-      if(currGeom->getSRID() != raster->getSRID())
-        currGeom->transform(raster->getSRID());
+      currGeom->transform(raster->getSRID());
 
       // Gets the respective row and column for the occurrence coordinate
       double row, col;
@@ -453,11 +444,11 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       // Reads the value for each band and sets it in the DataSetItem.
       if(row < raster->getNumberOfRows() && col < raster->getNumberOfColumns() && row >= 0 && col >= 0)
       {
-        for(unsigned int band = 0; band < raster->getNumberOfBands(); ++band)
+        for(const auto& band : bands)
         {
           double value;
           raster->getValue(col, row, value, band);
-          item->setDouble(tableName.arg(band).toStdString() , value);
+          item->setDouble(propertyName.arg(band).toStdString() , value);
         }
       }
 
@@ -469,7 +460,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     }
   }
 
-
   terrama2::core::SynchronizedDataSetPtr syncDs(new terrama2::core::SynchronizedDataSet(outputDs));
   terrama2::core::DataSetSeries outputDataSeries;
   outputDataSeries.syncDataSet = syncDs;
@@ -477,5 +467,4 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   outputDataSeries.teDataSetType = outputDt;
 
   return outputDataSeries;
-
 }
