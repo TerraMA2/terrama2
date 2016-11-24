@@ -246,7 +246,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
   QUrl url(QString::fromStdString(completeUri));
 
-  QDir dir(url.path()+"/"+QString::fromStdString(getFolderMask(dataSet)));
+  QDir dir(url.path());
   QFileInfoList fileInfoList = dir.entryInfoList(
                                  QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
   if(fileInfoList.empty())

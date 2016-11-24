@@ -50,11 +50,6 @@ DataSet.prototype.setFormat = function(formats) {
  * @inherits AbstractData:toObject
  */
 DataSet.prototype.toObject = function() {
-  for(var k in this.format) {
-    if (this.format.hasOwnProperty(k)) {
-      this.format[k] = this.format[k].toString();
-    }
-  }
   return Object.assign(AbstractClass.prototype.toObject.call(this), {
     id: this.id,
     data_series_id: this.data_series_id,
