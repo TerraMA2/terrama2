@@ -463,7 +463,7 @@ TcpManager.prototype.initialize = function(client) {
    */
   var onValidateProcess = function(response) {
     logger.debug(Utils.format("Service %s <ValidateProcess> received %s", client.service.name, response));
-    self.emit("validateProcess", client.service, response);
+    self.emit("processValidated", client.service, response);
   };
 
   var onStop = function(response) {

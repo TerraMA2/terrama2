@@ -464,6 +464,16 @@
           self.dataSeriesGroups[1].children = self.buffers.dynamic;
         };
 
+        // registering socket listener
+        Socket.on("processValidated", function(resp) {
+          self.validating = false;
+          if (resp.valid) {
+            MessageBoxService.success(i18n.__("Analysis"), i18n.__("OK"));
+          } else {
+            MessageBoxService.danger(i18n.__("Analysis"), resp.error);
+          }
+        });
+
         /**
          * It handles when an analysis type has been changed. It will redraw and re-populate storager formats depending analysis type.
          * It also will display correctly all fields required for analysis.
@@ -990,7 +1000,7 @@
 
             AnalysisService.validate(buildAnalysis)
               .then(function(response) {
-                MessageBoxService.success(i18n.__("Analysis"), response);
+                // success
               })
 
               .catch(function(err) {

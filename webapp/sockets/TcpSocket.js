@@ -129,8 +129,8 @@ var TcpSocket = function(io) {
     /**
      * Listener for handling Analysis Validation from TerraMA² services (front)
      */
-    function onAnalysisValidateReceived(resp) {
-      client.emit("analysisValidation", resp);
+    function onProcessValidated(resp) {
+      client.emit("processValidated", resp);
     }
 
     /**
@@ -154,7 +154,7 @@ var TcpSocket = function(io) {
      * Register the analysis validation listener.
      * It must be removed on socket disconnection
      */
-    TcpService.on("analysisValidation", onAnalysisValidateReceived);
+    TcpService.on("processValidated", onProcessValidated);
 
     /**
      * It just define on front-end socket disconnection. It remove a process run listener due it is the only one registered each one user
@@ -163,7 +163,7 @@ var TcpSocket = function(io) {
      */
     function onDisconnect() {
       TcpService.removeListener("processRun", onProcessRun);
-      TcpService.on("analysisValidation", onAnalysisValidateReceived);
+      TcpService.removeListener("processValidated", onProcessValidated);
     }
 
     /**

@@ -140,7 +140,7 @@ TcpService.prototype.init = function(shouldConnect) {
           TcpManager.on("tcpError", onError);
           TcpManager.on("processFinished", onProcessFinished);
           TcpManager.on("serviceVersion", onServiceVersionReceived);
-          TcpManager.on("validateProcess", onProcessValidated);
+          TcpManager.on("processValidated", onProcessValidated);
 
           self.$loaded = true;
           instances.forEach(function(instance) {
@@ -179,7 +179,7 @@ TcpService.prototype.finalize = function() {
       TcpManager.removeListener("tcpError", onError);
       TcpManager.removeListener("processFinished", onProcessFinished);
       TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
-      TcpManager.removeListener("validateProcess", onProcessValidated);
+      TcpManager.removeListener("processValidated", onProcessValidated);
       self.$loaded = false;
     }
     // resetting cache
@@ -618,7 +618,7 @@ function onStatusReceived(service, response) {
  */
 function onProcessValidated(service, response) {
   // TODO: emits only the necessary and not everything
-  tcpService.emit("processValidated", response);
+  tcpService.emit("processValidated", response || service);
 }
 
 /**

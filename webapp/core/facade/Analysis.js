@@ -12,7 +12,7 @@ var AnalysisError = require("./../Exceptions").AnalysisError;
 var Utils = require("./../Utils");
 var TcpService = require("../../core/facade/tcp-manager/TcpService");
 // TerraMA² Analysis Simulator that generates a dummy analysis
-var AnalysisBuilder = require("./simulation/AnalysisBuilder");
+var AnalysisBuilder = require("./builder/AnalysisBuilder");
 
 /**
  * It handles a Analysis Registration concept.
@@ -228,10 +228,15 @@ Analysis.validate = function(analysisObject, storagerObject, scheduleObject, pro
       ])
       .spread(function(analysis, storager, scriptLanguage) {
         var dummyAnalysis = AnalysisBuilder(analysis, storager);
+        dummyAnalysis.setHistoricalData(analysis.historicalData || {});
+        if (analysis.grid) {
+          analysis.grid.id = dummyAnalysis.id;
+          analysis.grid.analysis_id = dummyAnalysis.id;
+        }
         dummyAnalysis.setAnalysisOutputGrid(analysis.grid || {});
         dummyAnalysis.setScriptLanguage(scriptLanguage);
 
-        TcpService.validateProcess({"Analysis": dummyAnalysis.toObject()}, dummyAnalysis.instance_id);
+        TcpService.validateProcess({"Analysis": [dummyAnalysis.toObject()]}, dummyAnalysis.instance_id);
 
         return resolve(dummyAnalysis);
       })
