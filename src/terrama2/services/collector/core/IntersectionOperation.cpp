@@ -320,6 +320,24 @@ te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::
   return outputDt;
 }
 
+std::vector<int> terrama2::services::collector::core::getBands(std::vector<std::string> vecAttr)
+{
+  std::vector<int> bands;
+  bands.reserve(vecAttr.size());
+  try
+  {
+    std::transform(vecAttr.cbegin(), vecAttr.cend(), back_inserter(bands), [](const std::string& val){ return std::stoi(val); });
+  }
+  catch (const std::invalid_argument&)
+  {
+    QString errMsg(QObject::tr("Invalid value for band intersection.\nNot a number."));
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+  }
+
+  return bands;
+}
+
 terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIntersection(DataManagerPtr dataManager,
     core::IntersectionPtr intersection,
     terrama2::core::DataSetSeries collectedDataSetSeries,
@@ -333,15 +351,10 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
     throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
   }
 
-
   auto collectedData = collectedDataSetSeries.syncDataSet;
   auto collectedDataSetType = collectedDataSetSeries.teDataSetType;
 
-  std::vector<te::dt::Property*> collectedProperties = collectedDataSetType->getProperties();
   auto dataProvider = dataManager->findDataProvider(intersectionDataSeries->dataProviderId);
-
-  auto geomProperty = te::da::GetFirstGeomProperty(collectedDataSetType.get());
-  auto geomPropertyPos = collectedDataSetType->getPropertyPosition(geomProperty);
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, intersectionDataSeries);
@@ -361,23 +374,13 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
   auto gridSeries = accessorGrid->getGridSeries(filter, remover);
   auto gridMap = gridSeries->gridMap();
 
-  std::vector<int> bands;
-  bands.reserve(vecAttr.size());
-  try
-  {
-    std::transform(vecAttr.cbegin(), vecAttr.cend(), back_inserter(bands), [](const std::string& val){ return std::stod(val); });
-  }
-  catch (const std::invalid_argument&)
-  {
-    QString errMsg(QObject::tr("Invalid value for band intersection.\nNot a number."));
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
-  }
+  std::vector<int> bands = getBands(vecAttr);
+
+  std::vector<te::dt::Property*> collectedProperties = collectedDataSetType->getProperties();
+  std::shared_ptr<te::da::DataSetType> outputDt{dynamic_cast<te::da::DataSetType*>(collectedDataSetType.get()->clone())};
 
   auto tableNameStr = terrama2::core::simplifyString(intersectionDataSeries->name) + "_band_%1";
   auto propertyName = QString::fromStdString(tableNameStr);
-  std::shared_ptr<te::da::DataSetType> outputDt{dynamic_cast<te::da::DataSetType*>(collectedDataSetType.get()->clone())};
-
   // Creates one property for each raster band
   for(const auto& band : bands)
   {
@@ -387,6 +390,8 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
 
   std::shared_ptr<te::mem::DataSet> outputDs = std::make_shared<te::mem::DataSet>(outputDt.get());
 
+  auto geomProperty = te::da::GetFirstGeomProperty(collectedDataSetType.get());
+  auto geomPropertyPos = collectedDataSetType->getPropertyPosition(geomProperty);
   for(auto it = gridMap.begin(); it != gridMap.end(); ++it)
   {
     auto raster = it->second;
@@ -410,9 +415,6 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processGridIn
       auto currGeom = collectedData->getGeometry(i, geomPropertyPos);
 
       std::unique_ptr<te::mem::DataSetItem> item(new te::mem::DataSetItem(outputDs.get()));
-
-      item->setGeometry(geomProperty->getName(), dynamic_cast<te::gm::Geometry*>(currGeom.get()->clone()));
-
       // copies all attributes from the collected dataset
       for(size_t j = 0; j < collectedProperties.size(); ++j)
       {

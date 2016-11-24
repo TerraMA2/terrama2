@@ -41,6 +41,7 @@
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/FileRemover.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
+#include "../../../core/utility/Utils.hpp"
 
 // TerraLib
 #include <terralib/datatype/SimpleProperty.h>
@@ -251,7 +252,7 @@ QFileInfoList terrama2::services::view::core::dataSeriesFileList(const std::vect
 
     try
     {
-      foldersList = dataAccessor->getFoldersList(baseUriList, dataAccessor->getFolderMask(dataset));
+      foldersList = dataAccessor->getFoldersList(baseUriList, terrama2::core::getFolderMask(dataset, nullptr));
     }
     catch(const terrama2::core::UndefinedTagException& /*e*/)
     {

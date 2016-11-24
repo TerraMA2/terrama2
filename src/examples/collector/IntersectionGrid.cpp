@@ -68,7 +68,7 @@ void addGridSeries(std::shared_ptr<terrama2::services::collector::core::DataMana
   //DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/geotiff";
+  dataProvider->uri = "file://"+TERRAMA2_DATA_DIR;
 
   dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
@@ -83,14 +83,16 @@ void addGridSeries(std::shared_ptr<terrama2::services::collector::core::DataMana
   //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  dataSeries->semantics = semanticsManager.getSemantics("GRID-static_geotiff");
   dataSeries->name = "geotiff";
   dataSeries->id = 3;
   dataSeries->dataProviderId = 3;
 
   terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
+  dataSet->id = 3;
   dataSet->active = true;
-  dataSet->format.emplace("mask", "cbers2b_hrc_crop.tif");
+  dataSet->format.emplace("mask", "cbers2b_rgb342_crop.tif");
+  dataSet->format.emplace("folder", "geotiff");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -221,7 +223,7 @@ int main(int argc, char* argv[])
 
       // Adds the attribute "SIGLA" to the collected occurrences.
       intersection->collectorId = collector->id;
-      std::vector<std::string> attrVec{2};
+      std::vector<std::string> attrVec{"2"};
       intersection->attributeMap[3] = attrVec;
       collector->intersection = intersectionPtr;
 

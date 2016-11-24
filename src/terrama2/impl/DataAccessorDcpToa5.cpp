@@ -196,7 +196,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   std::string folderMask;
   try
   {
-    folderMask = getFolderMask(dataSet);
+    folderMask = getFolderMask(dataSet, dataSeries_);
   }
   catch(const terrama2::core::UndefinedTagException& /*e*/)
   {
