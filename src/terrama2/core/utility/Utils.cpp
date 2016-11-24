@@ -360,13 +360,16 @@ bool terrama2::core::isValidColumn(size_t value)
 std::string terrama2::core::getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors)
 {
   std::string property;
-  try
+  if(dataSeries)
   {
-    auto semantics = dataSeries->semantics;
-    property = semantics.metadata.at(tag);
-  }
-  catch(...)  //exceptions will be treated later
-  {
+    try
+    {
+      auto semantics = dataSeries->semantics;
+      property = semantics.metadata.at(tag);
+    }
+    catch(...)  //exceptions will be treated later
+    {
+    }
   }
 
   if(property.empty())
@@ -447,4 +450,53 @@ size_t std::hash<terrama2::core::Filter>::operator()(terrama2::core::Filter cons
   boost::hash_combine(hash, filter.lastValue);
 
   return hash;
-};
+}
+
+
+bool terrama2::core::isTemporal(terrama2::core::DataSetPtr dataset)
+{
+  try
+  {
+    return dataset->format.at("temporal") == "true";
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for temporal field in dateset: %1.").arg(dataset->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::getTimeIntervalUnit(terrama2::core::DataSetPtr dataset)
+{
+  try
+  {
+    return dataset->format.at("time_interval_unit");
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for time interval unit in dataset: %1.").arg(dataset->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+double terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
+{
+  try
+  {
+    return std::stod(dataset->format.at("time_interval"), nullptr);
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for time interval in dataset: %1.").arg(dataset->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+
+std::string terrama2::core::getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries)
+{
+  return getProperty(dataSet, dataSeries, "folder", false);
+}
