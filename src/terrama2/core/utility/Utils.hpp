@@ -134,6 +134,28 @@ namespace terrama2
     std::string simplifyString(std::string text);
 
     te::gm::Coord2D GetCentroidCoord(te::gm::Geometry* geom);
+
+    /*!
+      \brief Returns the value for the "is_temporal" property of the given dataset.
+    */
+    bool isTemporal(terrama2::core::DataSetPtr dataset);
+
+    /*!
+      \brief Returns the value for the time interval unit property of the given dataset.
+    */
+    std::string getTimeIntervalUnit(terrama2::core::DataSetPtr dataset);
+
+    /*!
+      \brief Returns the value for the time interval property of the given dataset.
+    */
+    double getTimeInterval(terrama2::core::DataSetPtr dataset);
+
+
+    /*!
+      \brief Returns the value for the folder property of the given dataset.
+    */
+    std::string getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries);
+
   } // end namespace core
 }   // end namespace terrama2
 
