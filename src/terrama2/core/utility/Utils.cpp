@@ -485,7 +485,7 @@ double terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
 {
   try
   {
-    return std::atof(dataset->format.at("time_interval").c_str());
+    return std::stod(dataset->format.at("time_interval"), nullptr);
   }
   catch(...)
   {

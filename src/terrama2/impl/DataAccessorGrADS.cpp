@@ -1012,11 +1012,15 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     bool isSequential = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "SEQUENTIAL") != descriptor.vecOptions_.end();
 
     unsigned int dataTypeSizeBytes = 4; // Float32
+    std::string dataType = "Float32";
     try
     {
-      std::string dataType = getDataType(dataset);
-      if(dataType == "INT16");
-        dataType = 2;
+      std::string dataTypeStr = getDataType(dataset);
+      if(dataTypeStr == "INT16")
+      {
+        dataTypeSizeBytes = 2;
+        dataType = "Int16";
+      }
     }
     catch(...)
     {
@@ -1039,7 +1043,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
 
       vrtfile
           << std::endl
-          << "<VRTRasterBand dataType=\"Float32\" band=\"" << (bandIdx + 1) << "\" subClass=\"VRTRawRasterBand\">"
+          << "<VRTRasterBand dataType=\"" + dataType + "\" band=\"" << (bandIdx + 1) << "\" subClass=\"VRTRawRasterBand\">"
           << std::endl
           << "<SourceFilename relativetoVRT=\"1\">" << binFilename << "</SourceFilename>" << std::endl
           << "<ImageOffset>" << imageOffset << "</ImageOffset>" << std::endl
@@ -1067,11 +1071,11 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
 
 }
 
-double terrama2::core::DataAccessorGrADS::getBytesBefore(terrama2::core::DataSetPtr dataset) const
+uint32_t terrama2::core::DataAccessorGrADS::getBytesBefore(terrama2::core::DataSetPtr dataset) const
 {
   try
   {
-    return std::stod(dataset->format.at("bytes_before"), nullptr);
+    return (uint32_t)std::stoi(dataset->format.at("bytes_before"), nullptr);
   }
   catch(...)
   {
@@ -1081,11 +1085,11 @@ double terrama2::core::DataAccessorGrADS::getBytesBefore(terrama2::core::DataSet
   }
 }
 
-double terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetPtr dataset) const
+uint32_t terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetPtr dataset) const
 {
   try
   {
-    return std::stod(dataset->format.at("bytes_after"), nullptr);
+    return (uint32_t)std::stoi(dataset->format.at("bytes_after"), nullptr);
   }
   catch(...)
   {
@@ -1099,7 +1103,7 @@ uint32_t terrama2::core::DataAccessorGrADS::getNumberOfBands(terrama2::core::Dat
 {
   try
   {
-    return std::stoi(dataset->format.at("number_of_bands"), nullptr);
+    return (uint32_t)std::stoi(dataset->format.at("number_of_bands"), nullptr);
   }
   catch(...)
   {

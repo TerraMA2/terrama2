@@ -207,9 +207,9 @@ namespace terrama2
 
         std::string getCtlFilename(DataSetPtr dataSet) const;
 
-        double getBytesBefore(DataSetPtr dataset) const;
+        uint32_t getBytesBefore(DataSetPtr dataset) const;
 
-        double getBytesAfter(DataSetPtr dataset) const;
+        uint32_t getBytesAfter(DataSetPtr dataset) const;
 
         uint32_t getNumberOfBands(terrama2::core::DataSetPtr dataset) const;
 
