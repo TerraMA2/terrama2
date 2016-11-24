@@ -113,7 +113,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   std::string mask = getCtlFilename(dataset);
   std::string uri = dataRetriever->retrieveData(mask, filter, remover, "", folderPath);
 
-  QUrl url(QString::fromStdString(uri));
+  QUrl url(QString::fromStdString(uri+"/"+folderPath));
   QDir dir(url.path());
   auto fileList = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
   for(const auto& file : fileList)
@@ -234,7 +234,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 {
   QUrl url(QString::fromStdString(uri));
 
-  QDir dir(url.path());
+  QDir dir(url.path()+"/"+QString::fromStdString(getFolderMask(dataSet)));
   QFileInfoList fileInfoList = dir.entryInfoList(
                                  QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
   if(fileInfoList.empty())
