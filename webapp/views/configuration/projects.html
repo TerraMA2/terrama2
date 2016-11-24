@@ -119,20 +119,77 @@
           }
         },
 
+        openExportModal: function(element) {
+          if(!element) return;
+
+          $scope.currentProjectId = element.id;
+          $('#exportModal').modal('show');
+        },
+
         export: function(element) {
-          if (!element) {
-            return;
+          if(!element) return;
+
+          if($scope.projectsCheckboxes[element.id] != undefined) {
+            if($scope.projectsCheckboxes[element.id].project) {
+              $scope.exportData.Projects.push(element);
+
+              delete $scope.exportData.DataProviders;
+              delete $scope.exportData.DataSeries;
+              delete $scope.exportData.Collectors;
+              delete $scope.exportData.Analysis;
+              delete $scope.exportData.Views;
+            } else {
+              if($scope.projectsCheckboxes[element.id].dataProviders != undefined) {
+                for(var j = 0, dataProvidersLength = $scope.dataProviders[element.id].length; j < dataProvidersLength; j++) {
+                  if($scope.projectsCheckboxes[element.id].dataProviders[$scope.dataProviders[element.id][j].id])
+                    $scope.exportData.DataProviders.push($scope.dataProviders[element.id][j]);
+                }
+              }
+
+              if($scope.projectsCheckboxes[element.id].dataSeries != undefined) {
+                for(var j = 0, dataSeriesLength = $scope.dataSeries[element.id].length; j < dataSeriesLength; j++) {
+                  if($scope.projectsCheckboxes[element.id].dataSeries[$scope.dataSeries[element.id][j].id]) {
+                    $scope.exportData.DataSeries.push($scope.dataSeries[element.id][j]);
+
+                    for(var x = 0, collectorsLength = $scope.collectors[element.id].length; x < collectorsLength; x++) {
+                      if($scope.collectors[element.id][x].output_data_series === $scope.dataSeries[element.id][j].id) {
+                        $scope.exportData.Collectors.push($scope.collectors[element.id][x]);
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+
+              if($scope.projectsCheckboxes[element.id].analysis != undefined) {
+                for(var j = 0, analysisLength = $scope.analysis[element.id].length; j < analysisLength; j++) {
+                  if($scope.projectsCheckboxes[element.id].analysis[$scope.analysis[element.id][j].id])
+                    $scope.exportData.Analysis.push($scope.analysis[element.id][j]);
+                }
+              }
+
+              if($scope.projectsCheckboxes[element.id].views != undefined) {
+                for(var j = 0, viewsLength = $scope.views[element.id].length; j < viewsLength; j++) {
+                  if($scope.projectsCheckboxes[element.id].views[$scope.views[element.id][j].id])
+                    $scope.exportData.Views.push($scope.views[element.id][j]);
+                }
+              }
+
+              if($scope.exportData.Projects.length == 0) delete $scope.exportData.Projects;
+              if($scope.exportData.DataProviders.length == 0) delete $scope.exportData.DataProviders;
+              if($scope.exportData.DataSeries.length == 0) delete $scope.exportData.DataSeries;
+              if($scope.exportData.Collectors.length == 0) delete $scope.exportData.Collectors;
+              if($scope.exportData.Analysis.length == 0) delete $scope.exportData.Analysis;
+              if($scope.exportData.Views.length == 0) delete $scope.exportData.Views;
+            }
           }
-          //$scope.extra.isExporting = true;
-          //socket.emit("export", {"Projects": [element]});
+
+          $scope.extra.isExporting = true;
+          socket.emit("export", $scope.exportData);
 
           /*socket.emit("export", {
             "Analysis":    [{"id": 1}, {"id": 2}]
           });*/
-
-          $scope.idcorreto = element.id;
-
-          $('#exportModal').modal('show');
 
           /*
           "Projects":      [{"id": 1}],
@@ -143,6 +200,14 @@
           "Views":         []
           */
 
+          $scope.exportData = {
+            "Projects": [],
+            "DataProviders": [],
+            "DataSeries": [],
+            "Collectors": [],
+            "Analysis": [],
+            "Views": []
+          };
         },
 
         import: function() {
@@ -199,6 +264,7 @@
         $scope.dataSeries = {};
         $scope.analysis = {};
         $scope.views = {};
+        $scope.collectors = {};
 
         projects.map(function(project, index) {
           $http.get("/api/DataProvider/project/" + project.id, {}).success(function(dataProviders) {
@@ -243,14 +309,30 @@
             $scope.loading = false;
           });
 
-
-
+          $http.get("/api/Collector/project/" + project.id, {}).success(function(collectors) {
+            $scope.collectors[project.id] = collectors;
+          }).error(function(err) {
+            console.log("Err in retrieving data providers");
+          }).finally(function() {
+            $scope.loading = false;
+          });
         });
       }).error(function(err) {
         console.log("Err in retrieving projects");
       }).finally(function() {
         $scope.loading = false;
       });
+
+      $scope.projectsCheckboxes = {};
+
+      $scope.exportData = {
+        "Projects": [],
+        "DataProviders": [],
+        "DataSeries": [],
+        "Collectors": [],
+        "Analysis": [],
+        "Views": []
+      };
 
     });
 </script>
@@ -285,8 +367,8 @@
           <h4 class="modal-title">Project Export</h4>
         </div>
         <div class="modal-body">
-          <div ng-repeat="element in model" ng-show="element.id == idcorreto">
-            <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;"/><div style="float: left;">{{ element.name }}</div>
+          <div ng-repeat="element in model" ng-show="element.id == currentProjectId">
+            <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;" ng-model="projectsCheckboxes[element.id].project"/><div style="float: left;">{{ element.name }} (check all items)</div>
             <div style="clear: both; height: 20px;"></div>
             <div class="box collapsed-box">
               <div class="box-header with-border">
@@ -298,7 +380,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="dataProvider in dataProviders[element.id]">
-                    <input type="checkbox" value="{{ dataProvider.id }}"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataProvider.name }}</div>
+                    <input type="checkbox" value="{{ dataProvider.id }}" ng-model="projectsCheckboxes[element.id].dataProviders[dataProvider.id]"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataProvider.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -313,7 +395,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="dataSerie in dataSeries[element.id]">
-                    <input type="checkbox" value="{{ dataSerie.id }}"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
+                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].dataSeries[dataSerie.id]"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -328,7 +410,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="analysisItem in analysis[element.id]">
-                    <input type="checkbox" value="{{ analysisItem.id }}"/><div style="margin-top: -23px; margin-left: 18px;">{{ analysisItem.name }}</div>
+                    <input type="checkbox" value="{{ analysisItem.id }}" ng-model="projectsCheckboxes[element.id].analysis[analysisItem.id]"/><div style="margin-top: -23px; margin-left: 18px;">{{ analysisItem.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -343,16 +425,16 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="view in views[element.id]">
-                    <input type="checkbox" value="{{ view.id }}"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
+                    <input type="checkbox" value="{{ view.id }}" ng-model="projectsCheckboxes[element.id].views[view.id]"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
                   </li>
                 </ul>
               </div>
             </div>
+            <hr/>
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary pull-right" ng-click="extra.export(element)">Export</button>
+            <div style="clear: both;"></div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Export</button>
         </div>
       </div>
     </div>

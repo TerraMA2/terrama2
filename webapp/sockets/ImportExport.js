@@ -423,6 +423,20 @@ var ImportExport = function(io) {
                 }));
               }
             }));
+
+            for(var j = 0, intersectionsLength = collector.intersection.length; j < intersectionsLength; j++) {
+              promises.push(DataManager.getDataSeries({id: collector.intersection[j].dataseries_id}).then(function(dataSeries) {
+                if(!isInArray(dataSeries.id, output.DataSeries)) {
+                  output.DataSeries.push(addID(dataSeries));
+
+                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                    if(!isInArray(dataProvider.id, output.DataProviders)) {
+                      output.DataProviders.push(addID(dataProvider));
+                    }
+                  }));
+                }
+              }));
+            }
           }));
         }
       }
@@ -456,6 +470,20 @@ var ImportExport = function(io) {
               }));
             }
 
+            if(rawAnalysis.dataSeries.id != undefined) {
+              promises.push(DataManager.getDataSeries({id: rawAnalysis.dataSeries.id}).then(function(dataSeries) {
+                if(!isInArray(dataSeries.id, output.DataSeries)) {
+                  output.DataSeries.push(addID(dataSeries));
+
+                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
+                    if(!isInArray(dataProvider.id, output.DataProviders)) {
+                      output.DataProviders.push(addID(dataProvider));
+                    }
+                  }));
+                }
+              }));
+            }
+
             output.Analysis.push(rawAnalysis);
           }));
         }
@@ -471,7 +499,7 @@ var ImportExport = function(io) {
           promises.push(DataManager.getView({id: target.id}).then(function(view) {
             output.Views.push(addID(view));
 
-            promises.push(DataManager.getDataSeries({id: view.data_series_id}).then(function(dataSeries) {
+            promises.push(DataManager.getDataSeries({id: view.dataSeries}).then(function(dataSeries) {
               if(!isInArray(dataSeries.id, output.DataSeries)) {
                 output.DataSeries.push(addID(dataSeries));
 
