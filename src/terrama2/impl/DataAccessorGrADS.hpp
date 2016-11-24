@@ -112,7 +112,9 @@ namespace terrama2
         ValueDef* zDef_;
         TValueDef* tDef_;
         std::vector<Var*> vecVars_;
-        int srid_;
+        Srid srid_;
+        uint32_t numberOfBands_;
+        double valueMultiplier_;
 
         GrADSDataDescriptor();
 
@@ -209,7 +211,7 @@ namespace terrama2
 
         double getBytesAfter(DataSetPtr dataset) const;
 
-        int getNumberOfBands(terrama2::core::DataSetPtr dataset) const;
+        uint32_t getNumberOfBands(terrama2::core::DataSetPtr dataset) const;
 
         double getValueMultiplier(terrama2::core::DataSetPtr dataset) const;
 

@@ -562,7 +562,7 @@ void terrama2::core::GrADSDataDescriptor::setKeyValue(const std::string& key, co
   }
   else if(key == "UNDEF")
   {
-    undef_ = std::atof(value.c_str());
+    undef_ = std::stod(value, nullptr);
     found = true;
   }
   else if(key.find("OPTIONS") != std::string::npos)
@@ -936,21 +936,21 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
 
   try
   {
-    int numBands = getNumberOfBands(dataset);
+    uint32_t numBands = getNumberOfBands(dataset);
     if(numBands > 0)
-      descriptor.tDef_->numValues_ = numBands;
+      descriptor.numberOfBands_ = numBands;
+    else
+      descriptor.numberOfBands_ = (uint32_t)descriptor.tDef_->numValues_;
   }
   catch(UndefinedTagException e)
   {
     // In case the didn't specify the number of bands it will use the number of bands in the file
+
   }
 
   try
   {
-    double multiplier = getValueMultiplier(dataset);
-    descriptor.zDef_->numValues_ = 1;
-    descriptor.zDef_->values_.clear();
-    descriptor.zDef_->values_.push_back(multiplier);
+    descriptor.valueMultiplier_ = getValueMultiplier(dataset);
   }
   catch(UndefinedTagException e)
   {
@@ -1026,14 +1026,14 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     unsigned int pixelOffset = dataTypeSizeBytes;
 
     if(!isSequential)
-      pixelOffset *= descriptor.tDef_->numValues_;
+      pixelOffset *= descriptor.numberOfBands_;
 
     unsigned int lineOffset = pixelOffset * descriptor.xDef_->numValues_;
     unsigned int bytesAfter = getBytesAfter(dataset);
     unsigned int bytesBefore = getBytesBefore(dataset);
     unsigned int imageOffset = 0;
 
-    for(int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
+    for(uint32_t bandIdx = 0; bandIdx < descriptor.numberOfBands_; ++bandIdx)
     {
       imageOffset += bytesBefore;
 
@@ -1071,7 +1071,7 @@ double terrama2::core::DataAccessorGrADS::getBytesBefore(terrama2::core::DataSet
 {
   try
   {
-    return std::atof(dataset->format.at("bytes_before").c_str());
+    return std::stod(dataset->format.at("bytes_before"), nullptr);
   }
   catch(...)
   {
@@ -1085,7 +1085,7 @@ double terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetP
 {
   try
   {
-    return std::atof(dataset->format.at("bytes_after").c_str());
+    return std::stod(dataset->format.at("bytes_after"), nullptr);
   }
   catch(...)
   {
@@ -1095,11 +1095,11 @@ double terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetP
   }
 }
 
-int terrama2::core::DataAccessorGrADS::getNumberOfBands(terrama2::core::DataSetPtr dataset) const
+uint32_t terrama2::core::DataAccessorGrADS::getNumberOfBands(terrama2::core::DataSetPtr dataset) const
 {
   try
   {
-    return std::atoi(dataset->format.at("number_of_bands").c_str());
+    return std::stoi(dataset->format.at("number_of_bands"), nullptr);
   }
   catch(...)
   {
@@ -1113,7 +1113,7 @@ double terrama2::core::DataAccessorGrADS::getValueMultiplier(terrama2::core::Dat
 {
   try
   {
-    return std::atof(dataset->format.at("value_multiplier").c_str());
+    return std::stod(dataset->format.at("value_multiplier"), nullptr);
   }
   catch(...)
   {
