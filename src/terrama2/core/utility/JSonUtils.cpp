@@ -275,6 +275,11 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
     filter.region = ewktToGeom(ewkt);
 
     verify::srid(filter.region->getSRID());
+
+    if (json.contains("crop_raster"))
+      filter.cropRaster = json["crop_raster"].toBool();
+    else
+      filter.cropRaster = false;
   }
 
   if(json.contains("value_comparison_operation")
