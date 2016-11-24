@@ -50,9 +50,9 @@ ScreenAdapter.prototype.executeCommand = function(executor, command, serviceInst
   return new Promise(function(resolve, reject) {
     var screenCommand = self.make(serviceInstance, command);
     logger.debug(screenCommand);
-    var commandArgs = self.commandArgs(command);
+    var localOptions = {};
 
-    return executor.execute(screenCommand, commandArgs)
+    return executor.execute(screenCommand, [], localOptions)
       .then(function(code) {
         return resolve(code);
       })
