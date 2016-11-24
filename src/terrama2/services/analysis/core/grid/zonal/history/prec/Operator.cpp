@@ -59,7 +59,7 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
-  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return std::nan(nullptr);.
+  // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
   bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
@@ -72,7 +72,7 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
   catch (const terrama2::core::VerifyException&)
   {
     contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
 
   terrama2::services::analysis::core::MonitoredObjectContextPtr context;
@@ -83,7 +83,7 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return std::nan(nullptr);
+    return std::nan("");
   }
 
 
@@ -91,16 +91,16 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
   {
     // In case an error has already occurred, there is nothing to be done
     if(!context->getErrors().empty())
-      return std::nan(nullptr);
+      return std::nan("");
 
     auto valuesMap = accum::getAccumulatedMap(dataSeriesName, dateDiscardBefore, dateDiscardAfter, band, buffer, context, cache);
 
     if(exceptionOccurred)
-      return std::nan(nullptr);
+      return std::nan("");
 
     if(valuesMap.empty() && statisticOperation != StatisticOperation::COUNT)
     {
-      return std::nan(nullptr);
+      return std::nan("");
     }
 
     std::vector<double> values;
@@ -113,18 +113,18 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
   catch(const terrama2::Exception& e)
   {
     context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(const std::exception& e)
   {
     context->addError(e.what());
-    return std::nan(nullptr);
+    return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addError(errMsg.toStdString());
-    return std::nan(nullptr);
+    return std::nan("");
   }
 }
 
