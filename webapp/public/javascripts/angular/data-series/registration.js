@@ -238,8 +238,8 @@ angular.module('terrama2.dataseries.registration', [
             if (filter.region) {
               $scope.$emit('updateFilterArea', "2");
               $scope.filter.area = Polygon.read(filter.region);
-              if (filter.crop){
-                $scope.filter.area.crop = true;
+              if (filter.crop_raster){
+                $scope.filter.area.crop_raster = true;
               }
             }
             $scope.filter.area.showCrop = true;
@@ -350,7 +350,7 @@ angular.module('terrama2.dataseries.registration', [
         }
         //disable option to crop on filter
         $scope.filter.area.showCrop = false;
-        $scope.filter.area.crop = false;
+        $scope.filter.area.crop_raster = false;
       }
 
       var clearFilterForm = function(){
