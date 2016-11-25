@@ -65,7 +65,7 @@ namespace terrama2
 
       static DataAccessorType dataAccessorType(){ return "GRID-static_geotiff"; }
 
-      virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
+      virtual std::shared_ptr<te::mem::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
 
       // Override function to avoid missing timezone warning, this is not used for static data
       virtual std::string getTimeZone(DataSetPtr /*dataSet*/, bool /*logErrors*/) const override { return "UTC+00"; };
