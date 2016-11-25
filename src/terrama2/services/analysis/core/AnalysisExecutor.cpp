@@ -799,7 +799,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSer
     auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
     if(!dataSeries->active)
     {
-      QString errMsg = QObject::tr("Analysis is using an inactive data series (%).").arg(dataSeries->id);
+      QString errMsg = QObject::tr("Analysis is using an inactive data series (%1).").arg(dataSeries->id);
       logger->info(errMsg.toStdString(), analysis->id);
       TERRAMA2_LOG_WARNING() << errMsg;
     }
