@@ -267,8 +267,20 @@
         $scope.collectors = {};
 
         projects.map(function(project, index) {
+          if($scope.projectsCheckboxes[project.id] == undefined)
+            $scope.projectsCheckboxes[project.id] = {
+              project: false
+            };
+
           $http.get("/api/DataProvider/project/" + project.id, {}).success(function(dataProviders) {
             $scope.dataProviders[project.id] = dataProviders;
+
+            if($scope.projectsCheckboxes[project.id].dataProviders == undefined)
+              $scope.projectsCheckboxes[project.id].dataProviders = {};
+
+            for(var j = 0, dataProvidersLength = dataProviders.length; j < dataProvidersLength; j++) {
+              $scope.projectsCheckboxes[project.id].dataProviders[dataProviders[j].id] = false;
+            }
           }).error(function(err) {
             console.log("Err in retrieving data providers");
           }).finally(function() {
@@ -286,6 +298,13 @@
           }).then(
             function(dataSeries) {
               $scope.dataSeries[project.id] = dataSeries.data;
+
+              if($scope.projectsCheckboxes[project.id].dataSeries == undefined)
+                $scope.projectsCheckboxes[project.id].dataSeries = {};
+
+              for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
+                $scope.projectsCheckboxes[project.id].dataSeries[dataSeries.data[j].id] = false;
+              }
             }, function(err) {
               console.log("Err in retrieving data series");
             }
@@ -295,6 +314,13 @@
 
           AnalysisFactory.get({ project_id: project.id }).success(function(analysis) {
             $scope.analysis[project.id] = analysis;
+
+            if($scope.projectsCheckboxes[project.id].analysis == undefined)
+              $scope.projectsCheckboxes[project.id].analysis = {};
+
+            for(var j = 0, analysisLength = analysis.length; j < analysisLength; j++) {
+              $scope.projectsCheckboxes[project.id].analysis[analysis[j].id] = false;
+            }
           }).error(function(err) {
             $log.info("Err in retrieving Analysis " + err);
           }).finally(function() {
@@ -303,6 +329,13 @@
 
           $http.get("/api/View", {}).success(function(views) {
             $scope.views[project.id] = views;
+
+            if($scope.projectsCheckboxes[project.id].views == undefined)
+              $scope.projectsCheckboxes[project.id].views = {};
+
+            for(var j = 0, viewsLength = views.length; j < viewsLength; j++) {
+              $scope.projectsCheckboxes[project.id].views[views[j].id] = false;
+            }
           }).error(function(err) {
             console.log("Err in retrieving views");
           }).finally(function() {
@@ -312,7 +345,7 @@
           $http.get("/api/Collector/project/" + project.id, {}).success(function(collectors) {
             $scope.collectors[project.id] = collectors;
           }).error(function(err) {
-            console.log("Err in retrieving data providers");
+            console.log("Err in retrieving collectors");
           }).finally(function() {
             $scope.loading = false;
           });
@@ -332,6 +365,38 @@
         "Collectors": [],
         "Analysis": [],
         "Views": []
+      };
+
+      $scope.projectCheck = function(element) {
+        if($scope.projectsCheckboxes[element.id].project) {
+          if($scope.projectsCheckboxes[element.id].dataProviders != undefined) {
+            for(var property in $scope.projectsCheckboxes[element.id].dataProviders) {
+              if($scope.projectsCheckboxes[element.id].dataProviders.hasOwnProperty(property))
+                $scope.projectsCheckboxes[element.id].dataProviders[property] = true;
+            }
+          }
+
+          if($scope.projectsCheckboxes[element.id].dataSeries != undefined) {
+            for(var property in $scope.projectsCheckboxes[element.id].dataSeries) {
+              if($scope.projectsCheckboxes[element.id].dataSeries.hasOwnProperty(property))
+                $scope.projectsCheckboxes[element.id].dataSeries[property] = true;
+            }
+          }
+
+          if($scope.projectsCheckboxes[element.id].analysis != undefined) {
+            for(var property in $scope.projectsCheckboxes[element.id].analysis) {
+              if($scope.projectsCheckboxes[element.id].analysis.hasOwnProperty(property))
+                $scope.projectsCheckboxes[element.id].analysis[property] = true;
+            }
+          }
+
+          if($scope.projectsCheckboxes[element.id].views != undefined) {
+            for(var property in $scope.projectsCheckboxes[element.id].views) {
+              if($scope.projectsCheckboxes[element.id].views.hasOwnProperty(property))
+                $scope.projectsCheckboxes[element.id].views[property] = true;
+            }
+          }
+        }
       };
 
     });
@@ -368,7 +433,7 @@
         </div>
         <div class="modal-body">
           <div ng-repeat="element in model" ng-show="element.id == currentProjectId">
-            <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;" ng-model="projectsCheckboxes[element.id].project"/><div style="float: left;">{{ element.name }} (check all items)</div>
+            <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;" ng-model="projectsCheckboxes[element.id].project" ng-change="projectCheck(element)"/><div style="float: left;">{{ element.name }} (check all items)</div>
             <div style="clear: both; height: 20px;"></div>
             <div class="box collapsed-box">
               <div class="box-header with-border">
@@ -380,7 +445,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="dataProvider in dataProviders[element.id]">
-                    <input type="checkbox" value="{{ dataProvider.id }}" ng-model="projectsCheckboxes[element.id].dataProviders[dataProvider.id]"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataProvider.name }}</div>
+                    <input type="checkbox" value="{{ dataProvider.id }}" ng-model="projectsCheckboxes[element.id].dataProviders[dataProvider.id]" ng-disabled="projectsCheckboxes[element.id].project"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataProvider.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -395,7 +460,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="dataSerie in dataSeries[element.id]">
-                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].dataSeries[dataSerie.id]"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
+                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].dataSeries[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -410,7 +475,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="analysisItem in analysis[element.id]">
-                    <input type="checkbox" value="{{ analysisItem.id }}" ng-model="projectsCheckboxes[element.id].analysis[analysisItem.id]"/><div style="margin-top: -23px; margin-left: 18px;">{{ analysisItem.name }}</div>
+                    <input type="checkbox" value="{{ analysisItem.id }}" ng-model="projectsCheckboxes[element.id].analysis[analysisItem.id]" ng-disabled="projectsCheckboxes[element.id].project"/><div style="margin-top: -23px; margin-left: 18px;">{{ analysisItem.name }}</div>
                   </li>
                 </ul>
               </div>
@@ -425,7 +490,7 @@
               <div class="box-body" style="display: none;">
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="view in views[element.id]">
-                    <input type="checkbox" value="{{ view.id }}" ng-model="projectsCheckboxes[element.id].views[view.id]"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
+                    <input type="checkbox" value="{{ view.id }}" ng-model="projectsCheckboxes[element.id].views[view.id]" ng-disabled="projectsCheckboxes[element.id].project"/><div style="margin-top: -23px; margin-left: 18px;">{{ view.name }}</div>
                   </li>
                 </ul>
               </div>
