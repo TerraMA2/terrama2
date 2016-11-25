@@ -66,9 +66,9 @@ namespace terrama2
       }
       static DataAccessorType dataAccessorType(){ return "GRID-geotiff"; }
 
-      virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
+      virtual std::shared_ptr<te::mem::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const override;
 
-      virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+      virtual void addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
                                         std::shared_ptr<te::da::DataSet> dataSet,
                                         std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
                                         const std::string& filename) const override;

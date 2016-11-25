@@ -138,13 +138,12 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 std::string terrama2::core::DataAccessorGrADS::dataSourceType() const
 { return "GDAL"; }
 
-void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
                                                              std::shared_ptr<te::da::DataSet> dataSet,
                                                              std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
                                                              const std::string& filename) const
 {
-  auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
-  complete->moveLast();
+  completeDataSet->moveLast();
 
   size_t rasterColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
   if(!isValidColumn(rasterColumn))
@@ -154,7 +153,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  size_t timestampColumn = te::da::GetFirstPropertyPos(complete.get(), te::dt::DATETIME_TYPE);
+  size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
 
   dataSet->moveBeforeFirst();
   while(dataSet->moveNext())
@@ -164,7 +163,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
 
     std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
 
-    te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
+    te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
 
     item->setRaster(rasterColumn, adapted.release());
     if(isValidColumn(timestampColumn))
@@ -173,7 +172,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
 
     item->setString("filename", filename);
 
-    complete->add(item);
+    completeDataSet->add(item);
   }
 }
 
@@ -261,7 +260,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   DataSetSeries series;
   series.dataSet = dataSet;
 
-  std::shared_ptr<te::da::DataSet> completeDataset(nullptr);
+  std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
 

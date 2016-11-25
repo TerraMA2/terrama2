@@ -190,7 +190,7 @@ namespace terrama2
         { return "GRID-grads"; }
 
         //! Concatenate the given dataset to the complete dataset.
-        virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+        virtual void addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
                                           std::shared_ptr<te::da::DataSet> dataSet,
                                           std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
                                           const std::string& filename) const override;
