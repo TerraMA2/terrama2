@@ -140,7 +140,9 @@ angular.module('terrama2.dataseries.registration', [
         } else if (args.action === "add") {
           if ($scope.storager.format && $scope.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
             // postgis
-            $scope.dcpsStorager.push({table_name: args.dcp.mask, _id: args.dcp._id});
+            var obj = Object.assign({}, args.dcp);
+            obj.table_name = obj.mask;
+            $scope.dcpsStorager.push(obj);
           } else {
             $scope.dcpsStorager.push(args.dcp);
           }
@@ -203,6 +205,7 @@ angular.module('terrama2.dataseries.registration', [
               $scope.modelStorager = $scope.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
             }
           } else {
+            $scope.modelStorager = Object.assign({}, $scope.model);
             $scope.filter.area = {
               srid: 4326
             };
@@ -313,9 +316,10 @@ angular.module('terrama2.dataseries.registration', [
     "FilterForm",
     "MessageBoxService",
     "$q",
+    "Point",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm, MessageBoxService, $q) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm, MessageBoxService, $q, Point) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -629,8 +633,10 @@ angular.module('terrama2.dataseries.registration', [
 
           if (ds.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
             ds.isGrid = true;
+            _helper(1, ds);
           } else {
             ds.isGrid = false;
+            _helper(0, ds);
           }
           _helper(0, ds);
         };
@@ -665,9 +671,12 @@ angular.module('terrama2.dataseries.registration', [
         };
 
         var dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
-        
-        $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
-        
+        if (dataSeriesType === globals.enums.DataSeriesType.GRID) {
+          $scope.dataSeriesGroups[1].children = _helper($scope.dataSeriesGroups[1].children);
+        } else {
+          $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
+        }
+
         // removing ds attributes
         delete $scope.intersection[dataSeries.id];
       };
@@ -818,6 +827,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
       $scope.onStoragerFormatChange = function() {
+        console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
 
         if ($scope.services.length > 0) {
@@ -1417,10 +1427,15 @@ angular.module('terrama2.dataseries.registration', [
           // setting to active
           var dSetsLocal = [];
           dSets.forEach(function(dSet) {
-            dSetsLocal.push({
-              active: true,//$scope.dataSeries.active,
+            var outputDcp = {
+              active: true,
               format: _makeFormat(dSet)
-            });
+            };
+
+            if ($scope.dataSeries.semantics.data_format_name !== "POSTGIS") {
+              outputDcp.position = Point.build({x: dSet.longitude, y: dSet.latitude, srid: dSet.projection});
+            }
+            dSetsLocal.push(outputDcp);
           });
           out = dSetsLocal;
         } else {
@@ -1502,16 +1517,7 @@ angular.module('terrama2.dataseries.registration', [
               var dataSetStructure = {
                 active: true,//$scope.dataSeries.active,
                 format: format,
-                position: {
-                  type: 'Point',
-                  coordinates: [dcp.latitude, dcp.longitude],
-                  crs: {
-                    type: 'name',
-                    properties : {
-                      name: "EPSG:" + dcp.projection
-                    }
-                  }
-                }
+                position: Point.build({x: dcp.longitude, y: dcp.latitude, srid: dcp.projection})
               };
 
               dataToSend.dataSets.push(dataSetStructure);
