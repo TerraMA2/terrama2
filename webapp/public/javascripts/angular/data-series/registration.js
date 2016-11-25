@@ -348,6 +348,9 @@ angular.module('terrama2.dataseries.registration', [
         if (!storebox.hasClass('collapsed-box')){
           enableStore.click();
         }
+        //disable option to crop on filter
+        $scope.filter.area.showCrop = false;
+        $scope.filter.area.crop = false;
       }
 
       var clearFilterForm = function(){
