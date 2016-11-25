@@ -238,7 +238,11 @@ angular.module('terrama2.dataseries.registration', [
             if (filter.region) {
               $scope.$emit('updateFilterArea', "2");
               $scope.filter.area = Polygon.read(filter.region);
+              if (filter.crop){
+                $scope.filter.area.crop = true;
+              }
             }
+            $scope.filter.area.showCrop = true;
           }
 
           if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -459,7 +463,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.alertLevel = "";
 
       // filter values
-      $scope.filter = {date: {}, area: {srid: 4326}};
+      $scope.filter = {date: {}, area: {srid: 4326, showCrop: false}};
       $scope.radioPreAnalysis = {};
       $scope.handlePreAnalysisFilter = function(selected) {
         $scope.filter.pre_analysis = {};
@@ -794,7 +798,11 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
           $scope.filter.area = {};
         } else {
-          $scope.filter.area={srid: 4326};
+          if ($scope.filter.area){
+            $scope.filter.area.srid = 4326;
+          } else {
+            $scope.filter.area={srid: 4326};
+          }
         }
       };
 
@@ -874,6 +882,11 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.validateSteps = function(obj) {
         isWizardStepValid();
+        if ($scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid){
+          $scope.filter.area.showCrop = true;
+        } else {
+          $scope.filter.area.showCrop = false;
+        }
         return true;
       };
       //. end wizard validations
@@ -1574,7 +1587,7 @@ angular.module('terrama2.dataseries.registration', [
         }
 
         if ($scope.filter.filterArea == $scope.filterTypes.AREA.value) {
-          var boundedForm = angular.element('form[name="boundedForm"]').scope().boundedForm;
+          var boundedForm = angular.element('form[name="filterForm.boundedForm"]').scope().filterForm.boundedForm;
           if (boundedForm.$invalid) {
             // TODO: change it
             $scope.alertBox.message = "Invalid filter area";

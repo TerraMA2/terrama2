@@ -69,6 +69,16 @@ app.run(function($templateCache) {
               "</span> " +
             "</div>" +
           "</div>" +
+          "<div class=\"col-md-6\" ng-if=\"model.showCrop\">" +
+            "<div class=\"form-group \">" +
+              "<div class=\"checkbox\">" +
+                "<label style=\"font-weight: 700; margin-top:19px;\">" +
+                  "<input type=\"checkbox\" id=\"projection\" name=\"crop\" ng-model=\"model.crop\">"+
+                "<\label>" +
+                "<label style=\"font-weight: 700; margin-left:-40px;\"> {{ i18n.__('Crop') }} <\label>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
         "</div>" +
       "</div>" +
     "</div>" +
