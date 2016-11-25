@@ -7,15 +7,20 @@ var Promise = require("./../../core/Promise");
 var logger = require("./../../core/Logger");
 
 function makeMetadata(identifier) {
-  var semanticsStructure = DataSeriesSemanticsFactory.build({code: identifier});
-  var GUIValues = semanticsStructure.gui;
+  try {
+    var semanticsStructure = DataSeriesSemanticsFactory.build({code: identifier});
+    var GUIValues = semanticsStructure.gui;
 
-  return {
-    form: GUIValues.form,
-    schema: GUIValues.schema,
-    demand: semanticsStructure.providers_type_list,
-    metadata: semanticsStructure.metadata || {}
-  };
+    return {
+      form: GUIValues.form,
+      schema: GUIValues.schema,
+      demand: semanticsStructure.providers_type_list,
+      metadata: semanticsStructure.metadata || {}
+    };
+  } catch (err) {
+    logger.error(Utils.format("No data series semantics match. %s - %s", identifier, err.toString()));
+    return null;
+  }
 }
 
 module.exports = function(app) {
@@ -58,6 +63,7 @@ module.exports = function(app) {
             return Utils.handleRequestError(response, err, 400);
           });
         } catch (err) {
+          logger.error(err);
           return Utils.handleRequestError(response, new DataSeriesSemanticsError(semanticsName + " is not available"), 400);
         }
 

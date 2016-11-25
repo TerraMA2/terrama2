@@ -301,6 +301,13 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
         else
           return std::nan("");
       }
+      catch(const terrama2::core::NoDataException& e)
+      {
+        if(statisticOperation == StatisticOperation::COUNT)
+          return 0;
+        else
+          return std::nan("");
+      }
       catch(const terrama2::Exception& e)
       {
         context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
