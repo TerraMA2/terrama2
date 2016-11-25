@@ -242,7 +242,7 @@ angular.module('terrama2.dataseries.registration', [
                 $scope.filter.area.crop_raster = true;
               }
             }
-            $scope.filter.area.showCrop = true;
+            $scope.filter.area.showCrop = $scope.dataSeries.semantics.data_series_type_name == "GRID";
           }
 
           if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -816,7 +816,6 @@ angular.module('terrama2.dataseries.registration', [
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
       $scope.onStoragerFormatChange = function() {
-        console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
 
         if ($scope.services.length > 0) {
@@ -885,7 +884,7 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.validateSteps = function(obj) {
         isWizardStepValid();
-        if ($scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid){
+        if ($scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid && $scope.dataSeries.semantics.data_series_type_name == "GRID"){
           $scope.filter.area.showCrop = true;
         } else {
           $scope.filter.area.showCrop = false;
