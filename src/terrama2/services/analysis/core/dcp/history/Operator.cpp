@@ -56,7 +56,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
     const std::string& attribute,
     const std::string& dateFilterBegin,
     const std::string& dateFilterEnd,
-    boost::python::list ids)
+    boost::python::list pcds)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
@@ -95,10 +95,10 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
     if(context->hasError())
       return std::nan("");
 
-    std::vector<DataSetId> vecDCPIds;
-    terrama2::services::analysis::core::python::pythonToVector<DataSetId>(ids, vecDCPIds);
+    std::vector< std::string > vecDCPAlias;
+    terrama2::services::analysis::core::python::pythonToVector< std::string >(pcds, vecDCPAlias);
 
-    if(vecDCPIds.empty())
+    if(vecDCPAlias.empty())
     {
       return std::nan("");
     }
@@ -128,13 +128,21 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
         std::shared_ptr<ContextDataSeries> contextDataSeries;
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
+        if(!dataSeries)
+        {
+          QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
+          errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
+          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+        }
+
         context->addDCPDataSeries(dataSeries, dateFilterBegin, dateFilterEnd, false);
 
-        for(DataSetId dcpId : vecDCPIds)
+
+        for(auto& dcpAlias : vecDCPAlias)
         {
           for(auto dataset : dataSeries->datasetList)
           {
-            if(dataset->id != dcpId)
+            if(dataset->format.at("alias") != dcpAlias)
               continue;
 
             contextDataSeries = context->getContextDataset(dataset->id, dateFilterBegin, dateFilterEnd);

@@ -36,24 +36,24 @@ boost::python::list terrama2::services::analysis::core::dcp::zonal::influence::p
   std::vector<std::string> vecAttr;
   terrama2::services::analysis::core::python::pythonToVector<std::string>(attributeList, vecAttr);
 
-  auto vecIds = terrama2::services::analysis::core::dcp::zonal::influence::byAttribute(dataSeriesName, vecAttr);
+  auto vecDCP = terrama2::services::analysis::core::dcp::zonal::influence::byAttribute(dataSeriesName, vecAttr);
 
   boost::python::list pyList;
-  for(DataSetId id : vecIds)
+  for(auto& dcp : vecDCP)
   {
-    pyList.append(boost::python::object(id));
+    pyList.append(boost::python::object(dcp));
   }
   return pyList;
 }
 
 boost::python::list terrama2::services::analysis::core::dcp::zonal::influence::python::byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer)
 {
-  auto vecIds = terrama2::services::analysis::core::dcp::zonal::influence::byRule(dataSeriesName, buffer);
+  auto vecDCP = terrama2::services::analysis::core::dcp::zonal::influence::byRule(dataSeriesName, buffer);
 
   boost::python::list pyList;
-  for(DataSetId id : vecIds)
+  for(auto& dcp : vecDCP)
   {
-    pyList.append(boost::python::object(id));
+    pyList.append(boost::python::object(dcp));
   }
   return pyList;
 }
