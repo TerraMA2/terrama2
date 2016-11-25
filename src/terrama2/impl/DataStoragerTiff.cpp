@@ -208,32 +208,20 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  std::string completeUri = dataProvider_->uri;
+  std::string outputURI = dataProvider_->uri;
   try
   {
     std::string folder = terrama2::core::getFolderMask(outputDataSet, nullptr);
     if (!folder.empty())
-      completeUri += "/" + folder;
+      outputURI += "/" + folder;
   }
   catch(...)
   {
     // nothing to be done
   }
 
-
-  std::string path = dataProvider_->uri;
-  try
-  {
-    std::string folder = terrama2::core::getFolderMask(outputDataSet, nullptr);
-    if (!folder.empty())
-      path += "/" + folder;
-  }
-  catch(...)
-  {
-    // nothing to be done
-  }
-
-  QUrl uri(path.c_str());
+  QUrl uri(outputURI.c_str());
+  std::string path = uri.path().toStdString();
 
 
   std::string mask = getMask(outputDataSet);
