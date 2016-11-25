@@ -152,7 +152,7 @@ angular.module("terrama2.services", ['terrama2'])
 
   .factory("UniqueNumber", function() {
     function generator() {
-      this.length = 8;
+      this.length = 5;
       this.timestamp =+ new Date();
 
       var _getRandomInt = function( min, max ) {
