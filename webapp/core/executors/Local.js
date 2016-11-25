@@ -41,12 +41,10 @@ LocalExecutor.prototype.connect = function(serviceInstance) {
   return new Promise(function(resolve) {
     self.serviceInstance = serviceInstance;
     // detecting platform
-    return self.execute("ipconfig", [], {})
-      .then(function() {
+    return self.execute("uname", [], {})
+      .catch(function(err) {
         self.platform = OS.WIN;
-      })
-      .catch(function() {
-        return self.execute("uname", [], {});
+        return null;
       })
       .finally(function() {
         return resolve();
@@ -123,7 +121,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
       child.unref();
 
     } else {
-      child = execAsync(command);
+      child = execAsync(command + " " + (commandArgs || []).join(" "));
 
       var responseMessage = "";
 
