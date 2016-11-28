@@ -429,13 +429,13 @@
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
-          <h4 class="modal-title">Project Export</h4>
+          <h4 class="modal-title">Data Export</h4>
         </div>
         <div class="modal-body">
           <div ng-repeat="element in model" ng-show="element.id == currentProjectId">
             <input type="checkbox" value="{{ element.id }}" style="margin-right: 5px; float: left;" ng-model="projectsCheckboxes[element.id].project" ng-change="projectCheck(element)"/><div style="float: left;">{{ element.name }} (check all items)</div>
             <div style="clear: both; height: 20px;"></div>
-            <div class="box collapsed-box">
+            <div class="box collapsed-box" ng-show="dataProviders[element.id].length > 0">
               <div class="box-header with-border">
                 <span class="box-title" style="font-size: 14px;">Data Servers</span>
                 <div class="box-tools pull-right">
@@ -450,7 +450,7 @@
                 </ul>
               </div>
             </div>
-            <div class="box collapsed-box">
+            <div class="box collapsed-box" ng-show="dataSeries[element.id].length > 0">
               <div class="box-header with-border">
                 <span class="box-title" style="font-size: 14px;">Data Series</span>
                 <div class="box-tools pull-right">
@@ -465,7 +465,7 @@
                 </ul>
               </div>
             </div>
-            <div class="box collapsed-box">
+            <div class="box collapsed-box" ng-show="analysis[element.id].length > 0">
               <div class="box-header with-border">
                 <span class="box-title" style="font-size: 14px;">Analysis</span>
                 <div class="box-tools pull-right">
@@ -480,7 +480,7 @@
                 </ul>
               </div>
             </div>
-            <div class="box collapsed-box">
+            <div class="box collapsed-box" ng-show="views[element.id].length > 0">
               <div class="box-header with-border">
                 <span class="box-title" style="font-size: 14px;">Views</span>
                 <div class="box-tools pull-right">
