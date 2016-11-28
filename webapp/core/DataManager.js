@@ -58,8 +58,12 @@ function _processFilter(filterObject) {
       filterValues.discard_after = new Date(filterObject.date.afterDate);
     }
   }
-  if (filterObject.area.hasOwnProperty('crop_raster')){
-    filterValues.crop_raster = filterObject.area.crop_raster;
+  if (filterObject.hasOwnProperty('area')){
+    if (filterObject.area.hasOwnProperty('crop_raster')){
+      filterValues.crop_raster = filterObject.area.crop_raster;
+    }
+  } else if (filterObject.hasOwnProperty('crop_raster')){
+    filterValues.crop_raster = filterObject.crop_raster;
   } else {
     filterValues.crop_raster = false;
   }
