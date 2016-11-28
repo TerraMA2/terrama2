@@ -581,15 +581,15 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form grads-form-item"
         },
         {
           "key": "ctl_filename",
-          "htmlClass": "col-md-6 terrama2-schema-form"
+          "htmlClass": "col-md-6 terrama2-schema-form grads-form-item"
         },
         {
           "key": "srid",
-          "htmlClass": "col-md-2 terrama2-schema-form"
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item"
         },
         {
           "key": "timezone",
@@ -643,11 +643,11 @@
         },
         {
           "key": "bytes_before",
-          "htmlClass": "col-md-3 terrama2-schema-form"
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item"
         },
         {
           "key": "bytes_after",
-          "htmlClass": "col-md-3 terrama2-schema-form"
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item"
         },
         {
           "key": "temporal",

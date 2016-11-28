@@ -160,6 +160,7 @@ module.exports = function(app) {
           return DataManager.getCollector({data_series_input: dataSeriesId}, options)
             .then(function(collector) {
               collector.service_instance_id = serviceId;
+              collector.active = dataSeriesObject.input.active;
 
               return DataManager.updateCollector(collector.id, collector, options)
                 .then(function() {

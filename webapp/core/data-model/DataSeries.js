@@ -16,6 +16,7 @@ var DataSeries = function(params) {
   this.description = params.description;
   this.data_provider_id = params.data_provider_id;
   this.data_series_semantics_id = params.data_series_semantics_id;
+  this.active = params.active;
 
   if (params.DataProvider) {
     this.setDataProvider(params.DataProvider);
@@ -95,6 +96,7 @@ DataSeries.prototype.toObject = function() {
     // data_series_semantic_name: this.data_series_semantic_name,
     // semantics: this.semantics,
     semantics: this.data_series_semantics.code,
+    active: this.active,
     datasets: dataSets
   });
 };
@@ -116,6 +118,7 @@ DataSeries.prototype.rawObject = function() {
     data_series_semantics_id: this.data_series_semantics_id,
     data_series_semantics_code: this.data_series_semantics.code,
     data_series_semantics: this.data_series_semantics,
+    active: this.active,
     dataSets: dSets
   };
 };

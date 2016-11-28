@@ -1542,7 +1542,7 @@ var DataManager = module.exports = {
       }
 
       return models.db.DataSeries.update(dataSeriesObject, Utils.extend({
-        fields: ['name', 'description', 'data_provider_id'],
+        fields: ['name', 'description', 'data_provider_id', 'active'],
         where: {
           id: dataSeriesId
         }
@@ -1626,6 +1626,7 @@ var DataManager = module.exports = {
           dataSeries.name = dataSeriesObject.name;
           dataSeries.description = dataSeriesObject.description;
           dataSeries.data_provider_id = dataProvider.id;
+          dataSeries.active = dataSeriesObject.active;
 
           return resolve(new DataModel.DataSeries(dataSeries));
         }).catch(function(err) {
