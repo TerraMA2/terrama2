@@ -51,17 +51,12 @@ terrama2::services::analysis::core::BaseContext::~BaseContext()
 {
 }
 
-void terrama2::services::analysis::core::BaseContext::addError(const std::string& errorMessage)
+void terrama2::services::analysis::core::BaseContext::addLogMessage(MessageType messageType, const std::string &message)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  logMessages_[ERROR_MESSAGE].insert(errorMessage);
+  logMessages_[messageType].insert(message);
 }
 
-void terrama2::services::analysis::core::BaseContext::addWarning(const std::string& message)
-{
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
-  logMessages_[WARNING_MESSAGE].insert(message);
-}
 
 terrama2::core::DataSeriesPtr terrama2::services::analysis::core::BaseContext::findDataSeries(const std::string& dataSeriesName)
 {

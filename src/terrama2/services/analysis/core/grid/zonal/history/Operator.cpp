@@ -137,18 +137,18 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return std::nan("");
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
     return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return std::nan("");
   }
 }
@@ -273,18 +273,18 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return {};
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
     return {};
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return {};
   }
 }

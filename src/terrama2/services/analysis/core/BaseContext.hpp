@@ -157,17 +157,10 @@ namespace terrama2
 
 
             /*!
-              \brief Adds an error message to list of errors that occurred in the analysis execution.
-              \param errorMessage The error message.
+              \brief Adds an log message to the list that occurred in the analysis execution.
+              \param message The log message.
             */
-            void addError(const std::string& errorMessage);
-
-
-            /*!
-              \brief Adds an warning message to the list of messages that occurred in the analysis execution.
-              \param errorMessage The warning message.
-            */
-            void addWarning(const std::string& message);
+            void addLogMessage(MessageType messageType, const std::string &message);
 
             terrama2::core::DataSeriesPtr findDataSeries(const std::string& dataSeriesName);
 
