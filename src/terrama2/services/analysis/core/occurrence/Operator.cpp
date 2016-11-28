@@ -86,8 +86,8 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
   try
   {
-    // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
+    // In case an error has already occurred, there is nothing to do.
+    if(context->hasError())
     {
       return std::nan("");
     }
@@ -193,7 +193,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
             {
               auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
 
-              // only operation COUNT can be done without attribute.
+              // only operation COUNT can be result without attribute.
               if(!property && statisticOperation != StatisticOperation::COUNT)
               {
                 QString errMsg(QObject::tr("Invalid attribute name"));

@@ -54,7 +54,13 @@ terrama2::services::analysis::core::BaseContext::~BaseContext()
 void terrama2::services::analysis::core::BaseContext::addError(const std::string& errorMessage)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  errorsSet_.insert(errorMessage);
+  logMessages_[ERROR_MESSAGE].insert(errorMessage);
+}
+
+void terrama2::services::analysis::core::BaseContext::addWarning(const std::string& message)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  logMessages_[WARNING_MESSAGE].insert(message);
 }
 
 terrama2::core::DataSeriesPtr terrama2::services::analysis::core::BaseContext::findDataSeries(const std::string& dataSeriesName)
@@ -239,4 +245,23 @@ terrama2::services::analysis::core::BaseContext::getSeriesMap(DataSeriesId dataS
     analysisSeriesMap_.emplace(key, series);
     return series;
   }
+}
+
+const std::set<std::string> terrama2::services::analysis::core::BaseContext::getMessages(
+    const BaseContext::MessageType messageType) const
+{
+  auto it = logMessages_.find(messageType);
+  if(it != logMessages_.end())
+    return it->second;
+
+  return std::set<std::string>();
+}
+
+bool terrama2::services::analysis::core::BaseContext::hasError() const
+{
+  auto it = logMessages_.find(ERROR_MESSAGE);
+  if(it == logMessages_.end())
+    return false;
+
+  return !it->second.empty();
 }

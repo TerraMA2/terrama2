@@ -150,6 +150,15 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
   try
   {
+    auto warnings = ContextManager::getInstance().getErrors(analysisHashCode);
+    if(!warnings.empty())
+    {
+      for (auto warning: warnings)
+      {
+        logger->log(AnalysisLogger::WARNING_MESSAGE, warning, logId);
+      }
+    }
+
     auto errors = ContextManager::getInstance().getErrors(analysisHashCode);
     if(!errors.empty())
     {
@@ -158,18 +167,19 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       for(auto error : errors)
       {
         errorStr += error + "\n";
+        logger->log(AnalysisLogger::ERROR_MESSAGE, error, logId);
       }
 
-      logger->error(errorStr, logId);
-
-      QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
+      QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following log(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
+
+      logger->result(AnalysisLogger::ERROR, startTime, logId);
 
       emit analysisFinished(analysis->id, false);
     }
     else
     {
-      logger->done(startTime, logId);
+      logger->result(AnalysisLogger::DONE, startTime, logId);
 
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
       TERRAMA2_LOG_INFO() << errMsg;
@@ -346,8 +356,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataMa
 void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context)
 {
 
-  auto errors = context->getErrors();
-  if(!errors.empty())
+  if(context->hasError())
     return;
 
   auto resultMap = context->analysisResult();
@@ -359,10 +368,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   }
 
   // In case an error occurred in the analysis execution there is nothing to do.
-  if(!context->getErrors().empty())
-  {
+  if(context->hasError())
     return;
-  }
 
   auto analysis = context->getAnalysis();
   if(!analysis)
@@ -642,8 +649,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGridAnalysis(DataM
 
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
 
-    auto errors = context->getErrors();
-    if(errors.empty())
+    if(!context->hasError())
       storeGridAnalysisResult(storagerManager, context);
   }
   catch(const terrama2::Exception& e)
@@ -800,7 +806,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSer
     if(!dataSeries->active)
     {
       QString errMsg = QObject::tr("Analysis is using an inactive data series (%1).").arg(dataSeries->id);
-      logger->info(errMsg.toStdString(), analysis->id);
+      logger->log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), analysis->id);
       TERRAMA2_LOG_WARNING() << errMsg;
     }
   }
