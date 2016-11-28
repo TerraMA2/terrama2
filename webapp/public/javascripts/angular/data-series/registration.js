@@ -1589,9 +1589,7 @@ angular.module('terrama2.dataseries.registration', [
         }
 
         if ($scope.filter.filterArea == $scope.filterTypes.AREA.value) {
-          var boundedForm = angular.element('form[name="filterForm.boundedForm"]').scope().filterForm.boundedForm;
-          if (boundedForm.$invalid) {
-            // TODO: change it
+          if (FilterForm.boundedForm.$invalid){
             $scope.alertBox.message = "Invalid filter area";
             $scope.alertLevel = "alert-danger";
             $scope.display = true;
