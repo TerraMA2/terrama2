@@ -560,6 +560,7 @@
 	"Output format is required": "Output format is required",
 	"It should have at least one dcp": "It should have at least one dcp",
 	"Lightning occurrence": "Lightning occurrence",
+	"Crop raster": "Crop raster",
 	"but the TerraMA² service version is": "but the TerraMA² service version is",
 	"Some operations may not work properly": "Some operations may not work properly",
 	"It seems you are using a different versions of TerraMA²": {

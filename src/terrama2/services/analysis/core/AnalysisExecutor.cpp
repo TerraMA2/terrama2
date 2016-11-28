@@ -104,6 +104,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
     logId = logger->start(analysis->id);
 
+    verifyInactiveDataSeries(dataManager, analysis, logger);
+
     switch(analysis->type)
     {
       case AnalysisType::MONITORED_OBJECT_TYPE:
@@ -787,5 +789,19 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
     QString errMsg = QObject::tr("An unknown exception occurred trying to store the results.");
     context->addError(errMsg.toStdString());
     return;
+  }
+}
+
+void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger)
+{
+  for(auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+    auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+    if(!dataSeries->active)
+    {
+      QString errMsg = QObject::tr("Analysis is using an inactive data series (%1).").arg(dataSeries->id);
+      logger->info(errMsg.toStdString(), analysis->id);
+      TERRAMA2_LOG_WARNING() << errMsg;
+    }
   }
 }

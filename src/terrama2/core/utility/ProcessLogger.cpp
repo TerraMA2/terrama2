@@ -260,13 +260,18 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
   boost::format query("UPDATE "+ tableName_ + " SET status=%1%, data_timestamp=%2%, last_process_timestamp='%3%' WHERE id =" + QString::number(registerId).toStdString());
   QString timestamp = "NULL";
 
-  verify::date(dataTimestamp);
 
-  auto boostTime = dataTimestamp->getTimeInstantTZ();
-  timestamp = QString::fromStdString(dataTimestamp->toString());
+  if(dataTimestamp != nullptr)
+  {
+    verify::date(dataTimestamp);
 
-  timestamp.prepend("'");
-  timestamp.append("'");
+    auto boostTime = dataTimestamp->getTimeInstantTZ();
+    timestamp = QString::fromStdString(dataTimestamp->toString());
+
+    timestamp.prepend("'");
+    timestamp.append("'");
+  }
+
 
   query.bind_arg(1, static_cast<int>(Status::DONE));
   query.bind_arg(2, timestamp);

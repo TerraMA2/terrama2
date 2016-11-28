@@ -464,7 +464,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
     if(foldersList.empty())
     {
-      QString errMsg = QObject::tr("No folders struct in dataset: %1.").arg(dataSet->id);
+      QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
       TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }

@@ -238,7 +238,11 @@ angular.module('terrama2.dataseries.registration', [
             if (filter.region) {
               $scope.$emit('updateFilterArea', "2");
               $scope.filter.area = Polygon.read(filter.region);
+              if (filter.crop_raster){
+                $scope.filter.area.crop_raster = true;
+              }
             }
+            $scope.filter.area.showCrop = $scope.dataSeries.semantics.data_series_type_name == "GRID";
           }
 
           if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -277,7 +281,7 @@ angular.module('terrama2.dataseries.registration', [
             if ($scope.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
               $scope.modelStorager = $scope.prepareFormatToForm(outputDataseries.dataSets[0].format);
               if(typeof $scope.modelStorager.timezone === "number") {
-                $scope.modelStorager.timezone = ($scope.modelStorager.timezone > 0 ? "+" + $scope.modelStorager.timezone.toString() : $scope.modelStorager.timezone.toString());
+                $scope.modelStorager.timezone = $scope.modelStorager.timezone.toString();
               }
             }
           }
@@ -344,6 +348,9 @@ angular.module('terrama2.dataseries.registration', [
         if (!storebox.hasClass('collapsed-box')){
           enableStore.click();
         }
+        //disable option to crop on filter
+        $scope.filter.area.showCrop = false;
+        $scope.filter.area.crop_raster = false;
       }
 
       var clearFilterForm = function(){
@@ -459,7 +466,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.alertLevel = "";
 
       // filter values
-      $scope.filter = {date: {}, area: {srid: 4326}};
+      $scope.filter = {date: {}, area: {srid: 4326, showCrop: false}};
       $scope.radioPreAnalysis = {};
       $scope.handlePreAnalysisFilter = function(selected) {
         $scope.filter.pre_analysis = {};
@@ -794,7 +801,11 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
           $scope.filter.area = {};
         } else {
-          $scope.filter.area={srid: 4326};
+          if ($scope.filter.area){
+            $scope.filter.area.srid = 4326;
+          } else {
+            $scope.filter.area={srid: 4326};
+          }
         }
       };
 
@@ -805,7 +816,6 @@ angular.module('terrama2.dataseries.registration', [
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
       $scope.onStoragerFormatChange = function() {
-        console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
 
         if ($scope.services.length > 0) {
@@ -874,6 +884,11 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.validateSteps = function(obj) {
         isWizardStepValid();
+        if ($scope.forms.storagerForm.$valid && $scope.forms.storagerDataForm.$valid && $scope.dataSeries.semantics.data_series_type_name == "GRID"){
+          $scope.filter.area.showCrop = true;
+        } else {
+          $scope.filter.area.showCrop = false;
+        }
         return true;
       };
       //. end wizard validations
@@ -918,7 +933,7 @@ angular.module('terrama2.dataseries.registration', [
         description: inputDataSeries.description,
         access: $scope.hasCollector ? "COLLECT" : "PROCESSING",
         semantics: inputSemantics.code || "",
-        active: (inputDataSeries.dataSets != undefined && inputDataSeries.dataSets[0] != undefined && inputDataSeries.dataSets[0].active != undefined ? inputDataSeries.dataSets[0].active : true)
+        active: inputDataSeries.active
       };
 
       // getting semantics
@@ -1161,7 +1176,7 @@ angular.module('terrama2.dataseries.registration', [
               $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
 
               if(typeof $scope.model.timezone === "number") {
-                $scope.model.timezone = ($scope.model.timezone > 0 ? "+" + $scope.model.timezone.toString() : $scope.model.timezone.toString());
+                $scope.model.timezone = $scope.model.timezone.toString();
               }
             }
 
@@ -1400,14 +1415,14 @@ angular.module('terrama2.dataseries.registration', [
           var dSetsLocal = [];
           dSets.forEach(function(dSet) {
             dSetsLocal.push({
-              active: $scope.dataSeries.active,
+              active: true,//$scope.dataSeries.active,
               format: _makeFormat(dSet)
             });
           });
           out = dSetsLocal;
         } else {
           dSets.format = _makeFormat(dSets);
-          dSets.active = $scope.dataSeries.active;
+          dSets.active = true,//$scope.dataSeries.active;
           out = [dSets];
         }
 
@@ -1441,6 +1456,7 @@ angular.module('terrama2.dataseries.registration', [
         var outputDataSeries = {
           name: dSeriesName,
           description: dataObject.dataSeries.description,
+          active: dataObject.dataSeries.active,
           data_series_semantics_id: values.semantics.id,
           data_provider_id: values.data_provider,
           dataSets: out
@@ -1464,6 +1480,9 @@ angular.module('terrama2.dataseries.registration', [
         var semantics = Object.assign({}, dataToSend.semantics);
         delete dataToSend.semantics;
 
+        if(dataToSend.active === undefined)
+          dataToSend.active = false;
+
         dataToSend.dataSets = [];
 
         $scope.errorFound = false;
@@ -1478,7 +1497,7 @@ angular.module('terrama2.dataseries.registration', [
                     format[key] = dcp[key];
               }
               var dataSetStructure = {
-                active: $scope.dataSeries.active,
+                active: true,//$scope.dataSeries.active,
                 format: format,
                 position: {
                   type: 'Point',
@@ -1503,7 +1522,7 @@ angular.module('terrama2.dataseries.registration', [
 
             var dataSet = {
               semantics: semantics,
-              active: $scope.dataSeries.active,
+              active: true,//$scope.dataSeries.active,
               format: format
             };
             dataToSend.dataSets.push(dataSet);
@@ -1579,9 +1598,7 @@ angular.module('terrama2.dataseries.registration', [
         }
 
         if ($scope.filter.filterArea == $scope.filterTypes.AREA.value) {
-          var boundedForm = angular.element('form[name="boundedForm"]').scope().boundedForm;
-          if (boundedForm.$invalid) {
-            // TODO: change it
+          if (FilterForm.boundedForm.$invalid){
             $scope.alertBox.message = "Invalid filter area";
             $scope.alertLevel = "alert-danger";
             $scope.display = true;

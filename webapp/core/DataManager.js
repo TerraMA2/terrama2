@@ -58,6 +58,11 @@ function _processFilter(filterObject) {
       filterValues.discard_after = new Date(filterObject.date.afterDate);
     }
   }
+  if (filterObject.area.hasOwnProperty('crop_raster')){
+    filterValues.crop_raster = filterObject.area.crop_raster;
+  } else {
+    filterValues.crop_raster = false;
+  }
 
   return filterValues;
 }
@@ -1542,7 +1547,7 @@ var DataManager = module.exports = {
       }
 
       return models.db.DataSeries.update(dataSeriesObject, Utils.extend({
-        fields: ['name', 'description', 'data_provider_id'],
+        fields: ['name', 'description', 'data_provider_id', 'active'],
         where: {
           id: dataSeriesId
         }
@@ -1626,6 +1631,7 @@ var DataManager = module.exports = {
           dataSeries.name = dataSeriesObject.name;
           dataSeries.description = dataSeriesObject.description;
           dataSeries.data_provider_id = dataProvider.id;
+          dataSeries.active = dataSeriesObject.active;
 
           return resolve(new DataModel.DataSeries(dataSeries));
         }).catch(function(err) {
@@ -2602,7 +2608,7 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       var filterValues = _processFilter(filterObject);
       return models.db.Filter.update(filterValues, Utils.extend({
-        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value'],
+        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value', 'crop_raster'],
         where: {
           id: filterId
         }
