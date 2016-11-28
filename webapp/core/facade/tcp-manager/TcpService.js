@@ -575,7 +575,7 @@ function onStatusReceived(service, response) {
     TcpManager.updateService(service);
 
     setTimeout(function() {
-      Utils.prepareAddSignalMessage(DataManager).then(function(data) {
+      return Utils.prepareAddSignalMessage(DataManager).then(function(data) {
         TcpManager.emit("sendData", service, data);
       }).finally(function() {
         // checking status again

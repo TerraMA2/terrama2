@@ -17,7 +17,7 @@
         <select class="form-control"
                 name="semantics"
                 ng-model="dataSeries.semantics"
-                ng-options="i18n.__(semantics.name) for semantics in dataSeriesSemantics | filter: { data_series_type_name: '!ANALYSIS_MONITORED_OBJECT' }" 
+                ng-options="i18n.__(semantics.name) for semantics in dataSeriesSemantics | filter: { data_series_type_name: '!ANALYSIS_MONITORED_OBJECT' }"
                 ng-disabled="isUpdating"
                 ng-change="onDataSemanticsChange();" required>
         </select>
@@ -56,7 +56,7 @@
       <div class="form-group">
         <div class="checkbox">
           <label style="font-weight: 700; margin-top:19px;">
-            <input name="active" ng-model="dataSeries.active" ng-init="dataSeries.active = true" type="checkbox"> {{ i18n.__("Active") }}
+            <input name="active" ng-model="dataSeries.active" type="checkbox"> {{ i18n.__("Active") }}
           </label>
         </div>
       </div>

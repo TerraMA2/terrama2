@@ -272,13 +272,12 @@ angular.module('terrama2.dataseries.registration', [
 
             if (!outputDataseries)
               return;
-              
+
             // fill out default
             if ($scope.formatSelected.data_series_type_name != globals.enums.DataSeriesType.DCP) {
               $scope.modelStorager = $scope.prepareFormatToForm(outputDataseries.dataSets[0].format);
-
-              if ($scope.modelStorager.timezone) {
-                $scope.modelStorager.timezone = $scope.modelStorager.timezone.toString();
+              if(typeof $scope.modelStorager.timezone === "number") {
+                $scope.modelStorager.timezone = ($scope.modelStorager.timezone > 0 ? "+" + $scope.modelStorager.timezone.toString() : $scope.modelStorager.timezone.toString());
               }
             }
           }
@@ -346,7 +345,7 @@ angular.module('terrama2.dataseries.registration', [
           enableStore.click();
         }
       }
-      
+
       var clearFilterForm = function(){
         $scope.filter.date = {};
         $scope.filter.filterArea = "1";
@@ -505,7 +504,7 @@ angular.module('terrama2.dataseries.registration', [
         for(var k in fmt) {
           if (fmt.hasOwnProperty(k)) {
             // checking if a number
-            if (isNaN(fmt[k])) {
+            if (isNaN(fmt[k]) || typeof fmt[k] == "boolean") {
               output[k] = fmt[k];
             } else {
               output[k] = parseInt(fmt[k]);
@@ -569,7 +568,7 @@ angular.module('terrama2.dataseries.registration', [
             condition = false;
           }
           wizardStep.wzData.error = condition;
-          
+
         });
       };
 
@@ -846,7 +845,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.advanced.store.disabled = false;
             $scope.advanced.store.optional = false;
           }
-        } 
+        }
         else {
           $scope.wizard.parameters.disabled = true;
           $scope.wizard.store.disabled = true;
@@ -919,7 +918,7 @@ angular.module('terrama2.dataseries.registration', [
         description: inputDataSeries.description,
         access: $scope.hasCollector ? "COLLECT" : "PROCESSING",
         semantics: inputSemantics.code || "",
-        active: inputDataSeries.active
+        active: (inputDataSeries.dataSets != undefined && inputDataSeries.dataSets[0] != undefined && inputDataSeries.dataSets[0].active != undefined ? inputDataSeries.dataSets[0].active : true)
       };
 
       // getting semantics
@@ -1159,8 +1158,10 @@ angular.module('terrama2.dataseries.registration', [
               });
             } else {
               $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-              if ($scope.model.timezone) {
-                $scope.model.timezone = $scope.model.timezone.toString();
+              $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
+
+              if(typeof $scope.model.timezone === "number") {
+                $scope.model.timezone = ($scope.model.timezone > 0 ? "+" + $scope.model.timezone.toString() : $scope.model.timezone.toString());
               }
             }
 
@@ -1323,7 +1324,7 @@ angular.module('terrama2.dataseries.registration', [
         }
       };
 
-      $scope.changeDataProvider = function() {  
+      $scope.changeDataProvider = function() {
         console.log($scope.dataSeries);
       };
 

@@ -188,6 +188,9 @@ terrama2::services::analysis::core::BaseContext::getGridMap(terrama2::services::
 
 std::unique_ptr<te::dt::TimeInstantTZ> terrama2::services::analysis::core::BaseContext::getTimeFromString(const std::string& timeString) const
 {
+  if(timeString.empty())
+    return nullptr;
+
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
