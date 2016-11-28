@@ -58,6 +58,11 @@ function _processFilter(filterObject) {
       filterValues.discard_after = new Date(filterObject.date.afterDate);
     }
   }
+  if (filterObject.area.hasOwnProperty('crop_raster')){
+    filterValues.crop_raster = filterObject.area.crop_raster;
+  } else {
+    filterValues.crop_raster = false;
+  }
 
   return filterValues;
 }
@@ -2603,7 +2608,7 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       var filterValues = _processFilter(filterObject);
       return models.db.Filter.update(filterValues, Utils.extend({
-        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value'],
+        fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value', 'crop_raster'],
         where: {
           id: filterId
         }

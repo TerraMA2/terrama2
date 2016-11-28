@@ -14,6 +14,7 @@ function Filter(params) {
   this.region = params.region;
   this.region_wkt = params.region_wkt;
   this.by_value = params.by_value;
+  this.crop_raster = params.crop_raster;
   this.collector_id = params.collector_id;
 }
 
@@ -34,6 +35,7 @@ Filter.prototype.toObject = function() {
     discard_after: this.discard_after instanceof Date ? Utils.formatDateToTimezone(this.discard_after) : this.discard_after,
     region: this.region_wkt || this.region,
     by_value: this.by_value,
+    crop_raster: this.crop_raster,
     collector_id: this.collector_id
   });
 };
