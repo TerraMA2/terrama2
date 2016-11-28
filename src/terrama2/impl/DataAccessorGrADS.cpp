@@ -487,6 +487,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
 
+  cropRaster(completeDataset, filter);
+
   //if both dates are valid
   if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
       && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
@@ -989,6 +991,11 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
 
     // In case 'yrev' option is given, we need to flip the image
     bool isYReverse = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end();
+
+    //change longitude from 0/360 to -180/180
+    if(descriptor.xDef_->values_[0] > 180)
+      descriptor.xDef_->values_[0] = 180. - descriptor.xDef_->values_[0];
+
     if(isYReverse)
     {
       /// Uses a transformation to flip the image
