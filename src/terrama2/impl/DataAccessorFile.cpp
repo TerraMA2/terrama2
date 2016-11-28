@@ -547,8 +547,21 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
       first = false;
     }
 
-    assert(converter);
     std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
+    if(!teDataSet)
+    {
+      QString errMsg = QObject::tr("Could not read dataset: %1").arg(dataSetName.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+    }
+
+    auto raster = teDataSet->getRaster(0);
+    if(raster.get() == nullptr)
+    {
+      QString errMsg = QObject::tr("Invalid raster for dataset: %1").arg(dataSetName.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+    }
 
     addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
@@ -571,6 +584,8 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
   std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
 
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
+
+  cropRaster(completeDataset, filter);
 
   //if both dates are valid
   if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())

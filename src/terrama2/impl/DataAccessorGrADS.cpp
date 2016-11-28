@@ -399,8 +399,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), "file://"+typePrefix() + dataFileInfo.absolutePath().toStdString() + "/" + name));
 
       //RAII for open/closing the datasource
-      OpenClose<std::shared_ptr<te::da::DataSource> > openClose
-      (datasource);
+      OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
 
       if(!datasource->isOpened())
       {
@@ -431,7 +430,17 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       // but we can open directly with the file name.
       // should we check or just continue with the file name?
 
-      std::shared_ptr<te::da::DataSet> teDataSet(transactor->getDataSet(dataSetName));
+      if(first)
+      {
+        //read and adapt all te:da::DataSet from terrama2::core::DataSet
+        converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
+        series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+        assert(series.teDataSetType.get());
+        completeDataset = createCompleteDataSet(series.teDataSetType);
+        first = false;
+      }
+
+      std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
       if(!teDataSet)
       {
         QString errMsg = QObject::tr("Could not read dataset: %1").arg(dataSetName.c_str());
@@ -447,17 +456,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
       }
 
-
-      if(first)
-      {
-        //read and adapt all te:da::DataSet from terrama2::core::DataSet
-        converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
-        series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-        assert(series.teDataSetType.get());
-        completeDataset = createCompleteDataSet(series.teDataSetType);
-        first = false;
-      }
-
       // If could not find a valid date for the binary file, uses the CTL date.
       if(!thisFileTimestamp)
       {
@@ -468,7 +466,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
 
-      if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
+      if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
         lastFileTimestamp = thisFileTimestamp;
     }
   }
@@ -490,17 +488,17 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   cropRaster(completeDataset, filter);
 
   //if both dates are valid
-  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
+  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
+      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
   {
     (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
-  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
   {
     //if only fileTimestamp is valid
     (*lastDateTime_) = *lastFileTimestamp;
   }
-  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special())
   {
     //if only dataTimeStamp is valid
     (*lastDateTime_) = *dataTimeStamp;
