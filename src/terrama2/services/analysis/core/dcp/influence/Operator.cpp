@@ -90,14 +90,14 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   if(dataSeriesName.empty())
   {
     QString errMsg(QObject::tr("Invalid data series name"));
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return vecIds;
   }
 
   if(attributeList.empty())
   {
     QString errMsg(QObject::tr("Empty attribute list"));
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return vecIds;
   }
 
@@ -167,20 +167,20 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError( boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     vecIds.clear();
     return vecIds;
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
     vecIds.clear();
     return vecIds;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     vecIds.clear();
     return vecIds;
   }
@@ -218,7 +218,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   if(dataSeriesName.empty())
   {
     QString errMsg(QObject::tr("Invalid data series name"));
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return vecIds;
   }
 
@@ -285,20 +285,20 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError( boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     vecIds.clear();
     return vecIds;
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
     vecIds.clear();
     return vecIds;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     vecIds.clear();
     return vecIds;
   }

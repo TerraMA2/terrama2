@@ -98,7 +98,7 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   if(!state)
   {
     QString errMsg = QObject::tr("Invalid thread state for python interpreter.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
 
@@ -163,20 +163,20 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   catch(const error_already_set&)
   {
     std::string errMsg = extractException();
-    context->addError(errMsg);
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg);
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
   }
 }
 
@@ -188,7 +188,7 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
   if(!state)
   {
     QString errMsg = QObject::tr("Invalid thread state for python interpreter.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
 
@@ -262,20 +262,20 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
   catch(error_already_set)
   {
     std::string errMsg = extractException();
-    context->addError(errMsg);
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg);
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
   }
 
   PyThreadState_Swap(previousState);
@@ -310,7 +310,7 @@ void terrama2::services::analysis::core::python::runScriptDCPAnalysis(PyThreadSt
   catch(error_already_set)
   {
     std::string errMsg = extractException();
-    context->addError(errMsg);
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg);
   }
 }
 
@@ -344,18 +344,18 @@ void terrama2::services::analysis::core::python::addValue(const std::string& att
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return;
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
     return;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
 

@@ -411,7 +411,7 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
 
-        addError(errMsg.toStdString());
+        addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
         return contextDataSeries;
       }
 
