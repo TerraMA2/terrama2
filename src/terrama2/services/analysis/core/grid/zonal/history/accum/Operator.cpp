@@ -201,14 +201,11 @@ double terrama2::services::analysis::core::grid::zonal::history::accum::operator
 
   try
   {
-    // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
+    // In case an error has already occurred, there is nothing to do.
+    if(context->hasError())
       return std::nan("");
 
     auto valuesMap = getAccumulatedMap(dataSeriesName, dateDiscardBefore, dateDiscardAfter, band, buffer, context, cache);
-
-    if(exceptionOccurred)
-      return std::nan("");
 
     if(valuesMap.empty() && statisticOperation != StatisticOperation::COUNT)
     {

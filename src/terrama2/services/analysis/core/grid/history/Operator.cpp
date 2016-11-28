@@ -76,8 +76,8 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
 
   try
   {
-    // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
+// In case an error has already occurred, there is nothing to do.
+    if(context->hasError())
     {
       return {};
     }
@@ -202,8 +202,8 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
 
   try
   {
-    // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
+// In case an error has already occurred, there is nothing to do.
+    if(context->hasError())
     {
       return std::nan("");
     }

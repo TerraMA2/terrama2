@@ -83,11 +83,9 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   }
 
 
-  // In case an error has already occurred, there is nothing to be done
-  if(!context->getErrors().empty())
-  {
+  // In case an log has already occurred, there is nothing to do.
+  if(context->hasError())
     return vecIds;
-  }
 
   if(dataSeriesName.empty())
   {
@@ -211,8 +209,8 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   }
 
 
-  // In case an error has already occurred, there is nothing to be done
-  if(!context->getErrors().empty())
+  // In case an error has already occurred, there is nothing to do.
+  if(context->hasError())
   {
     return vecIds;
   }

@@ -202,7 +202,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      logger->done(nullptr, logId);
+      logger->result(CollectorLogger::ERROR, nullptr, logId);
       TERRAMA2_LOG_WARNING() << tr("No data to collect.");
 
       notifyWaitQueue(collectorId);
@@ -235,7 +235,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     TERRAMA2_LOG_INFO() << tr("Data from collector %1 collected successfully.").arg(collectorId);
 
-    logger->done(lastDateTime, logId);
+    logger->result(CollectorLogger::DONE, lastDateTime, logId);
 
 
     sendProcessFinishedSignal(collectorId, true);
@@ -249,7 +249,10 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
     if(logId != 0)
-      logger->error(errMsg.toStdString(), logId);
+    {
+      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+      logger->result(CollectorLogger::ERROR, nullptr, logId);
+    }
   }
   catch(const boost::exception& e)
   {
@@ -258,7 +261,10 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
     if(logId != 0)
-      logger->error(errMsg, logId);
+    {
+      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg, logId);
+      logger->result(CollectorLogger::ERROR, nullptr, logId);
+    }
   }
   catch(const std::exception& e)
   {
@@ -266,16 +272,22 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
     if(logId != 0)
-      logger->error(e.what(), logId);
+    {
+      logger->log(CollectorLogger::ERROR_MESSAGE, e.what(), logId);
+      logger->result(CollectorLogger::ERROR, nullptr, logId);
+    }
   }
   catch(...)
   {
-    QString errMsg = tr("Unkown error.");
+    QString errMsg = tr("Unknown error.");
     TERRAMA2_LOG_ERROR() << errMsg;
     TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
 
     if(logId != 0)
-      logger->error(errMsg.toStdString(), logId);
+    {
+      logger->log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+      logger->result(CollectorLogger::ERROR, nullptr, logId);
+    }
   }
 
   sendProcessFinishedSignal(collectorId, false);
@@ -350,7 +362,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << tr("Unknown error");
+    TERRAMA2_LOG_ERROR() << tr("Unknown log");
     TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
 }
