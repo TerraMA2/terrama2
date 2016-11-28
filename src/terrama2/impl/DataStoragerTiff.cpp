@@ -234,7 +234,7 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
   }
 
   QUrl uri(path.c_str());
-
+  path = uri.path().toStdString();
 
   std::string mask = getMask(outputDataSet);
   if(mask.empty())

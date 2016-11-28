@@ -50,9 +50,6 @@ DataSet.prototype.setFormat = function(formats) {
  * @inherits AbstractData:toObject
  */
 DataSet.prototype.toObject = function() {
-  if (this.format && this.format.folder) {
-    this.format.folder = this.format.folder.toString();
-  }
   return Object.assign(AbstractClass.prototype.toObject.call(this), {
     id: this.id,
     data_series_id: this.data_series_id,
