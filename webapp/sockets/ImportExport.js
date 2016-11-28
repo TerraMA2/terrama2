@@ -539,6 +539,10 @@ var ImportExport = function(io) {
             })
           );
         }
+
+        Promise.all(promises).then(function() {
+          client.emit("exportResponse", {status: 200, data: output});
+        }).catch(_emitError);
       }
 
       if(json.DataSeries) {
@@ -730,9 +734,13 @@ var ImportExport = function(io) {
             })
           );
         }
+
+        Promise.all(promises).then(function() {
+          client.emit("exportResponse", {status: 200, data: output});
+        }).catch(_emitError);
       }
 
-      for(var i = 0, dataProvidersLength = output.DataProviders.length; i < dataProvidersLength; i++) {
+      /*for(var i = 0, dataProvidersLength = output.DataProviders.length; i < dataProvidersLength; i++) {
         output.DataProviders[i].project_id = null;
       }
 
@@ -742,11 +750,7 @@ var ImportExport = function(io) {
 
       for(var i = 0, viewsLength = output.Views.length; i < viewsLength; i++) {
         output.Views[i].project_id = null;
-      }
-
-      Promise.all(promises).then(function() {
-        client.emit("exportResponse", {status: 200, data: output});
-      }).catch(_emitError);
+      }*/
     });
   });
 };
