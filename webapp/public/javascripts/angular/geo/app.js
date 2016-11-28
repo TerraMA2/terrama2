@@ -107,9 +107,10 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
        * @return {Object} a geojson object representation
        */
       build: function(model) {
-        var geojson = Object.assign({}, GeoJSON);
+        var geojson = angular.copy(GeoJSON, {});
         geojson.type = Geometry.POINT;
-        geojson.coordinates.push([model.x, model.y]);
+        geojson.coordinates.push(model.x);
+        geojson.coordinates.push(model.y);
         geojson.crs.properties.name += model.srid;
         return geojson;
       }
