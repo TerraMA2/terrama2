@@ -574,7 +574,7 @@
 
     <terrama2-box title="i18n.__('Influence Area')" 
                   css="ctrl.css" 
-                  ng-show="ctrl.analysis.type_id == 1  && forms.generalDataForm.type.$valid">
+                  ng-show="(ctrl.analysis.type_id == 1 || ctrl.hasDcp()) && forms.generalDataForm.type.$valid">
       <div class="row">
         <div class="col-md-12">
           <form name="forms.influenceForm">
@@ -585,7 +585,7 @@
                   <select class="form-control"
                           name="influence"
                           ng-model="ctrl.analysis.metadata.INFLUENCE_TYPE"
-                          ng-required="ctrl.analysis.type_id == 1">
+                          ng-required="ctrl.analysis.type_id == 1 || ctrl.hasDcp()">
                     <option value="{[ Enums.InfluenceTypes.TOUCHES.Value ]}">{[ Enums.InfluenceTypes.TOUCHES.Name ]}</option>
                     <option value="{[ Enums.InfluenceTypes.CENTER.Value ]}">{[ Enums.InfluenceTypes.CENTER.Name ]}</option>
                     <option value="{[ Enums.InfluenceTypes.REGION.Value ]}">{[ Enums.InfluenceTypes.REGION.Name ]}</option>
