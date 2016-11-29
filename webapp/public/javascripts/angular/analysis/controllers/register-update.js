@@ -258,12 +258,13 @@
           if (historicalData.endDate) {
             historicalData.endDate = DateParser(historicalData.endDate);
           }
-
+          // setting default historical data
           self.analysis.historical = historicalData;
 
           // schedule update
           $scope.$broadcast("updateSchedule", analysisInstance.schedule);
 
+          // Filtering Analysis DataSeries table if there is.
           analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
             var ds = analysisDs.dataSeries;
 
@@ -290,7 +291,6 @@
 
           if (analysisInstance.type.id === globals.enums.AnalysisType.GRID) {
             // fill interpolation
-            debugger;
             self.analysis.grid = {
               interpolation_method: analysisInstance.output_grid.interpolation_method,
               area_of_interest_type: analysisInstance.output_grid.area_of_interest_type,
@@ -327,7 +327,7 @@
                 maxY: coordinates[0][2][1]
               };
             }
-          } else if (analysisInstance.type.id === globals.enums.AnalysisType.DCP) {
+          } else { // if  monitored object or dcp
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
             self.analysis.metadata.INFLUENCE_RADIUS = Number(analysisInstance.metadata.INFLUENCE_RADIUS);
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
@@ -454,6 +454,19 @@
 
           self.dataSeriesGroups[0].children = self.buffers.static;
           self.dataSeriesGroups[1].children = self.buffers.dynamic;
+        };
+
+        /**
+         * It checks if there is any data series dcp in Analysis Data Series list. If found, return true.
+         * It set on template. Angular call it whenever scope cycle iteration done ($digest)
+         * 
+         * @returns {boolean}
+         */
+        self.hasDcp = function() {
+          return self.selectedDataSeriesList
+            .find(function(element) {
+              return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
+            });
         };
 
         /**
@@ -778,8 +791,13 @@
           self.analysis.metadata.INFLUENCE_RADIUS_UNIT = format;
         };
 
-        // save function
+        /**
+         * It performs a save operation, applying all validation processes and then calling angular service AnalysisService
+         * 
+         * @param {boolean?} shouldRun - Defines if should save and run the analysis after save process. Default: false
+         */
         self.save = function(shouldRun) {
+          // Emitting broadcast to colorize fields based on valid state
           $scope.$broadcast('formFieldValidation');
 
           self.analysis_script_error = false;
