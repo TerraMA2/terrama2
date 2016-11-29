@@ -383,9 +383,8 @@ var ImportExport = function(io) {
         output.DataProviders = [];
 
         for(var i = 0, dataProvidersLength = json.DataProviders.length; i < dataProvidersLength; i++) {
-          target = json.DataProviders[i];
           promises.push(
-            DataManager.getDataProvider({id: target.id}).then(function(dataProvider) {
+            DataManager.getDataProvider({id: json.DataProviders[i].id}).then(function(dataProvider) {
               if(!isInArray(dataProvider.id, output.DataProviders)) {
                 dataProvider.project_id = null;
                 output.DataProviders.push(addID(dataProvider));
@@ -400,9 +399,8 @@ var ImportExport = function(io) {
         if(output.DataProviders == undefined) output.DataProviders = [];
 
         for(var i = 0, dataSeriesLength = json.DataSeries.length; i < dataSeriesLength; i++) {
-          target = json.DataSeries[i];
           promises.push(
-            DataManager.getDataSeries({id: target.id}).then(function(dataSeries) {
+            DataManager.getDataSeries({id: json.DataSeries[i].id}).then(function(dataSeries) {
               if(!isInArray(dataSeries.id, output.DataSeries)) {
                 output.DataSeries.push(addID(dataSeries));
                 return DataManager.getDataProvider({id: dataSeries.data_provider_id});
@@ -423,9 +421,8 @@ var ImportExport = function(io) {
         if(output.DataProviders == undefined) output.DataProviders = [];
 
         for(var i = 0, collectorsLength = json.Collectors.length; i < collectorsLength; i++) {
-          target = json.Collectors[i];
           promises.push(
-            DataManager.getCollector({id: target.id}).then(function(collector) {
+            DataManager.getCollector({id: json.Collectors[i].id}).then(function(collector) {
               output.Collectors.push(addID(collector));
 
               promises.push(
@@ -482,9 +479,8 @@ var ImportExport = function(io) {
         if(output.DataProviders == undefined) output.DataProviders = [];
 
         for(var i = 0, analysisLength = json.Analysis.length; i < analysisLength; i++) {
-          target = json.Analysis[i];
           promises.push(
-            DataManager.getAnalysis({id: target.id}, null, true).then(function(analysis) {
+            DataManager.getAnalysis({id: json.Analysis[i].id}, null, true).then(function(analysis) {
               var rawAnalysis = analysis.rawObject();
               rawAnalysis.$id = rawAnalysis.id;
               delete rawAnalysis.id;
@@ -537,9 +533,8 @@ var ImportExport = function(io) {
         if(output.DataProviders == undefined) output.DataProviders = [];
 
         for(var i = 0, viewsLength = json.Views.length; i < viewsLength; i++) {
-          target = json.Views[i];
           promises.push(
-            DataManager.getView({id: target.id}).then(function(view) {
+            DataManager.getView({id: json.Views[i].id}).then(function(view) {
               if(!isInArray(view.id, output.Views)) {
                 view.projectId = null;
                 output.Views.push(addID(view));
