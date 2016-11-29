@@ -401,14 +401,38 @@
           "table_name": {
             "type": "string",
             "title": "Table Name"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "projection": {
+            "type": "number",
+            "title": "SRID"
           }
         },
-        "required": ["table_name"]
+        "required": ["table_name", "latitude", "longitude", "projection"]
       },
       "form": [
         {
           "key": "table_name",
           "htmlClass": "col-md-5 terrama2-schema-form"
+        },
+        {
+          "key": "latitude",
+          "htmlClass": "col-md-2"
+        },
+        {
+          "key": "longitude",
+          "htmlClass": "col-md-2"
+        },
+        {
+          "key": "projection",
+          "htmlClass": "col-md-2"
         }
       ]
     }
