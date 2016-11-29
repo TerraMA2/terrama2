@@ -643,15 +643,18 @@
         },
         {
           "key": "bytes_before",
-          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item"
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item",
+          "condition": "model['number_of_bands'] > 1"
         },
         {
           "key": "bytes_after",
-          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item"
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item",
+          "condition": "model['number_of_bands'] > 1"
         },
         {
           "key": "temporal",
-          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item"
+          "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
+          "condition": "model['number_of_bands'] > 1"
         },
         {
           "key": "time_interval",
