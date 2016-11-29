@@ -11,7 +11,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     if (conf.dataProvider.uriObject) {
       for(var k in conf.dataProvider.uriObject) {
         if (conf.dataProvider.uriObject.hasOwnProperty(k)) {
-          model[k] = decodeURI(conf.dataProvider.uriObject[k]);
+          model[k] = conf.dataProvider.uriObject[k];
         }
       }
     }
