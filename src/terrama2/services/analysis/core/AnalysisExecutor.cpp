@@ -170,7 +170,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
         logger->log(AnalysisLogger::ERROR_MESSAGE, error, logId);
       }
 
-      QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following log(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
+      QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
 
       logger->result(AnalysisLogger::ERROR, startTime, logId);

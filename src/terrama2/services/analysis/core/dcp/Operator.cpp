@@ -99,7 +99,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
 
   try
   {
-    // In case an log has already occurred, there is nothing to do.
+    // In case an error has already occurred, there is nothing to do.
     if(context->hasError())
       return std::nan("");
 
@@ -185,7 +185,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
               {
                 auto property = dcpContextDataSeries->series.teDataSetType->getProperty(attribute);
 
-                // only operation COUNT can be result without attribute.
+                // only operation COUNT can be done without attribute.
                 if(!property && statisticOperation != StatisticOperation::COUNT)
                 {
                   QString errMsg(QObject::tr("Invalid attribute name"));

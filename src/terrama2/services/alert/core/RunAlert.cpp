@@ -101,8 +101,8 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      logger->result(AlertLogger::ERROR, nullptr, logId);
-      logger->log(AlertLogger::ERROR_MESSAGE, QObject::tr("No data to available.").toStdString(), logId);
+      logger->result(AlertLogger::DONE, nullptr, logId);
+      logger->log(AlertLogger::WARNING_MESSAGE, QObject::tr("No data to available.").toStdString(), logId);
       TERRAMA2_LOG_WARNING() << QObject::tr("No data to available.");
       return;
     }

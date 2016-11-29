@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 
     // Log the end of process with the timestamp of processed data
     std::shared_ptr< te::dt::TimeInstantTZ > data_dateTime = terrama2::core::TimeUtils::nowUTC();
-    log.result(Logger::ERROR, data_dateTime, registerID);
+    log.result(Logger::DONE, data_dateTime, registerID);
 
     // Get the process ID consulting by register ID
     ProcessId process_id = log.processID(registerID);

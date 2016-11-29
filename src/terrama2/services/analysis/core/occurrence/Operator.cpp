@@ -193,7 +193,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
             {
               auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
 
-              // only operation COUNT can be result without attribute.
+              // only operation COUNT can be done without attribute.
               if(!property && statisticOperation != StatisticOperation::COUNT)
               {
                 QString errMsg(QObject::tr("Invalid attribute name"));

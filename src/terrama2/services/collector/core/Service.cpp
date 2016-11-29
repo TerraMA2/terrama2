@@ -202,8 +202,10 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      logger->result(CollectorLogger::ERROR, nullptr, logId);
-      TERRAMA2_LOG_WARNING() << tr("No data to collect.");
+      QString errMsg = tr("No data to collect.");
+      logger->result(CollectorLogger::DONE, nullptr, logId);
+      logger->log(CollectorLogger::WARNING_MESSAGE, errMsg.toStdString(), logId);
+      TERRAMA2_LOG_WARNING() << errMsg;
 
       notifyWaitQueue(collectorId);
       sendProcessFinishedSignal(collectorId, false);
@@ -362,7 +364,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << tr("Unknown log");
+    TERRAMA2_LOG_ERROR() << tr("Unknown error");
     TERRAMA2_LOG_INFO() << tr("Could not remove collector: %1.").arg(collectorId);
   }
 }

@@ -186,7 +186,7 @@ void terrama2::services::view::core::Service::removeView(ViewId viewId) noexcept
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << tr("Unknown log");
+    TERRAMA2_LOG_ERROR() << tr("Unknown error");
     TERRAMA2_LOG_INFO() << tr("Could not remove view: %1.").arg(viewId);
   }
 }
@@ -261,7 +261,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     TERRAMA2_LOG_INFO() << tr("View %1 generated successfully.").arg(viewId);
 
-    logger->result(ViewLogger::ERROR, terrama2::core::TimeUtils::nowUTC(), logId);
+    logger->result(ViewLogger::DONE, terrama2::core::TimeUtils::nowUTC(), logId);
 
     sendProcessFinishedSignal(viewId, true, jsonAnswer);
     notifyWaitQueue(viewId);

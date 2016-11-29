@@ -772,7 +772,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     terrama2::core::DataSeriesPtr inputDataSeries = dataSeriesProvider.first;
     terrama2::core::DataProviderPtr inputDataProvider = dataSeriesProvider.second;
 
-    // Check if the view can be result by the maps server
+    // Check if the view can be done by the maps server
     DataProviderType dataProviderType = inputDataProvider->dataProviderType;
 
     if(dataProviderType != "POSTGIS" && dataProviderType != "FILE")

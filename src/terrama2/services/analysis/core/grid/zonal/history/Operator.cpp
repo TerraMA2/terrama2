@@ -72,7 +72,7 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
 
   try
   {
-    // In case an log has already occurred, there is nothing to do.
+    // In case an error has already occurred, there is nothing to do.
     if(context->hasError())
     {
       return std::nan("");
