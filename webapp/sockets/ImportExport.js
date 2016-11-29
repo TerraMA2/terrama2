@@ -66,6 +66,8 @@ var ImportExport = function(io) {
           transaction: t
         };
 
+        var thereAreProjects = (json.Projects !== undefined && json.Projects.length > 0); 
+
         // if there any project to import
         if (json.Projects) {
           var projects = json.Projects || [];
@@ -95,7 +97,7 @@ var ImportExport = function(io) {
             output.DataProviders = [];
             dataProviders.forEach(function(dataProvider) {
               dataProvider.data_provider_type_id = dataProvider.data_provider_type.id;
-              dataProvider.project_id = Utils.find(output.Projects, {$id: dataProvider.project_id}).id;
+              dataProvider.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: dataProvider.project_id}).id : json.selectedProject;
 
               promises.push(DataManager.addDataProvider(dataProvider, options).then(function(dProvider) {
                 TcpService.send({
@@ -213,7 +215,7 @@ var ImportExport = function(io) {
                       analysis.type_id = analysis.type.id;
 
                       analysis.instance_id = analysis.service_instance_id;
-                      analysis.project_id = Utils.find(output.Projects, {$id: analysis.project_id}).id;
+                      analysis.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: analysis.project_id}).id : json.selectedProject;
                       analysis.script_language_id = analysis.script_language;
                       analysis.grid = analysis.output_grid;
                       var dataSeriesOutput = Utils.find(output.DataSeries, {
