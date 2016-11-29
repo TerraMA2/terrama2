@@ -358,10 +358,6 @@ var ImportExport = function(io) {
             output.Analysis.push(rawAnalysis);
           });
         }));
-
-        Promise.all(promises).then(function() {
-          client.emit("exportResponse", {status: 200, data: output});
-        }).catch(_emitError);
       } // end if projects
 
       if(json.DataProviders) {
@@ -370,21 +366,14 @@ var ImportExport = function(io) {
         for(var i = 0, dataProvidersLength = json.DataProviders.length; i < dataProvidersLength; i++) {
           target = json.DataProviders[i];
           promises.push(
-            /*DataManager.getDataProvider({id: target.id}).then(function(dataProvider) {
-              dataProvider.project_id = null;
-              output.DataProviders.push(addID(dataProvider));
-            })*/
-
-            DataManager.getDataProvider({id: 6549}).then(function(dataProvider) {
-              dataProvider.project_id = null;
-              output.DataProviders.push(addID(dataProvider));
+            DataManager.getDataProvider({id: target.id}).then(function(dataProvider) {
+              if(!isInArray(dataProvider.id, output.DataProviders)) {
+                dataProvider.project_id = null;
+                output.DataProviders.push(addID(dataProvider));
+              }
             })
           );
         }
-
-        Promise.all(promises).then(function() {
-          client.emit("exportResponse", {status: 200, data: output});
-        }).catch(_emitError);
       }
 
       if(json.DataSeries) {
@@ -395,21 +384,18 @@ var ImportExport = function(io) {
           target = json.DataSeries[i];
           promises.push(
             DataManager.getDataSeries({id: target.id}).then(function(dataSeries) {
-              output.DataSeries.push(addID(dataSeries));
-
-              return DataManager.getDataProvider({id: dataSeries.data_provider_id});
+              if(!isInArray(dataSeries.id, output.DataSeries)) {
+                output.DataSeries.push(addID(dataSeries));
+                return DataManager.getDataProvider({id: dataSeries.data_provider_id});
+              }
             }).then(function(dataProvider) {
-              if(!isInArray(dataProvider.id, output.DataProviders)) {
+              if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
                 dataProvider.project_id = null;
                 output.DataProviders.push(addID(dataProvider));
               }
             })
           );
         }
-
-        Promise.all(promises).then(function() {
-          client.emit("exportResponse", {status: 200, data: output});
-        }).catch(_emitError);
       }
 
       if(json.Collectors) {
@@ -427,11 +413,10 @@ var ImportExport = function(io) {
                 DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
                   if(!isInArray(dataSeries.id, output.DataSeries)) {
                     output.DataSeries.push(addID(dataSeries));
-
                     return DataManager.getDataProvider({id: dataSeries.data_provider_id});
                   }
                 }).then(function(dataProvider) {
-                  if(!isInArray(dataProvider.id, output.DataProviders)) {
+                  if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
                     dataProvider.project_id = null;
                     output.DataProviders.push(addID(dataProvider));
                   }
@@ -442,11 +427,10 @@ var ImportExport = function(io) {
                 DataManager.getDataSeries({id: collector.data_series_output}).then(function(dataSeries) {
                   if(!isInArray(dataSeries.id, output.DataSeries)) {
                     output.DataSeries.push(addID(dataSeries));
-
                     return DataManager.getDataProvider({id: dataSeries.data_provider_id});
                   }
                 }).then(function(dataProvider) {
-                  if(!isInArray(dataProvider.id, output.DataProviders)) {
+                  if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
                     dataProvider.project_id = null;
                     output.DataProviders.push(addID(dataProvider));
                   }
@@ -458,11 +442,10 @@ var ImportExport = function(io) {
                   DataManager.getDataSeries({id: collector.intersection[j].dataseries_id}).then(function(dataSeries) {
                     if(!isInArray(dataSeries.id, output.DataSeries)) {
                       output.DataSeries.push(addID(dataSeries));
-
                       return DataManager.getDataProvider({id: dataSeries.data_provider_id});
                     }
                   }).then(function(dataProvider) {
-                    if(!isInArray(dataProvider.id, output.DataProviders)) {
+                    if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
                       dataProvider.project_id = null;
                       output.DataProviders.push(addID(dataProvider));
                     }
@@ -481,47 +464,51 @@ var ImportExport = function(io) {
 
         for(var i = 0, analysisLength = json.Analysis.length; i < analysisLength; i++) {
           target = json.Analysis[i];
-          promises.push(DataManager.getAnalysis({id: target.id}, null, true).then(function(analysis) {
-            var rawAnalysis = analysis.rawObject();
-            rawAnalysis.$id = rawAnalysis.id;
-            delete rawAnalysis.id;
+          promises.push(
+            DataManager.getAnalysis({id: target.id}, null, true).then(function(analysis) {
+              var rawAnalysis = analysis.rawObject();
+              rawAnalysis.$id = rawAnalysis.id;
+              delete rawAnalysis.id;
 
-            for(var j = 0, analysisDSLength = rawAnalysis.analysis_dataseries_list.length; j < analysisDSLength; j++) {
-              rawAnalysis.analysis_dataseries_list[j].$id = rawAnalysis.analysis_dataseries_list[j].id;
-              delete rawAnalysis.analysis_dataseries_list[j].id;
+              for(var j = 0, analysisDSLength = rawAnalysis.analysis_dataseries_list.length; j < analysisDSLength; j++) {
+                rawAnalysis.analysis_dataseries_list[j].$id = rawAnalysis.analysis_dataseries_list[j].id;
+                delete rawAnalysis.analysis_dataseries_list[j].id;
 
-              promises.push(DataManager.getDataSeries({id: rawAnalysis.analysis_dataseries_list[j].data_series_id}).then(function(dataSeries) {
-                if(!isInArray(dataSeries.id, output.DataSeries)) {
-                  output.DataSeries.push(addID(dataSeries));
-
-                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
-                    if(!isInArray(dataProvider.id, output.DataProviders)) {
+                promises.push(
+                  DataManager.getDataSeries({id: rawAnalysis.analysis_dataseries_list[j].data_series_id}).then(function(dataSeries) {
+                    if(!isInArray(dataSeries.id, output.DataSeries)) {
+                      output.DataSeries.push(addID(dataSeries));
+                      return DataManager.getDataProvider({id: dataSeries.data_provider_id});
+                    }
+                  }).then(function(dataProvider) {
+                    if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
                       dataProvider.project_id = null;
                       output.DataProviders.push(addID(dataProvider));
                     }
-                  }));
-                }
-              }));
-            }
+                  })
+                );
+              }
 
-            if(rawAnalysis.dataSeries.id != undefined) {
-              promises.push(DataManager.getDataSeries({id: rawAnalysis.dataSeries.id}).then(function(dataSeries) {
-                if(!isInArray(dataSeries.id, output.DataSeries)) {
-                  output.DataSeries.push(addID(dataSeries));
-
-                  promises.push(DataManager.getDataProvider({id: dataSeries.data_provider_id}).then(function(dataProvider) {
-                    if(!isInArray(dataProvider.id, output.DataProviders)) {
+              if(rawAnalysis.dataSeries.id != undefined) {
+                promises.push(
+                  DataManager.getDataSeries({id: rawAnalysis.dataSeries.id}).then(function(dataSeries) {
+                    if(!isInArray(dataSeries.id, output.DataSeries)) {
+                      output.DataSeries.push(addID(dataSeries));
+                      return DataManager.getDataProvider({id: dataSeries.data_provider_id});
+                    }
+                  }).then(function(dataProvider) {
+                    if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
                       dataProvider.project_id = null;
                       output.DataProviders.push(addID(dataProvider));
                     }
-                  }));
-                }
-              }));
-            }
+                  })
+                );
+              }
 
-            rawAnalysis.project_id = null;
-            output.Analysis.push(rawAnalysis);
-          }));
+              rawAnalysis.project_id = null;
+              output.Analysis.push(rawAnalysis);
+            })
+          );
         }
       }
 
@@ -534,41 +521,29 @@ var ImportExport = function(io) {
           target = json.Views[i];
           promises.push(
             DataManager.getView({id: target.id}).then(function(view) {
-              view.project_id = null;
-              output.Views.push(addID(view));
-
-              return DataManager.getDataSeries({id: view.dataSeries});
+              if(!isInArray(view.id, output.Views)) {
+                view.projectId = null;
+                output.Views.push(addID(view));
+                return DataManager.getDataSeries({id: view.dataSeries});
+              }
             }).then(function(dataSeries) {
-              if(!isInArray(dataSeries.id, output.DataSeries)) {
+              if(dataSeries !== undefined && !isInArray(dataSeries.id, output.DataSeries)) {
                 output.DataSeries.push(addID(dataSeries));
-
                 return DataManager.getDataProvider({id: dataSeries.data_provider_id});
               }
             }).then(function(dataProvider) {
-              if(!isInArray(dataProvider.id, output.DataProviders)) {
+              if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
                 dataProvider.project_id = null;
                 output.DataProviders.push(addID(dataProvider));
               }
             })
           );
         }
-
-        Promise.all(promises).then(function() {
-          client.emit("exportResponse", {status: 200, data: output});
-        }).catch(_emitError);
       }
 
-      /*for(var i = 0, dataProvidersLength = output.DataProviders.length; i < dataProvidersLength; i++) {
-        output.DataProviders[i].project_id = null;
-      }
-
-      for(var i = 0, analysisLength = output.Analysis.length; i < analysisLength; i++) {
-        output.Analysis[i].project_id = null;
-      }
-
-      for(var i = 0, viewsLength = output.Views.length; i < viewsLength; i++) {
-        output.Views[i].project_id = null;
-      }*/
+      Promise.all(promises).then(function() {
+        client.emit("exportResponse", {status: 200, data: output});
+      }).catch(_emitError);
     });
   });
 };
