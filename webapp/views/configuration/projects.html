@@ -522,16 +522,17 @@
           <h4 class="modal-title">Select the project to which you want to import the data</h4>
         </div>
         <div class="modal-body">
-          <div class="form-group">
+          <div class="form-group" ng-show="model.length > 0">
             <div class="radio" ng-repeat="element in model">
               <label>
                 <input type="radio" name="projectRadio" ng-value="{{ element.id }}" ng-model="$parent.projectRadio" checked>{{ element.name }}
               </label>
             </div>
           </div>
+          <h4 style="text-align: center;" ng-show="model.length == 0">No projects found.</h4>
           <hr/>
           <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()">Import</button>
+          <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()" ng-show="model.length > 0">Import</button>
           <div style="clear: both;"></div>
         </div>
       </div>
