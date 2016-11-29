@@ -161,11 +161,17 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
     std::unique_ptr<te::rst::Raster> raster(
       dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
 
-    std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
-
     te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
 
-    item->setRaster(rasterColumn, adapted.release());
+    if(yReverse_)
+    {
+      std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
+      item->setRaster(rasterColumn, adapted.release());
+    }
+    else
+      item->setRaster(rasterColumn, raster.release());
+
+
     if(isValidColumn(timestampColumn))
       item->setDateTime(timestampColumn,
                         fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
@@ -851,7 +857,7 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
       case FindSection:
       {
         line = trim(in.readLine().toStdString());
-        if(line.empty())
+        if(line.empty() || line.front() == '*')
           continue;
 
         std::string key(line);
@@ -987,34 +993,28 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
 
     vrtfile << std::endl << "<SRS>" << wktStr << "</SRS>";
 
-    // In case 'yrev' option is given, we need to flip the image
-    bool isYReverse = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end();
+    // The yRev option from the grads consider the DATA from north to south, that's our normal orientation
+    // if yRev is not set the raster lines will be inverted
+    yReverse_ = ! (std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end());
 
-    //FIXME: don't work if the image area stats before the 180 degree line and ends after.
+    //FIXME: don't work if the image area stars before the 180 degree line and ends after.
     //ticket: https://trac.dpi.inpe.br/terrama2/ticket/935
 
     //change longitude from 0/360 to -180/180
     if(descriptor.xDef_->values_[0] > 180)
       descriptor.xDef_->values_[0] = 180. - descriptor.xDef_->values_[0];
 
-    if(isYReverse)
+    if((descriptor.xDef_->values_[1] == 0.0) || (descriptor.yDef_->values_[1] == 0.0))
     {
-      /// Uses a transformation to flip the image
-      if((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
-      {
-        vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
-                << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] << ",0,"
-                << descriptor.yDef_->values_[1]
-                << "</GeoTransform>";
-      }
+      QString errMsg = QObject::tr("Invalid resolution in dataset: %1").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
     }
-    else
-    {
-      vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
-              << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] + descriptor.yDef_->numValues_ * descriptor.yDef_->values_[1] << ",0,"
-              << -descriptor.yDef_->values_[1]
-              << "</GeoTransform>";
-    }
+
+    vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
+            << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] + descriptor.yDef_->numValues_ * descriptor.yDef_->values_[1] << ",0,"
+            << -descriptor.yDef_->values_[1]
+            << "</GeoTransform>";
 
     bool isSequential = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "SEQUENTIAL") != descriptor.vecOptions_.end();
 

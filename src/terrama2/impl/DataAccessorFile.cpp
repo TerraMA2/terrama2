@@ -260,7 +260,7 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
 
   std::shared_ptr< te::rst::Raster > raster(dataSet->getRaster(rasterColumn));
 
-  std::unique_ptr<const te::gm::Envelope> envelope(filter.region->getMBR());
+  auto envelope = filter.region->getMBR();
   if(!raster->getExtent(filter.region->getSRID())->intersects(*envelope))
     return false;
 
