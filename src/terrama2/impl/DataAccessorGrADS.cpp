@@ -129,6 +129,20 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 
     datasetMask = grad2TerramaMask(datasetMask.c_str()).toStdString();
 
+    // In case the user specified a binary file mask, use it instead of the one in the CTL file.
+    try
+    {
+      std::string binaryFileMask = getBinaryFileMask(dataset);
+      if(!binaryFileMask.empty())
+      {
+        datasetMask = binaryFileMask;
+      }
+    }
+    catch(...)
+    {
+      // In case no binary file mask specified, use dataset mask in the CTL file.
+    }
+
     dataRetriever->retrieveData(datasetMask, filter, remover, uri, folderPath);
   }
 
