@@ -29,6 +29,25 @@
         {key: "name", as: i18n.__("Name")},
         {key: "description", as: i18n.__("Description")}
       ];
+      $scope.iconProperties = {};
+      $scope.loading = true;
+      $scope.projectsCheckboxes = {};
+      $scope.projectRadio = null;
+      $scope.exportData = {
+        "Projects": [],
+        "DataProviders": [],
+        "DataSeries": [],
+        "Collectors": [],
+        "Analysis": [],
+        "Views": []
+      };
+
+      var setError = function(err) {
+        $scope.display = true;
+        $scope.alertLevel = "alert-danger";
+        $scope.alertBox.message = err.toString();
+        $scope.extra.isImporting = false;
+      };
 
       $scope.remove = function(object) {
         return "/api/Project/" + object.id + "/delete";
@@ -37,9 +56,38 @@
       $scope.link = function(object) {
         return "/configuration/projects/" + object.name + "/activate";
       };
-      $scope.iconProperties = {};
 
-      $scope.loading = true;
+      $scope.projectCheck = function(element) {
+        if($scope.projectsCheckboxes[element.id].project) {
+          if($scope.projectsCheckboxes[element.id].dataProviders != undefined) {
+            for(var property in $scope.projectsCheckboxes[element.id].dataProviders) {
+              if($scope.projectsCheckboxes[element.id].dataProviders.hasOwnProperty(property))
+                $scope.projectsCheckboxes[element.id].dataProviders[property] = true;
+            }
+          }
+
+          if($scope.projectsCheckboxes[element.id].dataSeries != undefined) {
+            for(var property in $scope.projectsCheckboxes[element.id].dataSeries) {
+              if($scope.projectsCheckboxes[element.id].dataSeries.hasOwnProperty(property))
+                $scope.projectsCheckboxes[element.id].dataSeries[property] = true;
+            }
+          }
+
+          if($scope.projectsCheckboxes[element.id].analysis != undefined) {
+            for(var property in $scope.projectsCheckboxes[element.id].analysis) {
+              if($scope.projectsCheckboxes[element.id].analysis.hasOwnProperty(property))
+                $scope.projectsCheckboxes[element.id].analysis[property] = true;
+            }
+          }
+
+          if($scope.projectsCheckboxes[element.id].views != undefined) {
+            for(var property in $scope.projectsCheckboxes[element.id].views) {
+              if($scope.projectsCheckboxes[element.id].views.hasOwnProperty(property))
+                $scope.projectsCheckboxes[element.id].views[property] = true;
+            }
+          }
+        }
+      };
 
       // alert-box
       $scope.alertLevel = "alert-success";
@@ -101,6 +149,8 @@
 
       // callback after remove operation
       $scope.extra = {
+        importJson: null,
+
         removeOperationCallback: function(err, data) {
           $scope.display = true;
           if (err) {
@@ -187,19 +237,6 @@
           $scope.extra.isExporting = true;
           socket.emit("export", $scope.exportData);
 
-          /*socket.emit("export", {
-            "Analysis":    [{"id": 1}, {"id": 2}]
-          });*/
-
-          /*
-          "Projects":      [{"id": 1}],
-          "DataProviders": [{"id": 1}, {"id": 2}],
-          "DataSeries":    [{"id": 1}, {"id": 2}],
-          "Collectors":    [],
-          "Analysis":      [{"id": 1}, {"id": 2}],
-          "Views":         []
-          */
-
           $scope.exportData = {
             "Projects": [],
             "DataProviders": [],
@@ -208,19 +245,14 @@
             "Analysis": [],
             "Views": []
           };
+
+          $('#exportModal').modal('hide');
         },
 
         import: function() {
           $scope.alertBox.title = i18n.__("Data Import");
           $scope.display = false;
           $scope.extra.isImporting = false;
-
-          var setError = function(err) {
-            $scope.display = true;
-            $scope.alertLevel = "alert-danger";
-            $scope.alertBox.message = err.toString();
-            $scope.extra.isImporting = false;
-          }
 
           FileDialog.openFile(function(err, input) {
             if (err) {
@@ -242,17 +274,36 @@
                   $scope.display = false;
                 }
 
-                if (!json.hasOwnProperty("Projects") ||
-                    !json.hasOwnProperty("DataSeries") ||
-                    !json.hasOwnProperty("DataProviders") ||
-                    !json.hasOwnProperty("Analysis")) {
+                if (!json.hasOwnProperty("Projects") &&
+                    !json.hasOwnProperty("DataSeries") &&
+                    !json.hasOwnProperty("DataProviders") &&
+                    !json.hasOwnProperty("Analysis") &&
+                    !json.hasOwnProperty("Collectors") &&
+                    !json.hasOwnProperty("Views")) {
                   setError(new Error("Invalid configuration file"));
                   return;
                 }
-                socket.emit("import", json);
+
+                if(json.Projects !== undefined && json.Projects.length > 0) {
+                  socket.emit("import", json);
+                } else {
+                  $scope.extra.isImporting = false;
+                  $scope.extra.importJson = json;
+                  $('#importModal').modal('show');
+                }
               });
             });
           }, false, ".terrama2, .json, application/json");
+        },
+
+        finalizeImportation: function() {
+          if($scope.projectRadio === null) {
+            setError(new Error("Select a project"));
+            $('#importModal').modal('hide');
+          } else {
+            $scope.extra.importJson['selectedProject'] = $scope.projectRadio;
+            socket.emit("import", $scope.extra.importJson);
+          }
         }
       };
 
@@ -355,50 +406,6 @@
       }).finally(function() {
         $scope.loading = false;
       });
-
-      $scope.projectsCheckboxes = {};
-
-      $scope.exportData = {
-        "Projects": [],
-        "DataProviders": [],
-        "DataSeries": [],
-        "Collectors": [],
-        "Analysis": [],
-        "Views": []
-      };
-
-      $scope.projectCheck = function(element) {
-        if($scope.projectsCheckboxes[element.id].project) {
-          if($scope.projectsCheckboxes[element.id].dataProviders != undefined) {
-            for(var property in $scope.projectsCheckboxes[element.id].dataProviders) {
-              if($scope.projectsCheckboxes[element.id].dataProviders.hasOwnProperty(property))
-                $scope.projectsCheckboxes[element.id].dataProviders[property] = true;
-            }
-          }
-
-          if($scope.projectsCheckboxes[element.id].dataSeries != undefined) {
-            for(var property in $scope.projectsCheckboxes[element.id].dataSeries) {
-              if($scope.projectsCheckboxes[element.id].dataSeries.hasOwnProperty(property))
-                $scope.projectsCheckboxes[element.id].dataSeries[property] = true;
-            }
-          }
-
-          if($scope.projectsCheckboxes[element.id].analysis != undefined) {
-            for(var property in $scope.projectsCheckboxes[element.id].analysis) {
-              if($scope.projectsCheckboxes[element.id].analysis.hasOwnProperty(property))
-                $scope.projectsCheckboxes[element.id].analysis[property] = true;
-            }
-          }
-
-          if($scope.projectsCheckboxes[element.id].views != undefined) {
-            for(var property in $scope.projectsCheckboxes[element.id].views) {
-              if($scope.projectsCheckboxes[element.id].views.hasOwnProperty(property))
-                $scope.projectsCheckboxes[element.id].views[property] = true;
-            }
-          }
-        }
-      };
-
     });
 </script>
 
@@ -500,6 +507,32 @@
             <button type="button" class="btn btn-primary pull-right" ng-click="extra.export(element)">Export</button>
             <div style="clear: both;"></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="importModal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+          <h4 class="modal-title">Select the project to which you want to import the data</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <div class="radio" ng-repeat="element in model">
+              <label>
+                <input type="radio" name="projectRadio" ng-value="{{ element.id }}" ng-model="$parent.projectRadio" checked>{{ element.name }}
+              </label>
+            </div>
+          </div>
+          <hr/>
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()">Import</button>
+          <div style="clear: both;"></div>
         </div>
       </div>
     </div>
