@@ -555,14 +555,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
       throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     }
 
-    auto raster = teDataSet->getRaster(0);
-    if(raster.get() == nullptr)
-    {
-      QString errMsg = QObject::tr("Invalid raster for dataset: %1").arg(dataSetName.c_str());
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-    }
-
     addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
     //update lastest file timestamp
