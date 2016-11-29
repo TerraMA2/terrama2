@@ -990,6 +990,9 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     // In case 'yrev' option is given, we need to flip the image
     bool isYReverse = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end();
 
+    //FIXME: don't work if the image area stats before the 180 degree line and ends after.
+    //ticket: https://trac.dpi.inpe.br/terrama2/ticket/935
+
     //change longitude from 0/360 to -180/180
     if(descriptor.xDef_->values_[0] > 180)
       descriptor.xDef_->values_[0] = 180. - descriptor.xDef_->values_[0];
