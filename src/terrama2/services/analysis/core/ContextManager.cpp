@@ -162,14 +162,14 @@ std::set<std::string> terrama2::services::analysis::core::ContextManager::getErr
   auto itm = monitoredObjectContextMap_.find(analysisHashCode);
   if(itm != monitoredObjectContextMap_.cend())
   {
-    auto errorList = itm->second->getErrors();
+    auto errorList = itm->second->getMessages(BaseContext::ERROR_MESSAGE);
     errors.insert(errorList.cbegin(), errorList.cend());
   }
 
   auto itg = gridContextMap_.find(analysisHashCode);
   if(itg != gridContextMap_.cend())
   {
-    auto errorList = itg->second->getErrors();
+    auto errorList = itg->second->getMessages(BaseContext::ERROR_MESSAGE);
     errors.insert(errorList.cbegin(), errorList.cend());
   }
 

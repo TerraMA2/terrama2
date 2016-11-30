@@ -31,7 +31,6 @@
 #include <terrama2/core/Typedef.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/Exception.hpp>
-
 #include "TsProcessLogger.hpp"
 #include "TestLogger.hpp"
 
@@ -41,22 +40,22 @@ void TsProcessLogger::testProcessLogger()
 {
   try
   {
-  TestLogger log;
+    TestLogger log;
 
-  RegisterId registerID = log.start(1);
+    RegisterId registerID = log.start(1);
 
-  log.logValue("tag1", "value1", registerID);
-  log.logValue("tag2", "value2", registerID);
-  log.logValue("tag1", "value3", registerID);
-  log.logValue("tag2", "value4", registerID);
-  log.error("Unit Test Error", registerID);
-  log.error("Unit Test second Error", registerID);
-  log.info("Unit Test Info", registerID);
-  log.info("Unit Test seconde Info", registerID);
+    log.logValue("tag1", "value1", registerID);
+    log.logValue("tag2", "value2", registerID);
+    log.logValue("tag1", "value3", registerID);
+    log.logValue("tag2", "value4", registerID);
+    log.log(TestLogger::ERROR_MESSAGE, "Unit Test Error", registerID);
+    log.log(TestLogger::ERROR_MESSAGE, "Unit Test second Error", registerID);
+    log.log(TestLogger::INFO_MESSAGE, "Unit Test Info", registerID);
+    log.log(TestLogger::INFO_MESSAGE, "Unit Test seconde Info", registerID);
 
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
+    std::shared_ptr< te::dt::TimeInstantTZ > dataTime = terrama2::core::TimeUtils::nowUTC();
 
-  log.done(dataTime, registerID);
+    log.result(terrama2::core::ProcessLogger::ERROR, dataTime, registerID);
   }
   catch(const terrama2::Exception& e)
   {

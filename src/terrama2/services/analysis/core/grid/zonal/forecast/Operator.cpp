@@ -63,7 +63,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
 //  }
 //  catch (const terrama2::core::VerifyException&)
 //  {
-//    contextManager.addError(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
+//    contextManager.addLogMessage(cache.analysisHashCode, QObject::tr("Use of invalid operator for analysis %1.").arg(analysis->id).toStdString());
 //    return NAN;
 //  }
 
@@ -203,18 +203,18 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
 //  }
 //  catch(const terrama2::Exception& e)
 //  {
-//    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+//    context->addLogMessage(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
 //    return NAN;
 //  }
 //  catch(const std::exception& e)
 //  {
-//    context->addError(e.what());
+//    context->addLogMessage(e.what());
 //    return NAN;
 //  }
 //  catch(...)
 //  {
 //    QString errMsg = QObject::tr("An unknown exception occurred.");
-//    context->addError(errMsg.toStdString());
+//    context->addLogMessage(errMsg.toStdString());
 //    return NAN;
 //  }
 }

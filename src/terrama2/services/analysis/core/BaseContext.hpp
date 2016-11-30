@@ -106,19 +106,6 @@ namespace terrama2
           }
         };
 
-        /*!
-          \brief Comparator the context key.
-        */
-        struct LessKeyComparator
-        {
-          /*!
-            \brief Operator less then.
-          */
-          bool operator()(const ObjectKey& lhs, const ObjectKey& rhs) const
-          {
-            return lhs.hashCode() < rhs.hashCode();
-          }
-        };
 
         struct EqualKeyComparator
         {
@@ -131,6 +118,19 @@ namespace terrama2
         class BaseContext : public std::enable_shared_from_this<BaseContext>
         {
           public:
+
+            /*!
+              \enum messageType
+
+              \brief Possible status of logged messages.
+            */
+            enum MessageType
+            {
+              ERROR_MESSAGE = 1,
+              INFO_MESSAGE = 2,
+              WARNING_MESSAGE = 3
+            };
+
             BaseContext(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
             virtual ~BaseContext();
@@ -139,7 +139,10 @@ namespace terrama2
             BaseContext& operator=(const BaseContext& other) = default;
             BaseContext& operator=(BaseContext&& other) = default;
 
-            inline const std::set<std::string>& getErrors() const { return errorsSet_; }
+            const std::set<std::string> getMessages(const MessageType messageType) const;
+
+            bool hasError() const;
+
 
             /*!
               \brief Returns a weak pointer to the data manager.
@@ -154,10 +157,10 @@ namespace terrama2
 
 
             /*!
-              \brief Adds an error message to list of errors that occurred in the analysis execution.
-              \param errorMessage The error message.
+              \brief Adds an log message to the list that occurred in the analysis execution.
+              \param message The log message.
             */
-            void addError(const std::string& errorMessage);
+            void addLogMessage(MessageType messageType, const std::string &message);
 
             terrama2::core::DataSeriesPtr findDataSeries(const std::string& dataSeriesName);
 
@@ -178,6 +181,8 @@ namespace terrama2
 
             std::unique_ptr<te::dt::TimeInstantTZ> getTimeFromString(const std::string& timeString) const;
 
+
+
           protected:
             /*!
               \brief Return the a multimap of DataSetGridPtr to Raster
@@ -190,16 +195,18 @@ namespace terrama2
 
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.
 
+
+
             std::weak_ptr<terrama2::services::analysis::core::DataManager> dataManager_;
             AnalysisPtr analysis_;
             std::shared_ptr<te::dt::TimeInstantTZ> startTime_;
-            std::set<std::string> errorsSet_;
+            std::map<BaseContext::MessageType, std::set<std::string> > logMessages_;
             std::shared_ptr<terrama2::core::FileRemover> remover_;
 
             std::unordered_map<std::string, terrama2::core::DataSeriesPtr > dataSeriesMap_;
             std::unordered_map<Srid, std::shared_ptr<te::srs::Converter> > converterMap_;
             std::unordered_map<ObjectKey, std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator> analysisGridMap_;
-            std::unordered_map<ObjectKey, std::unordered_map<terrama2::core::DataSetPtr,terrama2::core::DataSetSeries >, ObjectKeyHash, EqualKeyComparator> analysisSeriesMap_;
+            std::unordered_map<ObjectKey, std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries >, ObjectKeyHash, EqualKeyComparator> analysisSeriesMap_;
             std::unordered_map<ObjectKey, std::vector<std::shared_ptr<te::rst::Raster> >, ObjectKeyHash, EqualKeyComparator > rasterMap_;
             std::unordered_map<std::shared_ptr<te::rst::Raster>, std::shared_ptr<terrama2::core::SynchronizedInterpolator> > interpolatorMap_;
         };

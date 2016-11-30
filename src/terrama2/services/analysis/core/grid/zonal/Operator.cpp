@@ -101,8 +101,8 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   bool exceptionOccurred = false;
   try
   {
-    // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
+    // In case an error has already occurred, there is nothing to do.
+    if(context->hasError())
     {
       return std::nan("");
     }
@@ -199,18 +199,18 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return std::nan("");
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
     return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return std::nan("");
   }
 }
