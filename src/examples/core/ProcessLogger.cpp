@@ -80,16 +80,16 @@ int main(int argc, char* argv[])
     log.logValue("tag2", "value4", registerID);
 
     // Log errors
-    log.error("Unit Test Error", registerID);
-    log.error("Unit Test second Error", registerID);
+    log.log(Logger::ERROR_MESSAGE, "Unit Test Error", registerID);
+    log.log(Logger::ERROR_MESSAGE, "Unit Test second Error", registerID);
 
     // Log informations
-    log.info("Unit Test Info", registerID);
-    log.info("Unit Test seconde Info", registerID);
+    log.log(Logger::INFO_MESSAGE, "Unit Test Info", registerID);
+    log.log(Logger::INFO_MESSAGE, "Unit Test seconde Info", registerID);
 
     // Log the end of process with the timestamp of processed data
     std::shared_ptr< te::dt::TimeInstantTZ > data_dateTime = terrama2::core::TimeUtils::nowUTC();
-    log.done(data_dateTime, registerID);
+    log.result(Logger::DONE, data_dateTime, registerID);
 
     // Get the process ID consulting by register ID
     ProcessId process_id = log.processID(registerID);

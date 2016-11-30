@@ -916,7 +916,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
             if(id == dataset->format.end() || foreing == dataset->format.end())
             {
-              logger->error("Data to join not informed.", logId);
+              logger->log(ViewLogger::ERROR_MESSAGE, "Data to join not informed.", logId);
               TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
               continue;
             }
@@ -930,14 +930,14 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
                || monitoredObjectUrl.port() != url.port()
                || monitoredObjectUrl.path().section("/", 1, 1) != url.path().section("/", 1, 1))
             {
-              logger->error("Data to join is in a different DB.", logId);
+              logger->log(ViewLogger::ERROR_MESSAGE, "Data to join is in a different DB.", logId);
               TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
               continue;
             }
 
             if(monitoredObjectDataSeries->datasetList.empty())
             {
-              logger->error("No join data.", logId);
+              logger->log(ViewLogger::ERROR_MESSAGE, "No join data.", logId);
               TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
               continue;
             }
@@ -976,7 +976,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     }
     else
     {
-      logger->info("No data to register.", logId);
+      logger->log(ViewLogger::WARNING_MESSAGE, "No data to register.", logId);
       TERRAMA2_LOG_WARNING() << QObject::tr("No data to register in maps server.");
       continue;
     }

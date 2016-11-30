@@ -60,10 +60,10 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     return;
   }
 
+  RegisterId logId = 0;
   try
   {
     auto alertId = alertInfo.first;
-    RegisterId logId = 0;
 
     logId = logger->start(alertId);
 
@@ -101,7 +101,8 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
     auto dataMap = dataAccessor->getSeries(filter, remover);
     if(dataMap.empty())
     {
-      logger->done(nullptr, logId);
+      logger->result(AlertLogger::DONE, nullptr, logId);
+      logger->log(AlertLogger::WARNING_MESSAGE, QObject::tr("No data to available.").toStdString(), logId);
       TERRAMA2_LOG_WARNING() << QObject::tr("No data to available.");
       return;
     }
@@ -179,25 +180,34 @@ void terrama2::services::alert::core::runAlert(std::pair<AlertId, std::shared_pt
       report->process(alertPtr, dataset, alertInfo.second, alertDataSet);
     }
 
-    logger->done(alertInfo.second, logId);
+    logger->result(AlertLogger::DONE, alertInfo.second, logId);
   }
   catch(const terrama2::Exception& e)
   {
+    logger->result(AlertLogger::ERROR, nullptr, logId);
+    logger->log(AlertLogger::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString(), logId);
     TERRAMA2_LOG_DEBUG() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
     throw;//re-throw
   }
   catch(boost::exception& e)
   {
+    logger->result(AlertLogger::ERROR, nullptr, logId);
+    logger->log(AlertLogger::ERROR_MESSAGE, boost::diagnostic_information(e), logId);
     TERRAMA2_LOG_ERROR() << boost::diagnostic_information(e);
   }
   catch(std::exception& e)
   {
     QString errMsg(e.what());
+    logger->result(AlertLogger::ERROR, nullptr, logId);
+    logger->log(AlertLogger::ERROR_MESSAGE, e.what(), logId);
     TERRAMA2_LOG_ERROR() << errMsg;
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception");
+    QString errMsg = QObject::tr("Unknown exception");
+    logger->result(AlertLogger::ERROR, nullptr, logId);
+    logger->log(AlertLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+    TERRAMA2_LOG_ERROR() << errMsg;
   }
 }
 
