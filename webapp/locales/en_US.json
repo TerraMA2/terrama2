@@ -578,5 +578,10 @@
 				}
 			}
 		}
-	}
+	},
+	"Select Static DataSeries": "Select Static DataSeries",
+	"Select Attibutes": "Select Attibutes",
+	"Select attributes": "Select attributes",
+	"Band": "Band",
+	"Close": "Close"
 }
