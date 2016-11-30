@@ -699,7 +699,7 @@ terrama2::core::GrADSDataDescriptor::getValueDef(const std::string& value, const
   valueDef->numValues_ = tokens[0].toInt();
   if(!ok)
   {
-    QString errMsg = QObject::tr("Invalid value for %1DEF, expected an INT and found: %1").arg(dimension.c_str()).arg(tokens[1]);
+    QString errMsg = QObject::tr("Invalid value for %1DEF, expected an INT and found: %2").arg(dimension.c_str()).arg(tokens[1]);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
