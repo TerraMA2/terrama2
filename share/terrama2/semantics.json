@@ -572,7 +572,8 @@
           },
           "data_type" : {
             "type": "string",
-            "title": "Data Type"
+            "title": "Data Type",
+            "default": "FLOAT32"
           },
           "binary_file_mask" : {
             "type": "string",

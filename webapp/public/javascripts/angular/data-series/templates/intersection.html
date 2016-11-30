@@ -4,7 +4,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="dataSeriesModalLabel">{{ i18n.__('Select DataSeries') }}</h4>
+        <h4 class="modal-title" id="dataSeriesModalLabel">{{ i18n.__('Select Static DataSeries') }}</h4>
       </div>
       <div class="modal-body">
 
@@ -24,10 +24,102 @@
   </div>
 </div>
 
+<!-- Attributes modal -->
+<div class="modal fade" id="attributesModal" tabindex="-1" role="dialog" aria-labelledby="attributesModalLabel">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="attributesModalLabel">{{ i18n.__('Select Attibutes') }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="col-md-12">
+          <div class="col-md-12 terrama2-nopadding-box">
+            <div class="box box-default box-solid">
+              <div class="box-header with-border">
+                <h3 class="box-title">{{ !selectedIntersection.isGrid ? i18n.__('Attributes') : i18n.__('Bands') }}</h3>
+              </div>
+
+              <div style="display: block;" class="box-body">
+                <div class="col-md-10">
+                  <div class="form-group">
+                    <label>{{ !selectedIntersection.isGrid ? i18n.__('Attribute') : i18n.__('Band') }}:</label>
+
+                    <!-- Input when data is grid -->
+                    <input type="number"
+                          class="form-control"
+                          min="0"
+                          ng-show="selectedIntersection.isGrid"
+                          ng-model="attr">
+
+                    <!-- Input when data is not grid -->
+                    <input type="text"
+                          class="form-control"
+                          ng-show="!selectedIntersection.isGrid"
+                          ng-model="attrText"
+                          list="tableColumnsList">
+
+                  </div>
+                </div>
+
+                <div class="col-md-2">
+                  <div class="col-md-2 terrama2-nopadding-box">
+                    <div class="form-group">
+
+                      <!-- Button when data is not grid -->
+                      <button class="btn btn-default pull-right"
+                              style="margin-top: 24px;"
+                              ng-show="!selectedIntersection.isGrid"
+                              ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attrText); attrText='';">
+                        <i class="fa fa-plus"></i>
+                      </button>
+
+                      <!-- Button when data is grid -->
+                      <button class="btn btn-default pull-right"
+                              style="margin-top: 24px;"
+                              ng-show="selectedIntersection.isGrid"
+                              ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attr.toString()); attr='';">
+                        <i class="fa fa-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-12">
+                  <table class="table table-bordered terrama2-table">
+                    <tbody class="terrama2-tbody">
+                      <tr class="terrama2-tr">
+                        <th colspan="2">{{ !selectedIntersection.isGrid ? i18n.__('Attribute') : i18n.__('Band') }}</th>
+                      </tr>
+
+                      <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
+                        <td style="width: 83%;">{{ att }}</td>
+                        <td>
+                          <button class="btn btn-sm btn-danger pull-right"
+                                  ng-click="removeAttribute(selectedIntersection, att)">
+                            {{ i18n.__('Remove') }}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">{{i18n.__('Close')}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row">
   <div class="col-md-12">
     <div class="col-md-12">
-      <form name="forms.intersectionForm" novalidate>
+      <form name="forms.intersectionForm">
         <div class="col-md-12">
           <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
             <i class="fa fa-plus"></i>
@@ -38,6 +130,7 @@
               <th>{{ i18n.__('Name') }}</th>
               <th>{{ i18n.__('Type') }}</th>
               <th></th>
+              <th></th>
 
               <tr class="terrama2-table-tr"
                   ng-repeat="(dsId, inter) in intersection"
@@ -46,6 +139,18 @@
                   ng-class="{'active': selectedIntersection && selectedIntersection.id == dsId}">
                 <td>{{ inter.data_series.name }}</td>
                 <td>{{ inter.data_series.data_series_semantics.name }}</td>
+                <td class="pull-cell-left">
+                  <button type="button"
+                          class="btn btn-default btn-sm"
+                          data-toggle="modal"
+                          data-placement="top"
+                          title='{{ i18n.__("Select attributes") }}'
+                          name="button"
+                          data-target="#attributesModal"
+                          data-ng-click="onIntersectionDataSeriesClick(inter.data_series)">
+                        {{ i18n.__("Attributes") }}
+                  </button>
+                </td>
                 <td class="pull-cell-left">
                   <button type="button"
                           class="btn btn-danger btn-sm"
@@ -60,80 +165,12 @@
               </tr>
 
               <tr class="terrama2-table-tr" ng-show="isIntersectionEmpty()">
-                <td colspan="3">
+                <td colspan="4">
                   {{ i18n.__("No intersection data series selected"); }}
                 </td>
               </tr>
             </tbody>
           </table>
-        </div>
-
-        <div class="col-md-12">
-          <div class="col-md-12 terrama2-nopadding-box">
-            <div class="box box-default box-solid">
-              <div class="box-header with-border">
-                <h3 class="box-title">{{ i18n.__('Attributes') }}</h3>
-              </div>
-
-              <div style="display: block;" class="box-body">
-                <div class="col-md-10">
-                  <div class="form-group" terrama2-show-errors>
-                    <label>{{ i18n.__('Attribute Name') }}:</label>
-                    <input type="text"
-                           class="form-control"
-                           name="attribute"
-                           ng-model="attribute"
-                           ng-disabled="!selectedIntersection || selectedIntersection.isGrid"
-                           ng-required="selectedIntersection"
-                           id="attribute_name"
-                           list="tableColumnsList">
-
-                    <label class="help-block text-danger"
-                           ng-show="forms.intersectionForm.attribute.$dirty && forms.intersectionForm.attribute.$error.required">
-                      {{ i18n.__("Attribute name is required") }}
-                    </label>
-
-                    <label class="help-block text-danger"
-                           ng-show="forms.intersectionForm.attribute.$dirty && forms.intersectionForm.attribute.$error.sameValue">
-                      {{ i18n.__("Attribute name cannot be same") }}
-                    </label>
-                  </div>
-                </div>
-
-                <div class="col-md-2">
-                  <div class="col-md-2 terrama2-nopadding-box">
-                    <div class="form-group">
-                      <button class="btn btn-default pull-right"
-                              style="margin-top: 24px;"
-                              ng-click="addAttribute(forms.intersectionForm, selectedIntersection, attribute); attribute='';"
-                              ng-disabled="!selectedIntersection || selectedIntersection.isGrid">
-                        <i class="fa fa-plus"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-12">
-                  <table class="table table-bordered terrama2-table">
-                    <tbody class="terrama2-tbody">
-                      <th>{{ i18n.__('Attribute') }}</th>
-                      <th></th>
-
-                      <tr class="terrama2-tr"ng-repeat="att in intersection[selectedIntersection.id].attributes">
-                        <td>{{ att }}</td>
-                        <td>
-                          <button class="btn btn-sm btn-danger pull-right"
-                                  ng-click="removeAttribute(selectedIntersection, att)">
-                            {{ i18n.__('Remove') }}
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </form>
     </div>
