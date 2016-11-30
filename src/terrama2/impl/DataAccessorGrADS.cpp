@@ -1049,7 +1049,7 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
     //ticket: https://trac.dpi.inpe.br/terrama2/ticket/935
 
     //change longitude from 0/360 to -180/180
-   if(descriptor.xDef_->values_[0] > 180)
+    if(descriptor.xDef_->values_[0] > 180)
       descriptor.xDef_->values_[0] = descriptor.xDef_->values_[0] - 360;
 
     if((descriptor.xDef_->values_[1] == 0.0) || (descriptor.yDef_->values_[1] == 0.0))
