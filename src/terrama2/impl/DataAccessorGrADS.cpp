@@ -161,11 +161,17 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
     std::unique_ptr<te::rst::Raster> raster(
       dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
 
-    std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
-
     te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
 
-    item->setRaster(rasterColumn, adapted.release());
+    if(yReverse_)
+    {
+      std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
+      item->setRaster(rasterColumn, adapted.release());
+    }
+    else
+      item->setRaster(rasterColumn, raster.release());
+
+
     if(isValidColumn(timestampColumn))
       item->setDateTime(timestampColumn,
                         fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
@@ -399,8 +405,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), "file://"+typePrefix() + dataFileInfo.absolutePath().toStdString() + "/" + name));
 
       //RAII for open/closing the datasource
-      OpenClose<std::shared_ptr<te::da::DataSource> > openClose
-      (datasource);
+      OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
 
       if(!datasource->isOpened())
       {
@@ -431,7 +436,17 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       // but we can open directly with the file name.
       // should we check or just continue with the file name?
 
-      std::shared_ptr<te::da::DataSet> teDataSet(transactor->getDataSet(dataSetName));
+      if(first)
+      {
+        //read and adapt all te:da::DataSet from terrama2::core::DataSet
+        converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
+        series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+        assert(series.teDataSetType.get());
+        completeDataset = createCompleteDataSet(series.teDataSetType);
+        first = false;
+      }
+
+      std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
       if(!teDataSet)
       {
         QString errMsg = QObject::tr("Could not read dataset: %1").arg(dataSetName.c_str());
@@ -447,17 +462,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
       }
 
-
-      if(first)
-      {
-        //read and adapt all te:da::DataSet from terrama2::core::DataSet
-        converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
-        series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-        assert(series.teDataSetType.get());
-        completeDataset = createCompleteDataSet(series.teDataSetType);
-        first = false;
-      }
-
       // If could not find a valid date for the binary file, uses the CTL date.
       if(!thisFileTimestamp)
       {
@@ -468,7 +472,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
 
-      if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
+      if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
         lastFileTimestamp = thisFileTimestamp;
     }
   }
@@ -487,18 +491,20 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
 
+  cropRaster(completeDataset, filter);
+
   //if both dates are valid
-  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
+  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
+      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
   {
     (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
-  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
   {
     //if only fileTimestamp is valid
     (*lastDateTime_) = *lastFileTimestamp;
   }
-  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special())
   {
     //if only dataTimeStamp is valid
     (*lastDateTime_) = *dataTimeStamp;
@@ -851,7 +857,7 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
       case FindSection:
       {
         line = trim(in.readLine().toStdString());
-        if(line.empty())
+        if(line.empty() || line.front() == '*')
           continue;
 
         std::string key(line);
@@ -987,26 +993,28 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
 
     vrtfile << std::endl << "<SRS>" << wktStr << "</SRS>";
 
-    // In case 'yrev' option is given, we need to flip the image
-    bool isYReverse = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end();
-    if(isYReverse)
+    // The yRev option from the grads consider the DATA from north to south, that's our normal orientation
+    // if yRev is not set the raster lines will be inverted
+    yReverse_ = ! (std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end());
+
+    //FIXME: don't work if the image area stars before the 180 degree line and ends after.
+    //ticket: https://trac.dpi.inpe.br/terrama2/ticket/935
+
+    //change longitude from 0/360 to -180/180
+    if(descriptor.xDef_->values_[0] > 180)
+      descriptor.xDef_->values_[0] = descriptor.xDef_->values_[0] - 360;
+
+    if((descriptor.xDef_->values_[1] == 0.0) || (descriptor.yDef_->values_[1] == 0.0))
     {
-      /// Uses a transformation to flip the image
-      if((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
-      {
-        vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
-                << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] << ",0,"
-                << descriptor.yDef_->values_[1]
-                << "</GeoTransform>";
-      }
+      QString errMsg = QObject::tr("Invalid resolution in dataset: %1").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
     }
-    else
-    {
-      vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
-              << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] + descriptor.yDef_->numValues_ * descriptor.yDef_->values_[1] << ",0,"
-              << -descriptor.yDef_->values_[1]
-              << "</GeoTransform>";
-    }
+
+    vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
+            << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] + descriptor.yDef_->numValues_ * descriptor.yDef_->values_[1] << ",0,"
+            << -descriptor.yDef_->values_[1]
+            << "</GeoTransform>";
 
     bool isSequential = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "SEQUENTIAL") != descriptor.vecOptions_.end();
 
