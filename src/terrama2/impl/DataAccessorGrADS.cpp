@@ -544,7 +544,16 @@ void terrama2::core::GrADSDataDescriptor::addVar(const std::string& strVar)
   if(tokens.size() >= 4)
   {
     var->varName_ = tokens[0].toStdString();
-    var->verticalLevels_ = tokens[1].toInt();
+
+    bool ok = true;
+    var->verticalLevels_ = tokens[1].toInt(&ok);
+    if(!ok)
+    {
+      QString errMsg = QObject::tr("Invalid value for VAR, expected an INT and found: %1").arg(tokens[1]);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
+    }
+
     var->units_ = tokens[2].toStdString();
 
     // Description may have spaces, need to concatenate all pieces
@@ -642,7 +651,15 @@ terrama2::core::GrADSDataDescriptor::getTValueDef(const std::string& value)
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  valueDef->numValues_ = tokens[0].toInt();
+  bool ok = true;
+  valueDef->numValues_ = tokens[0].toInt(&ok);
+  if(!ok)
+  {
+    QString errMsg = QObject::tr("Invalid value for TDEF, expected an INT and found: %1").arg(tokens[0]);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
   if(tokens[1].toUpper() == "LINEAR")
     valueDef->dimensionType_ = LINEAR;
   else if(tokens[1].toUpper() == "LEVELS")
@@ -678,7 +695,15 @@ terrama2::core::GrADSDataDescriptor::getValueDef(const std::string& value, const
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
+  bool ok = true;
   valueDef->numValues_ = tokens[0].toInt();
+  if(!ok)
+  {
+    QString errMsg = QObject::tr("Invalid value for %1DEF, expected an INT and found: %2").arg(dimension.c_str()).arg(tokens[1]);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
   std::string token = tokens[1].toUpper().toStdString();
   if(token == "LINEAR")
     valueDef->dimensionType_ = LINEAR;
@@ -705,7 +730,16 @@ terrama2::core::GrADSDataDescriptor::getValueDef(const std::string& value, const
 
   for(int i = 2; i < tokens.size(); ++i)
   {
-    valueDef->values_.push_back(tokens[i].toFloat());
+    bool ok = true;
+    double value = tokens[i].toDouble(&ok);
+
+    if(!ok)
+    {
+      QString errMsg = QObject::tr("Invalid value for %1DEF, expected a double and found: %2").arg(dimension.c_str()).arg(tokens[i]);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
+    }
+    valueDef->values_.push_back(value);
   }
 
   return valueDef;
