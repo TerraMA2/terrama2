@@ -292,6 +292,11 @@ bootstrap-decorator span {
   background-color: #367fa9 !important;
 }
 
+.grads-form-item {
+  margin-bottom: 25px !important;
+}
+
+
 /*
   It fixes intersection nav to include check icon
 */

@@ -69,8 +69,6 @@ namespace terrama2
         //! Recover file mask
         virtual std::string getMask(DataSetPtr dataset) const;
 
-        virtual std::string getFolderMask(DataSetPtr dataSet) const;
-
         virtual QFileInfoList getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const;
 
         /*!
@@ -89,17 +87,28 @@ namespace terrama2
                                                   std::shared_ptr<terrama2::core::FileRemover> remover);
 
       protected:
-        virtual std::shared_ptr<te::da::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
-        virtual std::shared_ptr<te::da::DataSet> internalCreateCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType, bool enableFileName, bool enableFileTimestamp) const final;
-        virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+        virtual std::shared_ptr<te::mem::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
+        virtual std::shared_ptr<te::mem::DataSet> internalCreateCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType, bool enableFileName, bool enableFileTimestamp) const final;
+        virtual void addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
                                           std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr< te::dt::TimeInstantTZ >, const std::string&) const;
         virtual std::shared_ptr<te::da::DataSet> getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor, const std::string& dataSetName, std::shared_ptr<te::da::DataSetTypeConverter> converter) const;
 
         /*!
           \brief Filter dataset based on Filter
         */
-        virtual void filterDataSet(std::shared_ptr<te::da::DataSet> completeDataSet, const Filter& filter) const;
-        void filterDataSetByLastValue(std::shared_ptr<te::da::DataSet> completeDataSet,
+        virtual void filterDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet, const Filter& filter) const;
+
+        /*!
+          \brief Crop raster with the geometry filter.
+        */
+        void cropRaster(std::shared_ptr<te::mem::DataSet> completeDataSet, const Filter& filter) const;
+
+        /*!
+          \brief Filter the dataset by the last timestamp found.
+
+          \param lastTimestamp Last timestamp found in dataset.
+        */
+        void filterDataSetByLastValue(std::shared_ptr<te::mem::DataSet> completeDataSet,
                                       const Filter& filter,
                                       std::shared_ptr<te::dt::TimeInstantTZ> lastTimestamp) const;
 

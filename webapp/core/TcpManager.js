@@ -279,7 +279,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
 
     return instance.connect(serviceInstance).then(function() {
       return PromiseClass.all([
-          instance.adapter.execute(Utils.format("%s --version", serviceInstance.pathToBinary)),
+          instance.adapter.execute(serviceInstance.pathToBinary, ['--version'], {}),
           instance.startService()
         ])
         .spread(function(versionResponse, startResponse) {

@@ -54,7 +54,7 @@ namespace terrama2
 
       ## JSon ##
 
-      Base structure for transferece of a DataSeries.
+      Base structure for transference of a DataSeries.
 
       \code{.json}
         {
@@ -64,6 +64,7 @@ namespace terrama2
           "name" : STRING,
           "description" : STRING,
           "semantics" : STRING,
+          "active" : BOOL
           "datasets" : [DataSet, ...]
         }
       \endcode
@@ -77,6 +78,7 @@ namespace terrama2
       DataSeriesSemantics semantics; //!< Semantics of the DataSeries.
       std::string name; //!< Name of the DataSeries, must be unique.
       std::string description; //!< Description of the DataSeries.
+      bool active; //!< Attribute that indicates if the DataSeries should be used.
 
       std::vector< DataSetPtr > datasetList;
 

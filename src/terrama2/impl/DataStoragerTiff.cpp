@@ -41,6 +41,8 @@
 //Qt
 #include <QUrl>
 
+#include <boost/filesystem.hpp>
+
 terrama2::core::DataStoragerPtr terrama2::core::DataStoragerTiff::make(DataProviderPtr dataProvider)
 {
   return std::make_shared<DataStoragerTiff>(dataProvider);
@@ -206,8 +208,20 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  QUrl uri(QString::fromStdString(dataProvider_->uri));
-  auto path = uri.path().toStdString();
+  std::string outputURI = dataProvider_->uri;
+  try
+  {
+    std::string folder = terrama2::core::getFolderMask(outputDataSet, nullptr);
+    if (!folder.empty())
+      outputURI += "/" + folder;
+  }
+  catch(...)
+  {
+    // nothing to be done
+  }
+
+  QUrl uri(outputURI.c_str());
+  std::string path = uri.path().toStdString();
 
 
   std::string mask = getMask(outputDataSet);
@@ -258,6 +272,9 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     if(filename.compare(filename.size() - suffix.size(), suffix.size(), suffix) != 0)
       filename += ".tif";
 
+    if(!boost::filesystem::is_directory(path))
+      boost::filesystem::create_directories(path);
+
     std::string output = path + "/" + filename;
     te::rp::Copy2DiskRaster(*raster, output);
   }
@@ -265,6 +282,20 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
 
 std::string terrama2::core::DataStoragerTiff::getCompleteURI(DataSetPtr outputDataSet) const
 {
+  std::string completeUri = dataProvider_->uri;
+  try
+  {
+    std::string folder = terrama2::core::getFolderMask(outputDataSet, nullptr);
+    if (!folder.empty())
+      completeUri += "/" + folder;
+  }
+  catch(...)
+  {
+    // nothing to be done
+  }
+
+
   std::string mask = getMask(outputDataSet);
-  return dataProvider_->uri + "/" + mask;
+  completeUri += "/" + mask;
+  return completeUri;
 }

@@ -360,8 +360,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
 
     if(createSpatialIndex)
     {
-      int size = series.syncDataSet->size();
-      for(std::size_t i = 0; i < size; ++i)
+      for(std::size_t i = 0; i < series.syncDataSet->size(); ++i)
       {
 
         auto geom = series.syncDataSet->getGeometry(i, geomPropertyPosition);
@@ -412,7 +411,7 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
 
-        addError(errMsg.toStdString());
+        addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
         return contextDataSeries;
       }
 

@@ -19,7 +19,7 @@ var DataProvider = function(params) {
 
   this.name = params.name;
   this.active = params.active;
-  this.uri = decodeURI(params.uri);
+  this.uri = params.uri;
 };
 
 DataProvider.prototype = Object.create(AbstractData.prototype);
@@ -33,7 +33,8 @@ DataProvider.prototype.toObject = function() {
     intent: this.data_provider_intent_id,
     name: this.name,
     description: this.description,
-    uri: decodeURIComponent(this.uri),
+    //uri: decodeURIComponent(this.uri),
+    uri: this.uri,
     active: this.active
   });
 };

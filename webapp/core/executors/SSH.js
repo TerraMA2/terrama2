@@ -32,14 +32,13 @@ SSHDispatcher.prototype.connect = function(serviceInstance) {
 
       // detecting OS
       // win
-      self.execute("ipconfig").then(function(resp) {
-        self.platform = Enums.OS.WIN;
-      }).catch(function(err) {
-        // detecting MAC or Linux
-        return self.execute("uname");
-      }).finally(function() {
-        return resolve();
-      });
+      return self.execute("uname")
+        .catch(function(err) {
+          self.platform = Enums.OS.WIN;
+          return null;
+        }).finally(function() {
+          return resolve();
+        });
     });
 
     self.client.on('keyboard-interactive', function(name, instructions, instructionsLang, prompts, finish) {
@@ -91,14 +90,14 @@ SSHDispatcher.prototype.disconnect = function() {
   });
 };
 
-SSHDispatcher.prototype.execute = function(command) {
+SSHDispatcher.prototype.execute = function(command, commandArgs, options) {
   var self = this;
   return new Promise(function(resolve, reject) {
     if (!self.connected) {
       return reject(new Error("Could not start service. There is no such active connection"));
     }
 
-    self.client.exec(command, function(err, stream) {
+    self.client.exec(command + " " + (commandArgs || []).join(" "), function(err, stream) {
       if (err) { return reject(err); }
 
       var responseMessage = "";
@@ -132,8 +131,8 @@ SSHDispatcher.prototype.execute = function(command) {
               logger.debug("Unknown platform");
               self.platform = Enums.OS.UNKNOWN;
           }
-          responseMessage = dataStr;
         }
+        responseMessage = dataStr;
 
         logger.debug('ssh-STDOUT: ' + data);
       }).stderr.on('data', function(data) {

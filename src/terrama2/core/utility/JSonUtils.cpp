@@ -98,6 +98,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
        && json.contains("data_provider_id")
        && json.contains("semantics")
        && json.contains("name")
+       && json.contains("active")
        && json.contains("description")))
   {
     QString errMsg = QObject::tr("Invalid DataSeries JSON object.");
@@ -113,6 +114,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
   dataSeries->semantics = SemanticsManager::getInstance().getSemantics(json["semantics"].toString().toStdString());
   dataSeries->name = json["name"].toString().toStdString();
   dataSeries->description = json["description"].toString().toStdString();
+  dataSeries->active = json["active"].toBool();
 
   QJsonArray dataSetArray = json["datasets"].toArray();
 
@@ -275,6 +277,11 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
     filter.region = ewktToGeom(ewkt);
 
     verify::srid(filter.region->getSRID());
+
+    if (json.contains("crop_raster"))
+      filter.cropRaster = json["crop_raster"].toBool();
+    else
+      filter.cropRaster = false;
   }
 
   if(json.contains("value_comparison_operation")
