@@ -31,7 +31,6 @@
 //terralib
 #include <terralib/common/PlatformUtils.h>
 #include <terralib/common.h>
-#include <terralib/plugin.h>
 
 // QT
 #include <QTest>
