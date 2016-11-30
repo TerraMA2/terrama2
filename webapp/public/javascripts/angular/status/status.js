@@ -1,14 +1,18 @@
 angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
-  .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n',
-  function($scope, $HttpTimeout, Socket, i18n) {
+  .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n', '$window',
+  function($scope, $HttpTimeout, Socket, i18n, $window) {
+
+    var Globals = $window.globals;
     $scope.i18n = i18n;
+    $scope.globals = Globals;
     $scope.alertBox = {};
     $scope.display = false;
     $scope.alertLevel = "";
     var cachedIcons = {};
-    cachedIcons[globals.enums.StatusLog.DONE] = "/images/check.png";
-    cachedIcons[globals.enums.StatusLog.ERROR] = "/images/warning.png";
-    cachedIcons[globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
+    cachedIcons[Globals.enums.StatusLog.DONE] = "/images/check.png";
+    cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/error.png";
+    cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
+    cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/warning.png";
 
     // injecting socket in angular scope
     $scope.socket = Socket;
@@ -49,16 +53,23 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     };
 
     $scope.iconFn = function(object) {
-      return cachedIcons[object.status];
+      var iconPath = cachedIcons[object.status];
+      if (iconPath) {
+        // if warning
+        if (object.messageType === Globals.enums.MessageType.WARNING_MESSAGE) {
+          return cachedIcons["message_" + Globals.enums.MessageType.WARNING_MESSAGE];
+        }
+        return iconPath;
+      }
+      return;
     };
 
     $scope.loading = true;
 
-    // modal info
-    $scope.modalMessages = "";
+    $scope.selectedLog = null;
     //Set messages to show in modal
-    $scope.setModalMessages = function(messages){
-      $scope.modalMessages = messages;
+    $scope.setSelectedLog = function(logRow){
+      $scope.selectedLog = logRow;
     }
 
     // socket listeners
@@ -89,17 +100,17 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
       var targetMessage = "";
       var targetKey = "";
       switch(serviceType) {
-        case globals.enums.ServiceType.COLLECTOR:
+        case Globals.enums.ServiceType.COLLECTOR:
           targetArray = configuration.collectors;
           targetMessage = "Collector";
           targetKey = "dataSeriesOutput";
           break;
-        case globals.enums.ServiceType.ANALYSIS:
+        case Globals.enums.ServiceType.ANALYSIS:
           targetArray = configuration.analysis;
           targetMessage = "Analysis ";
           targetKey = "dataSeries";
           break;
-        case globals.enums.ServiceType.VIEW:
+        case Globals.enums.ServiceType.VIEW:
           targetArray = configuration.views;
           targetMessage = "View ";
           targetKey = "";
@@ -135,28 +146,33 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
 
           out.name = obj.name;
           var messageString = "";
+          out.messages = logMessage.messages;
           if (logMessage.messages && logMessage.messages.length > 0){
-            for (message in logMessage.messages){
-              if (logMessage.messages[message].description)
-                messageString += logMessage.messages[message].description + ". ";
-            }
-            out.message = messageString;
-          }
-          else{
+            var firstMessage = logMessage.messages[0];
+            out.message = firstMessage.description;
+            out.messageType = firstMessage.type;
+          } else {
+            var dummyMessage = {};
             switch(logMessage.status) {
-              case globals.enums.StatusLog.DONE:
-                out.message = "Done";
+              case Globals.enums.StatusLog.DONE:
+                dummyMessage.description = "Done";
+                dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                 break;
-              case globals.enums.StatusLog.START:
-                out.message = "Started";
+              case Globals.enums.StatusLog.START:
+                dummyMessage.description = "Started";
+                dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                 break;
-              case globals.enums.StatusLog.DOWNLOADED:
-                out.message = "Downloaded";
+              case Globals.enums.StatusLog.DOWNLOADED:
+                dummyMessage.description = "Downloaded";
+                dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                 break;
-              case globals.enums.StatusLog.ERROR:
-                out.message = "Error";
+              case Globals.enums.StatusLog.ERROR:
+                dummyMessage.description = "Error";
+                dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
                 break;
             }
+            out.message = dummyMessage.description;
+            out.messages = [dummyMessage];
           }
 
           $scope.model.push(out)

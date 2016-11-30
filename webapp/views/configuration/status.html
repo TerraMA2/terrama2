@@ -53,8 +53,12 @@
         <terrama2-table-header link="linkToAdd"></terrama2-table-header>
 
         <terrama2-table-view expression="element in model | filter:searchInput | orderBy: '-date' track by $index">
-          <terrama2-td title="">
-            <img ng-if="iconFn(element)" ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
+          <terrama2-td title="{{ i18n.__('Status') }}">
+            <!-- Todo: Add it with Socket event in order to retrieve dynamically -->
+            <!--<span style="margin-left: 4px;" ng-if="element.status === globals.enums.StatusLog.START">
+              <i style="font-size: 20px;" class="fa fa-spin fa-refresh"></i>
+            </span>-->
+            <img ng-src="{{ iconFn(element) }}" alt="" width="24" height="24">
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Service') }}">
             <span ng-bind="element.service"></span>
@@ -65,7 +69,7 @@
           <terrama2-td title="{{ i18n.__('Name') }}">
             <span ng-bind="element.name"></span>
           </terrama2-td>
-          <terrama2-td title="{{ i18n.__('Message') }}" showMoreInfo="true" fillModal="setModalMessages(element.message)">
+          <terrama2-td title="{{ i18n.__('Message') }}" showMoreInfo="true" fillModal="setSelectedLog(element)">
             <span ng-bind="(element.message.length > 15) ? ((element.message | limitTo:15) + '...') : element.message"></span>
           </terrama2-td>
           <terrama2-td title="{{ i18n.__('Date') }}">
@@ -76,7 +80,15 @@
 
     </div><!-- /.box-body -->
     <!-- Modal to show messages-->
-    <terrama2-modal-messages>{{modalMessages}}</terrama2-modal-messages>
+    <terrama2-modal-messages>
+      <ul class="list-group">
+        <li class="list-group-item"
+            ng-repeat="messageLog in selectedLog.messages"
+            ng-class="{'list-group-item-warning': messageLog.type === globals.enums.MessageType.WARNING_MESSAGE, 'list-group-item-info': messageLog.type === globals.enums.MessageType.INFO_MESSAGE, 'list-group-item-danger': messageLog.type === globals.enums.MessageType.ERROR_MESSAGE}"
+            ng-bind="messageLog.description">
+        </li>
+      </ul>
+    </terrama2-modal-messages>
 
   </div><!-- /.box -->
 
