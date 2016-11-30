@@ -227,6 +227,8 @@ namespace terrama2
                           const std::string& vrtFilename, DataSetPtr dataset) const;
 
         std::unique_ptr<te::rst::Raster> adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const;
+
+        mutable bool yReverse_ = false; //! Flag for reverse y-axis.
     };
 
 

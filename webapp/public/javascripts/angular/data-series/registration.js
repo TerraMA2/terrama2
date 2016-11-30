@@ -1229,6 +1229,19 @@ angular.module('terrama2.dataseries.registration', [
         });
       };
 
+      // Reset model values when change number of bands propertie to 1
+      $scope.$watch("model.number_of_bands", function(val){
+        if (!$scope.model.number_of_bands){
+          return;
+        } else {
+          if (val == 1){
+            $scope.model.bytes_before = 0;
+            $scope.model.bytes_after = 0;
+            $scope.model.temporal = false;
+          }
+        }
+      });
+
       $scope.$watch("dataSeries.data_provider_id", function(val) {
         if (!$scope.dataSeries.data_provider_id) {
           return;

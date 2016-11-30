@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
   }
   catch(...)
   {
-    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnkown Exception...\n");
+    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnknown Exception...\n");
   }
 
   return 0;
