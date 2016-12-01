@@ -17,6 +17,7 @@
       POSTGIS: 'POSTGIS'
     })
     .service("DataSeriesService", DataSeriesService)
+    .factory("SemanticsParserFactory", SemanticsParserFactory)
     .service("DataSeriesSemanticsService", DataSeriesSemanticsService);
   
   /**
@@ -134,4 +135,33 @@
   DataSeriesSemanticsService.prototype.get = function(restriction) {
     return this.BaseService.get(this.model, restriction);
   };
+
+
+  /**
+   * Class responsibles for processing semantics. Use it whenever you need format semantics before send to server
+   * 
+   * @returns {Object}
+   */
+  function SemanticsParserFactory() {
+    return {
+      /**
+       * It parses input data series semantics, removing all keys that starts with "output_"
+       *  
+       * @param {Object} semanticsFormat - DataSeries Semantics input with keys
+       * @returns {Object} Parse semantics
+       */
+      parseKeys: function(semanticsFormat) {
+        var parsedKeys = {};
+        Object.keys(semanticsFormat)
+          .forEach(function(key) {
+            if (key.startsWith("output_")) {
+              parsedKeys[key.replace("output_", "")] = semanticsFormat[key];
+            } else {
+              parsedKeys[key] = semanticsFormat[key];
+            }
+          });
+        return parsedKeys;
+      }
+    };
+  }
 } ());
