@@ -1,6 +1,7 @@
 angular.module('terrama2.dataseries.registration', [
     'terrama2',
     'terrama2.services',
+    'terrama2.dataseries.services',
     'terrama2.components.messagebox', // handling alert box
     'terrama2.components.messagebox.services',
     'ui.router',
@@ -43,8 +44,9 @@ angular.module('terrama2.dataseries.registration', [
     editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
   })
 
-  .controller('StoragerController', ['$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'Polygon', 'DateParser',
-    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, Polygon, DateParser) {
+  .controller('StoragerController', [
+    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'Polygon', 'DateParser', 'SemanticsParserFactory',
+    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, Polygon, DateParser, SemanticsParserFactory) {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
@@ -140,7 +142,9 @@ angular.module('terrama2.dataseries.registration', [
         } else if (args.action === "add") {
           if ($scope.storager.format && $scope.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
             // postgis
-            var obj = Object.assign({}, args.dcp);
+            var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
+            angular.merge(copyFormat, args.dcp);
+            var obj = SemanticsParserFactory.parseKeys(copyFormat);
             obj.table_name = obj.mask;
             $scope.dcpsStorager.push(obj);
           } else {
@@ -205,7 +209,9 @@ angular.module('terrama2.dataseries.registration', [
               $scope.modelStorager = $scope.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
             }
           } else {
-            $scope.modelStorager = Object.assign({}, $scope.model);
+            var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
+            angular.merge(copyFormat, $scope.model);
+            $scope.modelStorager = SemanticsParserFactory.parseKeys(copyFormat);
             $scope.filter.area = {
               srid: 4326
             };
@@ -1416,8 +1422,8 @@ angular.module('terrama2.dataseries.registration', [
           }
 
           // adding extra metadata
-          if (dSemantics.metadata.metadata && Object.keys(dSemantics.metadata.metadata).length > 0)
-            Object.assign(format_, dSemantics.metadata.metadata);
+          // if (dSemantics.metadata.metadata && Object.keys(dSemantics.metadata.metadata).length > 0)
+          //   Object.assign(format_, dSemantics.metadata.metadata);
 
           return format_;
         };
