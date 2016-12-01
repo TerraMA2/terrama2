@@ -124,13 +124,16 @@ var Utils = module.exports = {
     });
   },
 
-  generateToken: function(app, code, intent) {
+  generateToken: function(app, code, intent, extra) {
     var token = crypto.randomBytes(48).toString('hex');
     app.locals.tokenIntent = {
       token: token,
       code: code,
       intent: intent
     };
+    if (extra){
+      app.locals.tokenIntent.extra = extra;
+    }
 
     return token;
   },
@@ -145,6 +148,9 @@ var Utils = module.exports = {
       var intent = app.locals.tokenIntent.intent;
 
       parameters.message = intent + " " + getTokenCodeMessage(code);
+      if (app.locals.tokenIntent.extra){
+        parameters.extra = app.locals.tokenIntent.extra;
+      }
       // resetting
       delete app.locals.tokenIntent;
     }
