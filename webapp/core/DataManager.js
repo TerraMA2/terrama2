@@ -171,7 +171,7 @@ var DataManager = module.exports = {
         var viewService = Object.assign({}, collectorService);
         viewService.name = "Local View";
         viewService.description = "Local service for View";
-        viewService.port = 6546;
+        viewService.port = 6545;
         viewService.service_type_id = Enums.ServiceType.VIEW;
         viewService.maps_server_uri = "http://admin:geoserver@localhost:8080/geoserver";
 
