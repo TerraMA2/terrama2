@@ -128,15 +128,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
         std::shared_ptr<ContextDataSeries> contextDataSeries;
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
-        if(!dataSeries)
-        {
-          QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-          errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-        }
-
         context->addDCPDataSeries(dataSeries, dateFilterBegin, dateFilterEnd, false);
-
 
         for(DataSetId dcpId : vecDCPIds)
         {

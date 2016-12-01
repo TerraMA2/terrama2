@@ -373,9 +373,10 @@ void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr data
     // get a transactor to interact to the data source
     std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
-    transactor->execute("delete from " + tableName + " where execution_date = '" + startTime->toString() + "'");
+    auto dataSetNames = transactor->getDataSetNames();
 
-
+    if(std::find(dataSetNames.cbegin(), dataSetNames.cend(), tableName) != dataSetNames.cend())
+      transactor->execute("delete from " + tableName + " where execution_date = '" + startTime->toString() + "'");
   }
 
 }

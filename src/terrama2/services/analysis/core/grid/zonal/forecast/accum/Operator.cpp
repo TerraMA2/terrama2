@@ -132,12 +132,6 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
     auto geomResult = createBuffer(buffer, moGeom);
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
-    if(!dataSeries)
-    {
-      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
 
     /////////////////////////////////////////////////////////////////
     //map of sum of values for each pixel

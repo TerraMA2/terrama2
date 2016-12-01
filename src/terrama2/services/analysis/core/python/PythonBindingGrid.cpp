@@ -34,6 +34,7 @@
 #include "../grid/forecast/Operator.hpp"
 #include "../grid/forecast/interval/Operator.hpp"
 #include "../grid/zonal/Operator.hpp"
+#include "../grid/zonal/forecast/Operator.hpp"
 #include "../grid/zonal/history/Operator.hpp"
 #include "../grid/zonal/history/accum/Operator.hpp"
 #include "../grid/zonal/history/prec/Operator.hpp"
@@ -46,6 +47,7 @@ void terrama2::services::analysis::core::python::Grid::registerFunctions()
   registerGridForecastFunctions();
   registerGridForecastIntervalFunctions();
   registerGridZonalFunctions();
+  registerGridZonalForecastFunctions();
   registerGridZonalHistoryFunctions();
   registergridZonalHistoryAccumFunctions();
   registerGridZonalHistoryPrecFunctions();
@@ -397,4 +399,49 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryP
   def("variance", terrama2::services::analysis::core::grid::zonal::history::prec::variance,
       gridZonalHistoryPrecVariance_overloads(args("dataSeriesName", "buffer"),
           "Variance operator for grid zonal"));
+}
+
+// pragma to silence python macros warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+
+// // Declaration needed for default parameter restriction
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::min, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::max, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::mean, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::median, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::standardDeviation, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::variance, 2, 4)
+// closing "-Wunused-local-typedef" pragma
+#pragma GCC diagnostic pop
+
+void terrama2::services::analysis::core::python::Grid::registerGridZonalForecastFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for grid.zonal.forecast
+  object gridZonalForecastModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.zonal.forecast"))));
+  // make "from terrama2.grid.zonal import forecast" work
+  import("terrama2.grid.zonal").attr("forecast") = gridZonalForecastModule;
+  // set the current scope to the new sub-module
+  scope gridZonalForecastScope = gridZonalForecastModule;
+
+  def("min", terrama2::services::analysis::core::grid::zonal::forecast::min,
+      gridZonalForecastMin_overloads(args("dataSeriesName", "buffer"),
+                                    "Min operator for grid zonal"));
+  def("max", terrama2::services::analysis::core::grid::zonal::forecast::max,
+      gridZonalForecastMax_overloads(args("dataSeriesName", "buffer"),
+                                    "Max operator for grid zonal"));
+  def("mean", terrama2::services::analysis::core::grid::zonal::forecast::mean,
+      gridZonalForecastMean_overloads(args("dataSeriesName", "buffer"),
+                                     "Mean operator for grid zonal"));
+  def("median", terrama2::services::analysis::core::grid::zonal::forecast::median,
+      gridZonalForecastMedian_overloads(args("dataSeriesName", "buffer"),
+                                       "Median operator for grid zonal"));
+  def("standard_deviation", terrama2::services::analysis::core::grid::zonal::forecast::standardDeviation,
+      gridZonalForecastStandardDeviation_overloads(args("dataSeriesName", "buffer"),
+          "Standard deviation operator for grid zonal"));
+  def("variance", terrama2::services::analysis::core::grid::zonal::forecast::variance,
+      gridZonalForecastVariance_overloads(args("dataSeriesName", "buffer"),
+                                         "Variance operator for grid zonal"));
 }
