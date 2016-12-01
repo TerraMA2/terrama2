@@ -375,7 +375,8 @@ void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr data
 
     auto dataSetNames = transactor->getDataSetNames();
 
-    if(std::find(dataSetNames.cbegin(), dataSetNames.cend(), tableName) != dataSetNames.cend())
+    if(std::find(dataSetNames.cbegin(), dataSetNames.cend(), tableName) != dataSetNames.cend() ||
+       std::find(dataSetNames.cbegin(), dataSetNames.cend(), "public."+tableName) != dataSetNames.cend())
       transactor->execute("delete from " + tableName + " where execution_date = '" + startTime->toString() + "'");
   }
 
