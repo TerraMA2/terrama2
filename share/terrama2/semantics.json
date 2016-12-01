@@ -200,7 +200,8 @@
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
-      "timestamp_property": "N/A"
+      "timestamp_property": "N/A",
+      "output_timestamp_property": "datetime"
     },
     "collector": true,
     "gui": {

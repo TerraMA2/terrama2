@@ -371,7 +371,6 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::zonal
     case InfluenceType::RADIUS_CENTER:
     case InfluenceType::RADIUS_TOUCHES:
     {
-
       if(analysis->metadata.at("INFLUENCE_RADIUS").empty())
       {
         QString errMsg(QObject::tr("Invalid influence radius."));
