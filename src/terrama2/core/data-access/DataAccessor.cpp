@@ -288,6 +288,11 @@ std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr da
   return getProperty(dataSet, dataSeries_, "timestamp_property");
 }
 
+std::string terrama2::core::DataAccessor::getOutputTimestampPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "output_timestamp_property");
+}
+
 std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "geometry_property");

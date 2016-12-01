@@ -149,6 +149,8 @@ namespace terrama2
         */
         virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const;
 
+        virtual std::string getOutputTimestampPropertyName(DataSetPtr dataSet) const;
+
         /*!
           \brief Get name of the geometry property
 

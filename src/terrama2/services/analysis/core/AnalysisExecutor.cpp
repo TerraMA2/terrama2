@@ -385,27 +385,40 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  auto dataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
+  auto outputDataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
 
-  if(!dataSeries)
+  if(!outputDataSeries)
   {
     QString errMsg = QObject::tr("Could not find the output data series.");
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+  auto dataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
   if(!dataProvider)
   {
     QString errMsg = QObject::tr("Could not find the output data provider.");
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  std::string datasetName;
+  std::string outputDatasetName;
 
-  if(dataSeries->semantics.dataFormat == "POSTGIS")
+  if(outputDataSeries->semantics.dataFormat == "POSTGIS")
   {
-    auto dataSet = dataSeries->datasetList[0];
-    datasetName = terrama2::core::getProperty(dataSet, dataSeries, "table_name");
+    terrama2::core::DataSetPtr outputDataSet;
+
+    for(auto& dataset : outputDataSeries->datasetList)
+    {
+      if(dataset->id == analysis->outputDataSetId)
+      {
+        outputDataSet = dataset;
+        break;
+      }
+    }
+
+    if(!outputDataSet.get())
+      throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
+
+    outputDatasetName = terrama2::core::getProperty(outputDataSet, outputDataSeries, "table_name");
   }
   else
   {
@@ -482,10 +495,10 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
   auto attributes = context->getAttributes();
 
-  assert(dataSeries->datasetList.size() == 1);
+  assert(outputDataSeries->datasetList.size() == 1);
 
 
-  std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(datasetName);
+  std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(outputDatasetName);
 
   // first property is the geomId
   identifierProperty->setName("geom_id");
@@ -497,7 +510,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   dt->add(dateProp);
 
   // the unique key is composed by the geomId and the execution date.
-  std::string nameuk = datasetName+ "_uk";
+  std::string nameuk = outputDatasetName+ "_uk";
   te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk);
   uk->add(identifierProperty);
   uk->add(dateProp);
@@ -505,7 +518,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   dt->add(uk);
 
   //create index on date column
-  te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE);
+  te::da::Index* indexDate = new te::da::Index(outputDatasetName+ "_idx", te::da::B_TREE_TYPE);
   indexDate->add(dateProp);
 
   dt->add(indexDate);
@@ -534,8 +547,21 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
     ds->add(dsItem);
   }
 
-  assert(dataSeries->datasetList.size() == 1);
-  auto dataset = dataSeries->datasetList[0];
+  assert(outputDataSeries->datasetList.size() == 1);
+
+  terrama2::core::DataSetPtr outputDataSet;
+
+  for(auto& dataset : outputDataSeries->datasetList)
+  {
+    if(dataset->id == analysis->outputDataSetId)
+    {
+      outputDataSet = dataset;
+      break;
+    }
+  }
+
+  if(!outputDataSet.get())
+    throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
 
   std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);
 
@@ -545,7 +571,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
   try
   {
-    storagerManager->store(series, dataset);
+    storagerManager->store(series, outputDataSet);
   }
   catch(const terrama2::Exception /*e*/)
   {
@@ -715,14 +741,14 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  auto dataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
-  if(!dataSeries)
+  auto outputDataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
+  if(!outputDataSeries)
   {
     QString errMsg = QObject::tr("Could not find the output data series.");
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+  auto dataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
   if(!dataProvider)
   {
     QString errMsg = QObject::tr("Could not find the output data provider.");
@@ -756,8 +782,21 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
   dt->add(rstp);
   dt->add(timestamp);
 
-  assert(dataSeries->datasetList.size() == 1);
-  auto dataset = dataSeries->datasetList[0];
+  assert(outputDataSeries->datasetList.size() == 1);
+
+  terrama2::core::DataSetPtr outputDataSet;
+
+  for(auto& dataset : outputDataSeries->datasetList)
+  {
+    if(dataset->id == analysis->outputDataSetId)
+    {
+      outputDataSet = dataset;
+      break;
+    }
+  }
+
+  if(!outputDataSet.get())
+    throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
 
   std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dt);
 
@@ -778,7 +817,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
 
   try
   {
-    storagerManager->store(series, dataset);
+    storagerManager->store(series, outputDataSet);
   }
   catch(const terrama2::Exception& e)
   {
