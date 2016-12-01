@@ -81,10 +81,10 @@ void IntRasterTs::CollectAndCropRaster()
     QFile output(fileInfo.absoluteFilePath());
     QFile reference(QString::fromStdString(TERRAMA2_DATA_DIR+"/hidroestimador_crop_reference/")+fileInfo.fileName());
 
-    QVERIFY(output.open(QIODevice::ReadOnly));
-    QVERIFY(reference.open(QIODevice::ReadOnly));
+    QVERIFY2(output.open(QIODevice::ReadOnly), "File not found.");
+    QVERIFY2(reference.open(QIODevice::ReadOnly), "Reference file not found.");
 
-    QVERIFY(reference.readAll() == output.readAll());
+    QVERIFY2(reference.readAll() == output.readAll(), "Collected file and reference file not equal.");
   }
 
   testOutput.removeRecursively();
