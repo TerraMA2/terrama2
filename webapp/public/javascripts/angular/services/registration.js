@@ -189,15 +189,17 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       });
 
       // Getting all service instance to suggest database names
-      var ports = [];
-      self.services.forEach(function(service) {
-        self.config.availableDatabases.push(Object.assign({name: service.name}, service.log));
-        if (self.service.id !== service.id) {
-          ports.push(service.port);
-        }
-      });
+      if (!self.update) {
+        var ports = [];
+        self.services.forEach(function(service) {
+          self.config.availableDatabases.push(Object.assign({name: service.name}, service.log));
+          if (self.service.id !== service.id) {
+            ports.push(service.port);
+          }
+        });
 
-      Socket.emit('suggestPortNumber', {ports: ports, host: self.service.host});
+        Socket.emit('suggestPortNumber', {ports: ports, host: self.service.host});
+      }
 
       /**
        * Watcher for handling Service Type change. It just fill path to binary if there is not setTimeout
