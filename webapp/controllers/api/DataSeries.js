@@ -64,7 +64,7 @@ module.exports = function(app) {
         }
       }).then(function(dataSeriesResult) {
         var extra = {}
-        if (shouldRun){
+        if (shouldRun && dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')){
           extra = {
             id: dataSeriesResult.id
           }
