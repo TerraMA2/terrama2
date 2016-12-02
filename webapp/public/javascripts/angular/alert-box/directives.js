@@ -83,6 +83,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
           $scope.title = alertBox.title;
           $scope.message = alertBox.message;
           $scope.alertLevel = alertBox.level;
+          $scope.extra = alertBox.extra;
         }, true)
 
         $scope.isAnyExtra = function() {
