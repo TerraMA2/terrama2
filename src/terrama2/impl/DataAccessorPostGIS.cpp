@@ -62,24 +62,25 @@
 
 std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const
 {
-  std::string where = " WHERE ";
-
   std::vector<std::string> whereConditions;
   addDateTimeFilter(dataSet, filter, whereConditions);
   addGeometryFilter(dataSet, filter, whereConditions);
 
+  std::string conditions;
   if(!whereConditions.empty())
   {
-    where += whereConditions.front();
+    conditions = whereConditions.front();
     for(size_t i = 1; i < whereConditions.size(); ++i)
-      where += " AND " + whereConditions.at(i);
+      conditions += " AND " + whereConditions.at(i);
   }
 
-  where = addLastValueFilter(dataSet, filter, where);
-  if(!where.empty())
-    where = " WHERE "+ where;
+  conditions = addLastValueFilter(dataSet, filter, conditions);
 
-  std::cout << where << std::endl;
+  std::string where;
+
+  if(!conditions.empty())
+    where = " WHERE "+ conditions;
+
   return where;
 }
 
@@ -87,6 +88,11 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
     terrama2::core::DataSetPtr dataSet, std::shared_ptr<FileRemover> /*remover*/) const
 {
   std::string tableName = getDataSetTableName(dataSet);
+
+  // FIXME : remove after tests
+  if(getTimestampPropertyName(dataSet) == "N/A")
+    dataSet->format.at("timestamp_property") = "datetime";
+  // FIXME: end fixme
 
   // creates a DataSource to the data and filters the dataset,
   // also joins if the DCP comes from separated files
@@ -159,10 +165,10 @@ void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(terrama2::core::Data
     return;
 
   if(filter.discardBefore.get())
-    whereConditions.push_back(getOutputTimestampPropertyName(dataSet)+" >= '"+filter.discardBefore->toString() + "'");
+    whereConditions.push_back(getTimestampPropertyName(dataSet)+" >= '"+filter.discardBefore->toString() + "'");
 
   if(filter.discardAfter.get())
-    whereConditions.push_back(getOutputTimestampPropertyName(dataSet)+" <= '"+filter.discardAfter->toString() + "'");
+    whereConditions.push_back(getTimestampPropertyName(dataSet)+" <= '"+filter.discardAfter->toString() + "'");
 }
 
 void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::DataSetPtr dataSet,
@@ -182,7 +188,7 @@ std::string terrama2::core::DataAccessorPostGIS::addLastValueFilter(terrama2::co
     std::string maxSelect = "SELECT ";
     maxSelect += "MAX("+getTimestampPropertyName(dataSet)+") ";
     maxSelect += "FROM " + getDataSetTableName(dataSet)+" ";
-    maxSelect += whereCondition;
+    maxSelect += "WHERE " + whereCondition;
 
     return getTimestampPropertyName(dataSet)+" = ("+maxSelect+") AND "+whereCondition;
   }
