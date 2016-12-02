@@ -598,7 +598,7 @@ var ImportExport = function(io) {
         }
       }
 
-      if(json.Collectors) {
+      /*if(json.Collectors) {
         for(var i = 0, collectorsLength = json.Collectors.length; i < collectorsLength; i++) {
           promises.push(
             DataManager.getCollector({id: json.Collectors[i].id}).then(function(collector) {
@@ -656,7 +656,7 @@ var ImportExport = function(io) {
         Promise.all(promises).then(function() {
           client.emit("exportResponse", {status: 200, data: output});
         }).catch(_emitError);
-      }
+      }*/
 
       if(json.Analysis) {
         for(var i = 0, analysisLength = json.Analysis.length; i < analysisLength; i++) {
