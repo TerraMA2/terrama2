@@ -58,6 +58,10 @@ namespace terrama2
 
       MOCK_CONST_METHOD1(start,
                          RegisterId(ProcessId processId));
+      MOCK_CONST_METHOD1(setTableName,
+                   void(std::string tableName));
+      MOCK_METHOD1(setConnectionInfo,
+                   void(const te::core::URI&));
       MOCK_CONST_METHOD2(error,
                          void(const std::string& description, const RegisterId registerId));
       MOCK_CONST_METHOD2(done,

@@ -47,7 +47,7 @@ void terrama2::services::collector::core::CollectorLogger::addOutput(std::string
   addValue("output", value, registerID);
 }
 
-void terrama2::services::collector::core::CollectorLogger::setConnectionInfo(const te::core::URI& uri) noexcept
+void terrama2::services::collector::core::CollectorLogger::setConnectionInfo(const te::core::URI& uri)
 {
   terrama2::core::ProcessLogger::setConnectionInfo(uri);
 

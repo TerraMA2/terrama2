@@ -163,7 +163,7 @@ namespace terrama2
         * \brief Reset connection to log database information
         * \param connInfo Datasource connection information.
         */
-        virtual void setConnectionInfo(const te::core::URI& uri) noexcept;
+        virtual void setConnectionInfo(const te::core::URI& uri);
 
       protected:
 
@@ -189,7 +189,7 @@ namespace terrama2
          * \brief Store the name of the process log table and the message log table
          * \param tableName The log table name
          */
-        void setTableName(std::string& tableName);
+        void setTableName(std::string tableName);
 
       private:
         /*!
