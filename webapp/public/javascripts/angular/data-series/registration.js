@@ -45,8 +45,8 @@ angular.module('terrama2.dataseries.registration', [
   })
 
   .controller('StoragerController', [
-    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'Polygon', 'DateParser', 'SemanticsParserFactory',
-    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, Polygon, DateParser, SemanticsParserFactory) {
+    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory',
+    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory) {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
@@ -247,7 +247,7 @@ angular.module('terrama2.dataseries.registration', [
             // filter geometry field
             if (filter.region) {
               $scope.$emit('updateFilterArea', "2");
-              $scope.filter.area = Polygon.read(filter.region);
+              $scope.filter.area = GeoLibs.polygon.read(filter.region);
               if (filter.crop_raster){
                 $scope.filter.area.crop_raster = true;
               }
@@ -322,10 +322,10 @@ angular.module('terrama2.dataseries.registration', [
     "FilterForm",
     "MessageBoxService",
     "$q",
-    "Point",
+    "GeoLibs",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm, MessageBoxService, $q, Point) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -873,7 +873,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.advanced.store.disabled = false;
             $scope.advanced.store.optional = false;
           }
-        }
+        } 
         else {
           $scope.wizard.parameters.disabled = true;
           $scope.wizard.store.disabled = true;
@@ -1421,10 +1421,6 @@ angular.module('terrama2.dataseries.registration', [
               format_[key] = dSetObject[key];
           }
 
-          // adding extra metadata
-          // if (dSemantics.metadata.metadata && Object.keys(dSemantics.metadata.metadata).length > 0)
-          //   Object.assign(format_, dSemantics.metadata.metadata);
-
           return format_;
         };
 
@@ -1439,7 +1435,7 @@ angular.module('terrama2.dataseries.registration', [
             };
 
             if ($scope.dataSeries.semantics.data_format_name !== "POSTGIS") {
-              outputDcp.position = Point.build({x: dSet.longitude, y: dSet.latitude, srid: dSet.projection});
+              outputDcp.position = GeoLibs.point.build({x: dSet.longitude, y: dSet.latitude, srid: dSet.projection});
             }
             dSetsLocal.push(outputDcp);
           });
@@ -1520,10 +1516,11 @@ angular.module('terrama2.dataseries.registration', [
                   if (key !== "latitude" && key !== "longitude" && key !== "active")
                     format[key] = dcp[key];
               }
+              angular.merge(format, semantics.metadata.metadata);
               var dataSetStructure = {
                 active: true,//$scope.dataSeries.active,
                 format: format,
-                position: Point.build({x: dcp.longitude, y: dcp.latitude, srid: dcp.projection})
+                position: GeoLibs.point.build({x: dcp.longitude, y: dcp.latitude, srid: dcp.projection})
               };
 
               dataToSend.dataSets.push(dataSetStructure);
@@ -1549,7 +1546,7 @@ angular.module('terrama2.dataseries.registration', [
 
         var filterValues = Object.assign({}, $scope.filter);
         if ($scope.filter.filterArea === $scope.filterTypes.AREA.value) {
-          filterValues.region = Polygon.build($scope.filter.area || {});
+          filterValues.region = GeoLibs.polygon.build($scope.filter.area || {});
         }
 
         var scheduleValues = Object.assign({}, $scope.schedule);

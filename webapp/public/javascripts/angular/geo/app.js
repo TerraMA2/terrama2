@@ -133,4 +133,22 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
           return {};
       }
     };
+  })
+  
+  /**
+   * This factory injects all GeoLibraries available in order make it useful when handle multiple geo data types.
+   * 
+   * @param {Geometry} Geometry - TerraMA² Geometry Enum
+   * @param {Polygon} Polygon - TerraMA² Polygon builder
+   * @param {Point} Point - TerraMA² Point builder
+   * @param {GeoJsonBuilder} GeoJsonBuilder - TerraMA² geojson builder
+   * @returns {Object}
+   */
+  .factory("GeoLibs", function(Geometry, Polygon, Point, GeoJsonBuilder) {
+    return {
+      geometry: Geometry,
+      point: Point,
+      polygon: Polygon,
+      geojson: GeoJsonBuilder
+    };
   });
