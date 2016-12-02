@@ -123,25 +123,29 @@
         }
         $scope.alertLevel = "alert-success";
 
-        var msg = result.data.Projects.length + i18n.__(" projects has been imported. ");
-        var canPush = [];
+        if(result.data.Projects !== undefined && result.data.Projects.length > 0) {
+          var msg = result.data.Projects.length + i18n.__(" projects has been imported. ");
+          var canPush = [];
 
-        for(var i = 0; i < result.data.Projects.length; ++i) {
-          var p = result.data.Projects[i];
-          var cont = 0;
-          for(var j = 0; j < $scope.model.length; ++j) {
-            var modelProject = $scope.model[j];
-            if (p.name === modelProject.name) {
-              // skip it
-              break;
+          for(var i = 0; i < result.data.Projects.length; ++i) {
+            var p = result.data.Projects[i];
+            var cont = 0;
+            for(var j = 0; j < $scope.model.length; ++j) {
+              var modelProject = $scope.model[j];
+              if (p.name === modelProject.name) {
+                // skip it
+                break;
+              }
+              ++cont;
             }
-            ++cont;
+            if (cont === $scope.model.length) {
+              // push
+              $scope.model.push(p);
+            }
+            cont = 0;
           }
-          if (cont === $scope.model.length) {
-            // push
-            $scope.model.push(p);
-          }
-          cont = 0;
+        } else {
+          var msg = i18n.__(" The data has been imported. ");
         }
 
         $scope.alertBox.message = msg;
@@ -235,6 +239,7 @@
           }
 
           $scope.extra.isExporting = true;
+          $scope.exportData['currentProjectId'] = $scope.currentProjectId;
           socket.emit("export", $scope.exportData);
 
           $scope.exportData = {
@@ -301,8 +306,10 @@
             setError(new Error("Select a project"));
             $('#importModal').modal('hide');
           } else {
+            $scope.extra.isImporting = true;
             $scope.extra.importJson['selectedProject'] = $scope.projectRadio;
             socket.emit("import", $scope.extra.importJson);
+            $('#importModal').modal('hide');
           }
         }
       };
