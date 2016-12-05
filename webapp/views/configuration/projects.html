@@ -41,6 +41,12 @@
         "Analysis": [],
         "Views": []
       };
+      $scope.servicesCollect = null;
+      $scope.servicesAnalysis = null;
+      $scope.servicesView = null;
+      $scope.hasCollect = false;
+      $scope.hasAnalysis = false;
+      $scope.hasView = false;
 
       var setError = function(err) {
         $scope.display = true;
@@ -294,6 +300,15 @@
                 } else {
                   $scope.extra.isImporting = false;
                   $scope.extra.importJson = json;
+
+                  $scope.hasCollect = false;
+                  $scope.hasAnalysis = false;
+                  $scope.hasView = false;
+
+                  if(json.Collectors !== undefined && json.Collectors.length > 0) $scope.hasCollect = true;
+                  if(json.Analysis !== undefined && json.Analysis.length > 0) $scope.hasAnalysis = true;
+                  if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true; 
+
                   $('#importModal').modal('show');
                 }
               });
@@ -310,6 +325,10 @@
             $scope.extra.importJson['selectedProject'] = $scope.projectRadio;
             socket.emit("import", $scope.extra.importJson);
             $('#importModal').modal('hide');
+
+            $scope.hasCollect = false;
+            $scope.hasAnalysis = false;
+            $scope.hasView = false; 
           }
         }
       };
@@ -323,6 +342,11 @@
         $scope.analysis = {};
         $scope.views = {};
         $scope.collectors = {};
+        $scope.services = {
+          COLLECT: [],
+          ANALYSIS: [],
+          VIEW: []
+        };
 
         projects.map(function(project, index) {
           if($scope.projectsCheckboxes[project.id] == undefined)
@@ -404,6 +428,28 @@
             $scope.collectors[project.id] = collectors;
           }).error(function(err) {
             console.log("Err in retrieving collectors");
+          }).finally(function() {
+            $scope.loading = false;
+          });
+
+          $http.get("/api/Service/", {}).success(function(services) {
+            for(var j = 0, servicesLength = services.length; j < servicesLength; j++) {
+              switch(services[j].service_type_id) {
+                case 1:
+                  $scope.services.COLLECT.push(services[j]);
+                  break;
+                case 2:
+                  $scope.services.ANALYSIS.push(services[j]);
+                  break;
+                case 3:
+                  $scope.services.VIEW.push(services[j]);
+                  break;
+                default:
+                  break;
+              }
+            }
+          }).error(function(err) {
+            console.log("Err in retrieving services");
           }).finally(function() {
             $scope.loading = false;
           });
@@ -529,14 +575,6 @@
           <h4 class="modal-title">Select the project to which you want to import the data</h4>
         </div>
         <div class="modal-body">
-
-
-          <div></div>
-          <div>
-            
-          </div>
-
-
           <div class="form-group" ng-show="model.length > 0">
             <div class="radio" ng-repeat="element in model">
               <label>
@@ -545,6 +583,27 @@
             </div>
           </div>
           <h4 style="text-align: center;" ng-show="model.length == 0">No projects found.</h4>
+          <hr ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0"/>
+          <div class="form-group" ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0">
+            <label>{{ i18n.__("Select the Collector Service to be Used") }}:</label>
+            <select class="form-control" name="servicesCollect" ng-model="servicesCollect" ng-change="extra.lala()">
+              <option ng-repeat="service in services.COLLECT" value="{{ service.id }}">{{ service.name }}</option>
+            </select>
+          </div>
+          <hr ng-show="model.length > 0 && hasAnalysis && services.ANALYSIS.length > 0"/>
+          <div class="form-group" ng-show="model.length > 0 && hasAnalysis && services.ANALYSIS.length > 0">
+            <label>{{ i18n.__("Select the Analysis Service to be Used") }}:</label>
+            <select class="form-control" name="servicesAnalysis" ng-model="servicesAnalysis">
+              <option ng-repeat="service in services.ANALYSIS" value="{{ service.id }}">{{ service.name }}</option>
+            </select>
+          </div>
+          <hr ng-show="model.length > 0 && hasView && services.VIEW.length > 0"/>
+          <div class="form-group" ng-show="model.length > 0 && hasView && services.VIEW.length > 0">
+            <label>{{ i18n.__("Select the View Service to be Used") }}:</label>
+            <select class="form-control" name="servicesView" ng-model="servicesView">
+              <option ng-repeat="service in services.VIEW" value="{{ service.id }}">{{ service.name }}</option>
+            </select>
+          </div>
           <hr/>
           <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()" ng-show="model.length > 0">Import</button>
