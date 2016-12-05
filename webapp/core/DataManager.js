@@ -3228,6 +3228,7 @@ var DataManager = module.exports = {
    * @param {Object} restriction.dataSet - TerraMA² Output data set restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
+   * @param {boolean} ignoreAnalysisDsMetaDataSeries - Flag that indicates if the AnalysisDsMetaDataSeries should be ignored
    * @return {Promise<DataModel.Analysis>}
    */
   getAnalysis: function(restriction, options, ignoreAnalysisDsMetaDataSeries) {
