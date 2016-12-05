@@ -550,6 +550,10 @@ TcpService.prototype.log = function(json) {
 
 /**
  * It performs TerraMA² validate process in C++ services
+ * 
+ * @param {Object} data - A data to send via Tcp
+ * @param {number} serviceId - TerraMA² Service identifier
+ * @return {Promise}
  */
 TcpService.prototype.validateProcess = function(data, serviceId) {
   return DataManager.getServiceInstance({id: serviceId})

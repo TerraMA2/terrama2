@@ -464,7 +464,11 @@
           self.dataSeriesGroups[1].children = self.buffers.dynamic;
         };
 
-        // registering socket listener
+        /**
+         * It handles analysis validation signal. Once received, it tries to notify the user with callback state
+         * 
+         * @param {Object} resp - Service response
+         */
         Socket.on("processValidated", function(resp) {
           self.validating = false;
           if (resp.valid) {
@@ -998,9 +1002,14 @@
             var buildAnalysis = self.$prepare(false);
             console.log(buildAnalysis);
 
+            /**
+             * It sends to API in order to validate. Remember that promise resolved does not represents that validation was ok, but 
+             * there is not errors during object sending. When TcpService finishes, a Socket will be used to handle the validation process
+             */
             AnalysisService.validate(buildAnalysis)
               .then(function(response) {
                 // success
+                $log.log("Validation started...");
               })
 
               .catch(function(err) {

@@ -211,7 +211,7 @@ Analysis.delete = function(analysisId, projectId) {
  * @param {Object} analysisObject - An analysis object structure
  * @param {Object} storager - A storager object
  * @param {Object} scheduleObject - An schedule object structure
- * @param {number=} projectId - A current project id 
+ * @param {number} projectId - A current project id 
  * @return {Promise<Analysis>} A promise with analysis sent
  */
 Analysis.validate = function(analysisObject, storagerObject, scheduleObject, projectId) {
@@ -221,20 +221,22 @@ Analysis.validate = function(analysisObject, storagerObject, scheduleObject, pro
     // Todo: remove it
     analysisObject.script_language_id = 1;
 
+    var promiseWKT = null;
+    if (analysisObject.grid && analysisObject.grid.area_of_interest_box) {
+      promiseWKT = DataManager.getWKT(analysisObject.grid.area_of_interest_box);
+    }
+
     return PromiseClass.all([
         analysisObject,
         storagerObject,
-        DataManager.getScriptLanguage({id: analysisObject.script_language_id})
+        DataManager.getScriptLanguage({id: analysisObject.script_language_id}),
+        promiseWKT
       ])
-      .spread(function(analysis, storager, scriptLanguage) {
-        var dummyAnalysis = AnalysisBuilder(analysis, storager);
-        dummyAnalysis.setHistoricalData(analysis.historicalData || {});
-        if (analysis.grid) {
-          analysis.grid.id = dummyAnalysis.id;
-          analysis.grid.analysis_id = dummyAnalysis.id;
-        }
-        dummyAnalysis.setAnalysisOutputGrid(analysis.grid || {});
-        dummyAnalysis.setScriptLanguage(scriptLanguage);
+      .spread(function(analysis, storager, scriptLanguage, areaOfInterestWKT) {
+        analysis.grid.interest_box = areaOfInterestWKT;
+        var dummyAnalysis = AnalysisBuilder(analysis, storager, scriptLanguage, {
+          historical: analysis.historicalData || {}
+        });
 
         TcpService.validateProcess({"Analysis": [dummyAnalysis.toObject()]}, dummyAnalysis.instance_id);
 
