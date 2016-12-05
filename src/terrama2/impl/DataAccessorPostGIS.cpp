@@ -89,11 +89,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 {
   std::string tableName = getDataSetTableName(dataSet);
 
-  // FIXME : remove after tests
-  if(getTimestampPropertyName(dataSet) == "N/A")
-    dataSet->format.at("timestamp_property") = "datetime";
-  // FIXME: end fixme
-
   // creates a DataSource to the data and filters the dataset,
   // also joins if the DCP comes from separated files
   std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), uri));
