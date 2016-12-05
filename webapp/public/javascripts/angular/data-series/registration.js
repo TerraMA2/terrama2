@@ -318,7 +318,6 @@ angular.module('terrama2.dataseries.registration', [
     'FormHelper',
     "WizardHandler",
     'UniqueNumber',
-    "Polygon",
     "FilterForm",
     "MessageBoxService",
     "$q",
