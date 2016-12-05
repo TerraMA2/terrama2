@@ -39,7 +39,7 @@ boost::python::list terrama2::services::analysis::core::dcp::zonal::influence::p
   auto vecDCP = terrama2::services::analysis::core::dcp::zonal::influence::byAttribute(dataSeriesName, vecAttr);
 
   boost::python::list pyList;
-  for(auto& dcp : vecDCP)
+  for(const auto& dcp : vecDCP)
   {
     pyList.append(boost::python::object(dcp));
   }
@@ -51,7 +51,7 @@ boost::python::list terrama2::services::analysis::core::dcp::zonal::influence::p
   auto vecDCP = terrama2::services::analysis::core::dcp::zonal::influence::byRule(dataSeriesName, buffer);
 
   boost::python::list pyList;
-  for(auto& dcp : vecDCP)
+  for(const auto& dcp : vecDCP)
   {
     pyList.append(boost::python::object(dcp));
   }
