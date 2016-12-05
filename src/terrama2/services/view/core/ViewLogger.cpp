@@ -37,7 +37,7 @@ terrama2::services::view::core::ViewLogger::ViewLogger()
 
 }
 
-void terrama2::services::view::core::ViewLogger::setConnectionInfo(const te::core::URI& uri) noexcept
+void terrama2::services::view::core::ViewLogger::setConnectionInfo(const te::core::URI& uri)
 {
   terrama2::core::ProcessLogger::setConnectionInfo(uri);
 

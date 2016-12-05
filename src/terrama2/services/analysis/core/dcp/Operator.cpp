@@ -151,13 +151,6 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
 
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
 
-        if(!dataSeries)
-        {
-          QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-          errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-        }
-
         context->addDCPDataSeries(dataSeries, "", "", true);
 
         // For DCP operator count returns the number of DCP that influence the monitored object
