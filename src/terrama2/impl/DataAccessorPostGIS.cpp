@@ -112,7 +112,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 
   query += whereConditions(dataSet, filter);
 
-  std::cout << query << std::endl;
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
   if(tempDataSet->isEmpty())

@@ -104,7 +104,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
     logId = logger->start(analysis->id);
 
-    verifyInactiveDataSeries(dataManager, analysis, logger);
+    verifyInactiveDataSeries(dataManager, analysis, logger, logId);
 
     switch(analysis->type)
     {
@@ -837,7 +837,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
   }
 }
 
-void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger)
+void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, RegisterId logId)
 {
   for(auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
@@ -845,7 +845,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSer
     if(!dataSeries->active)
     {
       QString errMsg = QObject::tr("Analysis is using an inactive data series (%1).").arg(dataSeries->id);
-      logger->log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), analysis->id);
+      logger->log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), logId);
       TERRAMA2_LOG_WARNING() << errMsg;
     }
   }
