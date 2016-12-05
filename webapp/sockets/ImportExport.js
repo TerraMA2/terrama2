@@ -598,7 +598,7 @@ var ImportExport = function(io) {
         }
       }
 
-      /*if(json.Collectors) {
+      if(json.Collectors) {
         for(var i = 0, collectorsLength = json.Collectors.length; i < collectorsLength; i++) {
           promises.push(
             DataManager.getCollector({id: json.Collectors[i].id}).then(function(collector) {
