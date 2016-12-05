@@ -852,11 +852,14 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       self.getServiceInstance({id: serviceId}).then(function(serviceResult) {
         return models.db.ServiceInstance.update(serviceObject, Utils.extend({
+<<<<<<< HEAD
 <<<<<<< 470a209f0a0659d463926ebca1a84406f7b0c9a0
             fields: ['name', 'description', 'port', 
                      'numberOfThreads', 'runEnviroment', 'host', 
                      'sshUser', 'sshPort', 'pathToBinary', 'maps_server_uri'],
 =======
+=======
+>>>>>>> 13bd105ea2aa64fb0f1327853c35e9400d6b721a
             fields: ['name', 'description', 'port',
                      'numberOfThreads', 'runEnviroment', 'host',
                      'sshUser', 'sshPort', 'pathToBinary'],
@@ -3234,10 +3237,14 @@ var DataManager = module.exports = {
    * @param {Object} restriction.dataSet - TerraMA² Output data set restriction
    * @param {Object} options - A query options
    * @param {Transaction} options.transaction - An ORM transaction
+<<<<<<< HEAD
 <<<<<<< 470a209f0a0659d463926ebca1a84406f7b0c9a0
 =======
    * @param {boolean} ignoreAnalysisDsMetaDataSeries - Flag that indicates if the AnalysisDsMetaDataSeries should be ignored
 >>>>>>> improving importation
+=======
+   * @param {boolean} ignoreAnalysisDsMetaDataSeries - Flag that indicates if the AnalysisDsMetaDataSeries should be ignored
+>>>>>>> 13bd105ea2aa64fb0f1327853c35e9400d6b721a
    * @return {Promise<DataModel.Analysis>}
    */
   getAnalysis: function(restriction, options, ignoreAnalysisDsMetaDataSeries) {
