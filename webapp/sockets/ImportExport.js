@@ -379,7 +379,6 @@ var ImportExport = function(io) {
         });
       };*/
 
-<<<<<<< 3469ed0954ef6e6adbe3f1e6f9d721665a634b3a
       /*var getDataSeries = function(id) {
         return DataManager.getDataSeries({id: id}).then(function(dataSeries) {
           if(!isInArray(dataSeries.id, output.DataSeries)) {
@@ -599,7 +598,7 @@ var ImportExport = function(io) {
         }
       }
 
-      /*if(json.Collectors) {
+      if(json.Collectors) {
         for(var i = 0, collectorsLength = json.Collectors.length; i < collectorsLength; i++) {
           promises.push(
             DataManager.getCollector({id: json.Collectors[i].id}).then(function(collector) {
@@ -650,7 +649,7 @@ var ImportExport = function(io) {
 
                 Promise.all(dataSeriesPromises).catch(_emitError);
               }
-            })*/
+            })
           );
         }
       }
