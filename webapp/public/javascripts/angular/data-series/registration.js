@@ -492,7 +492,7 @@ angular.module('terrama2.dataseries.registration', [
 
       /**
        * It defines a TerraMA² MessageBox Service for handling alert box
-       * 
+       *
        * @type {MessageBoxService}
        */
       $scope.MessageBoxService = MessageBoxService;
@@ -639,10 +639,8 @@ angular.module('terrama2.dataseries.registration', [
 
           if (ds.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID) {
             ds.isGrid = true;
-            _helper(1, ds);
           } else {
             ds.isGrid = false;
-            _helper(0, ds);
           }
           _helper(0, ds);
         };
@@ -677,11 +675,9 @@ angular.module('terrama2.dataseries.registration', [
         };
 
         var dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
-        if (dataSeriesType === globals.enums.DataSeriesType.GRID) {
-          $scope.dataSeriesGroups[1].children = _helper($scope.dataSeriesGroups[1].children);
-        } else {
-          $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
-        }
+
+        $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
+
 
         // removing ds attributes
         delete $scope.intersection[dataSeries.id];
@@ -873,7 +869,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.advanced.store.disabled = false;
             $scope.advanced.store.optional = false;
           }
-        } 
+        }
         else {
           $scope.wizard.parameters.disabled = true;
           $scope.wizard.store.disabled = true;
@@ -1309,8 +1305,8 @@ angular.module('terrama2.dataseries.registration', [
         if (hostData){
           params.hostname = hostData.split(':')[0];
           params.port = hostData.split(':')[1].split('/')[0];
-          params.database = hostData.split('/')[1];  
-        }  
+          params.database = hostData.split('/')[1];
+        }
 
         var auth = uri.split('@')[0];
         if (auth){
@@ -1320,7 +1316,7 @@ angular.module('terrama2.dataseries.registration', [
             params.password = userData.split(':')[1];
           }
         }
-        
+
         return params;
       }
 
