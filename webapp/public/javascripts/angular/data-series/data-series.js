@@ -20,9 +20,13 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     });
 
     Socket.on('runResponse', function(response){
+      if (config.extra && config.extra.id){
+        $scope.alertBox.message = config.message + i18n.__(". The process was started successfully");
+      } else {
+        $scope.alertBox.message = i18n.__("The process was started successfully");
+      }
       $scope.display = true;
       $scope.alertLevel = "alert-success";
-      $scope.alertBox.message = i18n.__("The process was started successfully");
     });
 
     Socket.on('statusResponse', function(response) {
@@ -31,18 +35,26 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
           Socket.emit('run', serviceCache[response.service].process_ids);
         } else {
           $scope.display = true;
-          $scope.alertLevel = "alert-error";
+          var message = "";
+          if (config.extra && config.extra.id){
+            message = config.message + ". ";
+            $scope.alertLevel = "alert-warning";
+            delete config.extra;
+            delete config.message;
+          } else {
+            $scope.alertLevel = "alert-error";
+          }
 
           if(serviceCache[response.service] != undefined) {
             var service = Service.get(serviceCache[response.service].process_ids.service_instance);
 
             if(service != null) {
-              $scope.alertBox.message = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+              $scope.alertBox.message = message + i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
             } else {
-              $scope.alertBox.message = i18n.__("Service not active");
+              $scope.alertBox.message = message + i18n.__("Service not active");
             }
           } else {
-            $scope.alertBox.message = i18n.__("Service not active");
+            $scope.alertBox.message = message + i18n.__("Service not active");
           }
         }
 
@@ -144,6 +156,15 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
 
         instance.model_type = value;
       });
+
+      if (config.extra && config.extra.id){
+        var dataSeriesToRun = $scope.model.filter(function(element){
+          return element.id == config.extra.id;
+        });
+        if (dataSeriesToRun.length == 1){
+          $scope.extra.run(dataSeriesToRun[0]);
+        }
+      }
       $scope.fields = [{key: 'name', as: i18n.__("Name")}, {key: "model_type", as: i18n.__("Type")}];
     });
 

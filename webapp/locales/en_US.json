@@ -583,5 +583,7 @@
 	"Select Attibutes": "Select Attibutes",
 	"Select attributes": "Select attributes",
 	"Band": "Band",
-	"Close": "Close"
+	"Close": "Close",
+	"is not active": "is not active",
+	". The process was started successfully": ". The process was started successfully"
 }
