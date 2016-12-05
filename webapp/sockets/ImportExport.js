@@ -360,6 +360,55 @@ var ImportExport = function(io) {
         });
       };*/
 
+      /*var getDataSeries = function(id) {
+        return DataManager.getDataSeries({id: id}).then(function(dataSeries) {
+          if(!isInArray(dataSeries.id, output.DataSeries)) {
+            output.DataSeries.push(addID(dataSeries));
+
+            return DataManager.getDataProvider({id: dataSeries.data_provider_id});
+          } else {
+            return Promise.resolve();
+          }
+        }).then(function(dataProvider) {
+          if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
+            dataProvider.project_id = null;
+            output.DataProviders.push(addID(dataProvider));
+          }
+
+          return DataManager.getCollector({data_series_output: id});
+        }).then(function(collector) {
+          if(!isInArray(collector.id, output.Collectors)) {
+            output.Collectors.push(addID(collector));
+
+            var dataSeriesPromises = [
+              DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
+                if(!isInArray(dataSeries.id, output.DataSeries)) {
+                  output.DataSeries.push(addID(dataSeries));
+                  return DataManager.getDataProvider({id: dataSeries.data_provider_id});
+                }
+              }).then(function(dataProvider) {
+                if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
+                  dataProvider.project_id = null;
+                  output.DataProviders.push(addID(dataProvider));
+                }
+              })
+            ];
+
+            for(var j = 0, intersectionsLength = collector.intersection.length; j < intersectionsLength; j++) {
+              dataSeriesPromises.push(
+                getDataSeries(collector.intersection[j].dataseries_id)
+              );
+            }
+
+            return Promise.all(dataSeriesPromises).catch(_emitError);
+          } else {
+            return Promise.resolve();
+          }
+        }).catch(function(err) {
+          return Promise.resolve();
+        })
+      };*/
+
       var getDataSeries = function(id) {
         return DataManager.getDataSeries({id: id}).then(function(dataSeries) {
           if(!isInArray(dataSeries.id, output.DataSeries)) {
@@ -378,6 +427,7 @@ var ImportExport = function(io) {
           return DataManager.getCollector({data_series_output: id});
         }).then(function(collector) {
           if(!isInArray(collector.id, output.Collectors)) {
+            collector.service_instance_id = null;
             output.Collectors.push(addID(collector));
 
             var dataSeriesPromises = [
@@ -524,16 +574,17 @@ var ImportExport = function(io) {
 
                 Promise.all(dataSeriesPromises).catch(_emitError);
               }
-            })
+            })*/
           );
         }
       }
 
-      /*if(json.Collectors) {
+      if(json.Collectors) {
         for(var i = 0, collectorsLength = json.Collectors.length; i < collectorsLength; i++) {
           promises.push(
             DataManager.getCollector({id: json.Collectors[i].id}).then(function(collector) {
               if(!isInArray(collector.id, output.Collectors)) {
+                collector.service_instance_id = null;
                 output.Collectors.push(addID(collector));
 
                 var dataSeriesPromises = [
@@ -579,7 +630,7 @@ var ImportExport = function(io) {
 
                 Promise.all(dataSeriesPromises).catch(_emitError);
               }
-            })*/
+            })
           );
         }
       }
@@ -593,6 +644,7 @@ var ImportExport = function(io) {
                 rawAnalysis.$id = rawAnalysis.id;
                 delete rawAnalysis.id;
                 rawAnalysis.project_id = null;
+                rawAnalysis.service_instance_id = null;
                 output.Analysis.push(rawAnalysis);
 
                 var analysisDataseriesListPromises = [];
@@ -642,6 +694,7 @@ var ImportExport = function(io) {
             DataManager.getView({id: json.Views[i].id}).then(function(view) {
               if(!isInArray(view.id, output.Views)) {
                 view.projectId = null;
+                view.serviceInstanceId = null;
                 output.Views.push(addID(view));
                 return DataManager.getDataSeries({id: view.dataSeries});
               }
