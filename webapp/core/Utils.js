@@ -124,13 +124,16 @@ var Utils = module.exports = {
     });
   },
 
-  generateToken: function(app, code, intent) {
+  generateToken: function(app, code, intent, extra) {
     var token = crypto.randomBytes(48).toString('hex');
     app.locals.tokenIntent = {
       token: token,
       code: code,
       intent: intent
     };
+    if (extra){
+      app.locals.tokenIntent.extra = extra;
+    }
 
     return token;
   },
@@ -145,6 +148,9 @@ var Utils = module.exports = {
       var intent = app.locals.tokenIntent.intent;
 
       parameters.message = intent + " " + getTokenCodeMessage(code);
+      if (app.locals.tokenIntent.extra){
+        parameters.extra = app.locals.tokenIntent.extra;
+      }
       // resetting
       delete app.locals.tokenIntent;
     }
@@ -176,7 +182,7 @@ var Utils = module.exports = {
 
   /**
    * It retrieves a TCP signal from given value
-   * 
+   *
    * @param {number} value - A tcp signal number
    * @returns {Signals}
    */
@@ -198,7 +204,7 @@ var Utils = module.exports = {
 
   /**
    * It retrieves a user home directory (win32/linux/mac)
-   * 
+   *
    * @returns {string}
    */
   getUserHome: function() {
@@ -413,11 +419,11 @@ var Utils = module.exports = {
   },
   /**
    * It retrieves a Service Type Name from identifier.
-   * 
+   *
    * @throws {exceptions.ServiceTypeError} When service type is invalid
    * @param {number} intServiceType - A TerraMA² service type identifier
    * @returns {string}
-   * 
+   *
    * @example
    * $ console.log(Utils.getServiceTypeName(Enums.ServiceType.COLLECTOR))
    * // output -> "COLLECTOR"
@@ -457,7 +463,7 @@ var Utils = module.exports = {
 
   /**
    * It retrieves a list of timezones to fill out elements in GUI interface.
-   * 
+   *
    * @returns {string[]}
    */
   getTimezonesGUI: function() {
@@ -488,7 +494,7 @@ var Utils = module.exports = {
 
   /**
    * It performs a data creation from given date string terrama2 format
-   * 
+   *
    * @example
    * "2016-09-05T08:00:00.000-03:00" => Date
    * @throws {Error} When a date is not a string
@@ -510,15 +516,15 @@ var Utils = module.exports = {
 
   /**
    * It formats a database metadata (key, value) to a javascript object.
-   * 
-   * @example 
+   *
+   * @example
    * var dbMetadata = [
    *   {id: 1, key: "foo", value: "bar"},
    *   {id: 2, key: "foo2", value: "bar2"},
    * ]
-   * 
+   *
    * Utils.formatMetadataFromDB(dbMetadata) -> {"foo": "bar", "foo2": "bar2"}
-   * @param {Array<String>} values - An array of metadata values 
+   * @param {Array<String>} values - An array of metadata values
    * @param {Function} fn - A function to perform each iteration
    * @returns {Object}
    */
@@ -539,7 +545,7 @@ var Utils = module.exports = {
   },
   /**
    * It generates an Array from object iteration, calling a callback to build result
-   * 
+   *
    * @param {Object} valuesObject - A javascript object to iterate
    * @param {Function} operationIter - A callback to be called in object iteration. It should return something (object)
    * @param {any} extra - An extra values to iterate. It will be passed through function iteration
@@ -568,7 +574,7 @@ var Utils = module.exports = {
   },
   /**
    * It performs a REMOVE_DATA_SIGNAL to TCP Services
-   * 
+   *
    * @param {DataManager} DataManager - A TerraMA² DataManager instance injected as dependency.
    * @param {TcpManager} TcpManager - A TerraMA² TcpManager instance .
    * @param {Object} data - A data to remove
@@ -588,7 +594,7 @@ var Utils = module.exports = {
 
   /**
    * It generates a encrypted URI
-   * 
+   *
    * @param {string} uri - An URI to encrypt
    * @param {Enums.Uri?} syntax - An URI syntax. Default is Enums.Uri
    * @param {string} salt - A salt to create encrypted URI
@@ -622,7 +628,7 @@ var Utils = module.exports = {
   },
 
   /**
-   * It generates a Salt value 
+   * It generates a Salt value
    * @param {number} rounds - It represents the cost of processing the data. Default 10.
    * @returns {string}
    */
@@ -635,7 +641,7 @@ var Utils = module.exports = {
 
   /**
    * It compares URI encrypted with another URI
-   * 
+   *
    * @param {string} uri - An URI to encrypt
    * @param {string} encryptedURI - An encrypted URI
    * @returns {Boolean}
@@ -646,7 +652,7 @@ var Utils = module.exports = {
 
   /**
    * It compares two objects if they are same (including attributes).
-   * 
+   *
    * @param {Object} origin
    * @param {Object} target
    * @return {boolean} A boolean comparison
@@ -667,7 +673,7 @@ var Utils = module.exports = {
 
   /**
    * It checks if a argument is a number and a finite number.
-   * 
+   *
    * @param {?} arg - A value
    * @returns {Boolean}
    */
@@ -697,7 +703,7 @@ var Utils = module.exports = {
 
   /**
    * It checks if given parameter is empty.
-   * 
+   *
    * @param {Array | Object}
    */
   isEmpty: function(arg) {
@@ -725,7 +731,7 @@ var Utils = module.exports = {
 
   /**
    * It performs a extend object from given parameters
-   * 
+   *
    * @param {Object} nodeA - A first node
    * @param {Object} nodeB - A second node
    * @return {Object} An extended object with A and B
@@ -737,7 +743,7 @@ var Utils = module.exports = {
    * It applies a string format over arguments.
    * @param {...string|number} args A list of arguments.
    * @returns {string}
-   * 
+   *
    * @example
    * > Utils.format("Hi %s", "User")  // "Hi User"
    * > Utils.format(1, 2, 3)  // "1 2 3"
@@ -748,7 +754,7 @@ var Utils = module.exports = {
 
   /**
    * It performs a array concat with arguments values.
-   * 
+   *
    * @param {any[]} array - Array of elements to concatenate
    * @param {...any} [values] - The values to concatenate
    */
@@ -758,7 +764,7 @@ var Utils = module.exports = {
 
   /**
    * It just builds a folder object used in schema form redraw
-   * 
+   *
    * @returns {Object}
    */
   getFolderSchema: function() {
@@ -775,7 +781,7 @@ var Utils = module.exports = {
 
   /**
    * It just builds a folder object form representation for schema form
-   * 
+   *
    * @returns {Object}
    */
   getFolderForm: function() {

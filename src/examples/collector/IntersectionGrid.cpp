@@ -31,6 +31,7 @@
 #include <terrama2/core/Shared.hpp>
 
 #include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TimeUtils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/DataAccessorFactory.hpp>
 #include <terrama2/core/utility/DataStoragerFactory.hpp>
@@ -67,9 +68,7 @@ void addGridSeries(std::shared_ptr<terrama2::services::collector::core::DataMana
   //DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->uri = "file://";
-  dataProvider->uri += TERRAMA2_DATA_DIR;
-  dataProvider->uri += "/geotiff";
+  dataProvider->uri = "file://"+TERRAMA2_DATA_DIR;
 
   dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
@@ -84,14 +83,16 @@ void addGridSeries(std::shared_ptr<terrama2::services::collector::core::DataMana
   //DataSeries information
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
-  dataSeries->semantics = semanticsManager.getSemantics("GRID-geotiff");
+  dataSeries->semantics = semanticsManager.getSemantics("GRID-static_geotiff");
   dataSeries->name = "geotiff";
   dataSeries->id = 3;
   dataSeries->dataProviderId = 3;
 
   terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
+  dataSet->id = 3;
   dataSet->active = true;
-  dataSet->format.emplace("mask", "cbers2b_hrc_crop.tif");
+  dataSet->format.emplace("mask", "cbers2b_rgb342_crop.tif");
+  dataSet->format.emplace("folder", "geotiff");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -106,9 +107,7 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   // DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
-  dataProvider->uri = "file://";
-  dataProvider->uri += TERRAMA2_DATA_DIR;
-  dataProvider->uri += "/fire_system";
+  dataProvider->uri = "file://"+TERRAMA2_DATA_DIR+"/fire_system";
 
   dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->active = true;
@@ -131,7 +130,6 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   dataSet->id = 1;
   dataSet->active = true;
   dataSet->format.emplace("mask", "exporta_%YYYY%MM%DD_%hh%mm.csv");
-  dataSet->format.emplace("srid", "4326");
 
   dataSeries->datasetList.emplace_back(dataSet);
 
@@ -191,7 +189,6 @@ int main(int argc, char* argv[])
     terrama2::core::TerraMA2Init terramaRaii("example", 0);
     terrama2::core::registerFactories();
 
-
     {
       QCoreApplication app(argc, argv);
       auto& serviceManager = terrama2::core::ServiceManager::getInstance();
@@ -206,6 +203,9 @@ int main(int argc, char* argv[])
       addGridSeries(dataManager);
 
       terrama2::services::collector::core::Service service(dataManager);
+      auto logger = std::make_shared<terrama2::services::collector::core::CollectorLogger>();
+      logger->setConnectionInfo(uri);
+      service.setLogger(logger);
       service.start();
 
       terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
@@ -223,22 +223,20 @@ int main(int argc, char* argv[])
 
       // Adds the attribute "SIGLA" to the collected occurrences.
       intersection->collectorId = collector->id;
-      std::vector<std::string> attrVec;
+      std::vector<std::string> attrVec{"2"};
       intersection->attributeMap[3] = attrVec;
       collector->intersection = intersectionPtr;
 
-
       dataManager->add(collectorPtr);
+      service.addToQueue(collectorPtr->id, terrama2::core::TimeUtils::nowUTC());
 
       QTimer timer;
       QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
-      timer.start(300000);
+      timer.start(10000);
       app.exec();
 
       service.stopService();
     }
-
-
   }
   catch(...)
   {

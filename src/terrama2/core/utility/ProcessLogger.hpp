@@ -113,22 +113,18 @@ namespace terrama2
         virtual RegisterId start(ProcessId processId) const;
 
         /*!
-         * \brief Log an error of process
+         * \brief Adds a log message to the process.
          * \param description Error description
          */
-        virtual void error(const std::string& description, const RegisterId registerId) const;
+        virtual void log(MessageType messageType, const std::string &description, RegisterId registerId) const;
 
-        /*!
-         * \brief Log an information of process
-         * \param description Error description
-         */
-        virtual void info(const std::string& description, const RegisterId registerId) const;
 
         /*!
          * \brief Log the end of process
          * \param dataTimestamp The las timestamp of data.
          */
-        virtual void done(const std::shared_ptr< te::dt::TimeInstantTZ >& dataTimestamp, const RegisterId registerId) const;
+        virtual void result(Status status, const std::shared_ptr<te::dt::TimeInstantTZ> &dataTimestamp,
+                            RegisterId registerId) const;
 
         /*!
          * \brief Returns the process last log timestamp

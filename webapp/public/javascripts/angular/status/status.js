@@ -13,8 +13,9 @@ angular.module("terrama2.status", [
     $scope.MessageBoxService = MessageBoxService;
     var cachedIcons = {};
     cachedIcons[Globals.enums.StatusLog.DONE] = "/images/check.png";
-    cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/warning.png";
+    cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/error.png";
     cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
+    cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/warning.png";
 
     // injecting socket in angular scope
     $scope.socket = Socket;
@@ -55,16 +56,23 @@ angular.module("terrama2.status", [
     };
 
     $scope.iconFn = function(object) {
-      return cachedIcons[object.status];
+      var iconPath = cachedIcons[object.status];
+      if (iconPath) {
+        // if warning
+        if (object.messageType === Globals.enums.MessageType.WARNING_MESSAGE) {
+          return cachedIcons["message_" + Globals.enums.MessageType.WARNING_MESSAGE];
+        }
+        return iconPath;
+      }
+      return;
     };
 
     $scope.loading = true;
 
-    // modal info
-    $scope.modalMessages = "";
+    $scope.selectedLog = null;
     //Set messages to show in modal
-    $scope.setModalMessages = function(messages){
-      $scope.modalMessages = messages;
+    $scope.setSelectedLog = function(logRow){
+      $scope.selectedLog = logRow;
     };
 
     $scope.close = function() {
@@ -143,39 +151,44 @@ angular.module("terrama2.status", [
 
           out.name = obj.name;
           var messageString = "";
+          out.messages = logMessage.messages;
           if (logMessage.messages && logMessage.messages.length > 0){
-            for (var message in logMessage.messages){
-              if (logMessage.messages[message].description)
-                messageString += logMessage.messages[message].description + ". ";
-            }
-            out.message = messageString;
-          }
-          else{
+            var firstMessage = logMessage.messages[0];
+            out.message = firstMessage.description;
+            out.messageType = firstMessage.type;
+          } else {
+            var dummyMessage = {};
             switch(logMessage.status) {
               case Globals.enums.StatusLog.DONE:
-                out.message = "Done";
+                dummyMessage.description = "Done";
+                dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                 break;
               case Globals.enums.StatusLog.START:
-                out.message = "Started";
+                dummyMessage.description = "Started";
+                dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                 break;
               case Globals.enums.StatusLog.DOWNLOADED:
-                out.message = "Downloaded";
+                dummyMessage.description = "Downloaded";
+                dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                 break;
               case Globals.enums.StatusLog.ERROR:
-                out.message = "Error";
+                dummyMessage.description = "Error";
+                dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
                 break;
             }
+            out.message = dummyMessage.description;
+            out.messages = [dummyMessage];
           }
 
           $scope.model.push(out)
-        });
-      });
+        })
+      })
     });
 
     $scope.socket.emit('log', {
       begin: 0,
       end: 2
-    });
+    })
 
     if(config.parameters.message !== undefined && config.parameters.message !== null && config.parameters.message !== "") {
       MessageBoxService.success(i18n.__("Project"), config.parameters.message);

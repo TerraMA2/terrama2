@@ -196,7 +196,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
   std::string folderMask;
   try
   {
-    folderMask = getFolderMask(dataSet);
+    folderMask = getFolderMask(dataSet, dataSeries_);
   }
   catch(const terrama2::core::UndefinedTagException& /*e*/)
   {
@@ -212,7 +212,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
 
     if(foldersList.empty())
     {
-      QString errMsg = QObject::tr("No folders struct in dataset: %1.").arg(dataSet->id);
+      QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
       TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
@@ -230,7 +230,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorDcpToa5::getSeries(con
 
   if(newFileInfoList.empty())
   {
-    QString errMsg = QObject::tr("No files found in dataset: %1.").arg(dataSet->id);
+    QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_WARNING() << errMsg;
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }

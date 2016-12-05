@@ -583,7 +583,7 @@
           // filtering formats
           self.storagerFormats = [];
           DataSeriesSemanticsService.list().forEach(function(dSemantics) {
-            if(dSemantics.data_series_type_name === semanticsType && !dSemantics.collector) {
+            if(dSemantics.data_series_type_name === semanticsType && !dSemantics.collector && dSemantics.temporality === globals.enums.TemporalityType.DYNAMIC) {
               self.storagerFormats.push(Object.assign({}, dSemantics));
             }
           });

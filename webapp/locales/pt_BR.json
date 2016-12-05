@@ -490,5 +490,10 @@
 	"Static Data Registration": "Registro de Dado Estático",
 	"File static data": "Arquivo de Dado Estático",
 	"PostGIS static data": "Dado Estático PostGIS",
-	"Message": "Mensagem"
+	"Message": "Mensagem",
+	"Save": "Save",
+	"Save and Run": "Save and Run",
+	"PostGIS occurrence": "PostGIS occurrence",
+	"Lightning occurrence": "Lightning occurrence",
+	"Output format is required": "Output format is required"
 }

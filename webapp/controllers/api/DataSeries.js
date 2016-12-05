@@ -46,13 +46,6 @@ module.exports = function(app) {
 
               logger.debug("OUTPUT: ", JSON.stringify(output));
 
-              TcpService.send(output)
-                .then(function() {
-                  if (shouldRun) {
-                    return TcpService.run({"ids": [collector.id], "service_instance": collector.service_instance_id});
-                  }
-                });
-
               return collectorResult.output;
             });
           });
@@ -70,7 +63,13 @@ module.exports = function(app) {
           });
         }
       }).then(function(dataSeriesResult) {
-        var token = Utils.generateToken(app, TokenCode.SAVE, dataSeriesResult.name);
+        var extra = {}
+        if (shouldRun && dataSeriesObject.hasOwnProperty('input') && dataSeriesObject.hasOwnProperty('output')){
+          extra = {
+            id: dataSeriesResult.id
+          }
+        }
+        var token = Utils.generateToken(app, TokenCode.SAVE, dataSeriesResult.name, extra);
         return response.json({status: 200, token: token});
       }).catch(function(err) {
         return Utils.handleRequestError(response, err, 400);
@@ -160,6 +159,7 @@ module.exports = function(app) {
           return DataManager.getCollector({data_series_input: dataSeriesId}, options)
             .then(function(collector) {
               collector.service_instance_id = serviceId;
+              collector.active = dataSeriesObject.input.active;
 
               return DataManager.updateCollector(collector.id, collector, options)
                 .then(function() {
@@ -290,7 +290,7 @@ module.exports = function(app) {
         var token = Utils.generateToken(app, TokenCode.UPDATE, dataSeries.name);
         return response.json({status: 200, result: dataSeries.toObject(), token: token});
       })
-      
+
       .catch(function(err) {
         return Utils.handleRequestError(response, err, 400);
       });
@@ -321,7 +321,7 @@ module.exports = function(app) {
                     return response.json({status: 200, name: dataSeriesResult.name});
                   });
               })
-              
+
               .catch(function(err) {
                 // if not find collector, it is processing data series or analysis data series
                 return DataManager.removeDataSerie({id: id})

@@ -6,7 +6,8 @@ module.exports = function(sequelize, DataTypes) {
       discard_before: DataTypes.DATE,
       discard_after: DataTypes.DATE,
       region: DataTypes.GEOMETRY('POLYGON'),
-      by_value: DataTypes.DECIMAL
+      by_value: DataTypes.DECIMAL,
+      crop_raster: DataTypes.BOOLEAN
     },
     {
       underscored: true,

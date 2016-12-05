@@ -191,64 +191,36 @@ void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::
 }
 
 
-void terrama2::core::ProcessLogger::error(const std::string& description, RegisterId registerId) const
+void
+terrama2::core::ProcessLogger::log(MessageType messageType, const std::string &description, RegisterId registerId) const
 {
   if(tableName_.empty() || messagesTableName_.empty())
   {
-    QString errMsg = QObject::tr("Can not find log tables names. Are they setted?");
+    QString errMsg = QObject::tr("Can not find log tables names.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
 
   std::shared_ptr< te::dt::TimeInstantTZ> now(TimeUtils::nowUTC());
-
-  boost::format query("UPDATE "+ tableName_ + " SET status=%1%, last_process_timestamp='%2%' WHERE id =" + QString::number(registerId).toStdString());
-
-  query.bind_arg(1, static_cast<int>(Status::ERROR));
-  query.bind_arg(2, now->toString());
 
   std::string escapedDescription(description);
   // TODO: Remove it when terralib escape work properly
   std::replace(escapedDescription.begin(), escapedDescription.end(), '\'', ' ');
 
   boost::format queryMessages("INSERT INTO " + messagesTableName_ + " (log_id, type, description, timestamp) VALUES(" + QString::number(registerId).toStdString() + ", %1%, '%2%', '%3%')");
-  queryMessages.bind_arg(1, static_cast<int>(MessageType::ERROR_MESSAGE));
+  queryMessages.bind_arg(1, static_cast<int>(messageType));
   queryMessages.bind_arg(2, escapedDescription);
   queryMessages.bind_arg(3, now->toString());
 
   std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
-
-  transactor->execute(query.str());
-  transactor->execute(transactor->escape(queryMessages.str()));
-
-  transactor->commit();
-}
-
-void terrama2::core::ProcessLogger::info(const std::string& description, RegisterId registerId) const
-{
-  if(tableName_.empty() || messagesTableName_.empty())
-  {
-    QString errMsg = QObject::tr("Can not find log tables names. Are they setted?");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::LogException() << ErrorDescription(errMsg);
-  }
-
-  std::shared_ptr< te::dt::TimeInstantTZ> now(TimeUtils::nowUTC());
-
-  boost::format queryMessages("INSERT INTO " + messagesTableName_ + " (log_id, type, description, timestamp) VALUES(" + QString::number(registerId).toStdString() + ", %1%, '%2%', '%3%')");
-  queryMessages.bind_arg(1, static_cast<int>(MessageType::INFO_MESSAGE));
-  queryMessages.bind_arg(2, description);
-  queryMessages.bind_arg(3, now->toString());
-
-  std::shared_ptr< te::da::DataSourceTransactor > transactor = dataSource_->getTransactor();
-
   transactor->execute(transactor->escape(queryMessages.str()));
 
   transactor->commit();
 }
 
 
-void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInstantTZ>& dataTimestamp, RegisterId registerId) const
+void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<te::dt::TimeInstantTZ> &dataTimestamp,
+                                           RegisterId registerId) const
 {
   if(tableName_.empty())
   {
@@ -260,15 +232,20 @@ void terrama2::core::ProcessLogger::done(const std::shared_ptr<te::dt::TimeInsta
   boost::format query("UPDATE "+ tableName_ + " SET status=%1%, data_timestamp=%2%, last_process_timestamp='%3%' WHERE id =" + QString::number(registerId).toStdString());
   QString timestamp = "NULL";
 
-  verify::date(dataTimestamp);
 
-  auto boostTime = dataTimestamp->getTimeInstantTZ();
-  timestamp = QString::fromStdString(dataTimestamp->toString());
+  if(dataTimestamp != nullptr)
+  {
+    verify::date(dataTimestamp);
 
-  timestamp.prepend("'");
-  timestamp.append("'");
+    auto boostTime = dataTimestamp->getTimeInstantTZ();
+    timestamp = QString::fromStdString(dataTimestamp->toString());
 
-  query.bind_arg(1, static_cast<int>(Status::DONE));
+    timestamp.prepend("'");
+    timestamp.append("'");
+  }
+
+
+  query.bind_arg(1, static_cast<int>(status));
   query.bind_arg(2, timestamp);
   query.bind_arg(3, TimeUtils::nowUTC()->toString());
 

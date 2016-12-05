@@ -69,6 +69,15 @@ app.run(function($templateCache) {
               "</span> " +
             "</div>" +
           "</div>" +
+          "<div class=\"col-md-6\" ng-if=\"model.showCrop\">" +
+            "<div class=\"form-group \">" +
+              "<div class=\"checkbox\" style=\"margin-left: 20px; margin-top:30px;\">" +
+                "<span style=\"font-weight: 700;\" >" +
+                  "<input type=\"checkbox\" id=\"projection\" name=\"crop_raster\" ng-model=\"model.crop_raster\"> {{ i18n.__('Crop raster') }} "+
+                "<\span>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
         "</div>" +
       "</div>" +
     "</div>" +

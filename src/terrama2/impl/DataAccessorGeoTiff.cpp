@@ -57,18 +57,17 @@ terrama2::core::DataAccessorGeoTiff::DataAccessorGeoTiff(DataProviderPtr dataPro
 
 std::string terrama2::core::DataAccessorGeoTiff::dataSourceType() const { return "GDAL"; }
 
-std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorGeoTiff::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
+std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGeoTiff::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
 {
   return DataAccessorFile::internalCreateCompleteDataSet(dataSetType, true, true);
 }
 
-void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
                                                                std::shared_ptr<te::da::DataSet> dataSet,
                                                                std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
                                                                const std::string& filename) const
 {
-  auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
-  complete->moveLast();
+  completeDataSet->moveLast();
 
   size_t rasterColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
   if(!isValidColumn(rasterColumn))
@@ -78,20 +77,20 @@ void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<t
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  size_t timestampColumn = te::da::GetFirstPropertyPos(complete.get(), te::dt::DATETIME_TYPE);
+  size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
 
   dataSet->moveBeforeFirst();
   while(dataSet->moveNext())
   {
     std::unique_ptr<te::rst::Raster> raster(dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
 
-    te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
+    te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
 
     item->setRaster(rasterColumn, raster.release());
     if(isValidColumn(timestampColumn ))
       item->setDateTime(timestampColumn, fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
 
     item->setString("filename", filename);
-    complete->add(item);
+    completeDataSet->add(item);
   }
 }

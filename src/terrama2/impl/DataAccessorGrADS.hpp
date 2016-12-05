@@ -112,7 +112,9 @@ namespace terrama2
         ValueDef* zDef_;
         TValueDef* tDef_;
         std::vector<Var*> vecVars_;
-        int srid_;
+        Srid srid_;
+        uint32_t numberOfBands_;
+        double valueMultiplier_;
 
         GrADSDataDescriptor();
 
@@ -188,7 +190,7 @@ namespace terrama2
         { return "GRID-grads"; }
 
         //! Concatenate the given dataset to the complete dataset.
-        virtual void addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+        virtual void addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
                                           std::shared_ptr<te::da::DataSet> dataSet,
                                           std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
                                           const std::string& filename) const override;
@@ -205,9 +207,17 @@ namespace terrama2
 
         std::string getCtlFilename(DataSetPtr dataSet) const;
 
-        double getBytesBefore(DataSetPtr dataset) const;
+        uint32_t getBytesBefore(DataSetPtr dataset) const;
 
-        double getBytesAfter(DataSetPtr dataset) const;
+        uint32_t getBytesAfter(DataSetPtr dataset) const;
+
+        uint32_t getNumberOfBands(terrama2::core::DataSetPtr dataset) const;
+
+        double getValueMultiplier(terrama2::core::DataSetPtr dataset) const;
+
+        std::string getDataType(terrama2::core::DataSetPtr dataset) const;
+
+        std::string getBinaryFileMask(terrama2::core::DataSetPtr dataset) const;
 
       protected:
         //! Returns the data source type.
@@ -217,6 +227,8 @@ namespace terrama2
                           const std::string& vrtFilename, DataSetPtr dataset) const;
 
         std::unique_ptr<te::rst::Raster> adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const;
+
+        mutable bool yReverse_ = false; //! Flag for reverse y-axis.
     };
 
 

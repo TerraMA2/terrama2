@@ -103,7 +103,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 
   try
   {
-    folderPath = getFolderMask(dataset);
+    folderPath = getFolderMask(dataset, dataSeries_);
   }
   catch(UndefinedTagException& /*e*/)
   {
@@ -113,7 +113,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   std::string mask = getCtlFilename(dataset);
   std::string uri = dataRetriever->retrieveData(mask, filter, remover, "", folderPath);
 
-  QUrl url(QString::fromStdString(uri));
+  QUrl url(QString::fromStdString(uri+"/"+folderPath));
   QDir dir(url.path());
   auto fileList = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
   for(const auto& file : fileList)
@@ -129,6 +129,20 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 
     datasetMask = grad2TerramaMask(datasetMask.c_str()).toStdString();
 
+    // In case the user specified a binary file mask, use it instead of the one in the CTL file.
+    try
+    {
+      std::string binaryFileMask = getBinaryFileMask(dataset);
+      if(!binaryFileMask.empty())
+      {
+        datasetMask = binaryFileMask;
+      }
+    }
+    catch(...)
+    {
+      // In case no binary file mask specified, use dataset mask in the CTL file.
+    }
+
     dataRetriever->retrieveData(datasetMask, filter, remover, uri, folderPath);
   }
 
@@ -138,13 +152,12 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 std::string terrama2::core::DataAccessorGrADS::dataSourceType() const
 { return "GDAL"; }
 
-void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te::da::DataSet> completeDataSet,
+void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
                                                              std::shared_ptr<te::da::DataSet> dataSet,
                                                              std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
                                                              const std::string& filename) const
 {
-  auto complete = std::dynamic_pointer_cast<te::mem::DataSet>(completeDataSet);
-  complete->moveLast();
+  completeDataSet->moveLast();
 
   size_t rasterColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
   if(!isValidColumn(rasterColumn))
@@ -154,7 +167,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
     throw DataStoragerException() << ErrorDescription(errMsg);
   }
 
-  size_t timestampColumn = te::da::GetFirstPropertyPos(complete.get(), te::dt::DATETIME_TYPE);
+  size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
 
   dataSet->moveBeforeFirst();
   while(dataSet->moveNext())
@@ -162,18 +175,24 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
     std::unique_ptr<te::rst::Raster> raster(
       dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
 
-    std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
+    te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
 
-    te::mem::DataSetItem* item = new te::mem::DataSetItem(complete.get());
+    if(yReverse_)
+    {
+      std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
+      item->setRaster(rasterColumn, adapted.release());
+    }
+    else
+      item->setRaster(rasterColumn, raster.release());
 
-    item->setRaster(rasterColumn, adapted.release());
+
     if(isValidColumn(timestampColumn))
       item->setDateTime(timestampColumn,
                         fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
 
     item->setString("filename", filename);
 
-    complete->add(item);
+    completeDataSet->add(item);
   }
 }
 
@@ -232,7 +251,20 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
                                                                            terrama2::core::DataSetPtr dataSet,
                                                                            std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  QUrl url(QString::fromStdString(uri));
+  std::string completeUri = uri;
+  try
+  {
+    std::string folderName = getFolderMask(dataSet, dataSeries_);
+    if(!folderName.empty())
+      completeUri += "/" + folderName;
+
+  }
+  catch(...)
+  {
+    // Nothing to be done, it will use the URI
+  }
+
+  QUrl url(QString::fromStdString(completeUri));
 
   QDir dir(url.path());
   QFileInfoList fileInfoList = dir.entryInfoList(
@@ -248,7 +280,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
   DataSetSeries series;
   series.dataSet = dataSet;
 
-  std::shared_ptr<te::da::DataSet> completeDataset(nullptr);
+  std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
 
@@ -313,6 +345,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
     // Reads the dataset name from CTL
     std::string datasetMask = gradsDescriptor.datasetFilename_;
+
     if(gradsDescriptor.datasetFilename_[0] == '^')
     {
       gradsDescriptor.datasetFilename_.erase(0, 1);
@@ -320,6 +353,22 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     }
 
     datasetMask = grad2TerramaMask(QString::fromStdString(datasetMask)).toStdString();
+
+
+    // In case the user specified a binary file mask, use it instead of the one in the CTL file.
+    try
+    {
+      std::string binaryFileMask = getBinaryFileMask(dataSet);
+      if(!binaryFileMask.empty())
+      {
+        datasetMask = binaryFileMask;
+      }
+    }
+    catch(...)
+    {
+      // In case no binary file mask specified, use dataset mask in the CTL file.
+    }
+
 
     // Get complete list of files,
     // if compressed decompress and add files to the list
@@ -370,8 +419,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), "file://"+typePrefix() + dataFileInfo.absolutePath().toStdString() + "/" + name));
 
       //RAII for open/closing the datasource
-      OpenClose<std::shared_ptr<te::da::DataSource> > openClose
-      (datasource);
+      OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
 
       if(!datasource->isOpened())
       {
@@ -402,22 +450,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       // but we can open directly with the file name.
       // should we check or just continue with the file name?
 
-      std::shared_ptr<te::da::DataSet> teDataSet(transactor->getDataSet(dataSetName));
-      if(!teDataSet)
-      {
-        QString errMsg = QObject::tr("Could not read dataset: %1").arg(dataSetName.c_str());
-        TERRAMA2_LOG_WARNING() << errMsg;
-        throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-      }
-      auto raster = teDataSet->getRaster(0);
-      if(raster.get() == nullptr)
-      {
-        QString errMsg = QObject::tr("Invalid raster for dataset: %1").arg(dataSetName.c_str());
-        TERRAMA2_LOG_WARNING() << errMsg;
-        throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-      }
-
-
       if(first)
       {
         //read and adapt all te:da::DataSet from terrama2::core::DataSet
@@ -426,6 +458,22 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         assert(series.teDataSetType.get());
         completeDataset = createCompleteDataSet(series.teDataSetType);
         first = false;
+      }
+
+      std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
+      if(!teDataSet)
+      {
+        QString errMsg = QObject::tr("Could not read dataset: %1").arg(dataSetName.c_str());
+        TERRAMA2_LOG_WARNING() << errMsg;
+        throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+      }
+
+      auto raster = teDataSet->getRaster(0);
+      if(raster.get() == nullptr)
+      {
+        QString errMsg = QObject::tr("Invalid raster for dataset: %1").arg(dataSetName.c_str());
+        TERRAMA2_LOG_WARNING() << errMsg;
+        throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
       }
 
       // If could not find a valid date for the binary file, uses the CTL date.
@@ -438,7 +486,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
       addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
 
-      if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time() || *lastFileTimestamp < *thisFileTimestamp)
+      if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
         lastFileTimestamp = thisFileTimestamp;
     }
   }
@@ -457,18 +505,20 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
 
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
 
+  cropRaster(completeDataset, filter);
+
   //if both dates are valid
-  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time()))
+  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
+      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
   {
     (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
-  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
   {
     //if only fileTimestamp is valid
     (*lastDateTime_) = *lastFileTimestamp;
   }
-  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_not_a_date_time())
+  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special())
   {
     //if only dataTimeStamp is valid
     (*lastDateTime_) = *dataTimeStamp;
@@ -494,7 +544,16 @@ void terrama2::core::GrADSDataDescriptor::addVar(const std::string& strVar)
   if(tokens.size() >= 4)
   {
     var->varName_ = tokens[0].toStdString();
-    var->verticalLevels_ = tokens[1].toInt();
+
+    bool ok = true;
+    var->verticalLevels_ = tokens[1].toInt(&ok);
+    if(!ok)
+    {
+      QString errMsg = QObject::tr("Invalid value for VAR, expected an INT and found: %1").arg(tokens[1]);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
+    }
+
     var->units_ = tokens[2].toStdString();
 
     // Description may have spaces, need to concatenate all pieces
@@ -531,7 +590,7 @@ void terrama2::core::GrADSDataDescriptor::setKeyValue(const std::string& key, co
   }
   else if(key == "UNDEF")
   {
-    undef_ = std::atof(value.c_str());
+    undef_ = std::stod(value, nullptr);
     found = true;
   }
   else if(key.find("OPTIONS") != std::string::npos)
@@ -592,7 +651,15 @@ terrama2::core::GrADSDataDescriptor::getTValueDef(const std::string& value)
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
-  valueDef->numValues_ = tokens[0].toInt();
+  bool ok = true;
+  valueDef->numValues_ = tokens[0].toInt(&ok);
+  if(!ok)
+  {
+    QString errMsg = QObject::tr("Invalid value for TDEF, expected an INT and found: %1").arg(tokens[0]);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
   if(tokens[1].toUpper() == "LINEAR")
     valueDef->dimensionType_ = LINEAR;
   else if(tokens[1].toUpper() == "LEVELS")
@@ -628,7 +695,15 @@ terrama2::core::GrADSDataDescriptor::getValueDef(const std::string& value, const
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
+  bool ok = true;
   valueDef->numValues_ = tokens[0].toInt();
+  if(!ok)
+  {
+    QString errMsg = QObject::tr("Invalid value for %1DEF, expected an INT and found: %2").arg(dimension.c_str()).arg(tokens[1]);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataAccessorException() << ErrorDescription(errMsg);
+  }
+
   std::string token = tokens[1].toUpper().toStdString();
   if(token == "LINEAR")
     valueDef->dimensionType_ = LINEAR;
@@ -655,7 +730,16 @@ terrama2::core::GrADSDataDescriptor::getValueDef(const std::string& value, const
 
   for(int i = 2; i < tokens.size(); ++i)
   {
-    valueDef->values_.push_back(tokens[i].toFloat());
+    bool ok = true;
+    double value = tokens[i].toDouble(&ok);
+
+    if(!ok)
+    {
+      QString errMsg = QObject::tr("Invalid value for %1DEF, expected a double and found: %2").arg(dimension.c_str()).arg(tokens[i]);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
+    }
+    valueDef->values_.push_back(value);
   }
 
   return valueDef;
@@ -821,7 +905,7 @@ terrama2::core::DataAccessorGrADS::readDataDescriptor(const std::string& filenam
       case FindSection:
       {
         line = trim(in.readLine().toStdString());
-        if(line.empty())
+        if(line.empty() || line.front() == '*')
           continue;
 
         std::string key(line);
@@ -903,6 +987,29 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
                                                      DataSetPtr dataset) const
 {
 
+  try
+  {
+    uint32_t numBands = getNumberOfBands(dataset);
+    if(numBands > 0)
+      descriptor.numberOfBands_ = numBands;
+    else
+      descriptor.numberOfBands_ = (uint32_t)descriptor.tDef_->numValues_;
+  }
+  catch(UndefinedTagException e)
+  {
+    // In case the didn't specify the number of bands it will use the number of bands in the file
+
+  }
+
+  try
+  {
+    descriptor.valueMultiplier_ = getValueMultiplier(dataset);
+  }
+  catch(UndefinedTagException e)
+  {
+    // In case the didn't specify the number of bands it will use the number of bands in the file
+  }
+
   std::ofstream vrtfile;
   vrtfile.open(vrtFilename);
 
@@ -934,47 +1041,64 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
 
     vrtfile << std::endl << "<SRS>" << wktStr << "</SRS>";
 
-    // In case 'yrev' option is given, we need to flip the image
-    bool isYReverse = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end();
-    if(isYReverse)
+    // The yRev option from the grads consider the DATA from north to south, that's our normal orientation
+    // if yRev is not set the raster lines will be inverted
+    yReverse_ = ! (std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "YREV") != descriptor.vecOptions_.end());
+
+    //FIXME: don't work if the image area stars before the 180 degree line and ends after.
+    //ticket: https://trac.dpi.inpe.br/terrama2/ticket/935
+
+    //change longitude from 0/360 to -180/180
+    if(descriptor.xDef_->values_[0] > 180)
+      descriptor.xDef_->values_[0] = descriptor.xDef_->values_[0] - 360;
+
+    if((descriptor.xDef_->values_[1] == 0.0) || (descriptor.yDef_->values_[1] == 0.0))
     {
-      /// Uses a transformation to flip the image
-      if((descriptor.xDef_->values_[1] != 0.0) && (descriptor.yDef_->values_[1] != 0.0))
-      {
-        vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
-                << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] << ",0,"
-                << descriptor.yDef_->values_[1]
-                << "</GeoTransform>";
-      }
+      QString errMsg = QObject::tr("Invalid resolution in dataset: %1").arg(dataset->id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw DataAccessorException() << ErrorDescription(errMsg);
     }
-    else
-    {
-      vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
-              << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] + descriptor.yDef_->numValues_ * descriptor.yDef_->values_[1] << ",0,"
-              << -descriptor.yDef_->values_[1]
-              << "</GeoTransform>";
-    }
+
+    vrtfile << std::endl << "<GeoTransform>" << descriptor.xDef_->values_[0] << ","
+            << descriptor.xDef_->values_[1] << ",0," << descriptor.yDef_->values_[0] + descriptor.yDef_->numValues_ * descriptor.yDef_->values_[1] << ",0,"
+            << -descriptor.yDef_->values_[1]
+            << "</GeoTransform>";
 
     bool isSequential = std::find(descriptor.vecOptions_.begin(), descriptor.vecOptions_.end(), "SEQUENTIAL") != descriptor.vecOptions_.end();
 
     unsigned int dataTypeSizeBytes = 4; // Float32
+    std::string dataType = "Float32";
+    try
+    {
+      std::string dataTypeStr = getDataType(dataset);
+      if(dataTypeStr == "INT16")
+      {
+        dataTypeSizeBytes = 2;
+        dataType = "Int16";
+      }
+    }
+    catch(...)
+    {
+    }
+
+
     unsigned int pixelOffset = dataTypeSizeBytes;
 
     if(!isSequential)
-      pixelOffset *= descriptor.tDef_->numValues_;
+      pixelOffset *= descriptor.numberOfBands_;
 
     unsigned int lineOffset = pixelOffset * descriptor.xDef_->numValues_;
     unsigned int bytesAfter = getBytesAfter(dataset);
     unsigned int bytesBefore = getBytesBefore(dataset);
     unsigned int imageOffset = 0;
 
-    for(int bandIdx = 0; bandIdx < descriptor.tDef_->numValues_; ++bandIdx)
+    for(uint32_t bandIdx = 0; bandIdx < descriptor.numberOfBands_; ++bandIdx)
     {
       imageOffset += bytesBefore;
 
       vrtfile
           << std::endl
-          << "<VRTRasterBand dataType=\"Float32\" band=\"" << (bandIdx + 1) << "\" subClass=\"VRTRawRasterBand\">"
+          << "<VRTRasterBand dataType=\"" + dataType + "\" band=\"" << (bandIdx + 1) << "\" subClass=\"VRTRawRasterBand\">"
           << std::endl
           << "<SourceFilename relativetoVRT=\"1\">" << binFilename << "</SourceFilename>" << std::endl
           << "<ImageOffset>" << imageOffset << "</ImageOffset>" << std::endl
@@ -1002,11 +1126,11 @@ void terrama2::core::DataAccessorGrADS::writeVRTFile(terrama2::core::GrADSDataDe
 
 }
 
-double terrama2::core::DataAccessorGrADS::getBytesBefore(terrama2::core::DataSetPtr dataset) const
+uint32_t terrama2::core::DataAccessorGrADS::getBytesBefore(terrama2::core::DataSetPtr dataset) const
 {
   try
   {
-    return std::atof(dataset->format.at("bytes_before").c_str());
+    return (uint32_t)std::stoi(dataset->format.at("bytes_before"), nullptr);
   }
   catch(...)
   {
@@ -1016,11 +1140,11 @@ double terrama2::core::DataAccessorGrADS::getBytesBefore(terrama2::core::DataSet
   }
 }
 
-double terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetPtr dataset) const
+uint32_t terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetPtr dataset) const
 {
   try
   {
-    return std::atof(dataset->format.at("bytes_after").c_str());
+    return (uint32_t)std::stoi(dataset->format.at("bytes_after"), nullptr);
   }
   catch(...)
   {
@@ -1029,6 +1153,61 @@ double terrama2::core::DataAccessorGrADS::getBytesAfter(terrama2::core::DataSetP
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
+
+uint32_t terrama2::core::DataAccessorGrADS::getNumberOfBands(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return (uint32_t)std::stoi(dataset->format.at("number_of_bands"), nullptr);
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for number of bands in dataset: %1.").arg(dataset->id);
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+
+double terrama2::core::DataAccessorGrADS::getValueMultiplier(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return std::stod(dataset->format.at("value_multiplier"), nullptr);
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for number of bands in dataset: %1.").arg(dataset->id);
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessorGrADS::getDataType(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return dataset->format.at("data_type");
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for data type in dataset: %1.").arg(dataset->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
+std::string terrama2::core::DataAccessorGrADS::getBinaryFileMask(terrama2::core::DataSetPtr dataset) const
+{
+  try
+  {
+    return dataset->format.at("binary_file_mask");
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined tag for binary file mask in dataset: %1.").arg(dataset->id);
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
+}
+
 
 
 std::string terrama2::core::trim(const std::string& value)

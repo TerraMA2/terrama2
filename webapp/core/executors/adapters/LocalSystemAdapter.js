@@ -62,11 +62,12 @@ LocalSystemAdapter.prototype.executeCommand = function(executor, command, servic
   return new PromiseClass(function(resolve, reject) {
     var commandArgs = self.commandArgs(command);
     var localCommand = "nohup";
+    var localOptions = {stdio: "ignore"};
 
     logger.debug(localCommand, commandArgs);
 
     return executor
-      .execute(localCommand, commandArgs)
+      .execute(localCommand, commandArgs, localOptions)
       .then(function(code) {
         return resolve(code);
       })

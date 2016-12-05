@@ -558,5 +558,32 @@
 	"Port number": "Port number",
 	"OGR static data file": "OGR static data file",
 	"Output format is required": "Output format is required",
-	"It should have at least one dcp": "It should have at least one dcp"
+	"It should have at least one dcp": "It should have at least one dcp",
+	"Lightning occurrence": "Lightning occurrence",
+	"Crop raster": "Crop raster",
+	"but the TerraMA² service version is": "but the TerraMA² service version is",
+	"Some operations may not work properly": "Some operations may not work properly",
+	"It seems you are using a different versions of TerraMA²": {
+		" Current version of TerraMA² Web is 4": {
+			"0": {
+				"0-alpha5 but the TerraMA² service version is  4": {
+					"0": {
+						"0-alpha5\n": {
+							" Some operations may not work properly": "It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is 4.0.0-alpha5 but the TerraMA² service version is  4.0.0-alpha5\n. Some operations may not work properly"
+						}
+					}
+				},
+				"0-alpha5 but the TerraMA² service version is nada": {
+					" Some operations may not work properly": "It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is 4.0.0-alpha5 but the TerraMA² service version is nada. Some operations may not work properly"
+				}
+			}
+		}
+	},
+	"Select Static DataSeries": "Select Static DataSeries",
+	"Select Attibutes": "Select Attibutes",
+	"Select attributes": "Select attributes",
+	"Band": "Band",
+	"Close": "Close",
+	"is not active": "is not active",
+	". The process was started successfully": ". The process was started successfully"
 }
