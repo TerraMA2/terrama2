@@ -57,7 +57,7 @@ function AnalysisBuilder(analysisObject, storager, scriptLanguage, extra) {
   } 
   
   var analysisModel = new Model(analysisObject);
-  analysisModel.setDataSeries(rawDataSeries);
+  analysisModel.setDataSeries(dataSeriesModel);
 
   analysisObject.analysisDataSeries.forEach(function(analysisDS, index) {
     analysisDS.id = analysisObject.id + index;
