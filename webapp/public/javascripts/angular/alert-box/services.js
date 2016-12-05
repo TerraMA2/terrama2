@@ -41,7 +41,8 @@
       title: "",
       message: "",
       display: false,
-      level: this.Levels.INFO
+      level: this.Levels.INFO,
+      extra: {}
     };
   }
 
@@ -54,6 +55,7 @@
     this.alertBox.message = "";
     this.alertBox.display = false;
     this.alertBox.level = this.Levels.INFO;
+    this.alertBox.extra = {};
   };
 
   /**
@@ -65,12 +67,16 @@
    * @param {string} message - A message box body
    * @param {boolean} display - flag to display message box
    * @param {AlertLevel} level - A message box level
+   * @param {object} extra - Extra propertie to show in box
    */
-  MessageBoxService.prototype.$configure = function(title, message, display, level) {
+  MessageBoxService.prototype.$configure = function(title, message, display, level, extra) {
     this.alertBox.title = title;
     this.alertBox.message = message;
     this.alertBox.display = display;
     this.alertBox.level = level;
+    if (extra){
+      this.alertBox.extra = extra;
+    }
   };
 
   /**
@@ -78,9 +84,10 @@
    * 
    * @param {string} title - A message box title
    * @param {string} message - A message box body
+   * @param {object} extra - Extra propertie to show in box
    */
-  MessageBoxService.prototype.info = function(title, message) {
-    this.$configure(title, message, true, this.Levels.INFO);
+  MessageBoxService.prototype.info = function(title, message, extra) {
+    this.$configure(title, message, true, this.Levels.INFO, extra);
   };
 
   /**
@@ -88,9 +95,10 @@
    * 
    * @param {string} title - A message box title
    * @param {string} message - A message box body
+   * @param {object} extra - Extra propertie to show in box
    */
-  MessageBoxService.prototype.success = function(title, message) {
-    this.$configure(title, message, true, this.Levels.SUCCESS);
+  MessageBoxService.prototype.success = function(title, message, extra) {
+    this.$configure(title, message, true, this.Levels.SUCCESS, extra);
   };
 
   /**
@@ -98,9 +106,10 @@
    * 
    * @param {string} title - A message box title
    * @param {string} message - A message box body
+   * @param {object} extra - Extra propertie to show in box
    */
-  MessageBoxService.prototype.warning = function(title, message) {
-    this.$configure(title, message, true, this.Levels.WARNING);
+  MessageBoxService.prototype.warning = function(title, message, extra) {
+    this.$configure(title, message, true, this.Levels.WARNING, extra);
   };
 
   /**
@@ -108,9 +117,10 @@
    * 
    * @param {string} title - A message box title
    * @param {string} message - A message box body
+   * @param {object} extra - Extra propertie to show in box
    */
-  MessageBoxService.prototype.danger = function(title, message) {
-    this.$configure(title, message, true, this.Levels.DANGER);
+  MessageBoxService.prototype.danger = function(title, message, extra) {
+    this.$configure(title, message, true, this.Levels.DANGER, extra);
   };
 
 }());

@@ -2,6 +2,7 @@ angular.module('terrama2.dataseries.registration', [
     'terrama2',
     'terrama2.services',
     'terrama2.components.messagebox', // handling alert box
+    'terrama2.components.messagebox.services',
     'ui.router',
     'mgo-angular-wizard', // wizard
     'schemaForm',
@@ -310,10 +311,11 @@ angular.module('terrama2.dataseries.registration', [
     'UniqueNumber',
     "Polygon",
     "FilterForm",
+    "MessageBoxService",
     "$q",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm, $q) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm, MessageBoxService, $q) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -478,15 +480,18 @@ angular.module('terrama2.dataseries.registration', [
         $scope.filter.filterArea = filterValue;
       });
 
-      // terrama2 messagebox
-      $scope.errorFound = false;
-      $scope.alertBox = {};
-      $scope.display = false;
-      $scope.extraProperties = {};
-      $scope.resetState = function() {
-        $scope.errorFound = false;
-        $scope.alertBox.message = "";
-        $scope.display = false;
+      /**
+       * It defines a TerraMA² MessageBox Service for handling alert box
+       * 
+       * @type {MessageBoxService}
+       */
+      $scope.MessageBoxService = MessageBoxService;
+
+      /**
+       * Helper to reset alert box instance
+       */
+      $scope.close = function() {
+        $scope.MessageBoxService.reset();
       };
 
       // data series used for intersection
@@ -866,9 +871,7 @@ angular.module('terrama2.dataseries.registration', [
         if ($scope.dataSeries.semantics.data_series_type_name === "DCP")
           if ($scope.dcps.length === 0) {
             // todo: display alert box
-            console.log("it should have at least one dcp");
-            $scope.alertBox.message = i18n.__("It should have at least one dcp");
-            $scope.display = true;
+            MessageBoxService.danger(i18n.__("DCP error"), i18n.__("It should have at least one dcp"));
             this["wzData"].error = true;
             return true;
           } else {
@@ -1353,13 +1356,6 @@ angular.module('terrama2.dataseries.registration', [
         console.log($scope.dataSeries);
       };
 
-      var makeDialog = function(level, bodyMessage, show, title) {
-        $scope.alertBox.title = title || "Data Registration";
-        $scope.alertBox.message = bodyMessage;
-        $scope.alertLevel = level;
-        $scope.display = show;
-      };
-
       $scope.close = function() {
         $scope.display = false;
       };
@@ -1386,11 +1382,8 @@ angular.module('terrama2.dataseries.registration', [
           console.log(data);
           $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
         }).catch(function(err) {
-          $scope.alertLevel = "alert-danger";
-          $scope.alertBox.message = err.message || err.data.message;
-          $scope.display = true;
-          $scope.extraProperties = {};
-          console.log(err);
+          var errMessage = err.message || err.data.message;
+          MessageBoxService.danger("Data Registration", errMessage);
         });
       };
 
@@ -1581,37 +1574,32 @@ angular.module('terrama2.dataseries.registration', [
         $scope.shouldRun = shouldRun;
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
-        $scope.display = false;
-        $scope.alertBox.title = "Data Series";
-        $scope.alertBox.message = "";
 
         if ($scope.isWizard) {
           isWizardStepValid();
         }
 
         if($scope.forms.generalDataForm.$invalid) {
-          makeDialog("alert-danger", "There are invalid fields on form", true);
+          MessageBoxService.danger("Data Registration", "There are invalid fields on form");
           return;
         }
         // checking parameters form (semantics) is invalid
         if ($scope.dcps.length === 0 && !isValidParametersForm($scope.forms.parametersForm)) {
-          makeDialog("alert-danger", "There are invalid fields on form", true);
+          MessageBoxService.danger("Data Registration", "There are invalid fields on form");
           return;
         }
 
         if ($scope.isDynamic) {
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
           if (scheduleForm.$invalid) {
-            makeDialog("alert-danger", "There are invalid fields on form", true);
+            MessageBoxService.danger("Data Registration", "There are invalid fields on form");
             return;
           }
         }
 
         if ($scope.filter.filterArea == $scope.filterTypes.AREA.value) {
           if (FilterForm.boundedForm.$invalid){
-            $scope.alertBox.message = "Invalid filter area";
-            $scope.alertLevel = "alert-danger";
-            $scope.display = true;
+            MessageBoxService.danger("Data Registration", "Invalid filter area");
             return;
           }
         }
@@ -1629,9 +1617,7 @@ angular.module('terrama2.dataseries.registration', [
               // checking GRID. Grid does not need attribute
               if (dsIntersection.data_series_semantics.data_series_type_name !== globals.enums.DataSeriesType.GRID) {
                 if ($scope.intersection[k].attributes.length === 0) {
-                  $scope.alertBox.message = "Invalid intersection. Static data series must have at least a attribute.";
-                  $scope.alertLevel = "alert-danger";
-                  $scope.display = true;
+                  MessageBoxService.danger("Data Registration", "Invalid intersection. Static data series must have at least a attribute.");
                   return;
                 }
               }
@@ -1639,17 +1625,12 @@ angular.module('terrama2.dataseries.registration', [
           }
         }
 
-        $scope.alertBox.title = "Data Series Registration";
-
         if ($scope.dataSeries.access == 'COLLECT') {
           // getting values from another controller
           $scope.$broadcast("requestStorageValues");
         } else {
           if ($scope.dataSeries.semantics.data_format_name === globals.enums.DataSeriesFormat.GRADS) {
-            $scope.alertLevel = "alert-danger";
-            $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = i18n.__("Unconfigured GraDs Data Series storage");
-            $scope.display = true;
+            MessageBoxService.danger("Data Series Registration", i18n.__("Unconfigured GraDs Data Series storage"));
             return;
           }
 
@@ -1657,16 +1638,16 @@ angular.module('terrama2.dataseries.registration', [
 
           if ($scope.isDynamic) {
             //  display alert box
-            $scope.alertLevel = "alert-warning";
-            $scope.alertBox.title = "Data Series";
-            $scope.alertBox.message = i18n.__("Note: No storager configuration, this data will be accessed when needed.");
-            $scope.display = true;
-            $scope.extraProperties.object = {
-              dataToSend: dataObject.dataSeries,
-              scheduleValues: dataObject.schedule,
-              filterValues: dataObject.filter
+            var extraProperties = {
+              object: {
+                dataToSend: dataObject.dataSeries,
+                scheduleValues: dataObject.schedule,
+                filterValues: dataObject.filter
+              },
+              confirmButtonFn: _sendRequest
             };
-            $scope.extraProperties.confirmButtonFn = _sendRequest;
+
+            MessageBoxService.warning("Data Series", i18n.__("Note: No storager configuration, this data will be accessed when needed."), extraProperties);
           } else {
             _sendRequest({
               dataToSend: dataObject.dataSeries,
