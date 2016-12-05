@@ -1,6 +1,7 @@
 angular.module('terrama2.dataseries.registration', [
     'terrama2',
     'terrama2.services',
+    'terrama2.dataseries.services',
     'terrama2.components.messagebox', // handling alert box
     'terrama2.components.messagebox.services',
     'ui.router',
@@ -43,8 +44,9 @@ angular.module('terrama2.dataseries.registration', [
     editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
   })
 
-  .controller('StoragerController', ['$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'Polygon', 'DateParser',
-    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, Polygon, DateParser) {
+  .controller('StoragerController', [
+    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory',
+    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory) {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
@@ -140,7 +142,11 @@ angular.module('terrama2.dataseries.registration', [
         } else if (args.action === "add") {
           if ($scope.storager.format && $scope.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
             // postgis
-            $scope.dcpsStorager.push({table_name: args.dcp.mask, _id: args.dcp._id});
+            var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
+            angular.merge(copyFormat, args.dcp);
+            var obj = SemanticsParserFactory.parseKeys(copyFormat);
+            obj.table_name = obj.mask;
+            $scope.dcpsStorager.push(obj);
           } else {
             $scope.dcpsStorager.push(args.dcp);
           }
@@ -203,6 +209,9 @@ angular.module('terrama2.dataseries.registration', [
               $scope.modelStorager = $scope.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
             }
           } else {
+            var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
+            angular.merge(copyFormat, $scope.model);
+            $scope.modelStorager = SemanticsParserFactory.parseKeys(copyFormat);
             $scope.filter.area = {
               srid: 4326
             };
@@ -238,7 +247,7 @@ angular.module('terrama2.dataseries.registration', [
             // filter geometry field
             if (filter.region) {
               $scope.$emit('updateFilterArea', "2");
-              $scope.filter.area = Polygon.read(filter.region);
+              $scope.filter.area = GeoLibs.polygon.read(filter.region);
               if (filter.crop_raster){
                 $scope.filter.area.crop_raster = true;
               }
@@ -313,9 +322,10 @@ angular.module('terrama2.dataseries.registration', [
     "FilterForm",
     "MessageBoxService",
     "$q",
+    "GeoLibs",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, Polygon, FilterForm, MessageBoxService, $q) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -482,7 +492,7 @@ angular.module('terrama2.dataseries.registration', [
 
       /**
        * It defines a TerraMA² MessageBox Service for handling alert box
-       * 
+       *
        * @type {MessageBoxService}
        */
       $scope.MessageBoxService = MessageBoxService;
@@ -665,9 +675,10 @@ angular.module('terrama2.dataseries.registration', [
         };
 
         var dataSeriesType = dataSeries.data_series_semantics.data_series_type_name;
-        
+
         $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
-        
+
+
         // removing ds attributes
         delete $scope.intersection[dataSeries.id];
       };
@@ -818,6 +829,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
       $scope.onStoragerFormatChange = function() {
+        console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
 
         if ($scope.services.length > 0) {
@@ -1293,8 +1305,8 @@ angular.module('terrama2.dataseries.registration', [
         if (hostData){
           params.hostname = hostData.split(':')[0];
           params.port = hostData.split(':')[1].split('/')[0];
-          params.database = hostData.split('/')[1];  
-        }  
+          params.database = hostData.split('/')[1];
+        }
 
         var auth = uri.split('@')[0];
         if (auth){
@@ -1304,7 +1316,7 @@ angular.module('terrama2.dataseries.registration', [
             params.password = userData.split(':')[1];
           }
         }
-        
+
         return params;
       }
 
@@ -1405,10 +1417,6 @@ angular.module('terrama2.dataseries.registration', [
               format_[key] = dSetObject[key];
           }
 
-          // adding extra metadata
-          if (dSemantics.metadata.metadata && Object.keys(dSemantics.metadata.metadata).length > 0)
-            Object.assign(format_, dSemantics.metadata.metadata);
-
           return format_;
         };
 
@@ -1417,10 +1425,15 @@ angular.module('terrama2.dataseries.registration', [
           // setting to active
           var dSetsLocal = [];
           dSets.forEach(function(dSet) {
-            dSetsLocal.push({
-              active: true,//$scope.dataSeries.active,
+            var outputDcp = {
+              active: true,
               format: _makeFormat(dSet)
-            });
+            };
+
+            if ($scope.dataSeries.semantics.data_format_name !== "POSTGIS") {
+              outputDcp.position = GeoLibs.point.build({x: dSet.longitude, y: dSet.latitude, srid: dSet.projection});
+            }
+            dSetsLocal.push(outputDcp);
           });
           out = dSetsLocal;
         } else {
@@ -1499,19 +1512,11 @@ angular.module('terrama2.dataseries.registration', [
                   if (key !== "latitude" && key !== "longitude" && key !== "active")
                     format[key] = dcp[key];
               }
+              angular.merge(format, semantics.metadata.metadata);
               var dataSetStructure = {
                 active: true,//$scope.dataSeries.active,
                 format: format,
-                position: {
-                  type: 'Point',
-                  coordinates: [dcp.latitude, dcp.longitude],
-                  crs: {
-                    type: 'name',
-                    properties : {
-                      name: "EPSG:" + dcp.projection
-                    }
-                  }
-                }
+                position: GeoLibs.point.build({x: dcp.longitude, y: dcp.latitude, srid: dcp.projection})
               };
 
               dataToSend.dataSets.push(dataSetStructure);
@@ -1537,7 +1542,7 @@ angular.module('terrama2.dataseries.registration', [
 
         var filterValues = Object.assign({}, $scope.filter);
         if ($scope.filter.filterArea === $scope.filterTypes.AREA.value) {
-          filterValues.region = Polygon.build($scope.filter.area || {});
+          filterValues.region = GeoLibs.polygon.build($scope.filter.area || {});
         }
 
         var scheduleValues = Object.assign({}, $scope.schedule);

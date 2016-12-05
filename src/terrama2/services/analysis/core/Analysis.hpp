@@ -188,7 +188,8 @@ namespace terrama2
           AnalysisType type; //!< Type of the analysis.
           std::string name; //!< Name of the analysis.
           std::string description; //!< Short description of the purpose of the analysis.
-          DataSeriesId outputDataSeriesId; //!< The dataset that stores the result of the analysis.
+          DataSeriesId outputDataSeriesId; //!< The data series that stores the result of the analysis.
+          DataSetId outputDataSetId; //!< The dataset that stores the result of the analysis.
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           AnalysisOutputGridPtr outputGridPtr; //!< Output grid configuration.

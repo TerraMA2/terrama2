@@ -61,7 +61,7 @@ namespace terrama2
              \param attributeList List of attributes that contain the DCP ID to be used.
              \return The list with identifiers of DCPs that influence the given data series.
              */
-              std::vector<DataSetId> byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList);
+              std::vector< std::string > byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList);
 
 
               /*
@@ -71,9 +71,9 @@ namespace terrama2
 
              \param dataSeriesName Name of the data series.
              \param attributeList List of attributes that contain the DCP ID to be used.
-             \return The list with identifiers of DCPs that influence the given data series.
+             \return The list with the alias of DCPs that influence the given data series.
              */
-              std::vector<DataSetId> byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer);
+              std::vector< std::string > byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer);
 
             } // end namespace influence
           }   // end namespace zonal
