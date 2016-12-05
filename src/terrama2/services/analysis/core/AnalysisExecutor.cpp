@@ -387,19 +387,6 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
   auto outputDataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
 
-  if(!outputDataSeries)
-  {
-    QString errMsg = QObject::tr("Could not find the output data series.");
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
-
-  auto dataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
-  if(!dataProvider)
-  {
-    QString errMsg = QObject::tr("Could not find the output data provider.");
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
-
   std::string outputDatasetName;
 
   if(outputDataSeries->semantics.dataFormat == "POSTGIS")
