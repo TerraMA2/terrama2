@@ -37,7 +37,7 @@ terrama2::services::alert::core::AlertLogger::AlertLogger()
 {
 }
 
-void terrama2::services::alert::core::AlertLogger::setConnectionInfo(const te::core::URI& uri) noexcept
+void terrama2::services::alert::core::AlertLogger::setConnectionInfo(const te::core::URI& uri)
 {
   terrama2::core::ProcessLogger::setConnectionInfo(uri);
 

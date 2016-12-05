@@ -142,15 +142,6 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
       try
       {
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
-
-        if(!dataSeries)
-        {
-          QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-          errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-          throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-        }
-
-
         context->addDataSeries(dataSeries, geomEnvelope, dateFilter, true);
 
         auto datasets = dataSeries->datasetList;

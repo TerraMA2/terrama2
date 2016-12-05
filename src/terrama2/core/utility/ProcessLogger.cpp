@@ -53,7 +53,7 @@
 // STL
 #include <utility>
 
-void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri) noexcept
+void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
 {
   try
   {
@@ -406,7 +406,7 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
   return tempDataSet->getInt32("process_id");
 }
 
-void terrama2::core::ProcessLogger::setTableName(std::string& tableName)
+void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 {
   // Check if schema_ exists in database
   {

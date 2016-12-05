@@ -107,12 +107,6 @@ int terrama2::services::analysis::core::grid::zonal::history::num(const std::str
     auto geomResult = createBuffer(buffer, moGeom);
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
-    if(!dataSeries)
-    {
-      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
 
     terrama2::core::Filter filter;
     filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
@@ -223,12 +217,6 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
     auto geomResult = createBuffer(buffer, moGeom);
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
-    if(!dataSeries)
-    {
-      QString errMsg(QObject::tr("Could not find a data series with the given name: %1"));
-      errMsg = errMsg.arg(QString::fromStdString(dataSeriesName));
-      throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
-    }
 
     terrama2::core::Filter filter;
     filter.discardBefore = context->getTimeFromString(dateDiscardBefore);

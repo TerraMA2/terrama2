@@ -77,7 +77,7 @@ namespace terrama2
            */
           void addOutput(std::string value, RegisterId registerID);
 
-          virtual void setConnectionInfo(const te::core::URI& uri) noexcept override;
+          virtual void setConnectionInfo(const te::core::URI& uri) override;
 
         };
       }

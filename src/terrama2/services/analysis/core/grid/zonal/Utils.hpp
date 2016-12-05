@@ -218,13 +218,14 @@ void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues(
                      const size_t band,
                      std::map<std::pair<int, int>, T>& valuesMap)
 {
-  auto column = rasterIt.getColumn();
-  auto row = rasterIt.getRow();
-
-  auto key = std::make_pair(row, column);
-
   for(; rasterIt != end; ++rasterIt)
+  {
+    auto column = rasterIt.getColumn();
+    auto row = rasterIt.getRow();
+
+    auto key = std::make_pair(row, column);
     valuesMap[key] = rasterIt[band];
+  }
 }
 
 
