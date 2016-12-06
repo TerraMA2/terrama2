@@ -124,7 +124,7 @@ namespace terrama2
 
               \brief Possible status of logged messages.
             */
-            enum MessageType
+            enum class MessageType
             {
               ERROR_MESSAGE = 1,
               INFO_MESSAGE = 2,

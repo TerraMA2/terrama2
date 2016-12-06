@@ -141,14 +141,9 @@ namespace terrama2
     bool isTemporal(terrama2::core::DataSetPtr dataset);
 
     /*!
-      \brief Returns the value for the time interval unit property of the given dataset.
-    */
-    std::string getTimeIntervalUnit(terrama2::core::DataSetPtr dataset);
-
-    /*!
       \brief Returns the value for the time interval property of the given dataset.
     */
-    double getTimeInterval(terrama2::core::DataSetPtr dataset);
+    std::string getTimeInterval(terrama2::core::DataSetPtr dataset);
 
 
     /*!

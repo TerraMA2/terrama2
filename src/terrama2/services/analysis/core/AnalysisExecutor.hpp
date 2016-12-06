@@ -159,7 +159,7 @@ namespace terrama2
 
           signals:
             //! Signal to notify that a analysis execution has finished.
-            void analysisFinished(int, bool);
+            void analysisFinished(size_t, bool);
 
         };
 

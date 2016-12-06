@@ -32,6 +32,7 @@
 
 #include "Shared.hpp"
 #include "Analysis.hpp"
+#include "BaseContext.hpp"
 
 // TerraLib
 #include <terralib/common/Singleton.h>
@@ -65,7 +66,7 @@ namespace terrama2
             void clearContext(const AnalysisHashCode analysisHashCode);
 
             void addError(const AnalysisHashCode analysisHashCode, const std::string& error);
-            std::set<std::string> getErrors(const AnalysisHashCode analysisHashCode) const;
+            std::set<std::string> getMessages(const AnalysisHashCode analysisHashCode, terrama2::services::analysis::core::BaseContext::MessageType messageType) const;
 
 
           private:
