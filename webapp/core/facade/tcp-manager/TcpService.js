@@ -637,7 +637,7 @@ function onProcessFinished(resp) {
  */
 function onLogReceived(service, response) {
   // checking the service type
-  if (service.service_type_id == ServiceType.VIEW){
+  if (service.service_type_id === ServiceType.VIEW){
     // searching list of registered views to match with response log
     DataManager.listRegisteredViews()
       .then(function(registeredViews){
@@ -645,9 +645,9 @@ function onLogReceived(service, response) {
         if (registeredViews.length > 0){
           response.forEach(function(resp){
             registeredViews.forEach(function(regView){
-              if (regView.view.id == resp.process_id){
+              if (regView.view.id === resp.process_id){
                 resp.log.forEach(function(logMessage){
-                  if (logMessage.status == StatusLog.DONE){
+                  if (logMessage.status === StatusLog.DONE){
                     var link = createGeoserverLink(regView);
                     var description = "Layer link: " + regView.layers[0].name;
                     logMessage.messages.push({link: link, type: MessageType.LINK_MESSAGE, description: description});
