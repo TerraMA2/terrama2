@@ -176,31 +176,12 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
   {
     std::unique_ptr<te::rst::Raster> raster(teDataSet->isNull(rasterColumn) ? nullptr : teDataSet->getRaster(rasterColumn).release());
 
-    if(yReverse_)
-    {
-      // if the pixel data is in the reverse order, invert.
-      raster = adaptRaster(raster);
-    }
 
-    try
-    {
-      auto multiplier = getValueMultiplier(dataSet);
+    // if the pixel data is in the reverse order, invert.
+    invertRaster(raster);
 
-      if(multiplier != 1)
-      {
-        std::complex< double > complexMultiplier(multiplier);
-        if(raster->getAccessPolicy() != te::common::RWAccess && raster->getAccessPolicy() != te::common::WAccess)
-        {
-          raster = terrama2::core::cloneRaster(*raster);
-        }
-
-        (*raster) *= complexMultiplier;
-      }
-    }
-    catch(const UndefinedTagException&)
-    {
-      //nothing to do
-    }
+    // multiply the raster by a factor
+    multiplyRaster(dataSet, raster);
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
     item->setRaster(rasterColumn, raster.release());
@@ -214,8 +195,34 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
   }
 }
 
-std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const
+void terrama2::core::DataAccessorGrADS::multiplyRaster(terrama2::core::DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const
 {
+  try
+  {
+    // multiply every pixel by a given factor
+    auto multiplier = getValueMultiplier(dataSet);
+    if(multiplier != 1)
+    {
+      std::complex< double > complexMultiplier(multiplier);
+      if(raster->getAccessPolicy() != te::common::RWAccess && raster->getAccessPolicy() != te::common::WAccess)
+      {
+        raster = terrama2::core::cloneRaster(*raster);
+      }
+
+      (*raster) *= complexMultiplier;
+    }
+  }
+  catch(const UndefinedTagException&)
+  {
+    //nothing to do
+  }
+}
+
+void terrama2::core::DataAccessorGrADS::invertRaster(std::unique_ptr<te::rst::Raster>& raster) const
+{
+  if(!yReverse_)
+    return;
+
   std::vector<te::rst::BandProperty*> bands;
   for(size_t i = 0; i < raster->getNumberOfBands(); ++i)
   {
@@ -238,7 +245,7 @@ std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(
     }
   }
 
-  return expansible;
+  raster = std::move(expansible);
 }
 
 QString terrama2::core::DataAccessorGrADS::grad2TerramaMask(QString mask) const

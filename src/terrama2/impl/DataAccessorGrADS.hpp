@@ -224,10 +224,13 @@ namespace terrama2
         //! Returns the data source type.
         virtual std::string dataSourceType() const override;
 
+        //! Multiply the raster for a factor
+        void multiplyRaster(DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const;
+
         void writeVRTFile(GrADSDataDescriptor descriptor, const std::string& binFilename,
                           const std::string& vrtFilename, DataSetPtr dataset) const;
 
-        std::unique_ptr<te::rst::Raster> adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const;
+        void invertRaster(std::unique_ptr<te::rst::Raster>& raster) const;
 
         mutable bool yReverse_ = false; //! Flag for reverse y-axis.
     };
