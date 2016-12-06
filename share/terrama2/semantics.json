@@ -41,7 +41,7 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "[^?#!$&'()*+,;=]+"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -53,7 +53,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -84,7 +87,7 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "[^?#!$&'()*+,;=]+"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -96,7 +99,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -118,7 +124,7 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "[^?#!$&'()*+,;=]+"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -130,7 +136,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -175,7 +184,7 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "[^?#!$&'()*+,;=]+"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -187,7 +196,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -214,7 +226,7 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "[^?#!$&'()*+,;=]+"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -223,7 +235,7 @@
           "alias": {
             "type": "string",
             "title": "Alias",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9]*"
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           },
           "timezone": {
             "type": "string",
@@ -247,7 +259,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -256,7 +271,10 @@
         },
         {
           "key": "alias",
-          "htmlClass": "col-md-6 terrama2-schema-form"
+          "htmlClass": "col-md-6 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid alias"
+          }
         },
         {
           "key": "timezone",
@@ -324,12 +342,12 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "[^?#!$&'()*+,;=]+"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9]*"
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           },
           "alias": {
             "type": "string",
@@ -357,7 +375,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -366,7 +387,10 @@
         },
         {
           "key": "alias",
-          "htmlClass": "col-md-6 terrama2-schema-form"
+          "htmlClass": "col-md-6 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid alias"
+          }
         },
         {
           "key": "timezone",
@@ -444,7 +468,7 @@
 	 	      "alias": {
             "type": "string",
             "title": "Alias",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9]*"
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           }
         },
         "required": ["table_name", "latitude", "longitude", "projection"]
@@ -456,7 +480,10 @@
         },
         {
           "key": "alias",
-          "htmlClass": "col-md-5 terrama2-schema-form"
+          "htmlClass": "col-md-5 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid alias"
+          }
         },
         {
           "key": "latitude",
@@ -509,7 +536,7 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "[^?#!$&'()*+,;=]+"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -525,7 +552,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -584,7 +614,7 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "[^?#!$&'()*+,;=]+"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "ctl_filename" : {
             "type": "string",
@@ -644,7 +674,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form grads-form-item"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form grads-form-item",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "ctl_filename",
