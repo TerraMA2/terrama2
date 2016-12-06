@@ -309,7 +309,15 @@
                   if(json.Analysis !== undefined && json.Analysis.length > 0) $scope.hasAnalysis = true;
                   if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true; 
 
-                  $('#importModal').modal('show');
+                  if(json.Collectors !== undefined && json.Collectors.length > 0 && $scope.services.COLLECT.length === 0) {
+                    setError(new Error("To import this file you need to have at least one collector service"));
+                  } else if(json.Analysis !== undefined && json.Analysis.length > 0 && $scope.services.ANALYSIS.length === 0) {
+                    setError(new Error("To import this file you need to have at least one analysis service"));
+                  } else if(json.Views !== undefined && json.Views.length > 0 && $scope.services.VIEW.length === 0) {
+                    setError(new Error("To import this file you need to have at least one view service"));
+                  } else {
+                    $('#importModal').modal('show');
+                  }
                 }
               });
             });
