@@ -26,6 +26,8 @@ var TcpManager = require("./../../TcpManager");
 
 // TerraMA2 Enums
 var ServiceType = require("./../../Enums").ServiceType;
+var StatusLog = require("./../../Enums").StatusLog;
+var MessageType = require("./../../Enums").MessageType;
 
 // DataManager
 var DataManager = require("./../../DataManager");
@@ -627,18 +629,49 @@ function onProcessFinished(resp) {
 
 /**
  * Listener for handling TerraMA² TcpManager Log values
+ * If the service is View and log is done, create a link to geoserver layer created
  *
  * @emits #serviceLog 
  * @param {Service} service - TerraMA² service
  * @param {Object} response - Response object with log values from respective service
  */
 function onLogReceived(service, response) {
-  tcpService.emit("serviceLog", {
-    status: 200,
-    logs: response,
-    service_type: service.service_type_id,
-    service: service.name
-  });
+  // checking the service type
+  if (service.service_type_id === ServiceType.VIEW){
+    // searching list of registered views to match with response log
+    DataManager.listRegisteredViews()
+      .then(function(registeredViews){
+        // checking if had registered views
+        if (registeredViews.length > 0){
+          response.forEach(function(resp){
+            registeredViews.forEach(function(regView){
+              if (regView.view.id === resp.process_id){
+                resp.log.forEach(function(logMessage){
+                  if (logMessage.status === StatusLog.DONE){
+                    var link = createGeoserverLink(regView);
+                    var description = "Layer link: " + regView.layers[0].name;
+                    logMessage.messages.push({link: link, type: MessageType.LINK_MESSAGE, description: description});
+                  }
+                });
+              }
+            });
+          });
+        }
+        tcpService.emit("serviceLog", {
+          status: 200,
+          logs: response,
+          service_type: service.service_type_id,
+          service: service.name
+        });
+      });
+  } else {
+    tcpService.emit("serviceLog", {
+      status: 200,
+      logs: response,
+      service_type: service.service_type_id,
+      service: service.name
+    });
+  }
 }
 
 /**
@@ -687,6 +720,21 @@ function onError(service, err) {
     message: err.toString(),
     service: service ? service.id : 0
   });
+}
+
+/**
+ * Function to create the link to geoserver layer
+ * 
+ * @param registeredView - Registered View with server information
+ * @returns link - link to server layer
+ */
+function createGeoserverLink(registeredView){
+  var layerName = registeredView.layers[0].name;
+  var workspace = registeredView.workspace;
+  var protocol = registeredView.uri.split('//')[0];
+  var baseLink = registeredView.uri.split("@")[1];
+  var link = protocol + '//' + baseLink + "/web/?wicket:bookmarkablePage=:org.geoserver.web.data.resource.ResourceConfigurationPage&name=" + layerName + "&wsName=" + workspace;
+  return link;
 }
 
 module.exports = tcpService;
