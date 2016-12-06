@@ -197,7 +197,7 @@ namespace terrama2
 
         terrama2::core::DataSetSeries getSeries(const std::string& uri,
                                                 const terrama2::core::Filter& filter,
-                                                terrama2::core::DataSetPtr dataSet,
+                                                DataSetPtr dataSet,
                                                 std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
 
@@ -211,13 +211,13 @@ namespace terrama2
 
         uint32_t getBytesAfter(DataSetPtr dataset) const;
 
-        uint32_t getNumberOfBands(terrama2::core::DataSetPtr dataset) const;
+        uint32_t getNumberOfBands(DataSetPtr dataset) const;
 
-        double getValueMultiplier(terrama2::core::DataSetPtr dataset) const;
+        double getValueMultiplier(DataSetPtr dataset) const;
 
-        std::string getDataType(terrama2::core::DataSetPtr dataset) const;
+        std::string getDataType(DataSetPtr dataset) const;
 
-        std::string getBinaryFileMask(terrama2::core::DataSetPtr dataset) const;
+        std::string getBinaryFileMask(DataSetPtr dataset) const;
 
       protected:
         //! Returns the data source type.
