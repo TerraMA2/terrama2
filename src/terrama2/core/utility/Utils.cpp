@@ -467,25 +467,14 @@ bool terrama2::core::isTemporal(terrama2::core::DataSetPtr dataset)
   }
 }
 
-std::string terrama2::core::getTimeIntervalUnit(terrama2::core::DataSetPtr dataset)
+std::string terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
 {
   try
   {
-    return dataset->format.at("time_interval_unit");
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined tag for time interval unit in dataset: %1.").arg(dataset->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
-}
+    auto interval{dataset->format.at("time_interval")};
+    auto unit{dataset->format.at("time_interval_unit")};
 
-double terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
-{
-  try
-  {
-    return std::stod(dataset->format.at("time_interval"), nullptr);
+    return interval+unit;
   }
   catch(...)
   {
@@ -494,7 +483,6 @@ double terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
 }
-
 
 std::string terrama2::core::getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries)
 {
