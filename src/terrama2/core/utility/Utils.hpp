@@ -141,10 +141,9 @@ namespace terrama2
     bool isTemporal(terrama2::core::DataSetPtr dataset);
 
     /*!
-      \brief Returns the value for the time interval property of the given dataset.
+      \brief Returns the value for the time interval property of a temporal dataset.
     */
     std::string getTimeInterval(terrama2::core::DataSetPtr dataset);
-
 
     /*!
       \brief Returns the value for the folder property of the given dataset.
