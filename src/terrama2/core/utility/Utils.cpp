@@ -48,6 +48,10 @@
 #include <terralib/srs/SpatialReferenceSystem.h>
 #include <terralib/geometry/WKTReader.h>
 #include <terralib/geometry/MultiPolygon.h>
+#include <terralib/raster/RasterFactory.h>
+#include <terralib/raster/Grid.h>
+#include <terralib/raster/Band.h>
+#include <terralib/raster/BandIterator.h>
 
 #include <ctime>
 #include <unordered_map>
@@ -487,4 +491,37 @@ std::string terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
 std::string terrama2::core::getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries)
 {
   return getProperty(dataSet, dataSeries, "folder", false);
+}
+
+std::unique_ptr<te::rst::Raster> terrama2::core::cloneRaster(const te::rst::Raster& raster)
+{
+  std::vector<te::rst::BandProperty*> bands;
+  for(size_t i = 0; i < raster.getNumberOfBands(); ++i)
+  {
+    bands.push_back(new te::rst::BandProperty(*raster.getBand(i)->getProperty()));
+  }
+  auto grid = new te::rst::Grid(raster.getNumberOfColumns(), raster.getNumberOfRows(), new te::gm::Envelope(*raster.getExtent()), raster.getSRID());
+  std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
+
+  for(uint bandIdx = 0; bandIdx < raster.getNumberOfBands(); ++bandIdx)
+  {
+    const te::rst::Band* rasterBand = raster.getBand(bandIdx);
+    te::rst::Band* expansibleBand = expansible->getBand(bandIdx);
+
+    const int nblocksX = rasterBand->getProperty()->m_nblocksx;
+    const int nblocksY = rasterBand->getProperty()->m_nblocksy;
+    int blkYIdx = 0;
+
+    for( int blkXIdx = 0 ; blkXIdx < nblocksX ; ++blkXIdx )
+    {
+      for( blkYIdx = 0 ; blkYIdx < nblocksY ; ++blkYIdx )
+      {
+        std::unique_ptr<unsigned char[]> buffer(new unsigned char[rasterBand->getBlockSize()]);
+        rasterBand->read( blkXIdx, blkYIdx, buffer.get());
+        expansibleBand->write( blkXIdx, blkYIdx, buffer.get());
+      }
+    }
+  }
+
+  return expansible;
 }

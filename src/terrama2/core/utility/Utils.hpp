@@ -40,6 +40,7 @@
 #include <string>
 
 #include <terralib/geometry/Coord2D.h>
+#include <terralib/raster/Raster.h>
 
 // Forward declaration
 class QJsonDocument;
@@ -149,6 +150,8 @@ namespace terrama2
       \brief Returns the value for the folder property of the given dataset.
     */
     std::string getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries);
+
+    std::unique_ptr<te::rst::Raster> cloneRaster(const te::rst::Raster& raster);
 
   } // end namespace core
 }   // end namespace terrama2
