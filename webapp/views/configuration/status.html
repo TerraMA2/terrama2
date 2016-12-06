@@ -84,8 +84,9 @@
       <ul class="list-group">
         <li class="list-group-item"
             ng-repeat="messageLog in selectedLog.messages"
-            ng-class="{'list-group-item-warning': messageLog.type === globals.enums.MessageType.WARNING_MESSAGE, 'list-group-item-info': messageLog.type === globals.enums.MessageType.INFO_MESSAGE, 'list-group-item-danger': messageLog.type === globals.enums.MessageType.ERROR_MESSAGE}"
-            ng-bind="messageLog.description">
+            ng-class="{'list-group-item-warning': messageLog.type === globals.enums.MessageType.WARNING_MESSAGE, 'list-group-item-info': messageLog.type === globals.enums.MessageType.INFO_MESSAGE, 'list-group-item-danger': messageLog.type === globals.enums.MessageType.ERROR_MESSAGE}">
+            <span ng-if="messageLog.type !== globals.enums.MessageType.LINK_MESSAGE"> {{messageLog.description}}</span>
+            <a ng-if="messageLog.type === globals.enums.MessageType.LINK_MESSAGE" ng-href="{{messageLog.link}}" target="_blank">{{messageLog.description}}</a>
         </li>
       </ul>
     </terrama2-modal-messages>
