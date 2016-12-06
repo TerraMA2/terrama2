@@ -202,9 +202,13 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       {
         QString errMsg = QObject::tr("No files found.");
         TERRAMA2_LOG_WARNING() << errMsg;
-        throw DataRetrieverException() << ErrorDescription(errMsg);
+        throw NoDataException() << ErrorDescription(errMsg);
       }
     }
+  }
+  catch(const NoDataException&)
+  {
+    throw;
   }
   catch(const DataRetrieverException&)
   {
