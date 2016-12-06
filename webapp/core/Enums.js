@@ -263,7 +263,8 @@ module.exports = {
   MessageType: {
     ERROR_MESSAGE: 1,
     INFO_MESSAGE: 2,
-    WARNING_MESSAGE: 3
+    WARNING_MESSAGE: 3,
+    LINK_MESSAGE: 4
   },
 
   SSH: {

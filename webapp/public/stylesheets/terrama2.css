@@ -296,6 +296,9 @@ bootstrap-decorator span {
   margin-bottom: 25px !important;
 }
 
+#messagesModal li {
+  overflow: auto;
+}
 
 /*
   It fixes intersection nav to include check icon
