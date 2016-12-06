@@ -151,7 +151,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         if(!raster->getExtent()->intersects(*geomResult->getMBR()))
           continue;
 
-        auto intervalStr{terrama2::core::getTimeInterval(dataset)};
+        auto intervalStr = terrama2::core::getTimeInterval(dataset);
         double interval = terrama2::core::TimeUtils::convertTimeString(intervalStr, "SECOND", "h");
         double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
         double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
