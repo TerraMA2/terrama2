@@ -471,8 +471,8 @@ std::string terrama2::core::getTimeInterval(terrama2::core::DataSetPtr dataset)
 {
   try
   {
-    auto interval{dataset->format.at("time_interval")};
-    auto unit{dataset->format.at("time_interval_unit")};
+    std::string interval{dataset->format.at("time_interval")};
+    std::string unit{dataset->format.at("time_interval_unit")};
 
     return interval+unit;
   }
