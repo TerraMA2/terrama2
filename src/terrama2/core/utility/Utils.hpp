@@ -151,6 +151,11 @@ namespace terrama2
     */
     std::string getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries);
 
+    /*!
+      \brief Create an expansible raster from another raster.
+
+      The content will be copied by block.
+    */
     std::unique_ptr<te::rst::Raster> cloneRaster(const te::rst::Raster& raster);
 
   } // end namespace core
