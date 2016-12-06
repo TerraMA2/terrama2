@@ -62,14 +62,15 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGeoTiff::createCom
   return DataAccessorFile::internalCreateCompleteDataSet(dataSetType, true, true);
 }
 
-void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
-                                                               std::shared_ptr<te::da::DataSet> dataSet,
+void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(terrama2::core::DataSetPtr dataSet,
+                                                               std::shared_ptr<te::mem::DataSet> completeDataSet,
+                                                               std::shared_ptr<te::da::DataSet> teDataSet,
                                                                std::shared_ptr< te::dt::TimeInstantTZ > fileTimestamp,
                                                                const std::string& filename) const
 {
   completeDataSet->moveLast();
 
-  size_t rasterColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
+  size_t rasterColumn = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
   if(!isValidColumn(rasterColumn))
   {
     QString errMsg = QObject::tr("No raster attribute.");
@@ -79,10 +80,10 @@ void terrama2::core::DataAccessorGeoTiff::addToCompleteDataSet(std::shared_ptr<t
 
   size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
 
-  dataSet->moveBeforeFirst();
-  while(dataSet->moveNext())
+  teDataSet->moveBeforeFirst();
+  while(teDataSet->moveNext())
   {
-    std::unique_ptr<te::rst::Raster> raster(dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
+    std::unique_ptr<te::rst::Raster> raster(teDataSet->isNull(rasterColumn) ? nullptr : teDataSet->getRaster(rasterColumn).release());
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
 

@@ -40,6 +40,7 @@
 #include <string>
 
 #include <terralib/geometry/Coord2D.h>
+#include <terralib/raster/Raster.h>
 
 // Forward declaration
 class QJsonDocument;
@@ -141,15 +142,21 @@ namespace terrama2
     bool isTemporal(terrama2::core::DataSetPtr dataset);
 
     /*!
-      \brief Returns the value for the time interval property of the given dataset.
+      \brief Returns the value for the time interval property of a temporal dataset.
     */
     std::string getTimeInterval(terrama2::core::DataSetPtr dataset);
-
 
     /*!
       \brief Returns the value for the folder property of the given dataset.
     */
     std::string getFolderMask(DataSetPtr dataSet, DataSeriesPtr dataSeries);
+
+    /*!
+      \brief Create an expansible raster from another raster.
+
+      The content will be copied by block.
+    */
+    std::unique_ptr<te::rst::Raster> cloneRaster(const te::rst::Raster& raster);
 
   } // end namespace core
 }   // end namespace terrama2
