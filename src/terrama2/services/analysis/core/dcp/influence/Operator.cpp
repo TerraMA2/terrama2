@@ -92,14 +92,14 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
   if(dataSeriesName.empty())
   {
     QString errMsg(QObject::tr("Invalid data series name"));
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return vecDCP;
   }
 
   if(attributeList.empty())
   {
     QString errMsg(QObject::tr("Empty attribute list"));
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return vecDCP;
   }
 
@@ -169,20 +169,20 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
   }
   catch(const terrama2::Exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     vecDCP.clear();
     return vecDCP;
   }
   catch(const std::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
     vecDCP.clear();
     return vecDCP;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     vecDCP.clear();
     return vecDCP;
   }
@@ -220,7 +220,7 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
   if(dataSeriesName.empty())
   {
     QString errMsg(QObject::tr("Invalid data series name"));
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return vecDCP;
   }
 
@@ -287,20 +287,20 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
   }
   catch(const terrama2::Exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     vecDCP.clear();
     return vecDCP;
   }
   catch(const std::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
     vecDCP.clear();
     return vecDCP;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     vecDCP.clear();
     return vecDCP;
   }

@@ -151,7 +151,7 @@ void terrama2::services::analysis::core::ContextManager::addError(const Analysis
   errorList.insert(error);
 }
 
-std::set<std::string> terrama2::services::analysis::core::ContextManager::getErrors(const AnalysisHashCode analysisHashCode) const
+std::set<std::string> terrama2::services::analysis::core::ContextManager::getMessages(const AnalysisHashCode analysisHashCode, BaseContext::MessageType messageType) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   std::set<std::string> errors;
@@ -162,14 +162,14 @@ std::set<std::string> terrama2::services::analysis::core::ContextManager::getErr
   auto itm = monitoredObjectContextMap_.find(analysisHashCode);
   if(itm != monitoredObjectContextMap_.cend())
   {
-    auto errorList = itm->second->getMessages(BaseContext::ERROR_MESSAGE);
+    auto errorList = itm->second->getMessages(messageType);
     errors.insert(errorList.cbegin(), errorList.cend());
   }
 
   auto itg = gridContextMap_.find(analysisHashCode);
   if(itg != gridContextMap_.cend())
   {
-    auto errorList = itg->second->getMessages(BaseContext::ERROR_MESSAGE);
+    auto errorList = itg->second->getMessages(messageType);
     errors.insert(errorList.cbegin(), errorList.cend());
   }
 
