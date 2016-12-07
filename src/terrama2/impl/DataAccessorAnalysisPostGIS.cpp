@@ -51,7 +51,7 @@ terrama2::core::DataAccessorAnalysisPostGIS::DataAccessorAnalysisPostGIS(DataPro
   }
 }
 
-std::string terrama2::core::DataAccessorAnalysisPostGIS::getTimestampPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorAnalysisPostGIS::getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors) const
 {
   return "execution_date";
 }

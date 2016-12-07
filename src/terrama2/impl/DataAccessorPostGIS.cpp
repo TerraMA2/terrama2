@@ -115,7 +115,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 
   try
   {
-     datetimeColumnName = getTimestampPropertyName(dataSet);
+     datetimeColumnName = getTimestampPropertyName(dataSet, false);
   }
   catch(const UndefinedTagException /*e*/)
   {
@@ -124,12 +124,14 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 
   if(datetimeColumnName.empty())
   {
-    std::unique_ptr< te::da::DataSet > tempDataSet = datasource->getDataSet(tableName);
+    std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType(tableName);
 
-    size_t column = te::da::GetFirstPropertyPos(tempDataSet.get(), te::dt::DATETIME_TYPE);
+    auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
 
-    if(isValidColumn(column))
-      datetimeColumnName = tempDataSet->getPropertyName(column);
+    if(property)
+    {
+      datetimeColumnName = property->getName();
+    }
   }
 
   std::string query = "SELECT ";
