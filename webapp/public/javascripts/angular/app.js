@@ -191,6 +191,25 @@ terrama2Application.factory("MakeMetadata", function() {
   };
 });
 
+terrama2Application.factory("StringDiff", function() {
+  return function(stringA, stringB) {
+    var firstOccurance = stringB.indexOf(stringA);
+    var output = null;
+    if(firstOccurance === -1) {
+      return output;   
+    } else {
+      var lengthA = stringA.length;
+      if (firstOccurance === 0) {
+        output = stringB.substring(lengthA);
+      } else {
+        output = stringB.substring(0, firstOccurance);
+        output += stringB.substring(firstOccurance + lengthA);  
+      }
+      return output;
+    }
+  }
+});
+
 /**
  * It applies a string format with syntax: {0}, {1}, ...
  * 
