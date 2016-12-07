@@ -339,6 +339,7 @@ var ImportExport = function(io) {
           output.DataSeries = [];
           output.Collectors = [];
           output.Analysis = [];
+          output.Views = [];
           var providers = DataManager.listDataProviders({project_id: projectId});
           providers.forEach(function(provider) {
             output.DataProviders.push(addID(provider));
