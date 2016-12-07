@@ -40,6 +40,7 @@
 #include <terralib/datatype/SimpleProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/memory/DataSetItem.h>
+#include <terralib/memory/Raster.h>
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Grid.h>
@@ -152,14 +153,15 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 std::string terrama2::core::DataAccessorGrADS::dataSourceType() const
 { return "GDAL"; }
 
-void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
-                                                             std::shared_ptr<te::da::DataSet> dataSet,
+void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
+                                                             std::shared_ptr<te::mem::DataSet> completeDataSet,
+                                                             std::shared_ptr<te::da::DataSet> teDataSet,
                                                              std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
                                                              const std::string& filename) const
 {
   completeDataSet->moveLast();
 
-  size_t rasterColumn = te::da::GetFirstPropertyPos(dataSet.get(), te::dt::RASTER_TYPE);
+  size_t rasterColumn = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
   if(!isValidColumn(rasterColumn))
   {
     QString errMsg = QObject::tr("No raster attribute.");
@@ -169,23 +171,20 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
 
   size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
 
-  dataSet->moveBeforeFirst();
-  while(dataSet->moveNext())
+  teDataSet->moveBeforeFirst();
+  while(teDataSet->moveNext())
   {
-    std::unique_ptr<te::rst::Raster> raster(
-      dataSet->isNull(rasterColumn) ? nullptr : dataSet->getRaster(rasterColumn).release());
+    std::unique_ptr<te::rst::Raster> raster(teDataSet->isNull(rasterColumn) ? nullptr : teDataSet->getRaster(rasterColumn).release());
+
+
+    // if the pixel data is in the reverse order, invert.
+    invertRaster(raster);
+
+    // multiply the raster by a factor
+    multiplyRaster(dataSet, raster);
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
-
-    if(yReverse_)
-    {
-      std::unique_ptr<te::rst::Raster> adapted = adaptRaster(raster);
-      item->setRaster(rasterColumn, adapted.release());
-    }
-    else
-      item->setRaster(rasterColumn, raster.release());
-
-
+    item->setRaster(rasterColumn, raster.release());
     if(isValidColumn(timestampColumn))
       item->setDateTime(timestampColumn,
                         fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
@@ -196,8 +195,34 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(std::shared_ptr<te:
   }
 }
 
-std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const
+void terrama2::core::DataAccessorGrADS::multiplyRaster(terrama2::core::DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const
 {
+  try
+  {
+    // multiply every pixel by a given factor
+    auto multiplier = getValueMultiplier(dataSet);
+    if(multiplier != 1)
+    {
+      std::complex< double > complexMultiplier(multiplier);
+      if(raster->getAccessPolicy() != te::common::RWAccess && raster->getAccessPolicy() != te::common::WAccess)
+      {
+        raster = terrama2::core::cloneRaster(*raster);
+      }
+
+      (*raster) *= complexMultiplier;
+    }
+  }
+  catch(const UndefinedTagException&)
+  {
+    //nothing to do
+  }
+}
+
+void terrama2::core::DataAccessorGrADS::invertRaster(std::unique_ptr<te::rst::Raster>& raster) const
+{
+  if(!yReverse_)
+    return;
+
   std::vector<te::rst::BandProperty*> bands;
   for(size_t i = 0; i < raster->getNumberOfBands(); ++i)
   {
@@ -207,11 +232,11 @@ std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(
   std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
 
   auto rows = grid->getNumberOfRows();
-  for(size_t band = 0; band < raster->getNumberOfBands(); ++band)
+  for(uint band = 0; band < raster->getNumberOfBands(); ++band)
   {
-    for(size_t row = 0; row < rows; ++row)
+    for(uint row = 0; row < rows; ++row)
     {
-      for(size_t col = 0; col < grid->getNumberOfColumns(); ++col)
+      for(uint col = 0; col < grid->getNumberOfColumns(); ++col)
       {
         std::complex<double> value;
         raster->getValue(col, rows-row-1, value, band);
@@ -220,7 +245,7 @@ std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorGrADS::adaptRaster(
     }
   }
 
-  return expansible;
+  raster = std::move(expansible);
 }
 
 QString terrama2::core::DataAccessorGrADS::grad2TerramaMask(QString mask) const
@@ -483,7 +508,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
           thisFileTimestamp = ctlFileTimestamp;
       }
 
-      addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
+      addToCompleteDataSet(dataSet, completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
 
       if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)

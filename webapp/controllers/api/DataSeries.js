@@ -45,6 +45,7 @@ module.exports = function(app) {
               };
 
               logger.debug("OUTPUT: ", JSON.stringify(output));
+              TcpService.send(output);
 
               return collectorResult.output;
             });
