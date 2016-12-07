@@ -53,7 +53,7 @@ namespace terrama2
       static DataAccessorType dataAccessorType(){ return "ANALYSIS_MONITORED_OBJECT-postgis"; }
 
     protected:
-      virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const override;
+      virtual std::string getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors) const override;
 
       virtual std::string dataSourceType() const override;
     };

@@ -30,6 +30,7 @@
 #include "DataAccessorPostGIS.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/TimeUtils.hpp"
+#include "../core/utility/Utils.hpp"
 #include "../core/data-access/SynchronizedDataSet.hpp"
 
 // TerraLib
@@ -53,6 +54,7 @@
 #include <terralib/dataaccess/query/And.h>
 #include <terralib/dataaccess/query/Max.h>
 #include <terralib/dataaccess/query/EqualTo.h>
+#include <terralib/dataaccess/utils/Utils.h>
 
 #include <terralib/geometry/MultiPolygon.h>
 
@@ -60,10 +62,12 @@
 #include <QUrl>
 #include <QObject>
 
-std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const
+std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet,
+                                                                 const std::string datetimeColumnName,
+                                                                 const terrama2::core::Filter& filter) const
 {
   std::vector<std::string> whereConditions;
-  addDateTimeFilter(dataSet, filter, whereConditions);
+  addDateTimeFilter(datetimeColumnName, filter, whereConditions);
   addGeometryFilter(dataSet, filter, whereConditions);
 
   std::string conditions;
@@ -74,7 +78,7 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
       conditions += " AND " + whereConditions.at(i);
   }
 
-  conditions = addLastValueFilter(dataSet, filter, conditions);
+  conditions = addLastValueFilter(dataSet, datetimeColumnName, filter, conditions);
 
   std::string where;
 
@@ -106,11 +110,35 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   // get a transactor to interact to the data source
   std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
+  // Get the datetime column name in teDataSet for filters
+  std::string datetimeColumnName = "";
+
+  try
+  {
+     datetimeColumnName = getTimestampPropertyName(dataSet, false);
+  }
+  catch(const UndefinedTagException /*e*/)
+  {
+    // do nothing
+  }
+
+  if(datetimeColumnName.empty())
+  {
+    std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType(tableName);
+
+    auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
+
+    if(property)
+    {
+      datetimeColumnName = property->getName();
+    }
+  }
+
   std::string query = "SELECT ";
   query+="* ";
   query+= "FROM "+tableName+" ";
 
-  query += whereConditions(dataSet, filter);
+  query += whereConditions(dataSet, datetimeColumnName, filter);
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
@@ -151,18 +179,25 @@ std::string terrama2::core::DataAccessorPostGIS::retrieveData(const DataRetrieve
   throw NoDataException() << ErrorDescription(errMsg);
 }
 
-void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(terrama2::core::DataSetPtr dataSet,
-    const terrama2::core::Filter& filter,
-    std::vector<std::string>& whereConditions) const
+void terrama2::core::DataAccessorPostGIS::addDateTimeFilter(const std::string datetimeColumnName,
+                                                            const terrama2::core::Filter& filter,
+                                                            std::vector<std::string>& whereConditions) const
 {
   if(!(filter.discardBefore.get() || filter.discardAfter.get()))
     return;
 
+  if(datetimeColumnName.empty())
+  {
+    QString errMsg = QObject::tr("Undefined column name to filter in PostGIS.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw Exception() << ErrorDescription(errMsg);;
+  }
+
   if(filter.discardBefore.get())
-    whereConditions.push_back(getTimestampPropertyName(dataSet)+" >= '"+filter.discardBefore->toString() + "'");
+    whereConditions.push_back(datetimeColumnName+" >= '"+filter.discardBefore->toString() + "'");
 
   if(filter.discardAfter.get())
-    whereConditions.push_back(getTimestampPropertyName(dataSet)+" <= '"+filter.discardAfter->toString() + "'");
+    whereConditions.push_back(datetimeColumnName+" <= '"+filter.discardAfter->toString() + "'");
 }
 
 void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::DataSetPtr dataSet,
@@ -174,17 +209,25 @@ void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::Data
 }
 
 std::string terrama2::core::DataAccessorPostGIS::addLastValueFilter(terrama2::core::DataSetPtr dataSet,
-                                                                       const terrama2::core::Filter& filter,
-                                                                       std::string whereCondition) const
+                                                                    const std::string datetimeColumnName,
+                                                                    const terrama2::core::Filter& filter,
+                                                                    std::string whereCondition) const
 {
   if(filter.lastValue)
   {
+    if(datetimeColumnName.empty())
+    {
+      QString errMsg = QObject::tr("Undefined column name to filter in PostGIS.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);;
+    }
+
     std::string maxSelect = "SELECT ";
-    maxSelect += "MAX("+getTimestampPropertyName(dataSet)+") ";
+    maxSelect += "MAX(" + datetimeColumnName + ") ";
     maxSelect += "FROM " + getDataSetTableName(dataSet)+" ";
     maxSelect += "WHERE " + whereCondition;
 
-    return getTimestampPropertyName(dataSet)+" = ("+maxSelect+") AND "+whereCondition;
+    return datetimeColumnName + " = ("+maxSelect+") AND "+whereCondition;
   }
 
   return whereCondition;
