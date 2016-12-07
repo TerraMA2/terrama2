@@ -346,12 +346,12 @@
           },
           "mask": {
             "type": "string",
-            "title": "Mask",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+            "title": "Mask"
           },
           "alias": {
             "type": "string",
-            "title": "Alias"
+            "title": "Alias",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$" 
           },
           "timezone": {
             "type": "string",
