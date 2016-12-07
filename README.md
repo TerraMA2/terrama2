@@ -188,6 +188,9 @@ We have the following branches:
 - **b-4.0.0-alpha2:** Minimal working version with web user interface. Services: Collector and Analysis.
 - **b-4.0.0-alpha3:** Analysis of monitored objects and grid.
 - **b-4.0.0-alpha4:** Views service and web-monitoring module
+- **b-4.0.0-alpha5:** General review of the interface and analysis
+- **b-4.0.0-alpha6:** Review of grid operators and Monitored Object forecast operators
+
 
 To switch to one of the branches listed above, use the checkout command and create a local branch to track the remote branch. The syntax of "git checkout" is:
 

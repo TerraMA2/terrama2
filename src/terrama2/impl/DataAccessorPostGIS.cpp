@@ -37,23 +37,6 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
-#include <terralib/dataaccess/query/LiteralDateTime.h>
-#include <terralib/dataaccess/query/ST_Intersects.h>
-#include <terralib/dataaccess/query/PropertyName.h>
-#include <terralib/dataaccess/query/DataSetName.h>
-#include <terralib/dataaccess/query/GreaterThan.h>
-#include <terralib/dataaccess/query/LiteralGeom.h>
-#include <terralib/dataaccess/query/LessThan.h>
-#include <terralib/dataaccess/query/Fields.h>
-#include <terralib/dataaccess/query/Select.h>
-#include <terralib/dataaccess/query/SelectExpression.h>
-#include <terralib/dataaccess/query/Field.h>
-#include <terralib/dataaccess/query/Where.h>
-#include <terralib/dataaccess/query/From.h>
-#include <terralib/dataaccess/query/And.h>
-#include <terralib/dataaccess/query/Max.h>
-#include <terralib/dataaccess/query/EqualTo.h>
-
 #include <terralib/geometry/MultiPolygon.h>
 
 // QT
@@ -193,23 +176,10 @@ std::string terrama2::core::DataAccessorPostGIS::addLastValueFilter(terrama2::co
 void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const
 {
   std::string tableName = getDataSetTableName(dataSet);
-  te::da::FromItem* t1 = new te::da::DataSetName(tableName);
-  te::da::From* from = new te::da::From;
-  from->push_back(t1);
-  te::da::PropertyName* dateTimeProperty = new te::da::PropertyName(getTimestampPropertyName(dataSet));
+  std::string query = "SELECT MAX(" + getTimestampPropertyName(dataSet) + ") FROM " + tableName;
 
-  te::da::Fields* fields = new te::da::Fields;
-  te::da::Expression* max = new te::da::Max(dateTimeProperty);
-  te::da::Field* maxProperty = new te::da::Field(max);
-  fields->push_back(maxProperty);
-
-  te::da::Select select(fields, from);
-  std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(select);
-
-  //sanity check, must be 0 or 1
-  assert(tempDataSet->size() < 2);
-
-  if(tempDataSet->size() == 0)
+  std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
+  if(tempDataSet->size() != 1)
   {
     QString errMsg = QObject::tr("Error retrieving last Date/Time.");
     TERRAMA2_LOG_ERROR() << errMsg;
