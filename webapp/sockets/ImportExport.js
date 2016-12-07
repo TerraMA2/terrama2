@@ -231,7 +231,27 @@ var ImportExport = function(io) {
                   });
                 }
 
-                return Promise.all(promises);
+                return Promise.all(promises).then(function() {
+                  promises = [];
+
+                  if (json.Views) {
+                    var viewsList = json.Views || [];
+                    viewsList.forEach(function(view) {
+
+                      delete view.schedule.id;
+
+                      promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
+                        view.schedule_id = schedule.id;
+                        view.project_id = Utils.find(output.Projects, {$id: view.project_id}).id;
+                        view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
+
+                        return DataManager.addView(view, options);
+                      }));
+                    });
+                  }
+
+                  return Promise.all(promises);
+                });
               });
             });
           });
@@ -351,6 +371,11 @@ var ImportExport = function(io) {
           });
         }));
 
+        promises.push(DataManager.listViews({project_id: target.id}).then(function(viewsList) {
+          viewsList.forEach(function(view) {
+            output.Views.push(addID(view));
+          });
+        }));
       } // end if projects
 
       if (json.DataProviders) {
