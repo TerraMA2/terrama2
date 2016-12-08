@@ -240,11 +240,6 @@ Analysis.validate = function(analysisObject, storagerObject, scheduleObject, pro
           historical: analysis.historicalData || {}
         });
 
-        TcpService.validateProcess({
-          "Analysis": [dummyAnalysis.toObject()],
-          "DataSeries": [dummyAnalysis.dataSeries.toObject()]
-        }, dummyAnalysis.instance_id);
-
         return resolve(dummyAnalysis);
       })
       

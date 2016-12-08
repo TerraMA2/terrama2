@@ -22,7 +22,7 @@
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
-                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window) {
+                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout) {
     var self = this;
     $scope.i18n = i18n;
 
@@ -476,6 +476,16 @@
           } else {
             MessageBoxService.danger(i18n.__("Analysis"), resp.error);
           }
+        });
+
+        /**
+         * It handles validate analysis error
+         * 
+         * @param {Object} resp - Response Object
+         * @param {string} resp.message - Error Message
+         */
+        Socket.on("processValidatedError", function(resp) {
+          MessageBoxService.danger(i18n.__("Analysis"), resp.message);
         });
 
         /**
@@ -1002,20 +1012,12 @@
             var buildAnalysis = self.$prepare(false);
             console.log(buildAnalysis);
 
-            /**
-             * It sends to API in order to validate. Remember that promise resolved does not represents that validation was ok, but 
-             * there is not errors during object sending. When TcpService finishes, a Socket will be used to handle the validation process
-             */
-            AnalysisService.validate(buildAnalysis)
-              .then(function(response) {
-                // success
-                $log.log("Validation started...");
-              })
+            Socket.emit("validateAnalysis", buildAnalysis, config.projectId);
 
-              .catch(function(err) {
-                MessageBoxService.danger(i18n.__("Analysis"), err);
-                self.validating = false;
-              });
+            $timeout(function() {
+              self.validating = false;
+            }, 2000);
+            
           } catch(err) {
             self.validating = false;
             MessageBoxService.danger(i18n.__("Analysis"), err.toString());
@@ -1044,7 +1046,7 @@
                 MessageBoxService.danger(i18n.__("Analysis"), err.message);
               });
           } catch (e) {
-            MessageBoxService.danger(i18n.__("Analysis"), err.toString());
+            MessageBoxService.danger(i18n.__("Analysis"), (err || {}).message);
             return;
           }
         };
@@ -1070,6 +1072,7 @@
     'MessageBoxService',
     'Polygon',
     '$http',
-    '$window'
+    '$window',
+    '$timeout'
   ];
 } ());

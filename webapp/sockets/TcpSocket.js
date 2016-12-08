@@ -20,9 +20,6 @@ var TcpSocket = function(io) {
   // TerraMA2 Enums
   var ServiceType = require('./../core/Enums').ServiceType;
 
-  // DataManager
-  var DataManager = require('./../core/DataManager');
-
   // common TcpService module
   var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
@@ -144,6 +141,24 @@ var TcpSocket = function(io) {
       client.emit("runResponse", resp);
     }
 
+    function onValidateAnalysisRequest(json, projectId) {
+      var analysis = json.analysis;
+      var storager = json.storager;
+      var schedule = json.schedule;
+      return AnalysisFacade.validate(analysis, storager, schedule, projectId)
+        .then(function(dummyAnalysis) {
+          TcpService.validateProcess({
+            "Analysis": [dummyAnalysis.toObject()],
+            "DataSeries": [dummyAnalysis.dataSeries.toObject()]
+          }, dummyAnalysis.instance_id);
+        })
+        .catch(function(err) {
+          return client.emit("processValidatedError", {
+            error: err.toString()
+          });
+        });
+    }
+
     /** 
      * Register the process run listener. It is the only one listener registered on each user, since it does not need to notify all
      * It must be removed on socket disconnection
@@ -232,6 +247,7 @@ var TcpSocket = function(io) {
     client.on("stop", onStopRequest);
     client.on("log", onLogRequest);
     client.on("disconnect", onDisconnect);
+    client.on("validateAnalysis", onValidateAnalysisRequest);
 
   });
 };
