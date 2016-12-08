@@ -1551,7 +1551,7 @@ var DataManager = module.exports = {
       }
 
       return models.db.DataSeries.update(dataSeriesObject, Utils.extend({
-        fields: ['name', 'description', 'data_provider_id'],
+        fields: ['name', 'description', 'data_provider_id', 'active'],
         where: {
           id: dataSeriesId
         }
