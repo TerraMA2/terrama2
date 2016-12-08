@@ -209,7 +209,7 @@ namespace terrama2
         std::string tableName_ = "";
         std::string messagesTableName_ = "";
         std::unique_ptr< te::da::DataSource > dataSource_;
-        bool onError_ = false;
+        bool isValid_ = false;
 
     };
   }
