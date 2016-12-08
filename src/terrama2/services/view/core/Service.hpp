@@ -109,7 +109,7 @@ namespace terrama2
           /*!
            * \brief viewJob
            * \param viewId
-           * \param logger A copy of the class logger, to avoid errors if it changes during the job
+           * \param logger A copy of a logger object, to avoid errors if it changes during the job
            * \param weakDataManager
            */
           void viewJob(ViewId viewId,
