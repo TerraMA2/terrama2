@@ -20,15 +20,15 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStoragerPostGIS.hpp
+  \file terrama2/core/data-access/DataStoragerCSV.hpp
 
   \brief
 
   \author Jano Simas
  */
 
-#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_POSTGIS_HPP__
-#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_POSTGIS_HPP__
+#ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_CSV_HPP__
+#define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_CSV_HPP__
 
 //TerraMA2
 #include "DataStoragerTable.hpp"
@@ -37,23 +37,24 @@ namespace terrama2
 {
   namespace core
   {
-    class DataStoragerPostGIS : public DataStoragerTable
+    class DataStoragerCSV : public DataStoragerTable
     {
       public:
-        DataStoragerPostGIS(DataProviderPtr outputDataProvider)
+        DataStoragerCSV(DataProviderPtr outputDataProvider)
                 : DataStoragerTable(outputDataProvider) {}
-        ~DataStoragerPostGIS() {}
+        ~DataStoragerCSV() {}
 
-        static DataStoragerType dataStoragerType() { return "POSTGIS"; }
+        static DataStoragerType dataStoragerType() { return "CSV"; }
         static DataStoragerPtr make(DataProviderPtr dataProvider);
-      protected:
-        std::string getDataSetTableName(DataSetPtr dataSet) const;
+
         virtual std::string getCompleteURI(DataSetPtr outputDataSet) const override;
 
-        virtual std::string driver() const override { return "POSTGIS"; }
-        virtual std::string getDataSetName(DataSetPtr dataSet) const override { return getDataSetTableName(dataSet);}
+      protected:
+        std::string getDataSetMask(DataSetPtr dataSet) const;
+        virtual std::string getDataSetName(DataSetPtr dataSet) const override;
+        virtual std::string driver() const override { return "OGR"; }
     };
   }
 }
 
-#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_POSTGIS_HPP__
+#endif // __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_CSV_HPP__

@@ -20,18 +20,19 @@
  */
 
 /*!
-  \file terrama2/core/data-access/DataStoragerPostGIS.cpp
+  \file terrama2/core/data-access/DataStoragerCSV.cpp
 
   \brief
 
   \author Jano Simas
  */
 
-#include "DataStoragerPostGIS.hpp"
+#include "DataStoragerCSV.hpp"
 
 #include "../core/data-model/DataProvider.hpp"
 #include "../core/utility/Raii.hpp"
 
+#include <terralib/dataaccess/datasource/DataSourceCapabilities.h>
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/ScopedTransaction.h>
@@ -46,27 +47,36 @@
 //STL
 #include <algorithm>
 
-terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataProviderPtr dataProvider)
+terrama2::core::DataStoragerPtr terrama2::core::DataStoragerCSV::make(DataProviderPtr dataProvider)
 {
-  return std::make_shared<DataStoragerPostGIS>(dataProvider);
+  return std::make_shared<DataStoragerCSV>(dataProvider);
 }
 
-std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr outputDataSet) const
+std::string terrama2::core::DataStoragerCSV::getCompleteURI(DataSetPtr outputDataSet) const
 {
-  std::string destinationDataSetName = getDataSetTableName(outputDataSet);
-  return dataProvider_->uri + "/" + destinationDataSetName;
+  std::string destinationDataSetName = getDataSetMask(outputDataSet);
+  std::string suffix(".csv");
+  if(destinationDataSetName.compare(destinationDataSetName.size() - suffix.size(), suffix.size(), suffix) != 0)
+    destinationDataSetName += suffix;
+
+  return dataProvider_->uri + "/" + destinationDataSetName+"?&DRIVER=CSV";
 }
 
-std::string terrama2::core::DataStoragerPostGIS::getDataSetTableName(DataSetPtr dataSet) const
+std::string terrama2::core::DataStoragerCSV::getDataSetMask(DataSetPtr dataSet) const
 {
   try
   {
-    return dataSet->format.at("table_name");
+    return dataSet->format.at("mask");
   }
   catch (...)
   {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    QString errMsg = QObject::tr("Undefined mask name in dataset: %1.").arg(dataSet->id);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
+}
+
+std::string terrama2::core::DataStoragerCSV::getDataSetName(DataSetPtr dataSet) const
+{
+  return getDataSetMask(dataSet);
 }

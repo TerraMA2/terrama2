@@ -46,6 +46,7 @@
 
 #include "DataStoragerPostGIS.hpp"
 #include "DataStoragerTiff.hpp"
+#include "DataStoragerCSV.hpp"
 
 #include "DataRetrieverFTP.hpp"
 
@@ -73,6 +74,7 @@ void terrama2::core::registerFactories()
   // Data storager
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerPostGIS::dataStoragerType(), terrama2::core::DataStoragerPostGIS::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerTiff::dataStoragerType(), terrama2::core::DataStoragerTiff::make);
+  terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerCSV::dataStoragerType(), terrama2::core::DataStoragerCSV::make);
 
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverFTP::dataRetrieverType(), terrama2::core::DataRetrieverFTP::make);
 }
