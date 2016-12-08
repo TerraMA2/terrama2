@@ -24,7 +24,7 @@
 
   \brief Example of a collector from a file to a csv
 
-  \author Gilberto Ribeiro de Queiroz
+  \author Jano Simas
  */
 
 // TerraMA2
