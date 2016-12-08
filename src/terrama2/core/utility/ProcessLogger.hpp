@@ -106,6 +106,7 @@ namespace terrama2
          */
         virtual ~ProcessLogger();
 
+
         /*!
          * \brief Log the start of the process.
          * \return The ID of table register
@@ -171,6 +172,11 @@ namespace terrama2
          * \brief Default constructor
          */
         ProcessLogger() = default;
+
+        /*!
+         * \brief Copy constructor
+         */
+        ProcessLogger(const ProcessLogger& other);
 
         /*!
          * \brief Set the process logger data source

@@ -53,6 +53,16 @@
 // STL
 #include <utility>
 
+terrama2::core::ProcessLogger::ProcessLogger(const ProcessLogger& other)
+{
+  schema_ = other.schema_;
+  tableName_ = other.tableName_;
+  messagesTableName_ = other.messagesTableName_;
+
+  setConnectionInfo(other.dataSource_->getConnectionInfo());
+}
+
+
 void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
 {
   try
