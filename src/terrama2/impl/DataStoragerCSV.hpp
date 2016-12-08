@@ -31,38 +31,28 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_CSV_HPP__
 
 //TerraMA2
-#include "../core/data-access/DataStorager.hpp"
-#include "../core/utility/Logger.hpp"
-
-//QT
-#include <QString>
-#include <QObject>
+#include "DataStoragerTable.hpp"
 
 namespace terrama2
 {
   namespace core
   {
-    class DataStoragerCSV : public DataStorager
+    class DataStoragerCSV : public DataStoragerTable
     {
       public:
         DataStoragerCSV(DataProviderPtr outputDataProvider)
-                : DataStorager(outputDataProvider) {}
+                : DataStoragerTable(outputDataProvider) {}
         ~DataStoragerCSV() {}
 
         static DataStoragerType dataStoragerType() { return "CSV"; }
         static DataStoragerPtr make(DataProviderPtr dataProvider);
 
-        virtual void store(DataSetSeries series, DataSetPtr outputDataSet) const override;
-
         virtual std::string getCompleteURI(DataSetPtr outputDataSet) const override;
 
       protected:
-        std::string getMask(DataSetPtr dataSet) const;
-        /*!
-           \brief Check if the two properties have same name and type.
-           \exception DataStoragerException Raise if have the same name and different types
-        */
-        bool isPropertyEqual(te::dt::Property* newProperty, te::dt::Property* oldMember) const;
+        std::string getDataSetMask(DataSetPtr dataSet) const;
+        virtual std::string getDataSetName(DataSetPtr dataSet) const override;
+        virtual std::string driver() const override { return "OGR"; }
     };
   }
 }
