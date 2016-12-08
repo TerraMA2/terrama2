@@ -17,6 +17,7 @@ var ImportExport = function(io) {
   var Utils = require('./../core/Utils');
   var Enums = require('./../core/Enums');
   var DataManager = require("./../core/DataManager");
+  var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
   // bluebird promise
   var Promise = require("bluebird");
@@ -97,6 +98,10 @@ var ImportExport = function(io) {
               dataProvider.project_id = Utils.find(output.Projects, {$id: dataProvider.project_id}).id;
 
               promises.push(DataManager.addDataProvider(dataProvider, options).then(function(dProvider) {
+                TcpService.send({
+                  "DataProviders": [dProvider.toObject()]
+                });
+
                 output.DataProviders.push(_updateID(dataProvider, dProvider));
                 return Promise.resolve();
               }));
@@ -133,6 +138,10 @@ var ImportExport = function(io) {
                 });
                 // find or create DataSeries
                 promises.push(DataManager.addDataSeries(dSeries, null, options).then(function(dSeriesResult) {
+                  TcpService.send({
+                    "DataSeries": [dSeriesResult.toObject()]
+                  });
+
                   // call helper to add IDs in output.DataSeries
                   _processDataSeriesAndDataSets(dSeries, dSeriesResult);
                 }));
@@ -165,7 +174,11 @@ var ImportExport = function(io) {
 
                     collector.filter.date = date;
 
-                    return DataManager.addCollector(collector, collector.filter, options);
+                    return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                      TcpService.send({
+                        "Collectors": [collectorResult.toObject()]
+                      });
+                    });
                   }));
                 });
               }
@@ -226,7 +239,11 @@ var ImportExport = function(io) {
                       } else {
                         analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
                       }
-                      return DataManager.addAnalysis(analysis, options);
+                      return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
+                        TcpService.send({
+                          "Analysis": [analysisResult.toObject()]
+                        });
+                      });
                     }));
                   });
                 }
