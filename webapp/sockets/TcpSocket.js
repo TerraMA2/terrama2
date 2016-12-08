@@ -141,6 +141,15 @@ var TcpSocket = function(io) {
       client.emit("runResponse", resp);
     }
 
+    /**
+     * Listener for handling Analysis Validation from Front-User user. It emits signal to C++ TcpService in order to validate
+     * 
+     * @param {Object} json - TerraMA² Api request
+     * @param {Object} json.analysis - TerraMA² Analysis Instance Values
+     * @param {Object} json.storager - TerraMA² Analysis Storager
+     * @param {Object} json.schedule - TerraMA² Schedule Values
+     * @param {number} projectId - TerraMA² current project id
+     */
     function onValidateAnalysisRequest(json, projectId) {
       var analysis = json.analysis;
       var storager = json.storager;
