@@ -175,6 +175,9 @@ var ImportExport = function(io) {
                     collector.filter.date = date;
 
                     return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                      collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
+                      //collectorResult.project_id = app.locals.activeProject.id;
+
                       TcpService.send({
                         "Collectors": [collectorResult.toObject()]
                       });
