@@ -162,7 +162,7 @@ namespace terrama2
       public slots:
         /*!
         * \brief Reset connection to log database information
-        * \param connInfo Datasource connection information.
+        * \param uri Datasource connection information.
         */
         virtual void setConnectionInfo(const te::core::URI& uri);
 
@@ -203,12 +203,14 @@ namespace terrama2
          */
         void updateData(const RegisterId registerId, const QJsonObject obj) const;
 
+        void closeConnection();
+
         std::string schema_ = "terrama2";
         std::string tableName_ = "";
         std::string messagesTableName_ = "";
         std::unique_ptr< te::da::DataSource > dataSource_;
+        bool onError_ = false;
 
-        void closeConnection();
     };
   }
 }

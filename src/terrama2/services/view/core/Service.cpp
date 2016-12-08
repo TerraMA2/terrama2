@@ -272,6 +272,17 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
 
     return;
   }
+  catch(const terrama2::core::LogException& e)
+  {
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    TERRAMA2_LOG_ERROR() << errMsg << std::endl;
+    TERRAMA2_LOG_INFO() << QObject::tr("Build of view %1 finished with error(s).").arg(viewId);
+
+    sendProcessFinishedSignal(viewId, false);
+    notifyWaitQueue(viewId);
+
+    return;
+  }
   catch(const terrama2::Exception& e)
   {
     std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();

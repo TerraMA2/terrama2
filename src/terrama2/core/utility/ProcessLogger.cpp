@@ -79,26 +79,32 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
       {
         QString errMsg = QObject::tr("Could not connect to database");
         TERRAMA2_LOG_ERROR() << errMsg;
+        onError_ = true;
       }
+
+      onError_ = false;
     }
     catch(std::exception& e)
     {
       QString errMsg = QObject::tr("Could not connect to database");
       TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
+      onError_ = true;
     }
   }
   catch(std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
+    onError_ = true;
   }
   catch(...)
   {
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+    onError_ = true;
   }
-
 }
+
 
 void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)
 {
@@ -135,8 +141,10 @@ terrama2::core::ProcessLogger::~ProcessLogger()
 
 RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 {
-  // send start to database
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
 
+  // send start to database
   if(tableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log table name");
@@ -161,6 +169,9 @@ RegisterId terrama2::core::ProcessLogger::start(ProcessId processId) const
 
 void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::string& value, RegisterId registerId) const
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   if(tableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
@@ -204,6 +215,9 @@ void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::
 void
 terrama2::core::ProcessLogger::log(MessageType messageType, const std::string &description, RegisterId registerId) const
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   if(tableName_.empty() || messagesTableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log tables names.");
@@ -232,6 +246,9 @@ terrama2::core::ProcessLogger::log(MessageType messageType, const std::string &d
 void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<te::dt::TimeInstantTZ> &dataTimestamp,
                                            RegisterId registerId) const
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   if(tableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log table name");
@@ -266,6 +283,9 @@ void terrama2::core::ProcessLogger::result(Status status, const std::shared_ptr<
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastProcessTimestamp(const ProcessId processId) const
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   if(tableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
@@ -292,6 +312,9 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getLastP
 
 std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataLastTimestamp(const ProcessId processId) const
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   if(tableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
@@ -318,6 +341,9 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::ProcessLogger::getDataL
 
 std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger::getLogs(const ProcessId processId, uint32_t begin, uint32_t end) const
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   if(tableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
@@ -386,6 +412,9 @@ std::vector< terrama2::core::ProcessLogger::Log > terrama2::core::ProcessLogger:
 
 ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) const
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   if(tableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
@@ -418,6 +447,9 @@ ProcessId terrama2::core::ProcessLogger::processID(const RegisterId registerId) 
 
 void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   // Check if schema_ exists in database
   {
     std::shared_ptr<te::da::DataSourceTransactor> transactor = dataSource_->getTransactor();
@@ -516,6 +548,9 @@ void terrama2::core::ProcessLogger::setTableName(std::string tableName)
 
 void terrama2::core::ProcessLogger::updateData(const ProcessId registerId, const QJsonObject obj) const
 {
+  if(onError_)
+    throw terrama2::core::LogException() << ErrorDescription("Error on log!");
+
   if(tableName_.empty())
   {
     QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
