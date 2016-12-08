@@ -216,6 +216,13 @@ namespace terrama2
           friend bool operator==(const Analysis& lhs, const Analysis& rhs){ return lhs.id == rhs.id; }
         };
 
+        struct ValidateResult
+        {
+          AnalysisId analysisId;
+          bool isValid;
+          std::vector<std::string> messages;
+        };
+
 
       } // end namespace core
     }   // end namespace analysis

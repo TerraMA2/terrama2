@@ -33,6 +33,7 @@
 #include "python/PythonInterpreter.hpp"
 #include "DataManager.hpp"
 #include "ContextManager.hpp"
+#include "utility/Verify.hpp"
 #include "../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
@@ -104,7 +105,14 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
     logId = logger->start(analysis->id);
 
-    verifyInactiveDataSeries(dataManager, analysis, logger);
+    std::vector<std::string> messages = verify::inactiveDataSeries(dataManager, analysis);
+    if(!messages.empty())
+    {
+      for(std::string message : messages)
+      {
+        logger->log(AnalysisLogger::WARNING_MESSAGE, message, analysis->id);
+      }
+    }
 
     switch(analysis->type)
     {
@@ -795,19 +803,5 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
     QString errMsg = QObject::tr("An unknown exception occurred trying to store the results.");
     context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
     return;
-  }
-}
-
-void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger)
-{
-  for(auto& analysisDataSeries : analysis->analysisDataSeriesList)
-  {
-    auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
-    if(!dataSeries->active)
-    {
-      QString errMsg = QObject::tr("Analysis is using an inactive data series (%1).").arg(dataSeries->id);
-      logger->log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), analysis->id);
-      TERRAMA2_LOG_WARNING() << errMsg;
-    }
   }
 }

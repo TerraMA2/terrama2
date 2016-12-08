@@ -28,34 +28,108 @@
 */
 
 #include "Verify.hpp"
-#include "../../../../core/utility/Logger.hpp"
-
+#include "../DataManager.hpp"
 #include "../Exception.hpp"
 #include "../Analysis.hpp"
+#include "../../../../core/utility/Logger.hpp"
+#include "../../../../core/utility/DataAccessorFactory.hpp"
+#include "../../../../core/data-access/DataAccessor.hpp"
 
 #include <QObject>
 #include <QString>
 
-void terrama2::core::verify::analysisType(terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType)
+void terrama2::services::analysis::core::verify::analysisType(terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType)
 {
   if(analysis->type != analysisType)
   {
     QString errMsg = QObject::tr("Wrong analysis type.");
-    throw VerifyException() << terrama2::ErrorDescription(errMsg);
+    throw terrama2::core::VerifyException() << terrama2::ErrorDescription(errMsg);
   }
 }
 
-void terrama2::core::verify::analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis)
+void terrama2::services::analysis::core::verify::analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis)
 {
   analysisType(analysis, terrama2::services::analysis::core::AnalysisType::GRID_TYPE);
 }
 
-void terrama2::core::verify::analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis)
+void terrama2::services::analysis::core::verify::analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis)
 {
   analysisType(analysis, terrama2::services::analysis::core::AnalysisType::MONITORED_OBJECT_TYPE);
 }
 
-void terrama2::core::verify::analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis)
+void terrama2::services::analysis::core::verify::analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis)
 {
   analysisType(analysis, terrama2::services::analysis::core::AnalysisType::DCP_TYPE);
+}
+
+std::vector<std::string> terrama2::services::analysis::core::verify::inactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis)
+{
+  std::vector<std::string> vecMessages;
+  for(auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+    auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+    if(!dataSeries->active)
+    {
+      QString errMsg = QObject::tr("Data series '%1' is inactive.").arg(dataSeries->name.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      vecMessages.push_back(errMsg.toStdString());
+    }
+  }
+
+  return vecMessages;
+}
+
+std::vector<std::string> terrama2::services::analysis::core::verify::dataAvailable(DataManagerPtr dataManager, AnalysisPtr analysis)
+{
+  std::vector<std::string> vecMessages;
+  for(auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  {
+
+    auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+    auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+    auto dataAccesor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
+
+    try
+    {
+      terrama2::core::Filter filter;
+      auto series = dataAccesor->getSeries(filter, nullptr);
+
+      if(series.empty())
+      {
+        QString errMsg = QObject::tr("No data available for data series '%1'.").arg(dataSeries->name.c_str());
+        TERRAMA2_LOG_WARNING() << errMsg;
+        vecMessages.push_back(errMsg.toStdString());
+      }
+    }
+    catch(const terrama2::core::NoDataException&)
+    {
+      QString errMsg = QObject::tr("No data available for data series '%1'.").arg(dataSeries->name.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      vecMessages.push_back(errMsg.toStdString());
+    }
+    catch(const terrama2::Exception& e)
+    {
+      std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+      vecMessages.push_back(errMsg);
+      TERRAMA2_LOG_ERROR() << errMsg;
+    }
+  }
+
+  return vecMessages;
+}
+
+terrama2::services::analysis::core::ValidateResult terrama2::services::analysis::core::verify::validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis)
+{
+  ValidateResult result;
+  result.analysisId = analysis->id;
+
+  auto messages = inactiveDataSeries(dataManager, analysis);
+  result.messages.insert(result.messages.end(), messages.begin(), messages.end());
+
+  messages = dataAvailable(dataManager, analysis);
+  result.messages.insert(result.messages.end(), messages.begin(), messages.end());
+
+  result.isValid = result.messages.empty();
+  return result;
 }

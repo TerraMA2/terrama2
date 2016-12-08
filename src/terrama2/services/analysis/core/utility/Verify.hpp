@@ -36,16 +36,50 @@
 
 namespace terrama2
 {
-  namespace core
+  namespace services
   {
-    namespace verify
+    namespace analysis
     {
-      void analysisType(const terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType);
-      void analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis);
-      void analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis);
-      void analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis);
-    } /* verify */
-  } /* core */
+      namespace core
+      {
+        namespace verify
+        {
+          void analysisType(const terrama2::services::analysis::core::AnalysisPtr analysis, terrama2::services::analysis::core::AnalysisType analysisType);
+          void analysisGrid(const terrama2::services::analysis::core::AnalysisPtr analysis);
+          void analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis);
+          void analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis);
+
+
+          /*!
+            \brief Verifies if the given analysis in using an inactive data series.
+            \note In case there is a inactive data series, this information must be logged but the analysis will be executed normally.
+            \param dataManager A smart pointer to the data manager.
+            \param analysis The analysis to be executed.
+            \return A list with error messages.
+          */
+          std::vector<std::string> inactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis);
+
+
+          /*!
+            \brief Validates an analysis to check if all configurations are set correctly and if there is data available in the data series.
+            \param dataManager A smart pointer to the data manager.
+            \param analysis The analysis to be executed.
+            \return The validate result object.
+          */
+          ValidateResult validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis);
+
+          /*!
+            \brief Verifies if all data series used in the analysis have data available.
+            \param dataManager A smart pointer to the data manager.
+            \param analysis The analysis to be executed.
+            \return A list with error messages.
+          */
+          std::vector<std::string> dataAvailable(DataManagerPtr dataManager, AnalysisPtr analysis);
+
+        } /* verify */
+      } /* core */
+    } /* analysis */
+  } /* services */
 } /* terrama2 */
 
 #endif //__TERRAMA2_SERVICES_ANALYSIS_CORE_VERIFY_HPP__
