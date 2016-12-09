@@ -17,6 +17,7 @@ var ImportExport = function(io) {
   var Utils = require('./../core/Utils');
   var Enums = require('./../core/Enums');
   var DataManager = require("./../core/DataManager");
+  var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
   // bluebird promise
   var Promise = require("bluebird");
@@ -91,6 +92,8 @@ var ImportExport = function(io) {
         return Promise.all(promises).then(function() {
           promises = [];
 
+          var tcpOutput = {};
+
           if (json.DataProviders) {
             var dataProviders = json.DataProviders || [];
             output.DataProviders = [];
@@ -99,6 +102,9 @@ var ImportExport = function(io) {
               dataProvider.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: dataProvider.project_id}).id : json.selectedProject;
 
               promises.push(DataManager.addDataProvider(dataProvider, options).then(function(dProvider) {
+                if(tcpOutput.DataProviders === undefined) tcpOutput.DataProviders = [];
+                tcpOutput.DataProviders.push(dProvider.toObject());
+
                 output.DataProviders.push(_updateID(dataProvider, dProvider));
                 return Promise.resolve();
               }));
@@ -135,6 +141,9 @@ var ImportExport = function(io) {
                 });
                 // find or create DataSeries
                 promises.push(DataManager.addDataSeries(dSeries, null, options).then(function(dSeriesResult) {
+                  if(tcpOutput.DataSeries === undefined) tcpOutput.DataSeries = [];
+                  tcpOutput.DataSeries.push(dSeriesResult.toObject());
+
                   // call helper to add IDs in output.DataSeries
                   _processDataSeriesAndDataSets(dSeries, dSeriesResult);
                 }));
@@ -166,8 +175,14 @@ var ImportExport = function(io) {
                     }
 
                     collector.filter.date = date;
+                    if(collector.service_instance_id === null) collector.service_instance_id = json.servicesCollect;
 
-                    return DataManager.addCollector(collector, collector.filter, options);
+                    return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
+                      collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
+
+                      if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
+                      tcpOutput.Collectors.push(collectorResult.toObject());
+                    });
                   }));
                 });
               }
@@ -228,7 +243,14 @@ var ImportExport = function(io) {
                       } else {
                         analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
                       }
-                      return DataManager.addAnalysis(analysis, options);
+
+                      if(analysis.service_instance_id === null) analysis.service_instance_id = json.servicesAnalysis;
+                      if(analysis.instance_id === null) analysis.instance_id = json.servicesAnalysis;
+
+                      return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
+                        if(tcpOutput.Analysis === undefined) tcpOutput.Analysis = [];
+                        tcpOutput.Analysis.push(analysisResult.toObject());
+                      });
                     }));
                   });
                 }
@@ -246,13 +268,19 @@ var ImportExport = function(io) {
                         view.schedule_id = schedule.id;
                         view.project_id = thereAreProjects ? Utils.find(output.Projects, {$id: view.project_id}).id : json.selectedProject;
                         view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
+                        if(view.service_instance_id === null) view.service_instance_id = json.servicesView;
 
-                        return DataManager.addView(view, options);
+                        return DataManager.addView(view, options).then(function(viewResult) {
+                          if(tcpOutput.Views === undefined) tcpOutput.Views = [];
+                          tcpOutput.Views.push(viewResult.toObject());
+                        });
                       }));
                     });
                   }
 
-                  return Promise.all(promises);
+                  return Promise.all(promises).then(function() {
+                    TcpService.send(tcpOutput);
+                  });
                 });
               });
             });
@@ -341,73 +369,6 @@ var ImportExport = function(io) {
 
         return false;
       };
-
-      /*var recursivelyDelete = function(item) {
-        checkForDependencies(item._id).then(function() {
-          return getChildrenCategories(item._id);
-        }).then(function(children) {
-          var calls = [];
-
-          children.forEach(function(c) {
-            calls.push(recursivelyDelete(c._id));
-          });
-
-          return Promise.all(calls);
-        }).then(function() {
-          return remove(item._id);
-        }).catch(function(err) {
-          console.log(err);
-        });
-      };*/
-
-      /*var getDataSeries = function(id) {
-        return DataManager.getDataSeries({id: id}).then(function(dataSeries) {
-          if(!isInArray(dataSeries.id, output.DataSeries)) {
-            output.DataSeries.push(addID(dataSeries));
-
-            return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-          } else {
-            return Promise.resolve();
-          }
-        }).then(function(dataProvider) {
-          if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-            dataProvider.project_id = null;
-            output.DataProviders.push(addID(dataProvider));
-          }
-
-          return DataManager.getCollector({data_series_output: id});
-        }).then(function(collector) {
-          if(!isInArray(collector.id, output.Collectors)) {
-            output.Collectors.push(addID(collector));
-
-            var dataSeriesPromises = [
-              DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
-                if(!isInArray(dataSeries.id, output.DataSeries)) {
-                  output.DataSeries.push(addID(dataSeries));
-                  return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-                }
-              }).then(function(dataProvider) {
-                if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                  dataProvider.project_id = null;
-                  output.DataProviders.push(addID(dataProvider));
-                }
-              })
-            ];
-
-            for(var j = 0, intersectionsLength = collector.intersection.length; j < intersectionsLength; j++) {
-              dataSeriesPromises.push(
-                getDataSeries(collector.intersection[j].dataseries_id)
-              );
-            }
-
-            return Promise.all(dataSeriesPromises).catch(_emitError);
-          } else {
-            return Promise.resolve();
-          }
-        }).catch(function(err) {
-          return Promise.resolve();
-        })
-      };*/
 
       var getDataSeries = function(id) {
         return DataManager.getDataSeries({id: id}).then(function(dataSeries) {
@@ -526,55 +487,6 @@ var ImportExport = function(io) {
         for(var i = 0, dataSeriesLength = json.DataSeries.length; i < dataSeriesLength; i++) {
           promises.push(
             getDataSeries(json.DataSeries[i].id)
-            /*DataManager.getDataSeries({id: json.DataSeries[i].id}).then(function(dataSeries) {
-              if(!isInArray(dataSeries.id, output.DataSeries)) {
-                output.DataSeries.push(addID(dataSeries));
-                return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-              }
-            }).then(function(dataProvider) {
-              if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                dataProvider.project_id = null;
-                output.DataProviders.push(addID(dataProvider));
-              }
-
-              return DataManager.getCollector({data_series_output: json.DataSeries[i].id});
-            }).then(function(collector) {
-              if(!isInArray(collector.id, output.Collectors)) {
-                output.Collectors.push(addID(collector));
-
-                var dataSeriesPromises = [
-                  DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
-                    if(!isInArray(dataSeries.id, output.DataSeries)) {
-                      output.DataSeries.push(addID(dataSeries));
-                      return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-                    }
-                  }).then(function(dataProvider) {
-                    if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                      dataProvider.project_id = null;
-                      output.DataProviders.push(addID(dataProvider));
-                    }
-                  })
-                ];
-
-                for(var j = 0, intersectionsLength = collector.intersection.length; j < intersectionsLength; j++) {
-                  dataSeriesPromises.push(
-                    DataManager.getDataSeries({id: collector.intersection[j].dataseries_id}).then(function(dataSeries) {
-                      if(!isInArray(dataSeries.id, output.DataSeries)) {
-                        output.DataSeries.push(addID(dataSeries));
-                        return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-                      }
-                    }).then(function(dataProvider) {
-                      if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                        dataProvider.project_id = null;
-                        output.DataProviders.push(addID(dataProvider));
-                      }
-                    })
-                  );
-                }
-
-                Promise.all(dataSeriesPromises).catch(_emitError);
-              }
-            })*/
           );
         }
       }
@@ -588,47 +500,19 @@ var ImportExport = function(io) {
                 output.Collectors.push(addID(collector));
 
                 var dataSeriesPromises = [
-                  DataManager.getDataSeries({id: collector.data_series_input}).then(function(dataSeries) {
-                    if(!isInArray(dataSeries.id, output.DataSeries)) {
-                      output.DataSeries.push(addID(dataSeries));
-                      return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-                    }
-                  }).then(function(dataProvider) {
-                    if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                      dataProvider.project_id = null;
-                      output.DataProviders.push(addID(dataProvider));
-                    }
-                  }),
-                  DataManager.getDataSeries({id: collector.data_series_output}).then(function(dataSeries) {
-                    if(!isInArray(dataSeries.id, output.DataSeries)) {
-                      output.DataSeries.push(addID(dataSeries));
-                      return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-                    }
-                  }).then(function(dataProvider) {
-                    if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                      dataProvider.project_id = null;
-                      output.DataProviders.push(addID(dataProvider));
-                    }
-                  })
+                  getDataSeries(collector.data_series_input),
+                  getDataSeries(collector.data_series_output)
                 ];
 
                 for(var j = 0, intersectionsLength = collector.intersection.length; j < intersectionsLength; j++) {
                   dataSeriesPromises.push(
-                    DataManager.getDataSeries({id: collector.intersection[j].dataseries_id}).then(function(dataSeries) {
-                      if(!isInArray(dataSeries.id, output.DataSeries)) {
-                        output.DataSeries.push(addID(dataSeries));
-                        return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-                      }
-                    }).then(function(dataProvider) {
-                      if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                        dataProvider.project_id = null;
-                        output.DataProviders.push(addID(dataProvider));
-                      }
-                    })
+                    getDataSeries(collector.intersection[j].dataseries_id)
                   );
                 }
 
-                Promise.all(dataSeriesPromises).catch(_emitError);
+                return Promise.all(dataSeriesPromises).catch(_emitError);
+              } else {
+                return Promise.resolve();
               }
             })
           );
@@ -647,41 +531,20 @@ var ImportExport = function(io) {
                 rawAnalysis.service_instance_id = null;
                 output.Analysis.push(rawAnalysis);
 
-                var analysisDataseriesListPromises = [];
+                var analysisDataseriesListPromises = rawAnalysis.dataSeries.id !== undefined ? [getDataSeries(rawAnalysis.dataSeries.id)] : [];
 
                 for(var j = 0, analysisDSLength = rawAnalysis.analysis_dataseries_list.length; j < analysisDSLength; j++) {
                   rawAnalysis.analysis_dataseries_list[j].$id = rawAnalysis.analysis_dataseries_list[j].id;
                   delete rawAnalysis.analysis_dataseries_list[j].id;
 
                   analysisDataseriesListPromises.push(
-                    DataManager.getDataSeries({id: rawAnalysis.analysis_dataseries_list[j].data_series_id}).then(function(dataSeries) {
-                      if(!isInArray(dataSeries.id, output.DataSeries)) {
-                        output.DataSeries.push(addID(dataSeries));
-                        return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-                      }
-                    }).then(function(dataProvider) {
-                      if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                        dataProvider.project_id = null;
-                        output.DataProviders.push(addID(dataProvider));
-                      }
-                    })
+                    getDataSeries(rawAnalysis.analysis_dataseries_list[j].data_series_id)
                   );
                 }
 
-                Promise.all(analysisDataseriesListPromises).catch(_emitError);
-
-                if(rawAnalysis.dataSeries.id != undefined)
-                  return DataManager.getDataSeries({id: rawAnalysis.dataSeries.id});
-              }
-            }).then(function(dataSeries) {
-              if(dataSeries !== undefined && !isInArray(dataSeries.id, output.DataSeries)) {
-                output.DataSeries.push(addID(dataSeries));
-                return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-              }
-            }).then(function(dataProvider) {
-              if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                dataProvider.project_id = null;
-                output.DataProviders.push(addID(dataProvider));
+                return Promise.all(analysisDataseriesListPromises).catch(_emitError);
+              } else {
+                return Promise.resolve();
               }
             })
           );
@@ -696,17 +559,10 @@ var ImportExport = function(io) {
                 view.projectId = null;
                 view.serviceInstanceId = null;
                 output.Views.push(addID(view));
-                return DataManager.getDataSeries({id: view.dataSeries});
-              }
-            }).then(function(dataSeries) {
-              if(dataSeries !== undefined && !isInArray(dataSeries.id, output.DataSeries)) {
-                output.DataSeries.push(addID(dataSeries));
-                return DataManager.getDataProvider({id: dataSeries.data_provider_id});
-              }
-            }).then(function(dataProvider) {
-              if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
-                dataProvider.project_id = null;
-                output.DataProviders.push(addID(dataProvider));
+
+                return getDataSeries(view.dataSeries);
+              } else {
+                return Promise.resolve();
               }
             })
           );
@@ -714,6 +570,13 @@ var ImportExport = function(io) {
       }
 
       Promise.all(promises).then(function() {
+        if(output.Projects.length === 0) delete output.Projects;
+        if(output.DataProviders.length === 0) delete output.DataProviders;
+        if(output.DataSeries.length === 0) delete output.DataSeries;
+        if(output.Collectors.length === 0) delete output.Collectors;
+        if(output.Analysis.length === 0) delete output.Analysis;
+        if(output.Views.length === 0) delete output.Views;
+
         client.emit("exportResponse", { status: 200, data: output });
       }).catch(_emitError);
     });

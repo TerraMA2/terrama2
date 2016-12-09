@@ -331,6 +331,16 @@
           } else {
             $scope.extra.isImporting = true;
             $scope.extra.importJson['selectedProject'] = $scope.projectRadio;
+
+            if($scope.hasCollect)
+              $scope.extra.importJson['servicesCollect'] = $scope.servicesCollect;
+
+            if($scope.hasAnalysis)
+              $scope.extra.importJson['servicesAnalysis'] = $scope.servicesAnalysis;
+
+            if($scope.hasView)
+              $scope.extra.importJson['servicesView'] = $scope.servicesView;
+
             socket.emit("import", $scope.extra.importJson);
             $('#importModal').modal('hide');
 
