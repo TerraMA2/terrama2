@@ -108,6 +108,23 @@ namespace terrama2
         /*!
           \struct AnalysisDataSeries
           \brief Contains the configuration of an DataSeries used in an analysis.
+
+          {
+            "class" : "AnalysisDataSeries",
+            "id" : INT,
+            "data_series_id" : INT,
+            "type" : INT,
+            "alias" : STRING,
+            "metadata" : {}
+          }
+
+          For an AnalysisDataSeries of type Monitored Object, it's mandatory that it contains the identifier of the monitored object.
+
+          "metadata" :
+          {
+            "identifier" : STRING
+          }
+
         */
         struct AnalysisDataSeries
         {
@@ -152,6 +169,14 @@ namespace terrama2
 
         /*!
           \brief Defines the date filter for reprocessing of historical data
+
+          ## JSon ##
+
+          {
+            "class" : "ReprocessingHistoricalData",
+            "start_date" : STRING,
+            "end_date" : STRING
+          }
         */
         struct ReprocessingHistoricalData
         {
@@ -161,6 +186,24 @@ namespace terrama2
 
         /*!
           \brief Defines the parameters used to construct the output grid of an analysis.
+
+          ## JSon ##
+
+          {
+            "class" : "AnalysisOutputGrid",
+            "analysis_id" : INT,
+            "interpolation_method" : INT,
+            "interpolation_dummy" : DOUBLE,
+            "resolution_type" : INT,
+            "resolution_data_series_id" : INT,
+            "resolution_x" : DOUBLE,
+            "resolution_y" : DOUBLE,
+            "srid" : INT,
+            "area_of_interest_data_series_id" : INT,
+            "area_of_interest_type" : INT,
+            "area_of_interest_box" : STRING
+          }
+
         */
         struct AnalysisOutputGrid
         {
@@ -180,6 +223,36 @@ namespace terrama2
         /*!
           \struct Analysis
           \brief Model for the configuration of an analysis execution.
+
+          ## JSon ##
+
+          \code{.json}
+            {
+              "class" : "Analysis",
+              "id" : INT,
+              "project_id" : INT,
+              "script_language" : INT,
+              "type" : INT,
+              "name" : STRING,
+              "description" : STRING,
+              "active" : BOOL,
+              "output_dataseries_id" : INT,
+              "metadata" : {
+                "INFLUENCE_TYPE" : INT,
+                "INFLUENCE_RADIUS" : DOUBLE,
+                "INFLUENCE_RADIUS_UNIT" : STRING,
+                "INFLUENCE_DATASERIES_ID" : INT,
+                "INFLUENCE_ATTRIBUTE" : STRING
+              },
+              "analysis_dataseries_list" : [ AnalysisDataSeries, ...],
+              "schedule": Schedule,
+              "service_instance_id": INT,
+              "output_grid" : OutputGrid,
+              "reprocessing_historical_data", : ReprocessingHistoricalData
+            }
+          \endcode
+
+
         */
         struct Analysis : public terrama2::core::Process
         {
@@ -188,7 +261,8 @@ namespace terrama2
           AnalysisType type; //!< Type of the analysis.
           std::string name; //!< Name of the analysis.
           std::string description; //!< Short description of the purpose of the analysis.
-          DataSeriesId outputDataSeriesId; //!< The dataset that stores the result of the analysis.
+          DataSeriesId outputDataSeriesId; //!< The data series that stores the result of the analysis.
+          DataSetId outputDataSetId; //!< The dataset that stores the result of the analysis.
           std::map<std::string, std::string> metadata; //!< Metadata of the analysis.
           std::vector<AnalysisDataSeries> analysisDataSeriesList; //!< DataSeries that are used in this analysis.
           AnalysisOutputGridPtr outputGridPtr; //!< Output grid configuration.

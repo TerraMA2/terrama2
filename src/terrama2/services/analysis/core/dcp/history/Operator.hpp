@@ -71,7 +71,7 @@ namespace terrama2
               double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                   const std::string& dataSeriesName, const std::string& attribute,
                                   const std::string& dateFilterBegin, const std::string& dateFilterEnd,
-                                  boost::python::list ids);
+                                  boost::python::list pcds);
 
               /*!
               \brief Calculates the sum of historic DCP data.

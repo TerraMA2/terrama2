@@ -107,9 +107,10 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
        * @return {Object} a geojson object representation
        */
       build: function(model) {
-        var geojson = Object.assign({}, GeoJSON);
+        var geojson = angular.copy(GeoJSON, {});
         geojson.type = Geometry.POINT;
-        geojson.coordinates.push([model.x, model.y]);
+        geojson.coordinates.push(model.x);
+        geojson.coordinates.push(model.y);
         geojson.crs.properties.name += model.srid;
         return geojson;
       }
@@ -131,5 +132,23 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
         default:
           return {};
       }
+    };
+  })
+  
+  /**
+   * This factory injects all GeoLibraries available in order make it useful when handle multiple geo data types.
+   * 
+   * @param {Geometry} Geometry - TerraMA² Geometry Enum
+   * @param {Polygon} Polygon - TerraMA² Polygon builder
+   * @param {Point} Point - TerraMA² Point builder
+   * @param {GeoJsonBuilder} GeoJsonBuilder - TerraMA² geojson builder
+   * @returns {Object}
+   */
+  .factory("GeoLibs", function(Geometry, Polygon, Point, GeoJsonBuilder) {
+    return {
+      geometry: Geometry,
+      point: Point,
+      polygon: Polygon,
+      geojson: GeoJsonBuilder
     };
   });

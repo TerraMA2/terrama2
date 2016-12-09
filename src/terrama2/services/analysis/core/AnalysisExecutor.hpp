@@ -155,11 +155,11 @@ namespace terrama2
               \param logger Smart pointer to the analysis process logger.
               \param analysis The analysis to be executed.
             */
-            void verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger);
+            void verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, RegisterId logId);
 
           signals:
             //! Signal to notify that a analysis execution has finished.
-            void analysisFinished(int, bool);
+            void analysisFinished(size_t, bool);
 
         };
 

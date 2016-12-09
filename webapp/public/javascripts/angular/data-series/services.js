@@ -17,7 +17,10 @@
       POSTGIS: 'POSTGIS'
     })
     .service("DataSeriesService", DataSeriesService)
-    .service("DataSeriesSemanticsService", DataSeriesSemanticsService);
+    .service("DataSeriesSemanticsService", DataSeriesSemanticsService)
+    .factory("SemanticsParserFactory", SemanticsParserFactory)
+    .factory("SemanticsHelpers", WrapSemanticsHelpers)
+    .factory("SemanticsLibs", SemanticsLibs);
   
   /**
    * Data Series service DAO
@@ -85,8 +88,7 @@
   // Angular Injecting Dependency
   DataSeriesService.$inject = ["BaseService", "DataSeriesType", "$filter", "$q"];
 
-  
-  
+
   /**
    * Data Series Semantics service DAO
    * 
@@ -134,4 +136,83 @@
   DataSeriesSemanticsService.prototype.get = function(restriction) {
     return this.BaseService.get(this.model, restriction);
   };
+
+  function SemanticsLibs(SemanticsHelpers, SemanticsParserFactory) {
+    return {
+      utility: WrapSemanticsHelpers,
+      parsers: SemanticsParserFactory
+    };
+  }
+
+  /**
+   * It defines availables methods used in semantics.json
+   * Remember to call initialize whenever you want to use it even when resetting model due model reference
+   * 
+   * @class SemanticsHelpers
+   */
+  function WrapSemanticsHelpers(StringDiff) {
+    function SemanticsHelpers() {
+      /**
+       * Defines ngmodel reference
+       * @type {Object}
+       */
+      var _model = null;
+
+      /**
+       * It injects the available functions into scope variable.
+       * 
+       * @param {any} formModel - Angular ngmodel
+       */
+      this.init = function(formModel) {
+        _model = formModel;
+      };
+
+      /**
+       * It forces the user to match with regex expression. Normally, you may specify expression with only valid values
+       * in order to block the un-match keys 
+       * 
+       * @param {string} key - NgModel key
+       * @param {any} value - NgModel value
+       * @param {string} expression - Regex expression
+       */
+      this.only = function(key, value, expression) {
+        var regex = new RegExp(expression);
+        var results = regex.exec(value);
+        if (results && results[0] !== results.input) {
+          var diff = StringDiff(results[0], value);
+          _model[key[0]] = value.replace(diff, "");
+        }
+      };
+    }
+
+    return SemanticsHelpers;
+  }
+
+  /**
+   * Class responsibles for processing semantics. Use it whenever you need format semantics before send to server
+   * 
+   * @returns {Object}
+   */
+  function SemanticsParserFactory() {
+    return {
+      /**
+       * It parses input data series semantics, removing all keys that starts with "output_"
+       *  
+       * @param {Object} semanticsFormat - DataSeries Semantics input with keys
+       * @returns {Object} Parse semantics
+       */
+      parseKeys: function(semanticsFormat) {
+        var parsedKeys = {};
+        Object.keys(semanticsFormat)
+          .forEach(function(key) {
+            if (key.startsWith("output_")) {
+              parsedKeys[key.replace("output_", "")] = semanticsFormat[key];
+            } else {
+              parsedKeys[key] = semanticsFormat[key];
+            }
+          });
+        return parsedKeys;
+      }
+    };
+  }
 } ());

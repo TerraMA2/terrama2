@@ -254,7 +254,7 @@ const std::set<std::string> terrama2::services::analysis::core::BaseContext::get
 
 bool terrama2::services::analysis::core::BaseContext::hasError() const
 {
-  auto it = logMessages_.find(ERROR_MESSAGE);
+  auto it = logMessages_.find(MessageType::ERROR_MESSAGE);
   if(it == logMessages_.end())
     return false;
 

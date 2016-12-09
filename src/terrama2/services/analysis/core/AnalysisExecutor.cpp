@@ -71,6 +71,7 @@ terrama2::services::analysis::core::AnalysisExecutor::AnalysisExecutor()
 {
   qRegisterMetaType<std::shared_ptr<te::dt::TimeInstantTZ>>("std::shared_ptr<te::dt::TimeInstantTZ>");
   qRegisterMetaType<uint32_t>("uint32_t");
+  qRegisterMetaType<uint32_t>("size_t");
 }
 
 
@@ -104,7 +105,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
     logId = logger->start(analysis->id);
 
-    verifyInactiveDataSeries(dataManager, analysis, logger);
+    verifyInactiveDataSeries(dataManager, analysis, logger, logId);
 
     switch(analysis->type)
     {
@@ -150,7 +151,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
   try
   {
-    auto warnings = ContextManager::getInstance().getErrors(analysisHashCode);
+    auto warnings = ContextManager::getInstance().getMessages(analysisHashCode, BaseContext::MessageType::WARNING_MESSAGE);
     if(!warnings.empty())
     {
       for (auto warning: warnings)
@@ -159,7 +160,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       }
     }
 
-    auto errors = ContextManager::getInstance().getErrors(analysisHashCode);
+    auto errors = ContextManager::getInstance().getMessages(analysisHashCode, BaseContext::MessageType::ERROR_MESSAGE);
     if(!errors.empty())
     {
 
@@ -314,18 +315,18 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
   }
   catch(const terrama2::Exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(const std::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
 
@@ -385,27 +386,27 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  auto dataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
+  auto outputDataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
 
-  if(!dataSeries)
+  std::string outputDatasetName;
+
+  if(outputDataSeries->semantics.dataFormat == "POSTGIS")
   {
-    QString errMsg = QObject::tr("Could not find the output data series.");
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
+    terrama2::core::DataSetPtr outputDataSet;
 
-  auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
-  if(!dataProvider)
-  {
-    QString errMsg = QObject::tr("Could not find the output data provider.");
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
-  }
+    for(auto& dataset : outputDataSeries->datasetList)
+    {
+      if(dataset->id == analysis->outputDataSetId)
+      {
+        outputDataSet = dataset;
+        break;
+      }
+    }
 
-  std::string datasetName;
+    if(!outputDataSet.get())
+      throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
 
-  if(dataSeries->semantics.dataFormat == "POSTGIS")
-  {
-    auto dataSet = dataSeries->datasetList[0];
-    datasetName = terrama2::core::getProperty(dataSet, dataSeries, "table_name");
+    outputDatasetName = terrama2::core::getProperty(outputDataSet, outputDataSeries, "table_name");
   }
   else
   {
@@ -436,7 +437,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
       if(!context->exists(datasetMO->id))
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
-        context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
         return;
       }
 
@@ -445,14 +446,14 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
       if(moDsContext->identifier.empty())
       {
         QString errMsg(QObject::tr("Monitored object identifier is empty."));
-        context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
         return;
       }
 
       if(!moDsContext->series.teDataSetType)
       {
         QString errMsg(QObject::tr("Invalid dataset type."));
-        context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
         return;
       }
 
@@ -468,24 +469,24 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   if(!found)
   {
     QString errMsg(QObject::tr("Could not find a monitored object dataseries."));
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
 
   if(!identifierProperty)
   {
     QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
 
 
   auto attributes = context->getAttributes();
 
-  assert(dataSeries->datasetList.size() == 1);
+  assert(outputDataSeries->datasetList.size() == 1);
 
 
-  std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(datasetName);
+  std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(outputDatasetName);
 
   // first property is the geomId
   identifierProperty->setName("geom_id");
@@ -497,7 +498,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   dt->add(dateProp);
 
   // the unique key is composed by the geomId and the execution date.
-  std::string nameuk = datasetName+ "_uk";
+  std::string nameuk = outputDatasetName+ "_uk";
   te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk);
   uk->add(identifierProperty);
   uk->add(dateProp);
@@ -505,7 +506,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   dt->add(uk);
 
   //create index on date column
-  te::da::Index* indexDate = new te::da::Index(datasetName+ "_idx", te::da::B_TREE_TYPE);
+  te::da::Index* indexDate = new te::da::Index(outputDatasetName+ "_idx", te::da::B_TREE_TYPE);
   indexDate->add(dateProp);
 
   dt->add(indexDate);
@@ -534,8 +535,21 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
     ds->add(dsItem);
   }
 
-  assert(dataSeries->datasetList.size() == 1);
-  auto dataset = dataSeries->datasetList[0];
+  assert(outputDataSeries->datasetList.size() == 1);
+
+  terrama2::core::DataSetPtr outputDataSet;
+
+  for(auto& dataset : outputDataSeries->datasetList)
+  {
+    if(dataset->id == analysis->outputDataSetId)
+    {
+      outputDataSet = dataset;
+      break;
+    }
+  }
+
+  if(!outputDataSet.get())
+    throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
 
   std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);
 
@@ -545,7 +559,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
   try
   {
-    storagerManager->store(series, dataset);
+    storagerManager->store(series, outputDataSet);
   }
   catch(const terrama2::Exception /*e*/)
   {
@@ -567,7 +581,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGridAnalysis(DataM
   if(!analysis->outputGridPtr)
   {
     QString errMsg = QObject::tr("Invalid output grid configuration.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
 
@@ -654,29 +668,29 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGridAnalysis(DataM
   }
   catch(const terrama2::Exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(const boost::python::error_already_set&)
   {
     std::string errMsg = terrama2::services::analysis::core::python::extractException();
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg);
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg);
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(const boost::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::diagnostic_information(e));
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::diagnostic_information(e));
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(const std::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     std::for_each(futures.begin(), futures.end(), [](std::future<void>& f){ f.get(); });
   }
 
@@ -715,14 +729,14 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  auto dataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
-  if(!dataSeries)
+  auto outputDataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
+  if(!outputDataSeries)
   {
     QString errMsg = QObject::tr("Could not find the output data series.");
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+  auto dataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
   if(!dataProvider)
   {
     QString errMsg = QObject::tr("Could not find the output data provider.");
@@ -756,8 +770,21 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
   dt->add(rstp);
   dt->add(timestamp);
 
-  assert(dataSeries->datasetList.size() == 1);
-  auto dataset = dataSeries->datasetList[0];
+  assert(outputDataSeries->datasetList.size() == 1);
+
+  terrama2::core::DataSetPtr outputDataSet;
+
+  for(auto& dataset : outputDataSeries->datasetList)
+  {
+    if(dataset->id == analysis->outputDataSetId)
+    {
+      outputDataSet = dataset;
+      break;
+    }
+  }
+
+  if(!outputDataSet.get())
+    throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
 
   std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dt);
 
@@ -778,27 +805,27 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
 
   try
   {
-    storagerManager->store(series, dataset);
+    storagerManager->store(series, outputDataSet);
   }
   catch(const terrama2::Exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return;
   }
   catch(const std::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
     return;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred trying to store the results.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
 }
 
-void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger)
+void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, RegisterId logId)
 {
   for(auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
@@ -806,7 +833,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSer
     if(!dataSeries->active)
     {
       QString errMsg = QObject::tr("Analysis is using an inactive data series (%1).").arg(dataSeries->id);
-      logger->log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), analysis->id);
+      logger->log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), logId);
       TERRAMA2_LOG_WARNING() << errMsg;
     }
   }

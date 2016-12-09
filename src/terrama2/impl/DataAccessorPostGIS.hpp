@@ -71,15 +71,18 @@ namespace terrama2
                                          const Filter& filter,
                                          std::shared_ptr<FileRemover> remover) const override;
 
-        virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const;
+        virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet,
+                                            const std::string datetimeColumnName,
+                                            const terrama2::core::Filter& filter) const;
 
-        virtual void addDateTimeFilter(terrama2::core::DataSetPtr dataSet,
+        virtual void addDateTimeFilter(const std::string datetimeColumnName,
                                        const terrama2::core::Filter& filter,
                                        std::vector<std::string>& whereConditions) const;
         virtual void addGeometryFilter(terrama2::core::DataSetPtr dataSet,
                                        const terrama2::core::Filter& filter,
                                        std::vector<std::string>& whereConditions) const;
         virtual std::string addLastValueFilter(terrama2::core::DataSetPtr dataSet,
+                                               const std::string datetimeColumnName,
                                                const terrama2::core::Filter& filter,
                                                std::string whereCondition) const;
 

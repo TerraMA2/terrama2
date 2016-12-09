@@ -190,14 +190,15 @@ namespace terrama2
         { return "GRID-grads"; }
 
         //! Concatenate the given dataset to the complete dataset.
-        virtual void addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
-                                          std::shared_ptr<te::da::DataSet> dataSet,
+        virtual void addToCompleteDataSet(DataSetPtr dataSet,
+                                          std::shared_ptr<te::mem::DataSet> completeDataSet,
+                                          std::shared_ptr<te::da::DataSet> teDataSet,
                                           std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
                                           const std::string& filename) const override;
 
         terrama2::core::DataSetSeries getSeries(const std::string& uri,
                                                 const terrama2::core::Filter& filter,
-                                                terrama2::core::DataSetPtr dataSet,
+                                                DataSetPtr dataSet,
                                                 std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 
 
@@ -211,22 +212,25 @@ namespace terrama2
 
         uint32_t getBytesAfter(DataSetPtr dataset) const;
 
-        uint32_t getNumberOfBands(terrama2::core::DataSetPtr dataset) const;
+        uint32_t getNumberOfBands(DataSetPtr dataset) const;
 
-        double getValueMultiplier(terrama2::core::DataSetPtr dataset) const;
+        double getValueMultiplier(DataSetPtr dataset) const;
 
-        std::string getDataType(terrama2::core::DataSetPtr dataset) const;
+        std::string getDataType(DataSetPtr dataset) const;
 
-        std::string getBinaryFileMask(terrama2::core::DataSetPtr dataset) const;
+        std::string getBinaryFileMask(DataSetPtr dataset) const;
 
       protected:
         //! Returns the data source type.
         virtual std::string dataSourceType() const override;
 
+        //! Multiply the raster for a factor
+        void multiplyRaster(DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const;
+
         void writeVRTFile(GrADSDataDescriptor descriptor, const std::string& binFilename,
                           const std::string& vrtFilename, DataSetPtr dataset) const;
 
-        std::unique_ptr<te::rst::Raster> adaptRaster(const std::unique_ptr<te::rst::Raster>& raster) const;
+        void invertRaster(std::unique_ptr<te::rst::Raster>& raster) const;
 
         mutable bool yReverse_ = false; //! Flag for reverse y-axis.
     };

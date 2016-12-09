@@ -147,7 +147,9 @@ namespace terrama2
           The name of the property may come from the semantics metadata or the dataset format,
           the semantics has priority.
         */
-        virtual std::string getTimestampPropertyName(DataSetPtr dataSet) const;
+        virtual std::string getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors = true) const;
+
+        virtual std::string getOutputTimestampPropertyName(DataSetPtr dataSet) const;
 
         /*!
           \brief Get name of the geometry property
