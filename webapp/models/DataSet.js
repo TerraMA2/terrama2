@@ -20,7 +20,7 @@ module.exports = function(sequelize, DataTypes) {
             switch (dataSetType) {
               case "DCP":
                 return this.getDataSetDcp();
-              case "OCURRENCE":
+              case "OCCURRENCE":
                 return this.getDataSetOccurrence();
               default:
                 return null;

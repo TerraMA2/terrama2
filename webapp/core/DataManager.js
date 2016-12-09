@@ -1914,6 +1914,8 @@ var DataManager = module.exports = {
                       output.position = Utils.clone(dSet.position);
                       output.format = dataSetObject.format;
                       break;
+                    case DataSeriesType.OCCURRENCE:
+                      output.format = dataSetObject.format;
                     default:
                   }
                   resolve(output);
