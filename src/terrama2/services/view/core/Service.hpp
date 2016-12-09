@@ -106,8 +106,14 @@ namespace terrama2
           //! Connects signals from DataManager
           void connectDataManager();
 
+          /*!
+           * \brief viewJob
+           * \param viewId
+           * \param logger A copy of a logger object, to avoid errors if it changes during the job
+           * \param weakDataManager
+           */
           void viewJob(ViewId viewId,
-                       std::shared_ptr< ViewLogger > logger,
+                       ViewLogger logger,
                        std::weak_ptr<DataManager> weakDataManager);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager

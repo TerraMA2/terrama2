@@ -284,7 +284,7 @@ namespace terrama2
             virtual QJsonObject generateLayers(const ViewPtr viewPtr,
                                                const std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
                                                const std::shared_ptr<DataManager> dataManager,
-                                               const std::shared_ptr< ViewLogger > logger,
+                                               const ViewLogger& logger,
                                                const RegisterId logId);
 
 

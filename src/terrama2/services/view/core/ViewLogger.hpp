@@ -42,13 +42,21 @@ namespace terrama2
       {
         class ViewLogger : public terrama2::core::ProcessLogger
         {
-        public:
+          public:
 
-          ViewLogger();
+            /*!
+             * \brief Default class Constructor
+             */
+            ViewLogger();
 
-          virtual ~ViewLogger() = default;
+            /*!
+             * \brief Copy constructor
+             */
+            ViewLogger(const ViewLogger&) = default;
 
-          virtual void setConnectionInfo(const te::core::URI& uri) override;
+            virtual ~ViewLogger() = default;
+
+            virtual void setConnectionInfo(const te::core::URI& uri) override;
         };
       }
     }
