@@ -1551,7 +1551,7 @@ var DataManager = module.exports = {
       }
 
       return models.db.DataSeries.update(dataSeriesObject, Utils.extend({
-        fields: ['name', 'description', 'data_provider_id'],
+        fields: ['name', 'description', 'data_provider_id', 'active'],
         where: {
           id: dataSeriesId
         }
@@ -2334,7 +2334,18 @@ var DataManager = module.exports = {
           {
             model: models.db.Filter,
             required: false,
-            attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt']] }
+            attributes: [
+              "id",
+              "frequency",
+              "frequency_unit",
+              "discard_before",
+              "discard_after",
+              "by_value",
+              "crop_raster",
+              "collector_id",
+              [orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'],
+              [orm.fn('ST_AsGeoJSON', orm.col('region'), 0, 2), 'region']
+            ]
           },
           {
             model: models.db.Intersection,
@@ -2361,6 +2372,13 @@ var DataManager = module.exports = {
         return Promise.all(promises).then(function(dataSeriesArray) {
           dataSeriesArray.forEach(function(dataSeries) {
             collectorsResult.some(function(collector) {
+
+              if(collector.Filter !== undefined && collector.Filter !== null && 
+              collector.Filter.dataValues.region !== undefined && collector.Filter.dataValues.region !== null && 
+              typeof collector.Filter.dataValues.region === "string") {
+                collector.Filter.dataValues.region = JSON.parse(collector.Filter.dataValues.region);
+              }
+
               if (collector.data_series_output === dataSeries.id) {
                 var collectorInstance = new DataModel.Collector(collector.get());
                 collectorInstance.dataSeriesOutput = dataSeries;
