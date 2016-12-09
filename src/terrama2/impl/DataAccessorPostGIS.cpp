@@ -102,6 +102,13 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   // get a transactor to interact to the data source
   std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
 
+  if (!transactor->dataSetExists(tableName))
+  {
+    QString errMsg = QObject::tr("Table '%1' doesn't exist.").arg(tableName.c_str());
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw NoDataException() << ErrorDescription(errMsg);
+  }
+
   std::string query = "SELECT ";
   query+="* ";
   query+= "FROM "+tableName+" ";

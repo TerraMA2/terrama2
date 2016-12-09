@@ -76,6 +76,15 @@ namespace terrama2
           */
           std::vector<std::string> dataAvailable(DataManagerPtr dataManager, AnalysisPtr analysis);
 
+          /*!
+            \brief Verifies if the monitored object data series contains the identifier attribute
+            \param dataManager A smart pointer to the data manager.
+            \param analysis The analysis to be executed.
+            \return A list with error messages.
+          */
+          std::vector<std::string> attributeIdentifier(DataManagerPtr dataManager, AnalysisPtr analysis);
+
+
         } /* verify */
       } /* core */
     } /* analysis */

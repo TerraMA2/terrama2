@@ -119,6 +119,72 @@ std::vector<std::string> terrama2::services::analysis::core::verify::dataAvailab
   return vecMessages;
 }
 
+std::vector<std::string> terrama2::services::analysis::core::verify::attributeIdentifier(DataManagerPtr dataManager, AnalysisPtr analysis)
+{
+  std::vector<std::string> vecMessages;
+  if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
+  {
+    for(auto analysisDataSeries : analysis->analysisDataSeriesList)
+    {
+      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+      {
+
+        auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+        auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+
+        std::string identifier = analysisDataSeries.metadata["identifier"];
+
+        auto dataAccesor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
+        try
+        {
+          terrama2::core::Filter filter;
+          auto series = dataAccesor->getSeries(filter, nullptr);
+
+          if(!series.empty())
+          {
+            auto it = series.begin();
+            if(it != series.end())
+            {
+              if(!it->second.teDataSetType)
+              {
+                QString errMsg = QObject::tr("Could not read dataset type for data series '%1'.").arg(dataSeries->name.c_str());
+                TERRAMA2_LOG_WARNING() << errMsg;
+                vecMessages.push_back(errMsg.toStdString());
+              }
+              auto property = it->second.teDataSetType->getProperty(identifier);
+              if(property == nullptr)
+              {
+                QString errMsg = QObject::tr("Could not find the attribute identifier '%1' in data series '%2'.").arg(identifier.c_str()).arg(dataSeries->name.c_str());
+                TERRAMA2_LOG_WARNING() << errMsg;
+                vecMessages.push_back(errMsg.toStdString());
+              }
+            }
+            else
+            {
+              throw new terrama2::core::NoDataException();
+            }
+          }
+        }
+        catch(const terrama2::core::NoDataException&)
+        {
+          QString errMsg = QObject::tr("No data available for data series '%1'.").arg(dataSeries->name.c_str());
+          TERRAMA2_LOG_WARNING() << errMsg;
+          vecMessages.push_back(errMsg.toStdString());
+        }
+        catch(const terrama2::Exception& e)
+        {
+          std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+          vecMessages.push_back(errMsg);
+          TERRAMA2_LOG_ERROR() << errMsg;
+        }
+
+      }
+    }
+  }
+
+  return vecMessages;
+}
+
 terrama2::services::analysis::core::ValidateResult terrama2::services::analysis::core::verify::validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis)
 {
   ValidateResult result;
