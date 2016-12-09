@@ -151,28 +151,13 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         if(!raster->getExtent()->intersects(*geomResult->getMBR()))
           continue;
 
-        auto intervalStr = terrama2::core::getTimeInterval(dataset);
-        double interval = terrama2::core::TimeUtils::convertTimeString(intervalStr, "SECOND", "h");
-        double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
-        double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
-
         auto timePassed = currentTimestamp.utc_time() - rasterTimestamp.utc_time();
         double secondsPassed = timePassed.total_seconds();
 
-        // - find how much time has passed from the file original timestamp
-        auto temp = static_cast<int>(std::floor((secondsPassed + secondsToBefore)/interval));
-        int bandBegin = static_cast<int>(std::ceil((secondsPassed + secondsToBefore)/interval));
-        // If the bandBegin is exactly the "current" time band, we don't want it
-        // This data is forecast, if this is the current time, it's "old" data
-        if(temp == bandBegin)
-          ++bandBegin;
+        int bandBegin, bandEnd;
+        std::tie(bandBegin, bandEnd) = terrama2::services::analysis::core::getBandInterval(dataset, secondsPassed, dateDiscardBefore, dateDiscardAfter);
 
-        // calculate how many bands have "passed" (time/band_interval)
-        auto bandsOperator = static_cast<int>(std::floor((secondsToAfter-secondsToBefore)/interval));
-        // The first band is already included, remove one from last
-        int bandEnd = bandBegin+bandsOperator-1;
-
-        // - the band 0 is allways blank
+        // - the band 0 is always blank
         // - The begining should be before the end
         if(bandBegin == 0 || bandBegin > bandEnd)
         {

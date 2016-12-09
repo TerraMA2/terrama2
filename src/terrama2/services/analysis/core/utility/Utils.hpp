@@ -169,6 +169,8 @@ namespace terrama2
         */
         void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
+        std::pair<int, int> getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter);
+
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services
