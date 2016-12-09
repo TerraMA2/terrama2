@@ -34,6 +34,8 @@
 #include "../../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/Raii.hpp"
+#include "../../../../core/utility/TimeUtils.hpp"
+#include "../../../../core/utility/Utils.hpp"
 #include "../../../../core/data-access/DataAccessor.hpp"
 #include "../../../../core/data-access/DataAccessorGrid.hpp"
 #include "../../../../core/data-access/GridSeries.hpp"
@@ -380,4 +382,27 @@ void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr data
       transactor->execute("delete from " + tableName + " where execution_date = '" + startTime->toString() + "'");
   }
 
+}
+
+std::pair<int, int> terrama2::services::analysis::core::getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter)
+{
+  auto intervalStr = terrama2::core::getTimeInterval(dataset);
+  double interval = terrama2::core::TimeUtils::convertTimeString(intervalStr, "SECOND", "h");
+  double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
+  double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
+
+  // - find how much time has passed from the file original timestamp
+  auto temp = static_cast<int>(std::floor((secondsPassed + secondsToBefore)/interval));
+  int bandBegin = static_cast<int>(std::ceil((secondsPassed + secondsToBefore)/interval));
+  // If the bandBegin is exactly the "current" time band, we don't want it
+  // This data is forecast, if this is the current time, it's "old" data
+  if(temp == bandBegin)
+    ++bandBegin;
+
+  // calculate how many bands have "passed" (time/band_interval)
+  auto bandsOperator = static_cast<int>(std::floor((secondsToAfter-secondsToBefore)/interval));
+  // The first band is already included, remove one from last
+  int bandEnd = bandBegin+bandsOperator-1;
+
+  return std::make_pair(bandBegin, bandEnd);
 }
