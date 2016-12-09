@@ -116,15 +116,19 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 
     if(!dataSource_->isOpened())
     {
+      isValid_ = false;
       throw LogException();
     }
   }
   catch(std::exception& e)
   {
+    isValid_ = false;
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     throw LogException() << ErrorDescription(errMsg);
   }
+
+  isValid_ = true;
 }
 
 void terrama2::core::ProcessLogger::closeConnection()
