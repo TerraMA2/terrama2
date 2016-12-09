@@ -82,6 +82,9 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
         QString errMsg = QObject::tr("Could not connect to database");
         TERRAMA2_LOG_ERROR() << errMsg;
       }
+
+      isValid_ = true;
+      return;
     }
     catch(std::exception& e)
     {
@@ -99,8 +102,6 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
   }
-
-  isValid_ = true;
 }
 
 
