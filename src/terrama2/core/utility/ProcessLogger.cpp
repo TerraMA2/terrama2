@@ -65,6 +65,8 @@ terrama2::core::ProcessLogger::ProcessLogger(const ProcessLogger& other)
 
 void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
 {
+  isValid_ = false;
+
   try
   {
     closeConnection();
@@ -79,35 +81,33 @@ void terrama2::core::ProcessLogger::setConnectionInfo(const te::core::URI& uri)
       {
         QString errMsg = QObject::tr("Could not connect to database");
         TERRAMA2_LOG_ERROR() << errMsg;
-        isValid_ = false;
       }
-
-      isValid_ = true;
     }
     catch(std::exception& e)
     {
       QString errMsg = QObject::tr("Could not connect to database");
       TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
-      isValid_ = false;
     }
   }
   catch(std::exception& e)
   {
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
-    isValid_ = false;
   }
   catch(...)
   {
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-    isValid_ = false;
   }
+
+  isValid_ = true;
 }
 
 
 void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource)
 {
+  isValid_ = false;
+
   dataSource_.reset(dataSource);
 
   try
@@ -116,13 +116,11 @@ void terrama2::core::ProcessLogger::setDataSource(te::da::DataSource* dataSource
 
     if(!dataSource_->isOpened())
     {
-      isValid_ = false;
       throw LogException();
     }
   }
   catch(std::exception& e)
   {
-    isValid_ = false;
     QString errMsg = QObject::tr("Could not connect to database");
     TERRAMA2_LOG_ERROR() << errMsg << ": " << e.what();
     throw LogException() << ErrorDescription(errMsg);
