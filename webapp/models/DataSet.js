@@ -24,6 +24,10 @@ module.exports = function(sequelize, DataTypes) {
                 return this.getDataSetDcp();
               case DataSeriesType.OCCURRENCE:
                 return this.getDataSetOccurrence();
+              case DataSeriesType.GRID:
+                return this.getDataSetGrid();
+              case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+                return this.getDataSetMonitored();
               default:
                 return null;
             }
