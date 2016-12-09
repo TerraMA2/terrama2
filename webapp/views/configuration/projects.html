@@ -41,9 +41,7 @@
         "Analysis": [],
         "Views": []
       };
-      $scope.servicesCollect = null;
-      $scope.servicesAnalysis = null;
-      $scope.servicesView = null;
+      $scope.selectedServices = {};
       $scope.hasCollect = false;
       $scope.hasAnalysis = false;
       $scope.hasView = false;
@@ -333,13 +331,13 @@
             $scope.extra.importJson['selectedProject'] = $scope.projectRadio;
 
             if($scope.hasCollect)
-              $scope.extra.importJson['servicesCollect'] = $scope.servicesCollect;
+              $scope.extra.importJson['servicesCollect'] = $scope.selectedServices.Collect;
 
             if($scope.hasAnalysis)
-              $scope.extra.importJson['servicesAnalysis'] = $scope.servicesAnalysis;
+              $scope.extra.importJson['servicesAnalysis'] = $scope.selectedServices.Analysis;
 
             if($scope.hasView)
-              $scope.extra.importJson['servicesView'] = $scope.servicesView;
+              $scope.extra.importJson['servicesView'] = $scope.selectedServices.View;
 
             socket.emit("import", $scope.extra.importJson);
             $('#importModal').modal('hide');
@@ -604,22 +602,22 @@
           <hr ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0"/>
           <div class="form-group" ng-show="model.length > 0 && hasCollect && services.COLLECT.length > 0">
             <label>{{ i18n.__("Select the Collector Service to be Used") }}:</label>
-            <select class="form-control" name="servicesCollect" ng-model="servicesCollect" ng-change="extra.lala()">
-              <option ng-repeat="service in services.COLLECT" value="{{ service.id }}">{{ service.name }}</option>
+            <select class="form-control" name="servicesCollect" ng-model="selectedServices.Collect" ng-change="extra.lala()">
+              <option ng-repeat="service in services.COLLECT" ng-init="selectedServices.Collect = services.COLLECT[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
             </select>
           </div>
           <hr ng-show="model.length > 0 && hasAnalysis && services.ANALYSIS.length > 0"/>
           <div class="form-group" ng-show="model.length > 0 && hasAnalysis && services.ANALYSIS.length > 0">
             <label>{{ i18n.__("Select the Analysis Service to be Used") }}:</label>
-            <select class="form-control" name="servicesAnalysis" ng-model="servicesAnalysis">
-              <option ng-repeat="service in services.ANALYSIS" value="{{ service.id }}">{{ service.name }}</option>
+            <select class="form-control" name="servicesAnalysis" ng-model="selectedServices.Analysis">
+              <option ng-repeat="service in services.ANALYSIS" ng-init="selectedServices.Analysis = services.ANALYSIS[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
             </select>
           </div>
           <hr ng-show="model.length > 0 && hasView && services.VIEW.length > 0"/>
           <div class="form-group" ng-show="model.length > 0 && hasView && services.VIEW.length > 0">
             <label>{{ i18n.__("Select the View Service to be Used") }}:</label>
-            <select class="form-control" name="servicesView" ng-model="servicesView">
-              <option ng-repeat="service in services.VIEW" value="{{ service.id }}">{{ service.name }}</option>
+            <select class="form-control" name="servicesView" ng-model="selectedServices.View">
+              <option ng-repeat="service in services.VIEW" ng-init="selectedServices.View = services.VIEW[0].id.toString()" value="{{ service.id }}">{{ service.name }}</option>
             </select>
           </div>
           <hr/>
