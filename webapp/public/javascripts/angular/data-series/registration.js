@@ -1179,8 +1179,8 @@ angular.module('terrama2.dataseries.registration', [
                   var long;
                   if (dataset.position.type) {
                     // geojson
-                    lat = dataset.position.coordinates[0];
-                    long = dataset.position.coordinates[1];
+                    long = dataset.position.coordinates[0];
+                    lat = dataset.position.coordinates[1];
                   } else {
                     var first = dataset.position.indexOf("(");
                     var firstSpace = dataset.position.indexOf(" ", first);

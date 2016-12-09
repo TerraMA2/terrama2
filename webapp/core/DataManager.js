@@ -1636,6 +1636,9 @@ var DataManager = module.exports = {
                       promises.push(promiseFormat);
                     });
                     dataSet.format = dataSetUpdated.format;
+                    if (dataSetUpdated.position){
+                      dataSet.position = dataSetUpdated.position;
+                    }
                   }
                 }
                 

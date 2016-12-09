@@ -1,4 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
+
+  var DataSeriesType = require('../core/Enums').DataSeriesType;
   var DataSet = sequelize.define("DataSet",
     {
       id: {
@@ -18,9 +20,9 @@ module.exports = function(sequelize, DataTypes) {
         getDataSet: function(dataSetType) {
           if (typeof(dataSetType) === 'string') {
             switch (dataSetType) {
-              case "DCP":
+              case DataSeriesType.DCP:
                 return this.getDataSetDcp();
-              case "OCCURRENCE":
+              case DataSeriesType.OCCURRENCE:
                 return this.getDataSetOccurrence();
               default:
                 return null;
