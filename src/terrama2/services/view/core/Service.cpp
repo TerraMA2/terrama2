@@ -204,7 +204,7 @@ void terrama2::services::view::core::Service::viewJob(ViewId viewId,
   auto dataManager = weakDataManager.lock();
 
   // The logger is shared with the Maps Servers
-  std::shared_ptr< ViewLogger > jobLoggerPtr(new ViewLogger(logger));
+  std::shared_ptr< ViewLogger > jobLoggerPtr(&logger);
 
   if(!dataManager.get())
   {
