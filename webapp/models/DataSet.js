@@ -17,13 +17,11 @@ module.exports = function(sequelize, DataTypes) {
       instanceMethods: {
         getDataSet: function(dataSetType) {
           if (typeof(dataSetType) === 'string') {
-            switch (dataSetType.toLowerCase()) {
-              case "dcp":
+            switch (dataSetType) {
+              case "DCP":
                 return this.getDataSetDcp();
-                break;
-              case "occurrence":
+              case "OCURRENCE":
                 return this.getDataSetOccurrence();
-                break;
               default:
                 return null;
             }

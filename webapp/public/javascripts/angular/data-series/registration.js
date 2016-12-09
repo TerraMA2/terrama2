@@ -70,12 +70,23 @@ angular.module('terrama2.dataseries.registration', [
       $scope.removePcdStorager = function(dcpItem) {
         $scope.dcpsStorager.some(function(dcp, pcdIndex, array) {
           // todo: which fields should compare to remove?
-          if (dcp._id === dcpItem._id) {
+          if (dcp._id == dcpItem._id) {
             array.splice(pcdIndex, 1);
             return true;
           }
         });
       };
+
+      $scope.editDcpStorager = function(dcpItem){
+        $scope.dcpsStorager.some(function(dcp, dcpIndex, array){
+          if (dcp._id == dcpItem._id){
+            var table_name = dcp.table_name;
+            array[dcpIndex] = dcpItem;
+            array[dcpIndex].table_name = table_name;
+            return true;
+          }
+        });
+      }
 
       $scope.addDcpStorager = function() {
         $scope.$broadcast('schemaFormValidate');
@@ -145,11 +156,13 @@ angular.module('terrama2.dataseries.registration', [
             var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
             angular.merge(copyFormat, args.dcp);
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
-            obj.table_name = obj.mask;
+            obj.table_name = obj.alias;
             $scope.dcpsStorager.push(obj);
           } else {
             $scope.dcpsStorager.push(args.dcp);
           }
+        } else if (args.action === "edit"){
+          $scope.editDcpStorager(args.dcp);
         }
       });
 
@@ -1362,6 +1375,55 @@ angular.module('terrama2.dataseries.registration', [
           $scope.forms.parametersForm.$setPristine();
         }
       };
+
+      Object.equals = function( x, y ) {
+        if ( x === y ) return true;
+          // if both x and y are null or undefined and exactly the same
+
+        if ( ! ( x instanceof Object ) || ! ( y instanceof Object ) ) return false;
+          // if they are not strictly equal, they both need to be Objects
+
+        if ( x.constructor !== y.constructor ) return false;
+          // they must have the exact same prototype chain, the closest we can do is
+          // test there constructor.
+
+        for ( var p in x ) {
+          if ( ! x.hasOwnProperty( p ) ) continue;
+            // other properties were tested using x.constructor === y.constructor
+
+          if ( ! y.hasOwnProperty( p ) ) return false;
+            // allows to compare x[ p ] and y[ p ] when set to undefined
+
+          if ( x[ p ] === y[ p ] ) continue;
+            // if they have the same strict value or identity then they are equal
+
+          if ( typeof( x[ p ] ) !== "object" ) return false;
+            // Numbers, Strings, Functions, Booleans must be strictly equal
+
+          if ( ! Object.equals( x[ p ],  y[ p ] ) ) return false;
+            // Objects and Arrays must be tested recursively
+        }
+
+        for ( p in y ) {
+          if ( y.hasOwnProperty( p ) && ! x.hasOwnProperty( p ) ) return false;
+            // allows x[ p ] to be set to undefined
+        }
+        return true;
+      }
+
+      // watch dcps model to update dcpStorager
+      $scope.$watch("dcps", function(newVal, oldVal){
+        if (newVal && newVal.length > 0){
+          //checking if is editing
+          if (newVal.length === oldVal.length){
+            for (i = 0; i < newVal.length; i++){
+              if (!Object.equals(newVal[i], oldVal[i])){
+                $scope.$broadcast("dcpOperation", {action: "edit", dcp: newVal[i]});
+              }
+            }
+          }
+        }
+      }, true);
 
       $scope.changeDataProvider = function() {
         console.log($scope.dataSeries);
