@@ -362,8 +362,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 
     // remove from queue
     collectorQueue_.erase(std::remove(collectorQueue_.begin(), collectorQueue_.end(), collectorId), collectorQueue_.end());
-    if(waitQueue_.find(collectorId) != waitQueue_.end())
-      waitQueue_.erase(collectorId);
+    waitQueue_.erase(collectorId);
 
 
     TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
