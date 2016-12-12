@@ -82,14 +82,14 @@ namespace terrama2
             /*!
               \brief Starts the process of an analysis execution.
               \param dataManager A smart pointer to the data manager.
-              \param logger Smart pointer to the analysis process logger.
+              \param logger Analysis process logger.
               \param startTime Start time of analysis execution.
               \param analysis The analysis to be executed.
               \param threadPool Smart pointer to the thread pool.
             */
             void runAnalysis(DataManagerPtr dataManager,
                              terrama2::core::StoragerManagerPtr storagerManager,
-                             std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger,
+                             terrama2::services::analysis::core::AnalysisLogger logger,
                              std::shared_ptr<te::dt::TimeInstantTZ> startTime,
                              AnalysisPtr analysis,
                              ThreadPoolPtr threadPool,
@@ -152,10 +152,10 @@ namespace terrama2
               \brief Verifies if the given analysis in using a inactive data series.
               \note In case there is a inactive data series, this information must be logged but the analysis will be executed normally.
               \param dataManager A smart pointer to the data manager.
-              \param logger Smart pointer to the analysis process logger.
+              \param logger Analysis process logger.
               \param analysis The analysis to be executed.
             */
-            void verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger, RegisterId logId);
+            void verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, AnalysisLogger& logger, RegisterId logId);
 
           signals:
             //! Signal to notify that a analysis execution has finished.

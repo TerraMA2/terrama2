@@ -53,8 +53,7 @@ terrama2::core::DataStoragerPtr terrama2::core::DataStoragerPostGIS::make(DataPr
 
 std::string terrama2::core::DataStoragerPostGIS::getCompleteURI(DataSetPtr outputDataSet) const
 {
-  std::string destinationDataSetName = getDataSetTableName(outputDataSet);
-  return dataProvider_->uri + "/" + destinationDataSetName;
+  return dataProvider_->uri;
 }
 
 std::string terrama2::core::DataStoragerPostGIS::getDataSetTableName(DataSetPtr dataSet) const
