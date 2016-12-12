@@ -45,7 +45,8 @@
           },
           "mask": {
             "type": "string",
-            "title": "Mask"
+            "title": "Mask",
+            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           }
         },
         "required": ["mask"]
@@ -60,7 +61,10 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
         }
       ]
     }
@@ -91,7 +95,8 @@
           },
           "mask": {
             "type": "string",
-            "title": "Mask"
+            "title": "Mask",
+            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           }
         },
         "required": ["mask"]
@@ -230,7 +235,8 @@
           },
           "mask": {
             "type": "string",
-            "title": "Mask"
+            "title": "Mask",
+            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "alias": {
             "type": "string",
@@ -346,7 +352,8 @@
           },
           "mask": {
             "type": "string",
-            "title": "Mask"
+            "title": "Mask",
+            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "alias": {
             "type": "string",
@@ -383,7 +390,10 @@
         {
           "key": "mask",
           "htmlClass": "col-md-6",
-          "copyValueTo": ["alias"]
+          "copyValueTo": ["alias"],
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
         },
         {
           "key": "alias",
@@ -540,7 +550,8 @@
           },
           "mask": {
             "type": "string",
-            "title": "Mask"
+            "title": "Mask",
+            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "timezone": {
             "type": "string",
@@ -559,7 +570,10 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
         },
         {
           "key": "timezone",
@@ -764,7 +778,6 @@
           "titleMap": [{ "name": "Minutes", "value": "minutes" }, { "name": "Hours", "value": "hours" }, { "name": "Days", "value": "days" }],
           "condition": "model.temporal"
         }
-
       ]
     }
   }
