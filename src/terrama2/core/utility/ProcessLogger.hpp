@@ -159,6 +159,8 @@ namespace terrama2
          */
         virtual ProcessId processID(const RegisterId registerId) const;
 
+        virtual std::shared_ptr<ProcessLogger> clone() const;
+
       public slots:
         /*!
         * \brief Reset connection to log database information
@@ -176,7 +178,7 @@ namespace terrama2
         /*!
          * \brief Copy constructor
          */
-        ProcessLogger(const ProcessLogger& other);
+        ProcessLogger(const ProcessLogger& other) = delete;
 
         /*!
          * \brief Set the process logger data source
