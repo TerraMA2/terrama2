@@ -70,7 +70,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.removePcdStorager = function(dcpItem) {
         $scope.dcpsStorager.some(function(dcp, pcdIndex, array) {
           // todo: which fields should compare to remove?
-          if (dcp._id == dcpItem._id) {
+          if (parseInt(dcp._id) === parseInt(dcpItem._id)) {
             array.splice(pcdIndex, 1);
             return true;
           }
@@ -79,7 +79,7 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.editDcpStorager = function(dcpItem){
         $scope.dcpsStorager.some(function(dcp, dcpIndex, array){
-          if (dcp._id == dcpItem._id){
+          if (parseInt(dcp._id) === parseInt(dcpItem._id)){
             var table_name = dcp.table_name;
             array[dcpIndex] = dcpItem;
             array[dcpIndex].table_name = table_name;
