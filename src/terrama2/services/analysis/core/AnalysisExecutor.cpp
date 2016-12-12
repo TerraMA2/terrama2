@@ -755,12 +755,12 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
   std::vector<te::rst::BandProperty*> bprops;
   bprops.push_back(new te::rst::BandProperty(0, te::dt::DOUBLE_TYPE));
 
-  te::rst::RasterProperty* rstp = new te::rst::RasterProperty(new te::rst::Grid(*grid), bprops, rinfo);
-  te::dt::Property* timestamp = new te::dt::DateTimeProperty("analysis_timestamp", te::dt::TIME_INSTANT_TZ);
-  te::da::DataSetType* dt = new te::da::DataSetType("raster dataset");
+  std::unique_ptr<te::rst::RasterProperty> rstp(new te::rst::RasterProperty(new te::rst::Grid(*grid), bprops, rinfo));
+  std::unique_ptr<te::dt::Property> timestamp(new te::dt::DateTimeProperty("analysis_timestamp", te::dt::TIME_INSTANT_TZ));
+  std::shared_ptr<te::da::DataSetType> dataSetType(new te::da::DataSetType("raster dataset"));
 
-  dt->add(rstp);
-  dt->add(timestamp);
+  dataSetType->add(rstp.release());
+  dataSetType->add(timestamp.release());
 
   assert(outputDataSeries->datasetList.size() == 1);
 
@@ -778,7 +778,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
   if(!outputDataSet.get())
     throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
 
-  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dt);
+  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(dataSetType.get());
 
   te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
   std::size_t rpos = te::da::GetFirstPropertyPos(ds.get(), te::dt::RASTER_TYPE);
@@ -792,7 +792,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
   std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);
 
   terrama2::core::DataSetSeries series;
-  series.teDataSetType.reset(dt);
+  series.teDataSetType = dataSetType;
   series.syncDataSet.swap(syncDataSet);
 
   try

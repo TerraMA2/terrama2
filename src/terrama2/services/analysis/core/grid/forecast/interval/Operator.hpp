@@ -53,124 +53,95 @@ namespace terrama2
             namespace interval
             {
               /*!
-              \brief Implementation of grid forecast operator for a given time interval.
-
-              In case of an error or no data available it will return NAN(Not A Number).
-
-              \param statisticOperation The statistic operation chosen by the user.
-              \param dataSeriesName DataSeries name.
-              \param dateFilterBegin Begin of the time interval.
-              \param dateFilterEnd End of the time interval.
-
-              \return A double value with the result.
-              */
-              double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                                  const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                                  const std::string& dateFilterEnd, const size_t band);
-
-              /*!
-                \brief Calculates the sum of historic grid data for a given time interval.
+                \brief Calculates the sum of forecast grid data.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param dateFilterBegin Begin of the time interval.
-                \param dateFilterEnd End of the time interval.
+                \param dateFilter Time filter for the data.
 
                 \return A double value with the result.
               */
-              double sum(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                         const std::string& dateFilterEnd, const size_t band = 0);
+              double sum(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var = 0);
 
               /*!
-                \brief Calculates the mean of historic grid data for a given time interval.
+                \brief Calculates the mean of forecast grid data.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param dateFilterBegin Begin of the time interval.
-                \param dateFilterEnd End of the time interval.
+                \param dateFilter Time filter for the data.
 
                 \return A double value with the result.
               */
-              double mean(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                          const std::string& dateFilterEnd, const size_t band = 0);
+              double mean(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var = 0);
 
               /*!
-                \brief Calculates the min of historic grid data for a given time interval.
+                \brief Calculates the min of forecast grid data.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param dateFilterBegin Begin of the time interval.
-                \param dateFilterEnd End of the time interval.
+                \param dateFilter Time filter for the data.
 
                 \return A double value with the result.
               */
-              double min(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                         const std::string& dateFilterEnd, const size_t band = 0);
+              double min(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var = 0);
 
               /*!
-                \brief Calculates the max of historic grid data for a given time interval.
+                \brief Calculates the max of forecast grid data.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param dateFilterBegin Begin of the time interval.
-                \param dateFilterEnd End of the time interval.
+                \param attribute Which DCP attribute will be used.
+                \param dcpId Identifier of DCP dataset.
+                \param buffer Buffer to be used in the monitored object.
+                \param dateFilter Time filter for the data.
 
                 \return A double value with the result.
               */
-              double max(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                         const std::string& dateFilterEnd, const size_t band = 0);
+              double max(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var = 0);
 
               /*!
-                \brief Calculates the median of historic grid data for a given time interval.
+                \brief Calculates the median of forecast grid data.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param dateFilterBegin Begin of the time interval.
-                \param dateFilterEnd End of the time interval.
+                \param dateFilter Time filter for the data.
 
                 \return A double value with the result.
               */
-              double median(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                            const std::string& dateFilterEnd, const size_t band = 0);
+              double median(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var = 0);
 
               /*!
-                \brief Calculates the standard deviation of historic grid data for a given time interval.
+                \brief Calculates the standard deviation of forecast grid data.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param dateFilterBegin Begin of the time interval.
-                \param dateFilterEnd End of the time interval.
-
+                \param dateFilter Time filter for the data.
                 \return A double value with the result.
               */
-              double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                                       const std::string& dateFilterEnd, const size_t band = 0);
+              double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var = 0);
 
               /*!
-                \brief Calculates the variance of historic grid data for a given time interval.
+                \brief Calculates the variance of forecast grid data.
 
                 In case of an error or no data available it will return NAN(Not A Number).
 
                 \param dataSeriesName DataSeries name.
-                \param dateFilterBegin Begin of the time interval.
-                \param dateFilterEnd End of the time interval.
-
+                \param dateFilter Time filter for the data.
                 \return A double value with the result.
               */
-              double variance(const std::string& dataSeriesName, const std::string& dateFilterBegin,
-                              const std::string& dateFilterEnd, const size_t band = 0);
-            } // end namespace interval
-          }   // end namespace forecast
-        }     // end namespace grid
-      }       // end namespace core
-    }         // end namespace analysis
-  }           // end namespace services
-}             // end namespace terrama2
+              double variance(const std::string& dataSeriesName, const std::string& dateFilterBegin, const std::string& dateFilterEnd, const size_t var = 0);
+            } /* interval */
+          } // end namespace forecast
+        }   // end namespace grid
+      }     // end namespace core
+    }       // end namespace analysis
+  }         // end namespace services
+}           // end namespace terrama2
 
 #endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_FORECAST_INTERVAL_OPERATOR_HPP__
