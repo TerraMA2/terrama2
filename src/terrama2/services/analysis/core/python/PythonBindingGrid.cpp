@@ -177,6 +177,7 @@ void terrama2::services::analysis::core::python::Grid::registerGridForecastFunct
   def("median", terrama2::services::analysis::core::grid::forecast::median);
   def("standard_deviation", terrama2::services::analysis::core::grid::forecast::standardDeviation);
   def("variance", terrama2::services::analysis::core::grid::forecast::variance);
+  def("sum", terrama2::services::analysis::core::grid::forecast::sum);
 }
 
 void terrama2::services::analysis::core::python::Grid::registerGridForecastIntervalFunctions()
@@ -196,6 +197,7 @@ void terrama2::services::analysis::core::python::Grid::registerGridForecastInter
   def("median", terrama2::services::analysis::core::grid::forecast::interval::median);
   def("standard_deviation", terrama2::services::analysis::core::grid::forecast::interval::standardDeviation);
   def("variance", terrama2::services::analysis::core::grid::forecast::interval::variance);
+  def("sum", terrama2::services::analysis::core::grid::forecast::interval::sum);
 }
 
 // pragma to silence python macros warnings
@@ -210,6 +212,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalMean_overloads, terrama2::services::ana
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalMedian_overloads, terrama2::services::analysis::core::grid::zonal::median, 1, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::standardDeviation, 1, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalVariance_overloads, terrama2::services::analysis::core::grid::zonal::variance, 1, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalSum_overloads, terrama2::services::analysis::core::grid::zonal::sum, 1, 3)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
@@ -246,6 +249,9 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalFunction
   def("variance", terrama2::services::analysis::core::grid::zonal::variance,
       gridZonalVariance_overloads(args("dataSeriesName", "buffer"),
                                   "Variance operator for grid zonal"));
+  def("sum", terrama2::services::analysis::core::grid::zonal::sum,
+      gridZonalSum_overloads(args("dataSeriesName", "buffer"),
+                                  "Sum operator for grid zonal"));
 }
 
 // pragma to silence python macros warnings
@@ -259,6 +265,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryMean_overloads, terrama2::servic
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryMedian_overloads, terrama2::services::analysis::core::grid::zonal::history::median, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::standardDeviation, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::variance, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistorySum_overloads, terrama2::services::analysis::core::grid::zonal::history::sum, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryNum_overloads, terrama2::services::analysis::core::grid::zonal::history::num, 2, 3)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryList_overloads, terrama2::services::analysis::core::grid::zonal::history::list, 2, 3)
 // closing "-Wunused-local-typedef" pragma
@@ -293,6 +300,9 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryF
   def("variance", terrama2::services::analysis::core::grid::zonal::history::variance,
       gridZonalHistoryVariance_overloads(args("dataSeriesName", "buffer"),
                                          "Variance operator for grid zonal"));
+  def("sum", terrama2::services::analysis::core::grid::zonal::history::sum,
+      gridZonalHistorySum_overloads(args("dataSeriesName", "buffer"),
+                                         "Sum operator for grid zonal"));
   def("num", terrama2::services::analysis::core::grid::zonal::history::num,
       gridZonalHistoryNum_overloads(args("dataSeriesName", "buffer"),
                                     "Num operator for grid zonal"));
@@ -313,6 +323,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryAccumMean_overloads, terrama2::s
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryAccumMedian_overloads, terrama2::services::analysis::core::grid::zonal::history::accum::median, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryAccumStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::accum::standardDeviation, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryAccumVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::accum::variance, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryAccumSum_overloads, terrama2::services::analysis::core::grid::zonal::history::accum::sum, 2, 4)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
@@ -349,6 +360,9 @@ void terrama2::services::analysis::core::python::Grid::registergridZonalHistoryA
   def("variance", terrama2::services::analysis::core::grid::zonal::history::accum::variance,
       gridZonalHistoryAccumVariance_overloads(args("dataSeriesName", "buffer"),
           "Variance operator for grid zonal"));
+  def("sum", terrama2::services::analysis::core::grid::zonal::history::accum::sum,
+      gridZonalHistoryAccumSum_overloads(args("dataSeriesName", "buffer"),
+                                              "Sum operator for grid zonal"));
 }
 
 
@@ -364,6 +378,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMean_overloads, terrama2::se
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecMedian_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::median, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::standardDeviation, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecVariance_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::variance, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalHistoryPrecSum_overloads, terrama2::services::analysis::core::grid::zonal::history::prec::sum, 2, 4)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
@@ -400,6 +415,9 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryP
   def("variance", terrama2::services::analysis::core::grid::zonal::history::prec::variance,
       gridZonalHistoryPrecVariance_overloads(args("dataSeriesName", "buffer"),
           "Variance operator for grid zonal"));
+  def("sum", terrama2::services::analysis::core::grid::zonal::history::prec::sum,
+      gridZonalHistoryPrecSum_overloads(args("dataSeriesName", "buffer"),
+                                             "Sum operator for grid zonal"));
 }
 
 // pragma to silence python macros warnings
@@ -413,6 +431,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMean_overloads, terrama2::servi
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::median, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::standardDeviation, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::variance, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastSum_overloads, terrama2::services::analysis::core::grid::zonal::forecast::sum, 2, 4)
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
 
@@ -445,6 +464,9 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalForecast
   def("variance", terrama2::services::analysis::core::grid::zonal::forecast::variance,
       gridZonalForecastVariance_overloads(args("dataSeriesName", "buffer"),
                                          "Variance operator for grid zonal"));
+  def("sum", terrama2::services::analysis::core::grid::zonal::forecast::sum,
+      gridZonalForecastSum_overloads(args("dataSeriesName", "buffer"),
+                                          "Sum operator for grid zonal"));
 }
 
 
