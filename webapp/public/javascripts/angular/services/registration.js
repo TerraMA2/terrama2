@@ -2,7 +2,8 @@ angular.module('terrama2.administration.services.registration', [
   'terrama2.services',
   'terrama2.administration.services.iservices',
   'terrama2.components.messagebox',
-  'terrama2.components.messagebox.services'
+  'terrama2.components.messagebox.services',
+  'terrama2.components.collapser'
 ])
 
 .controller('RegisterUpdate', RegisterUpdate);
@@ -217,8 +218,48 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
           case Service.types.VIEW:
             self.service.pathToBinary = self.service.pathToBinary || "terrama2_service";
             break;
-          default: // none
-            break;
+        }
+      });
+
+      Socket.on('testDbConnectionResponse', function(result) {
+        self.db.isLoading = false;
+        if (result.error) {
+          self.db.isValid = false;
+          self.db.message = result.message;
+        } else {
+          self.db.isValid = true;
+          self.db.message = "";
+        }
+      });
+
+      Socket.on('testSSHConnectionResponse', function(result) {
+        self.ssh.isLoading = false;
+        if (result.error) {
+          self.ssh.isValid = false;
+          self.ssh.message = result.message;
+        } else {
+          self.ssh.isValid = true;
+        }
+      });
+      var initializing = true;
+
+      /**
+       * Watcher responsible for detecting checking connection.
+       * It is important due the alert box should display error/success state when all of those are same. For example,
+       * if DB is OK but SSH not, a error state must be displayed. Same from SSH. Now, for intercepts both SSH and DB, a function
+       * is responsible to compare the values.
+       */
+      $scope.$watch(function() {
+        return self.ssh.isValid && self.db.isValid;
+      }, function(value) {
+        if (initializing) {
+          initializing = false;
+          return;
+        }
+        if (value === true) {
+          MessageBoxService.success(i18n.__("Connection"), "");
+        } else if (value === false) {
+          MessageBoxService.danger(i18n.__("Connection"), "");
         }
       });
 
@@ -231,11 +272,11 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
        */
       self.checkConnection = function() {
         if (!Socket) {
-          // TODO: error message
           return;
         }
 
         self.isCheckingConnection = true;
+
         self.ssh = {
           isLoading: true
         };
@@ -255,37 +296,14 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
               pathToBinary: self.service.pathToBinary
             }
           );
-          Socket.on('testSSHConnectionResponse', function(result) {
-            self.ssh.isLoading = false;
-            if (result.error) {
-              self.modalType = "modal-danger";
-              self.ssh.isValid = false;
-              self.ssh.message = result.message;
-            } else {
-              self.modalType = "modal-success";
-              self.ssh.isValid = true;
-            }
-          });
 
           var logCredentials = Object.assign({}, self.log);
-          if (logCredentials && (logCredentials.host === "localhost" || logCredentials.host.startsWith("127."))) {
+          if (logCredentials && (logCredentials.host && (logCredentials.host === "localhost" || logCredentials.host.startsWith("127.")))) {
             logCredentials.host = self.service.host || logCredentials.host;
           }
 
           Socket.emit('testDbConnection', logCredentials);
-          Socket.on('testDbConnectionResponse', function(result) {
-            self.db.isLoading = false;
-            if (result.error) {
-              self.modalType = "modal-danger";
-              self.db.isValid = false;
-              self.db.message = result.message;
-            } else {
-              self.modalType = "modal-success";
-              self.db.isValid = true;
-              self.db.message = "";
-            }
-          })
-        }, 1000);
+        }, 500);
       };
 
       /**
