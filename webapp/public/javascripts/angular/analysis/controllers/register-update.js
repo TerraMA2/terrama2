@@ -624,7 +624,7 @@
 
             DataProviderService.list().forEach(function(dataProvider) {
               self.currentSemantics.metadata.demand.forEach(function(demand) {
-                if (dataProvider.data_provider_type.name == demand) {
+                if (demand != globals.enums.DataProviderType.FTP.name && dataProvider.data_provider_type.name == demand) {
                   self.dataProviders.push(dataProvider);
                 }
               });
