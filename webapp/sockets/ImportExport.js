@@ -517,11 +517,7 @@ var ImportExport = function(io) {
             })
           );
         }
-
-        Promise.all(promises).then(function() {
-          client.emit("exportResponse", {status: 200, data: output});
-        }).catch(_emitError);
-      }*/
+      }
 
       if(json.Analysis) {
         for(var i = 0, analysisLength = json.Analysis.length; i < analysisLength; i++) {
@@ -553,10 +549,6 @@ var ImportExport = function(io) {
             })
           );
         }
-
-        Promise.all(promises).then(function() {
-          client.emit("exportResponse", {status: 200, data: output});
-        }).catch(_emitError);
       }
 
       if(json.Views) {
