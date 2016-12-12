@@ -49,6 +49,7 @@ void terrama2::services::analysis::core::python::Grid::registerFunctions()
   registerGridForecastIntervalFunctions();
   registerGridZonalFunctions();
   registerGridZonalForecastFunctions();
+  registerGridZonalForecastIntervalFunctions();
   registerGridZonalHistoryFunctions();
   registergridZonalHistoryAccumFunctions();
   registerGridZonalHistoryPrecFunctions();
@@ -481,6 +482,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMean_overloads, terrama
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::median, 3, 5)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::standardDeviation, 3, 5)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::variance, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalSum_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::sum, 3, 5)
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
 
@@ -513,4 +515,7 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalForecast
   def("variance", terrama2::services::analysis::core::grid::zonal::forecast::interval::variance,
       gridZonalForecastIntervalVariance_overloads(args("dataSeriesName", "buffer"),
                                          "Variance operator for grid zonal"));
+  def("sum", terrama2::services::analysis::core::grid::zonal::forecast::interval::sum,
+     gridZonalForecastIntervalSum_overloads(args("dataSeriesName", "buffer"),
+                                         "Sum operator for grid zonal"));
 }
