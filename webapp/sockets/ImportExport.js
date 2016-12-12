@@ -219,9 +219,7 @@ var ImportExport = function(io) {
                       analysis.script_language_id = analysis.script_language;
                       analysis.grid = analysis.output_grid;
                       var dataSeriesOutput = Utils.find(output.DataSeries, {
-                        dataSets: {
-                          $id: analysis.output_dataseries_id
-                        }
+                        $id: analysis.output_dataseries_id
                       });
                       // if there grid analysis, check if there data series id, like resolution data series id.
                       // it must be changed, since it should be a different id
