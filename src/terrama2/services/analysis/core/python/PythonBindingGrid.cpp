@@ -35,6 +35,7 @@
 #include "../grid/forecast/interval/Operator.hpp"
 #include "../grid/zonal/Operator.hpp"
 #include "../grid/zonal/forecast/Operator.hpp"
+#include "../grid/zonal/forecast/interval/Operator.hpp"
 #include "../grid/zonal/history/Operator.hpp"
 #include "../grid/zonal/history/accum/Operator.hpp"
 #include "../grid/zonal/history/prec/Operator.hpp"
@@ -410,7 +411,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMin_overloads, terrama2::servic
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::max, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::mean, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::median, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::standardDeviation, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::standardDeviation, 2, 4)
 BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::variance, 2, 4)
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
@@ -443,5 +444,51 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalForecast
           "Standard deviation operator for grid zonal"));
   def("variance", terrama2::services::analysis::core::grid::zonal::forecast::variance,
       gridZonalForecastVariance_overloads(args("dataSeriesName", "buffer"),
+                                         "Variance operator for grid zonal"));
+}
+
+
+// pragma to silence python macros warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+
+// // Declaration needed for default parameter restriction
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::min, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::max, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::mean, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::median, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::standardDeviation, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::variance, 3, 5)
+// closing "-Wunused-local-typedef" pragma
+#pragma GCC diagnostic pop
+
+void terrama2::services::analysis::core::python::Grid::registerGridZonalForecastIntervalFunctions()
+{
+  using namespace boost::python;
+
+  // Register operations for grid.zonal.forecast
+  object gridZonalForecastIntervalModule(handle<>(borrowed(PyImport_AddModule("terrama2.grid.zonal.forecast"))));
+  // make "from terrama2.grid.zonal import forecast" work
+  import("terrama2.grid.zonal").attr("forecast") = gridZonalForecastIntervalModule;
+  // set the current scope to the new sub-module
+  scope gridZonalForecastIntervalScope = gridZonalForecastIntervalModule;
+
+  def("min", terrama2::services::analysis::core::grid::zonal::forecast::interval::min,
+      gridZonalForecastIntervalMin_overloads(args("dataSeriesName", "buffer"),
+                                    "Min operator for grid zonal"));
+  def("max", terrama2::services::analysis::core::grid::zonal::forecast::interval::max,
+      gridZonalForecastIntervalMax_overloads(args("dataSeriesName", "buffer"),
+                                    "Max operator for grid zonal"));
+  def("mean", terrama2::services::analysis::core::grid::zonal::forecast::interval::mean,
+      gridZonalForecastIntervalMean_overloads(args("dataSeriesName", "buffer"),
+                                     "Mean operator for grid zonal"));
+  def("median", terrama2::services::analysis::core::grid::zonal::forecast::interval::median,
+      gridZonalForecastIntervalMedian_overloads(args("dataSeriesName", "buffer"),
+                                       "Median operator for grid zonal"));
+  def("standard_deviation", terrama2::services::analysis::core::grid::zonal::forecast::interval::standardDeviation,
+      gridZonalForecastIntervalStandardDeviation_overloads(args("dataSeriesName", "buffer"),
+          "Standard deviation operator for grid zonal"));
+  def("variance", terrama2::services::analysis::core::grid::zonal::forecast::interval::variance,
+      gridZonalForecastIntervalVariance_overloads(args("dataSeriesName", "buffer"),
                                          "Variance operator for grid zonal"));
 }
