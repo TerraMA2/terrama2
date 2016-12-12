@@ -575,7 +575,7 @@ angular.module('terrama2.dataseries.registration', [
             if (isNaN(fmt[k]) || typeof fmt[k] == "boolean") {
               output[k] = fmt[k];
             } else {
-              output[k] = parseInt(fmt[k]);
+              output[k] = parseFloat(fmt[k]);
             }
           }
         }
