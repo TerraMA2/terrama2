@@ -301,7 +301,7 @@
              * @type {string}
              */
             var dummy = analysisInstance.output_grid.interpolation_dummy;
-            if (dummy) {
+            if (dummy !== undefined || dummy !== null) {
               self.analysis.grid.interpolation_dummy = Number(dummy);
             }
             var resolutionDS = analysisInstance.output_grid.resolution_data_series_id;
