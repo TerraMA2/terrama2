@@ -1919,6 +1919,8 @@ var DataManager = module.exports = {
                       break;
                     case DataSeriesType.OCCURRENCE:
                       output.format = dataSetObject.format;
+                    case DataSeriesType.GRID:
+                      output.format = dataSetObject.format;
                     default:
                   }
                   resolve(output);

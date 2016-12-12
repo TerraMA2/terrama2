@@ -45,8 +45,8 @@ angular.module('terrama2.dataseries.registration', [
   })
 
   .controller('StoragerController', [
-    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory',
-    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory) {
+    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory', '$timeout',
+    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory, $timeout) {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
@@ -180,6 +180,40 @@ angular.module('terrama2.dataseries.registration', [
           $scope.storager_data_provider_id = undefined;
           $scope.$broadcast("clearSchedule");
       });
+
+      //Checking if is updating to change output when changed the parameters in Grads data series type
+      if ($scope.isUpdating && $scope.dataSeries.semantics.code == 'GRID-grads'){
+
+        // function to update model storager properties
+        var updateModelStorage = function(inputModel){
+          $scope.modelStorager.binary_file_mask = inputModel.binary_file_mask;
+          $scope.modelStorager.bytes_after = inputModel.bytes_after;
+          $scope.modelStorager.bytes_before = inputModel.bytes_before;
+          $scope.modelStorager.ctl_filename = inputModel.ctl_filename;
+          $scope.modelStorager.data_type = inputModel.data_type;
+          $scope.modelStorager.number_of_bands = inputModel.number_of_bands;
+          $scope.modelStorager.srid = inputModel.srid;
+          $scope.modelStorager.temporal = inputModel.temporal;
+          if (inputModel.time_interval){
+            $scope.modelStorager.time_interval = inputModel.time_interval;
+          }
+          if (inputModel.time_interval_unit){
+            $scope.modelStorager.time_interval_unit = inputModel.time_interval_unit;
+          }
+          if (inputModel.value_multiplier){
+            $scope.modelStorager.value_multiplier = inputModel.value_multiplier;
+          }
+        }
+
+        // watch model to update modelStorage
+        var timeoutPromise;
+        $scope.$watch("model", function(modelValue){
+          $timeout.cancel(timeoutPromise);
+          timeoutPromise = $timeout(function(){
+            updateModelStorage(modelValue);
+          }, 700);
+        }, true);
+      }
 
       $scope.$on('storagerFormatChange', function(event, args) {
         $scope.formatSelected = args.format;
