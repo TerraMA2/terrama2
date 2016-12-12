@@ -1624,7 +1624,7 @@ var DataManager = module.exports = {
             // Update data set
             if (dataSetToUpdate){
               dataSetToUpdate.semantics = dataSeriesSemantics;
-              var updatePromise = self.updateDataSet(dataSetToUpdate, newDataSet)
+              var updatePromise = self.updateDataSet(dataSetToUpdate, newDataSet, options)
               .then(function(dataSetUpdated) {
 
                 for(var j = 0; j < dataSeries.dataSets.length; ++j) {
@@ -1897,7 +1897,7 @@ var DataManager = module.exports = {
    * @param {Object} dataSetObject - An object containing DataSet values to be updated.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  updateDataSet: function(restriction, dataSetObject) {
+  updateDataSet: function(restriction, dataSetObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
 
@@ -1905,25 +1905,23 @@ var DataManager = module.exports = {
 
       if (dataSet) {
 
-        models.db.DataSet.findById(dataSet.id).then(function(result) {
-          result.updateAttributes({active: dataSetObject.active}).then(function() {
-            result.getDataSet(restriction.semantics.data_series_type_name).then(function(dSet) {
-              dSet.updateAttributes(dataSetObject).then(function() {
-                result.getDataSetFormats().then(function(dSetFormat){
+        models.db.DataSet.findById(dataSet.id, options).then(function(result) {
+          result.updateAttributes({active: dataSetObject.active}, options).then(function() {
+            result.getDataSet(restriction.semantics.data_series_type_name, options).then(function(dSet) {
+              dSet.updateAttributes(dataSetObject, options).then(function() {
+                result.getDataSetFormats(options).then(function(dSetFormat){
                   var output = Utils.clone(result.get());
                   output.class = "DataSet";
                   switch (restriction.semantics.data_series_type_name) {
                     case DataSeriesType.DCP:
                       output.position = Utils.clone(dSet.position);
                       output.format = dataSetObject.format;
+                      resolve(output);
                       break;
-                    case DataSeriesType.OCCURRENCE:
-                      output.format = dataSetObject.format;
-                    case DataSeriesType.GRID:
-                      output.format = dataSetObject.format;
                     default:
+                      output.format = dataSetObject.format;
+                      resolve(output);
                   }
-                  resolve(output);
 
                 }).catch(function(err){
                   reject(err);

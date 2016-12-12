@@ -17,17 +17,17 @@ module.exports = function(sequelize, DataTypes) {
       timestamps: false,
 
       instanceMethods: {
-        getDataSet: function(dataSetType) {
+        getDataSet: function(dataSetType, options) {
           if (typeof(dataSetType) === 'string') {
             switch (dataSetType) {
               case DataSeriesType.DCP:
-                return this.getDataSetDcp();
+                return this.getDataSetDcp(options);
               case DataSeriesType.OCCURRENCE:
-                return this.getDataSetOccurrence();
+                return this.getDataSetOccurrence(options);
               case DataSeriesType.GRID:
-                return this.getDataSetGrid();
+                return this.getDataSetGrid(options);
               case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-                return this.getDataSetMonitored();
+                return this.getDataSetMonitored(options);
               default:
                 return null;
             }
