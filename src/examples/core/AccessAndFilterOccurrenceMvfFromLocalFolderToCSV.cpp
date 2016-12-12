@@ -20,9 +20,9 @@
 */
 
 /*!
-  \file src/examples/core/AccessAndFilterOccurrenceMvfFromLocalFolder.cpp
+  \file src/examples/core/AccessAndFilterOccurrenceMvfFromLocalFolderToCSV.cpp
 
-  \brief Example of a collector from a file
+  \brief Example of a collector from a file to a csv
 
   \author Jano Simas
  */
@@ -38,8 +38,16 @@
 #include <terrama2/core/data-model/DataSetOccurrence.hpp>
 #include <terrama2/impl/DataAccessorOccurrenceWfp.hpp>
 #include <terrama2/core/data-access/OccurrenceSeries.hpp>
+#include <terrama2/core/utility/Raii.hpp>
 
 #include <iostream>
+
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/dataaccess/datasource/ScopedTransaction.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/geometry/GeometryProperty.h>
+#include <terralib/dataaccess/utils/Utils.h>
 
 int main(int argc, char* argv[])
 {
@@ -82,46 +90,26 @@ int main(int argc, char* argv[])
 
     assert(occurrenceSeries->occurrencesMap().size() == 1);
 
-    std::shared_ptr<te::da::DataSet> teDataSet = (*occurrenceSeries->occurrencesMap().begin()).second.syncDataSet->dataset();
+    auto teDataSet = (*occurrenceSeries->occurrencesMap().begin()).second.syncDataSet->dataset();
+    auto teDataSetType = (*occurrenceSeries->occurrencesMap().begin()).second.teDataSetType;
 
-    //Print column names and types (DateTime/Double)
-    int dateColumn = -1;
-    int geomColumn = -1;
-    std::string names, types;
-    for(int i = 0; i < teDataSet->getNumProperties(); ++i)
-    {
-      std::string name = teDataSet->getPropertyName(i);
-      names+= name + "\t";
-      if(name == "data_pas")
-      {
-        types+= "DataTime\t";
-        dateColumn = i;
-      }
-      else if(name == "position")
-      {
-        types+= "Geometry\t";
-        geomColumn = i;
-      }
-      else
-        types+= "String\t";
-    }
+    auto outputDataSetType = static_cast<te::da::DataSetType*>(teDataSetType->clone());
+    outputDataSetType->setName("occurrence");
 
-    std::cout << names << std::endl;
-    std::cout << types << std::endl;
+    te::core::URI csvUri("file:///home/jsimas/MyDevel/dpi/terrama2-build/data/csv/occurrence.csv?&DRIVER=CSV");
+    std::shared_ptr<te::da::DataSource> datasourceDestination(te::da::DataSourceFactory::make("OGR", csvUri));
+    terrama2::core::OpenClose< std::shared_ptr<te::da::DataSource> > openClose(datasourceDestination);
+//    assert(datasourceDestination->isOpened());
 
-    //Print values
+    std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
+    te::da::ScopedTransaction scopedTransaction(*transactorDestination);
+
+    std::map<std::string, std::string> options;
+    transactorDestination->createDataSet(outputDataSetType,options);
     teDataSet->moveBeforeFirst();
-    while(teDataSet->moveNext())
-    {
-      for(int i = 0; i < teDataSet->getNumProperties(); ++i)
-      {
+    transactorDestination->add(outputDataSetType->getName(), teDataSet.get(), options);
 
-        std::cout << teDataSet->getAsString(i) << "\t";
-      }
-      std::cout << std::endl;
-    }
-
-    std::cout << "\nDataSet size: " << teDataSet->size() << std::endl;
+    scopedTransaction.commit();
   }
 
 

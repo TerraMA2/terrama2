@@ -72,7 +72,7 @@ namespace terrama2
         virtual std::string dataSourceType() const override;
 
       protected:
-        virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet, const terrama2::core::Filter& filter) const override { return ""; }
+        virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet, const std::string datetimeColumnName, const terrama2::core::Filter& filter) const override { return ""; }
         virtual void updateLastTimestamp(DataSetPtr dataSet, std::shared_ptr<te::da::DataSourceTransactor> transactor) const override {};
     };
   }

@@ -89,8 +89,8 @@ namespace terrama2
       protected:
         virtual std::shared_ptr<te::mem::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
         virtual std::shared_ptr<te::mem::DataSet> internalCreateCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType, bool enableFileName, bool enableFileTimestamp) const final;
-        virtual void addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
-                                          std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr< te::dt::TimeInstantTZ >, const std::string&) const;
+        virtual void addToCompleteDataSet(DataSetPtr dataSet, std::shared_ptr<te::mem::DataSet> completeDataSet,
+                                          std::shared_ptr<te::da::DataSet> teDataSet, std::shared_ptr< te::dt::TimeInstantTZ >, const std::string&) const;
         virtual std::shared_ptr<te::da::DataSet> getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor, const std::string& dataSetName, std::shared_ptr<te::da::DataSetTypeConverter> converter) const;
 
         /*!
