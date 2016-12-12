@@ -305,6 +305,10 @@ void terrama2::core::Service::addProcessToSchedule(ProcessPtr process) noexcept
         timers_.emplace(process->id, timer);
       }
     }
+    catch(const terrama2::core::LogException& e)
+    {
+      TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    }
     catch(const terrama2::core::InvalidFrequencyException&)
     {
       // invalid schedule, already logged
