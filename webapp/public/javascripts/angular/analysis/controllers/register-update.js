@@ -823,7 +823,7 @@
 
           var hasScriptError = function(expression, message) {
             var output = false;
-            if (self.analysis.script.indexOf(expression) < 0) {
+            if (!self.analysis.script || self.analysis.script.indexOf(expression) < 0) {
               self.analysis_script_error = true;
               self.analysis_script_error_message = i18n.__("Analysis will not able to generate a output data. ") + message;
               output = true;
