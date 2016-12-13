@@ -296,26 +296,23 @@ angular.module("terrama2.services", ['terrama2'])
       reader.onload = function(file) {
         try {
           var linesArray = reader.result.split("\n");
+          var columns = linesArray[0].split(delimiterCharacter);
           var result = {
+            header: [],
             data: []
           };
 
-          if(hasHeader) {
-            var columns = linesArray[0].split(delimiterCharacter);
+          if(hasHeader)
             result.header = columns;
-          } else {
-            var columns = linesArray[0].split(delimiterCharacter);
-            result.header = [];
-
+          else
             for(var i = 1, columnsLength = columns.length; i <= columnsLength; i++)
               result.header.push(i);
-          }
 
           for(var i = 0, linesArrayLength = linesArray.length; i < linesArrayLength; i++) {
             if(linesArray[i] !== "") {
               if(i === 0 && hasHeader) i++;
 
-              var columns = linesArray[i].split(delimiterCharacter);
+              columns = linesArray[i].split(delimiterCharacter);
               var lineData = {};
 
               for(var j = 0, columnsLength = columns.length; j < columnsLength; j++)

@@ -1466,6 +1466,36 @@ angular.module('terrama2.dataseries.registration', [
         }, false, ".csv, application/csv");
       };
 
+      $scope.finalizeImportation = function(fields, type) {
+        var importationMetadata = {};
+
+        for(var i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
+          var metadata = {
+            field: null,
+            defaultValue: null,
+            prefix: null,
+            suffix: null
+          };
+
+          if($scope.importationFields[type][fields[i].fieldName] !== null && $scope.importationFields[type][fields[i].fieldName] !== "") {
+            metadata.field = $scope.importationFields[type][fields[i].fieldName];
+
+            if($scope.importationFields[type][fields[i].prefix] !== null && $scope.importationFields[type][fields[i].prefix] !== "")
+              metadata.prefix = $scope.importationFields[type][fields[i].prefix];
+
+            if($scope.importationFields[type][fields[i].suffix] !== null && $scope.importationFields[type][fields[i].suffix] !== "")
+              metadata.suffix = $scope.importationFields[type][fields[i].suffix];
+          } else if($scope.importationFields[type][fields[i].default] !== null && $scope.importationFields[type][fields[i].default] !== "")
+            metadata.defaultValue = $scope.importationFields[type][fields[i].default];
+          else
+            metadata.error = new Error("Invalid configuration for the field 'Folder'");
+
+          importationMetadata[fields[i].fieldName] = metadata;
+        }
+
+        $('#importDCPItemsModal').modal('hide');
+      };
+
       Object.equals = function( x, y ) {
         if ( x === y ) return true;
           // if both x and y are null or undefined and exactly the same
