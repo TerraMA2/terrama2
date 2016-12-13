@@ -44,6 +44,23 @@
 
 std::string terrama2::core::terramaMask2Regex(const std::string& mask)
 {
+  QString m(mask.c_str());
+
+  // escape regex metacharacters
+  m.replace("+", "\\+");
+  m.replace("(", "\\(");
+  m.replace(")", "\\)");
+  m.replace("[", "\\[");
+  m.replace("]", "\\]");
+  m.replace("{", "\\{");
+  m.replace("}", "\\}");
+  m.replace("^", "\\^");
+  m.replace("$", "\\$");
+  m.replace("&", "\\&");
+  m.replace("|", "\\|");
+  m.replace("?", "\\?");
+  m.replace(".", "\\.");
+
   /*
     YYYY  year with 4 digits        [0-9]{4}
     YY    year with 2 digits        [0-9]{2}
@@ -54,8 +71,6 @@ std::string terrama2::core::terramaMask2Regex(const std::string& mask)
     ss    seconds with 2 digits     [0-5][0-9]
      *    any character, any times  .*
     */
-
-  QString m(mask.c_str());
 
   m.replace("%YYYY", "(?<YEAR>[0-9]{4})");
   m.replace("%YY", "(?<YEAR2DIGITS>[0-9]{2})");

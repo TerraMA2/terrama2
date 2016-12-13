@@ -243,9 +243,17 @@ angular.module('terrama2.dataseries.registration', [
             })
           });
 
-          if ($scope.dataProvidersStorager.length > 0)
+          if ($scope.dataProvidersStorager.length > 0){
+            $scope.forms.storagerDataForm.storager_data_provider_id.$setViewValue($scope.dataProvidersStorager[0]);
             $scope.storager_data_provider_id = $scope.dataProvidersStorager[0].id;
+          }
 
+          if ($scope.services.length > 0) {
+            $scope.forms.storagerDataForm.service.$setViewValue($scope.services[0]);
+            $scope.storager_service = $scope.services[0].id;
+          }
+
+          $scope.$broadcast('formFieldValidation');
           var metadata = data.metadata;
           var properties = metadata.schema.properties;
 
@@ -875,9 +883,6 @@ angular.module('terrama2.dataseries.registration', [
         console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
 
-        if ($scope.services.length > 0) {
-          $scope.storager_service = $scope.services[0].id;
-        }
         $timeout(function() {
           $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format, dcps: $scope.dcps});
         });

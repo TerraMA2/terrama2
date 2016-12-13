@@ -7,6 +7,7 @@
                 ng-disabled="options.disabled"
                 ng-model="model.scheduleHandler"
                 ng-change="onScheduleChange(model.scheduleHandler)">
+          <option value=""></option>
           <option value="seconds">{{ i18n.__('Seconds') }}</option>
           <option value="minutes">{{ i18n.__('Minutes') }}</option>
           <option value="hours">{{ i18n.__('Hours') }}</option>

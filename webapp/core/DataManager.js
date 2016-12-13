@@ -1899,6 +1899,7 @@ var DataManager = module.exports = {
   updateDataSet: function(restriction, dataSetObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
+
       var dataSet = Utils.find(self.data.dataSets, {id: restriction.id});
 
       if (dataSet) {
