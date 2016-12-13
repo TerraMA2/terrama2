@@ -111,7 +111,10 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "validationMessage": {
+            "202": "Invalid mask"
+          }
         }
       ]
     }
