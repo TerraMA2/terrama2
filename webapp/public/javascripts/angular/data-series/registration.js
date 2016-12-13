@@ -609,6 +609,13 @@ angular.module('terrama2.dataseries.registration', [
         return output;
       };
 
+      $scope.tryParseInt = function(value) {
+        if (isNaN(value))
+          return value;
+        return parseInt(value);
+      };
+
+
       // wizard helper
       var isWizardStepValid = function() {
         $scope.$broadcast('formFieldValidation');
@@ -1222,6 +1229,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.wizard.general.error = false;
             if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
               // TODO: prepare format as dcp item
+
               $scope.dcps = [];
               inputDataSeries.dataSets.forEach(function(dataset) {
                 if (dataset.position) {
