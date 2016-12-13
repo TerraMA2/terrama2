@@ -366,7 +366,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
                                                                     const std::string& mask,
                                                                     const std::string& timezone,
                                                                     const Filter& filter,
-                                                                    std::shared_ptr<terrama2::core::FileRemover> remover)
+                                                                    std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
   QDir dir(QString::fromStdString(absoluteFolderPath));
   QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
@@ -422,8 +422,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
                                                                           terrama2::core::DataSetPtr dataSet,
                                                                           std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  QUrl url(QString::fromStdString(uri));
-
   //return value
   DataSetSeries series;
   series.dataSet = dataSet;
@@ -446,43 +444,11 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     timezone = "UTC+00";
   }
 
-  std::string folderMask;
-  try
-  {
-    folderMask = getFolderMask(dataSet, dataSeries_);
-  }
-  catch(const terrama2::core::UndefinedTagException& /*e*/)
-  {
-    folderMask = "";
-  }
+  QFileInfoList filesList = getFilesList(uri, getMask(dataSet), filter, timezone, dataSet, remover);
 
-  QFileInfoList basePathList;
-  basePathList.append(url.path());
-
-  if(!folderMask.empty())
-  {
-    QFileInfoList foldersList = getFoldersList(basePathList, folderMask);
-
-    if(foldersList.empty())
-    {
-      QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-    }
-
-    basePathList = foldersList;
-  }
-
-  QFileInfoList newFileInfoList;
-
-  //fill file list
-  for(auto& folderPath : basePathList)
-  {
-    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
-  }
 
   bool first = true;
-  for(const auto& fileInfo : newFileInfoList)
+  for(const auto& fileInfo : filesList)
   {
 // Only access the env files, gdal access the hdr
     if(fileInfo.suffix() == "hdr")
@@ -571,10 +537,22 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
 
+  applyFilters(filter, dataSet, completeDataset, lastFileTimestamp);
+
+
+  std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));
+  series.syncDataSet = syncDataset;
+  return series;
+}
+
+void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
+                                    const std::shared_ptr<te::mem::DataSet> &completeDataset,
+                                    std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
+{
   filterDataSet(completeDataset, filter);
 
   //Get last data timestamp and compare with file name timestamp
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
+  std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
 
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
 
@@ -582,7 +560,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
   //if both dates are valid
   if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
+     && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
   {
     (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
@@ -601,11 +579,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
     (*lastDateTime_) = te::dt::TimeInstantTZ(noTime);
   }
-
-
-  std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));
-  series.syncDataSet = syncDataset;
-  return series;
 }
 
 
@@ -672,4 +645,48 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   }
 
   return lastDateTimeTz;
+}
+
+QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& uri, const std::string& mask, const Filter& filter, const std::string& timezone, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const
+{
+  QUrl url(QString::fromStdString(uri));
+
+  QFileInfoList basePathList;
+  basePathList.append(url.path());
+
+  std::string folderMask;
+  try
+  {
+    folderMask = getFolderMask(dataSet, dataSeries_);
+  }
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
+  {
+    folderMask = "";
+  }
+
+
+  if(!folderMask.empty())
+  {
+    QFileInfoList foldersList = getFoldersList(basePathList, folderMask);
+
+    if(foldersList.empty())
+    {
+      QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
+    basePathList = foldersList;
+  }
+
+  QFileInfoList newFileInfoList;
+
+  //fill file list
+  for(auto& folderPath : basePathList)
+  {
+    std::cout << folderPath.absoluteFilePath().toStdString() << std::endl;
+    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(), mask, timezone, filter, remover));
+  }
+
+  return newFileInfoList;
 }
