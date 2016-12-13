@@ -276,31 +276,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
                                                                            terrama2::core::DataSetPtr dataSet,
                                                                            std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  std::string completeUri = uri;
-  try
-  {
-    std::string folderName = getFolderMask(dataSet, dataSeries_);
-    if(!folderName.empty())
-      completeUri += "/" + folderName;
-
-  }
-  catch(...)
-  {
-    // Nothing to be done, it will use the URI
-  }
-
-  QUrl url(QString::fromStdString(completeUri));
-
-  QDir dir(url.path());
-  QFileInfoList fileInfoList = dir.entryInfoList(
-                                 QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-  if(fileInfoList.empty())
-  {
-    QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw NoDataException() << ErrorDescription(errMsg);
-  }
-
   //return value
   DataSetSeries series;
   series.dataSet = dataSet;
@@ -324,9 +299,11 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     timezone = "UTC+00";
   }
 
+  auto filesList = getFilesList(uri, getCtlFilename(dataSet), filter, timezone, dataSet, remover);
+
   //fill file list
   bool first = true;
-  for(const auto& fileInfo : fileInfoList)
+  for(const auto& fileInfo : filesList)
   {
     std::string ctlName = fileInfo.fileName().toStdString();
 
@@ -395,10 +372,14 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     }
 
 
+
+
+    auto binaryFileList = getFilesList(uri, datasetMask, filter, timezone, dataSet, remover);
+
     // Get complete list of files,
     // if compressed decompress and add files to the list
-    QFileInfoList binFileList;
-    for(const auto& dataFileInfo : fileInfoList)
+    QFileInfoList completeBinaryFileList;
+    for(const auto& dataFileInfo : binaryFileList)
     {
       std::string name = dataFileInfo.fileName().toStdString();
 
@@ -411,16 +392,16 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
         //unpack files
         tempFolderPath = terrama2::core::Unpack::decompress(dataFileInfo.absoluteFilePath().toStdString(), remover, tempFolderPath);
         QDir tempDir(QString::fromStdString(tempFolderPath));
-        binFileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+        completeBinaryFileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
       }
       else
       {
-        binFileList.append(dataFileInfo);
+        completeBinaryFileList.append(dataFileInfo);
       }
     }
 
     // Access binary files
-    for(const auto& dataFileInfo : binFileList)
+    for(const auto& dataFileInfo : completeBinaryFileList)
     {
       std::string name = dataFileInfo.fileName().toStdString();
       std::string baseName = dataFileInfo.baseName().toStdString();
@@ -523,37 +504,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
 
-  filterDataSet(completeDataset, filter);
-
-  //Get last data timestamp and compare with file name timestamp
-  std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
-
-  filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
-
-  cropRaster(completeDataset, filter);
-
-  //if both dates are valid
-  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
-  {
-    (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
-  }
-  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
-  {
-    //if only fileTimestamp is valid
-    (*lastDateTime_) = *lastFileTimestamp;
-  }
-  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special())
-  {
-    //if only dataTimeStamp is valid
-    (*lastDateTime_) = *dataTimeStamp;
-  }
-  else
-  {
-    boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
-    (*lastDateTime_) = te::dt::TimeInstantTZ(noTime);
-  }
-
+  applyFilters(filter, dataSet, completeDataset, lastFileTimestamp);
 
   std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));
   series.syncDataSet = syncDataset;
