@@ -64,7 +64,7 @@
             </label>
           </div>
         </div>
-        <hr/>
+        <hr style="border: 1px solid #eee !important;"/>
         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary pull-right" ng-click="import()">Import</button>
         <div style="clear: both;"></div>
@@ -94,7 +94,6 @@
             <label>{{ i18n.__("Default") }}:</label>
             <input class="form-control" id="folderToa5Default" name="folderToa5Default" ng-model="importationFields.toa5.folderDefault" placeholder="{{ i18n.__('Default') }}" type="text">
           </div>
-          <hr/>
           <div class="form-group col-md-6">
             <label>{{ i18n.__("Mask") }}:</label>
             <select class="form-control" name="maskToa5" ng-model="importationFields.toa5.mask">
@@ -106,7 +105,6 @@
             <label>{{ i18n.__("Suffix") }}:</label>
             <input class="form-control" id="maskToa5Suffix" name="maskToa5Suffix" ng-model="importationFields.toa5.maskSuffix" placeholder="{{ i18n.__('Suffix') }}" type="text">
           </div>
-          <hr/>
           <div class="form-group col-md-6">
             <label>{{ i18n.__("Alias") }}:</label>
             <select class="form-control" name="aliasToa5" ng-model="importationFields.toa5.alias">
@@ -118,7 +116,6 @@
             <label>{{ i18n.__("Default") }}:</label>
             <input class="form-control" id="aliasToa5Default" name="aliasToa5Default" ng-model="importationFields.toa5.aliasDefault" placeholder="{{ i18n.__('Default') }}" type="text">
           </div>
-          <hr/>
           <div class="form-group col-md-6">
             <label>{{ i18n.__("Timezone") }}:</label>
             <select class="form-control" name="timezoneToa5" ng-model="importationFields.toa5.timezone">
@@ -156,7 +153,6 @@
               <option label="12" value="string:12">12</option>
             </select>
           </div>
-          <hr/>
           <div class="form-group col-md-6">
             <label>{{ i18n.__("Latitude") }}:</label>
             <select class="form-control" name="latitudeToa5" ng-model="importationFields.toa5.latitude">
@@ -171,7 +167,6 @@
               <option ng-repeat="column in csvImport.finalData.header" ng-init="importationFields.toa5.longitude = csvImport.finalData.header[0]" value="{{ column }}">{{ column }}</option>
             </select>
           </div>
-          <hr/>
           <div class="form-group col-md-6">
             <label>{{ i18n.__("SRID") }}:</label>
             <select class="form-control" name="sridToa5" ng-model="importationFields.toa5.srid">
@@ -184,7 +179,7 @@
             <input class="form-control" id="sridToa5Default" name="sridToa5Default" ng-model="importationFields.toa5.sridDefault" placeholder="{{ i18n.__('Default') }}" type="text">
           </div>
         </div>
-        <hr/>
+        <hr style="border: 1px solid #eee !important;"/>
         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary pull-right" ng-click="extra.finalizeImportation()">Import</button>
         <div style="clear: both;"></div>
