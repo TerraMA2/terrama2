@@ -244,6 +244,52 @@ angular.module("terrama2.services", ['terrama2'])
 
       reader.readAsText(fileBlob);
     };
+
+    dialogs.readAsCSV = function(fileBlob, delimiterCharacter, hasHeader, callback) {
+      if (!fileBlob) {
+        return callback(new Error("Invalid file"));
+      }
+      var reader = new FileReader();
+      reader.onload = function(file) {
+        try {
+          var linesArray = reader.result.split("\n");
+          var result = {
+            data: []
+          };
+
+          if(hasHeader) {
+            var columns = linesArray[0].split(delimiterCharacter);
+            result.header = columns;
+          } else {
+            var columns = linesArray[0].split(delimiterCharacter);
+            result.header = [];
+
+            for(var i = 1, columnsLength = columns.length; i <= columnsLength; i++)
+              result.header.push(i);
+          }
+
+          for(var i = 0, linesArrayLength = linesArray.length; i < linesArrayLength; i++) {
+            if(linesArray[i] !== "") {
+              if(i === 0 && hasHeader) i++;
+
+              var columns = linesArray[i].split(delimiterCharacter);
+              var lineData = {};
+
+              for(var j = 0, columnsLength = columns.length; j < columnsLength; j++)
+                lineData[result.header[j]] = columns[j];
+
+              result.data.push(lineData);
+            }
+          }
+
+          callback(null, result);
+        } catch (e) {
+          callback(new Error("Invalid configuration file: " + e.toString()));
+        }
+      }
+
+      reader.readAsText(fileBlob);
+    };
     /**
      * It reads XML file loaded from dialog
      *
