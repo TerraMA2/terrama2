@@ -192,7 +192,9 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
-    auto dataMap = dataAccessor->getSeries(filter, remover);
+
+    auto uriMap = dataAccessor->getFiles(filter, remover);
+    auto dataMap = dataAccessor->getSeries(uriMap, filter, remover);
     if(dataMap.empty())
     {
       QString errMsg = tr("No data to collect.");
