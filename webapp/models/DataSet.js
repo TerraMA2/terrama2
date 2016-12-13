@@ -1,4 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
+
+  var DataSeriesType = require('../core/Enums').DataSeriesType;
   var DataSet = sequelize.define("DataSet",
     {
       id: {
@@ -15,15 +17,17 @@ module.exports = function(sequelize, DataTypes) {
       timestamps: false,
 
       instanceMethods: {
-        getDataSet: function(dataSetType) {
+        getDataSet: function(dataSetType, options) {
           if (typeof(dataSetType) === 'string') {
-            switch (dataSetType.toLowerCase()) {
-              case "dcp":
-                return this.getDataSetDcp();
-                break;
-              case "occurrence":
-                return this.getDataSetOccurrence();
-                break;
+            switch (dataSetType) {
+              case DataSeriesType.DCP:
+                return this.getDataSetDcp(options);
+              case DataSeriesType.OCCURRENCE:
+                return this.getDataSetOccurrence(options);
+              case DataSeriesType.GRID:
+                return this.getDataSetGrid(options);
+              case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+                return this.getDataSetMonitored(options);
               default:
                 return null;
             }

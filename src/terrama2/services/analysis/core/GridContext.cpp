@@ -401,7 +401,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
       catch(const terrama2::core::NoDataException&)
       {
         QString errMsg = QObject::tr("Could not copy raster configuration from data series %1 because there is no data available.").arg(analysis_->outputGridPtr->interestAreaDataSeriesId);
-        throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+        throw InvalidDataSeriesException() << ErrorDescription(errMsg);
       }
 
       break;

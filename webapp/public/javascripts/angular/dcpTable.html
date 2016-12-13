@@ -18,12 +18,12 @@
                 <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
               </span>
             <!--{{ dcp }}-->
-              <span ng-if="!isBoolean(dcp[field])">
+              <span ng-if="!isBoolean(dcp[field])" editable-text="dcp[field]">
                 {{ dcp[field]}}
               </span>
           </td>
           <td class="pull-cell-left">
-            <button class="btn btn-danger" ng-click="removePcd(dcp)" ng-disabled="isUpdating">{{ i18n.__("Remove") }}</button>
+            <button class="btn btn-danger" ng-click="removePcd(dcp)">{{ i18n.__("Remove") }}</button>
           </td>
         </tr>
         <tr ng-show="dcps.length === 0">

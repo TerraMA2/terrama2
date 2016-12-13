@@ -90,6 +90,8 @@ var ImportExport = function(io) {
         return Promise.all(promises).then(function() {
           promises = [];
 
+          var tcpOutput = {};
+
           if (json.DataProviders) {
             var dataProviders = json.DataProviders || [];
             output.DataProviders = [];
@@ -98,9 +100,8 @@ var ImportExport = function(io) {
               dataProvider.project_id = Utils.find(output.Projects, {$id: dataProvider.project_id}).id;
 
               promises.push(DataManager.addDataProvider(dataProvider, options).then(function(dProvider) {
-                TcpService.send({
-                  "DataProviders": [dProvider.toObject()]
-                });
+                if(tcpOutput.DataProviders === undefined) tcpOutput.DataProviders = [];
+                tcpOutput.DataProviders.push(dProvider.toObject());
 
                 output.DataProviders.push(_updateID(dataProvider, dProvider));
                 return Promise.resolve();
@@ -138,9 +139,8 @@ var ImportExport = function(io) {
                 });
                 // find or create DataSeries
                 promises.push(DataManager.addDataSeries(dSeries, null, options).then(function(dSeriesResult) {
-                  TcpService.send({
-                    "DataSeries": [dSeriesResult.toObject()]
-                  });
+                  if(tcpOutput.DataSeries === undefined) tcpOutput.DataSeries = [];
+                  tcpOutput.DataSeries.push(dSeriesResult.toObject());
 
                   // call helper to add IDs in output.DataSeries
                   _processDataSeriesAndDataSets(dSeries, dSeriesResult);
@@ -177,9 +177,8 @@ var ImportExport = function(io) {
                     return DataManager.addCollector(collector, collector.filter, options).then(function(collectorResult) {
                       collectorResult.project_id = Utils.find(output.DataSeries, {id: collectorResult.data_series_input}).dataProvider.project_id;
 
-                      TcpService.send({
-                        "Collectors": [collectorResult.toObject()]
-                      });
+                      if(tcpOutput.Collectors === undefined) tcpOutput.Collectors = [];
+                      tcpOutput.Collectors.push(collectorResult.toObject());
                     });
                   }));
                 });
@@ -242,15 +241,16 @@ var ImportExport = function(io) {
                         analysis.dataset_output = dataSeriesOutput.dataSets[0].id;
                       }
                       return DataManager.addAnalysis(analysis, options).then(function(analysisResult) {
-                        TcpService.send({
-                          "Analysis": [analysisResult.toObject()]
-                        });
+                        if(tcpOutput.Analysis === undefined) tcpOutput.Analysis = [];
+                        tcpOutput.Analysis.push(analysisResult.toObject());
                       });
                     }));
                   });
                 }
 
-                return Promise.all(promises);
+                return Promise.all(promises).then(function() {
+                  TcpService.send(tcpOutput);
+                });
               });
             });
           });
