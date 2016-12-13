@@ -1635,6 +1635,7 @@ var DataManager = module.exports = {
                     promisesFormat.forEach(function(promiseFormat){
                       promises.push(promiseFormat);
                     });
+                    dataSet.active = dataSetUpdated.active;
                     dataSet.format = dataSetUpdated.format;
                     if (dataSetUpdated.position){
                       dataSet.position = dataSetUpdated.position;
@@ -1654,11 +1655,9 @@ var DataManager = module.exports = {
               promises.push(addPromise);
             }
           });
-
-          //TODO: change it. It iterate over array of array of promises. It should iterate just over an array
           return Promise.all(promises);
         })
-
+        // on successfully updating data sets
         .then(function() {
           return self.getDataProvider({id: parseInt(dataSeriesObject.data_provider_id)});
         })
@@ -1900,45 +1899,49 @@ var DataManager = module.exports = {
   updateDataSet: function(restriction, dataSetObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-
       var dataSet = Utils.find(self.data.dataSets, {id: restriction.id});
 
       if (dataSet) {
-
-        models.db.DataSet.findById(dataSet.id, options).then(function(result) {
-          result.updateAttributes({active: dataSetObject.active}, options).then(function() {
-            result.getDataSet(restriction.semantics.data_series_type_name, options).then(function(dSet) {
-              dSet.updateAttributes(dataSetObject, options).then(function() {
-                result.getDataSetFormats(options).then(function(dSetFormat){
-                  var output = Utils.clone(result.get());
-                  output.class = "DataSet";
-                  switch (restriction.semantics.data_series_type_name) {
-                    case DataSeriesType.DCP:
-                      output.position = Utils.clone(dSet.position);
-                      output.format = dataSetObject.format;
-                      resolve(output);
-                      break;
-                    default:
-                      output.format = dataSetObject.format;
-                      resolve(output);
-                  }
-
-                }).catch(function(err){
-                  reject(err);
-                });
-              }).catch(function(err) {
-                reject(err);
-              });
-            });
+        return models.db.DataSet.findById(dataSet.id, options)
+          .then(function(result) {
+            return result.updateAttributes({active: dataSetObject.active}, options)
+              .then(function() {
+                return result.getDataSet(restriction.semantics.data_series_type_name, options)
+                  .then(function(dSet) {
+                    return dSet.updateAttributes(dataSetObject, options)
+                      .then(function() {
+                        return result.getDataSetFormats(options)
+                          .then(function(dSetFormat){
+                            var output = Utils.clone(result.get());
+                            output.class = "DataSet";
+                            switch (restriction.semantics.data_series_type_name) {
+                              case DataSeriesType.DCP:
+                                output.position = Utils.clone(dSet.position);
+                                break;
+                            }
+                            /**
+                             * Stringification process. It is important to force cast to string due the formats here 
+                             * may be cast to int/float etc.
+                             */
+                            var formatStringfied = {};
+                            for (var key in dataSetObject.format) {
+                              if (dataSetObject.format.hasOwnProperty(key)) {
+                                formatStringfied[key] = String(dataSetObject.format[key]);
+                              }
+                            }
+                            output.active = result.active;
+                            output.format = formatStringfied;
+                            return resolve(output);
+                          }); // end result.getDataSetFormats
+                    }); // end dSet.updateAttributes
+                }); // end result.getDataSet
+            }); // end result.updateAttributes
           }).catch(function(err) {
-            reject(err);
+            logger.error(err);
+            return reject(err);
           });
-        }).catch(function(err) {
-          reject(err);
-        });
-
       } else {
-        reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
+        return reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
       }
     });
   },

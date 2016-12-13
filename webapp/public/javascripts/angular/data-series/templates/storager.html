@@ -82,19 +82,17 @@
 
                 <tr ng-repeat="dcp in dcpsStorager track by $index">
                   <td ng-repeat="field in tableFieldsStorager">
-                    <!-- boolean types -->
-                    <span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">
-                      <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
-                    </span>
                     <!-- todo: fix it -->
                     <span ng-if="field.toLowerCase() == 'table_name'" editable-text="dcp[field]">
                       {{ dcp[field]}}
                     </span>
 
                     <span ng-if="field.toLowerCase() != 'table_name'">
-                      {{ dcp[field]}}
+                      <span ng-show="!isBoolean(dcp[field])" ng-bind="dcp[field]"></span>
+                      <span ng-show="isBoolean(dcp[field])">
+                        <input type="checkbox" ng-model="dcp[field]" ng-disabled="true">
+                      </span>
                     </span>
-
                   </td>
                   <td> {{ $index + 1 }}</td>
                 </tr>
