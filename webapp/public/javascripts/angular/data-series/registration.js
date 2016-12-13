@@ -377,9 +377,10 @@ angular.module('terrama2.dataseries.registration', [
     "MessageBoxService",
     "$q",
     "GeoLibs",
+    "FileDialog",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs, FileDialog) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -573,6 +574,11 @@ angular.module('terrama2.dataseries.registration', [
       };
       $scope.isBoolean = function(value) {
         return typeof value === 'boolean';
+      };
+
+      $scope.csvImport = {};
+      $scope.importationFields = {
+        toa5: {}
       };
 
       $scope.prepareFormatToForm = function(fmt) {
@@ -1413,6 +1419,37 @@ angular.module('terrama2.dataseries.registration', [
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
         }
+      };
+
+      $scope.openImportModal = function() {
+        $('#importParametersModal').modal('show');
+      };
+
+      $scope.import = function() {
+        $('#importParametersModal').modal('hide');
+
+        FileDialog.openFile(function(err, input) {
+          if(err) {
+            $scope.display = true;
+            $scope.alertBox.message = err.toString();
+            return;
+          }
+
+          FileDialog.readAsCSV(input.files[0], $scope.csvImport.delimiterCharacter, $scope.csvImport.hasHeader, function(error, csv) {
+            // applying angular scope..
+            $scope.$apply(function() {
+              if(error) {
+                setError(error);
+                console.log(error);
+                return;
+              }
+
+              $scope.csvImport.finalData = csv;
+
+              $('#importDCPItemsModal').modal('show');
+            });
+          });
+        }, false, ".csv, application/csv");
       };
 
       Object.equals = function( x, y ) {
