@@ -159,7 +159,8 @@ namespace terrama2
          */
         virtual ProcessId processID(const RegisterId registerId) const;
 
-        virtual std::shared_ptr<ProcessLogger> clone() const;
+        void internalClone(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy) const;
+        virtual std::shared_ptr<ProcessLogger> clone() const { return nullptr; }
 
       public slots:
         /*!
