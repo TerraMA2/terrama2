@@ -50,12 +50,12 @@ namespace terrama2
       namespace core
       {
         /*!
-          \brief The Collector groups the information to aquire data from a source server and store at a destination.
+          \brief The Collector groups the information to acquire data from a source server and store at a destination.
         */
         struct Collector : public terrama2::core::Process
         {
           DataSeriesId inputDataSeries = 0;//!< DataSeries source of the data.
-          DataSeriesId outputDataSeries = 0;//!< DataSeries detiny os the data.
+          DataSeriesId outputDataSeries = 0;//!< DataSeries destiny os the data.
 
           std::map<DataSetId, DataSetId> inputOutputMap;//!< Map of source DataSet to destiny DataSet.
           terrama2::core::Filter filter;//!< Information on how input data should be filtered before storage.

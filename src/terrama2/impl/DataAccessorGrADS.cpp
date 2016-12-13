@@ -151,7 +151,9 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 }
 
 std::string terrama2::core::DataAccessorGrADS::dataSourceType() const
-{ return "GDAL"; }
+{
+  return "GDAL";
+}
 
 void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
                                                              std::shared_ptr<te::mem::DataSet> completeDataSet,
