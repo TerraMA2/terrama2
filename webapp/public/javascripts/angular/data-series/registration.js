@@ -585,6 +585,11 @@ angular.module('terrama2.dataseries.registration', [
         return typeof value === 'boolean';
       };
 
+      $scope.csvImport = {};
+      $scope.importationFields = {
+        toa5: {}
+      };
+
       $scope.prepareFormatToForm = function(fmt) {
         var output = {};
         for(var k in fmt) {
@@ -1428,6 +1433,37 @@ angular.module('terrama2.dataseries.registration', [
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
         }
+      };
+
+      $scope.openImportModal = function() {
+        $('#importParametersModal').modal('show');
+      };
+
+      $scope.import = function() {
+        $('#importParametersModal').modal('hide');
+
+        FileDialog.openFile(function(err, input) {
+          if(err) {
+            $scope.display = true;
+            $scope.alertBox.message = err.toString();
+            return;
+          }
+
+          FileDialog.readAsCSV(input.files[0], $scope.csvImport.delimiterCharacter, $scope.csvImport.hasHeader, function(error, csv) {
+            // applying angular scope..
+            $scope.$apply(function() {
+              if(error) {
+                setError(error);
+                console.log(error);
+                return;
+              }
+
+              $scope.csvImport.finalData = csv;
+
+              $('#importDCPItemsModal').modal('show');
+            });
+          });
+        }, false, ".csv, application/csv");
       };
 
       Object.equals = function( x, y ) {
