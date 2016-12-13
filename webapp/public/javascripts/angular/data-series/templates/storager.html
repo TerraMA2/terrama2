@@ -87,17 +87,14 @@
                       <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
                     </span>
                     <!-- todo: fix it -->
-                    <span ng-if="!isUpdating && field.toLowerCase() != '_id'" editable-text="dcp[field]">
+                    <span ng-if="field.toLowerCase() == 'table_name'" editable-text="dcp[field]">
                       {{ dcp[field]}}
                     </span>
 
-                    <span ng-if="isUpdating && field.toLowerCase() != '_id'">
+                    <span ng-if="field.toLowerCase() != 'table_name'">
                       {{ dcp[field]}}
                     </span>
 
-                    <span ng-if="field.toLowerCase() == '_id'">
-                      {{ dcp[field]}}
-                    </span>
                   </td>
                   <td> {{ $index + 1 }}</td>
                 </tr>
