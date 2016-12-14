@@ -77,6 +77,21 @@ namespace terrama2
                           const std::shared_ptr<te::mem::DataSet> &completeDataset,
                           std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const;
 
+        virtual bool hasControlFile() const;
+
+        virtual std::string getControlFileMask(terrama2::core::DataSetPtr dataSet) const;
+
+        virtual std::string readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const;
+
+        virtual bool needToOpenConfigFile() const;
+
+        virtual std::string getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const;
+
+        virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
+
+        std::shared_ptr<te::dt::TimeInstantTZ> readFilesAndAddToDataset(DataSetSeries series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
+
+
         /*!
          * \brief Search in a folder and return a list of files that match the mask and filter
          * \param folderURI The folder path to do the search
