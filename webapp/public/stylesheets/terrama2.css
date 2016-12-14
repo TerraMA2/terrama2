@@ -272,6 +272,10 @@ bootstrap-decorator span {
   cursor: not-allowed;
 }
 
+.terrama2-schema-checkbox {
+  margin-top: 30px !important;
+}
+
 .terrama2-disabled:hover {
   background-color: white !important;
 }

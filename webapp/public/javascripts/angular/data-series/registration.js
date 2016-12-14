@@ -317,7 +317,7 @@ angular.module('terrama2.dataseries.registration', [
 
             if ($scope.hasCollector) {
               outputDataseries.dataSets.forEach(function(dataset) {
-                $scope.dcpsStorager.push(dataset.format);
+                $scope.dcpsStorager.push(angular.merge(dataset.format, {active: dataset.active}));
               });
             } else {
               (args.dcps || []).forEach(function(dataSetDcp) {
@@ -330,7 +330,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.schemaStorager = {};
             $scope.$broadcast('schemaFormRedraw');
           } else {
-          //   occurrence
+            // occurrence
             $scope.formStorager = metadata.form;
             $scope.schemaStorager = {
               type: 'object',
@@ -581,7 +581,11 @@ angular.module('terrama2.dataseries.registration', [
           if (fmt.hasOwnProperty(k)) {
             // checking if a number
             if (isNaN(fmt[k]) || typeof fmt[k] == "boolean") {
-              output[k] = fmt[k];
+              if (k === "active") {
+                output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k]; 
+              } else {
+                output[k] = fmt[k];
+              }
             } else {
               output[k] = parseFloat(fmt[k]);
             }
@@ -589,13 +593,6 @@ angular.module('terrama2.dataseries.registration', [
         }
         return output;
       };
-
-      $scope.tryParseInt = function(value) {
-        if (isNaN(value))
-          return value;
-        return parseInt(value);
-      };
-
 
       // wizard helper
       var isWizardStepValid = function() {
@@ -1210,7 +1207,6 @@ angular.module('terrama2.dataseries.registration', [
             $scope.wizard.general.error = false;
             if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
               // TODO: prepare format as dcp item
-
               $scope.dcps = [];
               inputDataSeries.dataSets.forEach(function(dataset) {
                 if (dataset.position) {
@@ -1232,6 +1228,7 @@ angular.module('terrama2.dataseries.registration', [
                   dataset.format["latitude"] = lat;
                   dataset.format["longitude"] = long;
                 }
+                angular.merge(dataset.format, {active: dataset.active});
                 $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
               });
             } else {
@@ -1408,7 +1405,7 @@ angular.module('terrama2.dataseries.registration', [
           data._id = UniqueNumber();
           $scope.dcps.push(Object.assign({}, data));
           $scope._addDcpStorager(data);
-          $scope.model = {};
+          $scope.model = {active: true};
 
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
@@ -1526,9 +1523,10 @@ angular.module('terrama2.dataseries.registration', [
           var dSetsLocal = [];
           dSets.forEach(function(dSet) {
             var outputDcp = {
-              active: true,
+              active: dSet.active,
               format: _makeFormat(dSet)
             };
+            delete dSet.active;
 
             if ($scope.dataSeries.semantics.data_format_name !== "POSTGIS") {
               outputDcp.position = GeoLibs.point.build({x: dSet.longitude, y: dSet.latitude, srid: dSet.projection});
@@ -1614,7 +1612,7 @@ angular.module('terrama2.dataseries.registration', [
               }
               angular.merge(format, semantics.metadata.metadata);
               var dataSetStructure = {
-                active: true,//$scope.dataSeries.active,
+                active: dcp.active,//$scope.dataSeries.active,
                 format: format,
                 position: GeoLibs.point.build({x: dcp.longitude, y: dcp.latitude, srid: dcp.projection})
               };

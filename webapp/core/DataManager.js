@@ -1635,6 +1635,7 @@ var DataManager = module.exports = {
                     promisesFormat.forEach(function(promiseFormat){
                       promises.push(promiseFormat);
                     });
+                    dataSet.active = dataSetUpdated.active;
                     dataSet.format = dataSetUpdated.format;
                     if (dataSetUpdated.position){
                       dataSet.position = dataSetUpdated.position;
@@ -1654,11 +1655,9 @@ var DataManager = module.exports = {
               promises.push(addPromise);
             }
           });
-
-          //TODO: change it. It iterate over array of array of promises. It should iterate just over an array
           return Promise.all(promises);
         })
-
+        // on successfully updating data sets
         .then(function() {
           return self.getDataProvider({id: parseInt(dataSeriesObject.data_provider_id)});
         })
@@ -1900,6 +1899,7 @@ var DataManager = module.exports = {
   updateDataSet: function(restriction, dataSetObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
+
       var dataSet = Utils.find(self.data.dataSets, {id: restriction.id});
 
       if (dataSet) {
@@ -1930,6 +1930,7 @@ var DataManager = module.exports = {
                                 formatStringfied[key] = String(dataSetObject.format[key]);
                               }
                             }
+                            output.active = result.active;
                             output.format = formatStringfied;
                             return resolve(output);
                           }); // end result.getDataSetFormats

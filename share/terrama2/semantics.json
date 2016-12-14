@@ -261,6 +261,11 @@
           "projection": {
             "type": "number",
             "title": "SRID"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
           }
         },
         "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
@@ -328,6 +333,12 @@
         {
           "key": "projection",
           "htmlClass": "col-md-2"
+        },
+        {
+          "key": "active",
+          "htmlClass": "col-md-2 terrama2-schema-checkbox",
+          "disableSuccessState": true,
+          "disableErrorState": true
         }
       ]
     }
@@ -378,6 +389,11 @@
           "projection": {
             "type": "number",
             "title": "SRID"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
           }
         },
         "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
@@ -448,6 +464,12 @@
         {
           "key": "projection",
           "htmlClass": "col-md-2"
+        },
+        {
+          "key": "active",
+          "htmlClass": "col-md-2 terrama2-schema-checkbox",
+          "disableSuccessState": true,
+          "disableErrorState": true
         }
       ]
     }
@@ -482,18 +504,23 @@
             "type": "string",
             "title": "Alias",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "default": true
           }
         },
-        "required": ["table_name", "latitude", "longitude", "projection"]
+        "required": ["table_name", "latitude", "longitude", "projection", "active"]
       },
       "form": [
         {
           "key": "table_name",
-          "htmlClass": "col-md-5 terrama2-schema-form"
+          "htmlClass": "col-md-6 terrama2-schema-form"
         },
         {
           "key": "alias",
-          "htmlClass": "col-md-5 terrama2-schema-form",
+          "htmlClass": "col-md-6 terrama2-schema-form",
           "validationMessage": {
             "202": "Invalid alias"
           }
@@ -509,7 +536,13 @@
         {
           "key": "projection",
           "htmlClass": "col-md-2"
-        }
+        },
+        {
+          "key": "active",
+          "htmlClass": "col-md-2 terrama2-schema-checkbox",
+          "disableSuccessState": true,
+          "disableErrorState": true
+        }        
       ]
     }
   },
@@ -553,8 +586,7 @@
           },
           "mask": {
             "type": "string",
-            "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "title": "Mask"
           },
           "timezone": {
             "type": "string",
@@ -573,10 +605,7 @@
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6",
-          "validationMessage": {
-            "202": "Invalid mask"
-          }
+          "htmlClass": "col-md-6"
         },
         {
           "key": "timezone",
