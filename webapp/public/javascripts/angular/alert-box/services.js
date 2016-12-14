@@ -46,6 +46,8 @@
     };
   }
 
+  MessageBoxService.$inject = ["AlertLevel"]
+
   /**
    * It resets current alertBox object to initial state
    * @returns {void}
@@ -123,4 +125,21 @@
     this.$configure(title, message, true, this.Levels.DANGER, extra);
   };
 
+  /**
+   * It retrieves current alert box icon.
+   * 
+   * @returns {string} String icon
+   */
+  MessageBoxService.prototype.getIcon = function() {
+    switch(this.alertBox.level) {
+      case this.Levels.WARNING:
+        return "fa-exclamation-triangle";
+      case this.Levels.DANGER:
+        return "fa-times";
+      case this.Levels.SUCCESS:
+        return "fa-check";
+      default:
+        return "fa-info";
+    }
+  };
 }());

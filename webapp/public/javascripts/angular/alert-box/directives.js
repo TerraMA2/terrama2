@@ -4,7 +4,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
   .run(function($templateCache) {
     // <terrama2-alert-box>
     $templateCache.put('message-box.html',
-    '<div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel" terrama2-fluid>' +
+    '<div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel" terrama2-fluid ng-transclude>' +
       '<button type="button" class="close" ng-click="close()">×</button>' +
       '<h4><i class="icon fa" ng-class="alertIcon()"></i> {{ title }}</h4>' +
       '<div class="row">' +
@@ -60,6 +60,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
   .directive("terrama2AlertBox2", function() {
     return {
       restrict: "E",
+      transclude: true,
       templateUrl: "message-box.html",
       scope: {
         handler: '=handler', // it should be a AlertBox
@@ -111,6 +112,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
     return {
       restrict: "E",
       templateUrl: "message-box.html",
+      transclude: true,
       scope: {
         alertLevel: '=alertLevel',
         title: "=title",
