@@ -301,7 +301,9 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
   if(!curlwrapper_.fcurl())
   {
-    // TODO: ERROR
+    QString errMsg = QObject::tr("Error retrieving data via FTP.\n");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw DataRetrieverException() << ErrorDescription(errMsg);
   }
 
   try
@@ -356,14 +358,16 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       if(!dir.exists())
         dir.mkpath(savePath);
 
+      // Performs the download of files in the vectorNames
       for(const auto& file: vectorNames)
       {
         curlwrapper_.init();
 
-        // Performs the download of files in the vectorNames
         if(curlwrapper_.fcurl())
         {
-          // TODO: error
+          QString errMsg = QObject::tr("Error retrieving data via FTP.\n");
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataRetrieverException() << ErrorDescription(errMsg);
         }
 
         std::string uriOrigin = uri + file;
@@ -384,11 +388,6 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
 
       }
     }
-    /*
-    QString errMsg = QObject::tr("No files found.");
-    TERRAMA2_LOG_WARNING() << errMsg;
-    throw NoDataException() << ErrorDescription(errMsg);
-    */
   }
   catch(const NoDataException&)
   {
