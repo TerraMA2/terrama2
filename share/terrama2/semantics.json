@@ -554,7 +554,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([a-zA-Z\\d*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+"
           },
           "timezone": {
             "type": "string",

@@ -89,7 +89,7 @@ namespace terrama2
 
         virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
 
-        std::shared_ptr<te::dt::TimeInstantTZ> readFilesAndAddToDataset(DataSetSeries series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
+        std::shared_ptr<te::dt::TimeInstantTZ> readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
 
 
         /*!

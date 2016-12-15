@@ -603,7 +603,7 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
 }
 
 
-std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFilesAndAddToDataset(DataSetSeries series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
 {
   std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
