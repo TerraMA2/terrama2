@@ -263,7 +263,7 @@ var ImportExport = function(io) {
                         view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
 
                         return DataManager.addView(view, options).then(function(viewResult) {
-                          if(tcpOutput.Views === undefined) tcpOutput.Views = [];
+                          if (tcpOutput.Views === undefined) tcpOutput.Views = [];
                           tcpOutput.Views.push(viewResult.toObject());
                         });
                       }));
