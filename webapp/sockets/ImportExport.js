@@ -262,12 +262,17 @@ var ImportExport = function(io) {
                         view.project_id = Utils.find(output.Projects, {$id: view.project_id}).id;
                         view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
 
-                        return DataManager.addView(view, options);
+                        return DataManager.addView(view, options).then(function(viewResult) {
+                          if(tcpOutput.Views === undefined) tcpOutput.Views = [];
+                          tcpOutput.Views.push(viewResult.toObject());
+                        });
                       }));
                     });
                   }
 
-                  return Promise.all(promises);
+                  return Promise.all(promises).then(function() {
+                    TcpService.send(tcpOutput);
+                  });
                 });
               });
             });
