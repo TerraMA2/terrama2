@@ -94,8 +94,10 @@ namespace terrama2
                                          const Filter& filter,
                                          std::shared_ptr<terrama2::core::FileRemover> remover,
                                          const std::string& temporaryFolder = "",
-                                         const std::string& folderPath = "") override;
+                                         const std::string& foldersMask = "") override;
 
+        virtual std::vector<std::string> getFoldersList(const std::vector<std::string>& uris,
+                                                        const std::string& foldersMask);
         /*!
          * \brief write_response - data to be written in file.
          * Define our callback to get called when there's data to be written in file.
@@ -117,6 +119,8 @@ namespace terrama2
          * \return Returns the number of items that were successfully read.
          */
         static size_t write_vector(void* ptr, size_t size, size_t nmemb, void* data);
+
+        QFileInfoList getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const;
 
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "FTP"; }

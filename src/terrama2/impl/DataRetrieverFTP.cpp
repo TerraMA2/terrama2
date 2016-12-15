@@ -119,45 +119,217 @@ size_t terrama2::core::DataRetrieverFTP::write_vector(void* ptr, size_t size, si
   return sizeRead;
 }
 
+QFileInfoList terrama2::core::DataRetrieverFTP::getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const
+{
+  QFileInfoList folders;
+
+  std::size_t found = foldersMask.find_first_of('/');
+
+  std::string mask;
+
+  if(found != std::string::npos)
+  {
+    std::size_t begin = 0;
+
+    if(found == 0)
+    {
+      begin = foldersMask.find_first_not_of('/');
+      std::string tempMask = foldersMask.substr(begin);
+      found = tempMask.find_first_of('/');
+      mask = foldersMask.substr(begin, found);
+
+      if(found != std::string::npos)
+        found++;
+    }
+    else
+    {
+      mask = foldersMask.substr(begin, found);
+    }
+  }
+  else
+  {
+    mask = foldersMask;
+  }
+
+  for(const auto& uri : uris)
+  {
+    QDir dir(uri.absoluteFilePath());
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
+    if(fileInfoList.empty())
+    {
+      continue;
+    }
+
+    for(const auto& fileInfo : fileInfoList)
+    {
+      std::string folderPath = fileInfo.absoluteFilePath().toStdString();
+
+      std::string folder = folderPath.substr(folderPath.find_last_of('/')+1);
+
+      if(!terramaMaskMatch(mask, folder))
+        continue;
+
+      folders.push_back(fileInfo);
+    }
+  }
+
+  std::string nextMask = "";
+
+  if(found != std::string::npos)
+    nextMask = foldersMask.substr(found+1);
+
+  if(nextMask.empty())
+  {
+    return folders;
+  }
+  else if(!folders.empty())
+  {
+    return getFoldersList(folders, nextMask);
+  }
+  else
+  {
+    QString errMsg = QObject::tr("No directory matches the mask.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return QFileInfoList();
+  }
+}
+
+
+std::vector<std::string> terrama2::core::DataRetrieverFTP::getFoldersList(const std::vector<std::string>& uris,
+                                                                          const std::string& foldersMask)
+{
+  std::vector<std::string> folders;
+
+  std::size_t found = foldersMask.find_first_of('/');
+
+  std::string mask;
+
+  if(found != std::string::npos)
+  {
+    std::size_t begin = 0;
+
+    if(found == 0)
+    {
+      begin = foldersMask.find_first_not_of('/');
+      std::string tempMask = foldersMask.substr(begin);
+      found = tempMask.find_first_of('/');
+      mask = foldersMask.substr(begin, found);
+
+      if(found != std::string::npos)
+        found++;
+    }
+    else
+    {
+      mask = foldersMask.substr(begin, found);
+    }
+  }
+  else
+  {
+    mask = foldersMask;
+  }
+
+  for(const auto& uri : uris)
+  {
+    curlwrapper_.init();
+
+    std::vector<std::string> dirList = curlwrapper_.getFtpListDir(uri,
+                                                                  &terrama2::core::DataRetrieverFTP::write_vector);
+
+    if(dirList.empty())
+    {
+      continue;
+    }
+
+    for(const auto& folder : dirList)
+    {
+      if(!terramaMaskMatch(mask, folder))
+        continue;
+
+      folders.push_back(uri + "/" + folder + "/");
+    }
+  }
+
+  std::string nextMask = "";
+
+  if(found != std::string::npos)
+    nextMask = foldersMask.substr(found+1);
+
+  if(nextMask.empty())
+  {
+    return folders;
+  }
+  else if(!folders.empty())
+  {
+    return getFoldersList(folders, nextMask);
+  }
+  else
+  {
+    QString errMsg = QObject::tr("No directory matches the mask.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return std::vector<std::string>();
+  }
+}
+
+
 std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& mask,
                                                            const Filter& filter,
                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
                                                            const std::string& temporaryFolderUri,
-                                                           const std::string& folderPath)
+                                                           const std::string& foldersMask)
 {
-  std::string downloadBaseFolderUri = temporaryFolderUri;
-  std::string downloadFolderUri = temporaryFolderUri + "/" + folderPath + "/";
+  std::string downloadBaseFolderUri = temporaryFolderUri + "/";
 
   if(temporaryFolderUri.empty())
   {
     boost::filesystem::path tempDir = boost::filesystem::temp_directory_path();
     boost::filesystem::path tempTerrama(tempDir.string()+"/terrama2");
     boost::filesystem::path downloadBaseDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
-    boost::filesystem::path downloadDir(downloadBaseDir.string() + "/" + folderPath + "/");
 
     // Create the directory where you will download the files.
-    QDir dir(QString::fromStdString(downloadDir.string()));
+    QDir dir(QString::fromStdString(downloadBaseDir.string()));
     if(!dir.exists())
-      dir.mkpath(QString::fromStdString(downloadDir.string()));
+      dir.mkpath(QString::fromStdString(downloadBaseDir.string()));
 
     std::string scheme = "file://";
-    downloadBaseFolderUri = scheme+downloadBaseDir.string();
+    downloadBaseFolderUri = scheme + downloadBaseDir.string();
     remover->addTemporaryFolder(downloadBaseFolderUri);
 
-    downloadFolderUri = scheme + downloadDir.string();
+    downloadBaseFolderUri = scheme + downloadBaseDir.string();
   }
 
   curlwrapper_.init();
+
+  if(!curlwrapper_.fcurl())
+  {
+    // TODO: ERROR
+  }
+
   try
   {
-    te::core::URI uriInput(dataProvider_->uri + "/" + folderPath + "/");
+    // find valid directories
+    std::vector< std::string > baseUriList;
+    baseUriList.push_back(dataProvider_->uri);
+
+    if(!foldersMask.empty())
+    {
+      auto uriList = getFoldersList(baseUriList, foldersMask);
+
+      if(uriList.empty())
+      {
+        QString errMsg = QObject::tr("No files found!");
+        TERRAMA2_LOG_WARNING() << errMsg;
+        throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+      }
+
+      baseUriList = uriList;
+    }
 
     // Get a file listing from server
-    if(curlwrapper_.fcurl())
+    for(const auto& uri : baseUriList)
     {
-      std::string block;
+      curlwrapper_.init();
 
-      std::vector<std::string> vectorFiles = curlwrapper_.getListFiles(uriInput.uri(), &terrama2::core::DataRetrieverFTP::write_vector, block);
+      std::vector<std::string> vectorFiles = curlwrapper_.getFtpListFiles(uri, &terrama2::core::DataRetrieverFTP::write_vector);
 
       std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
@@ -170,41 +342,53 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
           vectorNames.push_back(fileName);
       }
 
-      if(!vectorNames.empty())
+      if(vectorNames.empty())
       {
-        for(std::string file: vectorNames)
-        {
-          curlwrapper_.init();
-
-          // Performs the download of files in the vectorNames
-          if(curlwrapper_.fcurl())
-          {
-            std::string uriOrigin = uriInput.uri() + file;
-
-            QUrl url(QString::fromStdString(downloadFolderUri));
-            std::string filePath = url.path().toStdString()+"/"+file;
-
-            CURLcode res = curlwrapper_.getDownloadFiles(uriOrigin, &terrama2::core::DataRetrieverFTP::write_response, filePath);
-            remover->addTemporaryFile(filePath);
-
-            if(res != CURLE_OK)
-            {
-              QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(file));
-              errMsg.append(curl_easy_strerror(res));
-
-              TERRAMA2_LOG_ERROR() << errMsg;
-              throw DataRetrieverException() << ErrorDescription(errMsg);
-            }
-          }
-        }
+        continue;
       }
-      else
+
+      // Create directory struct
+      QString saveDir(QString::fromStdString(uri));
+      saveDir.replace(QString::fromStdString(dataProvider_->uri), QString::fromStdString(downloadBaseFolderUri));
+
+      QString savePath = QUrl(saveDir).toString(QUrl::RemoveScheme);
+      QDir dir(savePath);
+      if(!dir.exists())
+        dir.mkpath(savePath);
+
+      for(const auto& file: vectorNames)
       {
-        QString errMsg = QObject::tr("No files found.");
-        TERRAMA2_LOG_WARNING() << errMsg;
-        throw NoDataException() << ErrorDescription(errMsg);
+        curlwrapper_.init();
+
+        // Performs the download of files in the vectorNames
+        if(curlwrapper_.fcurl())
+        {
+          // TODO: error
+        }
+
+        std::string uriOrigin = uri + file;
+
+        std::string filePath = savePath.toStdString() + "/" + file;
+
+        CURLcode res = curlwrapper_.getDownloadFiles(uriOrigin, &terrama2::core::DataRetrieverFTP::write_response, filePath);
+        remover->addTemporaryFile(filePath);
+
+        if(res != CURLE_OK)
+        {
+          QString errMsg = QObject::tr("Error during download of file %1.\n").arg(QString::fromStdString(file));
+          errMsg.append(curl_easy_strerror(res));
+
+          TERRAMA2_LOG_ERROR() << errMsg;
+          throw DataRetrieverException() << ErrorDescription(errMsg);
+          }
+
       }
     }
+    /*
+    QString errMsg = QObject::tr("No files found.");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw NoDataException() << ErrorDescription(errMsg);
+    */
   }
   catch(const NoDataException&)
   {
