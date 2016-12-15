@@ -29,7 +29,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
             "</div>" +
             "<hr style=\"border: 1px solid #eee !important;\"/>" +
             "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">Close</button>" +
-            "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"import()\">Import</button>" +
+            "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"selectFileToImport()\">Import</button>" +
             "<div style=\"clear: both;\"></div>" +
           "</div>" +
         "</div>" +
@@ -74,7 +74,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
             "</div>"+
             "<hr style=\"border: 1px solid #eee !important;\"/>" +
             "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">Close</button>" +
-            "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"extra.validateImportationMetadata()\">Import</button>" +
+            "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"validateImportationMetadata()\">Import</button>" +
             "<div style=\"clear: both;\"></div>" +
           "</div>" +
         "</div>" +
@@ -86,7 +86,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
   return {
     restrict: 'EA',
     templateUrl: 'modals.html',
-    controller: ['$scope', 'FileDialog', function($scope, FileDialog) {
+    controller: ['$scope', 'FileDialog', 'i18n', 'MessageBoxService', function($scope, FileDialog, i18n, MessageBoxService) {
       $scope.csvImport = {};
       $scope.importationFields = {
         toa5: {}
@@ -96,41 +96,11 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
         return $scope.dataSeries.semantics.metadata.schema.properties[item.key].defaultForImport === undefined;
       };
 
-      $scope.validateImportationMetadata = function(fields, type) {
-        var importationMetadata = {};
-
-        for(var i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
-          var metadata = {
-            field: null,
-            defaultValue: null,
-            prefix: null,
-            suffix: null
-          };
-
-          if($scope.importationFields[type][fields[i].fieldName] !== null && $scope.importationFields[type][fields[i].fieldName] !== "") {
-            metadata.field = $scope.importationFields[type][fields[i].fieldName];
-
-            if($scope.importationFields[type][fields[i].prefix] !== null && $scope.importationFields[type][fields[i].prefix] !== "")
-              metadata.prefix = $scope.importationFields[type][fields[i].prefix];
-
-            if($scope.importationFields[type][fields[i].suffix] !== null && $scope.importationFields[type][fields[i].suffix] !== "")
-              metadata.suffix = $scope.importationFields[type][fields[i].suffix];
-          } else if($scope.importationFields[type][fields[i].default] !== null && $scope.importationFields[type][fields[i].default] !== "")
-            metadata.defaultValue = $scope.importationFields[type][fields[i].default];
-          else
-            metadata.error = new Error("Invalid configuration for the field 'Folder'");
-
-          importationMetadata[fields[i].fieldName] = metadata;
-        }
-
-        $('#importDCPItemsModal').modal('hide');
-      };
-
-      $scope.openImportModal = function() {
+      $scope.openImportParametersModal = function() {
         $('#importParametersModal').modal('show');
       };
 
-      $scope.import = function() {
+      $scope.selectFileToImport = function() {
         $('#importParametersModal').modal('hide');
 
         FileDialog.openFile(function(err, input) {
@@ -171,102 +141,151 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
             });
           });
         }, false, ".csv, application/csv");
+      };
 
-        /*<div class="form-group col-md-6">
-          <label>{{ i18n.__("Folder") }}:</label>
-          <select class="form-control" name="folderToa5" ng-model="importationFields.toa5.folder" ng-change="extra.lala()">
-            <option>{{ i18n.__("Select a column") }}</option>
-            <option ng-repeat="column in csvImport.finalData.header" ng-init="importationFields.toa5.folder = csvImport.finalData.header[0]" value="{{ column }}">{{ column }}</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Default") }}:</label>
-          <input class="form-control" id="folderToa5Default" name="folderToa5Default" ng-model="importationFields.toa5.folderDefault" placeholder="{{ i18n.__('Default') }}" type="text">
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Mask") }}:</label>
-          <select class="form-control" name="maskToa5" ng-model="importationFields.toa5.mask">
-            <option>{{ i18n.__("Select a column") }}</option>
-            <option ng-repeat="column in csvImport.finalData.header" ng-init="importationFields.toa5.mask = csvImport.finalData.header[0]" value="{{ column }}">{{ column }}</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Suffix") }}:</label>
-          <input class="form-control" id="maskToa5Suffix" name="maskToa5Suffix" ng-model="importationFields.toa5.maskSuffix" placeholder="{{ i18n.__('Suffix') }}" type="text">
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Alias") }}:</label>
-          <select class="form-control" name="aliasToa5" ng-model="importationFields.toa5.alias">
-            <option>{{ i18n.__("Select a column") }}</option>
-            <option ng-repeat="column in csvImport.finalData.header" ng-init="importationFields.toa5.alias = csvImport.finalData.header[0]" value="{{ column }}">{{ column }}</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Default") }}:</label>
-          <input class="form-control" id="aliasToa5Default" name="aliasToa5Default" ng-model="importationFields.toa5.aliasDefault" placeholder="{{ i18n.__('Default') }}" type="text">
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Timezone") }}:</label>
-          <select class="form-control" name="timezoneToa5" ng-model="importationFields.toa5.timezone">
-            <option>{{ i18n.__("Select a column") }}</option>
-            <option ng-repeat="column in csvImport.finalData.header" ng-init="importationFields.toa5.timezone = csvImport.finalData.header[0]" value="{{ column }}">{{ column }}</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Default") }}:</label>
-          <select class="form-control" id="timezoneToa5Default" name="timezoneToa5Default" ng-model="importationFields.toa5.timezoneDefault">
-            <option label="-12" value="string:-12">-12</option>
-            <option label="-11" value="string:-11">-11</option>
-            <option label="-10" value="string:-10">-10</option>
-            <option label="-9" value="string:-9">-9</option>
-            <option label="-8" value="string:-8">-8</option>
-            <option label="-7" value="string:-7">-7</option>
-            <option label="-6" value="string:-6">-6</option>
-            <option label="-5" value="string:-5">-5</option>
-            <option label="-4" value="string:-4">-4</option>
-            <option label="-3" value="string:-3">-3</option>
-            <option label="-2" value="string:-2">-2</option>
-            <option label="-1" value="string:-1">-1</option>
-            <option label="0" value="string:0">0</option>
-            <option label="1" value="string:1">1</option>
-            <option label="2" value="string:2">2</option>
-            <option label="3" value="string:3">3</option>
-            <option label="4" value="string:4">4</option>
-            <option label="5" value="string:5">5</option>
-            <option label="6" value="string:6">6</option>
-            <option label="7" value="string:7">7</option>
-            <option label="8" value="string:8">8</option>
-            <option label="9" value="string:9">9</option>
-            <option label="10" value="string:10">10</option>
-            <option label="11" value="string:11">11</option>
-            <option label="12" value="string:12">12</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Latitude") }}:</label>
-          <select class="form-control" name="latitudeToa5" ng-model="importationFields.toa5.latitude">
-            <option>{{ i18n.__("Select a column") }}</option>
-            <option ng-repeat="column in csvImport.finalData.header" ng-init="importationFields.toa5.latitude = csvImport.finalData.header[0]" value="{{ column }}">{{ column }}</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Longitude") }}:</label>
-          <select class="form-control" name="longitudeToa5" ng-model="importationFields.toa5.longitude">
-            <option>{{ i18n.__("Select a column") }}</option>
-            <option ng-repeat="column in csvImport.finalData.header" ng-init="importationFields.toa5.longitude = csvImport.finalData.header[0]" value="{{ column }}">{{ column }}</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("SRID") }}:</label>
-          <select class="form-control" name="sridToa5" ng-model="importationFields.toa5.srid">
-            <option>{{ i18n.__("Select a column") }}</option>
-            <option ng-repeat="column in csvImport.finalData.header" ng-init="importationFields.toa5.srid = csvImport.finalData.header[0]" value="{{ column }}">{{ column }}</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label>{{ i18n.__("Default") }}:</label>
-          <input class="form-control" id="sridToa5Default" name="sridToa5Default" ng-model="importationFields.toa5.sridDefault" placeholder="{{ i18n.__('Default') }}" type="text">
-        </div>*/
+      $scope.validateImportationMetadata = function() {
+        var importationMetadata = {};
+        var type = 'toa5';
+        for(var i = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; i < fieldsLength; i++) {
+          if($scope.defaultValueFilter($scope.dataSeries.semantics.metadata.form[i])) {
+            var metadata = {
+              field: null,
+              defaultValue: null,
+              prefix: null,
+              suffix: null
+            };
+
+            if($scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key] !== undefined && $scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key] !== "") {
+              metadata.field = $scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key];
+
+              if($scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Prefix'] !== undefined && $scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Prefix'] !== "")
+                metadata.prefix = $scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Prefix'];
+
+              if($scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Suffix'] !== undefined && $scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Suffix'] !== "")
+                metadata.suffix = $scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Suffix'];
+            } else if($scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Default'] !== undefined && $scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Default'] !== "") {
+              metadata.defaultValue = $scope.importationFields[type][$scope.dataSeries.semantics.metadata.form[i].key + 'Default'];
+            } else {
+              MessageBoxService.danger(i18n.__("DCP importation error"), i18n.__("Invalid configuration for the field") + "'" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[$scope.dataSeries.semantics.metadata.form[i].key].title) + "'");
+              $('#importDCPItemsModal').modal('hide');
+              return;
+            }
+
+            importationMetadata[$scope.dataSeries.semantics.metadata.form[i].key] = metadata;
+          }
+        }
+
+        $('#importDCPItemsModal').modal('hide');
+        executeImportation(importationMetadata, $scope.csvImport.finalData);
+      };
+
+      var executeImportation = function(metadata, data) {
+
+        var dcps = [];
+
+        for(var i = 0, dataLength = data.data.length; i < dataLength; i++) {
+          var dcp = {};
+
+          for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+            var value = null;
+
+            if(metadata[$scope.dataSeries.semantics.metadata.form[j].key] === undefined && 
+            $scope.dataSeries.semantics.metadata.schema.properties[$scope.dataSeries.semantics.metadata.form[j].key].defaultForImport !== undefined) {
+              value = $scope.dataSeries.semantics.metadata.schema.properties[$scope.dataSeries.semantics.metadata.form[j].key].defaultForImport;
+            } else if(metadata[$scope.dataSeries.semantics.metadata.form[j].key].field !== null) {
+              value = data.data[i][metadata[$scope.dataSeries.semantics.metadata.form[j].key].field];
+            } else if(metadata[$scope.dataSeries.semantics.metadata.form[j].key].defaultValue !== null) {
+              value = metadata[$scope.dataSeries.semantics.metadata.form[j].key].defaultValue;
+            }
+
+            if(value !== null && metadata[$scope.dataSeries.semantics.metadata.form[j].key].prefix !== null) {
+              value = metadata[$scope.dataSeries.semantics.metadata.form[j].key].prefix + value;
+            }
+
+            if(value !== null && metadata[$scope.dataSeries.semantics.metadata.form[j].key].suffix !== null) {
+              value += metadata[$scope.dataSeries.semantics.metadata.form[j].key].suffix;
+            }
+
+            if(value === null) {
+              MessageBoxService.danger(i18n.__("DCP importation error"), i18n.__("Invalid configuration for the field") + " '" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[$scope.dataSeries.semantics.metadata.form[j].key].title) + "'");
+              return;
+            }
+
+            if(!validateField(value, type, pattern)) {
+              MessageBoxService.danger(i18n.__("DCP importation error"), i18n.__("Invalid value for the field") + " '" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[$scope.dataSeries.semantics.metadata.form[j].key].title) + "' " + i18n.__("in the line") + " " + (i + 1));
+              return;
+            }
+
+            dcp[$scope.dataSeries.semantics.metadata.form[j].key] = value;
+          }
+        }
+          deveserassim = {
+            active: true,
+            alias: "dfg",
+            folder: "sdg",
+            latitude: -1,
+            longitude: 4,
+            mask: "dfg",
+            projection: 4326,
+            timezone: "5"
+          }
+
+          metadata = {
+            "folder":{  
+              "field":"ID_PCD",
+              "defaultValue":null,
+              "prefix":null,
+              "suffix":null
+            },
+            "mask":{  
+              "field":"ID_PCD",
+              "defaultValue":null,
+              "prefix":null,
+              "suffix":null
+            },
+            "alias":{  
+              "field":"ID_PCD",
+              "defaultValue":null,
+              "prefix":null,
+              "suffix":null
+            },
+            "timezone":{  
+              "field":null,
+              "defaultValue":"2",
+              "prefix":null,
+              "suffix":null
+            },
+            "latitude":{  
+              "field":"LatDec",
+              "defaultValue":null,
+              "prefix":null,
+              "suffix":null
+            },
+            "longitude":{  
+              "field":"LonDec\r",
+              "defaultValue":null,
+              "prefix":null,
+              "suffix":null
+            },
+            "projection":{  
+              "field":null,
+              "defaultValue":"4326",
+              "prefix":null,
+              "suffix":null
+            }
+          }
+
+          exemplodado = {  
+            "ID_PCD":"31901",
+            "Tipo":"AGROMET",
+            "Estacao":"PARNA  S. Divisor ",
+            "UF":"AC",
+            "LatDec":"-7.443",
+            "LonDec\r":"-73.657\r"
+          }
+        }
+
+        MessageBoxService.success(i18n.__("DCP importation"), i18n.__("Importation executed with success"));
       };
     }],
     link: function(scope, element, attrs, ngModel) {}

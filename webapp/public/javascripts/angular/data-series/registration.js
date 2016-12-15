@@ -1413,6 +1413,18 @@ angular.module('terrama2.dataseries.registration', [
         }
       };
 
+      $scope.addImportedDcps = function(dcps) {
+        for(var i = 0, dcpsLength = dcps.length; i < dcpsLength; i++) {
+          var data = Object.assign({}, dcps[i]);
+          data._id = UniqueNumber();
+          $scope.dcps.push(Object.assign({}, data));
+          $scope._addDcpStorager(data);
+        }
+
+        // reset form to do not display feedback class
+        $scope.forms.parametersForm.$setPristine();
+      };
+
       Object.equals = function( x, y ) {
         if ( x === y ) return true;
           // if both x and y are null or undefined and exactly the same
