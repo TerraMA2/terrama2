@@ -273,16 +273,43 @@ module.exports = function(app) {
                 });
           });
         } else {
-          return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject, options)
-            .then(function() {
-              return DataManager.getDataSeries({id: dataSeriesId})
-                .then(function(dataSeries) {
-                  // tcp sending
-                  TcpService.send({
-                    "DataSeries": [dataSeries.toObject()]
+          return DataManager.getCollector({data_series_input: dataSeriesId}, options)
+            .then(function(collector){
+              var inputDataSeriesId = collector.data_series_input;
+              var outputDataSeriesId = collector.data_series_output;
+              return DataManager.removeDataSerie({id: inputDataSeriesId})
+                .then(function(){
+                  return DataManager.removeSchedule({id: collector.schedule.id})
+                    .then(function(){
+                      return DataManager.updateDataSeries(outputDataSeriesId, dataSeriesObject, options)
+                        .then(function() {
+                          return DataManager.getDataSeries({id: outputDataSeriesId})
+                            .then(function(dataSeries) {
+                              // tcp sending
+                              TcpService.send({
+                                "DataSeries": [dataSeries.toObject()]
+                              });
+                              return dataSeries;
+                            });
+                        });
+                    })
+                })
+            }).catch(function(err){
+              if (err.name === "CollectorErrorNotFound"){
+                return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject, options)
+                  .then(function() {
+                    return DataManager.getDataSeries({id: dataSeriesId})
+                      .then(function(dataSeries) {
+                        // tcp sending
+                        TcpService.send({
+                          "DataSeries": [dataSeries.toObject()]
+                        });
+                        return dataSeries;
+                      });
                   });
-                  return dataSeries;
-                });
+              } else {
+                return Utils.handleRequestError(response, err, 400);
+              }
             });
         }
       })
