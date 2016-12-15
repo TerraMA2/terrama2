@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('terrama2.dcpImporter', ['terrama2']).run(function($templateCache) {
+angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($templateCache) {
   $templateCache.put(
     "modals.html",
     "<div id=\"importParametersModal\" class=\"modal fade\">" +
@@ -86,7 +86,7 @@ angular.module('terrama2.dcpImporter', ['terrama2']).run(function($templateCache
   return {
     restrict: 'EA',
     templateUrl: 'modals.html',
-    controller: ['$scope', function($scope) {
+    controller: ['$scope', 'FileDialog', function($scope, FileDialog) {
       $scope.csvImport = {};
       $scope.importationFields = {
         toa5: {}

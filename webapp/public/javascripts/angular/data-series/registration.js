@@ -377,10 +377,9 @@ angular.module('terrama2.dataseries.registration', [
     "MessageBoxService",
     "$q",
     "GeoLibs",
-    "FileDialog",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs, FileDialog) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
