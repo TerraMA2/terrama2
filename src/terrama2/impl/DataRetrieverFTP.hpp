@@ -120,8 +120,6 @@ namespace terrama2
          */
         static size_t write_vector(void* ptr, size_t size, size_t nmemb, void* data);
 
-        QFileInfoList getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const;
-
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "FTP"; }
 
