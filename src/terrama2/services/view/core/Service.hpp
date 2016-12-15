@@ -113,7 +113,7 @@ namespace terrama2
            * \param weakDataManager
            */
           void viewJob(ViewId viewId,
-                       ViewLogger logger,
+                       std::shared_ptr<ViewLogger> logger,
                        std::weak_ptr<DataManager> weakDataManager);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
