@@ -331,6 +331,13 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
     {
       curlwrapper_.init();
 
+      if(!curlwrapper_.fcurl())
+      {
+        QString errMsg = QObject::tr("Error retrieving data via FTP.\n");
+        TERRAMA2_LOG_ERROR() << errMsg;
+        throw DataRetrieverException() << ErrorDescription(errMsg);
+      }
+
       std::vector<std::string> vectorFiles = curlwrapper_.getFtpListFiles(uri, &terrama2::core::DataRetrieverFTP::write_vector);
 
       std::vector<std::string> vectorNames;
@@ -363,7 +370,7 @@ std::string terrama2::core::DataRetrieverFTP::retrieveData(const std::string& ma
       {
         curlwrapper_.init();
 
-        if(curlwrapper_.fcurl())
+        if(!curlwrapper_.fcurl())
         {
           QString errMsg = QObject::tr("Error retrieving data via FTP.\n");
           TERRAMA2_LOG_ERROR() << errMsg;
