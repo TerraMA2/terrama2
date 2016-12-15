@@ -39,5 +39,77 @@
           $(this).parent().children("ul.tree").toggle(300);
         });
       }
-    });
+    })
+
+    .directive("terrama2List", terrama2ListDirective)
+    .directive("terrama2ListItem", ["$compile", terrama2ListDirectiveItem]);
+
+    /**
+     * It defines a TerraMA² List auto-recursive directive. When a data has children instances, it auto call yourself to generate
+     * sub items.
+     * 
+     * @usage
+     * ### JS ###
+     * $scope.myList = [
+     *   {"name": "Item 1", "children": [{"name": "Sub Item 1.1"}, {"name": "Sub Item 1.2", "children": [{"name": "Sub Sub Item 1.2.1]}]},
+     *   {"name": "Item 2", "children": [{"name": "Sub Item 2.1"}]}
+     * ] // or ctrl.myList
+     * 
+     * ### HTML ###
+     * <terrama2-list class="CSS_CLASSES" data="myList">
+     * </terrama2-list>
+     * 
+     * @returns {angular.IDirective}
+     */
+    function terrama2ListDirective() {
+      return {
+        restrict: "E",
+        replace: true,
+        require: "^?terrama2ListItem",
+        scope: {
+          css: "=?class",
+          data: "=",
+          onItemClicked: "&"
+        },
+        template: "<ul ng-class=\"css\">" +
+                    "<terrama2-list-item ng-repeat=\"item in data\" data=\"item\"></terrama2-list-item>" +
+                  "</ul>",
+      };
+    }
+
+    /**
+     * It defines a TerraMA² List Item recursive directive. When a data has children instances, it auto call parent (terrama2-list) and make it again
+     * 
+     * @returns {angular.IDirective}
+     */
+    function terrama2ListDirectiveItem($compile) {
+      return {
+        restrict: "E",
+        replace: true,
+        scope: {
+          onItemClicked: "&",
+          data: "="
+        },
+        template: "<li><a href=\"javascript::void()\" ng-click=\"onClick(data)\">{{ data.name }}</a></li>",
+        link: linkFn
+      };
+
+      function linkFn(scope, element, attrs) {
+        if (!scope.data) {
+          return;
+        }
+
+        scope.onClick = function(item) {
+          scope.$emit("itemClicked", item);
+        };
+
+        if (angular.isArray(scope.data.children)) {
+          element.addClass("dropdown-submenu");
+
+          $compile("<terrama2-list class=\"dropdown-menu\" data=\"data.children\"></terrama2-list>")(scope, function(cloned, scope) {
+            element.append(cloned);
+          });
+        }
+      }
+    }
 } ());

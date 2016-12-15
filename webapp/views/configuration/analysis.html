@@ -100,8 +100,12 @@
 <script type="text/javascript" src="/javascripts/angular/data-provider/services.js"></script>
 <!-- TerraMA² DataSeries -->
 <script type="text/javascript" src="/javascripts/angular/data-series/services.js"></script>
+<!-- TerraMA² Collapser -->
+<script type="text/javascript" src="/javascripts/angular/collapser/directives.js"></script>
 <!-- TerraMA² Analysis -->
 <script type="text/javascript" src="/javascripts/angular/analysis/services.js"></script>
+<!-- TerraMA² Analysis Directives -->
+<script type="text/javascript" src="/javascripts/angular/analysis/directives.js"></script>
 <script type="text/javascript" src="/javascripts/angular/analysis/controllers/register-update.js"></script>
 
 {% endblock %}
@@ -706,16 +710,8 @@
           </form>
 
           <div class="col-md-12">
-            <div class="btn-group">
-              <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
-                {{ i18n.__('Functions') }}
-              </button>
-              <ul class="dropdown-menu" role="menu">
-                <li><a href="#">max</a></li>
-                <li><a href="#">min</a></li>
-                <li><a href="#">abs</a></li>
-              </ul>
-            </div>
+            <!-- TerraMA² Buttons -->
+            <terrama2-analysis-helpers target="ctrl.analysis.script"></terrama2-analysis-helpers>
 
             <button class="btn btn-default pull-right" style="width: 75px;" ng-click="ctrl.onScriptValidation();">
               <span class="loading" ng-show="ctrl.testingScript">

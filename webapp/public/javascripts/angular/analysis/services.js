@@ -7,6 +7,21 @@
       MONITORED: 2,
       GRID: 3
     })
+    .service("AnalysisOperators", ["BaseService", "$log", function(BaseService, $log) {
+      var self = this;
+      this.$data = {};
+
+      this.init = function() {
+        return BaseService.$request("/javascripts/angular/analysis/data/operators.json", "GET", {})
+          .then(function(data) {
+            return self.$data = data;
+          })
+          .catch(function(err) {
+            $log.log(err);
+            throw error;
+          });
+      }
+    }])
     .service("AnalysisService", AnalysisService);
   
   /**
@@ -40,7 +55,7 @@
    * @param {Object} restriction - A query restriction
    * @returns {angular.Promise<Analysis[]>}
    */
-  AnalysisService.init = function(restriction) {
+  AnalysisService.prototype.init = function(restriction) {
     return this.BaseService.$request(this.url, "GET", {params: restriction});
   };
 

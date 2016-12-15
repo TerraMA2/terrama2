@@ -10,6 +10,7 @@
     'terrama2.dataseries.services',
     'terrama2.components.messagebox',
     'terrama2.components.messagebox.services',
+    'terrama2.components.analysis',
     'terrama2.datetimepicker',
     'terrama2.ace',
     'terrama2.components.geo',

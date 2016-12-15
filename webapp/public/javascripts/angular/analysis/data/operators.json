@@ -1,0 +1,206 @@
+[
+  {
+    "name": "Utilities",
+    "children": [
+      {
+        "name": "Buffer",
+        "code": "Buffer(BufferType.in, BUFFER_SIZE, \"BUFFER_UNIT\")"
+      },
+      {
+        "name": "Distance Units",
+        "children": [
+          {
+            "name": "cm"
+          },
+          {
+            "name": "m"
+          },
+          {
+            "name": "km"
+          }
+        ]
+      },
+      {
+        "name": "Time Units",
+        "children": [
+          {
+            "name": "Seconds",
+            "code": "\"s\""
+          },
+          {
+            "name": "Minutes",
+            "code": "\"m\""
+          },
+          {
+            "name": "Kilometers",
+            "code": "\"km\""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Operators",
+    "children": [
+      {
+        "name": "DCP",
+        "children": [
+          {
+            "name": "History"
+          },
+          {
+            "name": "Influence"
+          }
+        ]
+      },
+      {
+        "name": "Grid",
+        "children": [
+          {
+            "name": "Forecast",
+            "children": [
+              {
+                "name": "Interval",
+                "children": [
+                  {
+                    "name": "min"
+                  },
+                  {
+                    "name": "max"
+                  },
+                  {
+                    "name": "mean"
+                  },
+                  {
+                    "name": "median"
+                  },
+                  {
+                    "name": "sum"
+                  },
+                  {
+                    "name": "standardDeviation"
+                  },
+                  {
+                    "name": "variance"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "History",
+            "children": [
+              {
+                "name": "Interval",
+                "children": [
+                  {
+                    "name": "min"
+                  },
+                  {
+                    "name": "max"
+                  },
+                  {
+                    "name": "mean"
+                  },
+                  {
+                    "name": "median"
+                  },
+                  {
+                    "name": "sum"
+                  },
+                  {
+                    "name": "standardDeviation"
+                  },
+                  {
+                    "name": "variance"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Zonal",
+            "children": [
+              {
+                "name": "Forecast",
+                "children": [
+                  {
+                    "name": "Accum"
+                  },
+                  {
+                    "name": "Interval",
+                    "children": [
+                      {
+                        "name": "sum",
+                        "code": "grid.zonal.interval.sum()"
+                      },
+                      {
+                        "name": "mean",
+                        "code": "grid.zonal.interval.mean"
+                      },
+                      {
+                        "name": "min",
+                        "code": "grid.zonal.interval.min"
+                      },
+                      {
+                        "name": "max",
+                        "code": "grid.zonal.interval.max()"
+                      },
+                      {
+                        "name": "median",
+                        "code": "grid.zonal.interval.median"
+                      },
+                      {
+                        "name": "standard deviation",
+                        "code": "grid.zonal.interval.standardDeviation"
+                      },
+                      {
+                        "name": "variance",
+                        "code": "grid.zonal.interval.variance(DATA_SERIES_NAME, DATE_DISCARD_BEFORE, DATE_DISCARD_AFTER, var, BUFFER)"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Occurrence",
+        "children": [
+          {
+            "name": "Aggregation",
+            "children": [
+              {
+                "name": "count",
+                "code": "occurrence.count(PARAMS)"
+              },
+              {
+                "name": "min"
+              },
+              {
+                "name": "max"
+              },
+              {
+                "name": "mean"
+              },
+              {
+                "name": "median"
+              },
+              {
+                "name": "sum"
+              },
+              {
+                "name": "standardDeviation"
+              },
+              {
+                "name": "variance"
+              }
+            ]
+          } 
+        ]
+      }
+    ]
+  }
+]
