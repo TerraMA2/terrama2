@@ -301,7 +301,7 @@
              * @type {string}
              */
             var dummy = analysisInstance.output_grid.interpolation_dummy;
-            if (dummy) {
+            if (dummy !== undefined || dummy !== null) {
               self.analysis.grid.interpolation_dummy = Number(dummy);
             }
             var resolutionDS = analysisInstance.output_grid.resolution_data_series_id;
@@ -624,7 +624,7 @@
 
             DataProviderService.list().forEach(function(dataProvider) {
               self.currentSemantics.metadata.demand.forEach(function(demand) {
-                if (dataProvider.data_provider_type.name == demand) {
+                if (demand != globals.enums.DataProviderType.FTP.name && dataProvider.data_provider_type.name == demand) {
                   self.dataProviders.push(dataProvider);
                 }
               });
@@ -823,7 +823,7 @@
 
           var hasScriptError = function(expression, message) {
             var output = false;
-            if (self.analysis.script.indexOf(expression) < 0) {
+            if (!self.analysis.script || self.analysis.script.indexOf(expression) < 0) {
               self.analysis_script_error = true;
               self.analysis_script_error_message = i18n.__("Analysis will not able to generate a output data. ") + message;
               output = true;

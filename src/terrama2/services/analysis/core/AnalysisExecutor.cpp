@@ -77,7 +77,7 @@ terrama2::services::analysis::core::AnalysisExecutor::AnalysisExecutor()
 
 void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManagerPtr dataManager,
                                                                        terrama2::core::StoragerManagerPtr storagerManager,
-                                                                       AnalysisLogger logger,
+                                                                       std::shared_ptr<AnalysisLogger> logger,
                                                                        std::shared_ptr<te::dt::TimeInstantTZ> startTime,
                                                                        AnalysisPtr analysis, ThreadPoolPtr threadPool,
                                                                        PyThreadState* mainThreadState)
@@ -95,7 +95,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
   {
     TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution: %2").arg(analysis->id).arg(startTime->toString().c_str());
 
-    logId = logger.start(analysis->id);
+    logId = logger->start(analysis->id);
 
     verifyInactiveDataSeries(dataManager, analysis, logger, logId);
 
@@ -148,7 +148,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     {
       for (auto warning: warnings)
       {
-        logger.log(AnalysisLogger::WARNING_MESSAGE, warning, logId);
+        logger->log(AnalysisLogger::WARNING_MESSAGE, warning, logId);
       }
     }
 
@@ -160,19 +160,19 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       for(auto error : errors)
       {
         errorStr += error + "\n";
-        logger.log(AnalysisLogger::ERROR_MESSAGE, error, logId);
+        logger->log(AnalysisLogger::ERROR_MESSAGE, error, logId);
       }
 
       QString errMsg = QObject::tr("Analysis %1 (%2) finished with the following error(s):\n%3").arg(analysis->id).arg(startTime->toString().c_str()).arg(QString::fromStdString(errorStr));
       TERRAMA2_LOG_INFO() << errMsg;
 
-      logger.result(AnalysisLogger::ERROR, startTime, logId);
+      logger->result(AnalysisLogger::ERROR, startTime, logId);
 
       emit analysisFinished(analysis->id, false);
     }
     else
     {
-      logger.result(AnalysisLogger::DONE, startTime, logId);
+      logger->result(AnalysisLogger::DONE, startTime, logId);
 
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
       TERRAMA2_LOG_INFO() << errMsg;
@@ -817,7 +817,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
   }
 }
 
-void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, AnalysisLogger& logger, RegisterId logId)
+void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<AnalysisLogger> logger, RegisterId logId)
 {
   for(auto& analysisDataSeries : analysis->analysisDataSeriesList)
   {
@@ -825,7 +825,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSer
     if(!dataSeries->active)
     {
       QString errMsg = QObject::tr("Analysis is using an inactive data series (%1).").arg(dataSeries->id);
-      logger.log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), logId);
+      logger->log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), logId);
       TERRAMA2_LOG_WARNING() << errMsg;
     }
   }

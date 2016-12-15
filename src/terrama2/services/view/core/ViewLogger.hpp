@@ -57,6 +57,8 @@ namespace terrama2
             virtual ~ViewLogger() = default;
 
             virtual void setConnectionInfo(const te::core::URI& uri) override;
+
+            virtual std::shared_ptr<ProcessLogger> clone() const override;
         };
       }
     }

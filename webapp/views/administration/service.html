@@ -6,6 +6,26 @@
 
 {% block ngApp %} ng-app="terrama2.administration.services.registration" {% endblock %}
 
+{% block styles %}
+<style>
+  .terrama2-list-error {
+    margin-bottom: 10px;
+  }
+
+  .terrama2-list-error * {
+    padding-left: 10px;
+  }
+
+  .terrama2-list-error span[class~="glyphicon"] {
+    padding: 0;
+  }
+
+  .terrama2-list-error i {
+    padding: 0;
+  }
+</style>
+{% endblock %}
+
 {% block javascripts %}
 <script type="text/javascript">
   var configuration = {
@@ -20,6 +40,7 @@
 <script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 <script type="text/javascript" src="/javascripts/angular/services.js"></script>
 <script type="text/javascript" src="/javascripts/angular/services/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/collapser/directives.js"></script>
 <script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
 <script type="text/javascript" src="/javascripts/angular/services/registration.js"></script>
 
@@ -31,9 +52,49 @@
   <terrama2-box title="i18n.__('Service Registration')">
     <div class="row">
       <div class="col-md-12">
-        <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>
+        <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
+                             close="ctrl.close()">
+          <button type="button" class="close" ng-click="ctrl.MessageBoxService.reset()">×</button>
+          <h4><i class="icon fa" ng-class="ctrl.MessageBoxService.getIcon()"></i> {{ ctrl.MessageBoxService.alertBox.title }}</h4>
+          <div class="col-md-12" ng-bind="ctrl.MessageBoxService.alertBox.message"></div>
 
-        <terrama2-modal-box ng-show="ctrl.isCheckingConnection" title="i18n.__('Connection')" modal-id="'modalConnection'">
+          <div ng-show="ctrl.isCheckingConnection">
+            <ul class="nav nav-list" terrama2-collapse>
+              <li class="terrama2-list-error">
+                <i ng-show="ctrl.ssh.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('Host connection')" class="tree-toogler nav-header"></label>
+
+                <span ng-if="ctrl.ssh.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                <span ng-if="!ctrl.ssh.isLoading && ctrl.ssh.isValid" class="glyphicon glyphicon-ok">
+                </span>
+                <span ng-if="!ctrl.ssh.isLoading && !ctrl.ssh.isValid" class="glyphicon glyphicon-remove"></span>
+
+                <ul class="nav nav-list tree">
+                  <li ng-show="!ctrl.ssh.isValid && ctrl.ssh.message">
+                    <span ng-bind="ctrl.ssh.message"></span>
+                  </li>
+                </ul>
+              </li>
+
+              <li class="terrama2-list-error">
+                <i ng-show="ctrl.db.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('DB connection')" class="tree-toogler nav-header"></label>
+
+                <span ng-if="ctrl.db.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                <span ng-if="!ctrl.db.isLoading && ctrl.db.isValid" 
+                      class="glyphicon glyphicon-ok">
+                </span>
+                <span ng-if="!ctrl.db.isLoading && !ctrl.db.isValid" class="glyphicon glyphicon-remove"></span>
+
+                <ul class="nav nav-list tree">
+                  <li ng-show="!ctrl.db.isValid && ctrl.db.message">
+                    <span ng-bind="ctrl.db.message"></span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </terrama2-alert-box2>
+
+        <terrama2-modal-box  title="i18n.__('Connection')" modal-id="'modalConnection'">
           <div class="panel-group">
             <div class="panel panel-default" ng-class="{'panel-danger': !ctrl.ssh.isValid && ctrl.ssh.message, 'panel-success': ctrl.ssh.isValid}">
               <div class="panel-heading">
@@ -150,10 +211,6 @@
                   <span class="help-block has-error" ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.required">{{ i18n.__('Ssh port is required') }}</span>
 
                   <!-- invalid number: min/max -->
-                  <span class="help-block has-error" 
-                        ng-show="serviceForm.sshPort.$dirty && (serviceForm.sshPort.$error.min || serviceForm.sshPort.$error.max)"
-                        ng-bind="i18n.__('Invalid range of ports. A valid port is from 1 to 65535')">
-                  </span>
 
                   <span class="help-block has-error" 
                         ng-show="serviceForm.sshPort.$dirty && serviceForm.sshPort.$error.number"
@@ -196,10 +253,6 @@
                   <span class="form-control-feedback glyphicon" ng-show="serviceForm.port.$dirty" ng-class="{'glyphicon-ok': serviceForm.port.$valid, 'glyphicon-remove': serviceForm.port.$invalid }"></span>
 
                   <!-- invalid number: min/max -->
-                  <span class="help-block has-error" 
-                        ng-show="serviceForm.port.$dirty && (serviceForm.port.$error.min || serviceForm.port.$error.max)"
-                        ng-bind="i18n.__('Invalid range of ports. A valid port is from 1 to 65535')">
-                  </span>
 
                   <span class="help-block has-error" ng-show="serviceForm.port.$dirty && serviceForm.port.$error.required">{{ i18n.__('Service port is required') }}</span>
 
@@ -272,10 +325,6 @@
                   </span>
 
                   <!-- invalid number: min/max -->
-                  <span class="help-block has-error" 
-                        ng-show="logForm.port.$dirty && (logForm.port.$error.min || logForm.port.$error.max)"
-                        ng-bind="{{ i18n.__('Invalid range of ports. A valid port is from 1 to 65535')">
-                  </span>
 
                   <span class="help-block has-error" 
                         ng-show="logForm.port.$dirty && logForm.port.$error.required"
@@ -384,10 +433,6 @@
                   </span>
 
                   <!-- invalid number: min/max -->
-                  <span class="help-block has-error" 
-                        ng-show="mapsServerForm.addressPort.$dirty && (mapsServerForm.addressPort.$error.min || mapsServerForm.addressPort.$error.max)"
-                        ng-bind="i18n.__('Invalid range of ports. A valid port is from 1 to 65535')">
-                  </span>
 
                   <span class="help-block has-error" 
                         ng-show="mapsServerForm.addressPort.$dirty && mapsServerForm.addressPort.$error.required"
@@ -437,8 +482,8 @@
 
     <div class="box-footer">
       <button type="submit" class="btn btn-primary pull-right" id="serviceSaveButton" data-ng-click="ctrl.save()" style="margin-left: 10px;">{{ i18n.__("OK") }}</button>
-      <button type="submit" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalConnection" style="margin-left: 10px; width: 135px;" ng-click="ctrl.checkConnection()">
-        <span class="loading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
+      <button type="submit" class="btn btn-primary pull-right"  style="margin-left: 10px; width: 135px;" ng-click="ctrl.checkConnection()">
+        <span class="loading" ng-show="ctrl.ssh.isLoading || ctrl.db.isLoading" style="display: none;"><i class="fa fa-refresh fa-spin"></i></span>
         <span class="text">{{ i18n.__("Check Connection") }}</span>
       </button>
       <a ng-href="/administration/services" class="btn btn-primary pull-right" id="serviceCancelButton" style="margin-left: 10px;">{{ i18n.__("Cancel") }}</a>
