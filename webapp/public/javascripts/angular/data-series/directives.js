@@ -45,31 +45,31 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
             "<h4 class=\"modal-title\">Select the fields</h4>" +
           "</div>" +
           "<div class=\"modal-body\">" +
-            "<div ng-repeat=\"semantic in semantics.metadata.form\">" +
-              "<div class=\"form-group col-md-3\">" +
-                "<label>{{ i18n.__(semantics.metadata.schema.properties[semantic.key].title) }}:</label>" +
+            "<div ng-repeat=\"semantic in dataSeries.semantics.metadata.form | filter: defaultValueFilter\">" +
+              "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\">" +
+                "<label>{{ i18n.__(dataSeries.semantics.metadata.schema.properties[semantic.key].title) }}:</label>" +
                 "<select class=\"form-control\" name=\"{{ semantic.key }}Toa5\" ng-model=\"importationFields.toa5[semantic.key]\">" +
-                  "<option>{{ i18n.__('Select a column') }}</option>" +
-                  "<option ng-repeat=\"column in csvImport.finalData.header\" ng-init=\"importationFields.toa5[semantic.key] = csvImport.finalData.header[0]\" value=\"{{ column }}\">{{ column }}</option>" +
+                  "<option value=\"\">{{ i18n.__('Select a column') }}</option>" +
+                  "<option ng-repeat=\"column in csvImport.finalData.header\" ng-init=\"importationFields.toa5[semantic.key] = ''\" value=\"{{ column }}\">{{ column }}</option>" +
                 "</select>" +
               "</div>" +
-              "<div class=\"form-group col-md-3\" ng-show=\"semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && semantic.titleMap\">" +
-                "<label>{{ i18n.__(semantics.metadata.schema.properties[semantic.key].title) }}:</label>" +
+              "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && semantic.titleMap\">" +
+                "<label>{{ i18n.__('Default') }}:</label>" +
                 "<select class=\"form-control\" id=\"{{ semantic.key }}Toa5Default\" name=\"{{ semantic.key }}Toa5Default\" ng-model=\"importationFields.toa5[semantic.key + 'Default']\">" +
                   "<option ng-repeat=\"titleMap in semantic.titleMap\" label=\"{{ titleMap.name }}\" value=\"{{ titleMap.value }}\">{{ titleMap.name }}</option>" +
                 "</select>" +
               "</div>" +
-              "<div class=\"form-group col-md-3\" ng-show=\"semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && !semantic.titleMap\">" +
+              "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && !semantic.titleMap\">" +
                 "<label>{{ i18n.__('Default') }}:</label>" +
                 "<input class=\"form-control\" id=\"{{ semantic.key }}Toa5Default\" name=\"{{ semantic.key }}Toa5Default\" ng-model=\"importationFields.toa5[semantic.key + 'Default']\" placeholder=\"{{ i18n.__('Default') }}\" type=\"text\">" +
               "</div>" +
-              "<div class=\"form-group col-md-3\" ng-show=\"semantics.metadata.schema.properties[semantic.key].hasPrefixFieldForImport\">" +
+              "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasPrefixFieldForImport\">" +
                 "<label>{{ i18n.__('Prefix') }}:</label>" +
-                "<input class=\"form-control\" id=\"{{ semantic.key }}Toa5Prefix\" name=\"{{ semantic.key }}Toa5Prefix\" ng-model=\"importationFields.toa5.{{ semantic.key }}Prefix\" placeholder=\"{{ i18n.__('Prefix') }}\" type=\"text\">" +
+                "<input class=\"form-control\" id=\"{{ semantic.key }}Toa5Prefix\" name=\"{{ semantic.key }}Toa5Prefix\" ng-model=\"importationFields.toa5[semantic.key + 'Prefix']\" placeholder=\"{{ i18n.__('Prefix') }}\" type=\"text\">" +
               "</div>" +
-              "<div class=\"form-group col-md-3\" ng-show=\"semantics.metadata.schema.properties[semantic.key].hasSuffixFieldForImport\">" +
+              "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasSuffixFieldForImport\">" +
                 "<label>{{ i18n.__('Suffix') }}:</label>" +
-                "<input class=\"form-control\" id=\"{{ semantic.key }}Toa5Suffix\" name=\"{{ semantic.key }}Toa5Suffix\" ng-model=\"importationFields.toa5.{{ semantic.key }}Suffix\" placeholder=\"{{ i18n.__('Suffix') }}\" type=\"text\">" +
+                "<input class=\"form-control\" id=\"{{ semantic.key }}Toa5Suffix\" name=\"{{ semantic.key }}Toa5Suffix\" ng-model=\"importationFields.toa5[semantic.key + 'Suffix']\" placeholder=\"{{ i18n.__('Suffix') }}\" type=\"text\">" +
               "</div>" +
             "</div>"+
             "<hr style=\"border: 1px solid #eee !important;\"/>" +
@@ -90,6 +90,10 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
       $scope.csvImport = {};
       $scope.importationFields = {
         toa5: {}
+      };
+
+      $scope.defaultValueFilter = function(item) {
+        return $scope.dataSeries.semantics.metadata.schema.properties[item.key].defaultForImport === undefined;
       };
 
       $scope.validateImportationMetadata = function(fields, type) {
@@ -129,100 +133,44 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
       $scope.import = function() {
         $('#importParametersModal').modal('hide');
 
-        $http.get("/api/DataSeriesSemantics/DCP-toa5?metadata=true", {}).success(function(semantics) {
-          
-          console.log(JSON.stringify(semantics));
-
-          var html = "";
-
-          for(var i = 0, formLength = semantics.metadata.form.length; i < formLength; i++) {
-            var colSize = 12;
-            var numberOfFields = 1;
-
-            if(semantics.metadata.schema.properties[semantics.metadata.form[i].key].hasDefaultFieldForImport)
-              colSize /= ++numberOfFields;
-
-            if(semantics.metadata.schema.properties[semantics.metadata.form[i].key].hasSuffixFieldForImport)
-              colSize /= ++numberOfFields;
-
-            if(semantics.metadata.schema.properties[semantics.metadata.form[i].key].hasPrefixFieldForImport)
-              colSize /= ++numberOfFields;
-
-            html += "<div class=\"form-group col-md-" + colSize + "\">";
-            html += "<label>" + i18n.__(semantics.metadata.schema.properties[semantics.metadata.form[i].key].title) + ":</label>";
-            html += "<select class=\"form-control\" name=\"" + semantics.metadata.form[i].key + "Toa5\" ng-model=\"importationFields.toa5." + semantics.metadata.form[i].key + "\">";
-            html += "<option>" + i18n.__("Select a column") + "</option>";
-            html += "<option ng-repeat=\"column in csvImport.finalData.header\" ng-init=\"importationFields.toa5." + semantics.metadata.form[i].key + " = csvImport.finalData.header[0]\" value=\"{{ column }}\">{{ column }}</option>";
-            html += "</select>";
-            html += "</div>";
-
-            if(semantics.metadata.schema.properties[semantics.metadata.form[i].key].hasDefaultFieldForImport) {
-              if(semantics.metadata.form[i].titleMap) {
-                html += "<div class=\"form-group col-md-" + colSize + "\">";
-                html += "<label>" + i18n.__(semantics.metadata.schema.properties[semantics.metadata.form[i].key].title) + ":</label>";
-                html += "<select class=\"form-control\" id=\"" + semantics.metadata.form[i].key + "Toa5Default\" name=\"" + semantics.metadata.form[i].key + "Toa5Default\" ng-model=\"importationFields.toa5." + semantics.metadata.form[i].key + "Default\">";
-
-                for(var j = 0, titleMapLength = semantics.metadata.form[i].titleMap.length; j < titleMapLength; j++) {
-                  html += "<option label=\"" + semantics.metadata.form[i].titleMap[j].name + "\" value=\"" + semantics.metadata.form[i].titleMap[j].value + "\">" + semantics.metadata.form[i].titleMap[j].name + "</option>";
-                }
-
-                html += "</select>";
-                html += "</div>";
-              } else {
-                html += "<div class=\"form-group col-md-" + colSize + "\">";
-                html += "<label>" + i18n.__("Default") + ":</label>";
-                html += "<input class=\"form-control\" id=\"" + semantics.metadata.form[i].key + "Toa5Default\" name=\"" + semantics.metadata.form[i].key + "Toa5Default\" ng-model=\"importationFields.toa5." + semantics.metadata.form[i].key + "Default\" placeholder=\"" + i18n.__("Default") + "\" type=\"text\">";
-                html += "</div>";
-              }
-            }
-
-            if(semantics.metadata.schema.properties[semantics.metadata.form[i].key].hasPrefixFieldForImport) {
-              html += "<div class=\"form-group col-md-" + colSize + "\">";
-              html += "<label>" + i18n.__("Prefix") + ":</label>";
-              html += "<input class=\"form-control\" id=\"" + semantics.metadata.form[i].key + "Toa5Prefix\" name=\"" + semantics.metadata.form[i].key + "Toa5Prefix\" ng-model=\"importationFields.toa5." + semantics.metadata.form[i].key + "Prefix\" placeholder=\"" + i18n.__("Prefix") + "\" type=\"text\">";
-              html += "</div>";
-            }
-
-            if(semantics.metadata.schema.properties[semantics.metadata.form[i].key].hasSuffixFieldForImport) {
-              html += "<div class=\"form-group col-md-" + colSize + "\">";
-              html += "<label>" + i18n.__("Suffix") + ":</label>";
-              html += "<input class=\"form-control\" id=\"" + semantics.metadata.form[i].key + "Toa5Suffix\" name=\"" + semantics.metadata.form[i].key + "Toa5Suffix\" ng-model=\"importationFields.toa5." + semantics.metadata.form[i].key + "Suffix\" placeholder=\"" + i18n.__("Suffix") + "\" type=\"text\">";
-              html += "</div>";
-            }
+        FileDialog.openFile(function(err, input) {
+          if(err) {
+            $scope.display = true;
+            $scope.alertBox.message = err.toString();
+            return;
           }
 
-          $("#importDCPItemsModal > .modal-dialog > .modal-content > .modal-body > .fields").html($compile(html)($scope, function() {
-            $timeout(function() {
-              $scope.$apply(function() {
-            FileDialog.openFile(function(err, input) {
-              if(err) {
-                $scope.display = true;
-                $scope.alertBox.message = err.toString();
+          FileDialog.readAsCSV(input.files[0], $scope.csvImport.delimiterCharacter, $scope.csvImport.hasHeader, function(error, csv) {
+            // applying angular scope..
+            $scope.$apply(function() {
+              if(error) {
+                setError(error);
+                console.log(error);
                 return;
               }
 
-              FileDialog.readAsCSV(input.files[0], $scope.csvImport.delimiterCharacter, $scope.csvImport.hasHeader, function(error, csv) {
-                // applying angular scope..
-                $scope.$apply(function() {
-                  if(error) {
-                    setError(error);
-                    console.log(error);
-                    return;
-                  }
+              $scope.csvImport.finalData = csv;
+              $scope.importationModalColSize = {};
 
-                  $scope.csvImport.finalData = csv;
+              for(var i = 0, semanticsLength = $scope.dataSeries.semantics.metadata.form.length; i < semanticsLength; i++) {
+                var numberOfFields = 1;
+                var semanticsKey = $scope.dataSeries.semantics.metadata.form[i].key;
+                $scope.importationModalColSize[semanticsKey] = 12;
 
-                  $('#importDCPItemsModal').modal('show');
-                });
-              });
-            }, false, ".csv, application/csv");
+                if($scope.dataSeries.semantics.metadata.schema.properties[semanticsKey].hasDefaultFieldForImport)
+                  $scope.importationModalColSize[semanticsKey] /= ++numberOfFields;
+
+                if($scope.dataSeries.semantics.metadata.schema.properties[semanticsKey].hasSuffixFieldForImport)
+                  $scope.importationModalColSize[semanticsKey] /= ++numberOfFields;
+
+                if($scope.dataSeries.semantics.metadata.schema.properties[semanticsKey].hasPrefixFieldForImport)
+                  $scope.importationModalColSize[semanticsKey] /= ++numberOfFields;
+              }
+
+              $('#importDCPItemsModal').modal('show');
             });
-            });
-          }));
-          
-        }).error(function(err) {
-          console.log("Err in retrieving semantics");
-        });
+          });
+        }, false, ".csv, application/csv");
 
         /*<div class="form-group col-md-6">
           <label>{{ i18n.__("Folder") }}:</label>
