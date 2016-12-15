@@ -12,6 +12,7 @@ angular.module('terrama2.dataseries.registration', [
     'terrama2.datetimepicker',
     'terrama2.components.geo',
     'treeControl',
+    'terrama2.dcpImporter',
   ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
