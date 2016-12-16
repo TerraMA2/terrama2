@@ -851,6 +851,14 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
                                                  remover,
                                                  std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
 
+          if(fileInfoList.empty())
+          {
+            QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
+            logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
+            TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
+            continue;
+          }
+
           for(auto& fileInfo : fileInfoList)
           {
             if(dataFormat == "OGR")
