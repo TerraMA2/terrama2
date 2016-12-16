@@ -40,13 +40,10 @@ int main(int argc, char* argv[])
 
     terrama2::core::DataSetGrid* dataSet = new terrama2::core::DataSetGrid();
     dataSet->active = true;
-    dataSet->format.emplace("ctl_filename", "umin.ctl");
-    dataSet->format.emplace("binary_file_mask", "umin_%DD%MM%YYYY.bin");
+    dataSet->format.emplace("ctl_filename", "Prec_BRAMS05km.ctl");
     dataSet->format.emplace("bytes_before", "4");
     dataSet->format.emplace("bytes_after", "4");
     dataSet->format.emplace("srid", "4326");
-    dataSet->format.emplace("data_type", "Float32");
-    dataSet->format.emplace("number_of_bands", "1");
     dataSet->format.emplace("timezone", "+00");
 
     dataSeries->datasetList.emplace_back(dataSet);
@@ -74,7 +71,7 @@ int main(int argc, char* argv[])
     terrama2::core::DataSetGrid* outputDataSet = new terrama2::core::DataSetGrid();
     terrama2::core::DataSetGridPtr outputDataSetPtr(outputDataSet);
     outputDataSet->active = true;
-    outputDataSet->format.emplace("mask", "umin_%YYYY%MM%DD_%hh_%mm.tif");
+    outputDataSet->format.emplace("mask", "Prec_BRAMS05km.%YYYY%MM%DD_%hh_mm.tif");
     outputDataSeries->datasetList.push_back(outputDataSetPtr);
 
     auto seriesMap = gridSeries->getSeries();
