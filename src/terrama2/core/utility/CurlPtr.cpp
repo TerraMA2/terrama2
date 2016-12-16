@@ -92,14 +92,15 @@ CURLcode terrama2::core::CurlPtr::verifyURL(std::string url)
   return curl_easy_perform(curl_);
 }
 
-std::vector<std::string> terrama2::core::CurlPtr::getListFiles(std::string url,
-                                                               size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
-                                                               std::string block)
+std::vector<std::string> terrama2::core::CurlPtr::getFtpList(const std::string& url,
+                                                               size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const
 {
   std::vector<std::string> vectorFiles;
   curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl_, CURLOPT_DIRLISTONLY, 1);
+  curl_easy_setopt(curl_, CURLOPT_DIRLISTONLY, 0);
   curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, write_vector);
+
+  std::string block;
   curl_easy_setopt(curl_, CURLOPT_WRITEDATA, (void *)&block);
 
   CURLcode status = curl_easy_perform(curl_);
@@ -121,6 +122,43 @@ std::vector<std::string> terrama2::core::CurlPtr::getListFiles(std::string url,
   }
 
   return vectorFiles;
+}
+
+std::vector<std::string> terrama2::core::CurlPtr::getFtpListDir(const std::string& url,
+                                                                size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const
+{
+  std::vector<std::string> list = getFtpList(url, write_vector);
+
+  std::vector<std::string> dirList;
+
+  for(const auto& item : list)
+  {
+    if(item[0] == 'd')
+    {
+      dirList.push_back(item.substr(item.find_last_of(' ')+1));
+    }
+  }
+
+  return dirList;
+}
+
+
+std::vector<std::string> terrama2::core::CurlPtr::getFtpListFiles(const std::string& url,
+                                                                size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const
+{
+  std::vector<std::string> list = getFtpList(url, write_vector);
+
+  std::vector<std::string> fileList;
+
+  for(const auto& item : list)
+  {
+    if(item[0] != 'd')
+    {
+      fileList.push_back(item.substr(item.find_last_of(' ')+1));
+    }
+  }
+
+  return fileList;
 }
 
 CURLcode terrama2::core::CurlPtr::getDownloadFiles(std::string url,
