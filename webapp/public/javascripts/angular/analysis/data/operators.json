@@ -7,16 +7,23 @@
         "code": "Buffer(BufferType.in, BUFFER_SIZE, \"BUFFER_UNIT\")"
       },
       {
+        "name": "Add Value",
+        "code": "add_value(\"NEW_COLUMN_NAME\", RESULT_VALUE)"
+      },
+      {
         "name": "Distance Units",
         "children": [
           {
-            "name": "cm"
+            "name": "cm",
+            "code": "\"cm\""
           },
           {
-            "name": "m"
+            "name": "\"m\"",
+            "code": "\"m\""
           },
           {
-            "name": "km"
+            "name": "km",
+            "code": "\"km\""
           }
         ]
       },
@@ -46,10 +53,83 @@
         "name": "DCP",
         "children": [
           {
-            "name": "History"
+            "name": "History",
+            "children": [
+              {
+                "name": "Interval",
+                "children": [
+                  {
+                    "name": "min",
+                    "code": "dcp.history.interval.min(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
+                  },
+                  {
+                    "name": "max",
+                    "code": "dcp.history.interval.max(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
+                  },
+                  {
+                    "name": "mean",
+                    "code": "dcp.history.interval.mean(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
+                  },
+                  {
+                    "name": "median",
+                    "code": "dcp.history.interval.median(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
+                  },
+                  {
+                    "name": "sum",
+                    "code": "dcp.history.interval.sum(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
+                  },
+                  {
+                    "name": "standardDeviation",
+                    "code": "dcp.history.interval.standard_deviation(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
+                  },
+                  {
+                    "name": "variance",
+                    "code": "dcp.history.interval.variance(\"dataSeriesName\", \"attribute\", \"dateFilterBegin\", \"dateFilterEnd\", dcpsIds)"
+                  }
+                ]
+              },
+              {
+                "name": "min",
+                "code": "dcp.history.min(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+              },
+              {
+                "name": "max",
+                "code": "dcp.history.max(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+              },
+              {
+                "name": "mean",
+                "code": "dcp.history.mean(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+              },
+              {
+                "name": "median",
+                "code": "dcp.history.median(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+              },
+              {
+                "name": "sum",
+                "code": "dcp.history.sum(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+              },
+              {
+                "name": "standardDeviation",
+                "code": "dcp.history.standard_deviation(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+              },
+              {
+                "name": "variance",
+                "code": "dcp.history.variance(\"dataSeriesName\", \"attribute\", \"dateFilter\", dcpsIds)"
+              }
+            ]
           },
           {
-            "name": "Influence"
+            "name": "Influence",
+            "children": [
+              {
+                "name": "By Attribute",
+                "code": "dcp.influence.by_attribute(\"dataSeriesName\", attributeList)"
+              },
+              {
+                "name": "By Rule",
+                "code": "dcp.influence.by_rule(\"dataSeriesName\", attributeList)"
+              }
+            ]
           }
         ]
       },
@@ -57,33 +137,73 @@
         "name": "Grid",
         "children": [
           {
+            "name": "Sample",
+            "description": "Retrieves a cell value based in interpolation method to grid analysis",
+            "code": "grid.sample(\"dataSeriesName\")"
+          },
+          {
             "name": "Forecast",
             "children": [
               {
                 "name": "Interval",
                 "children": [
                   {
-                    "name": "min"
+                    "name": "min",
+                    "code": "grid.forecast.interval.min(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
-                    "name": "max"
+                    "name": "max",
+                    "code": "grid.forecast.interval.max(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
-                    "name": "mean"
+                    "name": "mean",
+                    "code": "grid.forecast.interval.mean(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
-                    "name": "median"
+                    "name": "median",
+                    "code": "grid.forecast.interval.median(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
-                    "name": "sum"
+                    "name": "sum",
+                    "code": "grid.forecast.interval.sum(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
-                    "name": "standardDeviation"
+                    "name": "standardDeviation",
+                    "code": "grid.forecast.interval.standard_deviation(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   },
                   {
-                    "name": "variance"
+                    "name": "variance",
+                    "code": "grid.forecast.interval.variance(\"dataSeriesName\", \"dataFilterBegin\", \"dataFilterEnd\")"
                   }
                 ]
+              },
+              {
+                "name": "min",
+                "code": "grid.forecast.min(\"dataSeriesName\", \"dataFilter\")"
+              },
+              {
+                "name": "max",
+                "code": "grid.forecast.max(\"dataSeriesName\", \"dataFilterEnd\")"
+              },
+              {
+                "name": "mean",
+                "code": "grid.forecast.mean(\"dataSeriesName\", \"dataFilterEnd\")"
+              },
+              {
+                "name": "median",
+                "code": "grid.forecast.median(\"dataSeriesName\", \"dataFilterEnd\")"
+              },
+              {
+                "name": "sum",
+                "code": "grid.forecast.sum(\"dataSeriesName\", \"dataFilterEnd\")"
+              },
+              {
+                "name": "standardDeviation",
+                "code": "grid.forecast.standard_deviation(\"dataSeriesName\", \"dataFilterEnd\")"
+              },
+              {
+                "name": "variance",
+                "code": "grid.forecast.variance(\"dataSeriesName\", \"dataFilterEnd\")"
               }
             ]
           },
@@ -94,25 +214,33 @@
                 "name": "Interval",
                 "children": [
                   {
-                    "name": "min"
+                    "name": "min",
+                    "description": "",
+                    "code": "grid.history.min(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
-                    "name": "max"
+                    "name": "max",
+                    "code": "grid.history.max(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
-                    "name": "mean"
+                    "name": "mean",
+                    "code": "grid.history.mean(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
-                    "name": "median"
+                    "name": "median",
+                    "code": "grid.history.median(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
-                    "name": "sum"
+                    "name": "sum",
+                    "code": "grid.history.sum(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
-                    "name": "standardDeviation"
+                    "name": "standardDeviation",
+                    "code": "grid.history.standard_deviation(\"dataSeriesName\", \"dataFilter\")"
                   },
                   {
-                    "name": "variance"
+                    "name": "variance",
+                    "code": "grid.history.variance(\"dataSeriesName\", \"dataFilter\")"
                   }
                 ]
               }
@@ -148,11 +276,11 @@
                       },
                       {
                         "name": "median",
-                        "code": "grid.zonal.interval.median"
+                        "code": "grid.zonal.interval.median()"
                       },
                       {
                         "name": "standard deviation",
-                        "code": "grid.zonal.interval.standardDeviation"
+                        "code": "grid.zonal.interval.standard_deviation()"
                       },
                       {
                         "name": "variance",
@@ -174,28 +302,73 @@
             "children": [
               {
                 "name": "count",
-                "code": "occurrence.count(PARAMS)"
+                "code": "occurrence.aggregation.count(\"dataSeriesName\", \"dateFilter\", aggregationBuffer, buffer, \"restriction\")"
               },
               {
-                "name": "min"
+                "name": "min",
+                "code": "occurrence.aggregation.min(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
-                "name": "max"
+                "name": "max",
+                "code": "occurrence.aggregation.max(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
-                "name": "mean"
+                "name": "mean",
+                "code": "occurrence.aggregation.mean(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
-                "name": "median"
+                "name": "median",
+                "code": "occurrence.aggregation.median(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
-                "name": "sum"
+                "name": "sum",
+                "code": "occurrence.aggregation.sum(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
-                "name": "standardDeviation"
+                "name": "standardDeviation",
+                "code": "occurrence.aggregation.standard_deviation(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
               },
               {
-                "name": "variance"
+                "name": "variance",
+                "code": "occurrence.aggregation.variance(\"dataSeriesName\", \"dateFilter\", \"attribute\", aggregationStatistic, aggregationBuffer, buffer, \"restriction\")"
+              }
+            ]
+          },
+          {
+            "name": "Statistics",
+            "children": [
+              {
+                "name": "count",
+                "code": "occurrence.count(\"dataSeriesName\", \"dateFilter\", buffer, \"restriction\")",
+                "description": "This operator..."
+              },
+              {
+                "name": "min",
+                "code": "occurrence.min(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "max",
+                "code": "occurrence.max(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "mean",
+                "code": "occurrence.mean(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "median",
+                "code": "occurrence.median(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "sum",
+                "code": "occurrence.sum(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "standardDeviation",
+                "code": "occurrence.standard_deviation(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
+              },
+              {
+                "name": "variance",
+                "code": "occurrence.variance(\"dataSeriesName\", \"dateFilter\", \"attribute\", buffer, \"restriction\")"
               }
             ]
           } 

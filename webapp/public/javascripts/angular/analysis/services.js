@@ -14,7 +14,7 @@
       this.init = function() {
         return BaseService.$request("/javascripts/angular/analysis/data/operators.json", "GET", {})
           .then(function(data) {
-            return self.$data = data;
+            self.$data = data;
           })
           .catch(function(err) {
             $log.log(err);

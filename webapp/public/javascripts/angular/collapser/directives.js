@@ -90,10 +90,22 @@
           onItemClicked: "&",
           data: "="
         },
-        template: "<li><a href=\"javascript::void()\" ng-click=\"onClick(data)\">{{ data.name }}</a></li>",
+        template: "<li>" +
+                    "<a href=\"javascript::void()\" ng-click=\"onClick(data)\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{data.description}}\">{{ data.name }}</a>" +
+                  "</li>",
         link: linkFn
       };
 
+      /**
+       * It handles directive post link. Used to identify if current scoped data has children element. If there is, auto-call parent
+       * (terrama2-list) again giving array. 
+       * 
+       * @todo Remove harded-code used in style (dropdown-menu)
+       * 
+       * @param {angular.IScope}      scope - Angular Directive scope
+       * @param {angular.IElement}    element - Directive Selector (jQlite)
+       * @param {angular.IAttributes} attrs - Directive Scope Attributes 
+       */
       function linkFn(scope, element, attrs) {
         if (!scope.data) {
           return;

@@ -8,7 +8,7 @@
     ])
     .run(function($templateCache) {
       $templateCache.put("helper.html",
-        "<div class=\"dropup\">" +
+        "<div class=\"dropup\">" + 
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn btn-warning dropdown-toggle\" data-toggle=\"dropdown\"> {{ i18n.__('Functions') }}</button>" +
           "<terrama2-list class=\"dropdown-menu\" data=\"AnalysisOperators.$data\"></terrama2-list>" +
         "</div>");
@@ -30,7 +30,7 @@
       scope: {
         target: '='
       },
-      controller: ["$scope", controllerFn],
+      controller: ["$scope", "i18n", controllerFn],
       templateUrl: "helper.html",
       link: linkFn
     };
@@ -40,7 +40,8 @@
      * 
      * @param {angular.IScope} $scope - Directive Scope. Used emit and listen children events
      */
-    function controllerFn($scope) {
+    function controllerFn($scope, i18n) {
+      $scope.i18n = i18n;
       /**
        * Listener for Item clicked. Whenever retrieve a item, It must have code in order to append script context
        * 
@@ -53,7 +54,11 @@
        */
       $scope.$on("itemClicked", function(event, item) {
         if (item && item.code) {
-          $scope.target += item.code;
+          if ($scope.target === undefined || $scope.target === null) {
+            $scope.target = item.code;
+          } else {
+            $scope.target += item.code;
+          }
         }
       });
     }
