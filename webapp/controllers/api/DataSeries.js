@@ -283,7 +283,6 @@ module.exports = function(app) {
                   return DataManager.getDataSeries({id: dataSeriesId}).then(function(outputDataSeries){
                     return DataManager.addDataSeries(dataSeriesObject.input, null, options).then(function(inputDataSeries){
                       return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult){
-                        var schedule = new DataModel.Schedule(scheduleResult);
                         var collectorObject = {};
 
                         collectorObject.data_series_input = inputDataSeries.id;
@@ -300,8 +299,15 @@ module.exports = function(app) {
                               collector: collectorResult,
                               input: inputDataSeries,
                               output: outputDataSeries,
-                              schedule: schedule
+                              schedule: scheduleResult
                             };
+
+                            var output = {
+                              "DataSeries": [collector.input.toObject(), collector.output.toObject()],
+                              "Collectors": [collectorResult.toObject()]
+                            };
+                            TcpService.send(output);
+                            
                             return collector.output
                           } else {
                             intersection.forEach(function(intersect) {
@@ -313,9 +319,16 @@ module.exports = function(app) {
                                 collector: collectorResult,
                                 input: inputDataSeries,
                                 output: outputDataSeries,
-                                schedule: schedule,
+                                schedule: scheduleResult,
                                 intersection: bulkIntersectionResult
                               };
+
+                              var output = {
+                                "DataSeries": [collector.input.toObject(), collector.output.toObject()],
+                                "Collectors": [collectorResult.toObject()]
+                              };
+                              TcpService.send(output);
+
                               return collector.output;
                             });
                           }
