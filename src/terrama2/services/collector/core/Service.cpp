@@ -215,7 +215,7 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       // intersection
       if(collectorPtr->intersection)
       {
-        //FIXME: the datamanager is beeing used outside the lock
+        //FIXME: the datamanager is being used outside the lock
         item.second = processIntersection(dataManager, collectorPtr->intersection, item.second);
       }
 
@@ -239,8 +239,11 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
   catch(const terrama2::core::LogException& e)
   {
     std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    TERRAMA2_LOG_ERROR() << errMsg << std::endl;
-    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
+    if(logId != 0 )
+    {
+      TERRAMA2_LOG_ERROR() << errMsg << std::endl;
+      TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
+    }
   }
   catch(const terrama2::core::NoDataException& e)
   {
@@ -301,11 +304,11 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
       logger.log(CollectorLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
       logger.result(CollectorLogger::ERROR, nullptr, logId);
     }
+
   }
 
   sendProcessFinishedSignal(collectorId, false);
   notifyWaitQueue(collectorId);
-
 }
 
 void terrama2::services::collector::core::Service::notifyWaitQueue(CollectorId collectorId)

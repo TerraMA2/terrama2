@@ -196,12 +196,6 @@ namespace terrama2
                                           std::shared_ptr<te::dt::TimeInstantTZ> fileTimestamp,
                                           const std::string& filename) const override;
 
-        terrama2::core::DataSetSeries getSeries(const std::string& uri,
-                                                const terrama2::core::Filter& filter,
-                                                DataSetPtr dataSet,
-                                                std::shared_ptr<terrama2::core::FileRemover> remover) const override;
-
-
         QString grad2TerramaMask(QString qString) const;
 
         GrADSDataDescriptor readDataDescriptor(const std::string& filename) const;

@@ -530,13 +530,16 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFil
 
   std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = getFileTimestamp(mask, timezone, name);
 
-  std::string fileUri = "file://"+typePrefix() + fileInfo.absolutePath().toStdString() + "/" + name;
-
   if(needToOpenConfigFile())
   {
-    std::string configFilename = getConfigFilename(dataSet, fileInfo.fileName().toStdString());
-    fileUri = "file://"+typePrefix() + fileInfo.absolutePath().toStdString() + "/" + configFilename;
+    std::string configFilename = getConfigFilename(dataSet, fileInfo.absoluteFilePath().toStdString());
+
+    QFileInfo confiFileInfo(configFilename.c_str());
+    name = confiFileInfo.fileName().toStdString();
   }
+
+
+  std::string fileUri = "file://"+typePrefix() + fileInfo.absolutePath().toStdString() + "/" + name;
 
   // creates a DataSource to the data and filters the dataset,
   // also joins if the DCP comes from separated files

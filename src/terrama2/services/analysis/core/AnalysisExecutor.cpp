@@ -470,7 +470,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
       pkMonitoredObject = moDsContext->series.teDataSetType->getPrimaryKey();
 
-      // In case no Pirmary key is found use the identifier property as key
+      // In case no primary key is found use the identifier property as key
       if(pkMonitoredObject == nullptr)
       {
         auto property = moDsContext->series.teDataSetType->getProperty(moDsContext->identifier);
