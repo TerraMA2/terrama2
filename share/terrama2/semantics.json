@@ -234,21 +234,25 @@
           "folder": {
             "type": "string",
             "title": "Folder",
-            "pattern": "^[^?#!$&'()*+,;=^§]+$"
+            "pattern": "^[^?#!$&'()*+,;=^§]+$",
+            "hasDefaultFieldForImport": true
           },
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$",
+            "hasSuffixFieldForImport": true
           },
           "alias": {
             "type": "string",
             "title": "Alias",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+            "hasDefaultFieldForImport": true
           },
           "timezone": {
             "type": "string",
-            "title": "Timezone"
+            "title": "Timezone",
+            "hasDefaultFieldForImport": true
           },
           "latitude": {
             "type": "number",
@@ -260,12 +264,14 @@
           },
           "projection": {
             "type": "number",
-            "title": "SRID"
+            "title": "SRID",
+            "hasDefaultFieldForImport": true
           },
           "active": {
             "type": "boolean",
             "title": "Active",
-            "default": true
+            "default": true,
+            "defaultForImport": true
           }
         },
         "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
@@ -363,24 +369,24 @@
             "type": "string",
             "title": "Folder",
             "pattern": "^[^?#!$&'()*+,;=^§]+$",
-			"hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true
           },
           "mask": {
             "type": "string",
             "title": "Mask",
             "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$",
-			"hasSuffixFieldForImport": true
+            "hasSuffixFieldForImport": true
           },
           "alias": {
             "type": "string",
             "title": "Alias",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
-			"hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true
           },
           "timezone": {
             "type": "string",
             "title": "Timezone",
-			"hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true
           },
           "latitude": {
             "type": "number",
@@ -393,13 +399,13 @@
           "projection": {
             "type": "number",
             "title": "SRID",
-			"hasDefaultFieldForImport": true
+            "hasDefaultFieldForImport": true
           },
           "active": {
             "type": "boolean",
             "title": "Active",
             "default": true,
-			"defaultForImport": true
+            "defaultForImport": true
           }
         },
         "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
@@ -492,7 +498,9 @@
         "properties": {
           "table_name": {
             "type": "string",
-            "title": "Table Name"
+            "title": "Table Name",
+            "hasPrefixFieldForImport": true,
+            "hasSuffixFieldForImport": true
           },
           "latitude": {
             "type": "number",
@@ -504,17 +512,20 @@
           },
           "projection": {
             "type": "number",
-            "title": "SRID"
+            "title": "SRID",
+            "hasDefaultFieldForImport": true
           },
-	 	      "alias": {
+          "alias": {
             "type": "string",
             "title": "Alias",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+            "hasDefaultFieldForImport": true
           },
           "active": {
             "type": "boolean",
             "title": "Active",
-            "default": true
+            "default": true,
+            "defaultForImport": true
           }
         },
         "required": ["table_name", "latitude", "longitude", "projection", "active"]
