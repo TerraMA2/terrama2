@@ -59,6 +59,7 @@
     "children": [
       {
         "name": "DCP",
+        "$flag": "DCP",
         "children": [
           {
             "name": "History",
@@ -143,6 +144,7 @@
       },
       {
         "name": "Grid",
+        "$flag": "GRID",
         "children": [
           {
             "name": "Sample",
@@ -304,6 +306,7 @@
       },
       {
         "name": "Occurrence",
+        "$flag": "OCCURRENCE",
         "children": [
           {
             "name": "Aggregation",

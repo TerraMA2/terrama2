@@ -6,14 +6,14 @@
       "terrama2.analysis.services",
       "terrama2.components.collapser"
     ])
-    .run(function($templateCache) {
+    .run(["$templateCache", function($templateCache) {
       $templateCache.put("helper.html",
         "<div class=\"dropup\">" + 
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn btn-warning dropdown-toggle\" data-toggle=\"dropdown\"> {{ i18n.__('Functions') }}</button>" +
           "<terrama2-list class=\"dropdown-menu\" data=\"AnalysisOperators.$data\"></terrama2-list>" +
         "</div>");
-    })
-    .directive("terrama2AnalysisHelpers", terrama2AnalysisHelpersDirective);
+    }])
+    .directive("terrama2AnalysisHelpers", ["i18n", "AnalysisOperators", terrama2AnalysisHelpersDirective]);
 
   /**
    * It defines a Analysis Button with Available helpers functions
