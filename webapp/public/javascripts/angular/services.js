@@ -263,6 +263,7 @@ angular.module("terrama2.services", ['terrama2'])
           var linesArray = reader.result.split("\n");
           var columns = linesArray[0].split(delimiterCharacter);
           var result = {
+            hasHeader: hasHeader,
             header: [],
             data: []
           };
