@@ -75,15 +75,6 @@
       scope.AnalysisOperators = AnalysisOperators;
       // Retrieving operators json async
       AnalysisOperators.init();
-
-      var jElement = $(element);
-
-      $(jElement, '.dropdown-submenu a.test').on("click", function(e){
-        var jTarget = $(e.target);
-        jTarget.next('ul').toggle();
-        e.stopPropagation();
-        e.preventDefault();
-      });
     } // end linkFn
   } // end terrama2AnalysisHelpersDirective function
 

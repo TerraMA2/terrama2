@@ -4,25 +4,30 @@
     "children": [
       {
         "name": "Buffer",
-        "code": "Buffer(BufferType.in, BUFFER_SIZE, \"BUFFER_UNIT\")"
+        "description": "It creates a Buffer and return it",
+        "code": "Buffer(BUFFER_TYPE, BUFFER_SIZE, \"BUFFER_UNIT\")"
       },
       {
         "name": "Add Value",
+        "description": "It adds a new column with a value in table output",
         "code": "add_value(\"NEW_COLUMN_NAME\", RESULT_VALUE)"
       },
       {
         "name": "Distance Units",
         "children": [
           {
-            "name": "cm",
+            "name": "Centimeters",
+            "description": "Retrieves a string representation of Centimeters",
             "code": "\"cm\""
           },
           {
-            "name": "\"m\"",
+            "name": "Meters",
+            "description": "Retrieves a string representation of Meters",
             "code": "\"m\""
           },
           {
-            "name": "km",
+            "name": "Kilometers",
+            "description": "Retrieves a string representation of Kilometers",
             "code": "\"km\""
           }
         ]
@@ -32,15 +37,18 @@
         "children": [
           {
             "name": "Seconds",
+            "description": "Retrieves a string representation of seconds",
             "code": "\"s\""
           },
           {
             "name": "Minutes",
+            "description": "Retrieves a string representation of minutes",
             "code": "\"m\""
           },
           {
-            "name": "Kilometers",
-            "code": "\"km\""
+            "name": "Hours",
+            "description": "Retrieves a string representation of hour",
+            "code": "\"h\""
           }
         ]
       }
