@@ -41,7 +41,7 @@ terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function
 }]);
 
 // setting caches
-terrama2Application.run(function($templateCache, $rootScope, $locale) {
+terrama2Application.run(["$templateCache", "$rootScope", "$locale", function($templateCache, $rootScope, $locale) {
   // TerraMA2 Box
   $templateCache.put('box.html',
   '<div class="col-md-12" title="{{ titleHeader }}">' +
@@ -59,9 +59,8 @@ terrama2Application.run(function($templateCache, $rootScope, $locale) {
   '</div>');
 
   $rootScope.locale = $locale.localeID;
-});
+}]);
 
-terrama2Application.service("BaseService", BaseService);
 /**
  * TerraMA² Base service dao
  * 
@@ -72,66 +71,64 @@ terrama2Application.service("BaseService", BaseService);
  * 
  * @class BaseService
  */
-function BaseService($q, $http, $filter, $parse) {
+terrama2Application.service("BaseService", ["$q", "$http", "$filter", "$parse", function($q, $http, $filter, $parse) {
   this.$q = $q;
   this.$http = $http;
   this.$filter = $filter;
   this.$parse = $parse;
-}
 
-// Injecting angular dependencies in BaseService
-BaseService.$inject = ["$q", "$http", "$filter", "$parse"];
+  /**
+   * TerraMA² base request URL. It performs $http operation from given request options
+   * 
+   * @param {string} url - URL to request
+   * @param {string} method - HTTP method
+   * @param {Object} options - HTTP options
+   * @returns {ng.IPromise}
+   */
+  this.$request = function(url, method, options) {
+    var self = this;
+    var defer = self.$q.defer();
 
-/**
- * TerraMA² base request URL. It performs $http operation from given request options
- * 
- * @param {string} url - URL to request
- * @param {string} method - HTTP method
- * @param {Object} options - HTTP options
- * @returns {ng.IPromise}
- */
-BaseService.prototype.$request = function(url, method, options) {
-  var self = this;
-  var defer = self.$q.defer();
+    self.$http(Object.assign({
+      url: url,
+      method: method
+    }, options)).success(function(data) {
+      return defer.resolve(data);
+    }).error(function(err) {
+      return defer.reject(err);
+    });
 
-  self.$http(Object.assign({
-    url: url,
-    method: method
-  }, options)).success(function(data) {
-    return defer.resolve(data);
-  }).error(function(err) {
-    return defer.reject(err);
-  });
+    return defer.promise;
+  };
 
-  return defer.promise;
-};
-/**
- * It applies a angular filter over a array with query restriction.
- * 
- * @param {Array<?>} model - An array of object to filter
- * @param {Object} query - A query restriction
- * @returns {Array<?>}
- */
-BaseService.prototype.$list = function(model, query) {
-  return this.$filter("filter")(model, query);
-};
+  /**
+   * It applies a angular filter over a array with query restriction.
+   * 
+   * @param {Array<?>} model - An array of object to filter
+   * @param {Object} query - A query restriction
+   * @returns {Array<?>}
+   */
+  this.$list = function(model, query) {
+    return this.$filter("filter")(model, query);
+  };
 
-/**
- * It retrieves a first selement from model. If element found, return element. Otherwise, return null.
- * 
- * @param {Array<?>} model - An array of object to filter
- * @param {Object} query - A query restriction
- * @returns {?}
- */
-BaseService.prototype.get = function(model, query) {
-  var elements = this.$list(model, query);
-  if (elements.length === 0) {
-    return null;
-  }
-  return elements[0];
-};
+  /**
+   * It retrieves a first selement from model. If element found, return element. Otherwise, return null.
+   * 
+   * @param {Array<?>} model - An array of object to filter
+   * @param {Object} query - A query restriction
+   * @returns {?}
+   */
+  this.get = function(model, query) {
+    var elements = this.$list(model, query);
+    if (elements.length === 0) {
+      return null;
+    }
+    return elements[0];
+  };
+}]);
 
-terrama2Application.service("EnumService", EnumService);
+
 /**
  * It handles TerraMA² backend enums 
  * 
@@ -139,21 +136,22 @@ terrama2Application.service("EnumService", EnumService);
  * 
  * @class EnumService
  */
-function EnumService(BaseService) {
+terrama2Application.service("EnumService", ["EnumService", function(BaseService) {
   this.BaseService = BaseService;
   this.model = [];
   this.url = "/api/Enums";
-}
-/**
- * It retrieves all enums from remote TerraMA² host
- * 
- * @returns {angular.IPromise<Enums>}
- */
-EnumService.prototype.init = function() {
-  return this.BaseService.$request(this.url, "GET", {});
-};
 
-EnumService.$inject = ["BaseService"];
+  /**
+   * It retrieves all enums from remote TerraMA² host
+   * 
+   * @returns {angular.IPromise<Enums>}
+   */
+  this.init = function() {
+    return this.BaseService.$request(this.url, "GET", {});
+  };
+}]);
+
+// EnumService.$inject = ["BaseService"];
 
 /**
  * It parses a URI using HTML a tag.
@@ -161,27 +159,27 @@ EnumService.$inject = ["BaseService"];
  * @param {string} uriString - An URI
  * @returns {A}
  */
-terrama2Application.factory("URIParser", function() {
+terrama2Application.factory("URIParser", [function() {
   var parser = document.createElement('a');
 
   return function(uriString) {
     parser.href = uriString;
     return parser;
   };
-});
+}]);
 /**
  * It parses a terrama2 date to a moment date object.
  * It requires "moment" library
  * @param {string} stringDate - A javascript string with date format
  * @return {Moment} a moment date object
  */
-terrama2Application.factory("DateParser", function() {
+terrama2Application.factory("DateParser", [function() {
   return function(stringDate) {
     return moment.parseZone(stringDate);
   };
-});
+}]);
 
-terrama2Application.factory("MakeMetadata", function() {
+terrama2Application.factory("MakeMetadata", [function() {
   return function(metadataArray) {
     var output = {};
     metadataArray.forEach(function(meta) {
@@ -189,9 +187,9 @@ terrama2Application.factory("MakeMetadata", function() {
     });
     return output;
   };
-});
+}]);
 
-terrama2Application.factory("StringDiff", function() {
+terrama2Application.factory("StringDiff", [function() {
   return function(stringA, stringB) {
     var firstOccurance = stringB.indexOf(stringA);
     var output = null;
@@ -208,7 +206,7 @@ terrama2Application.factory("StringDiff", function() {
       return output;
     }
   }
-});
+}]);
 
 /**
  * It applies a string format with syntax: {0}, {1}, ...
@@ -216,7 +214,7 @@ terrama2Application.factory("StringDiff", function() {
  * @param {...string}
  * @returns {string}
  */
-terrama2Application.factory("StringFormat", function() {
+terrama2Application.factory("StringFormat", [function() {
   return function() {
     var theString = arguments[0];
     
@@ -228,7 +226,7 @@ terrama2Application.factory("StringFormat", function() {
     
     return theString;
   };
-});
+}]);
 
 /**
  * It parses a string into a object.
@@ -237,7 +235,7 @@ terrama2Application.factory("StringFormat", function() {
  * console.log(MetaDotReader(person, 'address.zip'));
  * >> 15478
  */
-terrama2Application.factory("MetaDotReader", function() {
+terrama2Application.factory("MetaDotReader", [function() {
   return function(object, value) {
     var parts = value.split('.');
     var output = null;
@@ -247,10 +245,10 @@ terrama2Application.factory("MetaDotReader", function() {
     }
     return output;
   };
-});
+}]);
 
 // Helper for display invalid fields from form
-terrama2Application.factory('FormHelper', function() {
+terrama2Application.factory('FormHelper', [function() {
   return function(form) {
     angular.forEach(form.$error, function (field) {
       angular.forEach(field, function(errorField){
@@ -258,7 +256,7 @@ terrama2Application.factory('FormHelper', function() {
       });
     });
   };
-});
+}]);
 
 // Factory for handling HttpRequests with timeout specified.
 terrama2Application.factory("$HttpTimeout", ['$http', '$q',
@@ -336,7 +334,7 @@ terrama2Application.factory('$HttpSync', ['$http', '$cacheFactory',
  * It compares values two bind variables
  *  
  */
-terrama2Application.directive('terrama2CompareTo', function() {
+terrama2Application.directive('terrama2CompareTo', [function() {
   return {
     restrict: 'A',
     require: 'ngModel',
@@ -353,9 +351,9 @@ terrama2Application.directive('terrama2CompareTo', function() {
       });
     }
   };
-});
+}]);
 
-terrama2Application.directive('terrama2ShowErrors', function() {
+terrama2Application.directive('terrama2ShowErrors', [function() {
   return {
     restrict: 'A',
     require: '^form',
@@ -389,7 +387,7 @@ terrama2Application.directive('terrama2ShowErrors', function() {
       });
     }
   };
-});
+}]);
 
 /**
  * A generic component for displays a TerraMA² boxes.
@@ -403,7 +401,7 @@ terrama2Application.directive('terrama2ShowErrors', function() {
  *   </fieldset>
  * </terrama2-box>
  */
-terrama2Application.directive('terrama2Box', function($parse, $templateCache) {
+terrama2Application.directive('terrama2Box', ["$parse", function($parse) {
   return {
     restrict: 'E',
     transclude: true,
@@ -430,9 +428,9 @@ terrama2Application.directive('terrama2Box', function($parse, $templateCache) {
       });
     }
   }
-});
+}]);
 
-terrama2Application.directive('terrama2BoxFooter', function() {
+terrama2Application.directive('terrama2BoxFooter', [function() {
   return {
     // require: '^terrama2Box',
     transclude: true,
@@ -449,9 +447,9 @@ terrama2Application.directive('terrama2BoxFooter', function() {
       });
     }
   };
-});
+}]);
 
-terrama2Application.directive('terrama2Form', function() {
+terrama2Application.directive('terrama2Form', [function() {
   return {
     restrict: 'E',
     transclude: true,
@@ -473,16 +471,16 @@ terrama2Application.directive('terrama2Form', function() {
       }
     }
   };
-});
+}]);
 
-terrama2Application.directive('terrama2BoxOverlay', function() {
+terrama2Application.directive('terrama2BoxOverlay', [function() {
   return {
     transclude: true,
     template: '<div class="overlay" ng-show="isChecking"><i class="fa fa-refresh fa-spin"></i></div>'
   };
-});
+}]);
 
-terrama2Application.directive('terrama2Datetime', function($timeout) {
+terrama2Application.directive('terrama2Datetime', ["$timeout", function($timeout) {
   return {
     restrict: 'A',
     require : 'ngModel',
@@ -530,9 +528,9 @@ terrama2Application.directive('terrama2Datetime', function($timeout) {
       });
     }
   };
-});
+}]);
 
-terrama2Application.directive('formatDatetime', function ($window) {
+terrama2Application.directive('formatDatetime', ["$window", function ($window) {
   return {
     restrict: 'A',
     require: 'ngModel',
@@ -581,7 +579,7 @@ terrama2Application.directive('formatDatetime', function ($window) {
     } //link
   };
 
-}); //appDatetime
+}]); //appDatetime
 
 /**
  * Directive for handling Server errors and display them into input
@@ -596,7 +594,7 @@ terrama2Application.directive('formatDatetime', function ($window) {
  * ... // validation
  * $scope.serverErrorsVar = {"name": "Name is already taken"}
  */
-terrama2Application.directive("terrama2ServerErrors", function($parse) {
+terrama2Application.directive("terrama2ServerErrors", ["$parse", function($parse) {
   return {
     restrict: "A",
     require: "ngModel",
@@ -620,9 +618,9 @@ terrama2Application.directive("terrama2ServerErrors", function($parse) {
       });
     }
   };
-});
+}]);
 
-terrama2Application.directive('terrama2Button', function() {
+terrama2Application.directive('terrama2Button', [function() {
   return {
     restrict: "E",
     template: "<button ng-class='class' ng-transclude></button>",
@@ -633,9 +631,9 @@ terrama2Application.directive('terrama2Button', function() {
       scope.class = attrs.class;
     }
   };
-});
+}]);
 
-terrama2Application.directive("terrama2Content", function() {
+terrama2Application.directive("terrama2Content", [function() {
   return {
     restrict: "E",
     transclude: true,
@@ -644,9 +642,9 @@ terrama2Application.directive("terrama2Content", function() {
       scope.divClass = attrs.class || "row";
     }
   };
-});
+}]);
 
-terrama2Application.directive('terrama2Fluid', function($window) {
+terrama2Application.directive('terrama2Fluid', ["$window", function($window) {
   return {
     restrict: "A",
     link: function(scope, element, attrs) {
@@ -674,4 +672,4 @@ terrama2Application.directive('terrama2Fluid', function($window) {
       });
     }
   };
-});
+}]);

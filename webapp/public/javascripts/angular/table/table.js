@@ -71,7 +71,7 @@ angular.module('terrama2.table', ['terrama2'])
         extra: '=?extra'
       },
 
-      controller: function($scope, $http, i18n) {
+      controller: ["$scope", "$http", "i18n", function($scope, $http, i18n) {
         $scope.i18n = i18n;
         $scope.searchInput = '';
         $scope.selected = {};
@@ -186,7 +186,7 @@ angular.module('terrama2.table', ['terrama2'])
         $scope.capitalizeIt = function(str) {
           return str.charAt(0).toUpperCase() + str.slice(1);
         }
-      }
+      }]
     }
   })
 
@@ -316,9 +316,9 @@ angular.module('terrama2.table', ['terrama2'])
       scope: {
         model: "=ngModel"
       },
-      controller: function($scope) {
+      controller: ["$scope", function($scope) {
         $scope.i18n = i18n;
-      }
+      }]
     };
   })
 
@@ -336,9 +336,9 @@ angular.module('terrama2.table', ['terrama2'])
         remove: '&onRemove',
         target: '='
       },
-      controller: function($scope) {
-         $scope.i18n = i18n;
-        }
+      controller: ["$scope", function($scope) {
+        $scope.i18n = i18n;
+      }]
     };
   })
 
@@ -360,7 +360,7 @@ angular.module('terrama2.table', ['terrama2'])
         options: '=',
         onSelected: '&?'
       },
-      controller: function($scope) {
+      controller: ["$scope", function($scope) {
         $scope.selectedNode = null;
         $scope.onConfirm = function() {
           if ($scope.selectedNode === null) {
@@ -368,6 +368,6 @@ angular.module('terrama2.table', ['terrama2'])
           }
           $scope.onSelected($scope.selectedNode);
         };
-      }
+      }]
     };
   });

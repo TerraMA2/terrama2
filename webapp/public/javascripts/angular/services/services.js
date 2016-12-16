@@ -1,8 +1,8 @@
-(function() {
+
   'use strict';
 
   angular.module("terrama2.administration.services.iservices", ["terrama2", "terrama2.services"])
-    .service("Service", Service)
+    .service("Service", ["ServiceInstanceFactory", "i18n", "$q", "ServiceType", "$filter", Service])
     .constant("ServiceType", {
       COLLECTOR: 1,
       ANALYSIS: 2,
@@ -130,5 +130,3 @@
   Service.prototype.create = function(serviceObject) {
     return this.factory.post(serviceObject);
   };
-
-}());

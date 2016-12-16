@@ -1,4 +1,4 @@
-(function() {
+
   'use strict';
 
   angular.module('terrama2.administration.services', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox'])
@@ -228,4 +228,4 @@
           }
         }
     }]);
-}());
+

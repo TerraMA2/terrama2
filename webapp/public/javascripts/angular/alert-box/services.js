@@ -1,4 +1,3 @@
-(function() {
   'use strict';
 
   angular.module('terrama2.components.messagebox.services', ['terrama2'])
@@ -17,7 +16,7 @@
       "DANGER": "alert-danger"
     })
     
-    .service('MessageBoxService', MessageBoxService); 
+    .service('MessageBoxService', ["AlertLevel", MessageBoxService]); 
 
   /**
    * It stores a message box service context.
@@ -28,7 +27,7 @@
    */
   function MessageBoxService(AlertLevel) {
     /**
-     * It defines const values of AlertLevel
+     * It defines const valu  es of AlertLevel
      * @type {AlertLevel}
      */
     this.Levels = AlertLevel;
@@ -45,8 +44,6 @@
       extra: {}
     };
   }
-
-  MessageBoxService.$inject = ["AlertLevel"]
 
   /**
    * It resets current alertBox object to initial state
@@ -142,4 +139,3 @@
         return "fa-info";
     }
   };
-}());

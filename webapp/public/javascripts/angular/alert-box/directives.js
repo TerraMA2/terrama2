@@ -67,7 +67,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
         close: '&?',
         extra: '=?extra'
       },
-      controller: function($scope) {
+      controller: ["$scope", function($scope) {
         const ALERT_LEVELS = {
           INFO: "info",
           WARNING: 'warning',
@@ -104,7 +104,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
               return "fa-info";
           }
         };
-      }
+      }]
     }
   })
 
@@ -121,7 +121,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
         display: "=displayHandler",
         extra: '=?extra'
       },
-      controller: function($scope) {
+      controller: ["$scope", function($scope) {
         const ALERT_LEVELS = {
           INFO: "info",
           WARNING: 'warning',
@@ -158,7 +158,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
               return "fa-info";
           }
         };
-      }
+      }]
     };
   })
 
@@ -177,10 +177,10 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
         modalType: '=modalType',
         properties: '=?properties'
       },
-      controller: function($scope) {
+      controller: ["$scope", function($scope) {
         if ($scope.properties === undefined) { $scope.properties = {}; }
         $scope.css = $scope.properties.css || "modal fade";
-      }
+      }]
     };
   })
 
