@@ -6,7 +6,7 @@
       {
         "name": "Buffer",
         "description": "It creates a Buffer and return it",
-        "code": "Buffer(BUFFER_TYPE, BUFFER_SIZE, \"BUFFER_UNIT\")"
+        "code": "mbuffer = Buffer(BUFFER_TYPE, BUFFER_SIZE, \"BUFFER_UNIT\")"
       },
       {
         "name": "Add Value",

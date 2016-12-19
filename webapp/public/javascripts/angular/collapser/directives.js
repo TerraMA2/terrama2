@@ -157,31 +157,50 @@
                   "</ul>",
         link: linkFn
       };
-
+      /**
+       * It checks if it has parent and then add it as child in order to keep three level
+       * @param {angular.IScope} scope - Directive scope
+       * @param {angular.IElement} element - Directive selector
+       * @param {angular.IAttributes} attrs - Directive selector attributes
+       * @param {terrama2ListController} ctrl - Parent controller
+       */
       function linkFn(scope, element, attrs, ctrl) {
         if (ctrl) {
           ctrl.addChild(scope);
         }
       }
-
+      /**
+       * It handles Directive behavior. It is used in children directives.
+       * @class terrama2ListController
+       */
       function terrama2ListController($scope) {
         var self = this;
         // defining default level if there is not. It is used only first iteration
         if (!$scope.level) {
           $scope.level = 0;
         }
-
+        // children scopes cache
         var items = [];
+        /**
+         * Add a new child to cache
+         * @param {angular.IScope} childScope - Directive child scope
+         */
         this.addChild = function(childScope) {
           items.push(childScope);
         };
-
+        /**
+         * It gives a fullify object to filter
+         * @returns {Object}
+         */
         this.mergedFilter = function() {
           var output = angular.merge({}, self.getExpression());
           angular.merge(output, {$depth: self.getLevel()});
           return output;
         };
-
+        /**
+         * It retrieves a current expression validation
+         * @returns {any}
+         */
         this.getExpression = function() {
           return $scope.expression;
         };
@@ -192,22 +211,6 @@
          */
         this.getLevel = function() {
           return $scope.level;
-        };
-
-        $scope.filterByLevel = function(criteria) {
-          var output = false;
-          switch(self.getLevel()) {
-            case 0:
-            case 1:
-            case 2:
-              output = true;
-              break;
-          }
-          return output;
-        };
-
-        this.filterByLevel = function(criteria) {
-          return $scope.filterByLevel(criteria);
         };
       } // end terrama2ListController
     }
