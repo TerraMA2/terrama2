@@ -301,25 +301,43 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
       begin += packageSize;
     }
 
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
+      std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
+      {
+        if(f.valid())
+          f.get();
+      });
+
+
 
     storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
   }
   catch(const terrama2::Exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
+    {
+      if(f.valid())
+        f.get();
+    });
   }
   catch(const std::exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
+    {
+      if(f.valid())
+        f.get();
+    });
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f) { f.get(); });
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
+    {
+      if(f.valid())
+        f.get();
+    });
   }
 
 
@@ -411,6 +429,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext;
 
   // Reads the object monitored
+  te::da::PrimaryKey* pkMonitoredObject = nullptr;
   te::dt::Property* identifierProperty = nullptr;
 
   bool found = false;
@@ -449,27 +468,38 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
         return;
       }
 
-      auto property = moDsContext->series.teDataSetType->getProperty(moDsContext->identifier);
-      if(property != nullptr)
+      pkMonitoredObject = moDsContext->series.teDataSetType->getPrimaryKey();
+
+      // In case no Pirmary key is found use the identifier property as key
+      if(pkMonitoredObject == nullptr)
       {
-        identifierProperty = property->clone();
+        auto property = moDsContext->series.teDataSetType->getProperty(moDsContext->identifier);
+        if(property != nullptr)
+        {
+          identifierProperty = property->clone();
+        }
       }
+
+      break;
 
     }
   }
 
   if(!found)
   {
-    QString errMsg(QObject::tr("Could not find a monitored object dataseries."));
+    QString errMsg(QObject::tr("Could not find a monitored object data series."));
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return;
   }
 
-  if(!identifierProperty)
+  if(pkMonitoredObject == nullptr)
   {
-    QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
-    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-    return;
+    if(!identifierProperty)
+    {
+      QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
+      context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+      return;
+    }
   }
 
 
@@ -480,19 +510,37 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
   std::shared_ptr<te::da::DataSetType> dt = std::make_shared<te::da::DataSetType>(outputDatasetName);
 
-  // first property is the geomId
-  identifierProperty->setName("geom_id");
-  dt->add(identifierProperty);
+
+  // the unique key is composed by primary key columns and the execution date.
+  std::string nameuk = outputDatasetName+ "_uk";
+  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk);
+
+
+  if(pkMonitoredObject != nullptr)
+  {
+    for(auto property : pkMonitoredObject->getProperties())
+    {
+      auto pkProperty = property->clone();
+
+      // In case there is a column called 'execution_date' rename it because this name is used in analysis result table
+      if(pkProperty->getName() == "execution_date")
+        pkProperty->setName("execution_date_1");
+
+      dt->add(pkProperty);
+      uk->add(pkProperty);
+    }
+  }
+  else
+  {
+    dt->add(identifierProperty);
+    uk->add(identifierProperty);
+  }
+
 
 
   //second property: analysis execution date
   te::dt::DateTimeProperty* dateProp = new te::dt::DateTimeProperty("execution_date", te::dt::TIME_INSTANT_TZ, true);
   dt->add(dateProp);
-
-  // the unique key is composed by the geomId and the execution date.
-  std::string nameuk = outputDatasetName+ "_uk";
-  te::da::UniqueKey* uk = new te::da::UniqueKey(nameuk);
-  uk->add(identifierProperty);
   uk->add(dateProp);
 
   dt->add(uk);
@@ -516,8 +564,25 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   {
     te::mem::DataSetItem* dsItem = new te::mem::DataSetItem(ds.get());
 
-    auto geomId = moDsContext->series.syncDataSet->getValue(it->first, moDsContext->identifier)->clone();
-    dsItem->setValue("geom_id", geomId);
+    if(pkMonitoredObject != nullptr)
+    {
+      for(auto property : pkMonitoredObject->getProperties())
+      {
+        auto geomId = moDsContext->series.syncDataSet->getValue(it->first, property->getName())->clone();
+        if(property->getName() == "execution_date")
+          dsItem->setValue("execution_date_1", geomId);
+        else
+          dsItem->setValue(property->getName(), geomId);
+      }
+    }
+    else
+    {
+      auto geomId = moDsContext->series.syncDataSet->getValue(it->first, moDsContext->identifier)->clone();
+      dsItem->setValue(identifierProperty->getName(), geomId);
+    }
+
+
+
     dsItem->setDateTime("execution_date",  dynamic_cast<te::dt::DateTimeInstant*>(date.get()->clone()));
     for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
     {
@@ -553,9 +618,9 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   {
     storagerManager->store(series, outputDataSet);
   }
-  catch(const terrama2::Exception /*e*/)
+  catch(const terrama2::Exception& e)
   {
-    QString errMsg = QObject::tr("Could not store the result of the analysis.");
+    QString errMsg = QObject::tr("Could not store the result of the analysis: %1").arg(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str());
     throw Exception() << ErrorDescription(errMsg);
   }
 
