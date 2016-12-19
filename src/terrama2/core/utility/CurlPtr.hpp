@@ -70,9 +70,14 @@ namespace terrama2
         virtual CURLcode verifyURL(std::string url);
 
         //! The function getListFiles returns vector with the files found on the server.
-        virtual std::vector<std::string> getListFiles(std::string url,
-                                                      size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data),
-                                                      std::string block);
+        virtual std::vector<std::string> getFtpList(const std::string& url,
+                                                      size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const;
+
+        virtual std::vector<std::string> getFtpListDir(const std::string& url,
+                                                       size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const;
+
+        virtual std::vector<std::string> getFtpListFiles(const std::string& url,
+                                                         size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const;
 
         //! The function getDownloadFiles performs download the filtered files and returns it succeded or not.
         virtual CURLcode getDownloadFiles(std::string url,

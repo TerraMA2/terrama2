@@ -79,6 +79,8 @@ namespace terrama2
 
           virtual void setConnectionInfo(const te::core::URI& uri) override;
 
+          virtual std::shared_ptr<ProcessLogger> clone() const override;
+
         };
       }
     }

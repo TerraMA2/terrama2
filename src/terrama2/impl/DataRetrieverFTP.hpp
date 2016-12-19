@@ -94,8 +94,10 @@ namespace terrama2
                                          const Filter& filter,
                                          std::shared_ptr<terrama2::core::FileRemover> remover,
                                          const std::string& temporaryFolder = "",
-                                         const std::string& folderPath = "") override;
+                                         const std::string& foldersMask = "") override;
 
+        virtual std::vector<std::string> getFoldersList(const std::vector<std::string>& uris,
+                                                        const std::string& foldersMask);
         /*!
          * \brief write_response - data to be written in file.
          * Define our callback to get called when there's data to be written in file.

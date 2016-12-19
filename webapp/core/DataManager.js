@@ -1551,7 +1551,7 @@ var DataManager = module.exports = {
       }
 
       return models.db.DataSeries.update(dataSeriesObject, Utils.extend({
-        fields: ['name', 'description', 'data_provider_id', 'active'],
+        fields: ['name', 'description', 'data_provider_id', 'active', 'data_series_semantics_id'],
         where: {
           id: dataSeriesId
         }
@@ -1562,6 +1562,7 @@ var DataManager = module.exports = {
         })
 
         .then(function(dataSeriesSemantics) {
+          dataSeries.data_series_semantics = dataSeriesSemantics;
           /**
            * Helper to iterate over formats in order to build promise "upsertDataSetFormats"
            * 
@@ -1617,7 +1618,6 @@ var DataManager = module.exports = {
           });
 
           dataSeriesObject.dataSets.forEach(function(newDataSet){
-            console.log(newDataSet);
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
               return dSet.format._id == newDataSet.format._id; 
             });
@@ -1626,14 +1626,14 @@ var DataManager = module.exports = {
               dataSetToUpdate.semantics = dataSeriesSemantics;
               var updatePromise = self.updateDataSet(dataSetToUpdate, newDataSet, options)
               .then(function(dataSetUpdated) {
-
+                var promisesFormatArray = [];
                 for(var j = 0; j < dataSeries.dataSets.length; ++j) {
                   var dataSet = dataSeries.dataSets[j];
 
                   if (dataSetUpdated.id === dataSet.id) {
                     var promisesFormat = Utils.generateArrayFromObject(dataSetUpdated.format, formatIterator, dataSet);
                     promisesFormat.forEach(function(promiseFormat){
-                      promises.push(promiseFormat);
+                      promisesFormatArray.push(promiseFormat);
                     });
                     dataSet.active = dataSetUpdated.active;
                     dataSet.format = dataSetUpdated.format;
@@ -1643,7 +1643,7 @@ var DataManager = module.exports = {
                   }
                 }
                 
-                return null;
+                return Promise.all(promisesFormatArray);
               });
               promises.push(updatePromise);
             // add data set
@@ -1667,6 +1667,7 @@ var DataManager = module.exports = {
           dataSeries.description = dataSeriesObject.description;
           dataSeries.data_provider_id = dataProvider.id;
           dataSeries.active = dataSeriesObject.active;
+          dataSeries.data_series_semantics_id = dataSeriesObject.data_series_semantics_id;
 
           return resolve(new DataModel.DataSeries(dataSeries));
         }).catch(function(err) {
@@ -2499,7 +2500,7 @@ var DataManager = module.exports = {
             });
         } else {
           logger.error("Retrieved null while getting collector", collectorResult);
-          return reject(new exceptions.CollectorError("Could not find collector. "));
+          return reject(new exceptions.CollectorErrorNotFound("Could not find collector. "));
         }
       }).catch(function(err) {
         logger.error(err);

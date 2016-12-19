@@ -89,7 +89,7 @@ namespace terrama2
             */
             void runAnalysis(DataManagerPtr dataManager,
                              terrama2::core::StoragerManagerPtr storagerManager,
-                             terrama2::services::analysis::core::AnalysisLogger logger,
+                             std::shared_ptr<AnalysisLogger> logger,
                              std::shared_ptr<te::dt::TimeInstantTZ> startTime,
                              AnalysisPtr analysis,
                              ThreadPoolPtr threadPool,
@@ -155,7 +155,7 @@ namespace terrama2
               \param logger Analysis process logger.
               \param analysis The analysis to be executed.
             */
-            void verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, AnalysisLogger& logger, RegisterId logId);
+            void verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<AnalysisLogger> logger, RegisterId logId);
 
           signals:
             //! Signal to notify that a analysis execution has finished.

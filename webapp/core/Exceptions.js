@@ -286,6 +286,20 @@ util.inherits(errors.CollectorError, errors.BaseError);
 
 
 /**
+ * Thrown when Collector object not found.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.CollectorErrorNotFound = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'CollectorErrorNotFound';
+};
+util.inherits(errors.CollectorErrorNotFound, errors.BaseError);
+
+
+/**
  * Thrown when Filter object has inconsistent data.
  *
  * @param {string} message Error message
