@@ -10,7 +10,7 @@
       $templateCache.put("helper.html",
         "<div class=\"dropup\">" + 
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn btn-warning dropdown-toggle\" data-toggle=\"dropdown\"> {{ i18n.__('Functions') }}</button>" +
-          "<terrama2-list class=\"dropdown-menu\" data=\"AnalysisOperators.$data\"></terrama2-list>" +
+          "<terrama2-list class=\"dropdown-menu\" data=\"AnalysisOperators.$data\" expression=\"restriction\"></terrama2-list>" +
         "</div>");
     }])
     .directive("terrama2AnalysisHelpers", ["i18n", "AnalysisOperators", terrama2AnalysisHelpersDirective]);
@@ -28,7 +28,8 @@
       restrict: "E",
       replace: true,
       scope: {
-        target: '='
+        target: '=',
+        restriction: "=",
       },
       controller: ["$scope", "i18n", controllerFn],
       templateUrl: "helper.html",

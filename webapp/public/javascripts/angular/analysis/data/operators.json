@@ -10,6 +10,7 @@
       },
       {
         "name": "Add Value",
+        "type": "GEOMETRIC_OBJECT",
         "description": "It adds a new column with a value in table output",
         "code": "add_value(\"NEW_COLUMN_NAME\", RESULT_VALUE)"
       },
@@ -60,7 +61,7 @@
     "children": [
       {
         "name": "DCP",
-        "$flag": "DCP",
+        "type": "DCP",
         "children": [
           {
             "name": "History",
@@ -145,7 +146,7 @@
       },
       {
         "name": "Grid",
-        "$flag": "GRID",
+        "type": "GRID",
         "children": [
           {
             "name": "Sample",
@@ -369,7 +370,7 @@
       },
       {
         "name": "Occurrence",
-        "$flag": "OCCURRENCE",
+        "type": "GEOMETRIC_OBJECT",
         "children": [
           {
             "name": "Aggregation",
