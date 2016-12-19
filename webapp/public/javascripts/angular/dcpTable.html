@@ -13,14 +13,18 @@
         <tr ng-repeat="dcp in dcps track by $index">
           <td>{{ $index + 1 }}</td>
           <td ng-repeat="field in tableFields">
-            <!-- boolean types -->
-              <span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">
-                <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
-              </span>
             <!--{{ dcp }}-->
-              <span ng-if="!isBoolean(dcp[field])" editable-text="dcp[field]">
-                {{ dcp[field]}}
-              </span>
+            <span ng-if="!isBoolean(dcp[field])" editable-text="dcp[field]">
+              {{ dcp[field]}}
+            </span>
+
+            <span ng-if="isBoolean(dcp[field])">
+               <!--boolean types -->
+               <input type="checkbox" ng-model="dcp[field]">
+              <!--<span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">
+                <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
+              </span>-->
+            </span>
           </td>
           <td class="pull-cell-left">
             <button class="btn btn-danger" ng-click="removePcd(dcp)">{{ i18n.__("Remove") }}</button>

@@ -6,9 +6,12 @@ var PromiseClass = require("./../../core/Promise");
 var TcpService = require('./../../core/facade/tcp-manager/TcpService');
 var Utils = require("../../core/Utils");
 var DataSeriesError = require('../../core/Exceptions').DataSeriesError;
+var CollectorErrorNotFound = require('../../core/Exceptions').CollectorErrorNotFound;
 var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
 var TokenCode = require('./../../core/Enums').TokenCode;
 var _ = require('lodash');
+// data model
+var DataModel = require('./../../core/data-model');
 
 module.exports = function(app) {
   return {
@@ -150,6 +153,7 @@ module.exports = function(app) {
       var serviceId = request.body.service;
       var intersection = request.body.intersection;
       var shouldRun = request.body.run;
+      var active = request.body.active;
 
       DataManager.orm.transaction(function(t) {
         var options = {
@@ -271,18 +275,109 @@ module.exports = function(app) {
 
                   return dataSeriesOutput;
                 });
+          })
+          .catch(function(err){
+            if (err instanceof CollectorErrorNotFound){
+              return DataManager.getServiceInstance({id: serviceId}, options).then(function(serviceResult){
+                return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject.output, options).then(function(){
+                  return DataManager.getDataSeries({id: dataSeriesId}).then(function(outputDataSeries){
+                    return DataManager.addDataSeries(dataSeriesObject.input, null, options).then(function(inputDataSeries){
+                      return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult){
+                        var collectorObject = {};
+
+                        collectorObject.data_series_input = inputDataSeries.id;
+                        collectorObject.data_series_output = dataSeriesId;
+                        collectorObject.service_instance_id = serviceResult.id;
+                        collectorObject.schedule_id = scheduleResult.id;
+                        collectorObject.active = active;
+                        collectorObject.collector_type = 1;
+                        collectorObject.schedule_id = scheduleResult.id;
+
+                        return DataManager.addCollector(collectorObject, filterObject, options).then(function(collectorResult){
+                          if (!intersection){
+                            var collector = {
+                              collector: collectorResult,
+                              input: inputDataSeries,
+                              output: outputDataSeries,
+                              schedule: scheduleResult
+                            };
+
+                            var output = {
+                              "DataSeries": [collector.input.toObject(), collector.output.toObject()],
+                              "Collectors": [collectorResult.toObject()]
+                            };
+                            TcpService.send(output);
+                            
+                            return collector.output
+                          } else {
+                            intersection.forEach(function(intersect) {
+                              intersect.collector_id = collector.id;
+                            });
+                            return DataManager.addIntersection(intersection, options).then(function(bulkIntersectionResult){
+                              collectorResult.setIntersection(bulkIntersectionResult);
+                              var collector = {
+                                collector: collectorResult,
+                                input: inputDataSeries,
+                                output: outputDataSeries,
+                                schedule: scheduleResult,
+                                intersection: bulkIntersectionResult
+                              };
+
+                              var output = {
+                                "DataSeries": [collector.input.toObject(), collector.output.toObject()],
+                                "Collectors": [collectorResult.toObject()]
+                              };
+                              TcpService.send(output);
+
+                              return collector.output;
+                            });
+                          }
+                        });
+                      });
+                    });
+                  })
+                });
+              });
+            }
           });
         } else {
-          return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject, options)
-            .then(function() {
-              return DataManager.getDataSeries({id: dataSeriesId})
-                .then(function(dataSeries) {
-                  // tcp sending
-                  TcpService.send({
-                    "DataSeries": [dataSeries.toObject()]
-                  });
-                  return dataSeries;
+          return DataManager.getCollector({data_series_input: dataSeriesId}, options)
+            .then(function(collector){
+              var inputDataSeriesId = collector.data_series_input;
+              var outputDataSeriesId = collector.data_series_output;
+              return DataManager.removeDataSerie({id: inputDataSeriesId})
+                .then(function(){
+                  return DataManager.removeSchedule({id: collector.schedule.id})
+                    .then(function(){
+                      return DataManager.updateDataSeries(outputDataSeriesId, dataSeriesObject, options)
+                        .then(function() {
+                          return DataManager.getDataSeries({id: outputDataSeriesId})
+                            .then(function(dataSeries) {
+                              // tcp sending
+                              TcpService.send({
+                                "DataSeries": [dataSeries.toObject()]
+                              });
+                              return dataSeries;
+                            });
+                        });
+                    });
                 });
+            }).catch(function(err){
+              if (err instanceof CollectorErrorNotFound){
+                return DataManager.updateDataSeries(dataSeriesId, dataSeriesObject, options)
+                  .then(function() {
+                    return DataManager.getDataSeries({id: dataSeriesId})
+                      .then(function(dataSeries) {
+                        // tcp sending
+                        TcpService.send({
+                          "DataSeries": [dataSeries.toObject()]
+                        });
+                        return dataSeries;
+                      });
+                  });
+              } else {
+                return Utils.handleRequestError(response, err, 400);
+              }
             });
         }
       })

@@ -72,6 +72,8 @@ namespace terrama2
                          std::shared_ptr<te::dt::TimeInstantTZ>(const RegisterId registerId));
       MOCK_CONST_METHOD1(processID,
                          ProcessId(const RegisterId registerId));
+      MOCK_CONST_METHOD0(clone,
+                         std::shared_ptr<terrama2::core::ProcessLogger>());
     };
 
   }  // namespace core
