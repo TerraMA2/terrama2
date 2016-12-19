@@ -89,11 +89,9 @@ const std::string& terrama2::services::view::core::GeoServer::getWorkspace(const
   // Register style
   cURLwrapper.get(uriPost, responseWorkspace);
 
-  if(cURLwrapper.responseCode() == 404)
+  if(log && cURLwrapper.responseCode() == 404)
   {
-    QString errMsg = QObject::tr("Workspace not found. ");
-    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
-    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
   }
   else if(cURLwrapper.responseCode() != 200)
   {
@@ -169,9 +167,7 @@ const std::string& terrama2::services::view::core::GeoServer::getDataStore(const
 
   if(cURLwrapper.responseCode() == 404)
   {
-    QString errMsg = QObject::tr("Data Store not found. ");
-    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
-    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
   }
   else if(cURLwrapper.responseCode() != 200)
   {
@@ -245,9 +241,7 @@ const std::string& terrama2::services::view::core::GeoServer::getFeature(const s
 
   if(cURLwrapper.responseCode() == 404)
   {
-    QString errMsg = QObject::tr("Feature not found. ");
-    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
-    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
   }
   else if(cURLwrapper.responseCode() != 200)
   {
