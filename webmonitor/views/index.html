@@ -24,6 +24,9 @@
 
 {% block content %}
 
+{% set webadminHostInfo = webadminHostInfo || {} %}
+{% set webmonitorHostInfo = webmonitorHostInfo || {} %}
+
 <div id="terrama2-map" class="terrama2-map"></div>
 
 <!-- Alert message -->
@@ -67,6 +70,8 @@
 <script src="/javascripts/utils/calendar.js"></script>
 <script src="/javascripts/utils/slider.js"></script>
 <script>
+    var webadminHostInfo = {[webadminHostInfo|json|safe]};
+    var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
     var allLayers = [];
     var visibleLayers = [];
 
@@ -89,8 +94,20 @@
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "unsortable", null);
         allLayers.push({id: "analysis", name: "Analysis"});
 
-    var socket = io.connect(':3001');
-    var wepappsocket = io.connect(':36000');
+    var socket;
+    if (webmonitorHostInfo && webmonitorHostInfo.port){
+        socket = io.connect(":" + webmonitorHostInfo.port);
+    } else {
+        socket = io.connect(":36001");
+    }
+
+    var wepappsocket;
+    if (webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port){
+        wepappsocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port);
+    } else {
+        wepappsocket = io.connect(":36000");
+    }
+    
     wepappsocket.emit('viewRequest');
     wepappsocket.on("viewResponse", function (data){
         for (i in data){
