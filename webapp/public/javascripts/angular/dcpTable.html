@@ -1,10 +1,20 @@
 <div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'DCP') && isDynamic" style="margin-bottom: 30px;">
   <div class="col-md-12">
     <div class="box-body table-responsive no-padding">
+      <table datatable="" dt-options="vm.dtOptions" dt-columns="vm.dtColumns" dt-instance="vm.dtInstance" class="row-border hover"></table>
+    </div><!-- /.box-body -->
+  </div>
+</div>
+
+<!--
+
+<div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'DCP') && isDynamic" style="margin-bottom: 30px;">
+  <div class="col-md-12">
+    <div class="box-body table-responsive no-padding">
       <table class="table table-hover" >
         <tbody style="overflow-y: auto; height: 150px;">
         <!-- header-->
-        <tr>
+        <!--<tr>
           <th>ID</th>
           <th ng-repeat="field in tableFields track by $index">{{ capitalizeIt(field) }}</th>
           <th></th>
@@ -14,17 +24,17 @@
           <td>{{ $index + 1 }}</td>
           <td ng-repeat="field in tableFields">
             <!--{{ dcp }}-->
-            <span ng-if="!isBoolean(dcp[field])" editable-text="dcp[field]">
+            <!--<span ng-if="!isBoolean(dcp[field])" editable-text="dcp[field]">
               {{ dcp[field]}}
             </span>
 
             <span ng-if="isBoolean(dcp[field])">
                <!--boolean types -->
-               <input type="checkbox" ng-model="dcp[field]">
+               <!--<input type="checkbox" ng-model="dcp[field]">
               <!--<span class="label" ng-class="{'label-success': dcp[field], 'label-danger': !dcp[field]}" ng-if="isBoolean(dcp[field])">
                 <i class="glyphicon" ng-class="{'glyphicon-ok': $parent.dcp[field], 'glyphicon-remove': !$parent.dcp[field]}"></i>
               </span>-->
-            </span>
+            <!--</span>
           </td>
           <td class="pull-cell-left">
             <button class="btn btn-danger" ng-click="removePcd(dcp)">{{ i18n.__("Remove") }}</button>
@@ -38,5 +48,7 @@
         </tbody>
       </table>
     </div><!-- /.box-body -->
-  </div>
+  <!--</div>
 </div>
+
+-->

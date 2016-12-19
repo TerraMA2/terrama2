@@ -13,6 +13,7 @@ angular.module('terrama2.dataseries.registration', [
     'terrama2.components.geo',
     'treeControl',
     'terrama2.dcpImporter',
+    'datatables',
   ])
   .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('main', {
@@ -387,9 +388,62 @@ angular.module('terrama2.dataseries.registration', [
     "MessageBoxService",
     "$q",
     "GeoLibs",
+    'DTOptionsBuilder',
+    'DTColumnBuilder',
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs, DTOptionsBuilder, DTColumnBuilder) {
+
+
+
+      var makeid = function() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for(var i = 0; i < 30; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+      }
+
+      var storedPcdsKey = makeid();
+
+      $scope.vm.dtInstance = {};
+
+      $scope.vm.dtOptions = DTOptionsBuilder.newOptions()
+      .withOption('ajax', {
+        // Either you specify the AjaxDataProp here
+        // dataSrc: 'data',
+        url: '/configuration/dynamic/dataseries/paginateDcps',
+        type: 'POST',
+        data: function(d) {
+          d.key = storedPcdsKey;
+        }
+      })
+      // or here
+      .withDataProp('data')
+      .withOption('processing', true)
+      .withOption('serverSide', true)
+      .withPaginationType('full_numbers');
+      $scope.vm.dtColumns = [
+        DTColumnBuilder.newColumn('_id').withTitle('_id'),
+        DTColumnBuilder.newColumn('active').withTitle('active'),
+        DTColumnBuilder.newColumn('alias').withTitle('alias'),
+        DTColumnBuilder.newColumn('latitude').withTitle('latitude'),
+        DTColumnBuilder.newColumn('longitude').withTitle('longitude'),
+        DTColumnBuilder.newColumn('mask').withTitle('mask'),
+        DTColumnBuilder.newColumn('projection').withTitle('projection'),
+        DTColumnBuilder.newColumn('timezone').withTitle('timezone')
+      ];
+
+      $scope.vm.dtInstance = {};
+
+      function reloadData() {
+          $scope.vm.dtInstance.reloadData();
+      }
+
+
+
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -1425,21 +1479,23 @@ angular.module('terrama2.dataseries.registration', [
           $scope._addDcpStorager(data);
           $scope.model = {active: true};
 
+          $http.post("/configuration/dynamic/dataseries/storeDcps", {
+            key: storedPcdsKey,
+            dcps: [Object.assign({}, data)]
+          }).success(function(result) {
+            console.log('-------------');
+            console.log(result);
+            console.log('-------------');
+            reloadData();
+          }).error(function(err) {
+            console.log("Err in storing dcps");
+          });
+
+          
+
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
         }
-      };
-
-      $scope.addImportedDcps = function(dcps) {
-        for(var i = 0, dcpsLength = dcps.length; i < dcpsLength; i++) {
-          var data = Object.assign({}, dcps[i]);
-          data._id = UniqueNumber();
-          $scope.dcps.push(Object.assign({}, data));
-          $scope._addDcpStorager(data);
-        }
-
-        // reset form to do not display feedback class
-        $scope.forms.parametersForm.$setPristine();
       };
 
       Object.equals = function( x, y ) {

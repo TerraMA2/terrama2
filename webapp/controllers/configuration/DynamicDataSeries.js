@@ -4,6 +4,7 @@ var DataManager = require('./../../core/DataManager');
 var Enums = require('./../../core/Enums');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 var Promise = require('bluebird');
+var storedDcps = {};
 
 
 module.exports = function(app) {
@@ -72,6 +73,30 @@ module.exports = function(app) {
             response.render('base/404');
           });
         });
+      });
+    },
+
+    storeDcps: function(request, response) {
+      var key = request.body.key;
+      var dcps = request.body.dcps;
+
+      if(storedDcps[key] !== undefined) {
+        storedDcps[key] = storedDcps[key].concat(dcps);
+      } else {
+        storedDcps[key] = dcps;
+      }
+
+      response.json(storedDcps[key]);
+    },
+
+    paginateDcps: function(request, response) {
+      var key = request.body.key;
+
+      response.json({
+        draw: 1,
+        recordsTotal: (storedDcps[key] === undefined ? 0 : storedDcps[key].length),
+        recordsFiltered: (storedDcps[key] === undefined ? 0 : storedDcps[key].length),
+        data: (storedDcps[key] === undefined ? [] : storedDcps[key])
       });
     }
   };
