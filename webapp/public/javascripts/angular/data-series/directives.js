@@ -79,6 +79,9 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
           "</div>" +
         "</div>" +
       "</div>" +
+    "</div>" +
+    "<div class=\"overlay\" ng-show=\"isChecking\">" +
+      "<i class=\"fa fa-refresh fa-spin\"></i>" +
     "</div>"
   );
 })
@@ -86,7 +89,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
   return {
     restrict: 'EA',
     templateUrl: 'modals.html',
-    controller: ['$scope', 'FileDialog', 'i18n', 'MessageBoxService', function($scope, FileDialog, i18n, MessageBoxService) {
+    controller: ['$scope', 'FileDialog', 'i18n', 'MessageBoxService', 'UniqueNumber', function($scope, FileDialog, i18n, MessageBoxService, UniqueNumber) {
       $scope.csvImport = {};
       $scope.importationFields = {};
 
@@ -101,6 +104,8 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
       $scope.selectFileToImport = function() {
         $('#importParametersModal').modal('hide');
 
+        $scope.isChecking = true;
+        
         FileDialog.openFile(function(err, input) {
           if(err) {
             $scope.display = true;
@@ -113,6 +118,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
               if(error) {
                 setError(error);
                 console.log(error);
+                $scope.isChecking = false;
                 return;
               }
 
@@ -137,6 +143,8 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
                 }
               }
 
+              $scope.isChecking = false;
+
               $('#importDCPItemsModal').modal('show');
             });
           });
@@ -144,6 +152,9 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
       };
 
       $scope.validateImportationMetadata = function() {
+        $('#importDCPItemsModal').modal('hide');
+        $scope.isChecking = true;
+
         var importationMetadata = {};
         var type = $scope.dataSeries.semantics.code;
 
@@ -173,6 +184,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
                 i18n.__("Invalid configuration for the field") + "'" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[key].title) + "'"
               );
               $('#importDCPItemsModal').modal('hide');
+              $scope.isChecking = false;
               return;
             }
 
@@ -180,13 +192,10 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
           }
         }
 
-        $('#importDCPItemsModal').modal('hide');
         executeImportation(importationMetadata, $scope.csvImport.finalData);
       };
 
       var executeImportation = function(metadata, data) {
-        var dcps = [];
-
         for(var i = 0, dataLength = data.data.length; i < dataLength; i++) {
           var dcp = {};
 
@@ -218,6 +227,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
 
             if(value === null) {
               MessageBoxService.danger(i18n.__("DCP importation error"), i18n.__("Invalid configuration for the field") + " '" + i18n.__(title) + "'");
+              $scope.isChecking = false;
               return;
             }
 
@@ -230,17 +240,21 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
                 i18n.__("DCP importation error"),
                 i18n.__("Invalid value for the field") + " '" + i18n.__(title) + "' " + i18n.__("in the line") + " " + (i + (data.hasHeader ? 2 : 1))
               );
+              $scope.isChecking = false;
               return;
             }
 
             dcp[key] = value;
           }
 
-          dcps.push(dcp);
+          dcp._id = UniqueNumber();
+          $scope.dcps.push(Object.assign({}, dcp));
+          $scope._addDcpStorager(dcp);
         }
 
-        $scope.addImportedDcps(dcps);
-
+        // reset form to do not display feedback class
+        $scope.forms.parametersForm.$setPristine();
+        $scope.isChecking = false;
         MessageBoxService.success(i18n.__("DCP importation"), i18n.__("Importation executed with success"));
       };
 
