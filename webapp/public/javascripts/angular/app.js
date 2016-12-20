@@ -77,6 +77,7 @@ terrama2Application.service("BaseService", ["$q", "$http", "$filter", "$parse", 
   this.$filter = $filter;
   this.$parse = $parse;
 
+  var self = this;
   /**
    * TerraMA² base request URL. It performs $http operation from given request options
    * 
@@ -86,7 +87,6 @@ terrama2Application.service("BaseService", ["$q", "$http", "$filter", "$parse", 
    * @returns {ng.IPromise}
    */
   this.$request = function(url, method, options) {
-    var self = this;
     var defer = self.$q.defer();
 
     self.$http(Object.assign({
@@ -100,7 +100,6 @@ terrama2Application.service("BaseService", ["$q", "$http", "$filter", "$parse", 
 
     return defer.promise;
   };
-
   /**
    * It applies a angular filter over a array with query restriction.
    * 
@@ -109,7 +108,7 @@ terrama2Application.service("BaseService", ["$q", "$http", "$filter", "$parse", 
    * @returns {Array<?>}
    */
   this.$list = function(model, query) {
-    return this.$filter("filter")(model, query);
+    return self.$filter("filter")(model, query);
   };
 
   /**
@@ -120,38 +119,13 @@ terrama2Application.service("BaseService", ["$q", "$http", "$filter", "$parse", 
    * @returns {?}
    */
   this.get = function(model, query) {
-    var elements = this.$list(model, query);
+    var elements = self.$list(model, query);
     if (elements.length === 0) {
       return null;
     }
     return elements[0];
   };
-}]);
-
-
-/**
- * It handles TerraMA² backend enums 
- * 
- * @param {BaseService} BaseService - A generic TerraMA² requester
- * 
- * @class EnumService
- */
-terrama2Application.service("EnumService", ["EnumService", function(BaseService) {
-  this.BaseService = BaseService;
-  this.model = [];
-  this.url = "/api/Enums";
-
-  /**
-   * It retrieves all enums from remote TerraMA² host
-   * 
-   * @returns {angular.IPromise<Enums>}
-   */
-  this.init = function() {
-    return this.BaseService.$request(this.url, "GET", {});
-  };
-}]);
-
-// EnumService.$inject = ["BaseService"];
+}
 
 /**
  * It parses a URI using HTML a tag.

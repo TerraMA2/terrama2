@@ -157,7 +157,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
 {
   if(!datasetType.get())
   {
-    QString errMsg = QObject::tr("Invalid DataSetType.\nDoes the data exists?");
+    QString errMsg = QObject::tr("Invalid DataSetType.");
 
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw DataAccessorException() << ErrorDescription(errMsg);
@@ -181,9 +181,8 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
 }
 
 std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries >
-terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<FileRemover> remover) const
+terrama2::core::DataAccessor::getSeries(const std::map<DataSetId, std::string> uriMap, const Filter& filter, std::shared_ptr<FileRemover> remover) const
 {
-
   //if data provider is not active, nothing to do
   if(!dataProvider_->active)
   {
@@ -206,8 +205,6 @@ terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<Fi
 
   try
   {
-    auto& retrieverFactory = DataRetrieverFactory::getInstance();
-    DataRetrieverPtr dataRetriever = retrieverFactory.make(dataProvider_);
     for(const auto& dataset : dataSeries_->datasetList)
     {
       //if the dataset is not active, continue to next.
@@ -217,21 +214,7 @@ terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<Fi
       if(!intersects(dataset, filter))
         continue;
 
-      // if this data retriever is a remote server that allows to retrieve data to a file,
-      // download the file to a temporary location
-      // if not, just get the DataProvider uri
-      std::string uri;
-
-      if(dataRetriever->isRetrivable())
-      {
-        uri = retrieveData(dataRetriever, dataset, filter, remover);
-      }
-      else
-      {
-        uri = dataProvider_->uri;
-      }
-
-      DataSetSeries tempSeries = getSeries(uri, filter, dataset, remover);
+      DataSetSeries tempSeries = getSeries(uriMap.at(dataset->id), filter, dataset, remover);
       series.emplace(dataset, tempSeries);
     }//for each dataset
   }
@@ -257,6 +240,39 @@ terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<Fi
   return series;
 }
 
+std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries >
+terrama2::core::DataAccessor::getSeries(const Filter& filter, std::shared_ptr<FileRemover> remover) const
+{
+  auto uriMap = getFiles(filter, remover);
+  return getSeries(uriMap, filter, remover);
+}
+
+std::map<DataSetId, std::string> terrama2::core::DataAccessor::getFiles(const Filter& filter, std::shared_ptr<FileRemover> remover) const
+{
+  auto& retrieverFactory = DataRetrieverFactory::getInstance();
+  DataRetrieverPtr dataRetriever = retrieverFactory.make(dataProvider_);
+
+  std::map<DataSetId, std::string> uriMap;
+  for(const auto& dataset : dataSeries_->datasetList)
+  {
+    // if this data retriever is a remote server that allows to retrieve data to a file,
+    // download the file to a temporary location
+    // if not, just get the DataProvider uri
+    std::string uri;
+    if(dataRetriever->isRetrivable())
+    {
+      uri = retrieveData(dataRetriever, dataset, filter, remover);
+    }
+    else
+    {
+      uri = dataProvider_->uri;
+    }
+
+    uriMap.emplace(dataset->id, uri);
+  }
+
+  return uriMap;
+}
 
 void terrama2::core::DataAccessor::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const
 {

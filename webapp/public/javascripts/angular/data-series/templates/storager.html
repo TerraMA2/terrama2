@@ -10,7 +10,7 @@
                     class="form-control" 
                     name="format" 
                     ng-model="storager.format"
-                    ng-disabled="isUpdating"
+                    ng-disabled="isUpdating && hasCollector"
                     ng-change="onStoragerFormatChange()"
                     ng-options="format.name for format in storagerFormats | filter: { collector: false }" 
                     required>

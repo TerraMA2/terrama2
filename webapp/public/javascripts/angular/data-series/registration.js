@@ -261,7 +261,16 @@ angular.module('terrama2.dataseries.registration', [
             if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
               // todo:
             } else {
-              $scope.modelStorager = $scope.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
+              if (configuration.dataSeries.output){
+                $scope.modelStorager = $scope.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
+              } else {
+                var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
+                angular.merge(copyFormat, $scope.model);
+                $scope.modelStorager = SemanticsParserFactory.parseKeys(copyFormat);
+                $scope.filter.area = {
+                  srid: 4326
+                };
+              }
             }
           } else {
             var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);

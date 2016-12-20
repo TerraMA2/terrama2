@@ -170,6 +170,17 @@ void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues( te
       QString errMsg = QObject::tr("Unrecognized geometry type: %1").arg(type);
       throw InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
   }
+
+  // Remove the no data values
+  double noData = raster->getBand(band)->getProperty()->m_noDataValue;
+
+  for(auto it = valuesMap.begin(); it != valuesMap.end();)
+  {
+    if(it->second == noData)
+      it = valuesMap.erase(it);
+    else
+      ++it;
+  }
 }
 
 template<class T>
