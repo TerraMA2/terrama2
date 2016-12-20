@@ -94,8 +94,8 @@ angular.module("terrama2.services", ['terrama2'])
     };
   }]).
 
-  factory("Socket", function($rootScope) {
-    var socket = io.connect(window.location.origin, {
+  factory("Socket", ["$rootScope", "$window", function($rootScope, $window) {
+    var socket = io.connect($window.location.origin, {
       reconnect: false // it avoids to socket io reconnect automatically.
     });
 
@@ -129,8 +129,9 @@ angular.module("terrama2.services", ['terrama2'])
         });
       }
     };
-  })
-  .factory("UserFactory", function($http) {
+  }])
+
+  .factory("UserFactory", ["$http", function($http) {
     var url = "/api/users/";
     return {
       get: function(userId, restriction) {
@@ -148,7 +149,7 @@ angular.module("terrama2.services", ['terrama2'])
         return $http.put(url + userId, userObject || {});
       }
     };
-  })
+  }])
 
   .factory("UniqueNumber", function() {
     function generator() {
@@ -157,7 +158,7 @@ angular.module("terrama2.services", ['terrama2'])
 
       var _getRandomInt = function( min, max ) {
         return Math.floor(Math.random() * ( max - min + 1 )) + min;
-      }
+      };
 
       this.generate = function() {
         var ts = this.timestamp.toString();
@@ -170,21 +171,12 @@ angular.module("terrama2.services", ['terrama2'])
         }
 
         return id;
-      }
+      };
     }
     return function() {
       var unique = new generator();
       return unique.generate();
     };
-  })
-
-  .factory("ProjectFactory", function() {
-    var url = "/api/Project/"
-    return {
-      delete: function(projectId) {
-        $http.delete(url+projectId+"/delete", {});
-      }
-    }
   })
 
   .factory('FileDialog', [function(){
@@ -248,7 +240,7 @@ angular.module("terrama2.services", ['terrama2'])
         } catch (e) {
           callback(new Error("Invalid configuration file: " + e.toString()));
         }
-      }
+      };
 
       reader.readAsText(fileBlob);
     };
@@ -268,9 +260,9 @@ angular.module("terrama2.services", ['terrama2'])
         // detecting dom parser
         if (window.DOMParser) {
           parser = new DOMParser();
-          xmlDoc = parser.parseFromString(reader.result, "text/xml");
+          var xmlDoc = parser.parseFromString(reader.result, "text/xml");
         } else {
-          xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+          var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
           xmlDoc.async = false;
           xmlDoc.loadXML(reader.result);
         }

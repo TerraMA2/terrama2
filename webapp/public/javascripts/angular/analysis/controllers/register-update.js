@@ -10,6 +10,7 @@
     'terrama2.dataseries.services',
     'terrama2.components.messagebox',
     'terrama2.components.messagebox.services',
+    'terrama2.components.analysis',
     'terrama2.datetimepicker',
     'terrama2.ace',
     'terrama2.components.geo',
@@ -463,10 +464,20 @@
          * @returns {boolean}
          */
         self.hasDcp = function() {
-          return self.selectedDataSeriesList
-            .find(function(element) {
-              return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
-            });
+          var found = self.selectedDataSeriesList.find(function(element) {
+                        return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
+                      });
+          if (self.analysisHelperRestriction) {
+            if (found) {
+              self.analysisHelperRestriction.type.$in.push("DCP");
+            } else {
+              var dcpIndex = self.analysisHelperRestriction.type.$in.indexOf("DCP");
+              if (dcpIndex !== -1) {
+                self.analysisHelperRestriction.type.$in.splice(dcpIndex, 1);
+              }
+            }
+          }
+          return found;
         };
 
         /**
@@ -505,6 +516,12 @@
               $log.log("Invalid analysis type ID");
               return;
           }
+
+          self.analysisHelperRestriction = {
+            "type": {
+              "$in": [dataseriesFilterType]
+            }
+          };
 
           // re-fill data series
           self._processBuffers();
