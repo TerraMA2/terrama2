@@ -148,6 +148,14 @@ namespace terrama2
             */
             void storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context);
 
+            /*!
+              \brief Validates the parameters of an analysis.
+              \param dataManager A smart pointer to the data manager.
+              \param dataManager The analysis configuration.
+              \return The validation result.
+            */
+            ValidateResult validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis);
+
           signals:
             //! Signal to notify that a analysis execution has finished.
             void analysisFinished(int, bool);

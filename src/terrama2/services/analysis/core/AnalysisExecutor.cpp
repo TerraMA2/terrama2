@@ -805,3 +805,49 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
     return;
   }
 }
+
+
+terrama2::services::analysis::core::ValidateResult terrama2::services::analysis::core::AnalysisExecutor::validateAnalysis(DataManagerPtr dataManager,
+                                                                           AnalysisPtr analysis)
+{
+  ValidateResult validateResult;
+  validateResult.analysisId = analysis->id;
+
+  verify::validateAnalysis(dataManager, analysis, validateResult);
+
+  if(analysis->scriptLanguage == ScriptLanguage::PYTHON)
+  {
+    try
+    {
+      python::validateAnalysisScript(analysis, validateResult);
+    }
+    catch(const terrama2::Exception& e)
+    {
+      validateResult.messages.push_back(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    }
+    catch(const boost::python::error_already_set&)
+    {
+      std::string errMsg = python::extractException();
+      validateResult.messages.push_back(errMsg);
+    }
+    catch(const std::exception& e)
+    {
+      validateResult.messages.push_back(e.what());
+    }
+    catch(...)
+    {
+      QString errMsg = QObject::tr("An unknown exception occurred.");
+      validateResult.messages.push_back(errMsg.toStdString());
+    }
+  }
+  else
+  {
+    QString errMsg = QObject::tr("VALIDATION FOR LUA SCRIPT NOT IMPLEMENTED YET.");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    validateResult.messages.push_back(errMsg.toStdString());
+  }
+
+  validateResult.valid = validateResult.messages.empty();
+
+  return validateResult;
+}

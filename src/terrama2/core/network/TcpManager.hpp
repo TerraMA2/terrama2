@@ -29,7 +29,9 @@
 #include <QTcpSocket>
 
 #include <memory>
+#include <QtCore/QJsonDocument>
 
+#include "TcpSignals.hpp"
 #include "../utility/ProcessLogger.hpp"
 
 class QTcpSocket;
@@ -86,7 +88,8 @@ namespace terrama2
         TcpManager& operator=(TcpManager&& other) = delete;
 
         //! Send log information to the TerraMA² application.
-        bool sendLog(const QByteArray& bytearray, QTcpSocket* tcpSocket);
+        void sendLog(const QByteArray& bytearray, QTcpSocket* tcpSocket);
+
         /*!
           \brief Listens to TCP socket connections.
 
@@ -96,18 +99,25 @@ namespace terrama2
 
       public slots:
         bool updateListeningPort(uint32_t) noexcept;
-        //! Slot called a process ended.
-        void processFinishedSlot(QJsonObject answer) noexcept;
+
+        //! Send validate process information.
+        void sendValidateProcessSlot(QJsonObject answer) noexcept;
+
+        //! Send process finished information.
+        void sendProcessFinishedSlot(QJsonObject answer) noexcept;
+
+        //! Sends the signal information.
+        void sendSignalSlot(TcpSignal signal, QJsonDocument answer = QJsonDocument()) noexcept;
 
       signals:
-        //! Emited when the service should be terminated.
+        //! Emitted when the service should be terminated.
         void stopSignal();
         void closeApp();
-        //! Emited when a process should be started immediately.
+        //! Emmited when a process should be started immediately.
         void startProcess(uint32_t, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
       private slots:
-        //! Slot called when a new conenction arrives.
+        //! Slot called when a new connection arrives.
         void receiveConnection() noexcept;
         //! Slot called when finished receiving a tcp message.
         void readReadySlot(QTcpSocket* tcpSocket) noexcept;
@@ -121,7 +131,7 @@ namespace terrama2
         void removeData(const QByteArray& bytearray);
         void updateService(const QByteArray& bytearray);
         QJsonObject logToJson(const terrama2::core::ProcessLogger::Log& log);
-        void sendTerminateSignal(QTcpSocket* tcpSocket);
+
         void sendStartProcess(const QByteArray& bytearray);
 
         std::weak_ptr<terrama2::core::DataManager> dataManager_;//!< Weak pointer to the service DataManager.

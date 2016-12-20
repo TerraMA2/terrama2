@@ -64,9 +64,9 @@ namespace terrama2
             \brief Validates an analysis to check if all configurations are set correctly and if there is data available in the data series.
             \param dataManager A smart pointer to the data manager.
             \param analysis The analysis to be executed.
-            \return The validate result object.
+            \param validateResult The validate result object.
           */
-          ValidateResult validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis);
+          void validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, ValidateResult& validateResult);
 
           /*!
             \brief Verifies if all data series used in the analysis have data available.

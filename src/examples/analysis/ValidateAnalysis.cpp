@@ -12,8 +12,8 @@
 #include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
+#include <terrama2/services/analysis/core/AnalysisExecutor.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
-#include <terrama2/services/analysis/core/utility/Verify.hpp>
 
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
@@ -158,9 +158,10 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
 
       dataManager->add(analysisPtr);
 
-      auto result = terrama2::services::analysis::core::verify::validateAnalysis(dataManager, analysisPtr);
+      terrama2::services::analysis::core::AnalysisExecutor executor;
+      auto result = executor.validateAnalysis(dataManager, analysisPtr);
 
-      std::cout << "Validate result for grid analysis: " << (result.isValid ? "OK" : "Not OK") << std::endl;
+      std::cout << "Validate result for grid analysis: " << (result.valid ? "OK" : "Not OK") << std::endl;
       for (auto message : result.messages)
       {
         std::cout << message << std::endl;
@@ -215,7 +216,7 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
       analysis->name = "Analysis";
       analysis->active = true;
 
-      std::string script = "x = occurrence.count(\"Occurrence\", \"500d\")\n"
+      std::string script = "x = occurrences.count(\"Occurrence\", \"500d\")\n"
           "add_value(\"count\", x)\n";
 
 
@@ -321,10 +322,10 @@ te::core::URI uri("pgsql://"+TERRAMA2_DATABASE_USERNAME+":"+TERRAMA2_DATABASE_PA
 
       dataManager->add(analysisPtr);
 
+      terrama2::services::analysis::core::AnalysisExecutor executor;
+      auto result = executor.validateAnalysis(dataManager, analysisPtr);
 
-      auto result = terrama2::services::analysis::core::verify::validateAnalysis(dataManager, analysisPtr);
-
-      std::cout << "Validate result for monitored object analysis: " <<  (result.isValid ? "OK" : "Not OK") << std::endl;
+      std::cout << "Validate result for monitored object analysis: " <<  (result.valid ? "OK" : "Not OK") << std::endl;
       for(auto message : result.messages)
       {
         std::cout << message << std::endl;

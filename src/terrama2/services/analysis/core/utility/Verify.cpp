@@ -185,17 +185,12 @@ std::vector<std::string> terrama2::services::analysis::core::verify::attributeId
   return vecMessages;
 }
 
-terrama2::services::analysis::core::ValidateResult terrama2::services::analysis::core::verify::validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis)
+void terrama2::services::analysis::core::verify::validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis, ValidateResult& validateResult)
 {
-  ValidateResult result;
-  result.analysisId = analysis->id;
-
   auto messages = inactiveDataSeries(dataManager, analysis);
-  result.messages.insert(result.messages.end(), messages.begin(), messages.end());
+  validateResult.messages.insert(validateResult.messages.end(), messages.begin(), messages.end());
 
   messages = dataAvailable(dataManager, analysis);
-  result.messages.insert(result.messages.end(), messages.begin(), messages.end());
+  validateResult.messages.insert(validateResult.messages.end(), messages.begin(), messages.end());
 
-  result.isValid = result.messages.empty();
-  return result;
 }

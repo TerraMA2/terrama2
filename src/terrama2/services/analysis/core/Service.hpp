@@ -112,6 +112,20 @@ namespace terrama2
              */
             virtual void updateAdditionalInfo(const QJsonObject& obj) noexcept override;
 
+            /*!
+             * \brief Validates the analysis configuration.
+             *
+             * \note Checks for:
+             * - Inactive data series,
+             * - Data available for each data series.
+             * - Syntax errors in the script.
+             *
+             * It will emit a signal with the result and the messages with the problems.
+             *
+             * \param analysis The analysis configuration.
+             */
+            void validateAnalysis(AnalysisPtr analysis) noexcept;
+
           protected:
 
             /*!

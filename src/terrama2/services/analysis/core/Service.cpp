@@ -40,6 +40,7 @@
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
+#include "utility/JSonUtils.hpp"
 
 #include <ThreadPool.h>
 
@@ -257,6 +258,7 @@ void terrama2::services::analysis::core::Service::connectDataManager()
   connect(dataManager_.get(), &DataManager::analysisAdded, this, &Service::addProcessToSchedule);
   connect(dataManager_.get(), &DataManager::analysisRemoved, this, &Service::removeAnalysis);
   connect(dataManager_.get(), &DataManager::analysisUpdated, this, &Service::updateAnalysis);
+  connect(dataManager_.get(), &DataManager::validateAnalysis, this, &Service::validateAnalysis);
 }
 
 void terrama2::services::analysis::core::Service::start(size_t threadNumber)
@@ -298,5 +300,27 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
 
 void terrama2::services::analysis::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
 {
+
+}
+
+void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr analysis) noexcept
+{
+  try
+  {
+    ValidateResult result = analysisExecutor_.validateAnalysis(dataManager_, analysis);
+    QJsonObject obj = toJson(result);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    //logged on throw
+  }
+  catch(std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
+  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
+  }
 
 }

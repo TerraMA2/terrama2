@@ -218,8 +218,8 @@ namespace terrama2
 
         struct ValidateResult
         {
-          AnalysisId analysisId;
-          bool isValid;
+          AnalysisId analysisId = 0;
+          bool valid = true;
           std::vector<std::string> messages;
         };
 

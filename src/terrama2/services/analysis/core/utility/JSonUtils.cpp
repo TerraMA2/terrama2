@@ -358,3 +358,19 @@ QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analy
 
   return obj;
 }
+
+QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analysis::core::ValidateResult result)
+{
+  QJsonObject obj;
+  obj.insert("id", static_cast<qint32>(result.analysisId));
+  obj.insert("valid", result.valid);
+
+  QJsonArray messages;
+  for(std::string& message : result.messages)
+  {
+    messages.append(QJsonValue(QString::fromStdString(message)));
+  }
+  obj.insert("messages", messages);
+
+  return obj;
+}

@@ -108,7 +108,7 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   {
     AnalysisPtr analysis = context->getAnalysis();
 
-    std::string script = prepareScript(context);
+    std::string script = prepareScript(analysis);
 
     PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
     if(pCompiledFn == NULL)
@@ -208,7 +208,7 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
 
     int nCols = outputRaster->getNumberOfColumns();
 
-    std::string script = prepareScript(context);
+    std::string script = prepareScript(analysis);
     PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
     if(pCompiledFn == NULL)
     {
@@ -486,9 +486,8 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
 }
 
 
-std::string terrama2::services::analysis::core::python::prepareScript(terrama2::services::analysis::core::BaseContextPtr context)
+std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPtr analysis)
 {
-  AnalysisPtr analysis = context->getAnalysis();
   std::string formatedScript = analysis->script;
 
   // Adds indent after line break
@@ -506,6 +505,47 @@ std::string terrama2::services::analysis::core::python::prepareScript(terrama2::
   formatedScript = "from terrama2 import *\ndef analysis():\n" + formatedScript;
 
   return formatedScript;
+}
+
+void terrama2::services::analysis::core::python::validateAnalysisScript(AnalysisPtr analysis, ValidateResult& validateResult)
+{
+  try
+  {
+    std::string script = prepareScript(analysis);
+    PyObject *pCompiledFn = Py_CompileString(script.c_str(), "", Py_file_input);
+    if (pCompiledFn == NULL)
+    {
+      QString errMsg(QObject::tr("Invalid script."));
+      validateResult.messages.push_back(errMsg.toStdString());
+      return;
+    }
+
+    // create a module
+    PyObject *pModule = PyImport_ExecCodeModule((char *) "analysis", pCompiledFn);
+    if (pModule == NULL)
+    {
+      QString errMsg(QObject::tr("Could not register the analysis function."));
+      validateResult.messages.push_back(errMsg.toStdString());
+      return;
+    }
+
+    boost::python::object analysisModule = boost::python::import("analysis");
+    boost::python::object analysisFunction = analysisModule.attr("analysis");
+  }
+  catch (const error_already_set &)
+  {
+    std::string errMsg = extractException();
+    validateResult.messages.push_back(errMsg);
+  }
+  catch(const std::exception& e)
+  {
+    validateResult.messages.push_back(e.what());
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    validateResult.messages.push_back(errMsg.toStdString());
+  }
 }
 
 std::mutex terrama2::services::analysis::core::python::GILLock::mutex_;
