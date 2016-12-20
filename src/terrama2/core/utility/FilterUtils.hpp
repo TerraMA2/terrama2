@@ -62,6 +62,18 @@ namespace terrama2
     */
     bool isValidDataSetName(const std::string& mask, const Filter& filter, const std::string& timezone, const std::string& name, std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp);
 
+
+    /*!
+      \brief Returns the timestamp of the given filename.
+
+      \param mask A mask to check  names
+      \param timezone The timezone of the date in name
+      \param name A name to check
+
+      \return Returns the file timestamp.
+    */
+    std::shared_ptr<te::dt::TimeInstantTZ> getFileTimestamp(const std::string& mask, const std::string& timezone, const std::string& name);
+
     bool terramaMaskMatch(const std::string& mask, const std::string& string);
 
     /*!

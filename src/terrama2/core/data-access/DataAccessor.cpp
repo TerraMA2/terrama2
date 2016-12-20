@@ -157,7 +157,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
 {
   if(!datasetType.get())
   {
-    QString errMsg = QObject::tr("Invalid DataSetType.\nDoes the data exists?");
+    QString errMsg = QObject::tr("Invalid DataSetType.");
 
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw DataAccessorException() << ErrorDescription(errMsg);
