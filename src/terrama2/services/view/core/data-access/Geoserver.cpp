@@ -91,9 +91,7 @@ const std::string& terrama2::services::view::core::GeoServer::getWorkspace(const
 
   if(cURLwrapper.responseCode() == 404)
   {
-    QString errMsg = QObject::tr("Workspace not found. ");
-    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
-    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
   }
   else if(cURLwrapper.responseCode() != 200)
   {
@@ -169,9 +167,7 @@ const std::string& terrama2::services::view::core::GeoServer::getDataStore(const
 
   if(cURLwrapper.responseCode() == 404)
   {
-    QString errMsg = QObject::tr("Data Store not found. ");
-    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
-    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
   }
   else if(cURLwrapper.responseCode() != 200)
   {
@@ -245,9 +241,7 @@ const std::string& terrama2::services::view::core::GeoServer::getFeature(const s
 
   if(cURLwrapper.responseCode() == 404)
   {
-    QString errMsg = QObject::tr("Feature not found. ");
-    TERRAMA2_LOG_ERROR() << errMsg << cURLwrapper.response();
-    throw NotFoundGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
   }
   else if(cURLwrapper.responseCode() != 200)
   {
@@ -826,13 +820,14 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
         if(temporality == terrama2::core::DataSeriesTemporality::DYNAMIC
            && dataFormat == "GEOTIFF")
         {
-          QUrl url(QString::fromStdString(inputDataProvider->uri));
+          QUrl baseUrl(QString::fromStdString(inputDataProvider->uri));
 
           std::string layerName = viewPtr->viewName;
           int geomSRID;
 
           for(auto& dataset : datasets)
           {
+            QUrl url(baseUrl.path() + QString::fromStdString("/" + dataset->format.at("folder")));
             geomSRID = createGeoserverTempMosaic(dataManager, dataset, filter, layerName, url.path().toStdString());
 
             registerMosaicCoverage(layerName + "coveragestore", url.path().toStdString(), layerName, geomSRID);
@@ -850,6 +845,14 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
                                                  filter,
                                                  remover,
                                                  std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
+
+          if(fileInfoList.empty())
+          {
+            QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
+            logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
+            TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
+            continue;
+          }
 
           for(auto& fileInfo : fileInfoList)
           {
