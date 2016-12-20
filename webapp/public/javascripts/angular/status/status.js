@@ -1,7 +1,6 @@
 angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terrama2.components.messagebox'])
   .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n', '$window',
   function($scope, $HttpTimeout, Socket, i18n, $window) {
-
     var Globals = $window.globals;
     $scope.i18n = i18n;
     $scope.globals = Globals;
@@ -74,12 +73,10 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
 
     // socket listeners
     $scope.socket.on('closeResponse', function(response) {
-      console.log(response);
       $scope.loading = false;
     });
 
     $scope.socket.on('errorResponse', function(response) {
-      console.log(response);
       $scope.loading = false;
 
       if (response.service === 0) {
@@ -91,7 +88,6 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
     });
 
     $scope.socket.on('logResponse', function(response) {
-      console.log(response);
       $scope.loading = false;
       var service = response.service;
 
@@ -192,15 +188,15 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
             out.messages = [dummyMessage];
           }
 
-          $scope.model.push(out)
-        })
-      })
+          $scope.model.push(out);
+        });
+      });
     });
 
     $scope.socket.emit('log', {
       begin: 0,
       end: 2
-    })
+    });
 
     if(configuration.parameters.message !== undefined && configuration.parameters.message !== null && configuration.parameters.message !== "") {
       $scope.alertBox.title = i18n.__("Project");
@@ -209,4 +205,4 @@ angular.module('terrama2.status', ['terrama2.services', 'terrama2.table', 'terra
       $scope.display = true;
     }
 
-  }])
+  }]);

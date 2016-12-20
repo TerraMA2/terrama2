@@ -22,7 +22,7 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
     }
   })
 
-  .factory("Polygon", function(GeoJSON, Geometry, GeometryFormat) {
+  .factory("Polygon", ["GeoJSON", "Geometry", "GeometryFormat", function(GeoJSON, Geometry, GeometryFormat) {
     return {
       /**
        * @param {GeoJSON} geojson - A geojson object structure
@@ -75,9 +75,9 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
         return geojson;
       }
     };
-  })
+  }])
 
-  .factory("Point", function(Geometry, GeoJSON) {
+  .factory("Point", ["Geometry", "GeoJSON", function(Geometry, GeoJSON) {
     return {
       /**
        * @param {GeoJSON} geojson - A geojson object structure
@@ -115,9 +115,9 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
         return geojson;
       }
     };
-  })
+  }])
 
-  .factory("GeoJsonBuilder", function(Geometry, Polygon, Point) {
+  .factory("GeoJsonBuilder", ["Geometry", "Polygon", "Point", function(Geometry, Polygon, Point) {
     /**
      * @param {Geometry} geometry - A const geometry enum
      * @param {Object} model - A javascript object with limits value
@@ -133,7 +133,7 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
           return {};
       }
     };
-  })
+  }])
   
   /**
    * This factory injects all GeoLibraries available in order make it useful when handle multiple geo data types.
@@ -144,11 +144,11 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
    * @param {GeoJsonBuilder} GeoJsonBuilder - TerraMA² geojson builder
    * @returns {Object}
    */
-  .factory("GeoLibs", function(Geometry, Polygon, Point, GeoJsonBuilder) {
+  .factory("GeoLibs", ["Geometry", "Polygon", "Point", "GeoJsonBuilder", function(Geometry, Polygon, Point, GeoJsonBuilder) {
     return {
       geometry: Geometry,
       point: Point,
       polygon: Polygon,
       geojson: GeoJsonBuilder
     };
-  });
+  }]);

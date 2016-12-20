@@ -412,14 +412,14 @@ terrama2Application.directive('terrama2Box', ["$parse", function($parse) {
       extra: '=?',
       css: '=?'
     },
-    controller: function($scope) {
+    controller: ["$scope", function($scope) {
       $scope.css = $scope.css || {};
 
       $scope.boxType = "";
       if ($scope.css.boxType) {
         $scope.boxType = $scope.css.boxType;
       }
-    },
+    }],
     link: function(scope, element, attrs, ctrl, transclude) {
       var elm = element.find('#targetTransclude');
 

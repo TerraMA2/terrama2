@@ -13,7 +13,7 @@ function makeHeader() {
 }
 
 angular.module('terrama2.table', ['terrama2'])
-  .run(function($templateCache) {
+  .run(["$templateCache", function($templateCache) {
     $templateCache.put('filterTable.html',
       "<div class=\"col-md-10\">" +
         "<div class=\"form-group\">" +
@@ -51,8 +51,8 @@ angular.module('terrama2.table', ['terrama2'])
       "</div>" +
       "<div class='col-md-12' ng-transclude='contentSlot'></div>" +
     "</div>");
-  })
-  .directive('terrama2Table', function(i18n) {
+  }])
+  .directive('terrama2Table', ["i18n", function(i18n) {
     return {
       restrict: 'E',
       templateUrl: '/javascripts/angular/table/templates/table.html',
@@ -188,13 +188,13 @@ angular.module('terrama2.table', ['terrama2'])
         }
       }]
     }
-  })
+  }])
 
-  .directive('terrama2TdHeader', function(i18n) {
+  .directive('terrama2TdHeader', ["i18n", function(i18n) {
     return makeHeader();
-  })
+  }])
 
-  .directive('terrama2ModalMessages', function(i18n){
+  .directive('terrama2ModalMessages', ["i18n", function(i18n){
     return {
       transclude: true,
       link: function(scope, element, attrs, transclude){
@@ -222,9 +222,9 @@ angular.module('terrama2.table', ['terrama2'])
         return template;
       }
     }
-  })
+  }])
 
-  .directive('terrama2TableView', function(i18n) {
+  .directive('terrama2TableView', ["i18n", function(i18n) {
     return {
       restrict: 'E',
       priority: 1001,
@@ -265,8 +265,8 @@ angular.module('terrama2.table', ['terrama2'])
         return template;
       }
     }
-  })
-  .directive('terrama2Table2Filter', function($compile, i18n) {
+  }])
+  .directive('terrama2Table2Filter', ["$compile", "i18n", function($compile, i18n) {
     return {
       restrict: 'E',
       priority: 1500,
@@ -291,9 +291,9 @@ angular.module('terrama2.table', ['terrama2'])
         });
       }
     };
-  })
+  }])
 
-  .directive('terrama2TableHeader', function(i18n) {
+  .directive('terrama2TableHeader', ["i18n", function(i18n) {
     return {
       restrict: 'E',
       transclude: {
@@ -305,9 +305,9 @@ angular.module('terrama2.table', ['terrama2'])
         scope.linkToAdd = attrs.linkToAdd;
       }
     };
-  })
+  }])
 
-  .directive('terrama2FilterTable', function (i18n) {
+  .directive('terrama2FilterTable', ["i18n", function (i18n) {
     return {
       restrict: 'E',
       priority: 2000,
@@ -320,9 +320,9 @@ angular.module('terrama2.table', ['terrama2'])
         $scope.i18n = i18n;
       }]
     };
-  })
+  }])
 
-  .directive("terrama2MockTable", function(i18n) {
+  .directive("terrama2MockTable", ["i18n", function(i18n) {
     return {
       restrict: 'E',
       templateUrl: "mockTable.html",
@@ -340,9 +340,9 @@ angular.module('terrama2.table', ['terrama2'])
         $scope.i18n = i18n;
       }]
     };
-  })
+  }])
 
-  .directive("terrama2SelectTable", function(i18n) {
+  .directive("terrama2SelectTable", ["i18n", function(i18n) {
     /**
      * Defines a selectable table
      * @param {Object} model - A javascript object with structure. {name: "GroupName", children: NodeArray}
@@ -370,4 +370,4 @@ angular.module('terrama2.table', ['terrama2'])
         };
       }]
     };
-  });
+  }]);

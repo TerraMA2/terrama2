@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module("terrama2.components.messagebox", ['terrama2'])
-  .run(function($templateCache) {
+  .run(["$templateCache", function($templateCache) {
     // <terrama2-alert-box>
     $templateCache.put('message-box.html',
     '<div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel" terrama2-fluid ng-transclude>' +
@@ -37,7 +37,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
         '</div>' +
       '</div>' +
     '</div>');
-  })
+  }])
   .directive("terrama2MessageBox", function() {
     return {
       restrict: "AE",
@@ -162,7 +162,7 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
     };
   })
 
-  .directive("terrama2ModalBox", function() {
+  .directive("terrama2ModalBox", [function() {
     return {
       restrict: 'E',
       transclude: true,/*{
@@ -182,9 +182,9 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
         $scope.css = $scope.properties.css || "modal fade";
       }]
     };
-  })
+  }])
 
-  .directive("terrama2RemoveModal", function() {
+  .directive("terrama2RemoveModal", [function() {
     return {
       restrict: "E",
       template: "<terrama2-modal-box title='title' modal-id='\"removalID\"' properties='properties'>" +
@@ -202,4 +202,4 @@ angular.module("terrama2.components.messagebox", ['terrama2'])
         console.log(scope);
       }
     };
-  });
+  }]);

@@ -13,7 +13,8 @@
       "terrama2.administration.services.iservices",
       "terrama2.ace",
       "terrama2.components.messagebox.services",
-      "terrama2.components.messagebox"])
+      "terrama2.components.messagebox"
+    ])
     .constant("StyleContants", {
       "GRID": "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<StyledLayerDescriptor xmlns='http://www.opengis.net/sld' xmlns:ogc='http://www.opengis.net/ogc' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd' version='1.0.0'>" +
@@ -75,7 +76,21 @@
                   "</NamedLayer>" +
                 "</StyledLayerDescriptor>"
     })
-    .controller("ViewRegisterUpdate", ViewRegisterUpdate)
+    .controller("ViewRegisterUpdate", [
+      "$scope",
+      "i18n",
+      "ViewService",
+      "$log",
+      "$http",
+      "$timeout",
+      "MessageBoxService",
+      "$window",
+      "DataSeriesService",
+      "Service",
+      "StyleContants",
+      "StringFormat",
+      ViewRegisterUpdate
+    ]);
 
   /**
    * It represents a Controller to handle View form registration.
@@ -425,17 +440,7 @@
                                        self.maxColor,
                                        self.maxValue);
       } else {
-        // digesting XML with min/max value and color
-        // var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
         self.view.style = "";
-        // self.view.style = StringFormat(sld,
-        //                                self.view.name,
-        //                                self.lineStrokeColor,
-        //                                self.lineStroke,
-        //                                self.polygonStrokeColor,
-        //                                self.polygonStroke,
-        //                                self.pointStrokeColor,
-        //                                self.pointSize);
       }
 
       // If dynamic, schedule validation is required
@@ -488,7 +493,4 @@
       });
     };
   }
-
-    // Injecting Angular Dependencies
-  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", "DataSeriesService", "Service", "StyleContants", "StringFormat"];
 } ());

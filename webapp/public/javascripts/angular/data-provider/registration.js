@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-var app = angular.module("terrama2.dataprovider.registration", ['terrama2', 'schemaForm', 'terrama2.components.messagebox']);
+var app = angular.module("terrama2.dataprovider.registration", ["terrama2", "schemaForm", "terrama2.components.messagebox"]);
 
 app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout",
   function($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout) {
@@ -45,7 +45,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
     //  redraw form
     if ($scope.form) {
-      $scope.$broadcast('schemaFormRedraw');
+      $scope.$broadcast("schemaFormRedraw");
     }
 
     $scope.schemeList = [];
@@ -57,7 +57,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
     var makeRedirectUrl = function(extra) {
       var redirectUrl = conf.redirectTo.redirectTo || "/configuration/providers/";
-      redirectUrl += (redirectUrl.indexOf('?') === -1) ? '?' : '&';
+      redirectUrl += (redirectUrl.indexOf("?") === -1) ? "?" : "&";
 
       var redirectData = Object.assign(conf.redirectTo, extra instanceof Object ? extra : {});
       delete redirectData.redirectTo;
@@ -102,11 +102,11 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
             $scope.form = ["*"];
           }
 
-          $scope.$broadcast('schemaFormRedraw');
+          $scope.$broadcast("schemaFormRedraw");
           $timeout(function(){
             if ($scope.dataProvider.protocol === "POSTGIS"){
-              var databaseInput = angular.element('#database');
-              databaseInput.attr('list', 'databaseList');
+              var databaseInput = angular.element("#database");
+              databaseInput.attr("list", "databaseList");
             }
           });
         }
@@ -117,7 +117,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     
     $scope.dbList = [];
     var timeoutPromise;
-    $scope.$watch('model', function(){
+    $scope.$watch("model", function(){
       $timeout.cancel(timeoutPromise);
       timeoutPromise = $timeout(function(){
         if ($scope.dataProvider.protocol !== "POSTGIS" || !$scope.forms.connectionForm.hostname || !$scope.forms.connectionForm.port || !$scope.forms.connectionForm.user){
@@ -160,10 +160,10 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
     $scope.save = function() {
       $scope.resetState();
-      $scope.$broadcast('formFieldValidation');
+      $scope.$broadcast("formFieldValidation");
 
       // calling auto generate form validation
-      $scope.$broadcast('schemaFormValidate');
+      $scope.$broadcast("schemaFormValidate");
 
       var isConnectionFormValid = $scope.isValidDataProviderTypeForm($scope.forms.connectionForm);
       if (!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
@@ -210,7 +210,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
     $scope.checkConnection = function(form) {
       $scope.model = $scope.model;
-      $scope.$broadcast('schemaFormValidate');
+      $scope.$broadcast("schemaFormValidate");
 
       if (!$scope.isValidDataProviderTypeForm(form)) {
         return;

@@ -6,7 +6,17 @@ angular.module('terrama2.administration.services.registration', [
   'terrama2.components.collapser'
 ])
 
-.controller('RegisterUpdate', RegisterUpdate);
+.controller('RegisterUpdate', [
+  "$scope", 
+  "$window",
+  "Service",
+  "MessageBoxService",
+  "Socket",
+  "i18n",
+  "$q",
+  "URIParser",
+  RegisterUpdate
+]);
 
 /**
  * It handles TerraMA² Service Registration and Service Update
@@ -58,6 +68,19 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       self.service.isLocal = state;
     }
   };
+
+  /**
+   * It defines a connection validation of Database
+   * 
+   * @type {Object}
+   */
+  self.db = {};
+  /**
+   * It defines a connection validation of SSH
+   * 
+   * @type {Object}
+   */
+  self.ssh = {};
 
   // Initializing Async services.
   $q
@@ -418,6 +441,3 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
                                i18n.__("An error occurred during TerraMA² Service Page loading." + err.toString()));
     });
 }
-
-// Injecting dependencies
-RegisterUpdate.$inject = ["$scope", "$window", "Service", "MessageBoxService", "Socket", "i18n", "$q", "URIParser"];

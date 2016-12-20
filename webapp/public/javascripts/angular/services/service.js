@@ -13,7 +13,7 @@
         $scope.boxCss = {};
 
         $scope.link = function(object) {
-            return "/administration/services/" + object.id;
+          return "/administration/services/" + object.id;
         };
 
         $scope.model = [];
