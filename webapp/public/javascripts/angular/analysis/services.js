@@ -22,7 +22,7 @@
           });
       }
     }])
-    .service("AnalysisService", AnalysisService);
+    .service("AnalysisService", ["BaseService", "AnalysisType", AnalysisService]);
   
   /**
    * @class AnalysisService
@@ -109,6 +109,4 @@
   AnalysisService.prototype.update = function(analysisId, analysisObject) {
     return this.BaseService.$request(this.url + "/" + analysisId, "PUT", {data: analysisObject});
   };
-
-  AnalysisService.$inject = ["BaseService", "AnalysisType"];
 } ());

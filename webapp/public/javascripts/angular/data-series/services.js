@@ -16,11 +16,11 @@
       GEOMETRIC_OBJECT: 'GEOMETRIC_OBJECT',
       POSTGIS: 'POSTGIS'
     })
-    .service("DataSeriesService", DataSeriesService)
-    .service("DataSeriesSemanticsService", DataSeriesSemanticsService)
-    .factory("SemanticsParserFactory", SemanticsParserFactory)
-    .factory("SemanticsHelpers", WrapSemanticsHelpers)
-    .factory("SemanticsLibs", SemanticsLibs);
+    .service("DataSeriesService", ["BaseService", "DataSeriesType", "$filter", "$q", DataSeriesService])
+    .service("DataSeriesSemanticsService", ["BaseService", "$q", DataSeriesSemanticsService])
+    .factory("SemanticsParserFactory", [SemanticsParserFactory])
+    .factory("SemanticsHelpers", ["StringDiff", WrapSemanticsHelpers])
+    .factory("SemanticsLibs", ["SemanticsHelpers", "SemanticsParserFactory", SemanticsLibs]);
   
   /**
    * Data Series service DAO
@@ -85,10 +85,6 @@
     });
   };
 
-  // Angular Injecting Dependency
-  DataSeriesService.$inject = ["BaseService", "DataSeriesType", "$filter", "$q"];
-
-
   /**
    * Data Series Semantics service DAO
    * 
@@ -139,7 +135,7 @@
 
   function SemanticsLibs(SemanticsHelpers, SemanticsParserFactory) {
     return {
-      utility: WrapSemanticsHelpers,
+      utility: SemanticsHelpers,
       parsers: SemanticsParserFactory
     };
   }

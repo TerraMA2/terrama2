@@ -1,25 +1,41 @@
 (function() {
   'use strict';
 
-  angular.module('terrama2.analysis.controller.registerupdate', [
-    'terrama2',
-    'terrama2.services',
-    'terrama2.analysis.services',
-    'terrama2.dataproviders.services',
-    'terrama2.administration.services.iservices',
-    'terrama2.dataseries.services',
-    'terrama2.components.messagebox',
-    'terrama2.components.messagebox.services',
-    'terrama2.components.analysis',
-    'terrama2.datetimepicker',
-    'terrama2.ace',
-    'terrama2.components.geo',
-    'schemaForm',
-    'terrama2.schedule',
-    'treeControl'
+  angular.module("terrama2.analysis.controller.registerupdate", [
+    "terrama2",
+    "terrama2.services",
+    "terrama2.analysis.services",
+    "terrama2.dataproviders.services",
+    "terrama2.administration.services.iservices",
+    "terrama2.dataseries.services",
+    "terrama2.components.messagebox",
+    "terrama2.components.messagebox.services",
+    "terrama2.components.analysis",
+    "terrama2.datetimepicker",
+    "terrama2.ace",
+    "terrama2.components.geo",
+    "schemaForm",
+    "terrama2.schedule",
+    "treeControl"
   ])
 
-  .controller('RegisterUpdateController', RegisterUpdateController);
+  .controller("RegisterUpdateController", [
+    "$scope",
+    "$q",
+    "$log",
+    "i18n",
+    "Service",
+    "DataSeriesService",
+    "DataSeriesSemanticsService",
+    "AnalysisService",
+    "DataProviderService",
+    "Socket",
+    "DateParser",
+    "MessageBoxService",
+    "Polygon",
+    "$http",
+    RegisterUpdateController
+  ]);
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
@@ -1003,21 +1019,4 @@
         $log.log("Could not load analysis interface due " + err.toString() + "\nPlease refresh this page (F5)");
       });
   }
-  // Injecting angular dependencies in controller
-  RegisterUpdateController.$inject = [
-    '$scope',
-    '$q',
-    '$log',
-    'i18n',
-    'Service',
-    'DataSeriesService',
-    'DataSeriesSemanticsService',
-    'AnalysisService',
-    'DataProviderService',
-    'Socket',
-    'DateParser',
-    'MessageBoxService',
-    'Polygon',
-    '$http'
-  ];
 } ());

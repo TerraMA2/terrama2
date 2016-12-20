@@ -40,9 +40,9 @@ angular.module('terrama2.dataseries.registration', [
     );
   }])
 
-  .run(function(editableOptions) {
+  .run(["editableOptions", function(editableOptions) {
     editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
-  })
+  }])
 
   .controller('StoragerController', [
     '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory', '$timeout',
