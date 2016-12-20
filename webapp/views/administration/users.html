@@ -2,7 +2,7 @@
 
 {% set tabActive = "users" %}
 
-{% block ngApp %}ng-app="terrama2.administration.users"{% endblock %}
+{% block ngApp %}ng-app="terrama2.users"{% endblock %}
 
 {% block title %} TerraMA² {{ i18n.__('Users Handling') }} {% endblock %}
 
@@ -12,71 +12,10 @@
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 
 <script>
-    angular.module('terrama2.administration.users', ['terrama2.table', 'terrama2.components.messagebox'])
-        .controller('ListController', ['$scope', 'i18n', function($scope, i18n) {
-            $scope.link = function(object) {
-                return "/administration/users/edit/" + object.id;
-            };
-
-            $scope.i18n = i18n;
-
-            $scope.remove = function(object) {
-              return "/administration/users/" + object.id + "/delete";
-            };
-
-            $scope.model = {[ (usersList || {})|json|safe ]};
-            $scope.fields = [
-              {
-                key: 'name',
-                as: i18n.__('Name')
-              },
-              {
-                key: 'email',
-                as: i18n.__('E-mail')
-              },
-              {
-                key: 'cellphone',
-                as: i18n.__('Cellphone')
-              },
-              {
-                key: 'username',
-                as: i18n.__('User')
-              },
-              {
-                key: 'administrator',
-                as: i18n.__('Administrator')
-              },
-            ];
-            $scope.iconFn = null;
-
-            $scope.linkToAdd = "/administration/users/new";
-
-            // alert-box
-            $scope.alertLevel = "alert-success";
-            $scope.alertBox = {
-              title: i18n.__("Users"),
-              message: "{[ message ]}"
-            };
-            $scope.resetState = function() { $scope.display = false; };
-
-            // callback after remove operation
-            $scope.extra = {
-              removeOperationCallback: function(err, data) {
-                $scope.display = true;
-                if (err) {
-                  $scope.alertLevel = "alert-danger";
-                  $scope.alertBox.message = err.message;
-                  return;
-                }
-
-                $scope.alertLevel = "alert-success";
-                $scope.alertBox.message = data.name + i18n.__(" removed");
-              }
-            };
-
-            $scope.display = {% if message %}true{% else %} false{% endif %};
-        }]);
-
+  var configuration = {
+    message: "{[ message ]}",
+    users: {[ (usersList || {})|json|safe ]}
+  };
 </script>
 {% endblock %}
 
@@ -86,7 +25,7 @@
   <terrama2-box title="i18n.__('Users')">
     <div class="col-md-12">
       <div class="col-md-12">
-        <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+        <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
       </div>
 
       <terrama2-table fields="fields" model="model" link="link" link-to-add="linkToAdd" remove="remove(object);" extra="extra" order-by="'name'"></terrama2-table>

@@ -34,16 +34,15 @@ TerraMA² {{ i18n.__('User Registration') }}
     });
   });
 </script>
-
-<script src="/javascripts/angular/services.js"></script>
-<script src="/javascripts/angular/users/app.js"></script>
-<script src="/javascripts/angular/users/controllers.js"></script>
 {% endblock %}
 
 {% block content %}
 
 <div ng-controller="UserUpdate">
   <terrama2-box title="i18n.__('User Update')">
+    <div class="col-md-12">
+      <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
+    </div>
     <div class="row" ng-init="initialization({[ currentUser.id ]});">
       <div class="col-md-12">
         <div class="box box-default box-solid">

@@ -125,7 +125,7 @@ terrama2Application.service("BaseService", ["$q", "$http", "$filter", "$parse", 
     }
     return elements[0];
   };
-}
+}]);
 
 /**
  * It parses a URI using HTML a tag.
