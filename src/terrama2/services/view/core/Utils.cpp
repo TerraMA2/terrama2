@@ -160,7 +160,7 @@ int terrama2::services::view::core::createGeoserverTempMosaic(terrama2::core::Da
       QFileInfo info(QString::fromStdString(dataSetSeries.syncDataSet->getString(row, "filename")));
       dsItem01->setString(0, info.fileName().toStdString());
       dsItem01->setGeometry(1, geom);
-      dsItem01->setDateTime(2, new te::dt::TimeInstant(boostTiTz.local_time()));
+      dsItem01->setDateTime(2, new te::dt::TimeInstant(boostTiTz.utc_time()));
 
       ds->add(dsItem01);
     }

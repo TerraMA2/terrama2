@@ -89,7 +89,7 @@ const std::string& terrama2::services::view::core::GeoServer::getWorkspace(const
   // Register style
   cURLwrapper.get(uriPost, responseWorkspace);
 
-  if(log && cURLwrapper.responseCode() == 404)
+  if(cURLwrapper.responseCode() == 404)
   {
     throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
   }
@@ -820,13 +820,14 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
         if(temporality == terrama2::core::DataSeriesTemporality::DYNAMIC
            && dataFormat == "GEOTIFF")
         {
-          QUrl url(QString::fromStdString(inputDataProvider->uri));
+          QUrl baseUrl(QString::fromStdString(inputDataProvider->uri));
 
           std::string layerName = viewPtr->viewName;
           int geomSRID;
 
           for(auto& dataset : datasets)
           {
+            QUrl url(baseUrl.path() + QString::fromStdString("/" + dataset->format.at("folder")));
             geomSRID = createGeoserverTempMosaic(dataManager, dataset, filter, layerName, url.path().toStdString());
 
             registerMosaicCoverage(layerName + "coveragestore", url.path().toStdString(), layerName, geomSRID);
