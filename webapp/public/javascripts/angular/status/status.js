@@ -153,9 +153,26 @@ angular.module("terrama2.status", [
           var messageString = "";
           out.messages = logMessage.messages;
           if (logMessage.messages && logMessage.messages.length > 0){
-            var firstMessage = logMessage.messages[0];
-            out.message = firstMessage.description;
-            out.messageType = firstMessage.type;
+
+            switch(logMessage.status) {
+              case Globals.enums.StatusLog.DONE:
+                out.message = "Done...";
+                out.messageType = Globals.enums.MessageType.INFO_MESSAGE;
+                break;
+              case Globals.enums.StatusLog.START:
+                out.message = "Started...";
+                out.messageType = Globals.enums.MessageType.INFO_MESSAGE;
+                break;
+              case Globals.enums.StatusLog.DOWNLOADED:
+                out.message = "Downloaded...";
+                out.messageType = Globals.enums.MessageType.INFO_MESSAGE;
+                break;
+              case Globals.enums.StatusLog.ERROR:
+                var firstMessage = logMessage.messages[0];
+                out.message = firstMessage.description;
+                out.messageType = firstMessage.type;
+                break;
+            }
           } else {
             var dummyMessage = {};
             switch(logMessage.status) {

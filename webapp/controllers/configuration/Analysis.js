@@ -11,7 +11,7 @@ module.exports = function(app) {
       response.render("configuration/analysis_list", Object.assign({"Enums": Enums}, parameters));
     },
     "new": function(request, response) {
-      response.render("configuration/analysis", { Enums: Enums });
+      response.render("configuration/analysis", { Enums: Enums, projectId: app.locals.activeProject.id });
     },
 
     edit: function(request, response) {
@@ -20,7 +20,8 @@ module.exports = function(app) {
       DataManager.getAnalysis({id: analysisId, project_id: app.locals.activeProject.id}).then(function(analysisResult) {
         response.render("configuration/analysis", {
           Enums: Enums,
-          analysis: analysisResult.rawObject()
+          analysis: analysisResult.rawObject(),
+          projectId: app.locals.activeProject.id
         });
       }).catch(function(err) {
         response.render("base/404");

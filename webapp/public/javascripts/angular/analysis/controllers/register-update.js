@@ -22,7 +22,7 @@
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
-                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window) {
+                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout) {
     var self = this;
     $scope.i18n = i18n;
 
@@ -266,7 +266,7 @@
           if (historicalData.endDate) {
             historicalData.endDate = DateParser(historicalData.endDate);
           }
-
+          // setting default historical data
           self.analysis.historical = historicalData;
 
           // schedule update
@@ -298,7 +298,6 @@
 
           if (analysisInstance.type.id === Globals.enums.AnalysisType.GRID) {
             // fill interpolation
-            debugger;
             self.analysis.grid = {
               interpolation_method: analysisInstance.output_grid.interpolation_method,
               area_of_interest_type: analysisInstance.output_grid.area_of_interest_type,
@@ -335,7 +334,7 @@
                 maxY: coordinates[0][2][1]
               };
             }
-          } else if (analysisInstance.type.id === Globals.enums.AnalysisType.DCP) {
+          } else { // if  monitored object or dcp
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
             self.analysis.metadata.INFLUENCE_RADIUS = Number(analysisInstance.metadata.INFLUENCE_RADIUS);
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
@@ -465,6 +464,19 @@
         };
 
         /**
+         * It checks if there is any data series dcp in Analysis Data Series list. If found, return true.
+         * It set on template. Angular call it whenever scope cycle iteration done ($digest)
+         * 
+         * @returns {boolean}
+         */
+        self.hasDcp = function() {
+          return self.selectedDataSeriesList
+            .find(function(element) {
+              return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
+            });
+        };
+
+        /**
          * It handles analysis validation signal. Once received, it tries to notify the user with callback state
          * 
          * @param {Object} resp - Service response
@@ -476,6 +488,16 @@
           } else {
             MessageBoxService.danger(i18n.__("Analysis"), resp.error);
           }
+        });
+
+        /**
+         * It handles validate analysis error
+         * 
+         * @param {Object} resp - Response Object
+         * @param {string} resp.message - Error Message
+         */
+        Socket.on("processValidatedError", function(resp) {
+          MessageBoxService.danger(i18n.__("Analysis"), resp.message);
         });
 
         /**
@@ -1002,20 +1024,12 @@
             var buildAnalysis = self.$prepare(false);
             console.log(buildAnalysis);
 
-            /**
-             * It sends to API in order to validate. Remember that promise resolved does not represents that validation was ok, but 
-             * there is not errors during object sending. When TcpService finishes, a Socket will be used to handle the validation process
-             */
-            AnalysisService.validate(buildAnalysis)
-              .then(function(response) {
-                // success
-                $log.log("Validation started...");
-              })
+            Socket.emit("validateAnalysis", buildAnalysis, config.projectId);
 
-              .catch(function(err) {
-                MessageBoxService.danger(i18n.__("Analysis"), err);
-                self.validating = false;
-              });
+            $timeout(function() {
+              self.validating = false;
+            }, 2000);
+            
           } catch(err) {
             self.validating = false;
             MessageBoxService.danger(i18n.__("Analysis"), err.toString());
@@ -1044,7 +1058,7 @@
                 MessageBoxService.danger(i18n.__("Analysis"), err.message);
               });
           } catch (e) {
-            MessageBoxService.danger(i18n.__("Analysis"), err.toString());
+            MessageBoxService.danger(i18n.__("Analysis"), (err || {}).message);
             return;
           }
         };
@@ -1070,6 +1084,7 @@
     'MessageBoxService',
     'Polygon',
     '$http',
-    '$window'
+    '$window',
+    '$timeout'
   ];
 } ());

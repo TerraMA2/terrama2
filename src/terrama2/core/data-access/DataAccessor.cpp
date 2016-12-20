@@ -283,9 +283,14 @@ Srid terrama2::core::DataAccessor::getSrid(DataSetPtr dataSet) const
   }
 }
 
-std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessor::getTimestampPropertyName(DataSetPtr dataSet, const bool logErrors) const
 {
-  return getProperty(dataSet, dataSeries_, "timestamp_property");
+  return getProperty(dataSet, dataSeries_, "timestamp_property", logErrors);
+}
+
+std::string terrama2::core::DataAccessor::getOutputTimestampPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "output_timestamp_property");
 }
 
 std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const

@@ -32,6 +32,7 @@
 #include "../Operator.hpp"
 #include "../../../ContextManager.hpp"
 #include "../../../../../../core/utility/Logger.hpp"
+#include "../../../../../../core/utility/Utils.hpp"
 #include "../../../../../../core/utility/TimeUtils.hpp"
 #include "../../../utility/Verify.hpp"
 #include "../Utils.hpp"
@@ -80,7 +81,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
   try
   {
     // In case an error has already occurred, there is nothing to be done
-    if(!contextManager.getErrors(analysis->id).empty())
+    if(!contextManager.getMessages(cache.analysisHashCode, BaseContext::MessageType::ERROR_MESSAGE).empty())
     {
       return std::nan("");
     }
@@ -150,20 +151,19 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         if(!raster->getExtent()->intersects(*geomResult->getMBR()))
           continue;
 
-        double interval = 10800;//getBandTimeInterval(dataset);
-        double secondsToBefore = terrama2::core::TimeUtils::convertTimeString(dateDiscardBefore, "SECOND", "h");
-        double secondsToAfter = terrama2::core::TimeUtils::convertTimeString(dateDiscardAfter, "SECOND", "h");
-
         auto timePassed = currentTimestamp.utc_time() - rasterTimestamp.utc_time();
         double secondsPassed = timePassed.total_seconds();
 
-        // To find the bands of future dates:
-        // - the first band is allways blank
-        // - find how much time has passed from the file original timestamp
-        // - calculate how bads have "passed" (time/band_interval)
-        int bandBegin = std::ceil(1. + std::ceil(secondsPassed + secondsToBefore)/interval);
-        // the first band is included in the last line, no need to add 1
-        int bandEnd = std::ceil(secondsPassed + secondsToAfter)/interval;
+        int bandBegin, bandEnd;
+        std::tie(bandBegin, bandEnd) = terrama2::services::analysis::core::getBandInterval(dataset, secondsPassed, dateDiscardBefore, dateDiscardAfter);
+
+        // - the band 0 is always blank
+        // - The begining should be before the end
+        if(bandBegin == 0 || bandBegin > bandEnd)
+        {
+          QString errMsg{QObject::tr("Invalid value of band index.")};
+          throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+        }
 
         std::map<std::pair<int, int>, double> tempValuesMap;
         for(size_t band = bandBegin; band <= bandEnd; ++ band)
@@ -195,18 +195,18 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
   }
   catch(const terrama2::Exception& e)
   {
-    contextManager.addError(analysis->id, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    contextManager.addError(cache.analysisHashCode, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return std::nan("");
   }
   catch(const std::exception& e)
   {
-    contextManager.addError(analysis->id, e.what());
+    contextManager.addError(cache.analysisHashCode, e.what());
     return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    contextManager.addError(analysis->id, errMsg.toStdString());
+    contextManager.addError(cache.analysisHashCode, errMsg.toStdString());
     return std::nan("");
   }
 }

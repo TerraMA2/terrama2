@@ -63,7 +63,7 @@ using namespace boost::python;
 double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOperation statisticOperation,
     const std::string& dataSeriesName,
     const std::string& attribute,
-    boost::python::list ids)
+    boost::python::list pcds)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict (cache);
@@ -101,12 +101,14 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
   {
     // In case an error has already occurred, there is nothing to do.
     if(context->hasError())
+	{
       return std::nan("");
+    }
 
-    std::vector<DataSetId> vecDCPIds;
-    terrama2::services::analysis::core::python::pythonToVector<DataSetId>(ids, vecDCPIds);
+    std::vector< std::string > vecDCPAlias;
+    terrama2::services::analysis::core::python::pythonToVector< std::string >(pcds, vecDCPAlias);
 
-    if(vecDCPIds.empty())
+    if(vecDCPAlias.empty())
     {
       return std::nan("");
     }
@@ -146,6 +148,8 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
     {
       terrama2::services::analysis::core::python::OperatorLock operatorLock;
 
+
+
       try
       {
 
@@ -157,12 +161,12 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
         uint32_t influenceCount = 0;
 
 
-        for(DataSetId dcpId : vecDCPIds)
+        for(auto& dcpAlias : vecDCPAlias)
         {
           bool found = false;
           for(auto dataset : dataSeries->datasetList)
           {
-            if(dataset->id == dcpId)
+            if(dataset->format.at("alias") == dcpAlias)
             {
               found = true;
 
@@ -243,18 +247,18 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
       }
       catch(const terrama2::Exception& e)
       {
-        context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
         exceptionOccurred = true;
       }
       catch(const std::exception& e)
       {
-        context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
+        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
         exceptionOccurred = true;
       }
       catch(...)
       {
         QString errMsg = QObject::tr("An unknown exception occurred.");
-        context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+        context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
         exceptionOccurred = true;
       }
 
@@ -272,18 +276,18 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
   }
   catch(const terrama2::Exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return std::nan("");
   }
   catch(const std::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
     return std::nan("");
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return std::nan("");
   }
 }
@@ -367,7 +371,6 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::dcp::zonal
     case InfluenceType::RADIUS_CENTER:
     case InfluenceType::RADIUS_TOUCHES:
     {
-
       if(analysis->metadata.at("INFLUENCE_RADIUS").empty())
       {
         QString errMsg(QObject::tr("Invalid influence radius."));

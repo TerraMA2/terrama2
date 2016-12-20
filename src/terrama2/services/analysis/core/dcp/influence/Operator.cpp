@@ -51,10 +51,10 @@
 #include <QString>
 
 
-std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence::byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList)
+std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influence::byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList)
 {
 
-  std::vector<DataSetId> vecIds;
+  std::vector< std::string > vecDCP;
 
   OperatorCache cache;
   python::readInfoFromDict(cache);
@@ -79,26 +79,28 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return vecIds;
+    return vecDCP;
   }
 
 
   // In case an error has already occurred, there is nothing to do.
   if(context->hasError())
-    return vecIds;
+  {
+    return vecDCP;
+  }
 
   if(dataSeriesName.empty())
   {
     QString errMsg(QObject::tr("Invalid data series name"));
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    return vecDCP;
   }
 
   if(attributeList.empty())
   {
     QString errMsg(QObject::tr("Empty attribute list"));
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    return vecDCP;
   }
 
   try
@@ -150,7 +152,7 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
         {
           if(dcpId == dataSet->id)
           {
-            vecIds.push_back(dcpId);
+            vecDCP.push_back(dataSet->format.at("alias"));
             found = true;
             break;
           }
@@ -167,32 +169,32 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   }
   catch(const terrama2::Exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    vecIds.clear();
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    vecDCP.clear();
+    return vecDCP;
   }
   catch(const std::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
-    vecIds.clear();
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
+    vecDCP.clear();
+    return vecDCP;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
-    vecIds.clear();
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    vecDCP.clear();
+    return vecDCP;
   }
 
-  return vecIds;
+  return vecDCP;
 
 }
 
-std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence::byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer)
+std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influence::byRule(const std::string& dataSeriesName,
+                                                                                             const terrama2::services::analysis::core::Buffer& buffer)
 {
-  std::vector<DataSetId> vecIds;
-
+  std::vector< std::string > vecDCP;
 
   OperatorCache cache;
   python::readInfoFromDict(cache);
@@ -205,21 +207,21 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
   catch(const terrama2::Exception& e)
   {
     TERRAMA2_LOG_ERROR() << boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-    return vecIds;
+    return vecDCP;
   }
 
 
   // In case an error has already occurred, there is nothing to do.
   if(context->hasError())
   {
-    return vecIds;
+    return vecDCP;
   }
 
   if(dataSeriesName.empty())
   {
     QString errMsg(QObject::tr("Invalid data series name"));
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    return vecDCP;
   }
 
   try
@@ -279,30 +281,30 @@ std::vector<DataSetId> terrama2::services::analysis::core::dcp::zonal::influence
 
       if(zonal::verifyDCPInfluence(influenceType, geom, dcpInfluenceBuffer))
       {
-        vecIds.push_back(dcpDataset->id);
+        vecDCP.push_back(dcpDataset->format.at("alias"));
       }
     }
   }
   catch(const terrama2::Exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    vecIds.clear();
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    vecDCP.clear();
+    return vecDCP;
   }
   catch(const std::exception& e)
   {
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, e.what());
-    vecIds.clear();
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
+    vecDCP.clear();
+    return vecDCP;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addLogMessage(BaseContext::ERROR_MESSAGE, errMsg.toStdString());
-    vecIds.clear();
-    return vecIds;
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    vecDCP.clear();
+    return vecDCP;
   }
 
 
-  return vecIds;
+  return vecDCP;
 }

@@ -40,7 +40,8 @@
         "properties": {
           "folder": {
             "type": "string",
-            "title": "Folder"
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -52,7 +53,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -82,7 +86,8 @@
         "properties": {
           "folder": {
             "type": "string",
-            "title": "Folder"
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -94,7 +99,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -115,7 +123,8 @@
         "properties": {
           "folder": {
             "type": "string",
-            "title": "Folder"
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -127,7 +136,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -171,7 +183,8 @@
         "properties": {
           "folder": {
             "type": "string",
-            "title": "Folder"
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -183,7 +196,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -200,7 +216,8 @@
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP"],
     "metadata": {
-      "timestamp_property": "N/A"
+      "timestamp_property": "N/A",
+      "output_timestamp_property": "datetime"
     },
     "collector": true,
     "gui": {
@@ -208,11 +225,17 @@
         "properties": {
           "folder": {
             "type": "string",
-            "title": "Folder"
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
             "title": "Mask"
+          },
+          "alias": {
+            "type": "string",
+            "title": "Alias",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           },
           "timezone": {
             "type": "string",
@@ -231,20 +254,31 @@
             "title": "SRID"
           }
         },
-        "required": ["mask", "timezone", "latitude", "longitude", "projection"]
+        "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "copyValueTo": ["alias"]
+        },
+        {
+          "key": "alias",
+          "htmlClass": "col-md-6 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid alias"
+          }
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-4",
+          "htmlClass": "col-md-6",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
@@ -307,11 +341,17 @@
         "properties": {
           "folder": {
             "type": "string",
-            "title": "Folder"
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
             "title": "Mask"
+          },
+          "alias": {
+            "type": "string",
+            "title": "Alias",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$" 
           },
           "timezone": {
             "type": "string",
@@ -330,20 +370,31 @@
             "title": "SRID"
           }
         },
-        "required": ["mask", "timezone", "latitude", "longitude", "projection"]
+        "required": ["mask", "alias", "timezone", "latitude", "longitude", "projection"]
       },
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "copyValueTo": ["alias"]
+        },
+        {
+          "key": "alias",
+          "htmlClass": "col-md-6 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid alias"
+          }
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-4",
+          "htmlClass": "col-md-6",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
@@ -413,6 +464,11 @@
           "projection": {
             "type": "number",
             "title": "SRID"
+          },
+	 	      "alias": {
+            "type": "string",
+            "title": "Alias",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           }
         },
         "required": ["table_name", "latitude", "longitude", "projection"]
@@ -421,6 +477,13 @@
         {
           "key": "table_name",
           "htmlClass": "col-md-5 terrama2-schema-form"
+        },
+        {
+          "key": "alias",
+          "htmlClass": "col-md-5 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid alias"
+          }
         },
         {
           "key": "latitude",
@@ -472,7 +535,8 @@
         "properties": {
           "folder": {
             "type": "string",
-            "title": "Folder"
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "mask": {
             "type": "string",
@@ -488,7 +552,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "mask",
@@ -546,7 +613,8 @@
         "properties": {
           "folder": {
             "type": "string",
-            "title": "Folder"
+            "title": "Folder",
+            "pattern": "^[^?#!$&'()*+,;=^§]+$"
           },
           "ctl_filename" : {
             "type": "string",
@@ -606,7 +674,10 @@
       "form": [
         {
           "key": "folder",
-          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form grads-form-item"
+          "htmlClass": "col-md-6 col-sm-12 terrama2-schema-form grads-form-item",
+          "validationMessage": {
+            "202": "Invalid folder"
+          }
         },
         {
           "key": "ctl_filename",
@@ -690,7 +761,7 @@
           "key": "time_interval_unit",
           "htmlClass": "col-md-2 terrama2-schema-form grads-form-item",
           "type": "select",
-          "titleMap": [{ "name": "Minute", "value": "minute" }, { "name": "Hour", "value": "hour" }, { "name": "Day", "value": "day" }],
+          "titleMap": [{ "name": "Minutes", "value": "minutes" }, { "name": "Hours", "value": "hours" }, { "name": "Days", "value": "days" }],
           "condition": "model.temporal"
         }
 

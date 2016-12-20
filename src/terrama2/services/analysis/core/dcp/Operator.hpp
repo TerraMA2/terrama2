@@ -71,7 +71,7 @@ namespace terrama2
           */
             double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                 const std::string& dataSeriesName, const std::string& attribute,
-                                boost::python::list ids);
+                                boost::python::list pcds);
 
             /*!
             \brief It returns the number of DCPs that have influence over the current monitored object.

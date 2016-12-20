@@ -268,12 +268,13 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::Da
 }
 
 
-void terrama2::core::DataAccessorFile::addToCompleteDataSet(std::shared_ptr<te::mem::DataSet> completeDataSet,
-                                                            std::shared_ptr<te::da::DataSet> dataSet,
+void terrama2::core::DataAccessorFile::addToCompleteDataSet(terrama2::core::DataSetPtr /*dataSet*/,
+                                                            std::shared_ptr<te::mem::DataSet> completeDataSet,
+                                                            std::shared_ptr<te::da::DataSet> teDataSet,
                                                             std::shared_ptr< te::dt::TimeInstantTZ > /*fileTimestamp*/,
                                                             const std::string& /*filename*/) const
 {
-  completeDataSet->copy(*dataSet);
+  completeDataSet->copy(*teDataSet);
 }
 
 std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDataSet(std::shared_ptr<te::da::DataSourceTransactor> transactor,
@@ -555,7 +556,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
       throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     }
 
-    addToCompleteDataSet(completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
+    addToCompleteDataSet(dataSet, completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
 
     //update lastest file timestamp
     if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)

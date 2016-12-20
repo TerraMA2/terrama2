@@ -233,15 +233,12 @@ Analysis.validate = function(analysisObject, storagerObject, scheduleObject, pro
         promiseWKT
       ])
       .spread(function(analysis, storager, scriptLanguage, areaOfInterestWKT) {
-        analysis.grid.interest_box = areaOfInterestWKT;
+        if (areaOfInterestWKT) {
+          analysis.grid.interest_box = areaOfInterestWKT;
+        }
         var dummyAnalysis = AnalysisBuilder(analysis, storager, scriptLanguage, {
           historical: analysis.historicalData || {}
         });
-
-        TcpService.validateProcess({
-          "Analysis": [dummyAnalysis.toObject()],
-          "DataSeries": [dummyAnalysis.dataSeries.toObject()]
-        }, dummyAnalysis.instance_id);
 
         return resolve(dummyAnalysis);
       })

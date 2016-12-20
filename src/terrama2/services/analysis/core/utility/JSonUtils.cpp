@@ -87,6 +87,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
   analysis->description = json["description"].toString().toStdString();
   analysis->active = json["active"].toBool();
   analysis->outputDataSeriesId = json["output_dataseries_id"].toInt();
+  analysis->outputDataSetId = json["output_dataset_id"].toInt();
   analysis->serviceInstanceId = json["service_instance_id"].toInt();
 
 
@@ -162,6 +163,7 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
   obj.insert("name", QString(analysis->name.c_str()));
   obj.insert("description", QString(analysis->description.c_str()));
   obj.insert("output_dataseries_id", static_cast<qint32>(analysis->outputDataSeriesId));
+  obj.insert("output_dataset_id", static_cast<qint32>(analysis->outputDataSetId));
   obj.insert("service_instance_id", static_cast<qint32>(analysis->serviceInstanceId));
 
   // Analysis metadata

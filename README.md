@@ -106,7 +106,7 @@ We have prepared a special bash script for building and installing the dependenc
 
 - Open the shell command line and call the script *install-3rdparty-linux-ubuntu-14.04.sh* setting the target to install all the stuffs from these third-party libraries and tools:
 ```
-$ ./install-3rdparty-linux-ubuntu-14.04.sh /home/gribeiro/MyLibs /home/gribeiro/MyDevel/terrama2/codebase
+$ ./install-3rdparty-linux-ubuntu-14.04.sh /home/USER/MyLibs /home/USER/MyDevel/terrama2/codebase
 ```
 
 **Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *user* by your user name.
@@ -132,10 +132,10 @@ $ export PATH=$PATH:/Users/user/Qt5.4.1/5.4/clang_64/bin:/Applications/CMake.app
 
 - In the shell command line, call the script *install-3rdparty-macosx-yosemite.sh* (or the El-Capitan one) setting the target to install all the stuffs from these third-party libraries and tools:
 ```
-$ ./install-3rdparty-macosx-yosemite.sh /home/gribeiro/MyLibs /home/gribeiro/MyDevel/terrama2/codebase
+$ ./install-3rdparty-macosx-yosemite.sh /home/USER/MyLibs /home/USER/MyDevel/terrama2/codebase
 ```
 
-**Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *user* by your user name.
+**Note:** Don't choose as target location a system folder such as */usr* or */usr/local*. Try some user specifiic folder. The best suggestion is to replace the folder named *USER* by your user name.
 
 ### Prepared dependencies for Microsot Windows
 
@@ -182,12 +182,15 @@ The output of above command will be something like:
 In the above output the "* master" means that the current branch is master.
 
 We have the following branches:
-- **master:** This is the branch where the development team is working to add new features to future versions of TerraMA². It may be instable although the codebase is subject to automatic tests (regression and unittests). We don't recommend to generate production versions of TerraMA² from this branch. Use it for testing new features and get involved with TerraMA² development.
+- **master:** This is the branch where the development team is working to add new features to future versions of TerraMA². It may be unstable although the codebase is subject to automatic tests (regression and unittests). We don't recommend to generate production versions of TerraMA² from this branch. Use it for testing new features and get involved with TerraMA² development.
 
 - **b-4.0.0-alpha:** This will be the first branch in TerraMA²'s codebase for the generation 4.
 - **b-4.0.0-alpha2:** Minimal working version with web user interface. Services: Collector and Analysis.
 - **b-4.0.0-alpha3:** Analysis of monitored objects and grid.
 - **b-4.0.0-alpha4:** Views service and web-monitoring module
+- **b-4.0.0-alpha5:** General review of the interface and analysis
+- **b-4.0.0-alpha6:** Review of grid operators and Monitored Object forecast operators
+
 
 To switch to one of the branches listed above, use the checkout command and create a local branch to track the remote branch. The syntax of "git checkout" is:
 

@@ -245,6 +245,20 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     return;
 
   }
+  catch(const terrama2::core::NoDataException& e)
+  {
+    TERRAMA2_LOG_INFO() << tr("Collection finished but there was no data available for collector %1.").arg(collectorId);
+
+    if(logId != 0)
+    {
+      logger->log(CollectorLogger::WARNING_MESSAGE, tr("No data available").toStdString(), logId);
+      logger->result(CollectorLogger::DONE, nullptr, logId);
+    }
+
+    sendProcessFinishedSignal(collectorId, true);
+    notifyWaitQueue(collectorId);
+    return;
+  }
   catch(const terrama2::Exception& e)
   {
     QString errMsg = *boost::get_error_info<terrama2::ErrorDescription>(e);
@@ -348,6 +362,7 @@ void terrama2::services::collector::core::Service::removeCollector(CollectorId c
 
     // remove from queue
     collectorQueue_.erase(std::remove(collectorQueue_.begin(), collectorQueue_.end(), collectorId), collectorQueue_.end());
+    waitQueue_.erase(collectorId);
 
 
     TERRAMA2_LOG_INFO() << tr("Collector %1 removed successfully.").arg(collectorId);
