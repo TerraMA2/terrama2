@@ -41,7 +41,7 @@ terrama2Application.controller("TerraMA2Controller", ['$scope', 'i18n', function
 }]);
 
 // setting caches
-terrama2Application.run(function($templateCache, $rootScope, $locale) {
+terrama2Application.run(["$templateCache", "$rootScope", "$locale", function($templateCache, $rootScope, $locale) {
   // TerraMA2 Box
   $templateCache.put('box.html',
   '<div class="col-md-12" title="{{ titleHeader }}">' +
@@ -59,9 +59,10 @@ terrama2Application.run(function($templateCache, $rootScope, $locale) {
   '</div>');
 
   $rootScope.locale = $locale.localeID;
-});
+}]);
 
-terrama2Application.service("BaseService", BaseService);
+terrama2Application.service("BaseService", ["$q", "$http", "$filter", "$parse", BaseService])
+
 /**
  * TerraMA² Base service dao
  * 
@@ -77,83 +78,56 @@ function BaseService($q, $http, $filter, $parse) {
   this.$http = $http;
   this.$filter = $filter;
   this.$parse = $parse;
-}
 
-// Injecting angular dependencies in BaseService
-BaseService.$inject = ["$q", "$http", "$filter", "$parse"];
-
-/**
- * TerraMA² base request URL. It performs $http operation from given request options
- * 
- * @param {string} url - URL to request
- * @param {string} method - HTTP method
- * @param {Object} options - HTTP options
- * @returns {ng.IPromise}
- */
-BaseService.prototype.$request = function(url, method, options) {
   var self = this;
-  var defer = self.$q.defer();
+  /**
+   * TerraMA² base request URL. It performs $http operation from given request options
+   * 
+   * @param {string} url - URL to request
+   * @param {string} method - HTTP method
+   * @param {Object} options - HTTP options
+   * @returns {ng.IPromise}
+   */
+  this.$request = function(url, method, options) {
+    var defer = self.$q.defer();
 
-  self.$http(Object.assign({
-    url: url,
-    method: method
-  }, options)).success(function(data) {
-    return defer.resolve(data);
-  }).error(function(err) {
-    return defer.reject(err);
-  });
+    self.$http(Object.assign({
+      url: url,
+      method: method
+    }, options)).success(function(data) {
+      return defer.resolve(data);
+    }).error(function(err) {
+      return defer.reject(err);
+    });
 
-  return defer.promise;
-};
-/**
- * It applies a angular filter over a array with query restriction.
- * 
- * @param {Array<?>} model - An array of object to filter
- * @param {Object} query - A query restriction
- * @returns {Array<?>}
- */
-BaseService.prototype.$list = function(model, query) {
-  return this.$filter("filter")(model, query);
-};
+    return defer.promise;
+  };
+  /**
+   * It applies a angular filter over a array with query restriction.
+   * 
+   * @param {Array<?>} model - An array of object to filter
+   * @param {Object} query - A query restriction
+   * @returns {Array<?>}
+   */
+  this.$list = function(model, query) {
+    return self.$filter("filter")(model, query);
+  };
 
-/**
- * It retrieves a first selement from model. If element found, return element. Otherwise, return null.
- * 
- * @param {Array<?>} model - An array of object to filter
- * @param {Object} query - A query restriction
- * @returns {?}
- */
-BaseService.prototype.get = function(model, query) {
-  var elements = this.$list(model, query);
-  if (elements.length === 0) {
-    return null;
-  }
-  return elements[0];
-};
-
-terrama2Application.service("EnumService", EnumService);
-/**
- * It handles TerraMA² backend enums 
- * 
- * @param {BaseService} BaseService - A generic TerraMA² requester
- * 
- * @class EnumService
- */
-function EnumService(BaseService) {
-  this.BaseService = BaseService;
-  this.model = [];
-  this.url = "/api/Enums";
+  /**
+   * It retrieves a first selement from model. If element found, return element. Otherwise, return null.
+   * 
+   * @param {Array<?>} model - An array of object to filter
+   * @param {Object} query - A query restriction
+   * @returns {?}
+   */
+  this.get = function(model, query) {
+    var elements = self.$list(model, query);
+    if (elements.length === 0) {
+      return null;
+    }
+    return elements[0];
+  };
 }
-/**
- * It retrieves all enums from remote TerraMA² host
- * 
- * @returns {angular.IPromise<Enums>}
- */
-EnumService.prototype.init = function() {
-  return this.BaseService.$request(this.url, "GET", {});
-};
-
-EnumService.$inject = ["BaseService"];
 
 /**
  * It parses a URI using HTML a tag.

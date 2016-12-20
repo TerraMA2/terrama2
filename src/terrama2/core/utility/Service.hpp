@@ -112,7 +112,7 @@ namespace terrama2
         void serviceFinishedSignal();
 
         /*!
-       * \brief Signal emited when a full process is complete in service
+       * \brief Signal emitted when a full process is complete in service
        * \param answer A JSON with process info
        */
         void processFinishedSignal(QJsonObject answer);
@@ -131,9 +131,9 @@ namespace terrama2
         void stop(bool holdStopSignal) noexcept;
 
         /*!
-          \brief Updates the number of process threads in the threa dpool
+          \brief Updates the number of process threads in the thread pool
 
-          May wait for threads to finish current processing befor changes.
+          May wait for threads to finish current processing before changes.
 
           \param numberOfThreads Number of threads desired, if 0 the maximum number of threads allowed by the system the will be used.
         */

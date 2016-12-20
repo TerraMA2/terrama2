@@ -22,13 +22,19 @@
 <script src="/javascripts/angular/services.js"></script>
 <script src="/javascripts/angular/services/services.js"></script>
 <script src="/javascripts/angular/table/table.js"></script>
+<script src="/javascripts/angular/analysis/services.js"></script>
 <script src="/javascripts/angular/alert-box/directives.js"></script>
 
 <script>
 
-  angular.module('terrama2.analysis', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.administration.services.iservices'])
-    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', 'Socket', 'i18n', '$log', 'Service',
-    function($scope, $http, AnalysisFactory, Socket, i18n, $log, Service) {
+  angular.module('terrama2.analysis', ['terrama2',
+                                       'terrama2.services',
+                                       'terrama2.table',
+                                       'terrama2.components.messagebox',
+                                       'terrama2.analysis.services',
+                                       'terrama2.administration.services.iservices'])
+    .controller("ListController", ['$scope', '$http', 'AnalysisService', 'Socket', 'i18n', '$log', 'Service',
+    function($scope, $http, AnalysisService, Socket, i18n, $log, Service) {
       $scope.model = [];
       $scope.i18n = i18n;
       $scope.disabledButtons = {};
@@ -77,7 +83,7 @@
 
       var restriction = {
         project_id: "{[ activeProject.id ]}"
-      }
+      };
 
       $scope.iconProperties = {
         type: "img"
@@ -153,13 +159,14 @@
         }
       };
 
-      AnalysisFactory.get(restriction).success(function(analysis) {
-        $scope.model = analysis;
-      }).error(function(err) {
-        $log.info("Err in retrieving Analysis " + err);
-      }).finally(function() {
-        $scope.loading = false;
-      });
+      AnalysisService.init(restriction)
+        .then(function(analysis) {
+          $scope.model = analysis;
+        }).catch(function(err) {
+          $log.info("Err in retrieving Analysis " + err);
+        }).finally(function() {
+          $scope.loading = false;
+        });
     }]);
 </script>
 
