@@ -31,7 +31,8 @@ function AnalysisBuilder(analysisObject, storager, scriptLanguage, extra) {
         active: true,
         format: storager.format
       }
-    ]
+    ],
+    active: true
   };
 
   var dataSeriesModel = DataSeriesBuilder(rawDataSeries);
