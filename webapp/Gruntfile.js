@@ -7,6 +7,25 @@ module.exports = function(grunt) {
       TerraMA2WebApp: {
         options: {
           baseUrl: "public/javascripts",
+          out: "public/dist/terrama2-webapp.js",
+          preserveLicenseComments: false,
+          optimize: "none", // It does not minify
+          paths: {
+            TerraMA2WebApp: "angular"
+          },
+          include: [
+            "../../bower_components/almond/almond",
+            "TerraMA2WebApp/application"
+          ],
+          wrap: {
+            startFile: "public/javascripts/Wrap.TerraMA2WebApp.start",
+            endFile: "public/javascripts/Wrap.TerraMA2WebApp.end"
+          }
+        }
+      },
+      TerraMA2WebAppMin: {
+        options: {
+          baseUrl: "public/javascripts",
           out: "public/dist/terrama2-webapp.min.js",
           preserveLicenseComments: false,
           optimize: "none", // It does not minify
@@ -14,9 +33,13 @@ module.exports = function(grunt) {
             TerraMA2WebApp: "angular"
           },
           include: [
-            "../../bower_components/requirejs/require",
+            "../../bower_components/almond/almond",
             "TerraMA2WebApp/application"
-          ]
+          ],
+          wrap: {
+            startFile: "public/javascripts/Wrap.TerraMA2WebApp.start",
+            endFile: "public/javascripts/Wrap.TerraMA2WebApp.end"
+          }
         }
       }
     }

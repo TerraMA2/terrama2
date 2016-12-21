@@ -32,7 +32,8 @@
     "ace-builds": "^1.2.5",
     "AdminLTE": "admin-lte#2.3.0",
     "angular-color-picker": "angularjs-color-picker#^2.5.0",
-    "angular-eonasdan-datetimepicker": "^0.3.8"
+    "angular-eonasdan-datetimepicker": "^0.3.8",
+    "almond": "^0.3.3"
   },
   "resolutions": {
     "angular": ">= 1.5.8"
