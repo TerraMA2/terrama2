@@ -16,7 +16,8 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-slider", function(event) {
   var self = $(this);
   var parentLi = $(self).parent();
   var parentId = $(parentLi).attr("data-layerid");
-  var capability = capabilities.find(function(capability) { return capability.name === parentId; });
+  var layerName = parentId.split(':')[1];
+  var capability = sliderCapabilities.find(function(capability) { return capability.name === layerName; });
 
   if (!capability) {
     console.log("Capability not found...");
