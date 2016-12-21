@@ -1022,8 +1022,9 @@
           self.validating = true;
           try {
             var buildAnalysis = self.$prepare(false);
+            angular.merge(buildAnalysis, {projectId: config.projectId});
 
-            Socket.emit("validateAnalysis", buildAnalysis, config.projectId);
+            Socket.emit("validateAnalysis", buildAnalysis);
 
             $timeout(function() {
               self.validating = false;

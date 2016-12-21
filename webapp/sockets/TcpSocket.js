@@ -148,12 +148,13 @@ var TcpSocket = function(io) {
      * @param {Object} json.analysis - TerraMA² Analysis Instance Values
      * @param {Object} json.storager - TerraMA² Analysis Storager
      * @param {Object} json.schedule - TerraMA² Schedule Values
-     * @param {number} projectId - TerraMA² current project id
+     * @param {number} json.projectId - TerraMA² current project id
      */
-    function onValidateAnalysisRequest(json, projectId) {
+    function onValidateAnalysisRequest(json) {
       var analysis = json.analysis;
       var storager = json.storager;
       var schedule = json.schedule;
+      var projectId = json.projectId;
       return AnalysisFacade.validate(analysis, storager, schedule, projectId)
         .then(function(dummyAnalysis) {
           TcpService.validateProcess({
