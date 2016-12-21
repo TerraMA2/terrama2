@@ -4,15 +4,17 @@ define([
   "TerraMA2WebApp/alert-box/app",
   "TerraMA2WebApp/projects/app",
   "TerraMA2WebApp/status/status",
-  "TerraMA2WebApp/data-provider/app"
-], function(commonModule, countriesModule, alertBoxModule, projectModule, statusModule, dataProviderModule) {
+  "TerraMA2WebApp/data-provider/app",
+  "TerraMA2WebApp/views/app",
+], function(commonModule, countriesModule, alertBoxModule, projectModule, statusModule, dataProviderModule, viewsModule) {
   var terrama2Module = angular.module("terrama2", [
     commonModule,
     countriesModule,
     alertBoxModule,
     projectModule,
     statusModule,
-    dataProviderModule
+    dataProviderModule,
+    viewsModule
   ]);
 
   terrama2Module.init = function() {
