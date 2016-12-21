@@ -67,7 +67,7 @@ function AnalysisBuilder(analysisObject, storager, scriptLanguage, extra) {
 
   // checking analysis metadata
   if (!Utils.isEmpty(analysisObject.metadata)) {
-    analysisModel.setMetadata(Utils.formatMetadataFromDB(analysisObject.metadata));
+    analysisModel.setMetadata(analysisObject.metadata);
   }
 
   return analysisModel;
