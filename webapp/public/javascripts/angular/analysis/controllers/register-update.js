@@ -1022,7 +1022,6 @@
           self.validating = true;
           try {
             var buildAnalysis = self.$prepare(false);
-            console.log(buildAnalysis);
 
             Socket.emit("validateAnalysis", buildAnalysis, config.projectId);
 
