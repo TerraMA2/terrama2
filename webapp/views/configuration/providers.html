@@ -6,8 +6,6 @@
 
 {% block title %} TerraMA² {{ i18n.__('Data Server') }}{% endblock %}
 
-{% block ngApp %} ng-app="terrama2.providers" {% endblock %}
-
 {% block javascripts %}
 
 <script type="text/javascript">
@@ -19,12 +17,12 @@
 {% endblock %}
 
 {% block content %}
-<div ng-controller="DataProviderController">
+<div ng-controller="ListController">
   <terrama2-box title="i18n.__('Data Servers')">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+          <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
         <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" 

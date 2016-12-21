@@ -6,7 +6,17 @@ define([
 ], function(commonServiceModule, alertBoxModule, ListController, RegisterController) {
   var moduleName = "terrama2.providers.controllers";
 
-  angular.module(moduleName, [commonServiceModule, alertBoxModule])
+  var deps = [commonServiceModule, alertBoxModule];
+
+  // checking schema form dependency
+  try {
+    angular.module("schemaForm");
+    deps.unshift("schemaForm");
+  } catch (e) {
+    // schemaForm not found
+  }
+
+  angular.module(moduleName, deps)
     .controller("ListController", ListController)
     .controller("RegisterController", RegisterController);
 

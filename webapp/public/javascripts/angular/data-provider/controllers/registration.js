@@ -2,6 +2,8 @@ define(function() {
   function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService) {
     $scope.i18n = i18n;
     var model = {};
+    var title = i18n.__("Data Server Registration");
+    $scope.MessageBoxService = MessageBoxService;
 
     var conf = $window.configuration;
     if (conf.dataProvider.uriObject) {
@@ -18,7 +20,6 @@ define(function() {
     }
 
     $scope.model = model;
-    $scope.serverErrors = {};
 
     $scope.forms = {};
     $scope.css = {
@@ -65,7 +66,6 @@ define(function() {
   
     $scope.errorFound = false;
     $scope.isEditing = conf.isEditing;
-    $scope.alertBox = {};
     $scope.isChecking = false;
     $scope.message = "";
     $scope.remoteFieldsRequired = false;
@@ -155,7 +155,7 @@ define(function() {
     };
 
     $scope.save = function() {
-      $scope.resetState();
+      $scope.close();
       $scope.$broadcast("formFieldValidation");
 
       // calling auto generate form validation
@@ -163,15 +163,8 @@ define(function() {
 
       var isConnectionFormValid = $scope.isValidDataProviderTypeForm($scope.forms.connectionForm);
       if (!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
-        $scope.alertBox.title = i18n.__("Data Server Registration");
-        $scope.alertBox.message = i18n.__("There are invalid fields on form");
-        $scope.errorFound = true;
-        return;
+        return MessageBoxService.danger(title, i18n.__("There are invalid fields on form"));
       }
-
-      $scope.alertBox.title = i18n.__("Data Server Registration");
-      $scope.message = "";
-      $scope.errorFound = false;
 
       var formData = $scope.dataProvider;
       formData.uriObject = Object.assign({protocol: $scope.dataProvider.protocol}, $scope.model);
@@ -192,16 +185,12 @@ define(function() {
 
         $window.location.href = (redirectData || defaultRedirectTo);
       }).error(function(err) {
-        $scope.errorFound = true;
-        $scope.alertBox.message = err.message;
-        $scope.serverErrors = err.errors || {};
-        console.log(err);
+        return MessageBoxService.danger(title, err.message);
       });
     };
 
-    $scope.resetState = function() {
-      $scope.errorFound = false;
-      $scope.alertBox.message = "";
+    $scope.close = function() {
+      MessageBoxService.reset();
     };
 
     $scope.checkConnection = function(form) {
@@ -254,19 +243,16 @@ define(function() {
 
       var request = makeRequest();
 
-      $scope.alertBox.title = i18n.__("Connection Status");
+      var connectionTitle = i18n.__("Connection Status");
 
       request.then(function(data) {
         if (data.message){ // error found
-          $scope.errorFound = true;
-          $scope.alertBox.message = data.message;
+          MessageBoxService.danger(connectionTitle, data.message);
         } else {
-          $scope.errorFound = false;
-          $scope.alertBox.message = i18n.__("Connection Successful");
+          MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
         }
       }).catch(function(err) {
-        $scope.errorFound = true;
-        $scope.alertBox.message = err.message;
+        MessageBoxService.danger(connectionTitle, err.message);
       }).finally(function() {
         $scope.isChecking = false;
       });
