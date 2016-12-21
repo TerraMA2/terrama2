@@ -1,23 +1,4 @@
-  'use strict';
-
-  angular.module('terrama2.components.messagebox.services', ['terrama2'])
-    /**
-     * It defines alert level of component.
-     * @type {Object}
-     */
-    .constant("AlertLevel", {
-      /**
-       * It defines info level. It will display light-blue component
-       * @type {string}
-       */
-      "INFO": "alert-info",
-      "SUCCESS": "alert-success",
-      "WARNING": "alert-warning",
-      "DANGER": "alert-danger"
-    })
-    
-    .service('MessageBoxService', ["AlertLevel", MessageBoxService]); 
-
+define(function() {
   /**
    * It stores a message box service context.
    * 
@@ -139,3 +120,8 @@
       }
     };
   }
+
+  MessageBoxService.$inject = ["AlertLevel"];
+
+  return MessageBoxService;
+});

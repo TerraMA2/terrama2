@@ -1,10 +1,12 @@
 define([
   "TerraMA2WebApp/common/app",
-  "TerraMA2WebApp/countries/app"
-], function(commonModule, countriesModule) {
+  "TerraMA2WebApp/countries/app",
+  "TerraMA2WebApp/alert-box/app"
+], function(commonModule, countriesModule, alertBoxModule) {
   var terrama2Module = angular.module("terrama2", [
     commonModule,
-    countriesModule
+    countriesModule,
+    alertBoxModule
   ]);
 
   terrama2Module.init = function() {
