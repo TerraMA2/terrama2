@@ -1,9 +1,9 @@
 define([],
-  function(io) {
+  function() {
     /**
      * It defines 
      */
-    function Socket() {
+    function Socket($rootScope, $window) {
       var socket = io.connect($window.location.origin, {
         reconnect: false // it avoids to socket io reconnect automatically.
       });

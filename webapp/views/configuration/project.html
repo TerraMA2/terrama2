@@ -2,9 +2,7 @@
 
 {% set tabActive = "projects" %}
 
-{% block title %} TerraMA² {{ i18n.__("Project Registration") }} {% endblock %}
-
-{% block ngApp %}ng-app="terrama2.projects" {% endblock %}
+{% block title %} TerraMA² {% endblock %}
 
 {% block javascripts %}
 <script>
@@ -14,19 +12,15 @@
     url: "{[ url ]}"
   }
 </script>
-<script src="/javascripts/angular/projects/app.js"></script>
-<script src="/javascripts/angular/projects/controllers.js"></script>
-<!-- TerraMA2 Alert Box -->
-<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="Registration">
+<div ng-controller="RegisterController">
   <terrama2-box title="i18n.__('Project Registration')">
     <div class="col-md-12">
-      <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" display-handler="display" close="close()"></terrama2-alert-box>
+      <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     </div>
     <form name="forms.projectForm">
       <div class="row">

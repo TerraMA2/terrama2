@@ -9,7 +9,7 @@ module.exports = function(grunt) {
           baseUrl: "public/javascripts",
           out: "public/dist/terrama2-webapp.min.js",
           preserveLicenseComments: false,
-          // optimize: "none", // It does not minify
+          optimize: "none", // It does not minify
           paths: {
             TerraMA2WebApp: "angular"
           },

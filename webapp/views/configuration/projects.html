@@ -6,8 +6,6 @@
 <link rel="stylesheet" type="text/css" href="/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 {% endblock %}
 
-{% block ngApp %} ng-app="terrama2.projects" {% endblock %}
-
 {% block title %} TerraMA² {{ i18n.__('Projects') }} {% endblock %}
 
 {% block javascripts %}
@@ -21,12 +19,12 @@
 {% endblock %}
 
 {% block content %}
-<div ng-controller="ProjectListController">
+<div ng-controller="ListController">
   <terrama2-box title="i18n.__('Projects')">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+          <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
         <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" 

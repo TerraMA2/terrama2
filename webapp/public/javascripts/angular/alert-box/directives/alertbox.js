@@ -21,7 +21,7 @@ define(function() {
           $scope.message = alertBox.message;
           $scope.alertLevel = alertBox.level;
           $scope.extra = alertBox.extra;
-        }, true)
+        }, true);
 
         $scope.isAnyExtra = function() {
           return Object.keys($scope.extra || {}).length > 0;

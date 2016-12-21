@@ -10,7 +10,7 @@
 {% set MENU_URLS["status"] = {name: 'Status', url: "/configuration/status", icon: "fa-feed"} %}
 
 <!DOCTYPE html>
-<html {% block ngApp %}ng-app="terrama2"{% endblock %} i18n-locale="{{ locale }}"
+<html  i18n-locale="{{ locale }}"
       ng-controller="{% block ngController%}TerraMA2Controller{% endblock %}"
       data-language="{[ acceptedLanguage() ]}">
 <head>
@@ -252,7 +252,7 @@
 
   {% endblock %}
 
-  <!--<script type="text/javascript" src="/javascripts/angular/dist/tm2.js"></script>-->
+  <script type="text/javascript" src="/dist/terrama2-webapp.min.js"></script>
 
 </body>
 </html>

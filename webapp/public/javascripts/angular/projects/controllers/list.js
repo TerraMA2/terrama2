@@ -4,10 +4,12 @@ define(function() {
    * 
    * @class ListController
    */
-  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window) {
+  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService) {
     $scope.model = [];
     var config = $window.configuration;
     var socket = Socket;
+    var title = i18n.__(config.context || "Project");
+    $scope.MessageBoxService = MessageBoxService;
     $scope.i18n = i18n;
     $scope.linkToAdd = "/configuration/projects/new";
     $scope.fields = [
@@ -26,22 +28,16 @@ define(function() {
 
     $scope.loading = true;
 
-    // alert-box
-    $scope.alertLevel = "alert-success";
-    $scope.alertBox = {
-      title: i18n.__(config.context || "Project"),
-      message: config.message
-    };
-    $scope.display = config.message ? true : false;
-    $scope.resetState = function() { $scope.display = false; };
+    if (config.message) {
+      MessageBoxService.success(title, config.message);
+    }
+
+    $scope.close = function() { MessageBoxService.reset() };
 
     socket.on("exportResponse", function(result) {
       $scope.extra.isExporting = false;
-      $scope.display = result.err ? true : false;
       if (result.err) {
-        $scope.alertLevel = "alert-danger";
-        $scope.alertBox.message = result.err;
-        console.log("Err ", result.err);
+        MessageBoxService.danger(title, result.err);
         return;
       }
 
@@ -50,15 +46,11 @@ define(function() {
 
     socket.on("importResponse", function(result) {
       $scope.loading = false;
-      $scope.display = true;
       $scope.extra.isImporting = false;
       if (result.err) {
-        $scope.alertLevel = "alert-danger";
-        console.log("Err ", result.err);
-        $scope.alertBox.message = result.err;
+        MessageBoxService.danger(title, result.err);
         return;
       }
-      $scope.alertLevel = "alert-success";
 
       var msg = result.data.Projects.length + i18n.__(" projects has been imported. ");
       var canPush = [];
@@ -81,21 +73,16 @@ define(function() {
         cont = 0;
       }
 
-      $scope.alertBox.message = msg;
+      MessageBoxService.success(title, msg);
     });
 
     // callback after remove operation
     $scope.extra = {
       removeOperationCallback: function(err, data) {
-        $scope.display = true;
         if (err) {
-          $scope.alertLevel = "alert-danger";
-          $scope.alertBox.message = err.message;
-          return;
+          return MessageBoxService.danger(title, err.message);
         }
-
-        $scope.alertLevel = "alert-success";
-        $scope.alertBox.message = data.name + " removed";
+        MessageBoxService.success(title, data.name + " removed");
       },
 
       project: {
@@ -113,21 +100,17 @@ define(function() {
       },
 
       import: function() {
-        $scope.alertBox.title = i18n.__("Data Import");
-        $scope.display = false;
+        var importTitle = i18n.__("Data Import");
         $scope.extra.isImporting = false;
 
         var setError = function(err) {
-          $scope.display = true;
-          $scope.alertLevel = "alert-danger";
-          $scope.alertBox.message = err.toString();
+          MessageBoxService.danger(importTitle, err.toString());
           $scope.extra.isImporting = false;
         } 
 
         FileDialog.openFile(function(err, input) {
           if (err) {
-            $scope.display = true;
-            $scope.alertBox.message = err.toString();
+            MessageBoxService.danger(title, err.toString());
             return;
           }
 
@@ -138,10 +121,7 @@ define(function() {
               $scope.extra.isImporting = true;
               if (error) {
                 setError(error);
-                console.log(error);
                 return;
-              } else {
-                $scope.display = false;
               }
 
               if (!json.hasOwnProperty("Projects") || 
@@ -167,7 +147,7 @@ define(function() {
     });
   }
 
-  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window"];
+  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService"];
 
   return ListController;
 })
