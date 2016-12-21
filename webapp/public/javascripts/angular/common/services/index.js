@@ -3,14 +3,18 @@ define([
   "TerraMA2WebApp/common/services/save-as",
   "TerraMA2WebApp/common/services/socket",
   "TerraMA2WebApp/common/services/unique",
-  "TerraMA2WebApp/common/services/request"
-], function(FileDialog, SaveAs, Socket, UniqueNumber, BaseService) {
+  "TerraMA2WebApp/common/services/request",
+  "TerraMA2WebApp/common/services/http-timeout",
+  "TerraMA2WebApp/common/services/data-provider"
+], function(FileDialog, SaveAs, Socket, UniqueNumber, BaseService, HttpTimeout, DataProviderService) {
   var moduleName = "terrama2.common.services";
   angular.module(moduleName, [])
     .factory("FileDialog", FileDialog)
     .factory("SaveAs", SaveAs)
     .factory("Socket", Socket)
     .factory("UniqueNumber", UniqueNumber)
-    .service("BaseService", BaseService);
+    .factory("$HttpTimeout", HttpTimeout)
+    .service("BaseService", BaseService)
+    .service("DataProviderService", DataProviderService);
   return moduleName;
 });
