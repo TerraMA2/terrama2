@@ -4,6 +4,7 @@
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
+var AnalysisDataSeries = require("./AnalysisDataSeries");
 var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
 var Utils = require("./../Utils");
 
@@ -123,7 +124,11 @@ Analysis.prototype.constructor = Analysis;
  * @param {AnalysisDataSeries} analysisDataSeries - An analysis data series object
  */
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
-  this.analysis_dataseries_list.push(analysisDataSeries);
+  if (analysisDataSeries instanceof BaseClass) {
+    this.analysis_dataseries_list.push(analysisDataSeries);
+  } else {
+    this.analysis_dataseries_list.push(new AnalysisDataSeries(analysisDataSeries));
+  }
 };
 
 Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
