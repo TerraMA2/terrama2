@@ -33,6 +33,7 @@
 #include "python/PythonInterpreter.hpp"
 #include "DataManager.hpp"
 #include "ContextManager.hpp"
+#include "utility/Verify.hpp"
 #include "../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
@@ -105,7 +106,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
     logId = logger->start(analysis->id);
 
-    verifyInactiveDataSeries(dataManager, analysis, logger, logId);
+    verify::inactiveDataSeries(dataManager, analysis);
     std::vector<std::string> messages = verify::inactiveDataSeries(dataManager, analysis);
     if(!messages.empty())
     {
