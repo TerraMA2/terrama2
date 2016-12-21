@@ -1,5 +1,6 @@
 var Utils = require("./../../Utils");
 var DataSeriesBuilder = require("./DataSeriesBuilder");
+var DataSetModel = require("./../../data-model/DataSet");
 var Model = require("./../../data-model/Analysis");
 var ScheduleModel = require("./../../data-model/Schedule");
 var AnalysisDataSeriesModel = require("./../../data-model/AnalysisDataSeries");
@@ -26,16 +27,19 @@ function AnalysisBuilder(analysisObject, storager, scriptLanguage, extra) {
     data_provider_id: analysisObject.data_provider_id,
     data_series_semantics_id: storager.semantics.format.id,
     data_series_semantics: storager.semantics.format,
-    dataSets: [
-      {
-        active: true,
-        format: storager.format
-      }
-    ],
+    dataSets: [],
     active: true
   };
 
   var dataSeriesModel = DataSeriesBuilder(rawDataSeries);
+
+  var dataSet = new DataSetModel({
+    id: dataSeriesModel.id,
+    data_series_id: dataSeriesModel.id,
+    active: true,
+    format: storager.format
+  });
+  dataSeriesModel.setDataSets([dataSet]);
 
   analysisObject.dataset_output = dataSeriesModel.dataSets[0].id;
   analysisObject.schedule.id = dataSeriesModel.id;
