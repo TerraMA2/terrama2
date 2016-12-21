@@ -45,8 +45,8 @@ angular.module('terrama2.dataseries.registration', [
   })
 
   .controller('StoragerController', [
-    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory',
-    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory) {
+    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory', '$timeout',
+    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory, $timeout) {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
@@ -70,12 +70,23 @@ angular.module('terrama2.dataseries.registration', [
       $scope.removePcdStorager = function(dcpItem) {
         $scope.dcpsStorager.some(function(dcp, pcdIndex, array) {
           // todo: which fields should compare to remove?
-          if (dcp._id === dcpItem._id) {
+          if (parseInt(dcp._id) === parseInt(dcpItem._id)) {
             array.splice(pcdIndex, 1);
             return true;
           }
         });
       };
+
+      $scope.editDcpStorager = function(dcpItem){
+        $scope.dcpsStorager.some(function(dcp, dcpIndex, array){
+          if (parseInt(dcp._id) === parseInt(dcpItem._id)){
+            var table_name = dcp.table_name;
+            array[dcpIndex] = dcpItem;
+            array[dcpIndex].table_name = table_name;
+            return true;
+          }
+        });
+      }
 
       $scope.addDcpStorager = function() {
         $scope.$broadcast('schemaFormValidate');
@@ -145,11 +156,13 @@ angular.module('terrama2.dataseries.registration', [
             var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
             angular.merge(copyFormat, args.dcp);
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
-            obj.table_name = obj.mask;
+            obj.table_name = obj.alias;
             $scope.dcpsStorager.push(obj);
           } else {
             $scope.dcpsStorager.push(args.dcp);
           }
+        } else if (args.action === "edit"){
+          $scope.editDcpStorager(args.dcp);
         }
       });
 
@@ -167,6 +180,40 @@ angular.module('terrama2.dataseries.registration', [
           $scope.storager_data_provider_id = undefined;
           $scope.$broadcast("clearSchedule");
       });
+
+      //Checking if is updating to change output when changed the parameters in Grads data series type
+      if ($scope.isUpdating && $scope.dataSeries.semantics.code == 'GRID-grads'){
+
+        // function to update model storager properties
+        var updateModelStorage = function(inputModel){
+          $scope.modelStorager.binary_file_mask = inputModel.binary_file_mask;
+          $scope.modelStorager.bytes_after = inputModel.bytes_after;
+          $scope.modelStorager.bytes_before = inputModel.bytes_before;
+          $scope.modelStorager.ctl_filename = inputModel.ctl_filename;
+          $scope.modelStorager.data_type = inputModel.data_type;
+          $scope.modelStorager.number_of_bands = inputModel.number_of_bands;
+          $scope.modelStorager.srid = inputModel.srid;
+          $scope.modelStorager.temporal = inputModel.temporal;
+          if (inputModel.time_interval){
+            $scope.modelStorager.time_interval = inputModel.time_interval;
+          }
+          if (inputModel.time_interval_unit){
+            $scope.modelStorager.time_interval_unit = inputModel.time_interval_unit;
+          }
+          if (inputModel.value_multiplier){
+            $scope.modelStorager.value_multiplier = inputModel.value_multiplier;
+          }
+        }
+
+        // watch model to update modelStorage
+        var timeoutPromise;
+        $scope.$watch("model", function(modelValue){
+          $timeout.cancel(timeoutPromise);
+          timeoutPromise = $timeout(function(){
+            updateModelStorage(modelValue);
+          }, 700);
+        }, true);
+      }
 
       $scope.$on('storagerFormatChange', function(event, args) {
         $scope.formatSelected = args.format;
@@ -196,9 +243,17 @@ angular.module('terrama2.dataseries.registration', [
             })
           });
 
-          if ($scope.dataProvidersStorager.length > 0)
+          if ($scope.dataProvidersStorager.length > 0){
+            $scope.forms.storagerDataForm.storager_data_provider_id.$setViewValue($scope.dataProvidersStorager[0]);
             $scope.storager_data_provider_id = $scope.dataProvidersStorager[0].id;
+          }
 
+          if ($scope.services.length > 0) {
+            $scope.forms.storagerDataForm.service.$setViewValue($scope.services[0]);
+            $scope.storager_service = $scope.services[0].id;
+          }
+
+          $scope.$broadcast('formFieldValidation');
           var metadata = data.metadata;
           var properties = metadata.schema.properties;
 
@@ -206,7 +261,16 @@ angular.module('terrama2.dataseries.registration', [
             if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
               // todo:
             } else {
-              $scope.modelStorager = $scope.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
+              if (configuration.dataSeries.output){
+                $scope.modelStorager = $scope.prepareFormatToForm(configuration.dataSeries.output.dataSets[0].format);
+              } else {
+                var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
+                angular.merge(copyFormat, $scope.model);
+                $scope.modelStorager = SemanticsParserFactory.parseKeys(copyFormat);
+                $scope.filter.area = {
+                  srid: 4326
+                };
+              }
             }
           } else {
             var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
@@ -262,7 +326,7 @@ angular.module('terrama2.dataseries.registration', [
 
             if ($scope.hasCollector) {
               outputDataseries.dataSets.forEach(function(dataset) {
-                $scope.dcpsStorager.push(dataset.format);
+                $scope.dcpsStorager.push(angular.merge(dataset.format, {active: dataset.active}));
               });
             } else {
               (args.dcps || []).forEach(function(dataSetDcp) {
@@ -275,7 +339,7 @@ angular.module('terrama2.dataseries.registration', [
             $scope.schemaStorager = {};
             $scope.$broadcast('schemaFormRedraw');
           } else {
-          //   occurrence
+            // occurrence
             $scope.formStorager = metadata.form;
             $scope.schemaStorager = {
               type: 'object',
@@ -526,21 +590,18 @@ angular.module('terrama2.dataseries.registration', [
           if (fmt.hasOwnProperty(k)) {
             // checking if a number
             if (isNaN(fmt[k]) || typeof fmt[k] == "boolean") {
-              output[k] = fmt[k];
+              if (k === "active") {
+                output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k]; 
+              } else {
+                output[k] = fmt[k];
+              }
             } else {
-              output[k] = parseInt(fmt[k]);
+              output[k] = parseFloat(fmt[k]);
             }
           }
         }
         return output;
       };
-
-      $scope.tryParseInt = function(value) {
-        if (isNaN(value))
-          return value;
-        return parseInt(value);
-      };
-
 
       // wizard helper
       var isWizardStepValid = function() {
@@ -831,9 +892,6 @@ angular.module('terrama2.dataseries.registration', [
         console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
 
-        if ($scope.services.length > 0) {
-          $scope.storager_service = $scope.services[0].id;
-        }
         $timeout(function() {
           $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format, dcps: $scope.dcps});
         });
@@ -1158,7 +1216,6 @@ angular.module('terrama2.dataseries.registration', [
             $scope.wizard.general.error = false;
             if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
               // TODO: prepare format as dcp item
-
               $scope.dcps = [];
               inputDataSeries.dataSets.forEach(function(dataset) {
                 if (dataset.position) {
@@ -1166,8 +1223,8 @@ angular.module('terrama2.dataseries.registration', [
                   var long;
                   if (dataset.position.type) {
                     // geojson
-                    lat = dataset.position.coordinates[0];
-                    long = dataset.position.coordinates[1];
+                    long = dataset.position.coordinates[0];
+                    lat = dataset.position.coordinates[1];
                   } else {
                     var first = dataset.position.indexOf("(");
                     var firstSpace = dataset.position.indexOf(" ", first);
@@ -1180,6 +1237,7 @@ angular.module('terrama2.dataseries.registration', [
                   dataset.format["latitude"] = lat;
                   dataset.format["longitude"] = long;
                 }
+                angular.merge(dataset.format, {active: dataset.active});
                 $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
               });
             } else {
@@ -1356,12 +1414,61 @@ angular.module('terrama2.dataseries.registration', [
           data._id = UniqueNumber();
           $scope.dcps.push(Object.assign({}, data));
           $scope._addDcpStorager(data);
-          $scope.model = {};
+          $scope.model = {active: true};
 
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
         }
       };
+
+      Object.equals = function( x, y ) {
+        if ( x === y ) return true;
+          // if both x and y are null or undefined and exactly the same
+
+        if ( ! ( x instanceof Object ) || ! ( y instanceof Object ) ) return false;
+          // if they are not strictly equal, they both need to be Objects
+
+        if ( x.constructor !== y.constructor ) return false;
+          // they must have the exact same prototype chain, the closest we can do is
+          // test there constructor.
+
+        for ( var p in x ) {
+          if ( ! x.hasOwnProperty( p ) ) continue;
+            // other properties were tested using x.constructor === y.constructor
+
+          if ( ! y.hasOwnProperty( p ) ) return false;
+            // allows to compare x[ p ] and y[ p ] when set to undefined
+
+          if ( x[ p ] === y[ p ] ) continue;
+            // if they have the same strict value or identity then they are equal
+
+          if ( typeof( x[ p ] ) !== "object" ) return false;
+            // Numbers, Strings, Functions, Booleans must be strictly equal
+
+          if ( ! Object.equals( x[ p ],  y[ p ] ) ) return false;
+            // Objects and Arrays must be tested recursively
+        }
+
+        for ( p in y ) {
+          if ( y.hasOwnProperty( p ) && ! x.hasOwnProperty( p ) ) return false;
+            // allows x[ p ] to be set to undefined
+        }
+        return true;
+      }
+
+      // watch dcps model to update dcpStorager
+      $scope.$watch("dcps", function(newVal, oldVal){
+        if (newVal && newVal.length > 0){
+          //checking if is editing
+          if (newVal.length === oldVal.length){
+            for (i = 0; i < newVal.length; i++){
+              if (!Object.equals(newVal[i], oldVal[i])){
+                $scope.$broadcast("dcpOperation", {action: "edit", dcp: newVal[i]});
+              }
+            }
+          }
+        }
+      }, true);
 
       $scope.changeDataProvider = function() {
         console.log($scope.dataSeries);
@@ -1425,9 +1532,10 @@ angular.module('terrama2.dataseries.registration', [
           var dSetsLocal = [];
           dSets.forEach(function(dSet) {
             var outputDcp = {
-              active: true,
+              active: dSet.active,
               format: _makeFormat(dSet)
             };
+            delete dSet.active;
 
             if ($scope.dataSeries.semantics.data_format_name !== "POSTGIS") {
               outputDcp.position = GeoLibs.point.build({x: dSet.longitude, y: dSet.latitude, srid: dSet.projection});
@@ -1513,7 +1621,7 @@ angular.module('terrama2.dataseries.registration', [
               }
               angular.merge(format, semantics.metadata.metadata);
               var dataSetStructure = {
-                active: true,//$scope.dataSeries.active,
+                active: dcp.active,//$scope.dataSeries.active,
                 format: format,
                 position: GeoLibs.point.build({x: dcp.longitude, y: dcp.latitude, srid: dcp.projection})
               };

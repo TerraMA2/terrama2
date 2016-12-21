@@ -22,7 +22,7 @@
 
           <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
 
-          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic">
+          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
@@ -32,6 +32,7 @@
               <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
             </ul>
           </div>
+          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
         </div>
       </div>
     </wz-step>
@@ -44,7 +45,7 @@
           <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
           <div class="col-md-2 terrama2-top-field">
-            <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-disabled="isUpdating" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+            <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
           </div>
 
           <div ng-include="'/javascripts/angular/dcpTable.html'"></div>
@@ -58,7 +59,7 @@
           <button class="btn btn-primary" type="submit" ng-show="isDynamic" wz-next>{{ i18n.__('Next') }}</button>
           <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
 
-          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic">
+          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
@@ -68,6 +69,7 @@
               <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
             </ul>
           </div>
+          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
         </div>
       </div>
 
@@ -82,7 +84,7 @@
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" wz-next>{{ i18n.__('Next') }}</button>
 
-          <div class="btn-group pull-right" style="margin-left: 3px;">
+          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
@@ -92,6 +94,7 @@
               <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
             </ul>
           </div>
+          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
         </div>
       </div>
     </wz-step>
@@ -104,7 +107,7 @@
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" ng-show="isDynamic && semantics !== 'GRID'" wz-next>{{ i18n.__('Next') }}</button>
-          <div class="btn-group pull-right" style="margin-left: 3px;">
+          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
@@ -114,6 +117,7 @@
               <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
             </ul>
           </div>
+          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
         </div>
       </div>
     </wz-step>
@@ -128,7 +132,7 @@
         <div class="pull-right">
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
 
-          <div class="btn-group pull-right" style="margin-left: 3px;">
+          <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
@@ -138,6 +142,7 @@
               <li><a href="javascript::void();" data-ng-click="save(false);" ng-bind="i18n.__('Save')"></a></li>
             </ul>
           </div>
+          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="isDynamic && !storager.format" data-ng-click="save(false);"></button>
         </div>
       </div>
     </wz-step>

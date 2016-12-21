@@ -83,7 +83,9 @@ void terrama2::services::collector::core::Service::prepareTask(CollectorId colle
 {
   try
   {
-    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, collectorId, std::dynamic_pointer_cast<CollectorLogger>(logger_), dataManager_));
+    auto collectorLogger = std::dynamic_pointer_cast<CollectorLogger>(logger_->clone());
+    assert(collectorLogger);
+    taskQueue_.emplace(std::bind(&terrama2::services::collector::core::Service::collect, this, collectorId, collectorLogger, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -137,22 +139,13 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
 }
 
 void terrama2::services::collector::core::Service::collect(CollectorId collectorId,
-                                                           std::shared_ptr< terrama2::services::collector::core::CollectorLogger > logger,
+                                                           std::shared_ptr<CollectorLogger> logger,
                                                            std::weak_ptr<DataManager> weakDataManager)
 {
   auto dataManager = weakDataManager.lock();
   if(!dataManager.get())
   {
     TERRAMA2_LOG_ERROR() << tr("Unable to access DataManager");
-    notifyWaitQueue(collectorId);
-    sendProcessFinishedSignal(collectorId, false);
-    return;
-  }
-
-  if(!logger.get())
-  {
-    QString errMsg = QObject::tr("Unable to access Logger class in collector %1").arg(collectorId);
-    TERRAMA2_LOG_ERROR() << errMsg;
     notifyWaitQueue(collectorId);
     sendProcessFinishedSignal(collectorId, false);
     return;
@@ -199,7 +192,9 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
 
     auto remover = std::make_shared<terrama2::core::FileRemover>();
     auto dataAccessor = terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
-    auto dataMap = dataAccessor->getSeries(filter, remover);
+
+    auto uriMap = dataAccessor->getFiles(filter, remover);
+    auto dataMap = dataAccessor->getSeries(uriMap, filter, remover);
     if(dataMap.empty())
     {
       QString errMsg = tr("No data to collect.");
@@ -244,6 +239,12 @@ void terrama2::services::collector::core::Service::collect(CollectorId collector
     notifyWaitQueue(collectorId);
     return;
 
+  }
+  catch(const terrama2::core::LogException& e)
+  {
+    std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+    TERRAMA2_LOG_ERROR() << errMsg << std::endl;
+    TERRAMA2_LOG_INFO() << tr("Collection for collector %1 finished with error(s).").arg(collectorId);
   }
   catch(const terrama2::core::NoDataException& e)
   {

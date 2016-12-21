@@ -762,7 +762,7 @@ void terrama2::services::view::core::GeoServer::getMapWMS(const std::string& sav
 QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const ViewPtr viewPtr,
                                                                       const std::unordered_map< terrama2::core::DataSeriesPtr, terrama2::core::DataProviderPtr >& dataSeriesProviders,
                                                                       const std::shared_ptr<DataManager> dataManager,
-                                                                      const std::shared_ptr< ViewLogger > logger,
+                                                                      std::shared_ptr<ViewLogger> logger,
                                                                       const RegisterId logId)
 {
   QJsonObject jsonAnswer;

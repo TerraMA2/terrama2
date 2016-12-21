@@ -55,6 +55,16 @@ void IntRasterTs::CollectAndCropRaster()
 
   auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
   terrama2::services::collector::core::Service service(dataManager);
+
+  auto loggerCopy = std::make_shared<terrama2::core::MockCollectorLogger>();
+
+  EXPECT_CALL(*loggerCopy, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, setTableName(::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, getLastProcessTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
+  EXPECT_CALL(*loggerCopy, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
+  EXPECT_CALL(*loggerCopy, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+
   auto logger = std::make_shared<terrama2::core::MockCollectorLogger>();
 
   EXPECT_CALL(*logger, setConnectionInfo(::testing::_)).WillRepeatedly(::testing::Return());
@@ -63,6 +73,7 @@ void IntRasterTs::CollectAndCropRaster()
   EXPECT_CALL(*logger, getDataLastTimestamp(::testing::_)).WillRepeatedly(::testing::Return(nullptr));
   EXPECT_CALL(*logger, done(::testing::_, ::testing::_)).WillRepeatedly(::testing::Return());
   EXPECT_CALL(*logger, start(::testing::_)).WillRepeatedly(::testing::Return(0));
+  EXPECT_CALL(*logger, clone()).WillRepeatedly(::testing::Return(loggerCopy));
 
   logger->setConnectionInfo(uri);
   service.setLogger(logger);

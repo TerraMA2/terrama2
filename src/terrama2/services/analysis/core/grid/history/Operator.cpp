@@ -130,8 +130,8 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
         auto interpolator = context->getInterpolator(raster);
 
         double value = getValue(raster, interpolator, column, row, band);
-
-        samples.push_back(value);
+        if(!std::isnan(value))
+          samples.push_back(value);
       }
 
       if(!samples.empty())

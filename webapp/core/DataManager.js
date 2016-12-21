@@ -1551,7 +1551,7 @@ var DataManager = module.exports = {
       }
 
       return models.db.DataSeries.update(dataSeriesObject, Utils.extend({
-        fields: ['name', 'description', 'data_provider_id', 'active'],
+        fields: ['name', 'description', 'data_provider_id', 'active', 'data_series_semantics_id'],
         where: {
           id: dataSeriesId
         }
@@ -1562,6 +1562,7 @@ var DataManager = module.exports = {
         })
 
         .then(function(dataSeriesSemantics) {
+          dataSeries.data_series_semantics = dataSeriesSemantics;
           /**
            * Helper to iterate over formats in order to build promise "upsertDataSetFormats"
            * 
@@ -1592,41 +1593,71 @@ var DataManager = module.exports = {
            */
           var promises = [];
 
-          dataSeries.dataSets.forEach(function(oldDataSet, dataSetIndex) {
-
-            self.updateDataSetState(oldDataSet.id, dataSeriesObject.dataSets[dataSetIndex].active);
-
-            var newDataSet = dataSeriesObject.dataSets[dataSetIndex];
-            /**
-             * It defines a list of promises to perform DB operation. It may be insert or update
-             * @type {Promise<DataSetFormat>[]}
-             */
-            var promisesFormat = Utils.generateArrayFromObject(newDataSet.format, formatIterator, oldDataSet);
-
-            promises.push(promisesFormat);
-          });
-
-          //TODO: change it. It iterate over array of array of promises. It should iterate just over an array
-          return Promise.map(promises, function(promiseArray) {
-            return Promise.all(promiseArray);
-          })
-          .then(function(dataSetFormatArray) {
-            for(var i = 0; i < dataSetFormatArray.length; ++i) {
-              var formatArray = dataSetFormatArray[i];
-
-              for(var j = 0; j < dataSeries.dataSets.length; ++j) {
-                var dataSet = dataSeries.dataSets[j];
-
-                if (formatArray[0].data_set_id === dataSet.id) {
-                  dataSet.format = Utils.formatMetadataFromDB(dataSetFormatArray[i], String);
-                }
+          // check if must remove a data set
+          var dataSetsToRemove = [];
+          if (dataSeriesObject.dataSets.length < dataSeries.dataSets.length){
+            dataSeries.dataSets.forEach(function(dataSetToRemove){
+              var dontRemove = dataSeriesObject.dataSets.some(function(dataSetToCompare){
+                return dataSetToCompare.format._id == dataSetToRemove.format._id;
+              });
+              if (!dontRemove){
+                dataSetsToRemove.push(dataSetToRemove);
               }
-            }
+            });
+          }
 
-            return null;
+          //Removing datasets
+          dataSetsToRemove.forEach(function(dataSetId){
+            var removeProvider = self.removeDataSet(dataSetId).then(function(returned){
+              var index = dataSeries.dataSets.indexOf(returned);
+              if (index > -1){
+                dataSeries.dataSets.splice(index, 1);
+              }
+            });
+            promises.push(removeProvider);
           });
-        })
 
+          dataSeriesObject.dataSets.forEach(function(newDataSet){
+            var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
+              return dSet.format._id == newDataSet.format._id; 
+            });
+            // Update data set
+            if (dataSetToUpdate){
+              dataSetToUpdate.semantics = dataSeriesSemantics;
+              var updatePromise = self.updateDataSet(dataSetToUpdate, newDataSet, options)
+              .then(function(dataSetUpdated) {
+                var promisesFormatArray = [];
+                for(var j = 0; j < dataSeries.dataSets.length; ++j) {
+                  var dataSet = dataSeries.dataSets[j];
+
+                  if (dataSetUpdated.id === dataSet.id) {
+                    var promisesFormat = Utils.generateArrayFromObject(dataSetUpdated.format, formatIterator, dataSet);
+                    promisesFormat.forEach(function(promiseFormat){
+                      promisesFormatArray.push(promiseFormat);
+                    });
+                    dataSet.active = dataSetUpdated.active;
+                    dataSet.format = dataSetUpdated.format;
+                    if (dataSetUpdated.position){
+                      dataSet.position = dataSetUpdated.position;
+                    }
+                  }
+                }
+                
+                return Promise.all(promisesFormatArray);
+              });
+              promises.push(updatePromise);
+            // add data set
+            } else {
+              newDataSet.data_series_id = dataSeriesId;
+              var addPromise = self.addDataSet(dataSeriesSemantics, newDataSet).then(function(newDSet){
+                dataSeries.dataSets.push(newDSet);
+              });
+              promises.push(addPromise);
+            }
+          });
+          return Promise.all(promises);
+        })
+        // on successfully updating data sets
         .then(function() {
           return self.getDataProvider({id: parseInt(dataSeriesObject.data_provider_id)});
         })
@@ -1636,6 +1667,7 @@ var DataManager = module.exports = {
           dataSeries.description = dataSeriesObject.description;
           dataSeries.data_provider_id = dataProvider.id;
           dataSeries.active = dataSeriesObject.active;
+          dataSeries.data_series_semantics_id = dataSeriesObject.data_series_semantics_id;
 
           return resolve(new DataModel.DataSeries(dataSeries));
         }).catch(function(err) {
@@ -1865,40 +1897,53 @@ var DataManager = module.exports = {
    * @param {Object} dataSetObject - An object containing DataSet values to be updated.
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
-  updateDataSet: function(restriction, dataSetObject) {
+  updateDataSet: function(restriction, dataSetObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
 
-      var dataSet = Utils.find(self.data.dataSets, restriction);
+      var dataSet = Utils.find(self.data.dataSets, {id: restriction.id});
 
       if (dataSet) {
-
-        models.db.DataSet.find({id: dataSet.id}).then(function(result) {
-          result.updateAttributes({active: dataSetObject.active}).then(function() {
-            result.getDataSet(restriction.semantics.data_series_type_name).then(function(dSet) {
-              dSet.updateAttributes(dataSetObject).then(function() {
-                var output = Utils.clone(result.get());
-                output.class = "DataSet";
-                switch (restriction.semantics.data_series_type_name) {
-                  case DataSeriesType.DCP:
-                    output.position = Utils.clone(dSet.position);
-                    break;
-                  default:
-                }
-                resolve(output);
-              }).catch(function(err) {
-                reject(err);
-              });
-            });
+        return models.db.DataSet.findById(dataSet.id, options)
+          .then(function(result) {
+            return result.updateAttributes({active: dataSetObject.active}, options)
+              .then(function() {
+                return result.getDataSet(restriction.semantics.data_series_type_name, options)
+                  .then(function(dSet) {
+                    return dSet.updateAttributes(dataSetObject, options)
+                      .then(function() {
+                        return result.getDataSetFormats(options)
+                          .then(function(dSetFormat){
+                            var output = Utils.clone(result.get());
+                            output.class = "DataSet";
+                            switch (restriction.semantics.data_series_type_name) {
+                              case DataSeriesType.DCP:
+                                output.position = Utils.clone(dSet.position);
+                                break;
+                            }
+                            /**
+                             * Stringification process. It is important to force cast to string due the formats here 
+                             * may be cast to int/float etc.
+                             */
+                            var formatStringfied = {};
+                            for (var key in dataSetObject.format) {
+                              if (dataSetObject.format.hasOwnProperty(key)) {
+                                formatStringfied[key] = String(dataSetObject.format[key]);
+                              }
+                            }
+                            output.active = result.active;
+                            output.format = formatStringfied;
+                            return resolve(output);
+                          }); // end result.getDataSetFormats
+                    }); // end dSet.updateAttributes
+                }); // end result.getDataSet
+            }); // end result.updateAttributes
           }).catch(function(err) {
-            reject(err);
+            logger.error(err);
+            return reject(err);
           });
-        }).catch(function(err) {
-          reject(err);
-        });
-
       } else {
-        reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
+        return reject(new exceptions.DataSeriesError("Could not find a data set: ", restriction));
       }
     });
   },
@@ -1947,7 +1992,7 @@ var DataManager = module.exports = {
         var dataSet = self.data.dataSets[index];
         if (dataSet.id === dataSetId.id) {
           models.db.DataSet.destroy({where: {id: dataSet.id}}).then(function(status) {
-            resolve(status);
+            resolve(dataSetId);
             self.data.dataSets.splice(index, 1);
           }).catch(function(err) {
             reject(err);
@@ -2455,7 +2500,7 @@ var DataManager = module.exports = {
             });
         } else {
           logger.error("Retrieved null while getting collector", collectorResult);
-          return reject(new exceptions.CollectorError("Could not find collector. "));
+          return reject(new exceptions.CollectorErrorNotFound("Could not find collector. "));
         }
       }).catch(function(err) {
         logger.error(err);

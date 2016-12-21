@@ -106,6 +106,7 @@ namespace terrama2
          */
         virtual ~ProcessLogger();
 
+
         /*!
          * \brief Log the start of the process.
          * \return The ID of table register
@@ -158,10 +159,13 @@ namespace terrama2
          */
         virtual ProcessId processID(const RegisterId registerId) const;
 
+        void internalClone(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy) const;
+        virtual std::shared_ptr<ProcessLogger> clone() const { return nullptr; }
+
       public slots:
         /*!
         * \brief Reset connection to log database information
-        * \param connInfo Datasource connection information.
+        * \param uri Datasource connection information.
         */
         virtual void setConnectionInfo(const te::core::URI& uri);
 
@@ -171,6 +175,11 @@ namespace terrama2
          * \brief Default constructor
          */
         ProcessLogger() = default;
+
+        /*!
+         * \brief Copy constructor
+         */
+        ProcessLogger(const ProcessLogger& other) = delete;
 
         /*!
          * \brief Set the process logger data source
@@ -197,12 +206,14 @@ namespace terrama2
          */
         void updateData(const RegisterId registerId, const QJsonObject obj) const;
 
+        void closeConnection();
+
         std::string schema_ = "terrama2";
         std::string tableName_ = "";
         std::string messagesTableName_ = "";
         std::unique_ptr< te::da::DataSource > dataSource_;
+        bool isValid_ = false;
 
-        void closeConnection();
     };
   }
 }

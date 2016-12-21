@@ -82,14 +82,14 @@ namespace terrama2
             /*!
               \brief Starts the process of an analysis execution.
               \param dataManager A smart pointer to the data manager.
-              \param logger Smart pointer to the analysis process logger.
+              \param logger Analysis process logger.
               \param startTime Start time of analysis execution.
               \param analysis The analysis to be executed.
               \param threadPool Smart pointer to the thread pool.
             */
             void runAnalysis(DataManagerPtr dataManager,
                              terrama2::core::StoragerManagerPtr storagerManager,
-                             std::shared_ptr<terrama2::services::analysis::core::AnalysisLogger> logger,
+                             std::shared_ptr<AnalysisLogger> logger,
                              std::shared_ptr<te::dt::TimeInstantTZ> startTime,
                              AnalysisPtr analysis,
                              ThreadPoolPtr threadPool,
