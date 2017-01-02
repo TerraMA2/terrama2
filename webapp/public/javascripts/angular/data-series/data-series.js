@@ -1,6 +1,6 @@
-angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox', 'terrama2.administration.services.iservices'])
-  .controller("ListController", ['$scope', 'DataSeriesFactory', 'Socket', 'i18n', '$window', 'Service',
-  function($scope, DataSeriesFactory,Socket, i18n, $window, Service) {
+define([], function() {
+
+  function ListController($scope, DataSeriesFactory,Socket, i18n, $window, Service) {
     $scope.i18n = i18n;
     $scope.disabledButtons = {};
     $scope.orderBy = "name";
@@ -175,4 +175,10 @@ angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services'
     $scope.iconFn = config.iconFn || null;
 
     $scope.iconProperties = config.iconProperties || {};
-  }]);
+  }
+
+  ListController.$inject = ["$scope", "DataSeriesFactory", "Socket", "i18n", "$window", "Service"];
+
+//angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox', 'terrama2.administration.services.iservices'])
+  return ListController;
+});

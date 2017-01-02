@@ -2,6 +2,6 @@
   if(typeof define === 'function' && define.amd) {
     define([], factory);
   } else {
-    root.TerraMA2WebComponents = factory();
+    root.TerraMA2WebApp = factory();
   }
 } (this, function() {

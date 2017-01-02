@@ -217,4 +217,4 @@ define([
   }
 
   return moduleName;
-} ());
+});

@@ -1,14 +1,12 @@
 define([], function() {
-  function moduleLoader(moduleName, deps, onSuccess) {
+  function moduleLoader(moduleName, deps) {
     try {
       angular.module(moduleName);
       deps.push(moduleName);
-
-      if (onSuccess && angular.isFunction(onSuccess)) {
-        onSuccess();
-      }
+      return true;
     } catch (err) {
       console.warn("Module " + moduleName + " is not loaded - " + err.toString());
+      return false;
     }
   }
 

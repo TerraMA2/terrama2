@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleContants, StringFormat) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleConstants, StringFormat) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -127,14 +127,14 @@ define([], function() {
       var targetStyle = "";
       switch(semanticsTypeName) {
         case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
-          targetStyle = StyleContants.COMMON;
+          targetStyle = StyleConstants.COMMON;
           self.schedule = {};
           break;
         case DataSeriesService.DataSeriesType.GRID:
-          targetStyle = StyleContants.GRID;
+          targetStyle = StyleConstants.GRID;
           break;
         default:
-          targetStyle = StyleContants.COMMON;
+          targetStyle = StyleConstants.COMMON;
       }
       return targetStyle;
     };
@@ -414,7 +414,7 @@ define([], function() {
     "$window",
     "DataSeriesService",
     "Service",
-    "StyleContants",
+    "StyleConstants",
     "StringFormat"
   ];
 
