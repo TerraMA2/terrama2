@@ -1,22 +1,4 @@
-angular.module('terrama2.administration.services.registration', [
-  'terrama2.services',
-  'terrama2.administration.services.iservices',
-  'terrama2.components.messagebox',
-  'terrama2.components.messagebox.services',
-  'terrama2.components.collapser'
-])
-
-.controller('RegisterUpdate', [
-  "$scope", 
-  "$window",
-  "Service",
-  "MessageBoxService",
-  "Socket",
-  "i18n",
-  "$q",
-  "URIParser",
-  RegisterUpdate
-]);
+define(function() {
 
 /**
  * It handles TerraMA² Service Registration and Service Update
@@ -441,3 +423,18 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
                                i18n.__("An error occurred during TerraMA² Service Page loading." + err.toString()));
     });
 }
+
+  RegisterUpdate.$inject = [
+    "$scope", 
+    "$window",
+    "Service",
+    "MessageBoxService",
+    "Socket",
+    "i18n",
+    "$q",
+    "URIParser"
+  ];
+
+  return RegisterUpdate;
+
+})

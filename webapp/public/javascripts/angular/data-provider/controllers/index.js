@@ -17,8 +17,8 @@ define([
   }
 
   angular.module(moduleName, deps)
-    .controller("ListController", ListController)
-    .controller("RegisterController", RegisterController);
+    .controller("DataProviderListController", ListController)
+    .controller("DataProviderRegisterController", RegisterController);
 
   return moduleName;
 });

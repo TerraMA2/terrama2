@@ -1,96 +1,5 @@
-(function() {
+define([], function() {
   'use strict';
-
-  angular.module("terrama2.views.controllers.viewregisterupdate", [
-      "terrama2",
-      "terrama2.services",
-      "terrama2.views.services",
-      "schemaForm",
-      "color.picker",
-      "terrama2.datetimepicker",
-      "terrama2.dataseries.services",
-      "terrama2.schedule",
-      "terrama2.administration.services.iservices",
-      "terrama2.ace",
-      "terrama2.components.messagebox.services",
-      "terrama2.components.messagebox"
-    ])
-    .constant("StyleContants", {
-      "GRID": "<?xml version='1.0' encoding='UTF-8'?>" +
-                "<StyledLayerDescriptor xmlns='http://www.opengis.net/sld' xmlns:ogc='http://www.opengis.net/ogc' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd' version='1.0.0'>" +
-                    "<UserLayer>" +
-                      "<Name>{0}-style</Name>" +
-                        "<UserStyle>" +
-                          "<Name>raster</Name>" +
-                          "<FeatureTypeStyle>" +
-                          "<FeatureTypeName>Feature</FeatureTypeName>" +
-                          "<Rule>" +
-                          "<RasterSymbolizer>" +
-                          "<Opacity>1.0</Opacity>" +
-                          "<ColorMap extended='true'>" +
-                            "<ColorMapEntry color='{1}' quantity='{2}'/>" +
-                            "<ColorMapEntry color='{3}' quantity='{4}'/>" +
-                          "</ColorMap>" +
-                        "</RasterSymbolizer>" +
-                      "</Rule>" +
-                    "</FeatureTypeStyle>" +
-                  "</UserStyle>" +
-                "</UserLayer>" +
-              "</StyledLayerDescriptor>",
-      "COMMON": "<?xml version='1.0' encoding='UTF-8'?>" +
-                "<StyledLayerDescriptor xmlns='http://www.opengis.net/sld' xmlns:ogc='http://www.opengis.net/ogc' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' version='1.0.0' xsi:schemaLocation='http://www.opengis.net/sld StyledLayerDescriptor.xsd'>" + 
-                  "<NamedLayer>" +
-                    "<Name>{0}-style</Name>" +
-                    "<UserStyle>" +
-                      "<Title>{0}-style</Title>" +
-                      "<FeatureTypeStyle>" +
-                        "<Rule>" +
-                          "<LineSymbolizer>" +
-                            "<Stroke>" +
-                              "<CssParameter name='stroke'>{1}</CssParameter>" +
-                              "<CssParameter name='stroke-width'>{2}</CssParameter>" +
-                            "</Stroke>" +
-                          "</LineSymbolizer>" +
-
-                          "<PolygonSymbolizer>" +
-                            "<Stroke>" +
-                              "<CssParameter name='stroke'>{3}</CssParameter>" +
-                              "<CssParameter name='stroke-width'>{4}</CssParameter>" +
-                            "</Stroke>" +
-                          "</PolygonSymbolizer>" +
-
-                          "<PointSymbolizer>" +
-                            "<Graphic>" +
-                              "<Mark>" +
-                                "<WellKnownName>circle</WellKnownName>" +
-                                "<Fill>" +
-                                  "<CssParameter name='fill'>{5}</CssParameter>" +
-                                "</Fill>" +
-                              "</Mark>" +
-                              "<Size>{6}</Size>" +
-                            "</Graphic>" +
-                          "</PointSymbolizer>" +
-                        "</Rule>" +
-                      "</FeatureTypeStyle>" +
-                    "</UserStyle>" +
-                  "</NamedLayer>" +
-                "</StyledLayerDescriptor>"
-    })
-    .controller("ViewRegisterUpdate", [
-      "$scope",
-      "i18n",
-      "ViewService",
-      "$log",
-      "$http",
-      "$timeout",
-      "MessageBoxService",
-      "$window",
-      "DataSeriesService",
-      "Service",
-      "StyleContants",
-      "StringFormat",
-      ViewRegisterUpdate
-    ]);
 
   /**
    * It represents a Controller to handle View form registration.
@@ -493,4 +402,21 @@
       });
     };
   }
-} ());
+
+  ViewRegisterUpdate.$inject = [
+    "$scope",
+    "i18n",
+    "ViewService",
+    "$log",
+    "$http",
+    "$timeout",
+    "MessageBoxService",
+    "$window",
+    "DataSeriesService",
+    "Service",
+    "StyleContants",
+    "StringFormat"
+  ];
+
+  return ViewRegisterUpdate;
+});

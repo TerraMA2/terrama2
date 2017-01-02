@@ -1,4 +1,4 @@
-(function() {
+define([], function() {
   "use strict";
 
   /**
@@ -231,4 +231,4 @@
   ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service"];
 
   return ViewList;
-} ());
+});

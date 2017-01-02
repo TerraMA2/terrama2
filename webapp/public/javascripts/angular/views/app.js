@@ -9,4 +9,4 @@ define([
   angular.module(moduleName, [serviceModule, controllersModule]);
 
   return moduleName;
-}());
+});

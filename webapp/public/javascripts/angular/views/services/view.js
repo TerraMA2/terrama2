@@ -1,4 +1,4 @@
-define(function() {
+define([], function() {
   /**
    * It defines a TerraMA² View Service DAO.
    * 
@@ -99,4 +99,4 @@ define(function() {
   ViewService.$inject = ["BaseService", "$q"];
 
   return ViewService;
-} ());
+});

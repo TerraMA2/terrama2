@@ -1,7 +1,11 @@
-(function() {
+define([
+  "TerraMA2WebApp/common/services/index"
+], function(commonServices) {
   'use strict';
 
-  angular.module("terrama2.dataseries.services", ["terrama2"])
+  var moduleName = "terrama2.dataseries.services";
+
+  angular.module(moduleName, [commonServices])
     /**
      * It defines a TerraMA² Data Series Type available.
      * 
@@ -211,4 +215,6 @@
       }
     };
   }
+
+  return moduleName;
 } ());

@@ -7,8 +7,8 @@ define([
   var moduleName = "terrama2.projects.controllers";
 
   angular.module(moduleName, [alertBoxModule, tableModule])
-    .controller("ListController", ListControler)
-    .controller("RegisterController", RegisterController);
+    .controller("ProjectListController", ListControler)
+    .controller("ProjectRegisterController", RegisterController);
 
   return moduleName;
 })
