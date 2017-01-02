@@ -30,9 +30,9 @@ define(function() {
       self.$http(Object.assign({
         url: url,
         method: method
-      }, options)).success(function(data) {
+      }, options)).then(function(data) {
         return defer.resolve(data);
-      }).error(function(err) {
+      }).catch(function(err) {
         return defer.reject(err);
       });
 

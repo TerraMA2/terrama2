@@ -138,9 +138,9 @@ define(function() {
       }
     };
 
-    $http.get("/api/Project/", {}).success(function(projects) {
-      $scope.model = projects;
-    }).error(function(err) {
+    $http.get("/api/Project/", {}).then(function(response) {
+      $scope.model = response.data;
+    }).catch(function(err) {
       console.log("Err in retrieving projects");
     }).finally(function() {
       $scope.loading = false;
