@@ -534,11 +534,11 @@ define([], function() {
               params: params
             });
 
-            httpRequest.success(function(data) {
-              self.columnsList = data.data.map(function(item, index){
+            httpRequest.then(function(response) {
+              self.columnsList = response.data.data.map(function(item, index){
                 return item.column_name;
               });
-              result.resolve(data);
+              result.resolve(response.data.data);
             });
 
             httpRequest.error(function(err) {

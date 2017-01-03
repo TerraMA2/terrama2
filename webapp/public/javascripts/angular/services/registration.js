@@ -334,12 +334,13 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         }
 
         request
-          .success(function(data) {
+          .then(function(response) {
+            var data = response.data;
             $window.location.href = "/administration/services?token=" + data.token+"&service="+data.service + "&restart="+data.restart;
           })
-          .error(function(err) {
-            console.log(err);
-            MessageBoxService.danger(i18n.__("Service Registration"), err.message);
+          .catch(function(response) {
+            console.log(response.data);
+            MessageBoxService.danger(i18n.__("Service Registration"), response.data.message);
           })
           .finally(function() {
             self.isChecking = false;

@@ -13,7 +13,7 @@ define([], function() {
       deps.push(moduleName);
       return true;
     } catch (err) {
-      console.warn("Module " + moduleName + " is not loaded - " + err.toString());
+      // console.warn("Module " + moduleName + " is not loaded - " + err.toString());
       return false;
     }
   }

@@ -39,10 +39,10 @@ define(function() {
         method: configuration.method,
         url: configuration.url,
         data: $scope.project
-      }).success(function(project) {
-        $window.location.href = "/configuration/projects/" + $scope.project.name + "/activate/" + project.token;
-      }).error(function(err) {
-        MessageBoxService.danger(title, err.message);
+      }).then(function(response) {
+        $window.location.href = "/configuration/projects/" + $scope.project.name + "/activate/" + response.data.token;
+      }).catch(function(response) {
+        MessageBoxService.danger(title, response.data.message);
       }).finally(function(){
         $scope.isSubmiting = false;
       });

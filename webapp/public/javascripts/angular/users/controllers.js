@@ -107,13 +107,14 @@ angular.module("terrama2.users")
           return;
         }
 
-        UserFactory.get(userId, {}).success(function(user) {
+        UserFactory.get(userId, {}).then(function(response) {
+          var user = response.data;
           $scope.user = user;
           // resetting password for security reasons
           $scope.user.password = hash;
           $scope.user.passwordConfirm = $scope.user.password;
-        }).error(function(err) {
-          console.log(err);
+        }).catch(function(response) {
+          console.log(response);
         });
       };
 
@@ -132,10 +133,11 @@ angular.module("terrama2.users")
           delete user.password;
         }
 
-        UserFactory.put($scope.user.id, user).success(function(data) {
+        UserFactory.put($scope.user.id, user).then(function(response) {
+          var data = response.data;
           window.location.href = $scope.redirectUrl + "?token=" + data.token + "&context="+data.context;
-        }).error(function(err) {
-          MessageBoxService.danger(title, err.message);
+        }).error(function(response) {
+          MessageBoxService.danger(title, response.data.message);
         });
       };
     }])
@@ -173,10 +175,10 @@ angular.module("terrama2.users")
           method: "POST",
           url: "/administration/users/new",
           data: $scope.user
-        }).success(function(user) {
-          window.location = $scope.redirectUrl + "?token=" + user.token;
-        }).error(function(err) {
-          MessageBoxService.danger(title, err.message);
+        }).then(function(response) {
+          window.location = $scope.redirectUrl + "?token=" + response.data.token;
+        }).catch(function(response) {
+          MessageBoxService.danger(title, response.data.message);
         }).finally(function(){
           $scope.isSubmiting = false;
         });

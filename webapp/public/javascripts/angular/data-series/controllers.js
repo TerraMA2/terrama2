@@ -10,7 +10,7 @@ define([
   // controllers
   "TerraMA2WebApp/data-series/data-series",
   "TerraMA2WebApp/data-series/registration"
-], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, dataSeriesServicesApp, scheduleApp, geoApp, ListController, RegisterUpdateController) {
+], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, dataSeriesServicesApp, scheduleApp, geoApp, ListController, RegistrationController) {
   var moduleName = "terrama2.dataseries.controllers";
   var deps = [commonServiceApp, messageboxApp];
 
@@ -27,9 +27,45 @@ define([
     deps.push(geoApp);
   }
 
-  angular.module(moduleName, deps)
-    .controller("DataSeriesListController", ListController)
-    .controller("DataSeriesRegisterUpdateController", RegisterUpdateController);
+  var app = angular.module(moduleName, deps);
+
+  app.controller("DataSeriesListController", ListController);
+  
+  if (deps.indexOf("ui.router") !== -1) {
+
+    app
+      .controller("DataSeriesStoragerController", RegistrationController.StoragerController)
+      .controller("DataSeriesRegisterUpdateController", RegistrationController.RegisterDataSeries)
+      .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
+        $stateProvider.state('main', {
+          abstract: true,
+          template: '<div ui-view=""></div>',
+          resolve: {
+            "i18nData": ["i18n", function (i18n) {
+              return i18n.ensureLocaleIsLoaded();
+            }]
+          },
+          controller: 'DataSeriesRegisterUpdateController'
+        });
+
+        $urlRouterProvider.otherwise('wizard');
+
+        $stateProvider
+          .state('wizard', {
+            parent: 'main',
+            url: "/wizard",
+            templateUrl: '/javascripts/angular/wizard.html'
+          }).state('advanced', {
+            parent: 'main',
+            url: "/advanced",
+            templateUrl: '/javascripts/angular/advanced.html'
+          }
+        );
+      }])
+      .run(["editableOptions", function(editableOptions) {
+        editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
+      }]);
+  }
 
   return moduleName;
 });

@@ -9,11 +9,12 @@ define([
   "TerraMA2WebApp/data-series/app",
   "TerraMA2WebApp/data-provider/app",
   "TerraMA2WebApp/datetimepicker/directive",
+  "TerraMA2WebApp/geo/app",
   // controllers classes
   "TerraMA2WebApp/analysis/controllers/list",
   "TerraMA2WebApp/analysis/controllers/register-update"
 ], function(moduleLoader, commonApp, tableApp, messageBoxApp, servicesApp, analysisServicesApp, aceApp, dataSeriesApp, 
-            dataProviderApp, datetimepickerApp, ListController, RegisterUpdateController) {
+            dataProviderApp, datetimepickerApp, geoApp, ListController, RegisterUpdateController) {
   var moduleName = "terrama2.analysis.controllers";
   // common dependencies both List and Register Update
   var deps = [commonApp, tableApp, servicesApp, messageBoxApp, analysisServicesApp];
@@ -26,7 +27,7 @@ define([
     // register update dependencies
     deps.push(aceApp);
     deps.push(dataSeriesApp);
-
+    deps.push(geoApp);
     deps.push(dataProviderApp);
     deps.push(datetimepickerApp);
   }

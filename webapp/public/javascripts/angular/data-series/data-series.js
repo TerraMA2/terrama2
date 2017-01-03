@@ -1,6 +1,6 @@
 define([], function() {
 
-  function ListController($scope, DataSeriesFactory,Socket, i18n, $window, Service) {
+  function ListController($scope, DataSeriesService, Socket, i18n, $window, Service) {
     $scope.i18n = i18n;
     $scope.disabledButtons = {};
     $scope.orderBy = "name";
@@ -130,7 +130,7 @@ define([], function() {
     $scope.resetState = function() { $scope.display = false; };
     $scope.display = config.message !== "";
 
-    DataSeriesFactory.get(queryParams).success(function(data) {
+    DataSeriesService.init(queryParams).then(function(data) {
       $scope.model = data instanceof Array ? data : [];
 
       // processing type
@@ -177,8 +177,7 @@ define([], function() {
     $scope.iconProperties = config.iconProperties || {};
   }
 
-  ListController.$inject = ["$scope", "DataSeriesFactory", "Socket", "i18n", "$window", "Service"];
+  ListController.$inject = ["$scope", "DataSeriesService", "Socket", "i18n", "$window", "Service"];
 
-//angular.module('terrama2.listDataSeries', ['terrama2.table', 'terrama2.services', 'terrama2.components.messagebox', 'terrama2.administration.services.iservices'])
   return ListController;
 });

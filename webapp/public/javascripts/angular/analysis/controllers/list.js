@@ -5,6 +5,7 @@ define([], function() {
     $scope.model = [];
     $scope.i18n = i18n;
     $scope.disabledButtons = {};
+    $scope.MessageBoxService = MessageBoxService;
 
     var serviceCache = {};
 
@@ -101,6 +102,10 @@ define([], function() {
 
     $scope.remove = function(object) {
       return "/api/Analysis/" + object.id + "/delete";
+    };
+
+    $scope.close = function() {
+      MessageBoxService.reset();
     };
 
     $scope.icon = function(object) {

@@ -58,9 +58,9 @@ define([
 
     this.BaseService
       .$request(this.url, "GET", {params: restriction})
-      .then(function(data) {
-        self.model = data;
-        return defer.resolve(data);
+      .then(function(response) {
+        self.model = response.data;
+        return defer.resolve(response.data);
       })
       
       .catch(function(err) {
@@ -84,9 +84,16 @@ define([
    * @returns {ng.IPromise}
    */
   DataSeriesService.prototype.create = function(dataSeriesObject) {
-    return this.BaseService.$request(this.url, "POST", {
-      data: dataSeriesObject
-    });
+    var defer = this.$q.defer();
+    var self = this;
+    this.BaseService.$request(this.url, "POST", {
+        data: dataSeriesObject
+      })
+      .then(function(response) {
+        self.model.push(response.data);
+        return defer.resolve(response.data);
+      });
+    return defer.promise;
   };
 
   /**
@@ -118,9 +125,9 @@ define([
 
     this.BaseService
       .$request(this.url, "GET", {params: restriction})
-      .then(function(data) {
-        self.model = data;
-        return defer.resolve(data);
+      .then(function(response) {
+        self.model = response.data;
+        return defer.resolve(response.data);
       })
       .catch(function(err) {
         return defer.reject(err);

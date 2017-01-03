@@ -46,8 +46,8 @@ define(function() {
     }
 
     $scope.schemeList = [];
-    $http.get("/api/DataProviderType/", {}).success(function(typeList) {
-      $scope.typeList = typeList;
+    $http.get("/api/DataProviderType/", {}).then(function(response) {
+      $scope.typeList = response.data;
     }).error(function(err) {
       console.log("err type: ", err);
     });
@@ -136,15 +136,15 @@ define(function() {
         params: params
       });
 
-      httpRequest.success(function(data) {
-        $scope.dbList = data.data.map(function(item, index){
+      httpRequest.then(function(response) {
+        $scope.dbList = response.data.data.map(function(item, index){
           return item.datname;
         });
-        result.resolve(data);
+        result.resolve(response.data);
       });
 
-      httpRequest.error(function(err) {
-        result.reject(err);
+      httpRequest.catch(function(response) {
+        result.reject(response.data);
       });
 
       return result.promise;
@@ -173,19 +173,19 @@ define(function() {
         url: conf.saveConfig.url,
         method: conf.saveConfig.method,
         data: formData
-      }).success(function(data) {
+      }).then(function(response) {
         $scope.isEditing = true;
 
-        var defaultRedirectTo = "/configuration/providers?id=" + data.result.id + "&method=" + conf.saveConfig.method + "&";
+        var defaultRedirectTo = "/configuration/providers?id=" + response.data.result.id + "&method=" + conf.saveConfig.method + "&";
 
-        var redirectData = makeRedirectUrl({data_provider_id: data.result.id}) + "&token=" + data.token;
+        var redirectData = makeRedirectUrl({data_provider_id: response.data.result.id}) + "&token=" + response.data.token;
 
         // disable fields
         $scope.options = {formDefaults: {readonly: true}};
 
         $window.location.href = (redirectData || defaultRedirectTo);
-      }).error(function(err) {
-        return MessageBoxService.danger(title, err.message);
+      }).catch(function(response) {
+        return MessageBoxService.danger(title, response.data.message);
       });
     };
 
@@ -226,15 +226,15 @@ define(function() {
           timeout: timeOut.promise
         });
 
-        httpRequest.success(function(data) {
-          result.resolve(data);
+        httpRequest.then(function(response) {
+          result.resolve(response.data);
         });
 
-        httpRequest.error(function(err) {
+        httpRequest.catch(function(response) {
           if (expired) {
             result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
           } else {
-            result.reject(err);
+            result.reject(response.data);
           }
         });
 

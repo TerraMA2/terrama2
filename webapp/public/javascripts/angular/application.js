@@ -7,9 +7,11 @@ define([
   "TerraMA2WebApp/projects/app",
   "TerraMA2WebApp/status/status",
   "TerraMA2WebApp/data-provider/app",
+  "TerraMA2WebApp/data-series/app",
   "TerraMA2WebApp/views/app",
   "TerraMA2WebApp/analysis/app"
-], function(moduleLoader, commonModule, countriesModule, alertBoxModule, serviceModule, projectModule, statusModule, dataProviderModule, viewsModule, analysisModule) {
+], function(moduleLoader, commonModule, countriesModule, alertBoxModule, serviceModule, projectModule, 
+            statusModule, dataProviderModule, dataSeriesModule, viewsModule, analysisModule) {
   var moduleName = "terrama2";
 
   var deps = [commonModule, countriesModule];
@@ -19,6 +21,7 @@ define([
   moduleLoader(projectModule, deps);
   moduleLoader(statusModule, deps);
   moduleLoader(dataProviderModule, deps);
+  moduleLoader(dataSeriesModule, deps);
   moduleLoader(viewsModule, deps);
   moduleLoader(analysisModule, deps);
 
@@ -29,8 +32,4 @@ define([
   };
 
   return terrama2Module;
-})
-
-require(["TerraMA2WebApp/application"], function(app) {
-  app.init();
 });

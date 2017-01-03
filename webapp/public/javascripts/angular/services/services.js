@@ -55,9 +55,9 @@ define([
     var self = this;
     var promiser = self.$q.defer();
     self.BaseService.$request(self.url, "GET", params)
-      .then(function(data){
-        self.model = data;
-        return promiser.resolve(data);
+      .then(function(response){
+        self.model = response.data;
+        return promiser.resolve(response.data);
       })
       .catch(function(err) {
         return promiser.reject(err);
@@ -104,12 +104,12 @@ define([
     var self = this;
     var defer = self.$q.defer();
     self.BaseService.$request(self.url, "POST", serviceObject)
-      .then(function(newService) {
-        self.model.push(newService);
-        return defer.resolve(newService);
+      .then(function(response) {
+        self.model.push(response.data);
+        return defer.resolve(response.data);
       })
-      .catch(function(err) {
-        return defer.reject(err);
+      .catch(function(response) {
+        return defer.reject(response.data);
       });
 
     return defer.promise;

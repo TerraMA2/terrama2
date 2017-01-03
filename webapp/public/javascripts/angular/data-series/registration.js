@@ -1,52 +1,5 @@
-angular.module('terrama2.dataseries.registration', [
-    'terrama2',
-    'terrama2.services',
-    'terrama2.dataseries.services',
-    'terrama2.components.messagebox', // handling alert box
-    'terrama2.components.messagebox.services',
-    'ui.router',
-    'mgo-angular-wizard', // wizard
-    'schemaForm',
-    'xeditable',
-    'terrama2.schedule',
-    'terrama2.datetimepicker',
-    'terrama2.components.geo',
-    'treeControl',
-  ])
-  .config(["$stateProvider", "$urlRouterProvider", function($stateProvider, $urlRouterProvider) {
-    $stateProvider.state('main', {
-      abstract: true,
-      template: '<div ui-view=""></div>',
-      resolve: {
-        "i18nData": ["i18n", function (i18n) {
-          return i18n.ensureLocaleIsLoaded();
-        }]
-      },
-      controller: 'RegisterDataSeries'
-    });
-
-    $urlRouterProvider.otherwise('wizard');
-
-    $stateProvider
-      .state('wizard', {
-        parent: 'main',
-        url: "/wizard",
-        templateUrl: '/javascripts/angular/wizard.html'
-      }).state('advanced', {
-        parent: 'main',
-        url: "/advanced",
-        templateUrl: '/javascripts/angular/advanced.html'
-      }
-    );
-  }])
-
-  .run(["editableOptions", function(editableOptions) {
-    editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
-  }])
-
-  .controller('StoragerController', [
-    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory', '$timeout',
-    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory, $timeout) {
+define([], function() {
+    function StoragerController($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory, $timeout) {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
@@ -230,11 +183,11 @@ angular.module('terrama2.dataseries.registration', [
           queryParams['type'] = "static";
         }
 
-        DataSeriesSemanticsFactory.get(args.format.code, queryParams).success(function(data) {
+        DataSeriesSemanticsFactory.get(args.format.code, queryParams).then(function(response) {
           $scope.dataProvidersStorager = [];
           $scope.dcpsStorager = [];
           $scope.dataProvidersList.forEach(function(dataProvider) {
-            data.data_providers_semantics.forEach(function(demand) {
+            response.data.data_providers_semantics.forEach(function(demand) {
               if (dataProvider.data_provider_type.id == demand.data_provider_type_id){
                 if ($scope.storager.format.data_series_type_name == 'GRID' && dataProvider.data_provider_type.id != 1 )
                   return;
@@ -254,7 +207,7 @@ angular.module('terrama2.dataseries.registration', [
           }
 
           $scope.$broadcast('formFieldValidation');
-          var metadata = data.metadata;
+          var metadata = response.data.metadata;
           var properties = metadata.schema.properties;
 
           if ($scope.isUpdating) {
@@ -365,30 +318,13 @@ angular.module('terrama2.dataseries.registration', [
         });
       });
     }
-  ])
+  
+    StoragerController.$inject = ['$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory', '$timeout'];
 
-  .controller('RegisterDataSeries', [
-    '$scope',
-    '$http',
-    'i18n',
-    "$window",
-    "$state",
-    "$httpParamSerializer",
-    "DataSeriesSemanticsFactory",
-    "DataProviderFactory",
-    "DataSeriesFactory",
-    "ServiceInstanceFactory",
-    "$timeout",
-    'FormHelper',
-    "WizardHandler",
-    'UniqueNumber',
-    "FilterForm",
-    "MessageBoxService",
-    "$q",
-    "GeoLibs",
-    function($scope, $http, i18n, $window, $state, $httpParamSerializer,
-             DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs) {
+  function RegisterDataSeries($scope, $http, i18n, $window, $state, $httpParamSerializer,
+                              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
+                              ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, 
+                              FilterForm, MessageBoxService, $q, GeoLibs) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -788,15 +724,15 @@ angular.module('terrama2.dataseries.registration', [
           params: params
         });
 
-        httpRequest.success(function(data) {
-          $scope.columnsList = data.data.map(function(item, index){
+        httpRequest.then(function(response) {
+          $scope.columnsList = response.data.data.map(function(item, index){
             return item.column_name;
           });
-          result.resolve(data);
+          result.resolve(response.data);
         });
 
-        httpRequest.error(function(err) {
-          result.reject(err);
+        httpRequest.catch(function(response) {
+          result.reject(response.data);
         });
 
         return result.promise;
@@ -909,10 +845,10 @@ angular.module('terrama2.dataseries.registration', [
       $scope.isSchedule = false;
       $scope.services = [];
       // fix: temp code
-      ServiceInstanceFactory.get({type: 'COLLECT'}).success(function(services) {
-        $scope.services = services;
-      }).error(function(err) {
-        console.log(err);
+      ServiceInstanceFactory.get({type: 'COLLECT'}).then(function(response) {
+        $scope.services = response.services;
+      }).catch(function(response) {
+        console.log(response.data);
       });
 
       // Wizard validations
@@ -1017,8 +953,8 @@ angular.module('terrama2.dataseries.registration', [
       }
 
       // list data series
-      DataSeriesFactory.get({schema: 'all'}).success(function(dataSeriesList) {
-        $scope.dataSeriesList = dataSeriesList;
+      DataSeriesFactory.get({schema: 'all'}).then(function(response) {
+        $scope.dataSeriesList = response.data;
 
         // fill intersection data series
         $scope.dataSeriesList.forEach(function(dSeries) {
@@ -1067,15 +1003,15 @@ angular.module('terrama2.dataseries.registration', [
             });
           });
         }
-      }).error(function(err) {
-        console.log("Could not list data series ", err);
+      }).catch(function(response) {
+        console.log("Could not list data series ", response.data);
       });
 
-      DataSeriesSemanticsFactory.list(queryParams).success(function(semanticsList) {
-        $scope.dataSeriesSemantics = semanticsList;
+      DataSeriesSemanticsFactory.list(queryParams).then(function(response) {
+        $scope.dataSeriesSemantics = response.data;
 
         if ($scope.dataSeries.semantics) {
-          semanticsList.forEach(function(semantics) {
+          response.data.forEach(function(semantics) {
             if (semantics.code === $scope.dataSeries.semantics) {
               $scope.dataSeries.semantics = semantics;
               $scope.onDataSemanticsChange();
@@ -1089,10 +1025,10 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.dataProviders = [];
 
-      DataProviderFactory.get().success(function(dataProviders) {
-        $scope.dataProvidersList = dataProviders;
-      }).error(function(err) {
-        console.log(err);
+      DataProviderFactory.get().then(function(response) {
+        $scope.dataProvidersList = response.data;
+      }).catch(function(response) {
+        console.log(response.data);
       });
 
       $scope.i18n = i18n;
@@ -1177,7 +1113,7 @@ angular.module('terrama2.dataseries.registration', [
           type: queryParams.type
         };
 
-        DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.code, qParams).success(function(data) {
+        DataSeriesSemanticsFactory.get($scope.dataSeries.semantics.code, qParams).then(function(response) {
           // TODO: filter provider type: FTP, HTTP, etc
           $scope.dataProviders = [];
           $scope.dataProvidersList.forEach(function(dataProvider) {
@@ -1194,7 +1130,7 @@ angular.module('terrama2.dataseries.registration', [
 
           $scope.tableFields = [];
           // building table fields. Check if form is for all ('*')
-          if (data.metadata.form.indexOf('*') != -1) {
+          if (response.data.metadata.form.indexOf('*') != -1) {
             // ignore form and make it from properties
             var properties = data.metadata.schema.properties;
             for(var key in properties) {
@@ -1204,7 +1140,7 @@ angular.module('terrama2.dataseries.registration', [
             }
           } else {
             // form is mapped
-            data.metadata.form.forEach(function(element) {
+            response.data.metadata.form.forEach(function(element) {
               $scope.tableFields.push(element.key);
             });
           }
@@ -1272,12 +1208,11 @@ angular.module('terrama2.dataseries.registration', [
             $scope.$broadcast("resetStoragerDataSets");
           }
 
-          // $scope.model = {};
-          $scope.form = data.metadata.form;
+          $scope.form = response.data.metadata.form;
           $scope.schema = {
             type: 'object',
-            properties: data.metadata.schema.properties,
-            required: data.metadata.schema.required
+            properties: response.data.metadata.schema.properties,
+            required: response.data.metadata.schema.required
           };
           $scope.$broadcast('schemaFormRedraw');
 
@@ -1340,15 +1275,15 @@ angular.module('terrama2.dataseries.registration', [
           params: params
         });
 
-        httpRequest.success(function(data) {
-          $scope.tableList = data.data.map(function(item, index){
+        httpRequest.then(function(response) {
+          $scope.tableList = response.data.data.map(function(item, index){
             return item.table_name;
           });
-          result.resolve(data);
+          result.resolve(response.data);
         });
 
-        httpRequest.error(function(err) {
-          result.reject(err);
+        httpRequest.catch(function(response) {
+          result.reject(response.data);
         });
 
         return result.promise;
@@ -1772,4 +1707,30 @@ angular.module('terrama2.dataseries.registration', [
         }
       };
     }
-  ]);
+
+    RegisterDataSeries.$inject = [
+      "$scope",
+      "$http",
+      "i18n",
+      "$window",
+      "$state",
+      "$httpParamSerializer",
+      "DataSeriesSemanticsFactory",
+      "DataProviderFactory",
+      "DataSeriesFactory",
+      "ServiceInstanceFactory",
+      "$timeout",
+      "FormHelper",
+      "WizardHandler",
+      "UniqueNumber",
+      "FilterForm",
+      "MessageBoxService",
+      "$q",
+      "GeoLibs"
+    ];
+
+    return {
+      "RegisterDataSeries": RegisterDataSeries,
+      "StoragerController": StoragerController
+    };
+})

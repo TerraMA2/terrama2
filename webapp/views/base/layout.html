@@ -228,10 +228,8 @@
           data: {
             collapsed: collapsed
           }
-        }).success(function(data) {
-          collapsed = data.collapsed;
-        }).error(function(err) {
-          
+        }).then(function(response) {
+          collapsed = response.data.collapsed;
         });
       });
     });

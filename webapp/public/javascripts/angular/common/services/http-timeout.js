@@ -22,18 +22,18 @@ define(function() {
         timeout: timeoutPromise.promise
       });
 
-      httpRequest.success(function(data, status, headers, config) {
-        result.resolve(data);
+      httpRequest.then(function(response) {
+        result.resolve(response.data);
       });
 
-      httpRequest.error(function(data, status, headers, config) {
+      httpRequest.catch(function(response) {
         if (timedOut) {
           result.reject({
             error: 'timeout',
             message: 'Request took longer than ' + timeout + ' seconds.'
           });
         } else {
-          result.reject(data);
+          result.reject(response.data);
         }
       });
 

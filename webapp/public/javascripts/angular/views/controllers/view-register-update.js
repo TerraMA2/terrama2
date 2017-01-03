@@ -141,7 +141,8 @@ define([], function() {
     /**
      * It retrieves all data provider type to get HTTP fields
      */
-    $http.get("/api/DataProviderType", {}).success(function(data) {
+    $http.get("/api/DataProviderType", {}).then(function(response) {
+      var data = response.data;
       // Setting HTTP default syntax
       self.httpSyntax = data.find(function(element) {
         return element.name === "HTTP";

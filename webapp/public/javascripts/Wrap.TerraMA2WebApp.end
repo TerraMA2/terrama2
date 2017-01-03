@@ -1,2 +1,4 @@
-  return require(["TerraMA2WebApp/application"]);
+  return require(["TerraMA2WebApp/application"], function(app) {
+    app.init();
+  });
 }));

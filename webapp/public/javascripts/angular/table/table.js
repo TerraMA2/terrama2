@@ -79,13 +79,13 @@ define([
               $http({
                 method: 'DELETE',
                 url: $scope.remove({object: object})
-              }).success(function(response) {
+              }).then(function(response) {
                 $scope.model.forEach(function(element, index, arr) {
                   if (element.id == object.id)
                     arr.splice(index, 1);
 
                   if ($scope.isFunction(callback))
-                    callback(null, response);
+                    callback(null, response.data);
                 });
 
               }).error(function(err) {
