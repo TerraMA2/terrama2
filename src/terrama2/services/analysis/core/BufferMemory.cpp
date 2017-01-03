@@ -59,6 +59,9 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
   if(buffer.unit.empty())
     buffer.unit = "m";
 
+  if(buffer.unit2.empty())
+    buffer.unit2 = "m";
+
   double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 
 
