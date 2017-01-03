@@ -620,13 +620,6 @@ angular.module('terrama2.dataseries.registration', [
         return output;
       };
 
-      $scope.tryParseInt = function(value) {
-        if (isNaN(value))
-          return value;
-        return parseInt(value);
-      };
-
-
       // wizard helper
       var isWizardStepValid = function() {
         $scope.$broadcast('formFieldValidation');
