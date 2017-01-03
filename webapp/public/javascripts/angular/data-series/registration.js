@@ -319,6 +319,8 @@ define([], function() {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
     };
+    $scope.dataSeries = {};
+    $scope.dataSeriesSemantics = [];
     
     $q.all([
       DataSeriesSemanticsService.init(queryParameters),
@@ -363,7 +365,7 @@ define([], function() {
         //disable option to crop on filter
         $scope.filter.area.showCrop = false;
         $scope.filter.area.crop_raster = false;
-      }
+      };
 
       var clearFilterForm = function(){
         $scope.filter.date = {};
@@ -374,7 +376,7 @@ define([], function() {
         if (!filterbox.hasClass('collapsed-box')){
           enableFilter.click();
         }
-      }
+      };
 
       var clearIntersectionForm = function(){
         for (var key in $scope.intersection) {
@@ -386,7 +388,7 @@ define([], function() {
         if (!intersectionbox.hasClass('collapsed-box')){
           enableIntersection.click();
         }
-      }
+      };
 
       // open optional form in advanced mode
       var openStoreForm = function(){
@@ -403,7 +405,7 @@ define([], function() {
         // set disabled to false, to open form
         enableFilter.attr("disabled", false);
         enableFilter.click();
-      }
+      };
 
       var openIntersectionForm = function(){
         $scope.advanced.intersection.disabled = false;
@@ -411,7 +413,7 @@ define([], function() {
         // set disabled to false, to open form
         enableIntersection.attr("disabled", false);
         enableIntersection.click();
-      }
+      };
 
       // advanced global properties
       $scope.advanced = {
@@ -433,7 +435,7 @@ define([], function() {
           openForm: openIntersectionForm,
           optional: true
         }
-      }
+      };
 
       // wizard global properties
       $scope.wizard = {
@@ -468,6 +470,160 @@ define([], function() {
           optional: true,
           clearForm: clearIntersectionForm
         }
+      };
+
+      $scope.dataProviders = [];
+
+      $scope.dataProvidersList = DataProviderService.list();
+
+      // it defines when data change combobox has changed and it will adapt the interface
+      $scope.onDataSemanticsChange = function() {
+        $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
+        $scope.storager.format = null;
+        $scope.storagerFormats = [];
+        $scope.showStoragerForm = false;
+        delete $scope.wizard.store.error;
+        clearStoreForm();
+
+        if ($scope.dataSeries.semantics.allow_direct_access === false){
+          $scope.wizard.store.required = true;
+          $scope.wizard.store.optional = false;
+          $scope.advanced.store.disabled = false;
+          $scope.advanced.store.optional = false;
+        }
+        else {
+          $scope.wizard.store.required = false;
+          $scope.wizard.store.optional = true;
+          $scope.advanced.store.disabled = true;
+          $scope.advanced.store.optional = true;
+        }
+
+        $scope.dataSeriesSemantics.forEach(function(dSemantics) {
+          if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {
+            if ($scope.dataSeries.semantics.data_series_type_name == "OCCURRENCE" && dSemantics.code == "OCCURRENCE-wfp"){
+              return;
+            }
+            if ($scope.dataSeries.semantics.data_series_type_name == "DCP" && dSemantics.data_format_name !== "POSTGIS"){
+              return;
+            }
+            $scope.storagerFormats.push(Object.assign({}, dSemantics));
+          }
+        });
+
+        var dataSeriesSemantics = DataSeriesSemanticsService.get({code: $scope.dataSeries.semantics.code});
+        // TODO: filter provider type: FTP, HTTP, etc
+        $scope.dataProviders = [];
+        $scope.dataProvidersList.forEach(function(dataProvider) {
+          dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
+            if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
+              $scope.dataProviders.push(dataProvider);
+          });
+        });
+
+        if (!$scope.isUpdating)
+          if ($scope.dataProviders.length > 0) {
+            $scope.dataSeries.data_provider_id = $scope.dataProviders[0].id.toString();
+          }
+
+        $scope.tableFields = [];
+        // building table fields. Check if form is for all ('*')
+        if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
+          // ignore form and make it from properties
+          var properties = dataSeriesSemantics.schema.properties;
+          for(var key in properties) {
+            if (properties.hasOwnProperty(key)) {
+              $scope.tableFields.push(key);
+            }
+          }
+        } else {
+          // form is mapped
+          dataSeriesSemantics.metadata.form.forEach(function(element) {
+            $scope.tableFields.push(element.key);
+          });
+        }
+
+        // fill out
+        if ($scope.isUpdating) {
+          $scope.wizard.parameters.disabled = false;
+          $scope.wizard.parameters.error = false;
+          $scope.wizard.general.error = false;
+          if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
+            // TODO: prepare format as dcp item
+            $scope.dcps = [];
+            inputDataSeries.dataSets.forEach(function(dataset) {
+              if (dataset.position) {
+                var lat;
+                var long;
+                if (dataset.position.type) {
+                  // geojson
+                  long = dataset.position.coordinates[0];
+                  lat = dataset.position.coordinates[1];
+                } else {
+                  var first = dataset.position.indexOf("(");
+                  var firstSpace = dataset.position.indexOf(" ", first);
+                  lat = parseInt(dataset.position.slice(first+1, firstSpace));
+
+                  var last = dataset.position.indexOf(")", firstSpace);
+                  long = dataset.position.slice(firstSpace + 1, last);
+
+                }
+                dataset.format["latitude"] = lat;
+                dataset.format["longitude"] = long;
+              }
+              angular.merge(dataset.format, {active: dataset.active});
+              $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
+            });
+          } else {
+            $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
+            $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
+
+            if(typeof $scope.model.timezone === "number") {
+              $scope.model.timezone = $scope.model.timezone.toString();
+            }
+          }
+
+          if ($scope.hasCollector) {
+            $scope.wizard.store.disabled = false;
+            $scope.wizard.store.error = false;
+            $scope.advanced.store.disabled = false;
+            $scope.storagerFormats.some(function(storagerFmt) {
+              if (storagerFmt.id == outputDataseries.data_series_semantics.id) {
+                $scope.storager.format = storagerFmt;
+                $scope.onStoragerFormatChange();
+                return true;
+              }
+            });
+          }
+          if (Object.keys($scope.intersection).length > 0) {
+            $scope.wizard.intersection.disabled = false;
+            $scope.advanced.intersection.disabled = false;
+          }
+
+        } else {
+          $scope.dcps = [];
+          $scope.model = {};
+          $scope.$broadcast("resetStoragerDataSets");
+        }
+
+        $scope.form = dataSeriesSemantics.metadata.form;
+        $scope.schema = {
+          type: 'object',
+          properties: dataSeriesSemantics.metadata.schema.properties,
+          required: dataSeriesSemantics.metadata.schema.required
+        };
+        $scope.$broadcast('schemaFormRedraw');
+
+        _processParameters();
+
+        $timeout(function(){
+          console.log($scope.dataSeriesSemantics);
+          if (!$scope.dataSeries.semantics || $scope.dataSeries.semantics.data_format_name != 'POSTGIS'){
+            return;
+          } else {
+            var tableInput = angular.element('#table_name');
+            tableInput.attr('list', 'databaseTableList');
+          }
+        });
       };
 
       $scope.service = {};
@@ -960,28 +1116,26 @@ define([], function() {
         var collector = configuration.collector || {};
         var intersection = collector.intersection || [];
 
-        if (intersection.length === 0) {
-          return;
-        }
+        if (intersection.length !== 0) {
+          var attrs = [];
+          intersection.forEach(function(element) {
+            attrs.push(element.attribute);
+            $scope.dataSeriesList.some(function(ds) {
+              if (ds.id === element.dataseries_id) {
+                $scope.addDataSeries(ds);
 
-        var attrs = [];
-        intersection.forEach(function(element) {
-          attrs.push(element.attribute);
-          $scope.dataSeriesList.some(function(ds) {
-            if (ds.id === element.dataseries_id) {
-              $scope.addDataSeries(ds);
+                var target = $scope.intersection[ds.id];
+                target.selected = true;
 
-              var target = $scope.intersection[ds.id];
-              target.selected = true;
+                if (canAddAttribute(target.data_series, element.attribute, target.attributes)) {
+                  target.attributes.push(element.attribute);
+                }
 
-              if (canAddAttribute(target.data_series, element.attribute, target.attributes)) {
-                target.attributes.push(element.attribute);
+                return true;
               }
-
-              return true;
-            }
-          });
-        });
+            });
+          }); 
+        }
       }
 
       var dataSeriesSemantics = DataSeriesSemanticsService.list();
@@ -995,10 +1149,6 @@ define([], function() {
           }
         })
       }
-
-      $scope.dataProviders = [];
-
-      $scope.dataProvidersList = DataProviderService.list();
 
       $scope.i18n = i18n;
       $scope.isWizard = $scope.stateApp.current.name === "wizard";
@@ -1042,156 +1192,6 @@ define([], function() {
           }
         });
       }
-
-      // it defines when data change combobox has changed and it will adapt the interface
-      $scope.onDataSemanticsChange = function() {
-        $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
-        $scope.storager.format = null;
-        $scope.storagerFormats = [];
-        $scope.showStoragerForm = false;
-        delete $scope.wizard.store.error;
-        clearStoreForm();
-
-        if ($scope.dataSeries.semantics.allow_direct_access === false){
-          $scope.wizard.store.required = true;
-          $scope.wizard.store.optional = false;
-          $scope.advanced.store.disabled = false;
-          $scope.advanced.store.optional = false;
-        }
-        else {
-          $scope.wizard.store.required = false;
-          $scope.wizard.store.optional = true;
-          $scope.advanced.store.disabled = true;
-          $scope.advanced.store.optional = true;
-        }
-
-        $scope.dataSeriesSemantics.forEach(function(dSemantics) {
-          if (dSemantics.data_series_type_name === $scope.dataSeries.semantics.data_series_type_name) {
-            if ($scope.dataSeries.semantics.data_series_type_name == "OCCURRENCE" && dSemantics.code == "OCCURRENCE-wfp"){
-              return;
-            }
-            if ($scope.dataSeries.semantics.data_series_type_name == "DCP" && dSemantics.data_format_name !== "POSTGIS"){
-              return;
-            }
-            $scope.storagerFormats.push(Object.assign({}, dSemantics));
-          }
-        });
-
-        var dataSeriesSemantics = DataSeriesSemanticsService.get({code: $scope.dataSeries.semantics.code});
-        // TODO: filter provider type: FTP, HTTP, etc
-        $scope.dataProviders = [];
-        $scope.dataProvidersList.forEach(function(dataProvider) {
-          dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
-            if (dataProvider.data_provider_type.id == demand.data_provider_type_id)
-              $scope.dataProviders.push(dataProvider);
-          });
-        });
-
-        if (!$scope.isUpdating)
-          if ($scope.dataProviders.length > 0) {
-            $scope.dataSeries.data_provider_id = $scope.dataProviders[0].id.toString();
-          }
-
-        $scope.tableFields = [];
-        // building table fields. Check if form is for all ('*')
-        if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
-          // ignore form and make it from properties
-          var properties = dataSeriesSemantics.schema.properties;
-          for(var key in properties) {
-            if (properties.hasOwnProperty(key)) {
-              $scope.tableFields.push(key);
-            }
-          }
-        } else {
-          // form is mapped
-          dataSeriesSemantics.metadata.form.forEach(function(element) {
-            $scope.tableFields.push(element.key);
-          });
-        }
-
-        // fill out
-        if ($scope.isUpdating) {
-          $scope.wizard.parameters.disabled = false;
-          $scope.wizard.parameters.error = false;
-          $scope.wizard.general.error = false;
-          if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
-            // TODO: prepare format as dcp item
-            $scope.dcps = [];
-            inputDataSeries.dataSets.forEach(function(dataset) {
-              if (dataset.position) {
-                var lat;
-                var long;
-                if (dataset.position.type) {
-                  // geojson
-                  long = dataset.position.coordinates[0];
-                  lat = dataset.position.coordinates[1];
-                } else {
-                  var first = dataset.position.indexOf("(");
-                  var firstSpace = dataset.position.indexOf(" ", first);
-                  lat = parseInt(dataset.position.slice(first+1, firstSpace));
-
-                  var last = dataset.position.indexOf(")", firstSpace);
-                  long = dataset.position.slice(firstSpace + 1, last);
-
-                }
-                dataset.format["latitude"] = lat;
-                dataset.format["longitude"] = long;
-              }
-              angular.merge(dataset.format, {active: dataset.active});
-              $scope.dcps.push($scope.prepareFormatToForm(dataset.format));
-            });
-          } else {
-            $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-            $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
-
-            if(typeof $scope.model.timezone === "number") {
-              $scope.model.timezone = $scope.model.timezone.toString();
-            }
-          }
-
-          if ($scope.hasCollector) {
-            $scope.wizard.store.disabled = false;
-            $scope.wizard.store.error = false;
-            $scope.advanced.store.disabled = false;
-            $scope.storagerFormats.some(function(storagerFmt) {
-              if (storagerFmt.id == outputDataseries.data_series_semantics.id) {
-                $scope.storager.format = storagerFmt;
-                $scope.onStoragerFormatChange();
-                return true;
-              }
-            });
-          }
-          if (Object.keys($scope.intersection).length > 0) {
-            $scope.wizard.intersection.disabled = false;
-            $scope.advanced.intersection.disabled = false;
-          }
-
-        } else {
-          $scope.dcps = [];
-          $scope.model = {};
-          $scope.$broadcast("resetStoragerDataSets");
-        }
-
-        $scope.form = dataSeriesSemantics.metadata.form;
-        $scope.schema = {
-          type: 'object',
-          properties: dataSeriesSemantics.metadata.schema.properties,
-          required: dataSeriesSemantics.metadata.schema.required
-        };
-        $scope.$broadcast('schemaFormRedraw');
-
-        _processParameters();
-
-        $timeout(function(){
-          console.log($scope.dataSeriesSemantics);
-          if (!$scope.dataSeries.semantics || $scope.dataSeries.semantics.data_format_name != 'POSTGIS'){
-            return;
-          } else {
-            var tableInput = angular.element('#table_name');
-            tableInput.attr('list', 'databaseTableList');
-          }
-        });
-      };
 
       // Reset model values when change number of bands propertie to 1
       $scope.$watch("model.number_of_bands", function(val){

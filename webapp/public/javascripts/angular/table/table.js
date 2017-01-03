@@ -88,10 +88,10 @@ define([
                     callback(null, response.data);
                 });
 
-              }).error(function(err) {
+              }).catch(function(response) {
                 if ($scope.isFunction(callback))
-                  callback(err);
-                console.log(err);
+                  callback(response.data);
+                console.log(response.data);
               }).finally(function() {
                 // $scope.selected = {};
               });

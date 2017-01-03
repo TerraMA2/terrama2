@@ -80,7 +80,7 @@ define([
    * @returns {Object}
    */
   Service.prototype.get = function(serviceId) {
-    return this.BaseService.get(this.model, restriction);
+    return this.BaseService.get(this.model, {id: serviceId});
   };
 
   /**

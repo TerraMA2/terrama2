@@ -49,13 +49,15 @@ define([], function() {
             var service = Service.get(serviceCache[response.service].process_ids.service_instance);
 
             if(service != null) {
-              targetMethod(title, message + i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
+              message += i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
             } else {
-              targetMethod(title, message + i18n.__("Service not active"));
+              message += i18n.__("Service not active");
             }
           } else {
-            targetMethod(title, message + i18n.__("Service not active"));
+            message += i18n.__("Service not active");
           }
+
+          targetMethod.call(MessageBoxService, title, message);
         }
 
         delete $scope.disabledButtons[serviceCache[response.service].service_id];
