@@ -20,10 +20,9 @@ define([
   var deps = [commonViewApp, messageBoxApp, viewsService];
 
   // controller RegisterUpdate dependencies
-  if (moduleLoader("schemaForm", deps)) {
+  if (moduleLoader("schemaForm", deps) && moduleLoader("color.picker", deps)) {
     moduleLoader(dataSeriesServiceApp, deps);
     moduleLoader(aceApp, deps);
-    moduleLoader("color.picker", deps);
     moduleLoader(datetimepicker, deps);
     moduleLoader(serviceApp, deps);
     moduleLoader(scheduleApp, deps);

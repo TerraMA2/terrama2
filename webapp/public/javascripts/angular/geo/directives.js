@@ -1,6 +1,9 @@
+define([], function() {
+
 "use strict";
 
-var app = angular.module('terrama2.components.geo');
+var moduleName = "terrama2.components.geo.directives";
+var app = angular.module(moduleName, []);
 
 app.run(["$templateCache", function($templateCache) {
   $templateCache.put("bounded-box.html",
@@ -114,3 +117,6 @@ app.directive("terrama2BoundedBox", ["i18n", "Polygon", "FilterForm", function(i
     }
   };
 }]);
+
+  return moduleName;
+})

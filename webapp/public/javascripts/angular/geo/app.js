@@ -1,6 +1,13 @@
+define([
+  "TerraMA2WebApp/geo/directives",
+  "TerraMA2WebApp/geo/services"
+], function(directivesApp, servicesApp) {
+
 'use strict';
 
-angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
+var moduleName = "terrama2.components.geo";
+
+angular.module(moduleName, [directivesApp, servicesApp])
   .constant("Geometry", {
     "POLYGON": "Polygon",
     "POINT": "Point"
@@ -152,3 +159,6 @@ angular.module("terrama2.components.geo", ["terrama2", "terrama2.geo.services"])
       geojson: GeoJsonBuilder
     };
   }]);
+
+  return moduleName;
+});

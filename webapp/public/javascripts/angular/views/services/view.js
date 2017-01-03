@@ -23,15 +23,11 @@ define([], function() {
     this.init = function(restriction) {
       var defer = self.BaseService.$q.defer();
 
-      self.BaseService
-        .$request(self.$baseUrl, "GET", {params: restriction})
-        .then(function(data) {
-          self.model = data;
-          return defer.resolve(data);
-        })
-        .catch(function(err) {
-          return defer.reject(err);
-        })
+      self.BaseService.$request(self.$baseUrl, "GET", {params: restriction})
+        .then(function(response) {
+          self.model = response.data;
+          return defer.resolve(response.data);
+        });
 
       return defer.promise;
     };

@@ -8,7 +8,8 @@ define([
   "TerraMA2WebApp/status/status",
   "TerraMA2WebApp/data-provider/app",
   "TerraMA2WebApp/views/app",
-], function(moduleLoader, commonModule, countriesModule, alertBoxModule, serviceModule, projectModule, statusModule, dataProviderModule, viewsModule) {
+  "TerraMA2WebApp/analysis/app"
+], function(moduleLoader, commonModule, countriesModule, alertBoxModule, serviceModule, projectModule, statusModule, dataProviderModule, viewsModule, analysisModule) {
   var moduleName = "terrama2";
 
   var deps = [commonModule, countriesModule];
@@ -19,6 +20,7 @@ define([
   moduleLoader(statusModule, deps);
   moduleLoader(dataProviderModule, deps);
   moduleLoader(viewsModule, deps);
+  moduleLoader(analysisModule, deps);
 
   var terrama2Module = angular.module(moduleName, deps);
 
