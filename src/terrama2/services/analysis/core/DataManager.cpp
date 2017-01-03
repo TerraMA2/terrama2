@@ -206,6 +206,10 @@ bool terrama2::services::analysis::core::DataManager::hasAnalysis(const Analysis
 
 void terrama2::services::analysis::core::DataManager::validateJSon(const QJsonObject& obj)
 {
-  AnalysisPtr analysis = fromAnalysisJson(obj);
-  emit validateAnalysis(analysis);
+  auto analysisArray = obj["Analysis"].toArray();
+  for(auto json : analysisArray)
+  {
+    auto analysisPtr = terrama2::services::analysis::core::fromAnalysisJson(json.toObject());
+    emit validateAnalysis(analysisPtr);
+  }
 }

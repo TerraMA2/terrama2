@@ -127,6 +127,8 @@ namespace terrama2
         uint32_t blockSize_; //!< Size of the message received.
         //! Parse bytearray as a json and add contents to the DataManager.
         void addData(const QByteArray& bytearray);
+        //! Parse bytearray as a json and call data manager method to validate the contents.
+        void validateData(const QByteArray& bytearray);
         //! Parse bytearray as a json and remove contents from the DataManager.
         void removeData(const QByteArray& bytearray);
         void updateService(const QByteArray& bytearray);

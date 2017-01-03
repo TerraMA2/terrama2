@@ -67,7 +67,6 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
        && json.contains("schedule")
        && json.contains("service_instance_id")
        && json.contains("output_grid")))
-      //  && json.contains("reprocessing_historical_data")))
   {
     QString errMsg(QObject::tr("Invalid Analysis JSON object."));
     TERRAMA2_LOG_ERROR() << errMsg;

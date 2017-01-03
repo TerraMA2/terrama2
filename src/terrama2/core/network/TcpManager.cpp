@@ -145,6 +145,29 @@ void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
   }
 }
 
+
+void terrama2::core::TcpManager::validateData(const QByteArray& bytearray)
+{
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
+  QJsonParseError error;
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+
+  if(error.error != QJsonParseError::NoError)
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+  else
+  {
+    std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
+    if(jsonDoc.isObject())
+    {
+      auto obj = jsonDoc.object();
+      dataManager->validateJSon(obj);
+    }
+    else
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
+  }
+}
+
 void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
 {
   TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
@@ -315,7 +338,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
           TERRAMA2_LOG_DEBUG() << "VALIDATE_PROCESS_SIGNAL";
           QByteArray bytearray = tcpSocket->read(blockSize_);
 
-          addData(bytearray);
+          validateData(bytearray);
           break;
         }
         case TcpSignal::REMOVE_DATA_SIGNAL:

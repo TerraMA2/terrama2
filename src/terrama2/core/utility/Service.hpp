@@ -112,13 +112,13 @@ namespace terrama2
         void serviceFinishedSignal();
 
         /*!
-        * \brief Signal emited when a full process is complete in service
+        * \brief Signal emitted when a full process is complete in service
         * \param answer A JSON with process info
         */
         void processFinishedSignal(QJsonObject answer);
 
         /*!
-        * \brief Signal emited with the result of the validation of a process information.
+        * \brief Signal emitted with the result of the validation of a process information.
         * \param answer A JSON with the valitadion result.
         */
         void validateProcessSignal(QJsonObject answer);
