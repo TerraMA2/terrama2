@@ -1,6 +1,10 @@
-angular.module("terrama2.users", [
-  "terrama2",
-  "terrama2.services",
-  "terrama2.components.messagebox",
-  "terrama2.components.messagebox.services"
-]);
+define([
+  "TerraMA2WebApp/users/services",
+  "TerraMA2WebApp/users/controllers"
+], function(servicesApp, controllersApp) {
+  var moduleName = "terrama2.users";
+
+  angular.module(moduleName, [servicesApp, controllersApp]);
+
+  return moduleName;
+});

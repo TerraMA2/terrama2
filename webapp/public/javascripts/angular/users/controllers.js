@@ -1,12 +1,12 @@
+define([
+  "TerraMA2WebApp/users/services",
+  "TerraMA2WebApp/alert-box/app",
+  "TerraMA2WebApp/table/table"
+], function(servicesApp, messageBoxApp, tableApp) {
+
 'use strict';
 
-angular.module("terrama2.users")
-  .controller("ListController", [
-    "$scope",
-    "i18n",
-    "MessageBoxService",
-    "$window",
-    function($scope, i18n, MessageBoxService, $window) {
+    function ListController($scope, i18n, MessageBoxService, $window) {
       /**
        * Global configuration
        * @type {Object}
@@ -84,13 +84,10 @@ angular.module("terrama2.users")
         MessageBoxService.success(title, config.message);
       }
     }
-  ])
-  .controller("UserUpdate", [
-    "$scope",
-    "UserFactory",
-    "i18n",
-    "MessageBoxService",
-    function($scope, UserFactory, i18n, MessageBoxService) {
+
+    ListController.$inject = ["$scope", "i18n", "MessageBoxService", "$window"];
+
+    function UserUpdate($scope, UserService, i18n, MessageBoxService) {
       $scope.i18n = i18n;
       $scope.user = {};
       var title = i18n.__("User");
@@ -107,9 +104,8 @@ angular.module("terrama2.users")
           return;
         }
 
-        UserFactory.get(userId, {}).then(function(response) {
-          var user = response.data;
-          $scope.user = user;
+        UserService.init({id: userId}).then(function(user) {
+          $scope.user = user[0];
           // resetting password for security reasons
           $scope.user.password = hash;
           $scope.user.passwordConfirm = $scope.user.password;
@@ -133,21 +129,17 @@ angular.module("terrama2.users")
           delete user.password;
         }
 
-        UserFactory.put($scope.user.id, user).then(function(response) {
-          var data = response.data;
+        UserService.update($scope.user.id, user).then(function(data) {
           window.location.href = $scope.redirectUrl + "?token=" + data.token + "&context="+data.context;
-        }).error(function(response) {
+        }).catch(function(response) {
           MessageBoxService.danger(title, response.data.message);
         });
       };
-    }])
+    }
 
-  .controller("UserRegistration", [
-    "$scope",
-    "$http",
-    "MessageBoxService",
-    "i18n",
-    function($scope, $http, MessageBoxService, i18n) {
+    UserUpdate.$inject = ["$scope", "UserService", "i18n", "MessageBoxService"];
+
+    function UserRegistration($scope, $http, MessageBoxService, i18n, UserService) {
       $scope.isSubmiting = false;
       var title = i18n.__("User");
       $scope.initialization = function(id, redirectUrl) { $scope.redirectUrl = redirectUrl; };
@@ -171,16 +163,24 @@ angular.module("terrama2.users")
         }
 
         $scope.isSubmiting = true;
-        $http({
-          method: "POST",
-          url: "/administration/users/new",
-          data: $scope.user
-        }).then(function(response) {
+        UserService.create($scope.user).then(function(response) {
           window.location = $scope.redirectUrl + "?token=" + response.data.token;
         }).catch(function(response) {
           MessageBoxService.danger(title, response.data.message);
         }).finally(function(){
           $scope.isSubmiting = false;
         });
-    };
-  });
+      };
+    }
+
+    UserRegistration.$inject = ["$scope", "$http", "MessageBoxService", "i18n", "UserService"];
+
+    var moduleName = "terrama2.users.controllers";
+
+    angular.module(moduleName, [servicesApp, messageBoxApp, tableApp])
+      .controller("UserListController", ListController)
+      .controller("UserUpdateController", UserUpdate)
+      .controller("UserRegistrationController", UserRegistration);
+
+    return moduleName;
+});

@@ -2,15 +2,9 @@
 
 {% set tabActive = "users" %}
 
-{% block ngApp %}ng-app="terrama2.users"{% endblock %}
-
 {% block title %} TerraMA² {{ i18n.__('Users Handling') }} {% endblock %}
 
 {% block javascripts %}
-
-<script src="/javascripts/angular/table/table.js"></script>
-<script src="/javascripts/angular/alert-box/directives.js"></script>
-
 <script>
   var configuration = {
     message: "{[ message ]}",
@@ -21,7 +15,7 @@
 
 {% block content %}
 
-<div ng-controller="ListController">
+<div ng-controller="UserListController">
   <terrama2-box title="i18n.__('Users')">
     <div class="col-md-12">
       <div class="col-md-12">

@@ -47,7 +47,8 @@ module.exports = function(app) {
         // todo: token generation
         DataManager.getUser({id: userId}).then(function(user) {
           var token = Utils.generateToken(app, TokenCode.UPDATE, user.name);
-          response.json({status: 200, result: user.get(), token: token, context: "User"});
+          response.json({status: 200, result: {id: user.id, name: user.name, username: user.username, cellphone: user.cellphone, email: user.email},
+                         token: token, context: "User"});
         });
       }).catch(function(err) {
         var errors = err.getErrors ? err.getErrors() : [];

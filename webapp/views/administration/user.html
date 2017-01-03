@@ -3,10 +3,7 @@
 {% set tabActive = currentTab %}
 {% set isProfile = profile || false %}
 
-{% block ngApp %}ng-app="terrama2.users"{% endblock %}
-
 {% block title %}
-
 {% if user !== undefined %}
 TerraMA² {{ i18n.__('User Update') }}
 {% else %}
@@ -38,7 +35,7 @@ TerraMA² {{ i18n.__('User Registration') }}
 
 {% block content %}
 
-<div ng-controller="{% if (update) %}UserUpdate{% else %}UserRegistration{% endif %}">
+<div ng-controller="{% if (update) %}UserUpdateController{% else %}UserRegistrationController{% endif %}">
   <terrama2-box title="{% if (update) %}i18n.__('User Update'){% else %}i18n.__('User Registration'){% endif %}">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>

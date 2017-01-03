@@ -6,7 +6,7 @@
 {% set MENU_URLS["static-data"] = {name: 'Static Data', url: "/configuration/static/dataseries", icon: "fa-folder-o"} %}
 {% set MENU_URLS["analysis"] = {name: 'Analysis', url: "/configuration/analysis", icon: "fa-tasks"} %}
 {% set MENU_URLS["views"] = {name: 'Views', url: "/configuration/views", icon: "fa-map"} %}
-{% set MENU_URLS["alerts"] = {name: 'Alerts', url: "/configuration/alerts", icon: "fa-bell"} %}
+{% set MENU_URLS["alerts"] = {name: 'Alerts', url: "javascript::void()", css: "terrama2-link-disabled", icon: "fa-bell"} %}
 {% set MENU_URLS["status"] = {name: 'Status', url: "/configuration/status", icon: "fa-feed"} %}
 
 <!DOCTYPE html>
@@ -135,7 +135,7 @@
             {% if (activeProject.name) %}
               {% for tab in MENU_URLS %}
               <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
-                <a href="{[ tab.url ]}">
+                <a href="{[ tab.url ]}" class="{[ tab.css ]}">
                   <i class="fa {[ tab.icon ]}"></i><span ng-bind="i18n.__('{[ tab.name ]}')"></span>
                 </a>
               </li>
