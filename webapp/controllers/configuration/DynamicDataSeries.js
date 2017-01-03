@@ -93,10 +93,10 @@ module.exports = function(app) {
       var key = request.body.key;
 
       response.json({
-        draw: 1,
+        draw: parseInt(request.body.draw),
         recordsTotal: (storedDcps[key] === undefined ? 0 : storedDcps[key].length),
         recordsFiltered: (storedDcps[key] === undefined ? 0 : storedDcps[key].length),
-        data: (storedDcps[key] === undefined ? [] : storedDcps[key])
+        data: (storedDcps[key] === undefined ? [] : storedDcps[key].slice(parseInt(request.body.start), (parseInt(request.body.start) + parseInt(request.body.length))))
       });
     }
   };
