@@ -89,7 +89,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
   return {
     restrict: 'EA',
     templateUrl: 'modals.html',
-    controller: ['$scope', 'FileDialog', 'i18n', 'MessageBoxService', 'UniqueNumber', function($scope, FileDialog, i18n, MessageBoxService, UniqueNumber) {
+    controller: ['$scope', '$timeout', 'FileDialog', 'i18n', 'MessageBoxService', 'UniqueNumber', function($scope, $timeout, FileDialog, i18n, MessageBoxService, UniqueNumber) {
       $scope.csvImport = {};
       $scope.importationFields = {};
 
@@ -155,47 +155,51 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
         $('#importDCPItemsModal').modal('hide');
         $scope.isChecking = true;
 
-        var importationMetadata = {};
-        var type = $scope.dataSeries.semantics.code;
+        $timeout(function() {
+          var importationMetadata = {};
+          var type = $scope.dataSeries.semantics.code;
 
-        for(var i = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; i < fieldsLength; i++) {
-          if($scope.defaultValueFilter($scope.dataSeries.semantics.metadata.form[i])) {
-            var key = $scope.dataSeries.semantics.metadata.form[i].key;
-            var metadata = {
-              field: null,
-              defaultValue: null,
-              prefix: null,
-              suffix: null
-            };
+          for(var i = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; i < fieldsLength; i++) {
+            if($scope.defaultValueFilter($scope.dataSeries.semantics.metadata.form[i])) {
+              var key = $scope.dataSeries.semantics.metadata.form[i].key;
+              var metadata = {
+                field: null,
+                defaultValue: null,
+                prefix: null,
+                suffix: null
+              };
 
-            if($scope.importationFields[type][key] !== undefined && $scope.importationFields[type][key] !== "") {
-              metadata.field = $scope.importationFields[type][key];
+              if($scope.importationFields[type][key] !== undefined && $scope.importationFields[type][key] !== "") {
+                metadata.field = $scope.importationFields[type][key];
 
-              if($scope.importationFields[type][key + 'Prefix'] !== undefined && $scope.importationFields[type][key + 'Prefix'] !== "")
-                metadata.prefix = $scope.importationFields[type][key + 'Prefix'];
+                if($scope.importationFields[type][key + 'Prefix'] !== undefined && $scope.importationFields[type][key + 'Prefix'] !== "")
+                  metadata.prefix = $scope.importationFields[type][key + 'Prefix'];
 
-              if($scope.importationFields[type][key + 'Suffix'] !== undefined && $scope.importationFields[type][key + 'Suffix'] !== "")
-                metadata.suffix = $scope.importationFields[type][key + 'Suffix'];
-            } else if($scope.importationFields[type][key + 'Default'] !== undefined && $scope.importationFields[type][key + 'Default'] !== "") {
-              metadata.defaultValue = $scope.importationFields[type][key + 'Default'];
-            } else {
-              MessageBoxService.danger(
-                i18n.__("DCP importation error"), 
-                i18n.__("Invalid configuration for the field") + "'" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[key].title) + "'"
-              );
-              $('#importDCPItemsModal').modal('hide');
-              $scope.isChecking = false;
-              return;
+                if($scope.importationFields[type][key + 'Suffix'] !== undefined && $scope.importationFields[type][key + 'Suffix'] !== "")
+                  metadata.suffix = $scope.importationFields[type][key + 'Suffix'];
+              } else if($scope.importationFields[type][key + 'Default'] !== undefined && $scope.importationFields[type][key + 'Default'] !== "") {
+                metadata.defaultValue = $scope.importationFields[type][key + 'Default'];
+              } else {
+                MessageBoxService.danger(
+                  i18n.__("DCP importation error"), 
+                  i18n.__("Invalid configuration for the field") + "'" + i18n.__($scope.dataSeries.semantics.metadata.schema.properties[key].title) + "'"
+                );
+                $('#importDCPItemsModal').modal('hide');
+                $scope.isChecking = false;
+                return;
+              }
+
+              importationMetadata[key] = metadata;
             }
-
-            importationMetadata[key] = metadata;
           }
-        }
 
-        executeImportation(importationMetadata, $scope.csvImport.finalData);
+          executeImportation(importationMetadata, $scope.csvImport.finalData);
+        }, 3000);
       };
 
       var executeImportation = function(metadata, data) {
+        var dcps = [];
+
         for(var i = 0, dataLength = data.data.length; i < dataLength; i++) {
           var dcp = {};
 
@@ -249,8 +253,11 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
 
           dcp._id = UniqueNumber();
           $scope.dcps.push(Object.assign({}, dcp));
+          dcps.push(Object.assign({}, dcp));
           $scope._addDcpStorager(dcp);
         }
+
+        $scope.storageDcps(dcps);
 
         // reset form to do not display feedback class
         $scope.forms.parametersForm.$setPristine();

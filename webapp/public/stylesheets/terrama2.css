@@ -325,3 +325,29 @@ bootstrap-decorator span {
       margin-top: -20px !important;
     }
 }
+
+/*
+  Fixes a bug in the DataTables pagination buttons.
+*/
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  padding: 0.5em 1em !important;
+}
+
+table.dataTable thead th, table.dataTable thead td, table.dataTable.no-footer {
+  border-bottom: 1px solid #DDD !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:target {
+  border: none !important;
+  background: white !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover, .dataTables_wrapper .dataTables_paginate .paginate_button:active, .dataTables_wrapper .dataTables_paginate .paginate_button:target {
+  border: 1px solid #204d74 !important;
+  background: #286090 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover, .dataTables_wrapper .dataTables_paginate .paginate_button.current:active, .dataTables_wrapper .dataTables_paginate .paginate_button.current:target {
+  border: 1px solid #979797 !important;
+  background: linear-gradient(to bottom, white 0%, #dcdcdc 100%) !important;
+}
