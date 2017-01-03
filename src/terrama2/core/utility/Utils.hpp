@@ -158,6 +158,16 @@ namespace terrama2
     */
     std::unique_ptr<te::rst::Raster> cloneRaster(const te::rst::Raster& raster);
 
+
+    /*!
+     * \brief Create an expansible raster from another raster.
+              Each value of raster will be multiplied by multiplier parameter.
+     * \param raster The raster to copy
+     * \param multiplier The value to multiply the raster values
+     * \return An expansible raster
+     */
+    std::unique_ptr<te::rst::Raster> multiplyRaster(const te::rst::Raster& raster, const double& multiplier);
+
   } // end namespace core
 }   // end namespace terrama2
 

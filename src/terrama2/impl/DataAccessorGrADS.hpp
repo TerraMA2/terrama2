@@ -227,7 +227,7 @@ namespace terrama2
         virtual std::string dataSourceType() const override;
 
         //! Multiply the raster for a factor
-        void multiplyRaster(DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const;
+        void checkRasterMultiply(DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const;
 
         void writeVRTFile(GrADSDataDescriptor descriptor, const std::string& binFilename,
                           const std::string& vrtFilename, DataSetPtr dataset) const;
