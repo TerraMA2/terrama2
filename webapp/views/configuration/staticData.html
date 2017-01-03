@@ -2,8 +2,6 @@
 
 {% set tabActive = "static-data" %}
 
-{% block ngApp %}ng-app="terrama2.listDataSeries"{% endblock %}
-
 {% block title %} TerraMA² {{ i18n.__('Static Data') }} {% endblock %}
 
 {% block javascripts %}
@@ -50,7 +48,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+          <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
         <terrama2-table fields="fields" model="model" icon="iconFn" link="link" 

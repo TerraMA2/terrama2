@@ -78,6 +78,23 @@ define([
     return this.$filter('filter')(this.model, restriction);
   };
   /**
+   * It performs DataSeries update over API
+   * 
+   * @param {number} dataSeriesId - Data Series ID to update
+   * @param {Object} obj - Values to update. It may contain input/output data series values
+   * @returns {angular.IPromise}
+   */
+  DataSeriesService.prototype.update = function(dataSeriesId, obj) {
+    var defer = this.$q.defer();
+    var self = this;
+    self.BaseService.$request(self.url + "/edit/" + dataSeriesId, "PUT", {data: obj})
+      .then(function(response) {
+        return defer.resolve(response.data);
+      });
+
+    return defer.promise;
+  };
+  /**
    * It creates a Data Series on remote API
    * 
    * @param {Object} dataSeriesObject - A data series object values to save

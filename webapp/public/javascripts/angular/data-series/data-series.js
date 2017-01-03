@@ -1,10 +1,12 @@
 define([], function() {
 
-  function ListController($scope, DataSeriesService, Socket, i18n, $window, Service) {
+  function ListController($scope, DataSeriesService, Socket, i18n, $window, Service, MessageBoxService) {
     $scope.i18n = i18n;
     $scope.disabledButtons = {};
     $scope.orderBy = "name";
+    $scope.MessageBoxService = MessageBoxService;
     var isDynamic = false;
+    var title = i18n.__("Data Series");
     var queryParams = {};
 
     var serviceCache = {};
@@ -14,19 +16,17 @@ define([], function() {
     Service.init();
 
     Socket.on('errorResponse', function(response){
-      $scope.display = true;
-      $scope.alertLevel = "alert-danger";
-      $scope.alertBox.message = response.message;
+      MessageBoxService.danger(title, response.message);
     });
 
     Socket.on('runResponse', function(response){
+      var message = "";
       if (config.extra && config.extra.id){
-        $scope.alertBox.message = config.message + i18n.__(". The process was started successfully");
+        message = config.message + i18n.__(". The process was started successfully");
       } else {
-        $scope.alertBox.message = i18n.__("The process was started successfully");
+        message = i18n.__("The process was started successfully");
       }
-      $scope.display = true;
-      $scope.alertLevel = "alert-success";
+      MessageBoxService.success(title, message);
     });
 
     Socket.on('statusResponse', function(response) {
@@ -34,27 +34,27 @@ define([], function() {
         if(response.online) {
           Socket.emit('run', serviceCache[response.service].process_ids);
         } else {
-          $scope.display = true;
           var message = "";
+          var targetMethod = null;
           if (config.extra && config.extra.id){
             message = config.message + ". ";
-            $scope.alertLevel = "alert-warning";
+            targetMethod = MessageBoxService.warn; // setting warning method to display message
             delete config.extra;
             delete config.message;
           } else {
-            $scope.alertLevel = "alert-error";
+            targetMethod = MessageBoxService.danger;
           }
 
           if(serviceCache[response.service] != undefined) {
             var service = Service.get(serviceCache[response.service].process_ids.service_instance);
 
             if(service != null) {
-              $scope.alertBox.message = message + i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
+              targetMethod(title, message + i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active"));
             } else {
-              $scope.alertBox.message = message + i18n.__("Service not active");
+              targetMethod(title, message + i18n.__("Service not active"));
             }
           } else {
-            $scope.alertBox.message = message + i18n.__("Service not active");
+            targetMethod(title, message + i18n.__("Service not active"));
           }
         }
 
@@ -81,15 +81,10 @@ define([], function() {
 
     $scope.extra = {
       removeOperationCallback: function(err, data) {
-        $scope.display = true;
         if (err) {
-          $scope.alertLevel = "alert-danger";
-          $scope.alertBox.message = err.message;
-          return;
+          return MessageBoxService.danger(title, err.message);
         }
-
-        $scope.alertLevel = "alert-success";
-        $scope.alertBox.message = data.name + i18n.__(" removed");
+        MessageBoxService.danger(title, data.name + i18n.__(" removed"));
       },
       showRunButton: config.showRunButton,
       canRun: function(object){
@@ -121,14 +116,11 @@ define([], function() {
         return $scope.disabledButtons[object.id];
       }
     };
-    $scope.method = "{[ method ]}";
-    $scope.alertLevel = "alert-success";
-    $scope.alertBox = {
-      title: i18n.__("Data Series"),
-      message: config.message
-    };
-    $scope.resetState = function() { $scope.display = false; };
-    $scope.display = config.message !== "";
+    if (config.message) {
+      MessageBoxService.success(title, config.message);
+    }
+
+    $scope.close = function() { MessageBoxService.reset(); };
 
     DataSeriesService.init(queryParams).then(function(data) {
       $scope.model = data instanceof Array ? data : [];
@@ -177,7 +169,7 @@ define([], function() {
     $scope.iconProperties = config.iconProperties || {};
   }
 
-  ListController.$inject = ["$scope", "DataSeriesService", "Socket", "i18n", "$window", "Service"];
+  ListController.$inject = ["$scope", "DataSeriesService", "Socket", "i18n", "$window", "Service", "MessageBoxService"];
 
   return ListController;
 });
