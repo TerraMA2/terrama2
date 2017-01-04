@@ -282,6 +282,9 @@
   .sidebar-mini.sidebar-collapse form {
     display: none;
   }
+  .sidebar-mini.sidebar-collapse #terrama2-sortlayers {
+    display: none;
+  }
 }
 
 
@@ -378,7 +381,7 @@
     .ui-sortable .group-name span i {
       margin-top: -16px !important;
     }
-    
+
     .sidebar-collapse .ui-sortable .group-name span i {
       margin-top: 0px !important;
     }
