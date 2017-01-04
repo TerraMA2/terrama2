@@ -86,7 +86,7 @@ define([], function() {
         if (err) {
           return MessageBoxService.danger(title, err.message);
         }
-        MessageBoxService.danger(title, data.name + i18n.__(" removed"));
+        MessageBoxService.success(title, data.name + i18n.__(" removed"));
       },
       showRunButton: config.showRunButton,
       canRun: function(object){

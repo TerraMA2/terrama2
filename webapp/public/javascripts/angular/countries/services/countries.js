@@ -38,8 +38,8 @@ define(function() {
             data = output.data;
             return defer.resolve(output);
           })
-          .catch(function(err) {
-            return defer.reject(err);
+          .catch(function(response) {
+            return defer.reject(response.data);
           });
         return defer.promise;
       },

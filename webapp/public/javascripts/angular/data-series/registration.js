@@ -319,9 +319,13 @@ define([], function() {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
     };
+    // defining box
+    $scope.cssBoxSolid = {
+      boxType: "box-solid"
+    };
     $scope.dataSeries = {};
     $scope.dataSeriesSemantics = [];
-    
+    // initializing async modules
     $q.all([
       DataSeriesSemanticsService.init(queryParameters),
       DataProviderService.init(),
@@ -332,11 +336,6 @@ define([], function() {
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
-
-      // defining box
-      $scope.cssBoxSolid = {
-        boxType: "box-solid"
-      };
 
       // consts
       $scope.filterTypes = {

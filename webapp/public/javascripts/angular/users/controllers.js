@@ -57,26 +57,15 @@ define([
 
       $scope.linkToAdd = "/administration/users/new";
 
-      // alert-box
-      $scope.alertLevel = "alert-success";
-      $scope.alertBox = {
-        title: i18n.__("Users"),
-        message: "{[ message ]}"
-      };
       $scope.close = function() { MessageBoxService.reset(); };
 
       // callback after remove operation
       $scope.extra = {
         removeOperationCallback: function(err, data) {
-          $scope.display = true;
           if (err) {
-            $scope.alertLevel = "alert-danger";
-            $scope.alertBox.message = err.message;
-            return;
+            return MessageBoxService.danger(title, err.message);
           }
-
-          $scope.alertLevel = "alert-success";
-          $scope.alertBox.message = data.name + i18n.__(" removed");
+          MessageBoxService.success(title, data.name + i18n.__(" removed"));
         }
       };
 
@@ -131,8 +120,8 @@ define([
 
         UserService.update($scope.user.id, user).then(function(data) {
           window.location.href = $scope.redirectUrl + "?token=" + data.token + "&context="+data.context;
-        }).catch(function(response) {
-          MessageBoxService.danger(title, response.data.message);
+        }).catch(function(err) {
+          MessageBoxService.danger(title, err.message);
         });
       };
     }
@@ -164,9 +153,9 @@ define([
 
         $scope.isSubmiting = true;
         UserService.create($scope.user).then(function(response) {
-          window.location = $scope.redirectUrl + "?token=" + response.data.token;
-        }).catch(function(response) {
-          MessageBoxService.danger(title, response.data.message);
+          window.location = $scope.redirectUrl + "?token=" + response.token;
+        }).catch(function(err) {
+          MessageBoxService.danger(title, err.message);
         }).finally(function(){
           $scope.isSubmiting = false;
         });

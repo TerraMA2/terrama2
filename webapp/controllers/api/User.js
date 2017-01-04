@@ -33,8 +33,30 @@ module.exports = function(app) {
       }
 
       promise.then(function(result) {
-        response.json(result);
+        var out = result;
+        if (result instanceof Array) {
+          out = result.map(function(elm) { return {id: elm.id, name: elm.name, username: elm.username, cellphone: elm.cellphone, email: elm.email}});
+        }
+        response.json(out);
       }).catch(_handleError);
+    },
+    post: function(request, response) {
+      if ((request.body.password !== undefined && request.body.passwordConfirm !== undefined) && 
+          (request.body.password === request.body.passwordConfirm) && 
+          (request.body.password !== '')) {
+        DataManager.addUser(request.body)
+          .then(function(user) {
+            var token = Utils.generateToken(app, TokenCode.SAVE, user.name);
+            response.json({status: 200, result: user, token: token});  
+          })
+          .catch(function(err) {
+            response.status(400);
+            response.json({status: 400, message: err.message});  
+          });
+      } else {
+        response.status(400);
+        response.json({status: 400, message: "Incorret Password"});  
+      }
     },
     put: function(request, response) {
       var userId = parseInt(request.params.userId);

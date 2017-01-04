@@ -46,9 +46,9 @@ define([], function() {
           "Content-Type": "application/json"
         }
       })
-      .then(function(newView) {
-        self.model.push(newView);
-        return defer.resolve(newView);
+      .then(function(response) {
+        self.model.push(response.data);
+        return defer.resolve(response.data);
       })
       .catch(function(err) {
         return defer.reject(err);
@@ -86,9 +86,14 @@ define([], function() {
      * @returns {ng.IPromise}
      */
     this.update = function(viewId, viewObject) {
-      return self.BaseService.$request(self.$baseUrl + "/" + viewId, "PUT", {
+      var defer = self.$q.defer();
+      self.BaseService.$request(self.$baseUrl + "/" + viewId, "PUT", {
         data: viewObject
+      }).then(function(response) {
+        return defer.resolve(response.data);
       });
+
+      return defer.promise;
     };
   } // end ViewService
 

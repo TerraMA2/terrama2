@@ -93,9 +93,9 @@ TerraMA² {{ i18n.__('User Registration') }}
                 </div>
 
                 <div class="col-md-6">
-                  <div class="form-group">
+                  <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("Cell phone") }}:</label>
-                    <input class="form-control" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{{ i18n.__('User cell phone number') }}" type="tel" value="{[ user.cellphone ]}">
+                    <input class="form-control" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{{ i18n.__('User cell phone number') }}" type="tel" value="{[ user.cellphone ]}" required>
                   </div>
                 </div>
 
