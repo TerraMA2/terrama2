@@ -184,7 +184,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
     invertRaster(raster);
 
     // multiply the raster by a factor
-    multiplyRaster(dataSet, raster);
+    checkRasterMultiply(dataSet, raster);
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
     item->setRaster(rasterColumn, raster.release());
@@ -198,7 +198,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
   }
 }
 
-void terrama2::core::DataAccessorGrADS::multiplyRaster(terrama2::core::DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const
+void terrama2::core::DataAccessorGrADS::checkRasterMultiply(terrama2::core::DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const
 {
   try
   {
@@ -206,13 +206,7 @@ void terrama2::core::DataAccessorGrADS::multiplyRaster(terrama2::core::DataSetPt
     auto multiplier = getValueMultiplier(dataSet);
     if(multiplier != 1)
     {
-      std::complex< double > complexMultiplier(multiplier);
-      if(raster->getAccessPolicy() != te::common::RWAccess && raster->getAccessPolicy() != te::common::WAccess)
-      {
-        raster = terrama2::core::cloneRaster(*raster);
-      }
-
-      (*raster) *= complexMultiplier;
+      raster = terrama2::core::multiplyRaster(*raster, multiplier);
     }
   }
   catch(const UndefinedTagException&)
