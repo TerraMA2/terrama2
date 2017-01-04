@@ -42,11 +42,6 @@ var DataModel = require('./data-model');
 // Available DataSeriesType
 var DataSeriesType = Enums.DataSeriesType;
 
-// Javascript Lock
-var ReadWriteLock = require('rwlock');
-var lock = new ReadWriteLock();
-
-
 function _processFilter(filterObject) {
   var filterValues = Object.assign({}, filterObject);
   // checking filter by date
@@ -533,13 +528,9 @@ var DataManager = module.exports = {
   getProject: function(projectParam) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      lock.readLock(function(release) {
-        var project = Utils.find(self.data.projects, projectParam);
-        if (project) { resolve(Utils.clone(project)); }
-        else { reject(new exceptions.ProjectError("Project not found")); }
-
-        release();
-      });
+      var project = Utils.find(self.data.projects, projectParam);
+      if (project) { resolve(Utils.clone(project)); }
+      else { reject(new exceptions.ProjectError("Project not found")); }
     });
   },
 
