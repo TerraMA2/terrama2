@@ -249,7 +249,30 @@ var ImportExport = function(io) {
                 }
 
                 return Promise.all(promises).then(function() {
-                  TcpService.send(tcpOutput);
+                  promises = [];
+
+                  if (json.Views) {
+                    var viewsList = json.Views || [];
+                    viewsList.forEach(function(view) {
+
+                      delete view.schedule.id;
+
+                      promises.push(DataManager.addSchedule(view.schedule, options).then(function(schedule) {
+                        view.schedule_id = schedule.id;
+                        view.project_id = Utils.find(output.Projects, {$id: view.project_id}).id;
+                        view.data_series_id = Utils.find(output.DataSeries, {$id: view.data_series_id}).id;
+
+                        return DataManager.addView(view, options).then(function(viewResult) {
+                          if(tcpOutput.Views === undefined) tcpOutput.Views = [];
+                          tcpOutput.Views.push(viewResult.toObject());
+                        });
+                      }));
+                    });
+                  }
+
+                  return Promise.all(promises).then(function() {
+                    TcpService.send(tcpOutput);
+                  });
                 });
               });
             });
@@ -338,6 +361,7 @@ var ImportExport = function(io) {
           output.DataSeries = [];
           output.Collectors = [];
           output.Analysis = [];
+          output.Views = [];
           var providers = DataManager.listDataProviders({project_id: projectId});
           providers.forEach(function(provider) {
             output.DataProviders.push(addID(provider));
@@ -370,6 +394,11 @@ var ImportExport = function(io) {
           });
         }));
 
+        promises.push(DataManager.listViews({project_id: target.id}).then(function(viewsList) {
+          viewsList.forEach(function(view) {
+            output.Views.push(addID(view));
+          });
+        }));
       } // end if projects
 
       if (json.DataProviders) {

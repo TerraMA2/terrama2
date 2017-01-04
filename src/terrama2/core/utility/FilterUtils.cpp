@@ -87,6 +87,57 @@ std::string terrama2::core::terramaMask2Regex(const std::string& mask)
   return m.toStdString();
 }
 
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::getFileTimestamp(const std::string& mask,
+                                                          const std::string& timezone,
+                                                          const std::string& name)
+{
+  std::shared_ptr<te::dt::TimeInstantTZ> timeStamp;
+
+  auto regexString = terramaMask2Regex(mask);
+
+  boost::regex expression(regexString);
+  boost::match_results<std::string::const_iterator> match;
+
+  if (!boost::regex_match(name, match, expression, boost::match_default))
+    return timeStamp;
+
+  if ((match["YEAR"] != "" || match["YEAR2DIGITS"] != "") && match["MONTH"] != "" && match["DAY"] != "")
+  {
+    std::string ts;
+
+    if (match["YEAR"] != "")
+    {
+      ts = match["YEAR"].str();
+    } else
+    {
+      int year = std::stoi(match["YEAR2DIGITS"].str());
+
+      if (year < 80)
+        ts = "20" + match["YEAR2DIGITS"].str();
+      else
+        ts = "19" + match["YEAR2DIGITS"].str();
+    }
+
+    ts += match["MONTH"].str();
+    ts += match["DAY"].str();
+
+    // if the name has only date part, it presumes that time is 23:59:59
+    ts += "T";
+    ts += (match["HOUR"] == "" ? "23" : match["HOUR"].str());
+    ts += (match["MINUTES"] == "" ? "59" : match["MINUTES"].str());
+    ts += (match["SECONDS"] == "" ? "59" : match["SECONDS"].str());
+
+    boost::posix_time::ptime boostDate(boost::posix_time::from_iso_string(ts));
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+    timeStamp.reset(new te::dt::TimeInstantTZ(date));
+
+  }
+
+  return timeStamp;
+}
+
 bool terrama2::core::isValidDataSetName(const std::string& mask,
                                         const Filter& filter,
                                         const std::string& timezone,
@@ -108,46 +159,12 @@ bool terrama2::core::isValidDataSetName(const std::string& mask,
   if(!boost::regex_match(name, match, expression, boost::match_default))
     return false;
 
-  if((match["YEAR"] != "" || match["YEAR2DIGITS"] != "") && match["MONTH"] != "" && match["DAY"] != "")
-  {
-    std::string ts;
+  fileTimestamp = getFileTimestamp(mask, timezone, name);
+  if(!fileTimestamp)
+    return true;
 
-    if(match["YEAR"] != "")
-    {
-      ts = match["YEAR"].str();
-    }
-    else
-    {
-      int year = std::stoi(match["YEAR2DIGITS"].str());
-
-      if(year < 80)
-        ts = "20" + match["YEAR2DIGITS"].str();
-      else
-        ts = "19" + match["YEAR2DIGITS"].str();
-    }
-
-    ts += match["MONTH"].str();
-    ts += match["DAY"].str();
-
-    // if the name has only date part, it presumes that time is 23:59:59
-    ts += "T";
-    ts += (match["HOUR"] == "" ? "23" : match["HOUR"].str());
-    ts += (match["MINUTES"] == "" ? "59" : match["MINUTES"].str());
-    ts += (match["SECONDS"] == "" ? "59" : match["SECONDS"].str());
-
-    boost::posix_time::ptime boostDate(boost::posix_time::from_iso_string(ts));
-    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
-    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
-
-    fileTimestamp.reset(new te::dt::TimeInstantTZ(date));
-
-    if(!isValidTimestamp(filter, fileTimestamp))
-      return false;
-  }
-  else
-  {
-    fileTimestamp.reset();
-  }
+  if(!isValidTimestamp(filter, fileTimestamp))
+    return false;
 
   return true;
 }

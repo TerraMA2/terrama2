@@ -66,6 +66,7 @@
 
 //STL
 #include <unordered_set>
+#include <boost/filesystem.hpp>
 
 terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries,
                                                      const bool checkSemantics)
@@ -81,7 +82,7 @@ terrama2::core::DataAccessorGrADS::DataAccessorGrADS(DataProviderPtr dataProvide
 }
 
 
-std::string terrama2::core::DataAccessorGrADS::getCtlFilename(DataSetPtr dataSet) const
+std::string terrama2::core::DataAccessorGrADS::getControlFileMask(DataSetPtr dataSet) const
 {
   try
   {
@@ -111,7 +112,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
     // Do nothing
   }
 
-  std::string mask = getCtlFilename(dataset);
+  std::string mask = getControlFileMask(dataset);
   std::string uri = dataRetriever->retrieveData(mask, filter, remover, "", folderPath);
 
   QUrl url(QString::fromStdString(uri+"/"+folderPath));
@@ -119,13 +120,13 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
   auto fileList = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
   for(const auto& file : fileList)
   {
-    auto gradsDescriptor = readDataDescriptor(url.path().toStdString()+"/"+file.toStdString());
+    gradsDescriptor_ = readDataDescriptor(url.path().toStdString()+"/"+file.toStdString());
 
-    std::string datasetMask = gradsDescriptor.datasetFilename_;
-    if(gradsDescriptor.datasetFilename_[0] == '^')
+    std::string datasetMask = gradsDescriptor_.datasetFilename_;
+    if(gradsDescriptor_.datasetFilename_[0] == '^')
     {
-      gradsDescriptor.datasetFilename_.erase(0, 1);
-      datasetMask = gradsDescriptor.datasetFilename_;
+      gradsDescriptor_.datasetFilename_.erase(0, 1);
+      datasetMask = gradsDescriptor_.datasetFilename_;
     }
 
     datasetMask = grad2TerramaMask(datasetMask.c_str()).toStdString();
@@ -133,7 +134,7 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
     // In case the user specified a binary file mask, use it instead of the one in the CTL file.
     try
     {
-      std::string binaryFileMask = getBinaryFileMask(dataset);
+      std::string binaryFileMask = getMask(dataset);
       if(!binaryFileMask.empty())
       {
         datasetMask = binaryFileMask;
@@ -151,7 +152,9 @@ std::string terrama2::core::DataAccessorGrADS::retrieveData(const DataRetrieverP
 }
 
 std::string terrama2::core::DataAccessorGrADS::dataSourceType() const
-{ return "GDAL"; }
+{
+  return "GDAL";
+}
 
 void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
                                                              std::shared_ptr<te::mem::DataSet> completeDataSet,
@@ -181,7 +184,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
     invertRaster(raster);
 
     // multiply the raster by a factor
-    multiplyRaster(dataSet, raster);
+    checkRasterMultiply(dataSet, raster);
 
     te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
     item->setRaster(rasterColumn, raster.release());
@@ -195,7 +198,7 @@ void terrama2::core::DataAccessorGrADS::addToCompleteDataSet(DataSetPtr dataSet,
   }
 }
 
-void terrama2::core::DataAccessorGrADS::multiplyRaster(terrama2::core::DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const
+void terrama2::core::DataAccessorGrADS::checkRasterMultiply(terrama2::core::DataSetPtr dataSet, std::unique_ptr<te::rst::Raster>& raster) const
 {
   try
   {
@@ -203,13 +206,7 @@ void terrama2::core::DataAccessorGrADS::multiplyRaster(terrama2::core::DataSetPt
     auto multiplier = getValueMultiplier(dataSet);
     if(multiplier != 1)
     {
-      std::complex< double > complexMultiplier(multiplier);
-      if(raster->getAccessPolicy() != te::common::RWAccess && raster->getAccessPolicy() != te::common::WAccess)
-      {
-        raster = terrama2::core::cloneRaster(*raster);
-      }
-
-      (*raster) *= complexMultiplier;
+      raster = terrama2::core::multiplyRaster(*raster, multiplier);
     }
   }
   catch(const UndefinedTagException&)
@@ -271,293 +268,58 @@ QString terrama2::core::DataAccessorGrADS::grad2TerramaMask(QString mask) const
   return mask;
 }
 
-terrama2::core::DataSetSeries terrama2::core::DataAccessorGrADS::getSeries(const std::string& uri,
-                                                                           const terrama2::core::Filter& filter,
-                                                                           terrama2::core::DataSetPtr dataSet,
-                                                                           std::shared_ptr<terrama2::core::FileRemover> remover) const
+bool terrama2::core::DataAccessorGrADS::needToOpenConfigFile() const
 {
-  std::string completeUri = uri;
+  return true;
+}
+
+
+bool terrama2::core::DataAccessorGrADS::hasControlFile() const
+{
+  return true;
+}
+
+std::string terrama2::core::DataAccessorGrADS::getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const
+{
+
+  std::string extension = boost::filesystem::extension(binaryFilename);
+  std::string vrtFilename = binaryFilename;
+  boost::replace_last(vrtFilename, extension, ".vrt");
+
+  writeVRTFile(gradsDescriptor_, binaryFilename, vrtFilename, dataSet);
+
+  return vrtFilename;
+}
+
+std::string terrama2::core::DataAccessorGrADS::readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const
+{
+  gradsDescriptor_ = readDataDescriptor(controlFilename);
+  gradsDescriptor_.srid_ = getSrid(dataSet);
+
+  std::string datasetMask = gradsDescriptor_.datasetFilename_;
+  if(gradsDescriptor_.datasetFilename_[0] == '^')
+  {
+    gradsDescriptor_.datasetFilename_.erase(0, 1);
+    datasetMask = gradsDescriptor_.datasetFilename_;
+  }
+
+  datasetMask = grad2TerramaMask(datasetMask.c_str()).toStdString();
+
+  // In case the user specified a binary file mask, use it instead of the one in the CTL file.
   try
   {
-    std::string folderName = getFolderMask(dataSet, dataSeries_);
-    if(!folderName.empty())
-      completeUri += "/" + folderName;
-
+    std::string binaryFileMask = getMask(dataSet);
+    if(!binaryFileMask.empty())
+    {
+      datasetMask = binaryFileMask;
+    }
   }
   catch(...)
   {
-    // Nothing to be done, it will use the URI
+    // In case no binary file mask specified, use dataset mask in the CTL file.
   }
 
-  QUrl url(QString::fromStdString(completeUri));
-
-  QDir dir(url.path());
-  QFileInfoList fileInfoList = dir.entryInfoList(
-                                 QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-  if(fileInfoList.empty())
-  {
-    QString errMsg = QObject::tr("No file in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw NoDataException() << ErrorDescription(errMsg);
-  }
-
-  //return value
-  DataSetSeries series;
-  series.dataSet = dataSet;
-
-  std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
-  std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
-
-
-  boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
-  std::shared_ptr<te::dt::TimeInstantTZ> lastFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
-
-  //get timezone of the dataset
-  std::string timezone;
-  try
-  {
-    timezone = getTimeZone(dataSet);
-  }
-  catch(const terrama2::core::UndefinedTagException& /*e*/)
-  {
-    //if timezone is not defined
-    timezone = "UTC+00";
-  }
-
-  //fill file list
-  bool first = true;
-  for(const auto& fileInfo : fileInfoList)
-  {
-    std::string ctlName = fileInfo.fileName().toStdString();
-
-    std::shared_ptr<te::dt::TimeInstantTZ> ctlFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
-    std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
-
-    QString ctlMask = getCtlFilename(dataSet).c_str();
-
-    // Verify if it is a valid CTL file name
-    if(!isValidDataSetName(ctlMask.toStdString(), filter, timezone, ctlName, ctlFileTimestamp))
-      continue;
-
-    std::string ctlFile;
-    std::string tempFolderPath;
-    if(terrama2::core::Unpack::isCompressed(fileInfo.absoluteFilePath().toStdString()))
-    {
-      //unpack files
-      tempFolderPath = terrama2::core::Unpack::decompress(fileInfo.absoluteFilePath().toStdString(), remover, tempFolderPath);
-      QDir tempDir(QString::fromStdString(tempFolderPath));
-      auto fileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-      for(auto info : fileList)
-      {
-        auto tempName = info.fileName().toStdString();
-        if(!isValidDataSetName(ctlMask.toStdString(), filter, timezone, tempName, ctlFileTimestamp))
-          continue;
-
-        //NOTE: This consider that there is only one ctl file in the compressed file.
-        // This must be true as the compressed file matches the mask
-        // there is no issue if there are bin files in the the compressed file
-        ctlFile = info.absoluteFilePath().toStdString();
-        break;
-      }
-    }
-    else
-    {
-      ctlFile = fileInfo.absoluteFilePath().toStdString();
-    }
-
-    auto gradsDescriptor = readDataDescriptor(ctlFile);
-    gradsDescriptor.srid_ = getSrid(dataSet);
-
-    // Reads the dataset name from CTL
-    std::string datasetMask = gradsDescriptor.datasetFilename_;
-
-    if(gradsDescriptor.datasetFilename_[0] == '^')
-    {
-      gradsDescriptor.datasetFilename_.erase(0, 1);
-      datasetMask = gradsDescriptor.datasetFilename_;
-    }
-
-    datasetMask = grad2TerramaMask(QString::fromStdString(datasetMask)).toStdString();
-
-
-    // In case the user specified a binary file mask, use it instead of the one in the CTL file.
-    try
-    {
-      std::string binaryFileMask = getBinaryFileMask(dataSet);
-      if(!binaryFileMask.empty())
-      {
-        datasetMask = binaryFileMask;
-      }
-    }
-    catch(...)
-    {
-      // In case no binary file mask specified, use dataset mask in the CTL file.
-    }
-
-
-    // Get complete list of files,
-    // if compressed decompress and add files to the list
-    QFileInfoList binFileList;
-    for(const auto& dataFileInfo : fileInfoList)
-    {
-      std::string name = dataFileInfo.fileName().toStdString();
-
-      // Verify if the file name matches the datasetMask
-      if(!isValidDataSetName(datasetMask, filter, timezone, name, thisFileTimestamp))
-        continue;
-
-      if(terrama2::core::Unpack::isCompressed(dataFileInfo.absoluteFilePath().toStdString()))
-      {
-        //unpack files
-        tempFolderPath = terrama2::core::Unpack::decompress(dataFileInfo.absoluteFilePath().toStdString(), remover, tempFolderPath);
-        QDir tempDir(QString::fromStdString(tempFolderPath));
-        binFileList = tempDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
-      }
-      else
-      {
-        binFileList.append(dataFileInfo);
-      }
-    }
-
-    // Access binary files
-    for(const auto& dataFileInfo : binFileList)
-    {
-      std::string name = dataFileInfo.fileName().toStdString();
-      std::string baseName = dataFileInfo.baseName().toStdString();
-      std::string extension = dataFileInfo.suffix().toStdString();
-
-      // Verify if the file name matches the datasetMask
-      if(!isValidDataSetName(datasetMask, filter, timezone, name, thisFileTimestamp))
-        continue;
-
-      boost::replace_last(name, extension, "vrt");
-
-      std::string binFilename = dataFileInfo.absoluteFilePath().toStdString();
-      std::string vrtFilename = dataFileInfo.absoluteFilePath().toStdString();
-      boost::replace_last(vrtFilename, extension, "vrt");
-
-
-      writeVRTFile(gradsDescriptor, binFilename, vrtFilename, dataSet);
-
-      // creates a DataSource to the data and filters the dataset,
-      // also joins if the DCP comes from separated files
-      std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), "file://"+typePrefix() + dataFileInfo.absolutePath().toStdString() + "/" + name));
-
-      //RAII for open/closing the datasource
-      OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-
-      if(!datasource->isOpened())
-      {
-        // Can't throw here, inside loop
-        // just log and continue
-        QString errMsg = QObject::tr("DataProvider could not be opened.");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        continue;
-      }
-
-      // get a transactor to interact to the data source
-      std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-
-      // Some drivers use the base name and other use filename with extension
-      std::string dataSetName;
-      std::vector<std::string> dataSetNames = transactor->getDataSetNames();
-      auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
-      auto itFileName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), name);
-      if(itBaseName != dataSetNames.cend())
-        dataSetName = baseName;
-      else if(itFileName != dataSetNames.cend())
-        dataSetName = name;
-      //No valid dataset name found
-      else
-        dataSetName = name;
-
-      // TODO: Some raster files don't appear in the getDataSetNames()
-      // but we can open directly with the file name.
-      // should we check or just continue with the file name?
-
-      if(first)
-      {
-        //read and adapt all te:da::DataSet from terrama2::core::DataSet
-        converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
-        series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-        assert(series.teDataSetType.get());
-        completeDataset = createCompleteDataSet(series.teDataSetType);
-        first = false;
-      }
-
-      std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
-      if(!teDataSet)
-      {
-        QString errMsg = QObject::tr("Could not read dataset: %1").arg(dataSetName.c_str());
-        TERRAMA2_LOG_WARNING() << errMsg;
-        throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-      }
-
-      auto raster = teDataSet->getRaster(0);
-      if(raster.get() == nullptr)
-      {
-        QString errMsg = QObject::tr("Invalid raster for dataset: %1").arg(dataSetName.c_str());
-        TERRAMA2_LOG_WARNING() << errMsg;
-        throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-      }
-
-      // If could not find a valid date for the binary file, uses the CTL date.
-      if(!thisFileTimestamp)
-      {
-        if(ctlFileTimestamp)
-          thisFileTimestamp = ctlFileTimestamp;
-      }
-
-      addToCompleteDataSet(dataSet, completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
-
-
-      if(!lastFileTimestamp || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
-        lastFileTimestamp = thisFileTimestamp;
-    }
-  }
-
-  if(!completeDataset.get() || completeDataset->isEmpty())
-  {
-    QString errMsg = QObject::tr("No data in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_WARNING() << errMsg;
-    throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-  }
-
-  filterDataSet(completeDataset, filter);
-
-  //Get last data timestamp and compare with file name timestamp
-  std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
-
-  filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
-
-  cropRaster(completeDataset, filter);
-
-  //if both dates are valid
-  if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
-  {
-    (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
-  }
-  else if(lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
-  {
-    //if only fileTimestamp is valid
-    (*lastDateTime_) = *lastFileTimestamp;
-  }
-  else if(dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special())
-  {
-    //if only dataTimeStamp is valid
-    (*lastDateTime_) = *dataTimeStamp;
-  }
-  else
-  {
-    boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
-    (*lastDateTime_) = te::dt::TimeInstantTZ(noTime);
-  }
-
-
-  std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));
-  series.syncDataSet = syncDataset;
-  return series;
+  return datasetMask;
 }
 
 
@@ -1220,7 +982,7 @@ std::string terrama2::core::DataAccessorGrADS::getDataType(terrama2::core::DataS
   }
 }
 
-std::string terrama2::core::DataAccessorGrADS::getBinaryFileMask(terrama2::core::DataSetPtr dataset) const
+std::string terrama2::core::DataAccessorGrADS::getMask(terrama2::core::DataSetPtr dataset) const
 {
   try
   {
