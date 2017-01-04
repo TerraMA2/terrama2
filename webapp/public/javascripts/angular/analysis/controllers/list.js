@@ -17,7 +17,7 @@ define([], function() {
     });
 
     Socket.on('runResponse', function(response){
-      MessageBoxService.danger(title, i18n.__("The process was started successfully"));
+      MessageBoxService.success(title, i18n.__("The process was started successfully"));
     })
 
     Socket.on('statusResponse', function(response) {

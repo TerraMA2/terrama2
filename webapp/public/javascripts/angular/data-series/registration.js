@@ -414,6 +414,16 @@ define([], function() {
         enableIntersection.click();
       };
 
+      // function to fill out parameters data and storager data
+      var _processParameters = function() {
+        $scope.dataSeriesSemantics.forEach(function(dSemantic) {
+          if (dSemantic.name == outputDataseries.data_series_semantic_name) {
+            $scope.storager.format = dSemantic;
+            $scope.onStoragerFormatChange();
+          }
+        });
+      };
+
       // advanced global properties
       $scope.advanced = {
         store: {
@@ -615,7 +625,6 @@ define([], function() {
         _processParameters();
 
         $timeout(function(){
-          console.log($scope.dataSeriesSemantics);
           if (!$scope.dataSeries.semantics || $scope.dataSeries.semantics.data_format_name != 'POSTGIS'){
             return;
           } else {
@@ -977,7 +986,6 @@ define([], function() {
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
       $scope.onStoragerFormatChange = function() {
-        console.log($scope.dataSeries.access);
         $scope.showStoragerForm = true;
 
         $timeout(function() {
@@ -1182,16 +1190,6 @@ define([], function() {
         }
       });
 
-      // function to fill out parameters data and storager data
-      var _processParameters = function() {
-        $scope.dataSeriesSemantics.forEach(function(dSemantic) {
-          if (dSemantic.name == outputDataseries.data_series_semantic_name) {
-            $scope.storager.format = dSemantic;
-            $scope.onStoragerFormatChange();
-          }
-        });
-      }
-
       // Reset model values when change number of bands propertie to 1
       $scope.$watch("model.number_of_bands", function(val){
         if (!$scope.model.number_of_bands){
@@ -1361,10 +1359,6 @@ define([], function() {
         }
       }, true);
 
-      $scope.changeDataProvider = function() {
-        console.log($scope.dataSeries);
-      };
-
       $scope.close = function() {
         $scope.display = false;
       };
@@ -1388,7 +1382,6 @@ define([], function() {
         }
 
         request.then(function(data) {
-          console.log(data);
           $window.location.href = "/configuration/" + configuration.dataSeriesType + "/dataseries?token=" + (data.token || data.data.token);
         }).catch(function(err) {
           var errMessage = err.message || err.data.message;
@@ -1564,8 +1557,6 @@ define([], function() {
             break;
         }
 
-        console.log(dataToSend);
-
         return {
           dataSeries: dataToSend,
           schedule: scheduleValues,
@@ -1664,29 +1655,7 @@ define([], function() {
       };
     })
   }
+    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs"];
 
-    RegisterDataSeries.$inject = [
-      "$scope",
-      "$http",
-      "i18n",
-      "$window",
-      "$state",
-      "$httpParamSerializer",
-      "DataSeriesSemanticsService",
-      "DataProviderService",
-      "DataSeriesService",
-      "Service",
-      "$timeout",
-      "WizardHandler",
-      "UniqueNumber",
-      "FilterForm",
-      "MessageBoxService",
-      "$q",
-      "GeoLibs"
-    ];
-
-    return {
-      "RegisterDataSeries": RegisterDataSeries,
-      "StoragerController": StoragerController
-    };
+    return { "RegisterDataSeries": RegisterDataSeries, "StoragerController": StoragerController };
 })

@@ -96,7 +96,9 @@ define([
     this.BaseService.$request(this.url + "/" + serviceId, "PUT", {data: serviceObject})
       .then(function(response) {
         return defer.resolve(response.data);
-      });
+      }).catch(function(err) {
+        return defer.reject(err.data);
+      });;
 
     return defer.promise;
   };

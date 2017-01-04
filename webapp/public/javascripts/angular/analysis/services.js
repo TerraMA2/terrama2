@@ -110,8 +110,8 @@ define([
           self.model.push((response.data || {}).result);
           return defer.resolve(response.data);
         })
-        .catch(function(err) {
-          return defer.reject(err);
+        .catch(function(response) {
+          return defer.reject(response.data);
         });
       return defer.promise;
     };
@@ -121,7 +121,12 @@ define([
      * @todo Update cached analysis
      */
     this.update = function(analysisId, analysisObject) {
-      return self.BaseService.$request(self.url + "/" + analysisId, "PUT", {data: analysisObject});
+      return self.BaseService.$request(self.url + "/" + analysisId, "PUT", {data: analysisObject})
+        .then(function(response) {
+          return response.data;
+        }).catch(function(err) {
+          throw {message: err.data};
+        });
     };
   }
 

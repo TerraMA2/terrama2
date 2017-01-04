@@ -43,8 +43,7 @@
         <label>{{ i18n.__('Data Server') }}:</label>
         <select class="form-control"
                 name="data_provider_id"
-                ng-model="dataSeries.data_provider_id"
-                ng-change="changeDataProvider()" required>
+                ng-model="dataSeries.data_provider_id" required>
           <option ng-repeat="provider in dataProviders track by $index" value="{{ provider.id }}">{{ provider.name }}</option>
         </select>
 

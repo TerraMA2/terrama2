@@ -87,9 +87,11 @@ define([
   DataSeriesService.prototype.update = function(dataSeriesId, obj) {
     var defer = this.$q.defer();
     var self = this;
-    self.BaseService.$request(self.url + "/edit/" + dataSeriesId, "PUT", {data: obj})
+    self.BaseService.$request(self.url + "/" + dataSeriesId, "PUT", {data: obj})
       .then(function(response) {
         return defer.resolve(response.data);
+      }).catch(function(err) {
+        return defer.reject(err.data);
       });
 
     return defer.promise;
@@ -109,6 +111,8 @@ define([
       .then(function(response) {
         self.model.push(response.data);
         return defer.resolve(response.data);
+      }).catch(function(err) {
+        return defer.reject(err.data);
       });
     return defer.promise;
   };
