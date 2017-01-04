@@ -2,7 +2,7 @@ define(function() {
   function terrama2Flag(i18n, $timeout, $rootScope, TerraMA2Countries, $log) {
     return {
       restrict: "E",
-      templateUrl: "/javascripts/angular/countries/countries-tpl.html",
+      templateUrl: "/dist/templates/countries/countries-tpl.html",
       controller: [terrama2FlagController],
       controllerAs: "vm",
       link: function(scope, element, attrs) {         

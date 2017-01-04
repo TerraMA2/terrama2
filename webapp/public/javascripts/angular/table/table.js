@@ -21,7 +21,7 @@ define([
     .directive('terrama2Table', ["i18n", function(i18n) {
       return {
         restrict: 'E',
-        templateUrl: '/javascripts/angular/table/templates/table.html',
+        templateUrl: '/dist/templates/table/templates/table.html',
         replace: true,
         scope: {
           fields: '=fields',

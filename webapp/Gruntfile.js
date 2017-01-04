@@ -1,4 +1,7 @@
 module.exports = function(grunt) {
+  // Destination Path (terrama2/webapp/dist)
+  var SCRIPTS_PATH = "public/javascripts/";
+  var DEST_PATH = "public/dist/";
   // Project configuration
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -6,46 +9,63 @@ module.exports = function(grunt) {
     requirejs: {
       TerraMA2WebApp: {
         options: {
-          baseUrl: "public/javascripts",
-          out: "public/dist/terrama2-webapp.js",
+          baseUrl: SCRIPTS_PATH,
+          out: DEST_PATH + "terrama2-webapp.js",
           preserveLicenseComments: false,
           optimize: "none", // It does not minify
           paths: {
-            TerraMA2WebApp: "angular"
+            TerraMA2WebApp: "angular",
+            TerraMA2WebAppTemplates: "../dist"
           },
           include: [
             "../../bower_components/almond/almond",
-            "TerraMA2WebApp/application"
+            "TerraMA2WebApp/application",
+            // "TerraMA2WebAppTemplates/templates.min"
           ],
           wrap: {
-            startFile: "public/javascripts/Wrap.TerraMA2WebApp.start",
-            endFile: "public/javascripts/Wrap.TerraMA2WebApp.end"
+            startFile: SCRIPTS_PATH + "Wrap.TerraMA2WebApp.start",
+            endFile: SCRIPTS_PATH + "Wrap.TerraMA2WebApp.end"
           }
         }
       },
       TerraMA2WebAppMin: {
         options: {
-          baseUrl: "public/javascripts",
-          out: "public/dist/terrama2-webapp.min.js",
+          baseUrl: SCRIPTS_PATH,
+          out: DEST_PATH + "terrama2-webapp.min.js",
           preserveLicenseComments: false,
           optimize: "none", // It does not minify
           paths: {
-            TerraMA2WebApp: "angular"
+            TerraMA2WebApp: "angular",
+            TerraMA2WebAppTemplates: "../dist"
           },
           include: [
             "../../bower_components/almond/almond",
-            "TerraMA2WebApp/application"
+            "TerraMA2WebApp/application",
+            // "TerraMA2WebAppTemplates/templates.min"
           ],
           wrap: {
-            startFile: "public/javascripts/Wrap.TerraMA2WebApp.start",
-            endFile: "public/javascripts/Wrap.TerraMA2WebApp.end"
+            startFile: SCRIPTS_PATH + "Wrap.TerraMA2WebApp.start",
+            endFile: SCRIPTS_PATH + "Wrap.TerraMA2WebApp.end"
           }
         }
       }
-    }
+    },
+    copy: {
+      main: {
+        files: [
+          {
+            cwd: SCRIPTS_PATH + 'angular',
+            src: '**/*.html',
+            dest: DEST_PATH + 'templates',
+            expand: true
+          }
+        ]
+      }
+    },
+    clean: ['public/dist/templates.min.js']
   });
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
-
-  grunt.registerTask('default', ['requirejs']);
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.registerTask('default', ['copy', 'requirejs']);
 };

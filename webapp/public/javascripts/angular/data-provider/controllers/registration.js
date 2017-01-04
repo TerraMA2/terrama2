@@ -48,8 +48,8 @@ define(function() {
     $scope.schemeList = [];
     $http.get("/api/DataProviderType/", {}).then(function(response) {
       $scope.typeList = response.data;
-    }).error(function(err) {
-      console.log("err type: ", err);
+    }).catch(function(response) {
+      console.log("err type: ", response.data);
     });
 
     var makeRedirectUrl = function(extra) {

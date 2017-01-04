@@ -21,6 +21,7 @@
     "ftp": "^0.3.10",
     "glob": "^7.0.3",
     "grunt": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-requirejs": "^1.0.0",
     "i18n": "0.8.1",
     "i18n-node-angular": "^1.4.0",
