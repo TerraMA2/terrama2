@@ -20,7 +20,6 @@ module.exports = function(grunt) {
           include: [
             "../../bower_components/almond/almond",
             "TerraMA2WebApp/application",
-            // "TerraMA2WebAppTemplates/templates.min"
           ],
           wrap: {
             startFile: SCRIPTS_PATH + "Wrap.TerraMA2WebApp.start",
@@ -33,15 +32,13 @@ module.exports = function(grunt) {
           baseUrl: SCRIPTS_PATH,
           out: DEST_PATH + "terrama2-webapp.min.js",
           preserveLicenseComments: false,
-          optimize: "none", // It does not minify
           paths: {
             TerraMA2WebApp: "angular",
             TerraMA2WebAppTemplates: "../dist"
           },
           include: [
             "../../bower_components/almond/almond",
-            "TerraMA2WebApp/application",
-            // "TerraMA2WebAppTemplates/templates.min"
+            "TerraMA2WebApp/application"
           ],
           wrap: {
             startFile: SCRIPTS_PATH + "Wrap.TerraMA2WebApp.start",
@@ -62,10 +59,21 @@ module.exports = function(grunt) {
         ]
       }
     },
-    clean: ['public/dist/templates.min.js']
+    cssmin: {
+      TerraMA2WebApp: {
+        files: [{
+          expand: true,
+          cwd: 'public/stylesheets',
+          src: ['*.css'],
+          dest: DEST_PATH,
+          ext: '.min.css'
+        }]
+      }
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.registerTask('default', ['copy', 'requirejs']);
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.registerTask('default', ['copy', 'requirejs', 'cssmin']);
 };
