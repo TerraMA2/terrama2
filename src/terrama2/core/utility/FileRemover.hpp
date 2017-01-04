@@ -67,10 +67,7 @@ namespace terrama2
 
             QDir folder(path);
             if(folder.exists())
-            {
-              if(!folder.removeRecursively())
-                std::cout << "folder keep" << folderPath << std::endl;
-            }
+              folder.removeRecursively();
           }
         }
 
