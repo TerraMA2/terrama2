@@ -1,7 +1,7 @@
 define([], function() {
   'use strict';
 
-  function ListController($scope, Service, $HttpTimeout, Socket, i18n, MessageBoxService) {
+  function ListController($scope, Service, $HttpTimeout, Socket, i18n, MessageBoxService, $timeout) {
     $scope.socket = Socket;
 
     $scope.title = i18n.__('Services');
@@ -168,6 +168,10 @@ define([], function() {
               }
             }
           });
+          // It enable again the button. It must be removed after once there is no service executing
+          $timeout(function() {
+            $scope.extra.service.starting = false;
+          }, 3000);
         },
 
         stopAll: function() {
@@ -219,7 +223,7 @@ define([], function() {
     };
   }
 
-  ListController.$inject = ['$scope', 'Service', '$HttpTimeout', 'Socket', 'i18n', 'MessageBoxService'];
+  ListController.$inject = ['$scope', 'Service', '$HttpTimeout', 'Socket', 'i18n', 'MessageBoxService', '$timeout'];
 
   return ListController;
 });
