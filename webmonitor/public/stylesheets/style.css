@@ -45,6 +45,10 @@
   display: none;
 }
 
+.sidebar, .sidebar-menu, #terrama2-layerexplorer, .treeview, .treeview-menu, .treeview > span {
+  background-color: inherit;
+}
+
 /* Full screen behavior */
 .full_screen .content-wrapper {
   margin: 0;
@@ -167,17 +171,25 @@
   color: #b8c7ce;
 }
 
-#terrama2-layerexplorer:hover {
-  /*overflow: hidden;*/
-}
-
 #dynamic div, #static div, #analysis div, #template div, #custom div {
   margin-right: 5px;
-  margin-left: 5px;
+  margin-left: 15px;
 }
 
 #dynamic .pull-right, #static .pull-right, #analysis .pull-right, #template .pull-right, #custom .pull-right {
   padding-right: 15px;
+}
+
+.sidebar-mini.sidebar-collapse #dynamic .pull-right,
+.sidebar-mini.sidebar-collapse #static .pull-right,
+.sidebar-mini.sidebar-collapse #analysis .pull-right,
+.sidebar-mini.sidebar-collapse #template .pull-right,
+.sidebar-mini.sidebar-collapse #custom .pull-right {
+  padding-right: 0px;
+}
+
+.sidebar-mini.sidebar-collapse #dynamic {
+  max-height: 40px;
 }
 
 .terrama2-layerexplorer-minus, .terrama2-layerexplorer-plus {
@@ -186,21 +198,92 @@
   width: 14px !important;
 }
 
-.sidebar-mini.sidebar-collapse #terrama2-layerexplorer > li > span > span{
-  display: none;
+
+/*
+ * Component: Sidebar Mini
+ */
+@media (min-width: 768px) {
+  .sidebar-mini.sidebar-collapse .content-wrapper,
+  .sidebar-mini.sidebar-collapse .right-side,
+  .sidebar-mini.sidebar-collapse .main-footer {
+    margin-left: 50px !important;
+    z-index: 840;
+  }
+  .sidebar-mini.sidebar-collapse .main-sidebar {
+    -webkit-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    -o-transform: translate(0, 0);
+    transform: translate(0, 0);
+    width: 50px !important;
+    z-index: 850;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li {
+    position: relative;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li > span {
+    margin-right: 0;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li:hover {
+    background-color: #1e282c;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li:hover > span > span:not(.pull-right),
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li:hover > .treeview-menu {
+    display: block !important;
+    position: absolute;
+    width: 180px;
+    left: 50px;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li:hover > span > span {
+    top: 0;
+    padding: 10px 0px 10px 20px;
+    background-color: inherit;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li:hover > span > span > i {
+    margin-left: -5px;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li:hover > span > .pull-right-container {
+    top: 0 !important;
+    height: 40px !important;
+    float: right;
+    width: auto!important;
+    left: 200px!important;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li:hover > span > .pull-right-container > .label:not(:first-of-type) {
+    display: none;
+  }
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li:hover .treeview-menu {
+    top: 40px;
+    margin-left: 0;
+  }
+  .sidebar-mini.sidebar-collapse .main-sidebar .user-panel > .info,
+  .sidebar-mini.sidebar-collapse .sidebar-form,
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li > span > span,
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li .treeview-menu,
+  .sidebar-mini.sidebar-collapse .sidebar-menu > #terrama2-layerexplorer > li > span > .pull-right,
+  .sidebar-mini.sidebar-collapse .sidebar-menu li.header {
+    display: none !important;
+    -webkit-transform: translateZ(0);
+  }
+  .sidebar-mini.sidebar-collapse .main-header .logo {
+    width: 50px;
+  }
+  .sidebar-mini.sidebar-collapse .main-header .logo > .logo-mini {
+    display: block;
+    margin-left: -15px;
+    margin-right: -15px;
+    font-size: 18px;
+  }
+  .sidebar-mini.sidebar-collapse .main-header .logo > .logo-lg {
+    display: none;
+  }
+  .sidebar-mini.sidebar-collapse .main-header .navbar {
+    margin-left: 50px;
+  }
+  .sidebar-mini.sidebar-collapse form {
+    display: none;
+  }
 }
 
-.sidebar-mini.sidebar-collapse #terrama2-layerexplorer {
-  width: 230px;
-}
-
-.sidebar-mini.sidebar-collapse #terrama2-layerexplorer li{
-  background-color: #222d32;
-}
-.sidebar-mini.sidebar-collapse #terrama2-layerexplorer li:hover > span > span {
-  display: inline;
-  overflow: visible !important;
-}
 
 #wmsUri {
   width: 168px;

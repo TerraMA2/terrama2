@@ -94,7 +94,7 @@
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         allLayers.push({id: "analysis", name: "Analysis"});
 
-    addChildrenClass();
+    addTreeviewMenuClass();
 
     var socket;
     if (webmonitorHostInfo && webmonitorHostInfo.port){
@@ -481,11 +481,11 @@
         $('#terrama2-sortlayers').children('ul').prepend(liHtml);
     }
 
-    function addChildrenClass(){
+    // function to add class treeview-menu to work lte admin css behavior when sidebar is mini
+    function addTreeviewMenuClass(){
         var customParentLi = $(".parent_li").children('ul');
         for (i = 0; i < customParentLi.length; i++){
-            //customParentLi[i].className += ' treeview-menu';
-
+            customParentLi[i].className += ' treeview-menu';
         }
     }
 
