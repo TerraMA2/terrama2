@@ -378,6 +378,10 @@
     .ui-sortable .group-name span i {
       margin-top: -16px !important;
     }
+    
+    .sidebar-collapse .ui-sortable .group-name span i {
+      margin-top: 0px !important;
+    }
 
     .terrama2-layerexplorer-checkbox-span {
       text-indent: 8px !important;
