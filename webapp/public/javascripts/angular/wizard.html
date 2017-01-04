@@ -122,7 +122,7 @@
       </div>
     </wz-step>
 
-    <wz-step wz-title="{{ i18n.__('Intersection') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic || semantics === 'GRID' }} " wz-data="wizard.intersection" canenter="!wizard.intersection.disabled">
+    <wz-step wz-title="{{ i18n.__('Intersection') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic || semantics === 'GRID' }}" wz-data="wizard.intersection" canenter="!wizard.intersection.disabled">
       <div class="col-md-12">
         <div ng-include="'/dist/templates/data-series/templates/intersection.html'">
         </div>

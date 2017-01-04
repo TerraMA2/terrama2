@@ -315,6 +315,7 @@ define([], function() {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
+    $scope.semantics = "";
     var queryParameters = {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
@@ -325,6 +326,137 @@ define([], function() {
     };
     $scope.dataSeries = {};
     $scope.dataSeriesSemantics = [];
+    // clear optional forms
+    var clearStoreForm = function(){
+      $scope.showStoragerForm = false;
+      $scope.schedule = {};
+      $scope.scheduleOptions = {};
+      $scope.advanced.store.disabled = true;
+      $scope.$broadcast('clearStoreForm');
+      var enableStore = angular.element('#store-collapse');
+      var storebox = angular.element('#store-box');
+      if (!storebox.hasClass('collapsed-box')){
+        enableStore.click();
+      }
+      //disable option to crop on filter
+      $scope.filter.area.showCrop = false;
+      $scope.filter.area.crop_raster = false;
+    };
+
+    var clearFilterForm = function(){
+      $scope.filter.date = {};
+      $scope.filter.filterArea = "1";
+      $scope.advanced.filter.disabled = true;
+      var enableFilter = angular.element('#filter-collapse');
+      var filterbox = angular.element('#filter-box');
+      if (!filterbox.hasClass('collapsed-box')){
+        enableFilter.click();
+      }
+    };
+
+    var clearIntersectionForm = function(){
+      for (var key in $scope.intersection) {
+        $scope.removeDataSeries(key);
+      }
+      $scope.advanced.intersection.disabled = true;
+      var enableIntersection = angular.element('#intersection-collapse');
+      var intersectionbox = angular.element('#intersection-box');
+      if (!intersectionbox.hasClass('collapsed-box')){
+        enableIntersection.click();
+      }
+    };
+
+    // open optional form in advanced mode
+    var openStoreForm = function(){
+      $scope.advanced.store.disabled = false;
+      var enableStore = angular.element('#store-collapse');
+      // set disabled to false, to open form
+      enableStore.attr("disabled", false);
+      enableStore.click();
+    }
+
+    var openFilterForm = function(){
+      $scope.advanced.filter.disabled = false;
+      var enableFilter = angular.element('#filter-collapse');
+      // set disabled to false, to open form
+      enableFilter.attr("disabled", false);
+      enableFilter.click();
+    };
+
+    var openIntersectionForm = function(){
+      $scope.advanced.intersection.disabled = false;
+      var enableIntersection = angular.element('#intersection-collapse');
+      // set disabled to false, to open form
+      enableIntersection.attr("disabled", false);
+      enableIntersection.click();
+    };
+
+    // function to fill out parameters data and storager data
+    var _processParameters = function() {
+      $scope.dataSeriesSemantics.forEach(function(dSemantic) {
+        if (dSemantic.name == outputDataseries.data_series_semantic_name) {
+          $scope.storager.format = dSemantic;
+          $scope.onStoragerFormatChange();
+        }
+      });
+    };
+
+    // advanced global properties
+    $scope.advanced = {
+      store: {
+        disabled: true,
+        clearForm: clearStoreForm,
+        openForm: openStoreForm,
+        optional: true
+      },
+      filter: {
+        disabled: true,
+        clearForm: clearFilterForm,
+        openForm: openFilterForm,
+        optional: true
+      },
+      intersection: {
+        disabled: true,
+        clearForm: clearIntersectionForm,
+        openForm: openIntersectionForm,
+        optional: true
+      }
+    };
+
+    // wizard global properties
+    $scope.wizard = {
+      general: {
+        required: true,
+        formName: 'generalDataForm'
+      },
+      parameters: {
+        required: true,
+        formName: 'parametersForm',
+        disabled: true
+      },
+      store: {
+        required: false,
+        formName: 'storagerForm',
+        secondForm: 'storagerDataForm',
+        disabled: true,
+        optional: true,
+        clearForm: clearStoreForm
+      },
+      filter: {
+        required: false,
+        formName: 'filterForm',
+        disabled: true,
+        optional: true,
+        clearForm: clearFilterForm
+      },
+      intersection: {
+        required: false,
+        formName: 'intersectionForm',
+        disabled: true,
+        optional: true,
+        clearForm: clearIntersectionForm
+      }
+    };
     // initializing async modules
     $q.all([
       DataSeriesSemanticsService.init(queryParameters),
@@ -346,138 +478,6 @@ define([], function() {
         AREA: {
           name: i18n.__("Filter by limits"),
           value: "2"
-        }
-      };
-
-      // clear optional forms
-      var clearStoreForm = function(){
-        $scope.showStoragerForm = false;
-        $scope.schedule = {};
-        $scope.scheduleOptions = {};
-        $scope.advanced.store.disabled = true;
-        $scope.$broadcast('clearStoreForm');
-        var enableStore = angular.element('#store-collapse');
-        var storebox = angular.element('#store-box');
-        if (!storebox.hasClass('collapsed-box')){
-          enableStore.click();
-        }
-        //disable option to crop on filter
-        $scope.filter.area.showCrop = false;
-        $scope.filter.area.crop_raster = false;
-      };
-
-      var clearFilterForm = function(){
-        $scope.filter.date = {};
-        $scope.filter.filterArea = "1";
-        $scope.advanced.filter.disabled = true;
-        var enableFilter = angular.element('#filter-collapse');
-        var filterbox = angular.element('#filter-box');
-        if (!filterbox.hasClass('collapsed-box')){
-          enableFilter.click();
-        }
-      };
-
-      var clearIntersectionForm = function(){
-        for (var key in $scope.intersection) {
-          $scope.removeDataSeries(key);
-        }
-        $scope.advanced.intersection.disabled = true;
-        var enableIntersection = angular.element('#intersection-collapse');
-        var intersectionbox = angular.element('#intersection-box');
-        if (!intersectionbox.hasClass('collapsed-box')){
-          enableIntersection.click();
-        }
-      };
-
-      // open optional form in advanced mode
-      var openStoreForm = function(){
-        $scope.advanced.store.disabled = false;
-        var enableStore = angular.element('#store-collapse');
-        // set disabled to false, to open form
-        enableStore.attr("disabled", false);
-        enableStore.click();
-      }
-
-      var openFilterForm = function(){
-        $scope.advanced.filter.disabled = false;
-        var enableFilter = angular.element('#filter-collapse');
-        // set disabled to false, to open form
-        enableFilter.attr("disabled", false);
-        enableFilter.click();
-      };
-
-      var openIntersectionForm = function(){
-        $scope.advanced.intersection.disabled = false;
-        var enableIntersection = angular.element('#intersection-collapse');
-        // set disabled to false, to open form
-        enableIntersection.attr("disabled", false);
-        enableIntersection.click();
-      };
-
-      // function to fill out parameters data and storager data
-      var _processParameters = function() {
-        $scope.dataSeriesSemantics.forEach(function(dSemantic) {
-          if (dSemantic.name == outputDataseries.data_series_semantic_name) {
-            $scope.storager.format = dSemantic;
-            $scope.onStoragerFormatChange();
-          }
-        });
-      };
-
-      // advanced global properties
-      $scope.advanced = {
-        store: {
-          disabled: true,
-          clearForm: clearStoreForm,
-          openForm: openStoreForm,
-          optional: true
-        },
-        filter: {
-          disabled: true,
-          clearForm: clearFilterForm,
-          openForm: openFilterForm,
-          optional: true
-        },
-        intersection: {
-          disabled: true,
-          clearForm: clearIntersectionForm,
-          openForm: openIntersectionForm,
-          optional: true
-        }
-      };
-
-      // wizard global properties
-      $scope.wizard = {
-        general: {
-          required: true,
-          formName: 'generalDataForm'
-        },
-        parameters: {
-          required: true,
-          formName: 'parametersForm',
-          disabled: true
-        },
-        store: {
-          required: false,
-          formName: 'storagerForm',
-          secondForm: 'storagerDataForm',
-          disabled: true,
-          optional: true,
-          clearForm: clearStoreForm
-        },
-        filter: {
-          required: false,
-          formName: 'filterForm',
-          disabled: true,
-          optional: true,
-          clearForm: clearFilterForm
-        },
-        intersection: {
-          required: false,
-          formName: 'intersectionForm',
-          disabled: true,
-          optional: true,
-          clearForm: clearIntersectionForm
         }
       };
 
@@ -1009,6 +1009,7 @@ define([], function() {
 
       // Wizard validations
       $scope.isFirstStepValid = function(obj) {
+        console.log(WizardHandler);
         isWizardStepValid();
         var firstStepValid = $scope.forms.generalDataForm.$valid;
         if (firstStepValid){
@@ -1053,8 +1054,6 @@ define([], function() {
         return true;
       };
       //. end wizard validations
-
-      $scope.semantics = "";
       $scope.dcps = [];
 
       $scope.updatingDcp = false;
