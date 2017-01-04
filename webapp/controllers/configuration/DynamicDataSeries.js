@@ -98,6 +98,19 @@ module.exports = function(app) {
         recordsFiltered: (storedDcps[key] === undefined ? 0 : storedDcps[key].length),
         data: (storedDcps[key] === undefined ? [] : storedDcps[key].slice(parseInt(request.body.start), (parseInt(request.body.start) + parseInt(request.body.length))))
       });
+    },
+
+    removeStoredDcp: function(request, response) {
+      var key = request.body.key;
+
+      for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
+        if(storedDcps[key][i]._id == request.body.id) {
+          storedDcps[key].splice(i, 1);
+          break;
+        }
+      }
+
+      response.json(storedDcps[key]);
     }
   };
 

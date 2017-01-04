@@ -68,6 +68,15 @@ angular.module('terrama2.dataseries.registration', [
         });
       };
 
+      var removeInputById = function(id) {
+        $scope.inputDataSets.some(function(dcp, pcdIndex, array) {
+          if(dcp._id == id) {
+            array.splice(pcdIndex, 1);
+            return true;
+          }
+        });
+      };
+
       $scope.removePcdStorager = function(dcpItem) {
         $scope.dcpsStorager.some(function(dcp, pcdIndex, array) {
           // todo: which fields should compare to remove?
@@ -147,12 +156,15 @@ angular.module('terrama2.dataseries.registration', [
       });
 
       $scope.$on("dcpOperation", function(event, args) {
-        if (args.action === "remove") {
+        if(args.action === "removeById") {
           $scope.removePcdStorager(args.dcp);
-        //  todo: remove it from list
+          removeInputById(args.dcp._id);
+        } else if(args.action === "remove") {
+          $scope.removePcdStorager(args.dcp);
+          // todo: remove it from list
           removeInput(args.dcp.mask);
-        } else if (args.action === "add") {
-          if ($scope.storager.format && $scope.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
+        } else if(args.action === "add") {
+          if($scope.storager.format && $scope.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
             // postgis
             var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
             angular.merge(copyFormat, args.dcp);
@@ -162,7 +174,7 @@ angular.module('terrama2.dataseries.registration', [
           } else {
             $scope.dcpsStorager.push(args.dcp);
           }
-        } else if (args.action === "edit"){
+        } else if(args.action === "edit") {
           $scope.editDcpStorager(args.dcp);
         }
       });
@@ -387,9 +399,10 @@ angular.module('terrama2.dataseries.registration', [
     "MessageBoxService",
     "$q",
     "GeoLibs",
+    "$compile",
     function($scope, $http, i18n, $window, $state, $httpParamSerializer,
              DataSeriesSemanticsFactory, DataProviderFactory, DataSeriesFactory,
-             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs) {
+             ServiceInstanceFactory, $timeout, FormHelper, WizardHandler, UniqueNumber, FilterForm, MessageBoxService, $q, GeoLibs, $compile) {
       // definition of schema form
       $scope.schema = {};
       $scope.form = [];
@@ -490,7 +503,10 @@ angular.module('terrama2.dataseries.registration', [
       var storedDcpsKey = makeid(30);
 
       var reloadData = function() {
-        $scope.dcpTable.ajax.reload();
+        $scope.dcpTable.ajax.reload(null, false);
+        $timeout(function() {
+          $compile(angular.element('.removeDcpBtn'))($scope);
+        }, 500);
       }
 
       // advanced global properties
@@ -589,6 +605,11 @@ angular.module('terrama2.dataseries.registration', [
 
       // table fields
       $scope.tableFields = [];
+      $scope.tableFieldsDataTable = [];
+
+      $scope.dcpsCurrentIndex = {
+        value: 1
+      };
 
       // injecting state handler in scope
       $scope.stateApp = $state;
@@ -1216,6 +1237,7 @@ angular.module('terrama2.dataseries.registration', [
             }
 
           $scope.tableFields = [];
+          $scope.tableFieldsDataTable = ['ID'];
           // building table fields. Check if form is for all ('*')
           if (data.metadata.form.indexOf('*') != -1) {
             // ignore form and make it from properties
@@ -1223,14 +1245,18 @@ angular.module('terrama2.dataseries.registration', [
             for(var key in properties) {
               if (properties.hasOwnProperty(key)) {
                 $scope.tableFields.push(key);
+                $scope.tableFieldsDataTable.push(key);
               }
             }
           } else {
             // form is mapped
             for(var i = 0, formLength = data.metadata.form.length; i < formLength; i++) {
               $scope.tableFields.push(data.metadata.form[i].key);
+              $scope.tableFieldsDataTable.push(data.metadata.form[i].key);
             }
           }
+
+          $scope.tableFieldsDataTable.push('');
 
           if($scope.tableFields.length > 0) {
             $scope.createDataTable();
@@ -1426,6 +1452,26 @@ angular.module('terrama2.dataseries.registration', [
         });
       };
 
+      $scope.removePcdById = function(id) {
+        $scope.dcps.forEach(function(dcp, pcdIndex, array) {
+          if(dcp._id == id) {
+            $scope.$broadcast("dcpOperation", {action: "removeById", dcp: Object.assign({}, dcp)});
+
+            $http.post("/configuration/dynamic/dataseries/removeStoredDcp", {
+              key: storedDcpsKey,
+              id: dcp._id
+            }).success(function(result) {
+              reloadData();
+            }).error(function(err) {
+              console.log("Err in removing dcp");
+            });
+
+            array.splice(pcdIndex, 1);
+            return;
+          }
+        });
+      };
+
       var isValidParametersForm = function(form) {
         $scope.$broadcast('schemaFormValidate');
 
@@ -1451,11 +1497,13 @@ angular.module('terrama2.dataseries.registration', [
         if($scope.dcpTable !== undefined)
           $scope.dcpTable.destroy();
 
-        var dtColumns = [];
+        var dtColumns = [{ "data": 'viewId' }];
 
         for(var i = 0, fieldsLength = $scope.tableFields.length; i < fieldsLength; i++) {
           dtColumns.push({ "data": $scope.tableFields[i] });
         }
+
+        dtColumns.push({ "data": 'removeButton' });
 
         $scope.dcpTable = $('.dcpTable').DataTable(
           {
@@ -1491,6 +1539,12 @@ angular.module('terrama2.dataseries.registration', [
             }
           }
         );
+
+        $('.dcpTable').on('page.dt', function() {
+          $timeout(function() {
+            $compile(angular.element('.removeDcpBtn'))($scope);
+          }, 500);
+        });
       };
 
       $scope.addDcp = function() {
@@ -1501,7 +1555,11 @@ angular.module('terrama2.dataseries.registration', [
           $scope._addDcpStorager(data);
           $scope.model = {active: true};
 
-          $scope.storageDcps([Object.assign({}, data)]);
+          var dcpCopy = Object.assign({}, data);
+          dcpCopy.viewId = $scope.dcpsCurrentIndex.value++;
+          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy._id + ")\">" + i18n.__("Remove") + "</button>";
+
+          $scope.storageDcps([dcpCopy]);
 
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
