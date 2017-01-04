@@ -1001,20 +1001,20 @@ define([], function() {
   }
 
   RegisterUpdateController.$inject = [
-    "$scope",
-    "$q",
-    "$log",
-    "i18n",
-    "Service",
-    "DataSeriesService",
-    "DataSeriesSemanticsService",
-    "AnalysisService",
-    "DataProviderService",
-    "Socket",
-    "DateParser",
-    "MessageBoxService",
-    "Polygon",
-    "$http"
+    '$scope',
+    '$q',
+    '$log',
+    'i18n',
+    'Service',
+    'DataSeriesService',
+    'DataSeriesSemanticsService',
+    'AnalysisService',
+    'DataProviderService',
+    'Socket',
+    'DateParser',
+    'MessageBoxService',
+    'Polygon',
+    '$http'
   ];
 
   return RegisterUpdateController;
