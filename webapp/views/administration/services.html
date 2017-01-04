@@ -13,8 +13,6 @@
 </style>
 {% endblock %}
 
-{% block ngApp %} ng-app="terrama2.administration.services" {% endblock %}
-
 {% block title %} TerraMA² {% endblock %}
 
 {% block javascripts %}
@@ -29,11 +27,6 @@
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
-<!--<script src="/javascripts/angular/services.js"></script>
-<script src="/javascripts/angular/table/table.js"></script>
-<script src="/javascripts/angular/alert-box/directives.js"></script>
-<script src="/javascripts/angular/services/service.js"></script>-->
-
 {% endblock %}
 
 {% block content %}
@@ -42,9 +35,7 @@
   <terrama2-box title="title" helper="helperMessage" css="boxCss">
     <div class="col-md-12">
       <div class="col-md-12">
-        <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
-        </div>
+        <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="MessageBoxService.reset()"></terrama2-alert-box2>
       </div>
 
       <terrama2-table fields="fields" 

@@ -91,7 +91,14 @@ define([
    * @returns {Object}
    */
   Service.prototype.update = function(serviceId, serviceObject) {
-    return this.BaseService.$request(this.url + "/" + serviceId, "PUT", serviceObject);
+    var defer = this.$q.defer();
+
+    this.BaseService.$request(this.url + "/" + serviceId, "PUT", {data: serviceObject})
+      .then(function(response) {
+        return defer.resolve(response.data);
+      });
+
+    return defer.promise;
   };
 
   /**
@@ -103,7 +110,7 @@ define([
   Service.prototype.create = function(serviceObject) {
     var self = this;
     var defer = self.$q.defer();
-    self.BaseService.$request(self.url, "POST", serviceObject)
+    self.BaseService.$request(self.url, "POST", {data: serviceObject})
       .then(function(response) {
         self.model.push(response.data);
         return defer.resolve(response.data);

@@ -1,10 +1,11 @@
 define([], function() {
   'use strict';
 
-  function ListController($scope, Service, $HttpTimeout, Socket, i18n) {
+  function ListController($scope, Service, $HttpTimeout, Socket, i18n, MessageBoxService) {
     $scope.socket = Socket;
 
     $scope.title = i18n.__('Services');
+    $scope.MessageBoxService = MessageBoxService;
     $scope.helperMessage = "This page shows available services in TerraMA2 application";
 
     // terrama2 box
@@ -59,9 +60,7 @@ define([], function() {
 
     $scope.socket.on("serviceVersion", function(response) {
       if (!response.match) {
-        $scope.display = true;
-        $scope.alertLevel = "alert-warning";
-        $scope.alertBox.message = i18n.__("It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is " + response.current + " " +i18n.__("but the TerraMA² service version is") + " " + response.response + ". " +i18n.__("Some operations may not work properly"));
+        MessageBoxService.warn($scope.title, i18n.__("It seems you are using a different versions of TerraMA². Current version of TerraMA² Web is " + response.current + " " +i18n.__("but the TerraMA² service version is") + " " + response.response + ". " +i18n.__("Some operations may not work properly")));
       }
     });
 
@@ -135,13 +134,10 @@ define([], function() {
       console.log(err);
     });
 
-    $scope.resetState = function() { $scope.display = false; };
-    $scope.alertLevel = "alert-success";
-    $scope.alertBox = {
-      title: "Service",
-      message: configuration.message
-    };
-    $scope.display = configuration.message !== "";
+    $scope.close = function() { MessageBoxService.reset(); };
+    if (configuration.message) {
+      MessageBoxService.success($scope.title, configuration.message);
+    }
 
     $scope.fields = [
       {key: 'name', as: 'Name'},
@@ -152,15 +148,11 @@ define([], function() {
 
     $scope.extra = {
       removeOperationCallback: function(err, data) {
-        $scope.display = true;
         if (err) {
-          $scope.alertLevel = "alert-danger";
-          $scope.alertBox.message = err.message;
+          MessageBoxService.danger($scope.title, err.message);
           return;
         }
-
-        $scope.alertLevel = "alert-success";
-        $scope.alertBox.message = data.name + " removed";
+        MessageBoxService.success($scope.title, data.name + " removed");
       },
 
       service: {
@@ -227,7 +219,7 @@ define([], function() {
     };
   }
 
-  ListController.$inject = ['$scope', 'Service', '$HttpTimeout', 'Socket', 'i18n'];
+  ListController.$inject = ['$scope', 'Service', '$HttpTimeout', 'Socket', 'i18n', 'MessageBoxService'];
 
   return ListController;
 });

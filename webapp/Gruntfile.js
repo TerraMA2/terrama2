@@ -32,6 +32,7 @@ module.exports = function(grunt) {
           baseUrl: SCRIPTS_PATH,
           out: DEST_PATH + "terrama2-webapp.min.js",
           preserveLicenseComments: false,
+          optimize: "none", // It does not minify
           paths: {
             TerraMA2WebApp: "angular",
             TerraMA2WebAppTemplates: "../dist"
@@ -47,6 +48,7 @@ module.exports = function(grunt) {
         }
       }
     },
+    clean: [DEST_PATH],
     copy: {
       main: {
         files: [
@@ -74,6 +76,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.registerTask('default', ['copy', 'requirejs', 'cssmin']);
+  grunt.registerTask('default', ['clean', 'copy', 'requirejs', 'cssmin']);
 };
