@@ -90,9 +90,11 @@ namespace terrama2
         {
           //! Default constructor
           Buffer(BufferType type = NONE)
-           : bufferType(type),
-           distance(0),
-           distance2(0)
+            : bufferType(type),
+            distance(0),
+            unit("m"),
+            distance2(0),
+            unit2("m")
           { }
 
           /*!
@@ -101,7 +103,7 @@ namespace terrama2
             \param d Distance of the buffer, use negative values for an inside buffer.
             \param u Unit of the distance.
           */
-          Buffer(BufferType type, double d, std::string u) : bufferType(type), distance(d), unit(u), distance2(0)
+          Buffer(BufferType type, double d, std::string u) : bufferType(type), distance(d), unit(u), distance2(0), unit2("m")
           { }
 
           /*!
