@@ -433,8 +433,10 @@ define([], function() {
             });
           }
 
-          self.dataSeriesGroups[0].children = self.buffers.static;
-          self.dataSeriesGroups[1].children = self.buffers.dynamic;
+          // sort data series by name
+          self.dataSeriesGroups[0].children = self.buffers.static.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+          // sort data series by name
+          self.dataSeriesGroups[1].children = self.buffers.dynamic.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
         };
 
         /**
