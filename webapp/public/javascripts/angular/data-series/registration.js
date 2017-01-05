@@ -391,16 +391,6 @@ define([], function() {
       enableIntersection.click();
     };
 
-    // function to fill out parameters data and storager data
-    var _processParameters = function() {
-      $scope.dataSeriesSemantics.forEach(function(dSemantic) {
-        if (dSemantic.name == outputDataseries.data_series_semantic_name) {
-          $scope.storager.format = dSemantic;
-          $scope.onStoragerFormatChange();
-        }
-      });
-    };
-
     // advanced global properties
     $scope.advanced = {
       store: {
@@ -468,6 +458,28 @@ define([], function() {
       $scope.schema = {};
       $scope.form = [];
       $scope.model = {};
+
+      // function to fill out parameters data and storager data
+      var _processParameters = function() {
+        $scope.dataSeriesSemantics.forEach(function(dSemantic) {
+          if (dSemantic.name == outputDataseries.data_series_semantic_name) {
+            $scope.storager.format = dSemantic;
+            $scope.onStoragerFormatChange();
+          }
+        });
+      };
+
+      // fill out interface with values
+      $scope.parametersData = configuration.parametersData || {};
+
+      var inputDataSeries = configuration.dataSeries.input || {};
+      var outputDataseries = configuration.dataSeries.output || {};
+
+      var inputSemantics = inputDataSeries.data_series_semantics || {};
+
+      // update mode
+      $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
+      $scope.hasCollector = Object.keys(outputDataseries).length > 0;
 
       // consts
       $scope.filterTypes = {
@@ -538,7 +550,7 @@ define([], function() {
         // building table fields. Check if form is for all ('*')
         if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
           // ignore form and make it from properties
-          var properties = dataSeriesSemantics.schema.properties;
+          var properties = dataSeriesSemantics.metadata.schema.properties;
           for(var key in properties) {
             if (properties.hasOwnProperty(key)) {
               $scope.tableFields.push(key);
@@ -1057,18 +1069,6 @@ define([], function() {
       $scope.dcps = [];
 
       $scope.updatingDcp = false;
-
-      // fill out interface with values
-      $scope.parametersData = configuration.parametersData || {};
-
-      var inputDataSeries = configuration.dataSeries.input || {};
-      var outputDataseries = configuration.dataSeries.output || {};
-
-      var inputSemantics = inputDataSeries.data_series_semantics || {};
-
-      // update mode
-      $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
-      $scope.hasCollector = Object.keys(outputDataseries).length > 0;
 
       $scope.scheduleOptions = { };
 
