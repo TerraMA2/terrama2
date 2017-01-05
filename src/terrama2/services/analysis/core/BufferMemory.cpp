@@ -37,6 +37,8 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/geometry/GeometryProperty.h>
+#include <terralib/srs/SpatialReferenceSystemManager.h>
+#include <terralib/srs/SpatialReferenceSystem.h>
 
 std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuffer(Buffer buffer,
                                                                                    std::shared_ptr<te::gm::Geometry> geometry)
@@ -46,21 +48,37 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
     return geometry;
   }
 
-  // Converts the data to UTM
-  int utmSrid = terrama2::core::getUTMSrid(geometry.get());
   std::shared_ptr<te::gm::Geometry> geomCopy;
   geomCopy.reset(dynamic_cast<te::gm::Geometry*>(geometry->clone()));
-  geomCopy->transform(utmSrid);
 
+  bool needToTransform = false;
+
+  // Converts the data to UTM if the geometry SRID is in decimal degrees
+  int srid = geometry.get()->getSRID();
+
+  if(srid != 0)
+  {
+    auto& spRefSysManager = te::srs::SpatialReferenceSystemManager::getInstance();
+    auto spatialReferenceSystem = spRefSysManager.getSpatialReferenceSystem(srid);
+    std::string unitName = spatialReferenceSystem->getUnitName();
+
+    if(unitName == "degree")
+    {
+      needToTransform = true;
+    }
+  }
+  else
+  {
+    needToTransform = true;
+  }
+
+  if(needToTransform)
+  {
+    geomCopy->transform(terrama2::core::getUTMSrid(geometry.get()));
+  }
 
   std::shared_ptr<te::gm::Geometry> geomResult;
   std::shared_ptr<te::gm::Geometry> geomTemp;
-
-  if(buffer.unit.empty())
-    buffer.unit = "m";
-
-  if(buffer.unit2.empty())
-    buffer.unit2 = "m";
 
   double distance = terrama2::core::convertDistanceUnit(buffer.distance, buffer.unit, "METER");
 
@@ -70,13 +88,13 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
     case IN:
     {
       geomTemp.reset(geomCopy->buffer(-distance, 16, te::gm::CapButtType));
-      geomResult.reset(geomTemp->difference(geomCopy.get()));
+      geomResult.reset(geomCopy->difference(geomTemp.get()));
       break;
     }
     case OUT:
     {
       geomTemp.reset(geomCopy->buffer(distance, 16, te::gm::CapButtType));
-      geomResult.reset(geomCopy->difference(geomTemp.get()));
+      geomResult.reset(geomTemp->difference(geomCopy.get()));
       break;
     }
     case IN_OUT:
@@ -85,7 +103,9 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
 
       double inDistance = terrama2::core::convertDistanceUnit(buffer.distance2, buffer.unit2, "METER");
       std::shared_ptr<te::gm::Geometry> auxGeom(geomCopy->buffer(-inDistance, 16, te::gm::CapButtType));
-      geomResult.reset(geomTemp->difference(auxGeom.get()));
+      auxGeom.reset(geomCopy->difference(auxGeom.get()));
+
+      geomResult.reset(auxGeom->Union(geomTemp.get()));
       break;
     }
     case OUT_UNION:
@@ -117,9 +137,11 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
       break;
   }
 
-  geomResult->setSRID(utmSrid);
-  int srid = geometry->getSRID();
-  geomResult->transform(srid);
+  if(geomResult->getSRID() != srid)
+  {
+    geomResult->transform(srid);
+  }
+
   return geomResult;
 }
 
