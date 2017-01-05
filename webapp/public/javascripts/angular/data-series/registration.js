@@ -505,7 +505,7 @@ angular.module('terrama2.dataseries.registration', [
       var reloadData = function() {
         $scope.dcpTable.ajax.reload(null, false);
         $timeout(function() {
-          $compile(angular.element('.removeDcpBtn'))($scope);
+          $compile(angular.element('.dcpTable > tbody > tr'))($scope);
         }, 500);
       }
 
@@ -1002,6 +1002,7 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.semantics = "";
       $scope.dcps = [];
+      $scope.dcpsObject = {};
 
       $scope.updatingDcp = false;
 
@@ -1271,6 +1272,7 @@ angular.module('terrama2.dataseries.registration', [
               // TODO: prepare format as dcp item
 
               $scope.dcps = [];
+              $scope.dcpsObject = {};
               inputDataSeries.dataSets.forEach(function(dataset) {
                 if (dataset.position) {
                   var lat;
@@ -1322,6 +1324,7 @@ angular.module('terrama2.dataseries.registration', [
 
           } else {
             $scope.dcps = [];
+            $scope.dcpsObject = {};
             $scope.model = {};
             $scope.$broadcast("resetStoragerDataSets");
           }
@@ -1542,7 +1545,7 @@ angular.module('terrama2.dataseries.registration', [
 
         $('.dcpTable').on('page.dt', function() {
           $timeout(function() {
-            $compile(angular.element('.removeDcpBtn'))($scope);
+            $compile(angular.element('.dcpTable > tbody > tr'))($scope);
           }, 500);
         });
       };
@@ -1557,7 +1560,7 @@ angular.module('terrama2.dataseries.registration', [
 
           var dcpCopy = Object.assign({}, data);
           dcpCopy.viewId = $scope.dcpsCurrentIndex.value++;
-          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy._id + ")\">" + i18n.__("Remove") + "</button>";
+          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy._id + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
           $scope.storageDcps([dcpCopy]);
 

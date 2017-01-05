@@ -362,3 +362,10 @@ table.dataTable thead th, table.dataTable thead td, table.dataTable.no-footer {
   border: 1px solid #979797 !important;
   background: linear-gradient(to bottom, white 0%, #dcdcdc 100%) !important;
 }
+
+/*
+  Changes the padding of the DataTables header.
+*/
+table.dataTable thead th, table.dataTable thead td { padding: 10px 10px !important; }
+
+table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !important; }

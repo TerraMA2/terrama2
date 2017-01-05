@@ -248,7 +248,11 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
               return;
             }
 
-            dcp[key] = value;
+            if($scope.isBoolean(value)) {
+              dcp[key] = "<span><input type=\"checkbox\"></span>";
+            } else {
+              dcp[key] = "<span editable-text=\"" + value + "\">" + value + "</span>";
+            }
           }
 
           dcp._id = UniqueNumber();
@@ -256,7 +260,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
 
           var dcpCopy = Object.assign({}, dcp);
           dcpCopy.viewId = $scope.dcpsCurrentIndex.value++;
-          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy._id + ")\">" + i18n.__("Remove") + "</button>";
+          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy._id + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
           dcps.push(dcpCopy);
           $scope._addDcpStorager(dcp);
