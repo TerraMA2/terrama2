@@ -13,8 +13,6 @@
 </style>
 {% endblock %}
 
-{% block ngApp %} ng-app="terrama2.dataprovider.registration" {% endblock %}
-
 {% block javascripts %}
 <script type="text/javascript" src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
 <script type="text/javascript" src="/bower_components/tv4/tv4.js"></script>
@@ -35,17 +33,13 @@
   };
 </script>
 
-<script src="/javascripts/angular/schema-form/app.js"></script>
-<script src="/javascripts/angular/alert-box/directives.js"></script>
-<script src="/javascripts/angular/data-provider/registration.js"></script>
-
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="RegisterController">
+<div ng-controller="DataProviderRegisterController">
   <terrama2-box title="i18n.__('Data Server Registration')" handler="serviceX">
-    <terrama2-message-box error-found="errorFound" title="alertBox.title" message="alertBox.message" close="resetState()"  handler="serviceX"></terrama2-message-box>
+    <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     <div class="row">
       <form name="forms.dataProviderForm">
         <div class="col-md-7">

@@ -75,44 +75,12 @@
 <script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
 <script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
 <script type="text/javascript" src="/bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
-<!-- TerraMA2 Datetimepicker -->
-<script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
-<!-- Socket.io -->
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<!-- Terrama2 Script -->
-<script type="text/javascript" src="/javascripts/terrama2.js"></script>
-<!-- TerraMA2 Schedule -->
-<script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
-<!-- TerraMA2 Factory Helpers -->
-<script type="text/javascript" src="/javascripts/angular/services.js"></script>
-<!-- TerraMA2 Alert Box -->
-<script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
-<!-- TerraMA2 Ace -->
-<script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
-<!-- TerraMA2 Bounded Box -->
-<script type="text/javascript" src="/javascripts/angular/geo/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/geo/app.js"></script>
-<script type="text/javascript" src="/javascripts/angular/geo/directives.js"></script>
-<!-- TerraMA² Service instance -->
-<script type="text/javascript" src="/javascripts/angular/services/services.js"></script>
-<!-- TerraMA2 Data Provider Service -->
-<script type="text/javascript" src="/javascripts/angular/data-provider/services.js"></script>
-<!-- TerraMA² DataSeries -->
-<script type="text/javascript" src="/javascripts/angular/data-series/services.js"></script>
-<!-- TerraMA² Collapser -->
-<script type="text/javascript" src="/javascripts/angular/collapser/directives.js"></script>
-<!-- TerraMA² Analysis -->
-<script type="text/javascript" src="/javascripts/angular/analysis/services.js"></script>
-<!-- TerraMA² Analysis Directives -->
-<script type="text/javascript" src="/javascripts/angular/analysis/directives.js"></script>
-<script type="text/javascript" src="/javascripts/angular/analysis/controllers/register-update.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="RegisterUpdateController as ctrl">
+<div ng-controller="AnalysisRegisterUpdateController as ctrl">
 
   <!-- DataSeries Modal -->
   <div class="modal fade" id="dataSeriesModal" tabindex="-1" role="dialog" aria-labelledby="dataSeriesModalLabel">
