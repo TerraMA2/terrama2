@@ -71,12 +71,43 @@ module.exports = function(grunt) {
           ext: '.min.css'
         }]
       }
-    }
+    },
+    watch: {
+      css: {
+        files: ["public/stylesheets/**/*.css"],
+        tasks: ["cssmin"],
+        options: {
+          // It allows to compile only when needed
+          spawn: false
+        }
+      },
+      js: {
+        files: [SCRIPTS_PATH + "/**/*.js"],
+        tasks: ["requirejs"],
+        options: {
+          // It allows to compile only when needed
+          spawn: false
+        }
+      },
+      templates: {
+        files: [SCRIPTS_PATH + "/angular/**/**.html"],
+        tasks: ["copy"],
+        options: {
+          // It allows to compile only when needed
+          spawn: false
+        }
+      }
+    }  
+  });
+  // Print helper to detect which file has beed changed
+  grunt.event.on('watch', function(action, filepath, target) {
+    grunt.log.writeln(target + ': ' + filepath + ' has ' + action);
   });
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.registerTask('default', ['clean', 'copy', 'requirejs', 'cssmin']);
 };
