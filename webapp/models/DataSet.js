@@ -1,6 +1,7 @@
 module.exports = function(sequelize, DataTypes) {
 
   var DataSeriesType = require('../core/Enums').DataSeriesType;
+  var PromiseModule = require("../core/Promise");
   var DataSet = sequelize.define("DataSet",
     {
       id: {
@@ -29,7 +30,8 @@ module.exports = function(sequelize, DataTypes) {
               case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
                 return this.getDataSetMonitored(options);
               default:
-                return null;
+                // Static Data
+                return PromiseModule.resolve(this);
             }
           } else
             throw "Invalid data set type";
