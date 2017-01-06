@@ -1427,8 +1427,11 @@ define([], function() {
           });
           out = dSetsLocal;
         } else {
-          dSets.format = _makeFormat(dSets);
-          dSets.active = true,//$scope.dataSeries.active;
+          var fmt = angular.merge({}, dSets);
+          angular.merge(fmt, dSemantics.metadata.metadata);
+
+          dSets.format = _makeFormat(fmt);
+          dSets.active = true,
           out = [dSets];
         }
 
@@ -1516,7 +1519,8 @@ define([], function() {
           case "OCCURRENCE":
           case "GRID":
           case "GEOMETRIC_OBJECT":
-            var format = $scope.model;
+            var format = Object.assign({}, $scope.model);
+            angular.merge(format, semantics.metadata.metadata);
 
             var dataSet = {
               semantics: semantics,
