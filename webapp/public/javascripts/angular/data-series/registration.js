@@ -504,9 +504,7 @@ angular.module('terrama2.dataseries.registration', [
 
       var reloadData = function() {
         $scope.dcpTable.ajax.reload(null, false);
-        $timeout(function() {
-          $compile(angular.element('.dcpTable > tbody > tr'))($scope);
-        }, 500);
+        $scope.compileTableLines();
       }
 
       // advanced global properties
@@ -1503,7 +1501,7 @@ angular.module('terrama2.dataseries.registration', [
         var dtColumns = [{ "data": 'viewId' }];
 
         for(var i = 0, fieldsLength = $scope.tableFields.length; i < fieldsLength; i++) {
-          dtColumns.push({ "data": $scope.tableFields[i] });
+          dtColumns.push({ "data": $scope.tableFields[i] + '_html' });
         }
 
         dtColumns.push({ "data": 'removeButton' });
@@ -1544,17 +1542,33 @@ angular.module('terrama2.dataseries.registration', [
         );
 
         $('.dcpTable').on('page.dt', function() {
-          $timeout(function() {
-            $compile(angular.element('.dcpTable > tbody > tr'))($scope);
-          }, 500);
+          $scope.compileTableLines();
         });
+      };
+
+      $scope.compileTableLines = function() {
+        $timeout(function() {
+          $compile(angular.element('.dcpTable > tbody > tr'))($scope);
+        }, 200);
       };
 
       $scope.addDcp = function() {
         if (isValidParametersForm($scope.forms.parametersForm)) {
           var data = Object.assign({}, $scope.model);
           data._id = UniqueNumber();
+
+          for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+            var key = $scope.dataSeries.semantics.metadata.form[j].key;
+
+            if($scope.isBoolean(data[key])) {
+              data[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsObject['" + data._id.toString() + "']['" + key + "']\"></span>";
+            } else {
+              data[key + '_html'] = "<span editable-text=\"dcpsObject['" + data._id.toString() + "']['" + key + "']\">{{ dcpsObject['" + data._id.toString() + "']['" + key + "'] }}</span>";
+            }
+          }
+
           $scope.dcps.push(Object.assign({}, data));
+          $scope.dcpsObject[data._id] = Object.assign({}, data);
           $scope._addDcpStorager(data);
           $scope.model = {active: true};
 
@@ -1566,6 +1580,8 @@ angular.module('terrama2.dataseries.registration', [
 
           // reset form to do not display feedback class
           $scope.forms.parametersForm.$setPristine();
+
+          $scope.compileTableLines();
         }
       };
 

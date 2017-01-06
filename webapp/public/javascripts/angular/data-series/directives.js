@@ -202,6 +202,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
 
         for(var i = 0, dataLength = data.data.length; i < dataLength; i++) {
           var dcp = {};
+          var uniqueId = UniqueNumber();
 
           for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
             var value = null;
@@ -249,14 +250,17 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
             }
 
             if($scope.isBoolean(value)) {
-              dcp[key] = "<span><input type=\"checkbox\"></span>";
+              dcp[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsObject['" + uniqueId.toString() + "']['" + key + "']\"></span>";
             } else {
-              dcp[key] = "<span editable-text=\"" + value + "\">" + value + "</span>";
+              dcp[key + '_html'] = "<span editable-text=\"dcpsObject['" + uniqueId.toString() + "']['" + key + "']\">{{ dcpsObject['" + uniqueId.toString() + "']['" + key + "'] }}</span>";
             }
+
+            dcp[key] = value;
           }
 
-          dcp._id = UniqueNumber();
+          dcp._id = uniqueId;
           $scope.dcps.push(Object.assign({}, dcp));
+          $scope.dcpsObject[dcp._id] = Object.assign({}, dcp);
 
           var dcpCopy = Object.assign({}, dcp);
           dcpCopy.viewId = $scope.dcpsCurrentIndex.value++;
