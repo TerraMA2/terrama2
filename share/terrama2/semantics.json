@@ -29,6 +29,7 @@
     "metadata": {
       "timestamp_property": "data_pas",
       "geometry_property": "position",
+      "output_geometry_property": "geom",
       "latitude_property": "lat",
       "longitude_property": "lon",
       "timezone": "UTM+00",
@@ -239,7 +240,7 @@
           "mask": {
             "type": "string",
             "title": "Mask",
-            "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+            "pattern": "^([a-zA-Z0-9*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
           },
           "alias": {
             "type": "string",
