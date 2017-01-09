@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="/bower_components/angular-color-picker/dist/angularjs-color-picker.min.css" />
   <!-- only include if you use bootstrap -->
   <link rel="stylesheet" href="/bower_components/angular-color-picker/dist/themes/angularjs-color-picker-bootstrap.min.css" />
+  <!-- Angular xEditable -->
+  <link href="/bower_components/angular-xeditable/dist/css/xeditable.css" rel="stylesheet">
 
   <style>
     .has-feedback label~.form-control-feedback {
@@ -54,6 +56,9 @@
 <!-- Angular Color Picker -->
 <script src="/bower_components/tinycolor/dist/tinycolor-min.js"></script>
 <script src="/bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
+
+<!-- XEditable  -->
+<script src="/bower_components/angular-xeditable/dist/js/xeditable.js"></script>
 
 {% endblock %}
 
@@ -140,7 +145,7 @@
             <select class="form-control" 
                     name="dataSeries" 
                     ng-model="ctrl.view.data_series_id"
-                    ng-options="dSeries.id as dSeries.name for dSeries in ctrl.dataSeries"
+                    ng-options="dSeries.id as dSeries.name for dSeries in ctrl.dataSeries | orderBy: 'name'"
                     ng-change="ctrl.onDataSeriesChanged(ctrl.view.data_series_id, dSeries)"
                     required>
             </select>
@@ -161,80 +166,98 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Style')" css="ctrl.css"
-                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
-      <form name="forms.styleForm">                 
+                  ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name && ctrl.viewDataSeries.data_series_semantics.data_series_type_name !== ctrl.DataSeriesType.DCP">
+      <form name="forms.styleForm" editable-form>      
+        <!-- Vectorial -->
         <div class="col-md-12 terrama2-nopadding-box"
-             ng-show="false">
-          <!-- Line -->
-          <div class="col-md-12">
+             ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GEOMETRIC_OBJECT">
+          <div class="col-md-12 terrama2-nopadding-box">
             <div class="col-md-6">
               <div class="form-group" terrama2-show-errors>
-                <label ng-bind="i18n.__('Line Stroke Width')"></label>
+                <label><span ng-bind="i18n.__('Column')"></span>:</label>
                 <input class="form-control" 
-                      name="lineStroke"
-                      ng-model="ctrl.lineStroke" 
-                      placeholder="{{ i18n.__('Line Stroke Width') }}" type="number">
+                      name="column" 
+                      ng-model="ctrl.view.column" 
+                      type="text"
+                      ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GEOMETRIC_OBJECT">
 
                 <span class="help-block" 
-                  ng-show="forms.styleForm.lineStroke.$dirty && forms.styleForm.lineStroke.$error.required"
-                  ng-bind="i18n.__('Line Stroke Width is required for View data series')">
+                  ng-show="forms.styleForm.column.$dirty && forms.styleForm.column.$error.required"
+                  ng-bind="i18n.__('Column is required')">
                 </span>
               </div>
-            </div> <!-- ./col-md-6 -->
-            <div class="col-md-6">
-              <div class="form-group">
-                <label ng-bind="i18n.__('Color')"></label>
-                <color-picker ng-model="ctrl.lineStrokeColor" options="ctrl.colorOptions"></color-picker>
-              </div>
-            </div><!-- ./col-md-6 -->
+            </div>
           </div>
-          <!-- Polygon -->
-          <div class="col-md-12">
-            <div class="col-md-6">
-              <div class="form-group" terrama2-show-errors>
-                <label ng-bind="i18n.__('Polygon Stroke Width')"></label>
-                <input class="form-control" 
-                      name="polygonStroke"
-                      ng-model="ctrl.polygonStroke" 
-                      placeholder="{{ i18n.__('Polygon Stroke Width') }}" type="number">
+          <!-- ./col-md-6 Type -->
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label><span ng-bind="i18n.__('Type')"></span>:</label>
+              <select class="form-control" 
+                      name="styleType" 
+                      ng-model="ctrl.view.styleType"
+                      ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GEOMETRIC_OBJECT"
+                      ng-options="value as key for (key, value) in ctrl.StyleType">
+              </select>
 
-                <span class="help-block" 
-                  ng-show="forms.styleForm.polygonStroke.$dirty && forms.styleForm.polygonStroke.$error.required"
-                  ng-bind="i18n.__('Polygon Stroke Width is required for View data series')">
-                </span>
-              </div>
-            </div> <!-- ./col-md-6 -->
-            <div class="col-md-6">
-              <div class="form-group">
-                <label ng-bind="i18n.__('Color')"></label>
-                <color-picker ng-model="ctrl.polygonStrokeColor" options="ctrl.colorOptions"></color-picker>
-              </div>
-            </div><!-- ./col-md-6 -->
+              <span class="help-block" 
+                ng-show="forms.styleForm.styleType.$dirty && forms.styleForm.styleType.$error.required"
+                ng-bind="i18n.__('Type is required')">
+              </span>
+            </div>
           </div>
-          <!-- Point -->
-          <div class="col-md-12">
-            <div class="col-md-6">
-              <div class="form-group" terrama2-show-errors>
-                <label ng-bind="i18n.__('Point Size')"></label>
+          <!-- ./col-md-6 Type -->
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+                <label><span ng-bind="i18n.__('Bands')">:</span></label>
                 <input class="form-control" 
-                      name="pointSize"
-                      ng-model="ctrl.pointSize" 
-                      placeholder="{{ i18n.__('Point Size') }}" type="number">
+                       name="bands" 
+                       ng-model="ctrl.view.bands" 
+                       type="number"
+                       ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GEOMETRIC_OBJECT">
 
                 <span class="help-block" 
-                  ng-show="forms.styleForm.pointSize.$dirty && forms.styleForm.pointSize.$error.required"
-                  ng-bind="i18n.__('Point Size is required for View data series')">
+                      ng-show="forms.styleForm.bands.$dirty && forms.styleForm.bands.$invalid" 
+                      ng-class="{'has-error': styleForm.bands.$invalid}"
+                      ng-bind="i18n.__('Bands is required for color ramp generation')">
                 </span>
-              </div>
-            </div> <!-- ./col-md-6 -->
-            <div class="col-md-6">
-              <div class="form-group">
-                <label ng-bind="i18n.__('Color')"></label>
-                <color-picker ng-model="ctrl.pointStrokeColor" options="ctrl.colorOptions"></color-picker>
-              </div>
-            </div><!-- ./col-md-6 -->
+            </div>
+
+            <!-- List with Fields auto-complete -->
+            <datalist id='columnsList'>
+                <option ng-repeat="band iin ctrl.columnsList" value="{{ band }}">
+            </datalist>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label ng-bind="i18n.__('Color')"></label>
+              <color-picker contenteditable="true" ng-model="ctrl.view.colorBand" options="ctrl.colorOptions" event-api="ctrl.events"></color-picker>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <button type="button" class="btn btn-primary" style="margin-top: 25px;" ng-bind="i18n.__('Generate')" data-ng-click="ctrl.generateColors();"></button>
           </div>
         </div>
+        <div class="col-md-12" ng-show="ctrl.view.styleType">
+          <table class="table table-hover">
+            <thead>
+              <th ng-bind="i18n.__('Color')"></th>
+              <th ng-bind="i18n.__('Title')"></th>
+            </thead>
+            <tbody>
+              <tr ng-repeat="elm in ctrl.colors track by $index">
+                <td>
+                  <color-picker ng-model="elm.color" options="ctrl.colorOptions" event-api="ctrl.events"></color-picker>
+                </td>
+                <td>
+                  <input type="text" class="form-control" name="field_color_{{ $index }}" ng-model="elm.title">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <!-- GRID -->
         <div class="col-md-12 terrama2-nopadding-box"
              ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">

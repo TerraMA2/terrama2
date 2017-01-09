@@ -319,6 +319,19 @@ bootstrap-decorator span {
   cursor: not-allowed;
 }
 
+.color-picker-wrapper .input-group .color-picker-input-swatch {
+  display: none !important;
+}
+
+.color-picker-input-wrapper.input-group {
+  height: 40px;
+  width: 40px;
+}
+
+.color-picker-wrapper .input-group .input-group-addon:first-child {
+  border-right-width: thin;
+}
+
 /*
   It fixes intersection nav to include check icon
 */

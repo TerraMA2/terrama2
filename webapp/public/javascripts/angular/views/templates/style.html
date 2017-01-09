@@ -1,0 +1,72 @@
+<form name="ctrl.form.styleForm">      
+  <!-- Vectorial -->
+  <div class="col-md-12 terrama2-nopadding-box"
+      ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GEOMETRIC_OBJECT">
+    <div class="col-md-6">
+      <div class="form-group" terrama2-show-errors>
+        <label><span ng-bind="i18n.__('Type')"></span>:</label>
+        <select class="form-control" 
+                name="dataSeries" 
+                ng-model="ctrl.view.styleType"
+                ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GEOMETRIC_OBJECT"
+                ng-options="styleType as styleType.name for styleType in ctrl.styleTypes">
+        </select>
+
+        <span class="help-block" 
+          ng-show="forms.dataSeriesForm.dataSeries.$dirty && forms.dataSeriesForm.dataSeries.$error.required"
+          ng-bind="i18n.__('Data Series is required')">
+        </span>
+      </div>
+    </div>
+  </div>
+  <!-- GRID -->
+  <div class="col-md-12 terrama2-nopadding-box"
+      ng-show="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
+    <div class="col-md-12">
+      <div class="col-md-6">
+        <div class="form-group" terrama2-show-errors>
+          <label ng-bind="i18n.__('Min value')"></label>
+          <input class="form-control" 
+                name="minValue"
+                ng-model="ctrl.minValue" 
+                placeholder="{{ i18n.__('Min value') }}" type="number"
+                ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
+
+          <span class="help-block" 
+            ng-show="forms.styleForm.minValue.$dirty && forms.styleForm.minValue.$error.required"
+            ng-bind="i18n.__('Min value is required for GRID data series')">
+          </span>
+        </div>
+      </div> <!-- ./col-md-6 -->
+      <div class="col-md-6">
+        <div class="form-group">
+          <label ng-bind="i18n.__('Color')"></label>
+          <color-picker ng-model="ctrl.minColor" options="ctrl.colorOptions"></color-picker>
+        </div>
+      </div><!-- ./col-md-6 -->
+    </div>
+
+    <div class="col-md-12">
+      <div class="col-md-6">
+        <div class="form-group" terrama2-show-errors>
+          <label ng-bind="i18n.__('Max value')"></label>
+          <input class="form-control" 
+                name="maxValue" 
+                ng-model="ctrl.maxValue" 
+                placeholder="{{ i18n.__('Max value') }}" type="number"
+                ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GRID">
+          <span class="help-block" 
+            ng-show="forms.styleForm.maxValue.$dirty && forms.styleForm.maxValue.$error.required"
+            ng-bind="i18n.__('Max value is required for GRID data series')">
+          </span>
+        </div>
+      </div> <!-- ./col-md-6 -->
+      <div class="col-md-6">
+        <div class="form-group">
+          <label ng-bind="i18n.__('Color')"></label>
+          <color-picker ng-model="ctrl.maxColor" options="ctrl.colorOptions"></color-picker>
+        </div>
+      </div><!-- ./col-md-6 -->
+    </div>
+  </div>
+</form>

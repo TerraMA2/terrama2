@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleConstants, StringFormat) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleConstants, StringFormat, StyleType, ColorFactory) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -48,7 +48,6 @@ define([], function() {
      * @type {Service[]}
      */
     self.filteredServices = [];
-
     /**
      * Flag to handle if is Updating or Registering
      * 
@@ -65,7 +64,7 @@ define([], function() {
      * @type {Object}
      */
     self.colorOptions = {
-      format: 'hex',
+      format: 'hex'
     };
     /**
      * It defines min color HEX representation. Used for View GRID Data Series
@@ -118,6 +117,16 @@ define([], function() {
      */
     self.pointStrokeColor = null;
     /**
+     * It defines the available styles for GEOMETRIC_OBJECT
+     * @type {StyleType}
+     */
+    self.StyleType = StyleType;
+    /**
+     * It defines a list of available columns to display
+     * @type {string[]}
+     */
+    self.columnsList = [];
+    /**
      * It builds a style from data series semantics
      * 
      * @param {DataSeriesService.DataSeriesType} semanticsTypeName
@@ -138,6 +147,16 @@ define([], function() {
       }
       return targetStyle;
     };
+
+    self.generateColors = function() {
+      var colorsArr = ColorFactory.generateColor("#000000", self.view.colorBand, self.view.bands);
+      for(var i = 0; i < colorsArr.length; ++i) {
+        colorsArr[i] = {title: i18n.__("Color") + " " + i, color: colorsArr[i]};
+      }
+      self.colors = colorsArr;
+      // self.colors = ColorFactory.generateColor("#000000", self.view.colorBand, self.view.bands);
+    };
+
     /**
      * It retrieves all data provider type to get HTTP fields
      */
@@ -233,11 +252,7 @@ define([], function() {
               }
             }
 
-            if (self.httpSyntax.display) {
-              $scope.form = self.httpSyntax.display;
-            } else {
-              $scope.form = ["*"];
-            }
+            $scope.form = self.httpSyntax.display ? self.httpSyntax.display : ["*"];
 
             $scope.$broadcast('schemaFormRedraw');
           });
@@ -273,20 +288,13 @@ define([], function() {
           self.viewDataSeries = dSeries;
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
-          if (dSeries.data_series_semantics.data_series_type_name === DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT) {
-            self.isDynamic = false;
-          } else {
-            self.isDynamic = true;
-          }
-
+          self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
           self.view.style = makeStyle(dSeries.data_series_semantics.data_series_type_name);
-
           // breaking loop
           return true;
         }
       });
     }
-
     /**
      * It contains all forms. It must be appended on scope instance due schema form support;
      * @type {Object}
@@ -304,6 +312,8 @@ define([], function() {
      * @type {Object}
      */
     self.view = config.view || {};
+    // setting default band value
+    self.view.bands = 5;
     /**
      * It defines a selected View DataSeries object
      * @type {DataSeries}
@@ -321,7 +331,6 @@ define([], function() {
     self.onFileUploadClick = function() {
       
     };
-
     /**
      * It performs a save operation. It applies a form validation and try to save
      * @param {boolean} shouldRun - Determines if service should auto-run after save process
@@ -333,91 +342,78 @@ define([], function() {
       // broadcasting schema form validation
       $scope.$broadcast("schemaFormValidate");
 
-      if ($scope.forms.viewForm.$invalid || 
-          $scope.forms.dataSeriesForm.$invalid ||
-          $scope.forms.styleForm.$invalid) {
-        return;
-      }
+      $timeout(function(){
+        $scope.$apply(function() {
+          if ($scope.forms.viewForm.$invalid || 
+            $scope.forms.dataSeriesForm.$invalid ||
+            $scope.forms.styleForm.$invalid) {
+            return;
+          }
 
-      // setting style
-      if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {
-        // digesting XML with min/max value and color
-        var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
-        self.view.style = StringFormat(sld, 
-                                       self.view.name,
-                                       self.minColor,
-                                       self.minValue,
-                                       self.maxColor,
-                                       self.maxValue);
-      } else {
-        self.view.style = "";
-      }
+          // setting style
+          if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {
+            // digesting XML with min/max value and color
+            var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
+            self.view.style = StringFormat(sld, self.view.name, self.minColor, self.minValue, self.maxColor, self.maxValue);
+          } else {
+            self.view.style = "";
+          }
 
-      // If dynamic, schedule validation is required
-      if (self.isDynamic) {
-        /**
-         * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
-         */
-        var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
-        // form validation
-        if (scheduleForm.$invalid) {
-          return;
-        }
+          // If dynamic, schedule validation is required
+          if (self.isDynamic) {
+            /**
+             * @todo Implement Angular ScheduleService to handle it, since is common on dynamic data series and analysis registration.
+             */
+            var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
+            // form validation
+            if (scheduleForm.$invalid) {
+              return;
+            }
 
-        // preparing schedule.  
-        var scheduleValues = self.view.schedule;
-        switch(scheduleValues.scheduleHandler) {
-          case "seconds":
-          case "minutes":
-          case "hours":
-            scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-            scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
-            break;
-          case "weeks":
-          case "monthly":
-          case "yearly":
-            // todo: verify
-            var dt = scheduleValues.schedule_time;
-            scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
-            scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
-            break;
+            // preparing schedule.  
+            var scheduleValues = self.view.schedule;
+            switch(scheduleValues.scheduleHandler) {
+              case "seconds":
+              case "minutes":
+              case "hours":
+                scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
+                scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? scheduleValues.frequency_start_time.toISOString() : "";
+                break;
+              case "weeks":
+              case "monthly":
+              case "yearly":
+                // todo: verify
+                var dt = scheduleValues.schedule_time;
+                scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
+                scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+                break;
 
-          default:
-            break;
-        }
-      } // end if isDynamic
+              default:
+                break;
+            }
+          } // end if isDynamic
 
-      /**
-       * It contains a view model with flag "run" to determines if service should run
-       * @type {Object}
-       */
-      var mergedView = angular.merge(self.view, {run: shouldRun});
-      // tries to save
-      var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
-      operation.then(function(response) {
-        $log.info(response);
-        $window.location.href = "/configuration/views?token=" + response.token
-      }).catch(function(err) {
-        $log.info(err);
-        self.MessageBoxService.danger(i18n.__("View"), err);
+          /**
+           * It contains a view model with flag "run" to determines if service should run
+           * @type {Object}
+           */
+          var mergedView = angular.merge(self.view, {run: shouldRun});
+          // tries to save
+          var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
+          operation.then(function(response) {
+            $log.info(response);
+            $window.location.href = "/configuration/views?token=" + response.token
+          }).catch(function(err) {
+            $log.info(err);
+            self.MessageBoxService.danger(i18n.__("View"), err);
+          });
+        });
       });
     };
   }
 
-  ViewRegisterUpdate.$inject = [
-    "$scope",
-    "i18n",
-    "ViewService",
-    "$log",
-    "$http",
-    "$timeout",
-    "MessageBoxService",
-    "$window",
-    "DataSeriesService",
-    "Service",
-    "StyleConstants",
-    "StringFormat"
-  ];
+  ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
+    "DataSeriesService", "Service", "StyleConstants", "StringFormat", "StyleType", "ColorFactory"];
 
   return ViewRegisterUpdate;
 });
