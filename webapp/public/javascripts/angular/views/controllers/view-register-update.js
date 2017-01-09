@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleConstants, StringFormat, StyleType, ColorFactory) {
+  function ViewRegisterUpdate($scope, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleConstants, StringFormat, StyleType, ColorFactory, FieldRetriever) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -147,7 +147,9 @@ define([], function() {
       }
       return targetStyle;
     };
-
+    /**
+     * It performs a colors generation based in band selected and color. It starts from white color ("#000000").
+     */
     self.generateColors = function() {
       var colorsArr = ColorFactory.generateColor("#000000", self.view.colorBand, self.view.bands);
       for(var i = 0; i < colorsArr.length; ++i) {
@@ -277,6 +279,18 @@ define([], function() {
       });
     };
 
+    self.populateColumns = function(type) {
+      if (type === undefined || type === "") {
+        self.columns = [];
+        return;
+      }
+
+      FieldRetriever.retrieve({type: type})
+        .then(function(columns) {
+          self.columns = columns;
+        });
+    };
+
     /**
      * It handles Data Series combobox change. If it is GRID data series, there is a default style script
      * @param {DataSeries}
@@ -289,6 +303,10 @@ define([], function() {
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
           self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
+
+          // tries to populate columns
+          self.populateColumns( );
+
           self.view.style = makeStyle(dSeries.data_series_semantics.data_series_type_name);
           // breaking loop
           return true;
@@ -413,7 +431,7 @@ define([], function() {
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 
-    "DataSeriesService", "Service", "StyleConstants", "StringFormat", "StyleType", "ColorFactory"];
+    "DataSeriesService", "Service", "StyleConstants", "StringFormat", "StyleType", "ColorFactory", "FieldRetriever"];
 
   return ViewRegisterUpdate;
 });
