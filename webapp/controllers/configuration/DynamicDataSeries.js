@@ -92,7 +92,9 @@ module.exports = function(app) {
 
     storeDcpsStore: function(request, response) {
       var key = request.body.key;
-      var dcps = request.body.dcps;
+      var dcps = request.body.dcps.sort(function(a, b) {
+        return a["viewId"] - b["viewId"];
+      });
 
       if(storedDcpsStore[key] !== undefined) {
         storedDcpsStore[key] = storedDcpsStore[key].concat(dcps);
