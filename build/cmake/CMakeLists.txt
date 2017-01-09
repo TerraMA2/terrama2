@@ -282,7 +282,7 @@ endif()
 find_package(GTest)
 find_package(GMock)
 
-find_package(QuaZip5 REQUIRED)
+find_package(QuaZip REQUIRED)
 if(NOT QUAZIP_FOUND)
   message(FATAL_ERROR "TerraMA2: could not find required Quazip library!")
 endif()
