@@ -314,6 +314,11 @@ std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dat
   return getProperty(dataSet, dataSeries_, "geometry_property");
 }
 
+std::string terrama2::core::DataAccessor::getOutputGeometryPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "output_geometry_property");
+}
+
 std::string terrama2::core::DataAccessor::getTimeZone(DataSetPtr dataSet, bool logErrors) const
 {
   return getProperty(dataSet, dataSeries_, "timezone", logErrors);

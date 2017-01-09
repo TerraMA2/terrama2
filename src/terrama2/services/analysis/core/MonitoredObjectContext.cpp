@@ -139,14 +139,14 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
 }
 
 void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSeries(terrama2::core::DataSeriesPtr dataSeries,
-    const std::string& dateFilterBegin, const std::string& dateFilterEnd, const bool lastValue)
+                                                                                  const terrama2::core::Filter& filter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   bool needToAdd = false;
   for(auto dataset : dataSeries->datasetList)
   {
-    if(!exists(dataset->id, dateFilterBegin, dateFilterEnd))
+    if(!exists(dataset->id, filter))
     {
       needToAdd = true;
       break;
@@ -165,7 +165,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
   ::strftime(buf, sizeof(buf), "%Z", &t);
 
 
-  boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(buf));
 
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
@@ -175,38 +174,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
   }
 
   auto dataProvider = dataManagerPtr->findDataProvider(dataSeries->dataProviderId);
-  terrama2::core::Filter filter;
-  filter.lastValue = lastValue;
-  filter.discardAfter = startTime_;
-
-  if(!dateFilterBegin.empty())
-  {
-    double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilterBegin, "SECOND", "h");
-    boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
-
-    ldt -= boost::posix_time::seconds(seconds);
-
-    std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-    filter.discardBefore = std::move(titz);
-  }
-
-
-  if(!dateFilterEnd.empty())
-  {
-    double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilterEnd, "SECOND", "h");
-    boost::local_time::local_date_time ldt = boost::local_time::local_microsec_clock::local_time(zone);
-
-    ldt -= boost::posix_time::seconds(seconds);
-
-    std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-    filter.discardAfter = std::move(titz);
-
-    if(filter.discardAfter > startTime_)
-    {
-      filter.discardAfter = startTime_;
-    }
-  }
-
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
@@ -244,23 +211,15 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDCPDataSerie
 
     dataSeriesContext->rtree.insert(*dcpDataset->position->getMBR(), dcpDataset->id);
 
-    terrama2::core::Filter filter;
-    filter.discardBefore = getTimeFromString(dateFilterBegin);
-    filter.discardAfter = getTimeFromString(dateFilterEnd);
-
     ObjectKey key(series.dataSet->id, filter);
     datasetMap_[key] = dataSeriesContext;
   }
 }
 
 std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries>
-terrama2::services::analysis::core::MonitoredObjectContext::getContextDataset(const DataSetId datasetId, const std::string& dateFilterBegin, const std::string& dateFilterEnd) const
+terrama2::services::analysis::core::MonitoredObjectContext::getContextDataset(const DataSetId datasetId, const terrama2::core::Filter& filter) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-
-  terrama2::core::Filter filter;
-  filter.discardBefore = getTimeFromString(dateFilterBegin);
-  filter.discardAfter = getTimeFromString(dateFilterEnd);
 
   ObjectKey key(datasetId, filter);
 
@@ -274,13 +233,9 @@ terrama2::services::analysis::core::MonitoredObjectContext::getContextDataset(co
   }
 }
 
-bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const DataSetId datasetId, const std::string& dateFilterBegin, const std::string& dateFilterEnd) const
+bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const DataSetId datasetId, const terrama2::core::Filter& filter) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-
-  terrama2::core::Filter filter;
-  filter.discardBefore = getTimeFromString(dateFilterBegin);
-  filter.discardAfter = getTimeFromString(dateFilterEnd);
 
   ObjectKey key(datasetId, filter);
 
@@ -289,15 +244,15 @@ bool terrama2::services::analysis::core::MonitoredObjectContext::exists(const Da
 }
 
 void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(terrama2::core::DataSeriesPtr dataSeries,
-    std::shared_ptr<te::gm::Geometry> envelope,
-    const std::string& dateFilterBegin, bool createSpatialIndex)
+                                                                               const terrama2::core::Filter& filter,
+                                                                               bool createSpatialIndex)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   bool needToAdd = false;
   for(auto dataset : dataSeries->datasetList)
   {
-    if(!exists(dataset->id, dateFilterBegin))
+    if(!exists(dataset->id, filter))
     {
       needToAdd = true;
       break;
@@ -309,8 +264,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
   if(!needToAdd)
     return;
 
-  boost::local_time::local_date_time ldt = startTime_->getTimeInstantTZ();
-
   auto dataManagerPtr = dataManager_.lock();
   if(!dataManagerPtr)
   {
@@ -320,20 +273,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
 
   auto dataProvider = dataManagerPtr->findDataProvider(dataSeries->dataProviderId);
 
-
-  terrama2::core::Filter filter;
-  filter.discardBefore = getTimeFromString(dateFilterBegin);
-  filter.discardAfter = startTime_;
-
-  if(!dateFilterBegin.empty())
-  {
-    double seconds = terrama2::core::TimeUtils::convertTimeString(dateFilterBegin, "SECOND", "h");
-
-    ldt -= boost::posix_time::seconds(seconds);
-
-    std::unique_ptr<te::dt::TimeInstantTZ> titz(new te::dt::TimeInstantTZ(ldt));
-    filter.discardBefore = std::move(titz);
-  }
 
   //accessing data
   terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeries);
@@ -407,7 +346,9 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
 
-      if(!exists(datasetMO->id))
+      terrama2::core::Filter filter;
+
+      if(!exists(datasetMO->id, filter))
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
 
@@ -415,19 +356,16 @@ terrama2::services::analysis::core::MonitoredObjectContext::getMonitoredObjectCo
         return contextDataSeries;
       }
 
-      return getContextDataset(datasetMO->id);
+      return getContextDataset(datasetMO->id, filter);
     }
   }
 
   return contextDataSeries;
 }
 
-std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredObjectContext::getDCPBuffer(const DataSetId datasetId, const std::string& dateFilter)
+std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredObjectContext::getDCPBuffer(const DataSetId datasetId, const terrama2::core::Filter& filter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-
-  terrama2::core::Filter filter;
-  filter.discardBefore = getTimeFromString(dateFilter);
 
   ObjectKey key(datasetId, filter);
 
@@ -441,12 +379,9 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::MonitoredO
   }
 }
 
-void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const std::string& dateFilter)
+void terrama2::services::analysis::core::MonitoredObjectContext::addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const terrama2::core::Filter& filter)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-
-  terrama2::core::Filter filter;
-  filter.discardBefore = getTimeFromString(dateFilter);
 
   ObjectKey key(datasetId, filter);
   bufferDcpMap_[key] = buffer;

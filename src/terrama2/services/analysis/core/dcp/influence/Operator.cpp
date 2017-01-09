@@ -271,12 +271,13 @@ std::vector< std::string > terrama2::services::analysis::core::dcp::zonal::influ
         throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
       }
 
-      auto dcpInfluenceBuffer = context->getDCPBuffer(dcpDataset->id);
+      terrama2::core::Filter filter;
+      auto dcpInfluenceBuffer = context->getDCPBuffer(dcpDataset->id, filter);
       if(!dcpInfluenceBuffer)
       {
         dcpInfluenceBuffer = zonal::createDCPInfluenceBuffer(analysis, dcpDataset->position, geom->getSRID(),
                                                       influenceType);
-        context->addDCPBuffer(dcpDataset->id, dcpInfluenceBuffer);
+        context->addDCPBuffer(dcpDataset->id, dcpInfluenceBuffer, filter);
       }
 
       if(zonal::verifyDCPInfluence(influenceType, geom, dcpInfluenceBuffer))
