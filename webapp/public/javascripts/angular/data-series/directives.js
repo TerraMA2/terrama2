@@ -259,11 +259,11 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
           }
 
           dcp._id = uniqueId;
+          dcp.viewId = $scope.dcpsCurrentIndex.value++;
           $scope.dcps.push(Object.assign({}, dcp));
           $scope.dcpsObject[dcp._id] = Object.assign({}, dcp);
 
           var dcpCopy = Object.assign({}, dcp);
-          dcpCopy.viewId = $scope.dcpsCurrentIndex.value++;
           dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy._id + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
           dcps.push(dcpCopy);
@@ -271,6 +271,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
         }
 
         $scope.storageDcps(dcps);
+        $scope.storageDcpsStore();
 
         // reset form to do not display feedback class
         $scope.forms.parametersForm.$setPristine();

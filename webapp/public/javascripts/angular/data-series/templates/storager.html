@@ -72,10 +72,19 @@
         <div class="col-md-12">
           <div class="row">
             <div class="box-body table-responsive no-padding">
-              <table class="table table-hover" >
+
+              <table class="dcpTableStore table table-striped" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th ng-repeat="field in tableFieldsStoragerDataTable">{{ capitalizeIt(field) }}</th>
+                  </tr>
+                </thead>
+              </table>
+
+              <!--<table class="table table-hover" >
                 <tbody style="overflow-y: auto; height: 150px;">
                 <!-- header-->
-                <tr style="height: 30px;">
+                <!--<tr style="height: 30px;">
                   <th ng-repeat="field in tableFieldsStorager">{{ capitalizeIt(field) }}</th>
                   <th>ID</th>
                 </tr>
@@ -83,7 +92,7 @@
                 <tr ng-repeat="dcp in dcpsStorager track by $index">
                   <td ng-repeat="field in tableFieldsStorager">
                     <!-- todo: fix it -->
-                    <span ng-if="field.toLowerCase() == 'table_name'" editable-text="dcp[field]">
+                    <!--<span ng-if="field.toLowerCase() == 'table_name'" editable-text="dcp[field]">
                       {{ dcp[field]}}
                     </span>
 
@@ -97,7 +106,7 @@
                   <td> {{ $index + 1 }}</td>
                 </tr>
                 </tbody>
-              </table>
+              </table>-->
             </div><!-- /.box-body -->
           </div>
         </div>

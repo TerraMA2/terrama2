@@ -8,7 +8,9 @@ module.exports = function(app) {
   app.get("/configuration/dynamic/dataseries/new", passport.isAuthenticated, controllerDynamic.new);
   app.get("/configuration/dynamic/dataseries/:id", passport.isAuthenticated, controllerDynamic.edit);
   app.post("/configuration/dynamic/dataseries/storeDcps", passport.isAuthenticated, controllerDynamic.storeDcps);
+  app.post("/configuration/dynamic/dataseries/storeDcpsStore", passport.isAuthenticated, controllerDynamic.storeDcpsStore);
   app.post("/configuration/dynamic/dataseries/paginateDcps", passport.isAuthenticated, controllerDynamic.paginateDcps);
+  app.post("/configuration/dynamic/dataseries/paginateDcpsStore", passport.isAuthenticated, controllerDynamic.paginateDcpsStore);
   app.post("/configuration/dynamic/dataseries/removeStoredDcp", passport.isAuthenticated, controllerDynamic.removeStoredDcp);
 
   app.get("/configuration/static/dataseries/", passport.isAuthenticated, controllerStatic.get);

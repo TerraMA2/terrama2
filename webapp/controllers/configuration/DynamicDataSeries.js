@@ -5,6 +5,7 @@ var Enums = require('./../../core/Enums');
 var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 var Promise = require('bluebird');
 var storedDcps = {};
+var storedDcpsStore = {};
 
 
 module.exports = function(app) {
@@ -89,6 +90,19 @@ module.exports = function(app) {
       response.json(storedDcps[key]);
     },
 
+    storeDcpsStore: function(request, response) {
+      var key = request.body.key;
+      var dcps = request.body.dcps;
+
+      if(storedDcpsStore[key] !== undefined) {
+        storedDcpsStore[key] = storedDcpsStore[key].concat(dcps);
+      } else {
+        storedDcpsStore[key] = dcps;
+      }
+
+      response.json(storedDcpsStore[key]);
+    },
+
     paginateDcps: function(request, response) {
       var key = request.body.key;
 
@@ -97,6 +111,17 @@ module.exports = function(app) {
         recordsTotal: (storedDcps[key] === undefined ? 0 : storedDcps[key].length),
         recordsFiltered: (storedDcps[key] === undefined ? 0 : storedDcps[key].length),
         data: (storedDcps[key] === undefined ? [] : storedDcps[key].slice(parseInt(request.body.start), (parseInt(request.body.start) + parseInt(request.body.length))))
+      });
+    },
+
+    paginateDcpsStore: function(request, response) {
+      var key = request.body.key;
+
+      response.json({
+        draw: parseInt(request.body.draw),
+        recordsTotal: (storedDcpsStore[key] === undefined ? 0 : storedDcpsStore[key].length),
+        recordsFiltered: (storedDcpsStore[key] === undefined ? 0 : storedDcpsStore[key].length),
+        data: (storedDcpsStore[key] === undefined ? [] : storedDcpsStore[key].slice(parseInt(request.body.start), (parseInt(request.body.start) + parseInt(request.body.length))))
       });
     },
 

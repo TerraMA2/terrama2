@@ -46,17 +46,31 @@ angular.module('terrama2.dataseries.registration', [
   })
 
   .controller('StoragerController', [
-    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory', '$timeout',
-    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory, $timeout) {
+    '$scope', 'i18n', 'DataSeriesSemanticsFactory', 'UniqueNumber', 'GeoLibs', 'DateParser', 'SemanticsParserFactory', '$timeout', '$http', '$compile',
+    function($scope, i18n, DataSeriesSemanticsFactory, UniqueNumber, GeoLibs, DateParser, SemanticsParserFactory, $timeout, $http, $compile) {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
       $scope.tableFieldsStorager = [];
+      $scope.tableFieldsStoragerDataTable = [];
       $scope.formatSelected = {};
       $scope.dcpsStorager = [];
+      $scope.dcpsStoragerObject = {};
       $scope.inputDataSets = [];
       $scope.storage = {};
       $scope.dataProvidersStorager = [];
+
+      var makeid = function(length) {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for(var i = 0; i < length; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+      }
+
+      var storedDcpsKey = makeid(30);
 
       var removeInput = function(dcpMask) {
         $scope.inputDataSets.some(function(dcp, pcdIndex, array) {
@@ -105,6 +119,7 @@ angular.module('terrama2.dataseries.registration', [
         if (form.$valid && inputDataSetForm.$valid) {
           $scope.model['inputDataSet'] = $scope.storage.inputDataSet.mask;
           $scope.dcpsStorager.push(Object.assign({}, $scope.model));
+          //$scope.dcpsStoragerObject[]
           $scope.model = {};
 
           // remove it from input list
@@ -114,6 +129,64 @@ angular.module('terrama2.dataseries.registration', [
           form.$setPristine();
           inputDataSetForm.$setPristine();
         }
+      };
+
+      $scope.createDataTableStore = function(fields) {
+        if($scope.dcpTableStore !== undefined)
+          $scope.dcpTableStore.destroy();
+
+        var dtColumns = [];
+
+        for(var field in fields) {
+          dtColumns.push({ "data": field + '_html' });
+        }
+
+        dtColumns.push({ "data": 'viewId' });
+
+        $scope.dcpTableStore = $('.dcpTableStore').DataTable(
+          {
+            "ordering": false,
+            "searching": false,
+            "responsive": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+              "url": "/configuration/dynamic/dataseries/paginateDcpsStore",
+              "type": "POST",
+              "data": function(data) {
+                data.key = storedDcpsKey;
+              }
+            },
+            "columns": dtColumns,
+            "language": {
+              "emptyTable": "<p class='text-center'>" + i18n.__("No data available in table") + "</p>",
+              "info": i18n.__("Showing") + " _START_ " + i18n.__("to") + " _END_ " + i18n.__("of") + " _TOTAL_ " + i18n.__("entries"),
+              "infoEmpty": i18n.__("Showing 0 to 0 of 0 entries"),
+              "infoFiltered": "(" + i18n.__("filtered from") + " _MAX_ " + i18n.__("total entries") + ")",
+              "lengthMenu": i18n.__("Show") + " _MENU_ " + i18n.__("entries"),
+              "loadingRecords": i18n.__("Loading") + "...",
+              "processing": i18n.__("Processing") + "...",
+              "search": i18n.__("Search") + ":",
+              "zeroRecords": "<p class='text-center'>" + i18n.__("No data available in table") + "</p>",
+              "paginate": {
+                "first": i18n.__("First"),
+                "last": i18n.__("Last"),
+                "next": i18n.__("Next"),
+                "previous": i18n.__("Previous")
+              }
+            }
+          }
+        );
+
+        $('.dcpTableStore').on('page.dt', function() {
+          $scope.compileTableLinesStore();
+        });
+      };
+
+      $scope.compileTableLinesStore = function() {
+        $timeout(function() {
+          $compile(angular.element('.dcpTableStore > tbody > tr'))($scope);
+        }, 200);
       };
 
       $scope.$on("requestStorageValues", function() {
@@ -168,9 +241,24 @@ angular.module('terrama2.dataseries.registration', [
             // postgis
             var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
             angular.merge(copyFormat, args.dcp);
+
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
+
             obj.table_name = obj.alias;
+            obj.table_name_html = "<span editable-text=\"dcpsStoragerObject['" + obj._id.toString() + "']['table_name']\">{{ dcpsStoragerObject['" + obj._id.toString() + "']['table_name'] }}</span>";
+
+            for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+              var key = $scope.dataSeries.semantics.metadata.form[j].key;
+
+              if($scope.isBoolean(obj[key])) {
+                obj[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsStoragerObject['" + obj._id.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+              } else {
+                obj[key + '_html'] = "<span ng-bind=\"dcpsStoragerObject['" + obj._id.toString() + "']['" + key + "']\"></span>";
+              }
+            }
+
             $scope.dcpsStorager.push(obj);
+            $scope.dcpsStoragerObject[obj._id] = obj;
           } else {
             $scope.dcpsStorager.push(args.dcp);
           }
@@ -228,10 +316,35 @@ angular.module('terrama2.dataseries.registration', [
         }, true);
       }
 
+      $scope.$on('storageDcpsStore', function(event, args) {
+        var dcps = $scope.dcpsStoragerObject;
+
+        dcps = $.map(dcps, function(value, index) {
+          return [value];
+        });
+
+        $http.post("/configuration/dynamic/dataseries/storeDcpsStore", {
+          key: storedDcpsKey,
+          dcps: dcps
+        }).success(function(result) {
+          reloadDataStore();
+        }).error(function(err) {
+          console.log("Err in storing dcps");
+        });
+      });
+
+      var reloadDataStore = function() {
+        if($scope.dcpTableStore != undefined) {
+          $scope.dcpTableStore.ajax.reload(null, false);
+          $scope.compileTableLinesStore();
+        }
+      };
+
       $scope.$on('storagerFormatChange', function(event, args) {
         $scope.formatSelected = args.format;
         // todo: fix it. It is hard code
         $scope.tableFieldsStorager = [];
+        $scope.tableFieldsStoragerDataTable = [];
 
         var queryParams = {
           metadata: true
@@ -269,6 +382,8 @@ angular.module('terrama2.dataseries.registration', [
           $scope.$broadcast('formFieldValidation');
           var metadata = data.metadata;
           var properties = metadata.schema.properties;
+
+          $scope.createDataTableStore(properties);
 
           if ($scope.isUpdating) {
             if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -333,9 +448,16 @@ angular.module('terrama2.dataseries.registration', [
           }
 
           if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
-            Object.keys(properties).forEach(function(key) {
-              $scope.tableFieldsStorager.push(key);
-            });
+            for(var property in properties) {
+              $scope.tableFieldsStorager.push(property);
+              $scope.tableFieldsStoragerDataTable.push(property);
+            }
+
+            //Object.keys(properties).forEach(function(key) {
+              //$scope.tableFieldsStorager.push(key);
+            //});
+
+            $scope.tableFieldsStoragerDataTable.push('ID');
 
             if ($scope.hasCollector) {
               outputDataseries.dataSets.forEach(function(dataset) {
@@ -346,6 +468,8 @@ angular.module('terrama2.dataseries.registration', [
                 $scope._addDcpStorager(Object.assign({}, dataSetDcp));
               });
             }
+
+            $scope.storageDcpsStore();
 
             $scope.modelStorager = {};
             $scope.formStorager = [];
@@ -1481,6 +1605,10 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope._addDcpStorager = function(dcpItem) {
         $scope.$broadcast("dcpOperation", {action: "add", dcp: dcpItem});
+      };
+
+      $scope.storageDcpsStore = function() {
+        $scope.$broadcast('storageDcpsStore');
       };
 
       $scope.storageDcps = function(dcps) {
