@@ -32,7 +32,7 @@ module.exports = function(grunt) {
           baseUrl: SCRIPTS_PATH,
           out: DEST_PATH + "terrama2-webapp.min.js",
           preserveLicenseComments: false,
-          // optimize: "none", // It does not minify
+          generateSourceMaps: true,
           paths: {
             TerraMA2WebApp: "angular",
             TerraMA2WebAppTemplates: "../dist"
@@ -78,6 +78,13 @@ module.exports = function(grunt) {
         tasks: ["cssmin"],
         options: {
           // It allows to compile only when needed
+          spawn: false
+        }
+      },
+      Gruntfile: {
+        files: ["Gruntfile.js"],
+        tasks: ["default"],
+        options: {
           spawn: false
         }
       },
