@@ -2,13 +2,9 @@
 
 {% set tabActive = "static-data" %}
 
-{% block ngApp %}ng-app="terrama2.listDataSeries"{% endblock %}
-
 {% block title %} TerraMA² {{ i18n.__('Static Data') }} {% endblock %}
 
 {% block javascripts %}
-<!-- Socket.io -->
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
 <script type="text/javascript">
  var globals = {
@@ -43,21 +39,16 @@
 
 </script>
 
-<script src="/javascripts/angular/services.js"></script>
-<script src="/javascripts/angular/services/services.js"></script>
-<script src="/javascripts/angular/data-series/data-series.js"></script>
-<script src="/javascripts/angular/alert-box/directives.js"></script>
-<script src="/javascripts/angular/table/table.js"></script>
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="ListController">
+<div ng-controller="DataSeriesListController">
   <terrama2-box title="i18n.__('Static Data')">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-12">
-          <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+          <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
         <terrama2-table fields="fields" model="model" icon="iconFn" link="link" 

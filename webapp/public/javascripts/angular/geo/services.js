@@ -1,8 +1,14 @@
-(function() {
-    'use strict';
-    angular.module("terrama2.geo.services", ["terrama2"])
+define([], function() {
+  'use strict';
+  
+  var moduleName = "terrama2.components.geo.services";
+
+  angular.module(moduleName, [])
     .service("FilterForm", FilterForm);
 
-    function FilterForm(){
-    }
-} ());
+  function FilterForm(){
+
+  }
+
+  return moduleName;
+});

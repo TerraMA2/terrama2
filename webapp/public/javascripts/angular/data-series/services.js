@@ -1,7 +1,11 @@
-(function() {
+define([
+  "TerraMA2WebApp/common/services/index"
+], function(commonServices) {
   'use strict';
 
-  angular.module("terrama2.dataseries.services", ["terrama2"])
+  var moduleName = "terrama2.dataseries.services";
+
+  angular.module(moduleName, [commonServices])
     /**
      * It defines a TerraMA² Data Series Type available.
      * 
@@ -16,11 +20,11 @@
       GEOMETRIC_OBJECT: 'GEOMETRIC_OBJECT',
       POSTGIS: 'POSTGIS'
     })
-    .service("DataSeriesService", DataSeriesService)
-    .service("DataSeriesSemanticsService", DataSeriesSemanticsService)
-    .factory("SemanticsParserFactory", SemanticsParserFactory)
-    .factory("SemanticsHelpers", WrapSemanticsHelpers)
-    .factory("SemanticsLibs", SemanticsLibs);
+    .service("DataSeriesService", ["BaseService", "DataSeriesType", "$filter", "$q", DataSeriesService])
+    .service("DataSeriesSemanticsService", ["BaseService", "$q", DataSeriesSemanticsService])
+    .factory("SemanticsParserFactory", [SemanticsParserFactory])
+    .factory("SemanticsHelpers", ["StringDiff", WrapSemanticsHelpers])
+    .factory("SemanticsLibs", ["SemanticsHelpers", "SemanticsParserFactory", SemanticsLibs]);
   
   /**
    * Data Series service DAO
@@ -54,9 +58,9 @@
 
     this.BaseService
       .$request(this.url, "GET", {params: restriction})
-      .then(function(data) {
-        self.model = data;
-        return defer.resolve(data);
+      .then(function(response) {
+        self.model = response.data;
+        return defer.resolve(response.data);
       })
       
       .catch(function(err) {
@@ -74,20 +78,44 @@
     return this.$filter('filter')(this.model, restriction);
   };
   /**
+   * It performs DataSeries update over API
+   * 
+   * @param {number} dataSeriesId - Data Series ID to update
+   * @param {Object} obj - Values to update. It may contain input/output data series values
+   * @returns {angular.IPromise}
+   */
+  DataSeriesService.prototype.update = function(dataSeriesId, obj) {
+    var defer = this.$q.defer();
+    var self = this;
+    self.BaseService.$request(self.url + "/" + dataSeriesId, "PUT", {data: obj})
+      .then(function(response) {
+        return defer.resolve(response.data);
+      }).catch(function(err) {
+        return defer.reject(err.data);
+      });
+
+    return defer.promise;
+  };
+  /**
    * It creates a Data Series on remote API
    * 
    * @param {Object} dataSeriesObject - A data series object values to save
    * @returns {ng.IPromise}
    */
   DataSeriesService.prototype.create = function(dataSeriesObject) {
-    return this.BaseService.$request(this.url, "POST", {
-      data: dataSeriesObject
-    });
+    var defer = this.$q.defer();
+    var self = this;
+    this.BaseService.$request(this.url, "POST", {
+        data: dataSeriesObject
+      })
+      .then(function(response) {
+        self.model.push(response.data);
+        return defer.resolve(response.data);
+      }).catch(function(err) {
+        return defer.reject(err.data);
+      });
+    return defer.promise;
   };
-
-  // Angular Injecting Dependency
-  DataSeriesService.$inject = ["BaseService", "DataSeriesType", "$filter", "$q"];
-
 
   /**
    * Data Series Semantics service DAO
@@ -118,9 +146,9 @@
 
     this.BaseService
       .$request(this.url, "GET", {params: restriction})
-      .then(function(data) {
-        self.model = data;
-        return defer.resolve(data);
+      .then(function(response) {
+        self.model = response.data;
+        return defer.resolve(response.data);
       })
       .catch(function(err) {
         return defer.reject(err);
@@ -139,7 +167,7 @@
 
   function SemanticsLibs(SemanticsHelpers, SemanticsParserFactory) {
     return {
-      utility: WrapSemanticsHelpers,
+      utility: SemanticsHelpers,
       parsers: SemanticsParserFactory
     };
   }
@@ -215,4 +243,6 @@
       }
     };
   }
-} ());
+
+  return moduleName;
+});

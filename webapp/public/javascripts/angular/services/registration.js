@@ -1,12 +1,4 @@
-angular.module('terrama2.administration.services.registration', [
-  'terrama2.services',
-  'terrama2.administration.services.iservices',
-  'terrama2.components.messagebox',
-  'terrama2.components.messagebox.services',
-  'terrama2.components.collapser'
-])
-
-.controller('RegisterUpdate', RegisterUpdate);
+define(function() {
 
 /**
  * It handles TerraMA² Service Registration and Service Update
@@ -58,6 +50,19 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
       self.service.isLocal = state;
     }
   };
+
+  /**
+   * It defines a connection validation of Database
+   * 
+   * @type {Object}
+   */
+  self.db = {};
+  /**
+   * It defines a connection validation of SSH
+   * 
+   * @type {Object}
+   */
+  self.ssh = {};
 
   // Initializing Async services.
   $q
@@ -329,11 +334,10 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
         }
 
         request
-          .success(function(data) {
+          .then(function(data) {
             $window.location.href = "/administration/services?token=" + data.token+"&service="+data.service + "&restart="+data.restart;
           })
-          .error(function(err) {
-            console.log(err);
+          .catch(function(err) {
             MessageBoxService.danger(i18n.__("Service Registration"), err.message);
           })
           .finally(function() {
@@ -419,5 +423,17 @@ function RegisterUpdate($scope, $window, Service, MessageBoxService, Socket, i18
     });
 }
 
-// Injecting dependencies
-RegisterUpdate.$inject = ["$scope", "$window", "Service", "MessageBoxService", "Socket", "i18n", "$q", "URIParser"];
+  RegisterUpdate.$inject = [
+    "$scope", 
+    "$window",
+    "Service",
+    "MessageBoxService",
+    "Socket",
+    "i18n",
+    "$q",
+    "URIParser"
+  ];
+
+  return RegisterUpdate;
+
+})

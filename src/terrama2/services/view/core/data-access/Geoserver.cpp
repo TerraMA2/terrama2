@@ -815,66 +815,41 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     {
       if(dataProviderType == "FILE")
       {
-        terrama2::core::DataSeriesTemporality temporality = inputDataSeries->semantics.temporality;
+        // Get the list of layers to register
+        auto fileInfoList = dataSeriesFileList(datasets,
+                                               inputDataProvider,
+                                               filter,
+                                               remover,
+                                               std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
 
-        if(temporality == terrama2::core::DataSeriesTemporality::DYNAMIC
-           && dataFormat == "GEOTIFF")
+        if(fileInfoList.empty())
         {
-          QUrl baseUrl(QString::fromStdString(inputDataProvider->uri));
-
-          std::string layerName = viewPtr->viewName;
-          int geomSRID;
-
-          for(auto& dataset : datasets)
-          {
-            QUrl url(baseUrl.path() + QString::fromStdString("/" + dataset->format.at("folder")));
-            geomSRID = createGeoserverTempMosaic(dataManager, dataset, filter, layerName, url.path().toStdString());
-
-            registerMosaicCoverage(layerName + "coveragestore", url.path().toStdString(), layerName, geomSRID);
-
-            QJsonObject layer;
-            layer.insert("layer", QString::fromStdString(layerName));
-            layersArray.push_back(layer);
-          }
+          QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
+          logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
+          TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
+          continue;
         }
-        else
+
+        for(auto& fileInfo : fileInfoList)
         {
-          // Get the list of layers to register
-          auto fileInfoList = dataSeriesFileList(datasets,
-                                                 inputDataProvider,
-                                                 filter,
-                                                 remover,
-                                                 std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor));
-
-          if(fileInfoList.empty())
+          if(dataFormat == "OGR")
           {
-            QString errorMsg = QString("No data in data series %1.").arg(inputDataSeries->id);
-            logger->log(ViewLogger::WARNING_MESSAGE, errorMsg.toStdString(), logId);
-            TERRAMA2_LOG_WARNING() << QObject::tr(errorMsg.toStdString().c_str());
-            continue;
+            registerVectorFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "datastore",
+                               fileInfo.absoluteFilePath().toStdString(),
+                               fileInfo.completeSuffix().toStdString());
           }
-
-          for(auto& fileInfo : fileInfoList)
+          else if(dataFormat == "GEOTIFF")
           {
-            if(dataFormat == "OGR")
-            {
-              registerVectorFile(viewPtr->viewName + std::to_string(inputDataSeries->id) + "datastore",
+            registerCoverageFile(fileInfo.fileName().toStdString() ,
                                  fileInfo.absoluteFilePath().toStdString(),
-                                 fileInfo.completeSuffix().toStdString());
-            }
-            else if(dataFormat == "GEOTIFF")
-            {
-              registerCoverageFile(fileInfo.fileName().toStdString() ,
-                                   fileInfo.absoluteFilePath().toStdString(),
-                                   fileInfo.completeBaseName().toStdString(),
-                                   "geotiff",
-                                   styleName);
-            }
-
-            QJsonObject layer;
-            layer.insert("layer", fileInfo.completeBaseName());
-            layersArray.push_back(layer);
+                                 fileInfo.completeBaseName().toStdString(),
+                                 "geotiff",
+                                 styleName);
           }
+
+          QJsonObject layer;
+          layer.insert("layer", fileInfo.completeBaseName());
+          layersArray.push_back(layer);
         }
       }
       else if(dataProviderType == "POSTGIS")

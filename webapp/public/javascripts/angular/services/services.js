@@ -1,8 +1,12 @@
-(function() {
+define([
+  "TerraMA2WebApp/common/services/index"
+], function(commonServiceApp) {
   'use strict';
 
-  angular.module("terrama2.administration.services.iservices", ["terrama2", "terrama2.services"])
-    .service("Service", Service)
+  var moduleName = "terrama2.administration.services.iservices";
+
+  angular.module(moduleName, [commonServiceApp])
+    .service("Service", ["BaseService", "i18n", "$q", "ServiceType", Service])
     .constant("ServiceType", {
       COLLECTOR: 1,
       ANALYSIS: 2,
@@ -12,11 +16,11 @@
   /**
    * It handles TerraMA² service like dao.
    * 
-   * @param {ServiceInstanceFactory} ServiceInstanceFactory - TerraMA² factory to build http requests
+   * @param {BaseService} BaseService - TerraMA² factory to build http requests
    * @param {i18n} i18n - Internationalization module
    * @param {ng.IPromise} $q - Angular promiser 
    */
-  function Service(ServiceInstanceFactory, i18n, $q, ServiceType, $filter) {
+  function Service(BaseService, i18n, $q, ServiceType) {
     /**
      * Cached TerraMA² services
      * @type {Object[]}
@@ -30,33 +34,30 @@
     /**
      * @type {Object}
      */
-    this.factory = ServiceInstanceFactory;
+    this.BaseService = BaseService;
     /**
      * TerraMA² Service Types Supported
      * @type {Object}
      */
     this.types = ServiceType;
-    /**
-     * Angular Filter module. Used to filter services from given restriction
-     * 
-     * @type {angular.IFilter}
-     */
-    this.$filter = $filter;
+
+    this.url = "/api/Service";
   }
 
   /**
    * It performs a service initialization, loading cache services
    * @returns {Promise}
    */
-  Service.prototype.init = function() {
+  Service.prototype.init = function(params) {
     /**
      * @type {Service}
      */
     var self = this;
     var promiser = self.$q.defer();
-    self.$request()
-      .then(function(){
-        return promiser.resolve();
+    self.BaseService.$request(self.url, "GET", params)
+      .then(function(response){
+        self.model = response.data;
+        return promiser.resolve(response.data);
       })
       .catch(function(err) {
         return promiser.reject(err);
@@ -65,32 +66,11 @@
   };
 
   /**
-   * It performs a get operation in order to retrieve services from server.
-   * @returns {Promise}
-   */
-  Service.prototype.$request = function() {
-    /**
-     * @type {Service}
-     */
-    var self = this;
-    var promiser = self.$q.defer();
-    self.factory.get()
-      .success(function(services) {
-        self.model = services;
-        return promiser.resolve(self.model);
-      })
-      .error(function(err) {
-        return promiser.reject(new Error("Could not retrieve services from host " + err.toString()));
-      });
-    return promiser.promise;
-  }
-
-  /**
    * It retrieves a list of services
    * @returns {Object[]}
    */
   Service.prototype.list = function(restriction) {
-    return this.$filter('filter')(this.model, restriction || {});
+    return this.BaseService.$list(this.model, restriction);
   };
 
   /**
@@ -100,35 +80,50 @@
    * @returns {Object}
    */
   Service.prototype.get = function(serviceId) {
-    var output = null;
-    this.model.some(function(instance) {
-      if (instance.id === serviceId) {
-        output = instance;
-        return true;
-      }
-    });
-    return output;
+    return this.BaseService.get(this.model, {id: serviceId});
   };
 
   /**
-   * It performs a update operation in ServiceInstanceFactory.
+   * It performs a update operation in BaseService.
    * 
    * @param {number} serviceId - TerraMA² Service identifier 
    * @param {Object} serviceObject - a javascript object with service values
    * @returns {Object}
    */
   Service.prototype.update = function(serviceId, serviceObject) {
-    return this.factory.put(serviceId, serviceObject);
+    var defer = this.$q.defer();
+
+    this.BaseService.$request(this.url + "/" + serviceId, "PUT", {data: serviceObject})
+      .then(function(response) {
+        return defer.resolve(response.data);
+      }).catch(function(err) {
+        return defer.reject(err.data);
+      });;
+
+    return defer.promise;
   };
 
   /**
-   * It performs a save operation in ServiceInstanceFactory.
+   * It performs a save operation in BaseService.
    * 
    * @param {Object} serviceObject - a javascript object with service values
    * @returns {Object}
    */
   Service.prototype.create = function(serviceObject) {
-    return this.factory.post(serviceObject);
+    var self = this;
+    var defer = self.$q.defer();
+    self.BaseService.$request(self.url, "POST", {data: serviceObject})
+      .then(function(response) {
+        self.model.push(response.data);
+        return defer.resolve(response.data);
+      })
+      .catch(function(response) {
+        return defer.reject(response.data);
+      });
+
+    return defer.promise;
   };
 
-}());
+  return moduleName;
+
+});

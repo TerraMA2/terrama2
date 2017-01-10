@@ -1,11 +1,5 @@
-(function() {
-  angular.module("terrama2.countries", ["terrama2"])
-    .factory("TerraMA2Countries", TerraMA2Countries)
-    .directive("terrama2CountriesList", terrama2Flag)
-    .run(function(TerraMA2Countries) {
-      TerraMA2Countries.init();
-    });
 
+  angular.module("terrama2.countries", [])
     /**
      * Factory to retrieve available countries
      * 
@@ -13,7 +7,7 @@
      * @param {ng.IPromise} $q - Angular Promiser
      * @returns {Object}
      */
-    function TerraMA2Countries(BaseService, $q) {
+    .factory("TerraMA2Countries", ["$http", "$q", function TerraMA2Countries($http, $q) {
       /**
        * Remote host url
        * @type {string}
@@ -41,9 +35,9 @@
          */
         init: function() {
           var defer = $q.defer();
-          BaseService.$request(targetUrl, "GET")
+          $http.get(targetUrl, {})
             .then(function(output) {
-              data = output;
+              data = output.data;
               return defer.resolve(output);
             })
             .catch(function(err) {
@@ -73,18 +67,17 @@
          * @param {string} country - A selected country in list.
          */
         select: function(country) {
-          return BaseService.$request("/languages", "POST", {data: {locale: country}});
+          return $http.post("/languages", {locale: country});
         }
       };
-    }
-
-    function terrama2Flag(i18n, $timeout, $rootScope, TerraMA2Countries, $log) {
+    }])
+    .directive("terrama2CountriesList", ["i18n", "$timeout", "$rootScope", "TerraMA2Countries", "$log", function terrama2Flag(i18n, $timeout, $rootScope, TerraMA2Countries, $log) {
       return {
         restrict: "E",
         templateUrl: "/javascripts/angular/countries/countries-tpl.html",
-        controller: terrama2FlagController,
+        controller: [terrama2FlagController],
         controllerAs: "vm",
-        link: function(scope, element, attrs, ctrl) {         
+        link: function(scope, element, attrs) {         
           // waiting for angular digest cycle
           var input = $("#i18n-input-flags");
 
@@ -138,5 +131,7 @@
         var self = this;
         self.selected = null;
       }
-    }
-} ());
+    }])
+    .run(["TerraMA2Countries", function(TerraMA2Countries) {
+      TerraMA2Countries.init();
+    }]);
