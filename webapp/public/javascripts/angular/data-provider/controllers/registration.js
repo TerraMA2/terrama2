@@ -1,13 +1,11 @@
-'use strict';
-
-var app = angular.module("terrama2.dataprovider.registration", ['terrama2', 'schemaForm', 'terrama2.components.messagebox']);
-
-app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout",
-  function($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout) {
+define(function() {
+  function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService) {
     $scope.i18n = i18n;
     var model = {};
+    var title = i18n.__("Data Server Registration");
+    $scope.MessageBoxService = MessageBoxService;
 
-    var conf = configuration;
+    var conf = $window.configuration;
     if (conf.dataProvider.uriObject) {
       for(var k in conf.dataProvider.uriObject) {
         if (conf.dataProvider.uriObject.hasOwnProperty(k)) {
@@ -22,7 +20,6 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     }
 
     $scope.model = model;
-    $scope.serverErrors = {};
 
     $scope.forms = {};
     $scope.css = {
@@ -45,19 +42,19 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
     //  redraw form
     if ($scope.form) {
-      $scope.$broadcast('schemaFormRedraw');
+      $scope.$broadcast("schemaFormRedraw");
     }
 
     $scope.schemeList = [];
-    $http.get("/api/DataProviderType/", {}).success(function(typeList) {
-      $scope.typeList = typeList;
-    }).error(function(err) {
-      console.log("err type: ", err);
+    $http.get("/api/DataProviderType/", {}).then(function(response) {
+      $scope.typeList = response.data;
+    }).catch(function(response) {
+      console.log("err type: ", response.data);
     });
 
     var makeRedirectUrl = function(extra) {
       var redirectUrl = conf.redirectTo.redirectTo || "/configuration/providers/";
-      redirectUrl += (redirectUrl.indexOf('?') === -1) ? '?' : '&';
+      redirectUrl += (redirectUrl.indexOf("?") === -1) ? "?" : "&";
 
       var redirectData = Object.assign(conf.redirectTo, extra instanceof Object ? extra : {});
       delete redirectData.redirectTo;
@@ -69,7 +66,6 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
   
     $scope.errorFound = false;
     $scope.isEditing = conf.isEditing;
-    $scope.alertBox = {};
     $scope.isChecking = false;
     $scope.message = "";
     $scope.remoteFieldsRequired = false;
@@ -102,11 +98,11 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
             $scope.form = ["*"];
           }
 
-          $scope.$broadcast('schemaFormRedraw');
+          $scope.$broadcast("schemaFormRedraw");
           $timeout(function(){
             if ($scope.dataProvider.protocol === "POSTGIS"){
-              var databaseInput = angular.element('#database');
-              databaseInput.attr('list', 'databaseList');
+              var databaseInput = angular.element("#database");
+              databaseInput.attr("list", "databaseList");
             }
           });
         }
@@ -117,7 +113,7 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     
     $scope.dbList = [];
     var timeoutPromise;
-    $scope.$watch('model', function(){
+    $scope.$watch("model", function(){
       $timeout.cancel(timeoutPromise);
       timeoutPromise = $timeout(function(){
         if ($scope.dataProvider.protocol !== "POSTGIS" || !$scope.forms.connectionForm.hostname || !$scope.forms.connectionForm.port || !$scope.forms.connectionForm.user){
@@ -140,15 +136,15 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
         params: params
       });
 
-      httpRequest.success(function(data) {
-        $scope.dbList = data.data.map(function(item, index){
+      httpRequest.then(function(response) {
+        $scope.dbList = response.data.data.map(function(item, index){
           return item.datname;
         });
-        result.resolve(data);
+        result.resolve(response.data);
       });
 
-      httpRequest.error(function(err) {
-        result.reject(err);
+      httpRequest.catch(function(response) {
+        result.reject(response.data);
       });
 
       return result.promise;
@@ -159,23 +155,16 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
     };
 
     $scope.save = function() {
-      $scope.resetState();
-      $scope.$broadcast('formFieldValidation');
+      $scope.close();
+      $scope.$broadcast("formFieldValidation");
 
       // calling auto generate form validation
-      $scope.$broadcast('schemaFormValidate');
+      $scope.$broadcast("schemaFormValidate");
 
       var isConnectionFormValid = $scope.isValidDataProviderTypeForm($scope.forms.connectionForm);
       if (!$scope.forms.dataProviderForm.$valid || !isConnectionFormValid) {
-        $scope.alertBox.title = i18n.__("Data Server Registration");
-        $scope.alertBox.message = i18n.__("There are invalid fields on form");
-        $scope.errorFound = true;
-        return;
+        return MessageBoxService.danger(title, i18n.__("There are invalid fields on form"));
       }
-
-      $scope.alertBox.title = i18n.__("Data Server Registration");
-      $scope.message = "";
-      $scope.errorFound = false;
 
       var formData = $scope.dataProvider;
       formData.uriObject = Object.assign({protocol: $scope.dataProvider.protocol}, $scope.model);
@@ -184,33 +173,29 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
         url: conf.saveConfig.url,
         method: conf.saveConfig.method,
         data: formData
-      }).success(function(data) {
+      }).then(function(response) {
         $scope.isEditing = true;
 
-        var defaultRedirectTo = "/configuration/providers?id=" + data.result.id + "&method=" + conf.saveConfig.method + "&";
+        var defaultRedirectTo = "/configuration/providers?id=" + response.data.result.id + "&method=" + conf.saveConfig.method + "&";
 
-        var redirectData = makeRedirectUrl({data_provider_id: data.result.id}) + "&token=" + data.token;
+        var redirectData = makeRedirectUrl({data_provider_id: response.data.result.id}) + "&token=" + response.data.token;
 
         // disable fields
         $scope.options = {formDefaults: {readonly: true}};
 
         $window.location.href = (redirectData || defaultRedirectTo);
-      }).error(function(err) {
-        $scope.errorFound = true;
-        $scope.alertBox.message = err.message;
-        $scope.serverErrors = err.errors || {};
-        console.log(err);
+      }).catch(function(response) {
+        return MessageBoxService.danger(title, response.data.message);
       });
     };
 
-    $scope.resetState = function() {
-      $scope.errorFound = false;
-      $scope.alertBox.message = "";
+    $scope.close = function() {
+      MessageBoxService.reset();
     };
 
     $scope.checkConnection = function(form) {
       $scope.model = $scope.model;
-      $scope.$broadcast('schemaFormValidate');
+      $scope.$broadcast("schemaFormValidate");
 
       if (!$scope.isValidDataProviderTypeForm(form)) {
         return;
@@ -241,15 +226,15 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
           timeout: timeOut.promise
         });
 
-        httpRequest.success(function(data) {
-          result.resolve(data);
+        httpRequest.then(function(response) {
+          result.resolve(response.data);
         });
 
-        httpRequest.error(function(err) {
+        httpRequest.catch(function(response) {
           if (expired) {
             result.reject({message: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.")});
           } else {
-            result.reject(err);
+            result.reject(response.data);
           }
         });
 
@@ -258,21 +243,23 @@ app.controller("RegisterController", ["$scope", "$http", "$q", "$window", "$http
 
       var request = makeRequest();
 
-      $scope.alertBox.title = i18n.__("Connection Status");
+      var connectionTitle = i18n.__("Connection Status");
 
       request.then(function(data) {
         if (data.message){ // error found
-          $scope.errorFound = true;
-          $scope.alertBox.message = data.message;
+          MessageBoxService.danger(connectionTitle, data.message);
         } else {
-          $scope.errorFound = false;
-          $scope.alertBox.message = i18n.__("Connection Successful");
+          MessageBoxService.success(connectionTitle, i18n.__("Connection Successful"));
         }
       }).catch(function(err) {
-        $scope.errorFound = true;
-        $scope.alertBox.message = err.message;
+        MessageBoxService.danger(connectionTitle, err.message);
       }).finally(function() {
         $scope.isChecking = false;
       });
     };
-  }]);
+  }
+
+  RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService"];
+
+  return RegisterController;
+});

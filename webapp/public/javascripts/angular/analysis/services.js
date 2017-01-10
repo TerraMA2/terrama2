@@ -1,7 +1,11 @@
-(function() {
+define([
+  "TerraMA2WebApp/common/services/index"
+], function(commonServiceApp) {
   'use strict';
+
+  var moduleName = "terrama2.analysis.services";
     
-  angular.module('terrama2.analysis.services', ['terrama2'])
+  angular.module(moduleName, [commonServiceApp])
     .constant("AnalysisType", {
       DCP: 1,
       MONITORED: 2,
@@ -13,8 +17,8 @@
 
       this.init = function() {
         return BaseService.$request("/javascripts/angular/analysis/data/operators.json", "GET", {})
-          .then(function(data) {
-            self.$data = data;
+          .then(function(response) {
+            return self.$data = response.data;
           })
           .catch(function(err) {
             $log.log(err);
@@ -25,6 +29,7 @@
     .service("AnalysisService", ["BaseService", "AnalysisType", AnalysisService]);
   
   /**
+   * It handles Analysis DAO using API calls
    * @class AnalysisService
    */
   function AnalysisService(BaseService, AnalysisType) {
@@ -58,7 +63,15 @@
      * @returns {angular.Promise<Analysis[]>}
      */
     this.init = function(restriction) {
-      return self.BaseService.$request(self.url, "GET", {params: restriction});
+      var defer = self.BaseService.$q.defer();
+
+      self.BaseService.$request(self.url, "GET", {params: restriction})
+        .then(function(response) {
+          self.model = response.data;
+          return defer.resolve(response.data);
+        });
+
+      return defer.promise;
     };
 
     /**
@@ -94,11 +107,11 @@
       self.BaseService
         .$request(self.url, "POST", {data: analysisObject})
         .then(function(response) {
-          self.model.push((response || {}).result);
-          return defer.resolve(response);
+          self.model.push((response.data || {}).result);
+          return defer.resolve(response.data);
         })
-        .catch(function(err) {
-          return defer.reject(err);
+        .catch(function(response) {
+          return defer.reject(response.data);
         });
       return defer.promise;
     };
@@ -108,7 +121,14 @@
      * @todo Update cached analysis
      */
     this.update = function(analysisId, analysisObject) {
-      return self.BaseService.$request(self.url + "/" + analysisId, "PUT", {data: analysisObject});
+      return self.BaseService.$request(self.url + "/" + analysisId, "PUT", {data: analysisObject})
+        .then(function(response) {
+          return response.data;
+        }).catch(function(err) {
+          throw {message: err.data};
+        });
     };
   }
-} ());
+
+  return moduleName;
+});

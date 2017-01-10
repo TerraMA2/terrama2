@@ -315,6 +315,10 @@ bootstrap-decorator span {
   overflow: auto;
 }
 
+.terrama2-link-disabled {
+  cursor: not-allowed;
+}
+
 /*
   It fixes intersection nav to include check icon
 */

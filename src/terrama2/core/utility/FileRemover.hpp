@@ -36,6 +36,7 @@
 //QT
 #include <QFile>
 #include <QDir>
+#include <QUrl>
 
 namespace terrama2
 {
@@ -57,7 +58,14 @@ namespace terrama2
 
           for (auto folderPath : folderList)
           {
-            QDir folder(QString::fromStdString(folderPath));
+            QString path(QString::fromStdString(folderPath + "/"));
+
+            // Remove schema if it exists
+            QUrl folderURL(path);
+            if(!folderURL.toLocalFile().isEmpty())
+              path = folderURL.toLocalFile();
+
+            QDir folder(path);
             if(folder.exists())
               folder.removeRecursively();
           }

@@ -55,30 +55,11 @@
 <script src="/bower_components/tinycolor/dist/tinycolor-min.js"></script>
 <script src="/bower_components/angular-color-picker/dist/angularjs-color-picker.min.js"></script>
 
-<!-- TerraMA2 Datetimepicker -->
-<script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
-<!-- TerraMA2 Schedule -->
-<script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
-<!-- TerraMA2 Data Series Services -->
-<script type="text/javascript" src="/javascripts/angular/data-series/services.js"></script>
-<!-- TerraMA2 Service Instance Service -->
-<script type="text/javascript" src="/javascripts/angular/services/services.js"></script>
-<!-- TerraMA2 Factory Helpers -->
-<script type="text/javascript" src="/javascripts/angular/services.js"></script>
-<!-- TerraMA2 Alert Box -->
-<script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
-<!-- TerraMA2 Ace -->
-<script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
-
-<script src="/javascripts/angular/views/services.js"></script>
-<script src="/javascripts/angular/views/controllers/view-register-update.js"></script>
-
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="ViewRegisterUpdate as ctrl">
+<div ng-controller="ViewRegisterUpdateController as ctrl">
   <terrama2-box title="i18n.__(ctrl.isUpdating ? 'View Update' : 'View Registration')">
     <div class="col-md-12">
       <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox" close="ctrl.close()"></terrama2-alert-box2>

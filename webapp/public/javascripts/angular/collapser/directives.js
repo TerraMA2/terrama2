@@ -1,5 +1,7 @@
-(function() {
-  angular.module("terrama2.components.collapser", ["terrama2"])
+define([], function() {
+  var moduleName = "terrama2.components.collapser";
+
+  angular.module(moduleName, [])
     .filter("SmartFilter", ["$filter", function($filter) {
       /**
        * Angular isObject comparator
@@ -303,4 +305,6 @@
         }
       }
     }
-} ());
+
+  return moduleName;
+});

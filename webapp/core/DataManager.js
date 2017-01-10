@@ -42,11 +42,6 @@ var DataModel = require('./data-model');
 // Available DataSeriesType
 var DataSeriesType = Enums.DataSeriesType;
 
-// Javascript Lock
-var ReadWriteLock = require('rwlock');
-var lock = new ReadWriteLock();
-
-
 function _processFilter(filterObject) {
   var filterValues = Object.assign({}, filterObject);
   // checking filter by date
@@ -533,13 +528,9 @@ var DataManager = module.exports = {
   getProject: function(projectParam) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      lock.readLock(function(release) {
-        var project = Utils.find(self.data.projects, projectParam);
-        if (project) { resolve(Utils.clone(project)); }
-        else { reject(new exceptions.ProjectError("Project not found")); }
-
-        release();
-      });
+      var project = Utils.find(self.data.projects, projectParam);
+      if (project) { resolve(Utils.clone(project)); }
+      else { reject(new exceptions.ProjectError("Project not found")); }
     });
   },
 
@@ -651,7 +642,29 @@ var DataManager = module.exports = {
     });
     return projectList;
   },
+  /**
+   * It add a new TerraMA2 user instance
+   * @param {Object} userObject - A javascript object with user values
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction 
+   * @return {Promise} a bluebird promise
+   */
+  addUser: function(userObject, options) {
+    return new Promise(function(resolve, reject) {
+      var salt = models.db.User.generateSalt();
+      userObject.salt = salt;
+      userObject.administrator = userObject.administrator !== undefined && userObject.administrator === true;
+      userObject.password = models.db.User.generateHash(userObject.password, salt);
 
+      return models.db.User.create(userObject, options)
+        .then(function(newUser) {
+          return resolve(newUser.get());
+        })
+        .catch(function(err) {
+          return reject(new exceptions.UserError(Utils.format("Could not save user due %s", err.toString())));
+        })
+    });
+  },
   /**
    * It updates a TerraMA2 user instance
    * @param {Object} restriction - A javascript object to identify a user

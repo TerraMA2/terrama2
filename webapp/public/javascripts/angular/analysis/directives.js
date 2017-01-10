@@ -1,11 +1,12 @@
-(function() {
+define([
+  "TerraMA2WebApp/analysis/services",
+  "TerraMA2WebApp/collapser/directives"
+], function(servicesApp, collapserApp) {
   "use strict";
+
+  var moduleName = "terrama2.analysis.directives";
   
-  angular.module("terrama2.components.analysis", [
-      "terrama2",
-      "terrama2.analysis.services",
-      "terrama2.components.collapser"
-    ])
+  angular.module(moduleName, [servicesApp, collapserApp])
     .run(["$templateCache", function($templateCache) {
       $templateCache.put("helper.html",
         "<div class=\"dropup\">" + 
@@ -79,4 +80,5 @@
     } // end linkFn
   } // end terrama2AnalysisHelpersDirective function
 
-} ());
+  return moduleName;
+});
