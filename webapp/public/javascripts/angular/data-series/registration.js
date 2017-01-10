@@ -84,7 +84,7 @@ angular.module('terrama2.dataseries.registration', [
 
       var removeInputById = function(id) {
         $scope.inputDataSets.some(function(dcp, pcdIndex, array) {
-          if(dcp._id == id) {
+          if(dcp.viewId == id) {
             array.splice(pcdIndex, 1);
             return true;
           }
@@ -231,7 +231,7 @@ angular.module('terrama2.dataseries.registration', [
       $scope.$on("dcpOperation", function(event, args) {
         if(args.action === "removeById") {
           $scope.removePcdStorager(args.dcp);
-          removeInputById(args.dcp._id);
+          removeInputById(args.dcp.viewId);
         } else if(args.action === "remove") {
           $scope.removePcdStorager(args.dcp);
           // todo: remove it from list
@@ -245,20 +245,20 @@ angular.module('terrama2.dataseries.registration', [
             var obj = SemanticsParserFactory.parseKeys(copyFormat);
 
             obj.table_name = obj.alias;
-            obj.table_name_html = "<span editable-text=\"dcpsStoragerObject['" + obj._id.toString() + "']['table_name']\">{{ dcpsStoragerObject['" + obj._id.toString() + "']['table_name'] }}</span>";
+            obj.table_name_html = "<span editable-text=\"dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
 
             for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
               var key = $scope.dataSeries.semantics.metadata.form[j].key;
 
               if($scope.isBoolean(obj[key])) {
-                obj[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsStoragerObject['" + obj._id.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+                obj[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsStoragerObject['" + obj.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
               } else {
-                obj[key + '_html'] = "<span ng-bind=\"dcpsStoragerObject['" + obj._id.toString() + "']['" + key + "']\"></span>";
+                obj[key + '_html'] = "<span ng-bind=\"dcpsStoragerObject['" + obj.viewId.toString() + "']['" + key + "']\"></span>";
               }
             }
 
             $scope.dcpsStorager.push(obj);
-            $scope.dcpsStoragerObject[obj._id] = obj;
+            $scope.dcpsStoragerObject[obj.viewId] = obj;
           } else {
             $scope.dcpsStorager.push(args.dcp);
           }
@@ -272,14 +272,14 @@ angular.module('terrama2.dataseries.registration', [
       });
 
       $scope.$on("clearStoreForm", function(event){
-          $scope.modelStorager = {};
-          $scope.formStorager = [];
-          $scope.schemaStorager = {};
-          $scope.storager.format = null;
-          $scope.storager_service = undefined;
-          $scope.dcpsStorager = [];
-          $scope.storager_data_provider_id = undefined;
-          $scope.$broadcast("clearSchedule");
+        $scope.modelStorager = {};
+        $scope.formStorager = [];
+        $scope.schemaStorager = {};
+        $scope.storager.format = null;
+        $scope.storager_service = undefined;
+        $scope.dcpsStorager = [];
+        $scope.storager_data_provider_id = undefined;
+        $scope.$broadcast("clearSchedule");
       });
 
       //Checking if is updating to change output when changed the parameters in Grads data series type
@@ -316,7 +316,7 @@ angular.module('terrama2.dataseries.registration', [
         }, true);
       }
 
-      $scope.$on('storageDcpsStore', function(event, args) {
+      $scope.storageDcpsStore = function() {
         var dcps = $scope.dcpsStoragerObject;
 
         dcps = $.map(dcps, function(value, index) {
@@ -331,7 +331,7 @@ angular.module('terrama2.dataseries.registration', [
         }).error(function(err) {
           console.log("Err in storing dcps");
         });
-      });
+      };
 
       var reloadDataStore = function() {
         if($scope.dcpTableStore != undefined) {
@@ -453,10 +453,6 @@ angular.module('terrama2.dataseries.registration', [
               $scope.tableFieldsStoragerDataTable.push(property);
             }
 
-            //Object.keys(properties).forEach(function(key) {
-              //$scope.tableFieldsStorager.push(key);
-            //});
-
             $scope.tableFieldsStoragerDataTable.push('ID');
 
             if ($scope.hasCollector) {
@@ -467,9 +463,23 @@ angular.module('terrama2.dataseries.registration', [
               (args.dcps || []).forEach(function(dataSetDcp) {
                 $scope._addDcpStorager(Object.assign({}, dataSetDcp));
               });
-            }
 
-            $scope.storageDcpsStore();
+              if(args.dcps) {
+                var _callDcpsStorage = function() {
+                  setTimeout(function() {
+                    if($scope.dcpsStorager.length === args.dcps.length) {
+                      $scope.storageDcpsStore();
+                    } else {
+                      _callDcpsStorage();
+                    }
+                  }, 1000);
+                };
+
+                _callDcpsStorage();
+              } else {
+                $scope.storageDcpsStore();
+              }
+            }
 
             $scope.modelStorager = {};
             $scope.formStorager = [];
@@ -1579,12 +1589,12 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope.removePcdById = function(id) {
         $scope.dcps.forEach(function(dcp, pcdIndex, array) {
-          if(dcp._id == id) {
+          if(dcp.viewId == id) {
             $scope.$broadcast("dcpOperation", {action: "removeById", dcp: Object.assign({}, dcp)});
 
             $http.post("/configuration/dynamic/dataseries/removeStoredDcp", {
               key: storedDcpsKey,
-              id: dcp._id
+              id: dcp.viewId
             }).success(function(result) {
               reloadData();
             }).error(function(err) {
@@ -1605,10 +1615,6 @@ angular.module('terrama2.dataseries.registration', [
 
       $scope._addDcpStorager = function(dcpItem) {
         $scope.$broadcast("dcpOperation", {action: "add", dcp: dcpItem});
-      };
-
-      $scope.storageDcpsStore = function() {
-        $scope.$broadcast('storageDcpsStore');
       };
 
       $scope.storageDcps = function(dcps) {
@@ -1689,20 +1695,20 @@ angular.module('terrama2.dataseries.registration', [
             var key = $scope.dataSeries.semantics.metadata.form[j].key;
 
             if($scope.isBoolean(data[key])) {
-              data[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsObject['" + data._id.toString() + "']['" + key + "']\"></span>";
+              data[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsObject['" + data.viewId.toString() + "']['" + key + "']\"></span>";
             } else {
-              data[key + '_html'] = "<span editable-text=\"dcpsObject['" + data._id.toString() + "']['" + key + "']\">{{ dcpsObject['" + data._id.toString() + "']['" + key + "'] }}</span>";
+              data[key + '_html'] = "<span editable-text=\"dcpsObject['" + data.viewId.toString() + "']['" + key + "']\">{{ dcpsObject['" + data.viewId.toString() + "']['" + key + "'] }}</span>";
             }
           }
 
           $scope.dcps.push(Object.assign({}, data));
-          $scope.dcpsObject[data._id] = Object.assign({}, data);
+          $scope.dcpsObject[data.viewId] = Object.assign({}, data);
           $scope._addDcpStorager(data);
           $scope.model = {active: true};
 
           var dcpCopy = Object.assign({}, data);
           dcpCopy.viewId = $scope.dcpsCurrentIndex.value++;
-          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy._id + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy.viewId + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
           $scope.storageDcps([dcpCopy]);
 

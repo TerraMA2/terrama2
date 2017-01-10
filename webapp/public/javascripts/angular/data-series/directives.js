@@ -203,6 +203,7 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
         for(var i = 0, dataLength = data.data.length; i < dataLength; i++) {
           var dcp = {};
           var uniqueId = UniqueNumber();
+          var currentIndex = $scope.dcpsCurrentIndex.value++;
 
           for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
             var value = null;
@@ -250,28 +251,27 @@ angular.module('terrama2.dcpImporter', ['terrama2.services']).run(function($temp
             }
 
             if($scope.isBoolean(value)) {
-              dcp[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsObject['" + uniqueId.toString() + "']['" + key + "']\"></span>";
+              dcp[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\"></span>";
             } else {
-              dcp[key + '_html'] = "<span editable-text=\"dcpsObject['" + uniqueId.toString() + "']['" + key + "']\">{{ dcpsObject['" + uniqueId.toString() + "']['" + key + "'] }}</span>";
+              dcp[key + '_html'] = "<span editable-text=\"dcpsObject['" + currentIndex.toString() + "']['" + key + "']\">{{ dcpsObject['" + currentIndex.toString() + "']['" + key + "'] }}</span>";
             }
 
             dcp[key] = value;
           }
 
           dcp._id = uniqueId;
-          dcp.viewId = $scope.dcpsCurrentIndex.value++;
+          dcp.viewId = currentIndex;
           $scope.dcps.push(Object.assign({}, dcp));
-          $scope.dcpsObject[dcp._id] = Object.assign({}, dcp);
+          $scope.dcpsObject[dcp.viewId] = Object.assign({}, dcp);
 
           var dcpCopy = Object.assign({}, dcp);
-          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcpCopy._id + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
+          dcpCopy.removeButton = "<button class=\"btn btn-danger removeDcpBtn\" ng-click=\"removePcdById(" + dcp.viewId + ")\" style=\"height: 21px; padding: 1px 4px 1px 4px; font-size: 13px;\">" + i18n.__("Remove") + "</button>";
 
           dcps.push(dcpCopy);
           $scope._addDcpStorager(dcp);
         }
 
         $scope.storageDcps(dcps);
-        $scope.storageDcpsStore();
 
         // reset form to do not display feedback class
         $scope.forms.parametersForm.$setPristine();
