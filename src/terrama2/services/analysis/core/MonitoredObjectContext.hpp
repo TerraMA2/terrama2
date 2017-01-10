@@ -157,7 +157,7 @@ namespace terrama2
               \note It will return an empty smart pointer if none buffer is found.
 
               \param datasetId The DataSet identifier.
-              \param filter The filter be to used as key.
+              \param filter The filter to be used as key.
               \return The DCP buffer.
             */
             std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId, const terrama2::core::Filter& filter);
