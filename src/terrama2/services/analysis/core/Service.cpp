@@ -295,7 +295,7 @@ void terrama2::services::analysis::core::Service::analysisFinished(AnalysisId an
 
     //wake loop thread
     mainLoopCondition_.notify_one();
-  }*
+  }
 }
 
 void terrama2::services::analysis::core::Service::updateAdditionalInfo(const QJsonObject& obj) noexcept
@@ -310,7 +310,7 @@ void terrama2::services::analysis::core::Service::validateAnalysis(AnalysisPtr a
     ValidateResult result = analysisExecutor_.validateAnalysis(dataManager_, analysis);
     QJsonObject obj = toJson(result);
     
-    emit validateProcessSignal(validateProcessSignal);
+    emit validateProcessSignal(obj);
 
   }
   catch(const terrama2::Exception& e)
