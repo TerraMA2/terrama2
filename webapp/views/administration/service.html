@@ -6,26 +6,6 @@
 
 {% block ngApp %} ng-app="terrama2.administration.services.registration" {% endblock %}
 
-{% block styles %}
-<style>
-  .terrama2-list-error {
-    margin-bottom: 10px;
-  }
-
-  .terrama2-list-error * {
-    padding-left: 10px;
-  }
-
-  .terrama2-list-error span[class~="glyphicon"] {
-    padding: 0;
-  }
-
-  .terrama2-list-error i {
-    padding: 0;
-  }
-</style>
-{% endblock %}
-
 {% block javascripts %}
 <script type="text/javascript">
   var configuration = {
@@ -79,7 +59,7 @@
                 <i ng-show="ctrl.db.message" class="fa fa-caret-right"></i> <label ng-bind="i18n.__('DB connection')" class="tree-toogler nav-header"></label>
 
                 <span ng-if="ctrl.db.isLoading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                <span ng-if="!ctrl.db.isLoading && ctrl.db.isValid" 
+                <span ng-if="!ctrl.db.isLoading && ctrl.db.isValid">
                       class="glyphicon glyphicon-ok">
                 </span>
                 <span ng-if="!ctrl.db.isLoading && !ctrl.db.isValid" class="glyphicon glyphicon-remove"></span>

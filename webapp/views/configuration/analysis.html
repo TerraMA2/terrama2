@@ -29,6 +29,12 @@
     .without-border {
       border: none !important;
     }
+
+    ul.list-group .list-group {
+      height: 330px !important;
+      overflow-y: auto !important;
+      margin-top: 15px !important;
+    }
   </style>
 {% endblock %}
 
@@ -103,6 +109,7 @@
 <script type="text/javascript" src="/javascripts/angular/data-series/services.js"></script>
 <!-- TerraMA² Analysis -->
 <script type="text/javascript" src="/javascripts/angular/analysis/services.js"></script>
+<script type="text/javascript" src="/javascripts/angular/collapser/directives.js"></script>
 <script type="text/javascript" src="/javascripts/angular/analysis/controllers/register-update.js"></script>
 
 {% endblock %}
@@ -143,6 +150,25 @@
     <div class="col-md-12">
       <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
                            close="ctrl.close()">
+        <button type="button" class="close" ng-click="ctrl.MessageBoxService.reset()">×</button>
+        <h4><i class="icon fa" ng-class="ctrl.MessageBoxService.getIcon()"></i> {{ ctrl.MessageBoxService.alertBox.title }}</h4>
+        <div class="col-md-12" ng-bind="ctrl.MessageBoxService.alertBox.message"></div>
+
+        <div ng-show="ctrl.errorMessages.length !== 0">
+          <ul class="nav nav-list" terrama2-collapse>
+            <li class="terrama2-list-error">
+              <i class="fa fa-caret-right"></i> <label ng-bind="i18n.__('Analysis Validation')" class="tree-toogler nav-header"></label>
+
+              <span ng-if="" class="glyphicon glyphicon-remove"></span>
+
+              <ul class="nav nav-list tree">
+                <li ng-repeat="message in ctrl.errorMessages">
+                  <span ng-bind="message"></span>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
       </terrama2-alert-box2>
     </div>
     <terrama2-box title="i18n.__('General Data')" css="ctrl.css">

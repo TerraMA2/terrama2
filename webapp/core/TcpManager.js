@@ -479,6 +479,7 @@ TcpManager.prototype.initialize = function(client) {
   };
 
   client.on('status', onStatus);
+  client.on("validateProcess", onValidateProcess);
 
   client.on('log', onLog);
 
@@ -496,7 +497,7 @@ TcpManager.prototype.initialize = function(client) {
   // remove listener
   self.on('removeListeners', function() {
     logger.debug("Removing listener from " + client.service.name);
-
+    client.removeListener('validateProcess', onValidateProcess);
     client.removeListener('status', onStatus);
     client.removeListener('log', onLog);
     client.removeListener('stop', onStop);

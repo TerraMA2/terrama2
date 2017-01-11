@@ -14,6 +14,7 @@
     'terrama2.ace',
     'terrama2.components.geo',
     'schemaForm',
+    'terrama2.components.collapser',
     'terrama2.schedule',
     'treeControl'
   ])
@@ -483,10 +484,12 @@
          */
         Socket.on("processValidated", function(resp) {
           self.validating = false;
+          self.errorMessages = [];
           if (resp.valid) {
             MessageBoxService.success(i18n.__("Analysis"), i18n.__("OK"));
           } else {
-            MessageBoxService.danger(i18n.__("Analysis"), resp.error);
+            MessageBoxService.danger(i18n.__("Analysis"), "");
+            self.errorMessages = resp.messages;
           }
         });
 
@@ -829,6 +832,8 @@
          * @returns {Analysis} Front-end Analysis to send
          */
         self.$prepare = function(shouldRun) {
+          // resetting alert box messages
+          self.errorMessages = [];
           $scope.$broadcast('formFieldValidation');
 
           self.analysis_script_error = false;

@@ -196,6 +196,7 @@ var Utils = module.exports = {
       case Signals.REMOVE_DATA_SIGNAL:
       case Signals.PROCESS_FINISHED_SIGNAL:
       case Signals.UPDATE_SERVICE_SIGNAL:
+      case Signals.VALIDATE_PROCESS_SIGNAL:
         return value;
       default:
         throw new exceptions.SignalError("Invalid terrama2 tcp signal");

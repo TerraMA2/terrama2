@@ -223,7 +223,7 @@ Analysis.prototype.toObject = function() {
     script_language: this.script_language.id,
     type: this.type.id,
     name: this.name,
-    description: this.description,
+    description: this.description || null,
     active: this.active,
     output_dataseries_id: this.dataSeries.id,
     output_dataset_id: this.dataset_output,
