@@ -87,36 +87,6 @@ define([], function() {
      */
     self.maxValue = null;
     /**
-     * It defines line width. Used for View Data Series different than GRID
-     * @type {number}
-     */
-    self.lineStroke = null;
-    /**
-     * It defines line color. Used for View Data Series different than GRID
-     * @type {string}
-     */
-    self.lineStrokeColor = null;
-    /**
-     * It defines polygon width. Used for View Data Series different than GRID
-     * @type {number}
-     */
-    self.polygonStroke = null;
-    /**
-     * It defines polygon color. Used for View Data Series different than GRID
-     * @type {string}
-     */
-    self.polygonStrokeColor = null;
-    /**
-     * It defines point size. Used for View Data Series different than GRID
-     * @type {number}
-     */
-    self.pointSize = null;
-    /**
-     * It defines point color. Used for View Data Series different than GRID
-     * @type {number}
-     */
-    self.pointStrokeColor = null;
-    /**
      * It defines the available styles for GEOMETRIC_OBJECT
      * @type {StyleType}
      */
@@ -126,6 +96,28 @@ define([], function() {
      * @type {string[]}
      */
     self.columnsList = [];
+    /**
+     * It defines a list of colors used to generate legend
+     * @type {Object[]}
+     */
+    self.colors = [];
+    /**
+     * It tries to sets begin and end color based in table row selection
+     */
+    self.handleColor = function() {
+      var initial = self.colors[0];
+      var final = self.colors[self.colors.length - 1];
+      self.view.beginColor = initial.color;
+      self.view.endColor = final.color;
+    };
+    /**
+     * It defines a event listeners for color handling
+     */
+    self.events = {
+      onChange: function(api, color, $event) {
+        handleColor();
+      }
+    };
     /**
      * It builds a style from data series semantics
      * 
@@ -151,10 +143,17 @@ define([], function() {
      * It performs a colors generation based in band selected and color. It starts from white color ("#000000").
      */
     self.generateColors = function() {
-      var colorsArr = ColorFactory.generateColor("#000000", self.view.colorBand, self.view.bands);
-      for(var i = 0; i < colorsArr.length; ++i) {
-        colorsArr[i] = {title: i18n.__("Color") + " " + i, color: colorsArr[i]};
+      var colorsArr = ColorFactory.generateColor(self.view.beginColor, self.view.endColor, self.view.bands + 1).reverse();
+      for(var i = 1; i < colorsArr.length; ++i) {
+        colorsArr[i] = {title: i18n.__("Color") + " " + i, color: colorsArr[i], isDefault: false};
       }
+      var firstColor = colorsArr[0];
+      colorsArr[0] = {
+        title: i18n.__("Default"),
+        color: firstColor,
+        isDefault: true
+      };
+
       self.colors = colorsArr;
       // self.colors = ColorFactory.generateColor("#000000", self.view.colorBand, self.view.bands);
     };
@@ -186,49 +185,32 @@ define([], function() {
           if (self.view.data_series_id) {
             self.onDataSeriesChanged(self.view.data_series_id);
 
-            self.view.style = styleCache;
+            switch(self.viewDataSeries.data_series_semantics.data_series_type_name) {
+              case self.DataSeriesType.GRID:
+                self.view.style = styleCache;
+                // -------------------------------------------------------------------------------
+                // TODO: It is temp. It should have angular xml parser or a library to extend app
+                // -------------------------------------------------------------------------------
+                var xmlStyle = $(self.view.style || "");
+                var colors = $(self.view.style || "").find("ColorMapEntry");
+                if (colors.length !== 0) {
+                  var minColorSelector = $(colors[0]);
+                  var maxColorSelector = $(colors[1]);
+                  self.minColor = minColorSelector.attr("color");
+                  self.minValue = parseInt(minColorSelector.attr("quantity"));
 
-            // -------------------------------------------------------------------------------
-            // TODO: It is temp. It should have angular xml parser or a library to extend app
-            // -------------------------------------------------------------------------------
-            var xmlStyle = $(self.view.style || "");
-
-            if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {
-              var colors = $(self.view.style || "").find("ColorMapEntry");
-              if (colors.length !== 0) {
-                var minColorSelector = $(colors[0]);
-                var maxColorSelector = $(colors[1]);
-                self.minColor = minColorSelector.attr("color");
-                self.minValue = parseInt(minColorSelector.attr("quantity"));
-
-                self.maxColor = maxColorSelector.attr("color");
-                self.maxValue = parseInt(maxColorSelector.attr("quantity"));
-              }
-            } else {
-              var lineSymbolizer = $(xmlStyle).find("LineSymbolizer");
-              var lines = $(lineSymbolizer).find("CssParameter");
-
-              if (lines.length !== 0) {
-                self.lineStrokeColor = $(lines[0]).text();
-                self.lineStroke = parseInt($(lines[1]).text());
-              }
-
-              var polygonSymbolizer = $(xmlStyle).find("PolygonSymbolizer");
-              var tags = $(polygonSymbolizer).find("CssParameter");
-
-              if (tags.length !== 0) {
-                self.polygonStrokeColor = $(tags[0]).text();
-                self.polygonStroke = parseInt($(tags[1]).text());
-              }
-
-              var pointSymbolyzer = $(xmlStyle).find("PointSymbolizer");
-              var pointTags = $(pointSymbolyzer).find("CssParameter");
-              var pointSizeTag = $(pointSymbolyzer).find("Size");
-
-              if (pointTags.length !== 0) {
-                self.pointStrokeColor = $(pointTags[0]).text();
-                self.pointSize = parseInt($(pointSizeTag[0]).text());
-              }
+                  self.maxColor = maxColorSelector.attr("color");
+                  self.maxValue = parseInt(maxColorSelector.attr("quantity"));
+                }
+                break;
+              case self.DataSeriesType.GEOMETRIC_OBJECT:
+                var legend = config.view.legend;
+                self.view.typeId = legend.type_id;
+                self.view.bands = legend.bands || 5;
+                self.view.column = legend.column;
+                self.colors = legend.colors;
+                self.handleColor();
+                break;
             }
           }
           /**
@@ -285,7 +267,7 @@ define([], function() {
         return;
       }
 
-      FieldRetriever.retrieve({type: type})
+      FieldRetriever.retrieve({type: "dataseries", format: type})
         .then(function(columns) {
           self.columns = columns;
         });
@@ -305,7 +287,7 @@ define([], function() {
           self.isDynamic = dSeries.data_series_semantics.data_series_type_name !== DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT;
 
           // tries to populate columns
-          self.populateColumns( );
+          // self.populateColumns(dSeries.data_series_semantics.data_format_name);
 
           self.view.style = makeStyle(dSeries.data_series_semantics.data_series_type_name);
           // breaking loop
@@ -367,14 +349,16 @@ define([], function() {
             $scope.forms.styleForm.$invalid) {
             return;
           }
-
+          var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
           // setting style
-          if (self.viewDataSeries && self.viewDataSeries.data_series_semantics.data_series_type_name === self.DataSeriesType.GRID) {
-            // digesting XML with min/max value and color
-            var sld = makeStyle(self.viewDataSeries.data_series_semantics.data_series_type_name);
-            self.view.style = StringFormat(sld, self.view.name, self.minColor, self.minValue, self.maxColor, self.maxValue);
-          } else {
-            self.view.style = "";
+          switch(self.viewDataSeries.data_series_semantics.data_series_type_name) {
+            case self.DataSeriesType.GRID:
+              // digesting XML with min/max value and color
+              self.view.style = StringFormat(sld, self.view.name, self.minColor, self.minValue, self.maxColor, self.maxValue);
+              break;
+            default:
+              self.view.style = "";
+              self.view.colors = self.colors;
           }
 
           // If dynamic, schedule validation is required

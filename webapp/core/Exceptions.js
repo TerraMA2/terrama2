@@ -368,6 +368,31 @@ errors.RegisteredViewError = function(message) {
 };
 util.inherits(errors.RegisteredViewError, errors.BaseError);
 
+/**
+ * Thrown when View Style Type has inconsistent data
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.ViewStyleTypeError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'ViewStyleTypeError';
+};
+util.inherits(errors.ViewStyleTypeError, errors.BaseError);
+
+/**
+ * Thrown when View Style Color has inconsistent data
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.ViewStyleColorError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'ViewStyleColorError';
+};
+util.inherits(errors.ViewStyleColorError, errors.BaseError);
 
 /**
  * Throw when query to get objects failed

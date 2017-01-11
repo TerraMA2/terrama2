@@ -28,36 +28,42 @@ define([], function() {
                     "<UserStyle>" +
                       "<Title>{0}-style</Title>" +
                       "<FeatureTypeStyle>" +
-                        "<Rule>" +
-                          "<LineSymbolizer>" +
-                            "<Stroke>" +
-                              "<CssParameter name='stroke'>{1}</CssParameter>" +
-                              "<CssParameter name='stroke-width'>{2}</CssParameter>" +
-                            "</Stroke>" +
-                          "</LineSymbolizer>" +
-
-                          "<PolygonSymbolizer>" +
-                            "<Stroke>" +
-                              "<CssParameter name='stroke'>{3}</CssParameter>" +
-                              "<CssParameter name='stroke-width'>{4}</CssParameter>" +
-                            "</Stroke>" +
-                          "</PolygonSymbolizer>" +
-
-                          "<PointSymbolizer>" +
-                            "<Graphic>" +
-                              "<Mark>" +
-                                "<WellKnownName>circle</WellKnownName>" +
-                                "<Fill>" +
-                                  "<CssParameter name='fill'>{5}</CssParameter>" +
-                                "</Fill>" +
-                              "</Mark>" +
-                              "<Size>{6}</Size>" +
-                            "</Graphic>" +
-                          "</PointSymbolizer>" +
-                        "</Rule>" +
+                        // Repeat rule styles
+                        "{1}" +
                       "</FeatureTypeStyle>" +
                     "</UserStyle>" +
                   "</NamedLayer>" +
-                "</StyledLayerDescriptor>"
+                "</StyledLayerDescriptor>",
+    /**
+     * It represents the struct for handling Rule based in Geometric Objects (Legend)
+     */
+    "RULE": "<Rule>" +
+              "<se:Name> {1} </se:Name>" +
+              "<se:Description>" +
+                "<se:Title> {1} </se:Title>" +
+              "</se:Description>" +
+              "<ogc:Filter xmlns:ogc='http://www.opengis.net/ogc'>" +
+                "<ogc:And>" +
+                  "<ogc:PropertyIsGreaterThanOrEqualTo>" +
+                    "<ogc:PropertyName>{2}</ogc:PropertyName>" +
+                    "<ogc:Literal>1</ogc:Literal>" +
+                  "</ogc:PropertyIsGreaterThanOrEqualTo>" +
+                  "<ogc:PropertyIsLessThanOrEqualTo>" +
+                    "<ogc:PropertyName>{2}</ogc:PropertyName>" +
+                    "<ogc:Literal>6.20000000000000018</ogc:Literal>" +
+                  "</ogc:PropertyIsLessThanOrEqualTo>" +
+                "</ogc:And>" +
+              "</ogc:Filter>" +
+              "<se:PolygonSymbolizer>" +
+                "<se:Fill>" +
+                  "<se:SvgParameter name='fill'>{3}</se:SvgParameter>" +
+                "</se:Fill>" +
+                "<se:Stroke>" +
+                  "<se:SvgParameter name='stroke'>{3}</se:SvgParameter>" +
+                  "<se:SvgParameter name='stroke-width'>0.26000000000000001</se:SvgParameter>" +
+                  "<se:SvgParameter name='stroke-linejoin'>bevel</se:SvgParameter>" +
+                "</se:Stroke>" +
+              "</se:PolygonSymbolizer>" +
+            "</Rule>"
     };
 });
