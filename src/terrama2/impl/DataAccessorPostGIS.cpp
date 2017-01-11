@@ -61,6 +61,14 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
 
   conditions = addLastValueFilter(dataSet, datetimeColumnName, filter, conditions);
 
+  if(!filter.byValue.empty())
+  {
+    if(!conditions.empty())
+      conditions +=" AND " + filter.byValue;
+    else
+      conditions = filter.byValue;
+  }
+
   std::string where;
 
   if(!conditions.empty())
@@ -186,13 +194,15 @@ void terrama2::core::DataAccessorPostGIS::addGeometryFilter(terrama2::core::Data
     std::vector<std::string>& whereConditions) const
 {
   if(filter.region.get())
-    whereConditions.push_back(getGeometryPropertyName(dataSet)+".ST_INTERSECTS("+filter.region->asText()+")");
+    whereConditions.push_back("ST_INTERSECTS(ST_Transform(" + getOutputGeometryPropertyName(dataSet)
+                              + ", " + std::to_string(filter.region->getSRID())
+                              + "), ST_GeomFromEWKT('SRID=" + std::to_string(filter.region->getSRID()) + ";" +filter.region->asText()+"'))");
 }
 
 std::string terrama2::core::DataAccessorPostGIS::addLastValueFilter(terrama2::core::DataSetPtr dataSet,
                                                                     const std::string datetimeColumnName,
-                                                                       const terrama2::core::Filter& filter,
-                                                                       std::string whereCondition) const
+                                                                    const terrama2::core::Filter& filter,
+                                                                    std::string whereCondition) const
 {
   if(filter.lastValue)
   {
