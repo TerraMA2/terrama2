@@ -102,12 +102,12 @@ app.directive("terrama2BoundedBox", ["i18n", "Polygon", "FilterForm", function(i
     }],
     link: function(scope, element, attrs, ngModelController) {
       function updateView(value) {
-        ngModelCtrl.$viewValue = value;
-        ngModelCtrl.$render();
+        ngModelController.$viewValue = value;
+        ngModelController.$render();
       }
 
       function updateModel(value) {
-        ngModelCtrl.$modelValue = value;
+        ngModelController.$modelValue = value;
         scope.ngModel = value;
       }
 
