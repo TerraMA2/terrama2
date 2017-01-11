@@ -93,7 +93,7 @@
                       </tr>
 
                       <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
-                        <td style="width: 83%;">{{ att }}</td>
+                        <td style="width: 83%;">{{ att.value }}</td>
                         <td>
                           <button class="btn btn-sm btn-danger pull-right"
                                   ng-click="removeAttribute(selectedIntersection, att)">
