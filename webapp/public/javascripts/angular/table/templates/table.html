@@ -19,73 +19,68 @@
       </div>
     </div>
 
-    <div class="col-md-8">
-      <div class="col-md-8">
+    <div class="col-md-12">
+      <div class="col-md-8 col-xs-12">
         <div class="form-group">
           <input class="form-control" id="searchNameInput" ng-model="searchInput" style="margin-top: 24px;" placeholder="{{ i18n.__('Type to search') }}" type="text">
         </div>
       </div>
-
-      <div class="col-md-4">
+      <div class="col-md-2 col-xs-6">
         <div class="form-group">
           <button class="btn btn-default" style="margin-top: 24px;"><i class="fa fa-search" style="margin-right: 5px;"></i>{{ i18n.__('Advanced') }}</button>
         </div>
       </div>
-    </div>
-
-    <div class="col-md-4 terrama2-nopadding-box" ng-show="linkToAdd">
-      <div class="form-group">
-        <button ng-show="extra.service && extra.service.hasServiceOffline() && model.length > 0"
-                class="btn btn-primary"
-                ng-disabled="extra.service.starting"
-                ng-click="extra.service.startAll()"
-                style="margin-top: 24px;"
-                data-toggle="tooltip"
-                data-placement="bottom"
-                title="{{ i18n.__('Start all services') }}">
-                <i class="fa fa-magic" style="margin-right: 5px;"></i>
-                {{ i18n.__('Start all') }}
-        </button>
-        <button ng-show="extra.service && !extra.service.hasServiceOffline() && model.length > 0"
-                class="btn btn-danger"
-                ng-disabled="extra.service.stoping"
-                ng-click="extra.service.stopAll()"
-                style="margin-top: 24px;"
-                data-toggle="tooltip"
-                data-placement="bottom"
-                title="{{ i18n.__('Stop all services') }}">
-                <i class="fa fa-power-off" style="margin-right: 5px;"></i>
-                {{ i18n.__('Stop all') }}
-        </button>
-
-        <button class="btn btn-default pull-right"
-                 ng-show="extra.import"
-                 style="margin-top: 24px;"
-                 data-toggle="tooltip"
-                 data-placement="top"
-                 title='{{ i18n.__("Import") }}'
-                 ng-click="extra.import()"
-                 ng-disabled="extra.isImporting">
-          <span class="loading ng-hide" ng-show="extra.isImporting">
-            <i class="fa fa-refresh fa-spin"></i>
-          </span>
-          <i class="fa fa-upload"></i>
-        </button>
-
-        <a ng-href="{{ linkToAdd }}"
-           class="btn btn-default pull-right"
-           data-toggle="tooltip"
-           data-placement="top"
-           title='{{ i18n.__("Add new") }}'
-           style="margin-top: 24px;margin-right: 10px;">
-           <i class="fa fa-plus"></i>
-         </a>
-
+      <div class="col-md-2 col-xs-6 terrama2-nopadding-box" ng-show="linkToAdd">
+        <div class="form-group">
+          <button ng-show="extra.service && extra.service.hasServiceOffline() && model.length > 0"
+                  class="btn btn-primary"
+                  ng-disabled="extra.service.starting"
+                  ng-click="extra.service.startAll()"
+                  style="margin-top: 24px;"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="{{ i18n.__('Start all services') }}">
+                  <i class="fa fa-magic" style="margin-right: 5px;"></i>
+                  {{ i18n.__('Start all') }}
+          </button>
+          <button ng-show="extra.service && !extra.service.hasServiceOffline() && model.length > 0"
+                  class="btn btn-danger"
+                  ng-disabled="extra.service.stoping"
+                  ng-click="extra.service.stopAll()"
+                  style="margin-top: 24px;"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="{{ i18n.__('Stop all services') }}">
+                  <i class="fa fa-power-off" style="margin-right: 5px;"></i>
+                  {{ i18n.__('Stop all') }}
+          </button>
+          <button class="btn btn-default pull-right"
+                  ng-show="extra.import"
+                  style="margin-top: 24px;"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title='{{ i18n.__("Import") }}'
+                  ng-click="extra.import()"
+                  ng-disabled="extra.isImporting">
+            <span class="loading ng-hide" ng-show="extra.isImporting">
+              <i class="fa fa-refresh fa-spin"></i>
+            </span>
+            <i class="fa fa-upload"></i>
+          </button>
+          <a ng-href="{{ linkToAdd }}"
+            class="btn btn-default pull-right"
+            data-toggle="tooltip"
+            data-placement="top"
+            title='{{ i18n.__("Add new") }}'
+            style="margin-top: 24px;margin-right: 10px;">
+            <i class="fa fa-plus"></i>
+          </a>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="col-md-12">
+  <div class="col-md-12 col-xs-12">
     <table class="table table-hover">
       <tbody id="searchList">
         <!-- header -->

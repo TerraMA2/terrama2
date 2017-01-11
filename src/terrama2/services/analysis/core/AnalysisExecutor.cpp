@@ -238,7 +238,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
         assert(datasets.size() == 1);
         auto dataset = datasets[0];
 
-        auto contextDataset = context->getContextDataset(dataset->id);
+        terrama2::core::Filter filter;
+        auto contextDataset = context->getContextDataset(dataset->id, filter);
         if(!contextDataset->series.syncDataSet->dataset())
         {
           QString errMsg = QObject::tr("Could not recover monitored object dataset.");
@@ -454,14 +455,15 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
       assert(dataSeries->datasetList.size() == 1);
       auto datasetMO = dataSeries->datasetList[0];
 
-      if(!context->exists(datasetMO->id))
+      terrama2::core::Filter filter;
+      if(!context->exists(datasetMO->id, filter))
       {
         QString errMsg(QObject::tr("Could not recover monitored object dataset."));
         context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
         return;
       }
 
-      moDsContext = context->getContextDataset(datasetMO->id);
+      moDsContext = context->getContextDataset(datasetMO->id, filter);
 
       if(moDsContext->identifier.empty())
       {
@@ -479,7 +481,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
       pkMonitoredObject = moDsContext->series.teDataSetType->getPrimaryKey();
 
-      // In case no Pirmary key is found use the identifier property as key
+      // In case no primary key is found use the identifier property as key
       if(pkMonitoredObject == nullptr)
       {
         auto property = moDsContext->series.teDataSetType->getProperty(moDsContext->identifier);

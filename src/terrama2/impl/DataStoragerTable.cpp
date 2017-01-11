@@ -47,6 +47,9 @@
 //STL
 #include <algorithm>
 
+//Boost
+#include <boost/algorithm/string.hpp>
+
 void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr outputDataSet) const
 {
   if(!dataProvider_)
@@ -73,7 +76,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   auto capabilities = datasourceDestination->getCapabilities();
   auto typeCapabilities = capabilities.getDataSetTypeCapabilities();
 
-  std::string destinationDataSetName = getDataSetName(outputDataSet);
+  std::string destinationDataSetName = boost::to_lower_copy(getDataSetName(outputDataSet));
 
   std::shared_ptr<te::da::DataSourceTransactor> transactorDestination(datasourceDestination->getTransactor());
   te::da::ScopedTransaction scopedTransaction(*transactorDestination);

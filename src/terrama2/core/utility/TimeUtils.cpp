@@ -273,6 +273,4 @@ double terrama2::core::TimeUtils::scheduleSeconds(const Schedule& dataSchedule, 
     TERRAMA2_LOG_ERROR() << errMsg;
     throw InvalidFrequencyException() << terrama2::ErrorDescription(errMsg);
   }
-
-  return 0.0;
 }

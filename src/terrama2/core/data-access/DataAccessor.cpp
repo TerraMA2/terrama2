@@ -157,7 +157,7 @@ std::shared_ptr<te::da::DataSetTypeConverter> terrama2::core::DataAccessor::getC
 {
   if(!datasetType.get())
   {
-    QString errMsg = QObject::tr("Invalid DataSetType.\nDoes the data exists?");
+    QString errMsg = QObject::tr("Invalid DataSetType.");
 
     TERRAMA2_LOG_ERROR() << errMsg.toStdString();
     throw DataAccessorException() << ErrorDescription(errMsg);
@@ -255,6 +255,9 @@ std::map<DataSetId, std::string> terrama2::core::DataAccessor::getFiles(const Fi
   std::map<DataSetId, std::string> uriMap;
   for(const auto& dataset : dataSeries_->datasetList)
   {
+    if(!dataset->active)
+      continue;
+
     // if this data retriever is a remote server that allows to retrieve data to a file,
     // download the file to a temporary location
     // if not, just get the DataProvider uri
@@ -312,6 +315,11 @@ std::string terrama2::core::DataAccessor::getOutputTimestampPropertyName(DataSet
 std::string terrama2::core::DataAccessor::getGeometryPropertyName(DataSetPtr dataSet) const
 {
   return getProperty(dataSet, dataSeries_, "geometry_property");
+}
+
+std::string terrama2::core::DataAccessor::getOutputGeometryPropertyName(DataSetPtr dataSet) const
+{
+  return getProperty(dataSet, dataSeries_, "output_geometry_property");
 }
 
 std::string terrama2::core::DataAccessor::getTimeZone(DataSetPtr dataSet, bool logErrors) const

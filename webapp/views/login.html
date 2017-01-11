@@ -3,7 +3,7 @@
 {% set divDisplay = "block"; %}
 {% endif %}
 <!DOCTYPE html>
-<html ng-app="terrama2" i18n-locale="{{ locale }}">
+<html i18n-locale="{{ locale }}">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -97,8 +97,6 @@
         <script src="/bower_components/angular/angular.min.js"></script>
         <script src="/bower_components/i18n-node-angular/i18n-node-angular.js"></script>
         <!-- TerraMA² Angular Module -->
-        <script src="/javascripts/angular/app.js"></script>
-        <!-- Flags -->
-        <script src="/javascripts/angular/countries/countries-directive.js"></script>
+        <script src="/dist/terrama2-webapp.min.js"></script>
     </body>
 </html>

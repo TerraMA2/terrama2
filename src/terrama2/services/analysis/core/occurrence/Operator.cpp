@@ -119,18 +119,15 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
       throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
     }
 
-    auto moEnvelope = moDsContext->series.syncDataSet->getExtent(moDsContext->geometryPos);
-    auto firstMO = moDsContext->series.syncDataSet->getGeometry(0, moDsContext->geometryPos);
-    int moSrid = firstMO->getSRID();
-
-    std::shared_ptr<te::gm::Geometry> geomEnvelope(te::gm::GetGeomFromEnvelope(moEnvelope.get(), moSrid));
-
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
     if(!moGeom.get())
     {
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
       throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
     }
+
+    auto moEnvelope = moDsContext->series.syncDataSet->getExtent(moDsContext->geometryPos);
+    std::shared_ptr<te::gm::Geometry> monitoredObjectBox(te::gm::GetGeomFromEnvelope(moEnvelope.get(), moGeom->getSRID()));
 
     //////////////////////////////////////////////////////////////////////////////////////
     // Save thread state and unlock python interpreter before entering multi-thread zone
@@ -141,15 +138,21 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
       try
       {
+        terrama2::core::Filter filter;
+        filter.discardBefore = context->getTimeFromString(dateFilter);
+        filter.discardAfter = context->getTimeFromString("");
+        filter.byValue = restriction;
+        filter.region = monitoredObjectBox;
+
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
-        context->addDataSeries(dataSeries, geomEnvelope, dateFilter, true);
+        context->addDataSeries(dataSeries, filter, true);
 
         auto datasets = dataSeries->datasetList;
 
         for(auto dataset : datasets)
         {
 
-          contextDataSeries = context->getContextDataset(dataset->id, dateFilter);
+          contextDataSeries = context->getContextDataset(dataset->id, filter);
           if(!contextDataSeries)
           {
             continue;
@@ -172,7 +175,7 @@ double terrama2::services::analysis::core::occurrence::operatorImpl(StatisticOpe
 
             // Converts the monitored object to the same moSrid of the occurrences
             auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-            geomResult->transform(firstMO->getSRID());
+            geomResult->transform(moGeom->getSRID());
 
             // Searchs in the spatial index for the occurrences that intersects the monitored object box
             contextDataSeries->rtree.search(*geomResult->getMBR(), indexes);

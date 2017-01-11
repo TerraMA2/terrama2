@@ -205,7 +205,7 @@ void terrama2::core::finalizeTerralib()
 {
   // get all the loaded plugins
   std::vector<te::core::PluginInfo> pVec = te::core::PluginManager::instance().getLoadedPlugins();
-    // unload it in the reverse order
+  // unload it in the reverse order
   for (auto plugin = pVec.rbegin(); plugin != pVec.rend(); ++plugin)
   {
     te::core::PluginManager::instance().stop(plugin->name);
@@ -235,13 +235,13 @@ void terrama2::core::enableLogger()
 
 int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
 {
-   te::gm::Coord2D coord = GetCentroidCoord(geom);
+  te::gm::Coord2D coord = GetCentroidCoord(geom);
 
-   // Calculates the UTM zone for the given coordinate
-   int zoneNumber = floor((coord.getX() + 180)/6) + 1;
+  // Calculates the UTM zone for the given coordinate
+  int zoneNumber = floor((coord.getX() + 180)/6) + 1;
 
-   if(coord.getY() >= 56.0 && coord.getY() < 64.0 && coord.getX() >= 3.0 && coord.getX() < 12.0)
-     zoneNumber = 32;
+  if(coord.getY() >= 56.0 && coord.getY() < 64.0 && coord.getX() >= 3.0 && coord.getX() < 12.0)
+    zoneNumber = 32;
 
   // Special zones for Svalbard
   if(coord.getY() >= 72.0 && coord.getY() < 84.0)
@@ -519,6 +519,44 @@ std::unique_ptr<te::rst::Raster> terrama2::core::cloneRaster(const te::rst::Rast
         std::unique_ptr<unsigned char[]> buffer(new unsigned char[rasterBand->getBlockSize()]);
         rasterBand->read( blkXIdx, blkYIdx, buffer.get());
         expansibleBand->write( blkXIdx, blkYIdx, buffer.get());
+      }
+    }
+  }
+
+  return expansible;
+}
+
+
+std::unique_ptr<te::rst::Raster> terrama2::core::multiplyRaster(const te::rst::Raster& raster, const double& multiplier)
+{
+  std::vector<te::rst::BandProperty*> bands;
+  for(size_t i = 0; i < raster.getNumberOfBands(); ++i)
+  {
+    te::rst::BandProperty* bProp = new te::rst::BandProperty(*raster.getBand(i)->getProperty());
+
+    bProp->m_type = te::dt::DOUBLE_TYPE;
+
+    bands.push_back(bProp);
+  }
+
+  auto grid = new te::rst::Grid(raster.getNumberOfColumns(), raster.getNumberOfRows(), new te::gm::Envelope(*raster.getExtent()), raster.getSRID());
+  std::unique_ptr<te::rst::Raster> expansible(te::rst::RasterFactory::make("EXPANSIBLE", grid, bands, {}));
+
+  int columns = raster.getNumberOfColumns();
+  int rows = raster.getNumberOfRows();
+
+  for(uint bandIdx = 0; bandIdx < raster.getNumberOfBands(); ++bandIdx)
+  {
+    const te::rst::Band* rasterBand = raster.getBand(bandIdx);
+    te::rst::Band* expansibleBand = expansible->getBand(bandIdx);
+
+    for(int col = 0 ; col < columns ; col++)
+    {
+      for(int row = 0 ; row < rows ; row++)
+      {
+        double value = 0.0;
+        rasterBand->getValue(col, row, value);
+        expansibleBand->setValue(col, row, value * multiplier);
       }
     }
   }

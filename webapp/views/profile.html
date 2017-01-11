@@ -2,8 +2,6 @@
 
 {% set tabActive = "profile" %}
 
-{% block ngApp %}ng-app="terrama2.users"{% endblock %}
-
 {% block title %}
 
 {% if user !== undefined %}
@@ -34,16 +32,15 @@ TerraMA² {{ i18n.__('User Registration') }}
     });
   });
 </script>
-
-<script src="/javascripts/angular/services.js"></script>
-<script src="/javascripts/angular/users/app.js"></script>
-<script src="/javascripts/angular/users/controllers.js"></script>
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="UserUpdate">
+<div ng-controller="UserUpdateController">
   <terrama2-box title="i18n.__('User Update')">
+    <div class="col-md-12">
+      <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
+    </div>
     <div class="row" ng-init="initialization({[ currentUser.id ]});">
       <div class="col-md-12">
         <div class="box box-default box-solid">
@@ -96,9 +93,9 @@ TerraMA² {{ i18n.__('User Registration') }}
                 </div>
 
                 <div class="col-md-6">
-                  <div class="form-group">
+                  <div class="form-group" terrama2-show-errors>
                     <label>{{ i18n.__("Cell phone") }}:</label>
-                    <input class="form-control" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{{ i18n.__('User cell phone number') }}" type="tel" value="{[ user.cellphone ]}">
+                    <input class="form-control" name="cellphone" ng-model="user.cellphone" id="cellphone" placeholder="{{ i18n.__('User cell phone number') }}" type="tel" value="{[ user.cellphone ]}" required>
                   </div>
                 </div>
 

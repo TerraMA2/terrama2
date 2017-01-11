@@ -1,15 +1,5 @@
-(function() {
+define([], function() {
   "use strict";
-
-  angular.module("terrama2.views.controllers.viewlist", [
-    "terrama2",
-    "terrama2.services",
-    "terrama2.views.services",
-    "terrama2.table",
-    "terrama2.components.messagebox.services",
-    "terrama2.components.messagebox",
-    "terrama2.administration.services.iservices"])
-  .controller("ViewList", ViewList);
 
   /**
    * It handles TerraMA² View Listing.
@@ -237,9 +227,8 @@
         $log.log("Could not load Views due " + err.toString() + ". Please refresh page (F5)");
       });
   }
-  /**
-   * ViewList controllers dependencies. Important when minify js scripts
-   * @type {string[]}
-   */
+
   ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service"];
-} ());
+
+  return ViewList;
+});

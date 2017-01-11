@@ -366,7 +366,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
                                                                     const std::string& mask,
                                                                     const std::string& timezone,
                                                                     const Filter& filter,
-                                                                    std::shared_ptr<terrama2::core::FileRemover> remover)
+                                                                    std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
   QDir dir(QString::fromStdString(absoluteFolderPath));
   QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Readable | QDir::CaseSensitive);
@@ -417,19 +417,41 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
   return newFileInfoList;
 }
 
+bool terrama2::core::DataAccessorFile::hasControlFile() const
+{
+  return false;
+}
+
+bool terrama2::core::DataAccessorFile::needToOpenConfigFile() const
+{
+  return false;
+}
+
+std::string terrama2::core::DataAccessorFile::getControlFileMask(terrama2::core::DataSetPtr dataSet) const
+{
+  QString errMsg = QObject::tr("Should be override in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorFile::readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const
+{
+  QString errMsg = QObject::tr("Should be override in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
+std::string terrama2::core::DataAccessorFile::getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const
+{
+  QString errMsg = QObject::tr("Should be override in subclass.");
+  throw terrama2::core::Exception() << ErrorDescription(errMsg);
+}
+
 terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const std::string& uri,
                                                                           const terrama2::core::Filter& filter,
                                                                           terrama2::core::DataSetPtr dataSet,
                                                                           std::shared_ptr<terrama2::core::FileRemover> remover) const
 {
-  QUrl url(QString::fromStdString(uri));
-
-  //return value
-  DataSetSeries series;
-  series.dataSet = dataSet;
 
   std::shared_ptr<te::mem::DataSet> completeDataset(nullptr);
-  std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
 
   boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
   std::shared_ptr< te::dt::TimeInstantTZ > lastFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
@@ -446,123 +468,29 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     timezone = "UTC+00";
   }
 
-  std::string folderMask;
-  try
-  {
-    folderMask = getFolderMask(dataSet, dataSeries_);
-  }
-  catch(const terrama2::core::UndefinedTagException& /*e*/)
-  {
-    folderMask = "";
-  }
 
-  QFileInfoList basePathList;
-  basePathList.append(url.path());
+  DataSetSeries series;
+  series.dataSet = dataSet;
 
-  if(!folderMask.empty())
+  if(hasControlFile())
   {
-    QFileInfoList foldersList = getFoldersList(basePathList, folderMask);
-
-    if(foldersList.empty())
+    std::string mask = getControlFileMask(dataSet);
+    auto ctlFileList = getFilesList(uri, mask, filter, timezone, dataSet, remover);
+    for(auto ctlFile : ctlFileList)
     {
-      QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-    }
+      std::string binaryFileMask = readControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
 
-    basePathList = foldersList;
+      auto binaryFileList = getFilesList(uri, binaryFileMask, filter, timezone, dataSet, remover);
+      readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
+    }
+  }
+  else
+  {
+    std::string mask = getMask(dataSet);
+    auto binaryFileList = getFilesList(uri, mask, filter, timezone, dataSet, remover);
+    readFilesAndAddToDataset(series, completeDataset, binaryFileList, mask, dataSet);
   }
 
-  QFileInfoList newFileInfoList;
-
-  //fill file list
-  for(auto& folderPath : basePathList)
-  {
-    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(), getMask(dataSet), timezone, filter, remover));
-  }
-
-  bool first = true;
-  for(const auto& fileInfo : newFileInfoList)
-  {
-// Only access the env files, gdal access the hdr
-    if(fileInfo.suffix() == "hdr")
-      continue;
-
-    std::string name = fileInfo.fileName().toStdString();
-    std::string baseName = fileInfo.baseName().toStdString();
-    std::string completeBaseName = fileInfo.completeBaseName().toStdString();
-
-    std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
-
-    // TODO: getDataFileInfoList already do this, need to do again? Is it to get the timestamp?
-    // Verify if the file name matches the mask
-    if(!isValidDataSetName(getMask(dataSet), filter, timezone, name, thisFileTimestamp))
-      continue;
-
-    // creates a DataSource to the data and filters the dataset,
-    // also joins if the DCP comes from separated files
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), "file://"+typePrefix() + fileInfo.absolutePath().toStdString() + "/" + name));
-
-    //RAII for open/closing the datasource
-    OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-
-    if(!datasource->isOpened())
-    {
-      // Can't throw here, inside loop
-      // just log and continue
-      QString errMsg = QObject::tr("DataProvider could not be opened.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      continue;
-    }
-
-    // get a transactor to interact to the data source
-    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-
-    // Some drivers use the base name and other use filename with extension
-    std::string dataSetName;
-    std::vector<std::string> dataSetNames = transactor->getDataSetNames();
-
-    auto itCompleteBaseName= std::find(dataSetNames.cbegin(), dataSetNames.cend(), completeBaseName);
-    auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
-    auto itFileName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), name);
-    if(itBaseName != dataSetNames.cend())
-      dataSetName = baseName;
-    else if(itCompleteBaseName != dataSetNames.cend())
-      dataSetName = completeBaseName;
-    else if(itFileName != dataSetNames.cend())
-      dataSetName = name;
-    else
-      dataSetName = name;
-
-    // TODO: Some raster files (.env) don't appear in the getDataSetNames()
-    // but we can open directly with the file name.
-    // should we check or just continue with the file name?
-
-    if(first)
-    {
-      //read and adapt all te:da::DataSet from terrama2::core::DataSet
-      converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
-      series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
-      assert(series.teDataSetType.get());
-      completeDataset = createCompleteDataSet(series.teDataSetType);
-      first = false;
-    }
-
-    std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
-    if(!teDataSet)
-    {
-      QString errMsg = QObject::tr("Could not read dataset: %1").arg(dataSetName.c_str());
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
-    }
-
-    addToCompleteDataSet(dataSet, completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
-
-    //update lastest file timestamp
-    if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
-      lastFileTimestamp = thisFileTimestamp;
-
-  }// for each file
 
   if(!completeDataset.get() || completeDataset->isEmpty())
   {
@@ -571,10 +499,148 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
   }
 
+  applyFilters(filter, dataSet, completeDataset, lastFileTimestamp);
+
+
+  std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));
+  series.syncDataSet = syncDataset;
+  return series;
+}
+
+
+
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
+{
+
+  //get timezone of the dataset
+  std::string timezone;
+  try
+  {
+    timezone = getTimeZone(dataSet);
+  }
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
+  {
+    //if timezone is not defined
+    timezone = "UTC+00";
+  }
+
+  std::string name = fileInfo.fileName().toStdString();
+  std::string baseName = fileInfo.baseName().toStdString();
+  std::string completeBaseName = fileInfo.completeBaseName().toStdString();
+
+  std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = getFileTimestamp(mask, timezone, name);
+
+  if(needToOpenConfigFile())
+  {
+    std::string configFilename = getConfigFilename(dataSet, fileInfo.absoluteFilePath().toStdString());
+
+    QFileInfo confiFileInfo(configFilename.c_str());
+    name = confiFileInfo.fileName().toStdString();
+  }
+
+
+  std::string fileUri = "file://"+typePrefix() + fileInfo.absolutePath().toStdString() + "/" + name;
+
+  // creates a DataSource to the data and filters the dataset,
+  // also joins if the DCP comes from separated files
+  std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), fileUri));
+
+  //RAII for open/closing the datasource
+  OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
+
+  if(!datasource->isOpened())
+  {
+    // Can't throw here, inside loop
+    // just log and continue
+    QString errMsg = QObject::tr("DataProvider could not be opened.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    return std::shared_ptr<te::dt::TimeInstantTZ>(nullptr);
+  }
+
+  // get a transactor to interact to the data source
+  std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
+
+  // Some drivers use the base name and other use filename with extension
+  std::string dataSetName;
+  std::vector<std::string> dataSetNames = transactor->getDataSetNames();
+
+  auto itCompleteBaseName= std::find(dataSetNames.cbegin(), dataSetNames.cend(), completeBaseName);
+  auto itBaseName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), baseName);
+  auto itFileName = std::find(dataSetNames.cbegin(), dataSetNames.cend(), name);
+  if(itBaseName != dataSetNames.cend())
+    dataSetName = baseName;
+  else if(itCompleteBaseName != dataSetNames.cend())
+    dataSetName = completeBaseName;
+  else if(itFileName != dataSetNames.cend())
+    dataSetName = name;
+  else
+    dataSetName = name;
+
+  // TODO: Some raster files (.env) don't appear in the getDataSetNames()
+  // but we can open directly with the file name.
+  // should we check or just continue with the file name?
+
+
+  if(!completeDataset)
+  {
+    //read and adapt all te:da::DataSet from terrama2::core::DataSet
+    converter = getConverter(dataSet, std::shared_ptr<te::da::DataSetType>(transactor->getDataSetType(dataSetName)));
+    series.teDataSetType.reset(static_cast<te::da::DataSetType*>(converter->getResult()->clone()));
+    assert(series.teDataSetType.get());
+    completeDataset = createCompleteDataSet(series.teDataSetType);
+  }
+
+  std::shared_ptr<te::da::DataSet> teDataSet = getTerraLibDataSet(transactor, dataSetName, converter);
+  if(!teDataSet)
+  {
+    QString errMsg = QObject::tr("Could not read dataset: %1").arg(dataSetName.c_str());
+    TERRAMA2_LOG_WARNING() << errMsg;
+    throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
+  }
+
+
+  addToCompleteDataSet(dataSet, completeDataset, teDataSet, thisFileTimestamp, fileInfo.absoluteFilePath().toStdString());
+
+
+  return thisFileTimestamp;
+}
+
+
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorFile::readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const
+{
+  std::shared_ptr<te::da::DataSetTypeConverter> converter(nullptr);
+
+  boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
+  std::shared_ptr<te::dt::TimeInstantTZ> lastFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
+
+  for(const auto& fileInfo : fileList)
+  {
+    // Only access the env files, gdal access the hdr
+    if(fileInfo.suffix() == "hdr")
+      continue;
+
+    auto thisFileTimestamp = readFile(series, completeDataset, converter, fileInfo, mask, dataSet);
+
+
+    //update lastest file timestamp
+    if(!lastFileTimestamp.get() || lastFileTimestamp->getTimeInstantTZ().is_special() || *lastFileTimestamp < *thisFileTimestamp)
+      lastFileTimestamp = thisFileTimestamp;
+
+
+  }// for each file
+
+  return lastFileTimestamp;
+
+}
+
+void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
+                                    const std::shared_ptr<te::mem::DataSet> &completeDataset,
+                                    std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
+{
   filterDataSet(completeDataset, filter);
 
   //Get last data timestamp and compare with file name timestamp
-  std::shared_ptr< te::dt::TimeInstantTZ > dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
+  std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
 
   filterDataSetByLastValue(completeDataset, filter, dataTimeStamp);
 
@@ -582,7 +648,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
 
   //if both dates are valid
   if((lastFileTimestamp.get() && !lastFileTimestamp->getTimeInstantTZ().is_special())
-      && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
+     && (dataTimeStamp.get() && !dataTimeStamp->getTimeInstantTZ().is_special()))
   {
     (*lastDateTime_) = *dataTimeStamp > *lastFileTimestamp ? *dataTimeStamp : *lastFileTimestamp;
   }
@@ -601,11 +667,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorFile::getSeries(const 
     boost::local_time::local_date_time noTime(boost::local_time::not_a_date_time);
     (*lastDateTime_) = te::dt::TimeInstantTZ(noTime);
   }
-
-
-  std::shared_ptr<SynchronizedDataSet> syncDataset(new SynchronizedDataSet(completeDataset));
-  series.syncDataSet = syncDataset;
-  return series;
 }
 
 
@@ -672,4 +733,47 @@ std::shared_ptr< te::dt::TimeInstantTZ > terrama2::core::DataAccessorFile::getDa
   }
 
   return lastDateTimeTz;
+}
+
+QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& uri, const std::string& mask, const Filter& filter, const std::string& timezone, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const
+{
+  QUrl url(QString::fromStdString(uri));
+
+  QFileInfoList basePathList;
+  basePathList.append(url.path());
+
+  std::string folderMask;
+  try
+  {
+    folderMask = getFolderMask(dataSet, dataSeries_);
+  }
+  catch(const terrama2::core::UndefinedTagException& /*e*/)
+  {
+    folderMask = "";
+  }
+
+
+  if(!folderMask.empty())
+  {
+    QFileInfoList foldersList = getFoldersList(basePathList, folderMask);
+
+    if(foldersList.empty())
+    {
+      QString errMsg = QObject::tr("No files found for dataset: %1.").arg(dataSet->id);
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
+    basePathList = foldersList;
+  }
+
+  QFileInfoList newFileInfoList;
+
+  //fill file list
+  for(auto& folderPath : basePathList)
+  {
+    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(), mask, timezone, filter, remover));
+  }
+
+  return newFileInfoList;
 }

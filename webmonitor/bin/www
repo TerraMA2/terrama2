@@ -9,12 +9,17 @@ var debug = require('debug')('myapp:server');
 var load = require('express-load');
 var http = require('http');
 var io = require('socket.io')();
-
+var fs = require("fs");
+var path = require("path");
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3001');
+// reading TerraMA² config.json
+var config = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/config.terrama2monitor"), "utf-8"));
+var webMonitorConfig = config.webmonitor;
+
+var port = normalizePort(process.env.PORT || webMonitorConfig.port);
 app.set('port', port);
 
 /**

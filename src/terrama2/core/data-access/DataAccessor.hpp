@@ -162,6 +162,13 @@ namespace terrama2
         */
         virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
 
+        /*!
+          \brief Get name of the output geometry property
+
+          The name of the output property come from the semantics metadata or the dataset format.
+        */
+        virtual std::string getOutputGeometryPropertyName(DataSetPtr dataSet) const;
+
         //! Recover timezone information from dataset
         virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;
 

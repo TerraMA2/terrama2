@@ -1,6 +1,10 @@
+define([], function() {
+
 'use strict';
 
-angular.module("terrama2.schedule", ['terrama2'])
+var moduleName = "terrama2.schedule";
+
+angular.module(moduleName, [])
   .directive("terrama2Schedule", function() {
     return {
       restrict: 'E',
@@ -139,3 +143,6 @@ angular.module("terrama2.schedule", ['terrama2'])
       }]
     };
   });
+
+  return moduleName;
+});

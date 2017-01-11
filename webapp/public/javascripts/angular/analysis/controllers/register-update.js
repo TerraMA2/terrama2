@@ -1,25 +1,5 @@
-(function() {
+define([], function() {
   'use strict';
-
-  angular.module('terrama2.analysis.controller.registerupdate', [
-    'terrama2',
-    'terrama2.services',
-    'terrama2.analysis.services',
-    'terrama2.dataproviders.services',
-    'terrama2.administration.services.iservices',
-    'terrama2.dataseries.services',
-    'terrama2.components.messagebox',
-    'terrama2.components.messagebox.services',
-    'terrama2.datetimepicker',
-    'terrama2.ace',
-    'terrama2.components.geo',
-    'schemaForm',
-    'terrama2.components.collapser',
-    'terrama2.schedule',
-    'treeControl'
-  ])
-
-  .controller('RegisterUpdateController', RegisterUpdateController);
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
@@ -273,6 +253,7 @@
           // schedule update
           $scope.$broadcast("updateSchedule", analysisInstance.schedule);
 
+          // Filtering Analysis DataSeries table if there is.
           analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
             var ds = analysisDs.dataSeries;
 
@@ -442,8 +423,10 @@
             });
           }
 
-          self.dataSeriesGroups[0].children = self.buffers.static;
-          self.dataSeriesGroups[1].children = self.buffers.dynamic;
+          // sort data series by name
+          self.dataSeriesGroups[0].children = self.buffers.static.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+          // sort data series by name
+          self.dataSeriesGroups[1].children = self.buffers.dynamic.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
         };
 
         /**
@@ -453,10 +436,20 @@
          * @returns {boolean}
          */
         self.hasDcp = function() {
-          return self.selectedDataSeriesList
-            .find(function(element) {
-              return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
-            });
+          var found = self.selectedDataSeriesList.find(function(element) {
+                        return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
+                      });
+          if (self.analysisHelperRestriction) {
+            if (found) {
+              self.analysisHelperRestriction.type.$in.push("DCP");
+            } else {
+              var dcpIndex = self.analysisHelperRestriction.type.$in.indexOf("DCP");
+              if (dcpIndex !== -1) {
+                self.analysisHelperRestriction.type.$in.splice(dcpIndex, 1);
+              }
+            }
+          }
+          return found;
         };
 
         /**
@@ -522,6 +515,12 @@
               return;
           }
 
+          self.analysisHelperRestriction = {
+            "type": {
+              "$in": [dataseriesFilterType]
+            }
+          };
+
           // re-fill data series
           self._processBuffers();
 
@@ -553,14 +552,14 @@
               params: params
             });
 
-            httpRequest.success(function(data) {
-              self.columnsList = data.data.map(function(item, index){
+            httpRequest.then(function(response) {
+              self.columnsList = response.data.data.map(function(item, index){
                 return item.column_name;
               });
-              result.resolve(data);
+              result.resolve(response.data.data);
             });
 
-            httpRequest.error(function(err) {
+            httpRequest.catch(function(err) {
               result.reject(err);
             });
 
@@ -1074,4 +1073,6 @@
     '$window',
     '$timeout'
   ];
-} ());
+
+  return RegisterUpdateController;
+});

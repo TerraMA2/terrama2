@@ -71,6 +71,27 @@ namespace terrama2
 
         virtual QFileInfoList getFoldersList(const QFileInfoList& uris, const std::string& foldersMask) const;
 
+        virtual QFileInfoList getFilesList(const std::string& uri, const std::string& mask, const Filter& filter, const std::string& timezone, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const;
+
+        void applyFilters(const terrama2::core::Filter &filter, const terrama2::core::DataSetPtr &dataSet,
+                          const std::shared_ptr<te::mem::DataSet> &completeDataset,
+                          std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const;
+
+        virtual bool hasControlFile() const;
+
+        virtual std::string getControlFileMask(terrama2::core::DataSetPtr dataSet) const;
+
+        virtual std::string readControlFile(terrama2::core::DataSetPtr dataSet, const std::string& controlFilename) const;
+
+        virtual bool needToOpenConfigFile() const;
+
+        virtual std::string getConfigFilename(terrama2::core::DataSetPtr dataSet, const std::string& binaryFilename) const;
+
+        virtual std::shared_ptr<te::dt::TimeInstantTZ> readFile(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, std::shared_ptr<te::da::DataSetTypeConverter>& converter, QFileInfo fileInfo, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
+
+        std::shared_ptr<te::dt::TimeInstantTZ> readFilesAndAddToDataset(DataSetSeries& series, std::shared_ptr<te::mem::DataSet>& completeDataset, QFileInfoList fileList, const std::string& mask, terrama2::core::DataSetPtr dataSet) const;
+
+
         /*!
          * \brief Search in a folder and return a list of files that match the mask and filter
          * \param folderURI The folder path to do the search
@@ -80,11 +101,11 @@ namespace terrama2
          * \param remover
          * \return A QFileInfoList with  all files that match the mask and filter
          */
-        static QFileInfoList getDataFileInfoList(const std::string& uri,
+        QFileInfoList getDataFileInfoList(const std::string& uri,
                                                   const std::string& mask,
                                                   const std::string& timezone,
                                                   const Filter& filter,
-                                                  std::shared_ptr<terrama2::core::FileRemover> remover);
+                                                  std::shared_ptr<terrama2::core::FileRemover> remover) const;
 
       protected:
         virtual std::shared_ptr<te::mem::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
