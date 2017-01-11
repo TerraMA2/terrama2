@@ -137,6 +137,10 @@ var DataManager = module.exports = {
         inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
         inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
 
+        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.EQUAL_STEPS, name: "Equal Steps", description: ""}));
+        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.QUANTILE, name: "Quantile", description: ""}));
+        inserts.push(self.addViewStyleType({id: Enums.ViewStyleType.BY_VALUE, name: "By Value", description: ""}));
+
         // default services
         var collectorService = {
           name: "Local Collector",
@@ -3463,16 +3467,31 @@ var DataManager = module.exports = {
         include: [ 
           {
             model: models.db.Schedule,
+          },
+          {
+            model: models.db.ViewStyleLegend,
+            required: false,
+            include: [
+              {
+                model: models.db.ViewStyleColor
+              }
+            ]
           }
         ],
         where: restriction
       }, options))
         .then(function(views) {
           return resolve(views.map(function(view) {
-            return new DataModel.View(Object.assign(view.get(), {
+            var viewModel = new DataModel.View(Object.assign(view.get(), {
               schedule: view.Schedule ? new DataModel.Schedule(view.Schedule.get()) : {}
               // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
             }));
+            if (view.ViewStyleLegend) {
+              var legendModel = new DataModel.ViewStyleLegend(Utils.extend(
+                view.ViewStyleLegend.get(), {colors: view.ViewStyleLegend.ViewStyleColors ? view.ViewStyleLegend.ViewStyleColors.map(function(elm) { return elm.get(); }) : []}));
+              viewModel.setLegend(legendModel);
+            }
+            return viewModel;
           }));
         })
 
@@ -3481,14 +3500,190 @@ var DataManager = module.exports = {
         });
     });
   },
+  /**
+   * It performs a save view style color and retrieve it
+   * 
+   * @param {Object} colorObject - View Style Color object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>} A view style object created
+   */
+  addViewStyleColor: function(colorObject, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleColor.create(colorObject, options)
+        .then(function(colorResult) {
+          return resolve(colorResult.get());
+        })
+        .catch(function(err) {
+          return reject(new exceptions.ViewStyleColorError(Utils.format("Could not save view style color due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It performs a save view style type and retrieve it
+   * 
+   * @param {Object} styleTypeObject - A type object to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Object>}
+   */
+  addViewStyleType: function(styleTypeObject, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleType.create(styleTypeObject, options)
+        .then(function(typeResult) {
+          return resolve(typeResult.get());
+        })
+        .catch(function(err) {
+          return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It performs a save view legend
+   * 
+   * @param {Object} styleLegendObject         - A type object to save
+   * @param {string} styleLegendObject.type_id - View Style Type identifier
+   * @param {string} styleLegendObject.view_id - View identifier
+   * @param {string} styleLegendObject.column  - Target column name
+   * @param {any[]}  styleLegendObject.colors  - Color array to save
+   * @param {Object} options                   - An ORM query options
+   * @param {Transaction} options.transaction  - An ORM transaction
+   * @returns {Promise<Object>}
+   */
+  addViewStyleLegend: function(styleLegendObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegend.create(styleLegendObject, options)
+        .then(function(legendResult) {
+          var promises = [];
 
+          for(var i = 0; i < styleLegendObject.colors.length; ++i) {
+            var color = styleLegendObject.colors[i];
+            color.view_style_id = legendResult.id;
+            promises.push(self.addViewStyleColor(color, options));
+          }
+
+          return Promise.all(promises)
+            .then(function(colors) {
+              var output = new DataModel.ViewStyleLegend(Utils.extend(legendResult.get(), {colors: colors}));
+
+              return resolve(output);
+            });
+        })
+        .catch(function(err) {
+          return reject(new exceptions.ViewStyleTypeError(Utils.format("Could not save view style type due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It performs update or insert view legend color in database.
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} styleColorObject         - A type object to save
+   * @param {string} styleColorObject.title - Color title
+   * @param {string} styleColorObject.color - Color value (hex)
+   * @param {string} styleColorObject.view_legend_id  - Respective Legend identifier
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  upsertViewStyleColor: function(styleColorObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleColor.findOne(Utils.extend({where: restriction}, options))
+        .then(function(colorResult) {
+          if (colorResult) {
+            // update
+            return models.db.ViewStyleColor.update(styleColorObject, Utils.extend({
+              fields: ["title", "color"],
+              where: {
+                id: colorResult.id
+              }
+            }, options));
+          }
+          return self.addViewStyleColor(styleColorObject, options);
+        })
+        .catch(function(err) {
+          return reject(new exceptions.ViewStyleColorError(Utils.format("Could not find view style color %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It removes view color of database from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise}
+   */
+  removeViewStyleColor: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleColor.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+  /**
+   * It performs update view legend in database. Once updated, it does not retrieves the row affected in order to keep integrity.
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} styleLegendObject         - A type object to save
+   * @param {string} styleLegendObject.type_id - View Style Type identifier
+   * @param {string} styleLegendObject.view_id - View identifier
+   * @param {string} styleLegendObject.column  - Target column name
+   * @param {any[]}  styleLegendObject.colors  - Color array to save
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<DataModel.View>}
+   */
+  updateViewStyleLegend: function(restriction, styleLegendObject, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
+          fields: ["column", "bands", "type_id"],
+          where: restriction
+        }))
+        .then(function() {
+          
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not update view legend due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It removes a view legend of database using given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<DataModel.View>}
+   */
+  removeViewStyleLegend: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.ViewStyleLegend.destroy(Utils.extend({where: restriction}, options))
+        .then(function() {
+          return resolve();
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not remove legend due %s", err.toString())));
+        });
+    });
+  },
   /**
    * It performs a save view in database
    * 
    * @param {Object} viewObject - A view object value to save
    * @param {Object} options - An ORM query options
    * @param {Transaction} options.transaction - An ORM transaction
-   * @return {Promise<DataModel.View>}
+   * @returns {Promise<DataModel.View>}
    */
   addView: function(viewObject, options) {
     var self = this;
@@ -3498,15 +3693,32 @@ var DataManager = module.exports = {
       models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          if (viewResult.schedule_id) {
-            return self.getSchedule({id: view.schedule_id}, options);
-          } else {
-            return {};
+          if (viewObject.typeId) {
+            return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.typeId}}, options))
+              .then(function(viewType) {
+                var legendObject = {
+                  type_id: viewType.id,
+                  column: viewObject.column,
+                  colors: viewObject.colors,
+                  bands: viewObject.bands,
+                  view_id: view.id
+                };
+                return self.addViewStyleLegend(legendObject, options);
+              });
           }
+          return null; // continuing promise chain
         })
 
-        .then(function(schedule) {
-          return resolve(new DataModel.View(Object.assign(view.get(), {schedule: schedule})));
+        .then(function(legend) {
+          var promises = [legend];
+          if (view.schedule_id) {
+            promises.push(self.getSchedule({id: view.schedule_id}, options));
+          }
+          return Promise.all(promises);
+        })
+
+        .spread(function(legend, schedule) {
+          return resolve(new DataModel.View(Object.assign(view.get(), {legend: legend, schedule: schedule || {}})));
         })
 
         .catch(function(err) {

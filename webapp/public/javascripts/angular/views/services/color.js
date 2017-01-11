@@ -58,7 +58,7 @@ define([], function() {
     //Alpha blending amount
     var alpha = 0.0;
 
-    var saida = [];
+    var output = [];
     
     for (i = 0; i < len; i++) {
       var c = [];
@@ -68,11 +68,11 @@ define([], function() {
       c[1] = start[1] * alpha + (1 - alpha) * end[1];
       c[2] = start[2] * alpha + (1 - alpha) * end[2];
 
-      saida.push(convertToHex (c));
+      output.push("#" + convertToHex(c));
       
     }
     
-    return saida; 
+    return output; 
   }
 
   return function() {

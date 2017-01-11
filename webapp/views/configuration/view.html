@@ -194,7 +194,7 @@
               <label><span ng-bind="i18n.__('Type')"></span>:</label>
               <select class="form-control" 
                       name="styleType" 
-                      ng-model="ctrl.view.styleType"
+                      ng-model="ctrl.view.typeId"
                       ng-required="ctrl.viewDataSeries.data_series_semantics.data_series_type_name === ctrl.DataSeriesType.GEOMETRIC_OBJECT"
                       ng-options="value as key for (key, value) in ctrl.StyleType">
               </select>
@@ -223,24 +223,31 @@
             </div>
 
             <!-- List with Fields auto-complete -->
-            <datalist id='columnsList'>
+            <!--<datalist id='columnsList'>
                 <option ng-repeat="band iin ctrl.columnsList" value="{{ band }}">
-            </datalist>
+            </datalist>-->
           </div>
 
-          <div class="col-md-6">
+          <div class="col-md-3">
             <div class="form-group" terrama2-show-errors>
-              <label ng-bind="i18n.__('Color')"></label>
-              <color-picker contenteditable="true" ng-model="ctrl.view.colorBand" options="ctrl.colorOptions" event-api="ctrl.events"></color-picker>
+              <label ng-bind="i18n.__('Begin')"></label>
+              <color-picker contenteditable="true" ng-model="ctrl.view.beginColor" options="ctrl.colorOptions"></color-picker>
             </div>
           </div>
+
+          <div class="col-md-3">
+            <div class="form-group" terrama2-show-errors>
+              <label ng-bind="i18n.__('End')"></label>
+              <color-picker contenteditable="true" ng-model="ctrl.view.endColor" options="ctrl.colorOptions"></color-picker>
+            </div>
+          </div>          
 
           <div class="col-md-2">
             <button type="button" class="btn btn-primary" style="margin-top: 25px;" ng-bind="i18n.__('Generate')" data-ng-click="ctrl.generateColors();"></button>
           </div>
         </div>
-        <div class="col-md-12" ng-show="ctrl.view.styleType">
-          <table class="table table-hover">
+        <div class="col-md-12" ng-show="ctrl.view.typeId">
+          <table class="table table-hover scroll">
             <thead>
               <th ng-bind="i18n.__('Color')"></th>
               <th ng-bind="i18n.__('Title')"></th>
