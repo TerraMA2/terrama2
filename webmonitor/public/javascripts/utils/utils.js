@@ -5,14 +5,15 @@ var getLayersListWithDate = function(mask, layers){
     var lastMaskIndex;
     var firstIndex;
     var lastIndex;
-    if (mask.indexOf('yyyy') > 0){
-        firstIndex = mask.indexOf('yyyy');
+    mask = mask.split('%').join('');
+    if (mask.indexOf('YYYY') > 0){
+        firstIndex = mask.indexOf('YYYY');
         lastIndex = firstIndex + 3;
         firstMaskIndex = firstIndex;
         lastMaskIndex = lastIndex;
     }
     else {
-        firstIndex = mask.indexOf('yy');
+        firstIndex = mask.indexOf('YY');
         lastIndex = firstIndex + 1;
         firstMaskIndex = firstIndex;
         lastMaskIndex = lastIndex;
@@ -29,8 +30,8 @@ var getLayersListWithDate = function(mask, layers){
         }
     } 
 
-    if (mask.indexOf('dd') > 0){
-        firstIndex = mask.indexOf('dd');
+    if (mask.indexOf('DD') > 0){
+        firstIndex = mask.indexOf('DD');
         lastIndex = firstIndex + 1;
         if (firstIndex < firstMaskIndex){
             firstMaskIndex = firstIndex;
@@ -74,9 +75,6 @@ var getLayersListWithDate = function(mask, layers){
     }
 
     var dateMask = mask.slice(firstMaskIndex, lastMaskIndex + 1);
-    dateMask = dateMask.replace("yyyy", "YYYY");
-    dateMask = dateMask.replace("yy", "YY");
-    dateMask = dateMask.replace("dd", "DD");
 
     var layerWithDate = [];
     for (var i=0; i < layers.length; i++){

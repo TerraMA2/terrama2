@@ -74,6 +74,8 @@
     var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
     var allLayers = [];
     var visibleLayers = [];
+    var capabilities;
+    var sliderCapabilities = [];
 
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
@@ -198,6 +200,7 @@
             $(li).append(sliderDiv);
 
             if (layerCapabilities[layerIndex].extent instanceof Array) {
+                sliderCapabilities.push(layerCapabilities[layerIndex]);
                 span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-sliders'></i></span>";
             } else if (layerCapabilities[layerIndex].extent instanceof Object) {
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";

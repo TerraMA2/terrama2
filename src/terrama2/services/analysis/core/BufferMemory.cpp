@@ -59,10 +59,10 @@ std::shared_ptr<te::gm::Geometry> terrama2::services::analysis::core::createBuff
   if(srid != 0)
   {
     auto& spRefSysManager = te::srs::SpatialReferenceSystemManager::getInstance();
-    auto spatialReferenceSystem = spRefSysManager.getSpatialReferenceSystem(srid);
-    std::string unitName = spatialReferenceSystem->getUnitName();
+    std::string p4txt = spRefSysManager.getP4Txt(srid);
 
-    if(unitName == "degree")
+    // if there is no tag 'units', it's in decimal degrees, so we have to convert it
+    if(p4txt.find("units") == std::string::npos)
     {
       needToTransform = true;
     }
