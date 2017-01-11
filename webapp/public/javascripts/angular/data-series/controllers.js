@@ -7,15 +7,16 @@ define([
   "TerraMA2WebApp/data-provider/services",
   "TerraMA2WebApp/data-series/services",
   "TerraMA2WebApp/data-series/schedule",
+  "TerraMA2WebApp/data-series/directives",
   "TerraMA2WebApp/geo/app",
 
   // controllers
   "TerraMA2WebApp/data-series/data-series",
   "TerraMA2WebApp/data-series/registration"
 ], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, providerApp, serviceApp, 
-            dataSeriesServicesApp, scheduleApp, geoApp, ListController, RegistrationController) {
+            dataSeriesServicesApp, scheduleApp, directives, geoApp, ListController, RegistrationController) {
   var moduleName = "terrama2.dataseries.controllers";
-  var deps = [commonServiceApp, messageboxApp];
+  var deps = [commonServiceApp, messageboxApp, directives];
 
   // checking externals dependencies
   if (moduleLoader("schemaForm", deps) && 

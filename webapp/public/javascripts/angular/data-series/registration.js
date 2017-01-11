@@ -537,6 +537,23 @@ define([], function() {
       enableIntersection.click();
     };
 
+    var makeid = function(length) {
+      var text = "";
+      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+      for(var i = 0; i < length; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+      return text;
+    }
+
+    var storedDcpsKey = makeid(30);
+
+    var reloadData = function() {
+      $scope.dcpTable.ajax.reload(null, false);
+      $scope.compileTableLines();
+    }
+
     // advanced global properties
     $scope.advanced = {
       store: {
