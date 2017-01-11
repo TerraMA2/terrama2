@@ -924,7 +924,7 @@ define([], function() {
         var attrs = $scope.intersection[selected.id].attributes;
 
         var found = attrs.filter(function(elm) {
-          return elm === attributeValue;
+          return elm.value === attributeValue;
         });
 
         return found.length === 0;
@@ -937,7 +937,7 @@ define([], function() {
 
         if (canAddAttribute(selected, attributeValue, $scope.intersection[selected.id].attributes)) {
           // reset form to the default state
-          $scope.intersection[selected.id].attributes.push(attributeValue);
+          $scope.intersection[selected.id].attributes.push({value: attributeValue, alias: attributeValue});
           form.$setPristine();
         } else {
           // TODO: throw error message
@@ -949,7 +949,7 @@ define([], function() {
         var intersection = $scope.intersection[selected.id];
 
         intersection.attributes.some(function(attr, index, arr) {
-          if (attr === attributeValue) {
+          if (attr.value === attributeValue.value) {
             arr.splice(index, 1);
             return true;
           }
@@ -1455,7 +1455,8 @@ define([], function() {
             for(var i = 0; i < attributes.length; ++i) {
               var attribute = attributes[i];
               intersectionValues.push({
-                attribute: attribute,
+                attribute: attribute.value,
+                alias: attribute.alias,
                 dataseries_id: dataseries_id
               });
             }
