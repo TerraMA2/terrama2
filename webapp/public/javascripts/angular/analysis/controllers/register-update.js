@@ -543,7 +543,7 @@ define([], function() {
               result.resolve(response.data.data);
             });
 
-            httpRequest.error(function(err) {
+            httpRequest.catch(function(err) {
               result.reject(err);
             });
 
