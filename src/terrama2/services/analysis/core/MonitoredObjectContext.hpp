@@ -35,6 +35,7 @@
 #include "BaseContext.hpp"
 #include "../../../core/utility/Utils.hpp"
 #include "../../../core/data-access/DataSetSeries.hpp"
+#include "../../../core/data-model/Filter.hpp"
 
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/sam/kdtree.h>
@@ -82,7 +83,7 @@ namespace terrama2
             void loadMonitoredObject();
 
             void addDCPDataSeries(terrama2::core::DataSeriesPtr dataSeries,
-                                  const std::string& dateFilterBegin, const std::string& dateFilterEnd, const bool lastValue);
+                                  const terrama2::core::Filter& filter);
             /*!
               \brief Returns the set of attributes that compose the analysis result.
 
@@ -93,34 +94,31 @@ namespace terrama2
             \brief Reads the DataSeries that fits the date filter and adds it to the context.
 
             \param dataSeries A smart pointer to the DataSeries to be loaded.
-            \param dateFilter The date restriction to be used in the DataSet.
-            \param envelope Monitored object envelope to be used as filter.
+            \param filter The filter to be applied and used as key.
             \param createSpatialIndex Defines if a spatial index should be created to optimize data access.
             */
             void addDataSeries(terrama2::core::DataSeriesPtr dataSeries,
-                               std::shared_ptr<te::gm::Geometry> envelope,
-                               const std::string& dateFilter = "", bool createSpatialIndex = true);
+                               const terrama2::core::Filter& filter,
+                               bool createSpatialIndex);
             /*!
               \brief Returns a smart pointer that contains the TerraLib DataSet for the given DataSetId.
 
               \param datasetId The DataSet identifier.
-              \param dateFilterBegin The date restriction to be used in the DataSet.
-              \param dateFilterEnd The end date restriction to be used in the DataSet.
+              \param filter The filter to be used as key.
 
               \return A smart pointer to the context data series.
             */
-            std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> getContextDataset(const DataSetId datasetId,
-                const std::string& dateFilterBegin = "", const std::string& dateFilterEnd = "") const;
+            std::shared_ptr<ContextDataSeries> getContextDataset(const DataSetId datasetId,
+                                                                 const terrama2::core::Filter& filter) const;
+
             /*!
               \brief Returns true if the given dataset has already been loaded into the context.
 
               \param datasetId The DataSet identifier.
-              \param dateFilterBegin The begin date restriction to be used in the DataSet.
-              \param dateFilterEnd The end date restriction to be used in the DataSet.
+              \param filter The filter to be applied and used as key.
               \return True if the given dataset has already been loaded into the context.
             */
-            bool exists(const DataSetId datasetId,
-                        const std::string& dateFilterBegin = "", const std::string& dateFilterEnd = "") const;
+            bool exists(const DataSetId datasetId, const terrama2::core::Filter& filter) const;
 
             /*!
               \brief Returns the map with the result for the given analysis.
@@ -159,20 +157,29 @@ namespace terrama2
               \note It will return an empty smart pointer if none buffer is found.
 
               \param datasetId The DataSet identifier.
-              \param dateFilter The date restriction to be used in the DataSet.
+              \param filter The filter to be used as key.
               \return The DCP buffer.
             */
-            std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId, const std::string& dateFilter = "");
+            std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId, const terrama2::core::Filter& filter);
 
             /*!
               \brief Adds the given DCP buffer to the context.
 
               \param buffer The DCP buffer to be added.
               \param datasetId The DataSet identifier.
-              \param dateFilter The date restriction to be used in the DataSet.
+              \param filter The filter to be used as key.
 
             */
-            void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const std::string& dateFilter = "");
+            void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer, const terrama2::core::Filter& filter);
+
+            /*!
+              \brief Returns a time instant object from the date filter using as base date the start date set in the context.
+
+              \param dateFilter The date restriction to be used in the DataSet.
+              \return The time instant object created from date filter.
+
+            */
+            std::unique_ptr<te::dt::TimeInstantTZ> getTimeInstantFromDateFilter(const std::string& dateFilter) const;
 
           protected:
             std::set<std::string> attributes_;
