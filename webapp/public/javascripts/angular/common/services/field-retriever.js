@@ -14,7 +14,7 @@ define([], function() {
   FieldRetriever.prototype.retrieve = function(params) {
     var defer = this.$q.defer();
 
-    this.BaseService.$request("/uri", "GET", {params: params})
+    this.BaseService.$request("/api/Populator", "GET", {params: params})
       .then(function(response) {
         return defer.resolve(response.data.data);
       })
