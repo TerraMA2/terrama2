@@ -255,6 +255,9 @@ std::map<DataSetId, std::string> terrama2::core::DataAccessor::getFiles(const Fi
   std::map<DataSetId, std::string> uriMap;
   for(const auto& dataset : dataSeries_->datasetList)
   {
+    if(!dataset->active)
+      continue;
+
     // if this data retriever is a remote server that allows to retrieve data to a file,
     // download the file to a temporary location
     // if not, just get the DataProvider uri
