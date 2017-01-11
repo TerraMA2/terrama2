@@ -60,7 +60,7 @@ namespace terrama2
 
       ## JSon ##
 
-      Base structure for transferece of a Filter.
+      Base structure for transference of a Filter.
 
       \code{.json}
       {
@@ -69,8 +69,7 @@ namespace terrama2
         "discard_after" : STRING::TIMESTAMP WITH TIME ZONE,
         "last_value" : BOOLEAN
         "region" : STRING::WKT,
-        "by_value" : DOUBLE,
-        "value_comparison_operation" : STRING
+        "by_value" : STRING
       }
       \endcode
      */
@@ -85,7 +84,7 @@ namespace terrama2
       bool cropRaster = false; //! If true the raster will be cropped by the region envelope.
       std::shared_ptr<double> value = nullptr; //!< Value to be used in a filter by value.
       bool lastValue = false; //! Used to read only the last value.
-      //TODO: filter by value operation
+      std::string byValue; //! Filter by value.
 
       //operator bool() const { return dataSetId != 0; }
     };

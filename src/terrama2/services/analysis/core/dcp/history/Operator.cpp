@@ -135,7 +135,12 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
           throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
         }
 
-        context->addDCPDataSeries(dataSeries, dateFilterBegin, dateFilterEnd, false);
+        terrama2::core::Filter filter;
+        filter.discardBefore = context->getTimeFromString(dateFilterBegin);
+        filter.discardAfter = context->getTimeFromString(dateFilterEnd);
+        filter.lastValue = false;
+
+        context->addDCPDataSeries(dataSeries, filter);
 
 
         for(auto& dcpAlias : vecDCPAlias)
@@ -145,7 +150,7 @@ double terrama2::services::analysis::core::dcp::zonal::history::operatorImpl(Sta
             if(dataset->format.at("alias") != dcpAlias)
               continue;
 
-            contextDataSeries = context->getContextDataset(dataset->id, dateFilterBegin, dateFilterEnd);
+            contextDataSeries = context->getContextDataset(dataset->id, filter);
 
             terrama2::core::DataSetDcpPtr dcpDataset = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(
                 dataset);

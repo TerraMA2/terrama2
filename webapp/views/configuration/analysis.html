@@ -45,7 +45,8 @@
       InterpolationMethod: {[ Enums.InterpolationMethod|json|safe ]},
       ResolutionType: {[ Enums.ResolutionType|json|safe ]},
       InterestAreaType: {[ Enums.InterestAreaType|json|safe ]},
-      DataSeriesFormat: {[ Enums.DataSeriesFormat|json|safe ]}
+      DataSeriesFormat: {[ Enums.DataSeriesFormat|json|safe ]},
+      DataProviderType: {[ Enums.DataProviderType|json|safe ]}
     }
   };
 
@@ -74,40 +75,12 @@
 <script type="text/javascript" src="/bower_components/moment/locale/es.js"></script>
 <script type="text/javascript" src="/bower_components/moment/locale/fr.js"></script>
 <script type="text/javascript" src="/bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
-<!-- TerraMA2 Datetimepicker -->
-<script type="text/javascript" src="/javascripts/angular/datetimepicker/directive.js"></script>
-<!-- Socket.io -->
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<!-- Terrama2 Script -->
-<script type="text/javascript" src="/javascripts/terrama2.js"></script>
-<!-- TerraMA2 Schedule -->
-<script type="text/javascript" src="/javascripts/angular/data-series/schedule.js"></script>
-<!-- TerraMA2 Factory Helpers -->
-<script type="text/javascript" src="/javascripts/angular/services.js"></script>
-<!-- TerraMA2 Alert Box -->
-<script type="text/javascript" src="/javascripts/angular/alert-box/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/alert-box/directives.js"></script>
-<!-- TerraMA2 Ace -->
-<script type="text/javascript" src="/javascripts/angular/ace/directive.js"></script>
-<!-- TerraMA2 Bounded Box -->
-<script type="text/javascript" src="/javascripts/angular/geo/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/geo/app.js"></script>
-<script type="text/javascript" src="/javascripts/angular/geo/directives.js"></script>
-<!-- TerraMA² Service instance -->
-<script type="text/javascript" src="/javascripts/angular/services/services.js"></script>
-<!-- TerraMA2 Data Provider Service -->
-<script type="text/javascript" src="/javascripts/angular/data-provider/services.js"></script>
-<!-- TerraMA² DataSeries -->
-<script type="text/javascript" src="/javascripts/angular/data-series/services.js"></script>
-<!-- TerraMA² Analysis -->
-<script type="text/javascript" src="/javascripts/angular/analysis/services.js"></script>
-<script type="text/javascript" src="/javascripts/angular/analysis/controllers/register-update.js"></script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="RegisterUpdateController as ctrl">
+<div ng-controller="AnalysisRegisterUpdateController as ctrl">
 
   <!-- DataSeries Modal -->
   <div class="modal fade" id="dataSeriesModal" tabindex="-1" role="dialog" aria-labelledby="dataSeriesModalLabel">
@@ -705,16 +678,8 @@
           </form>
 
           <div class="col-md-12">
-            <div class="btn-group">
-              <button aria-expanded="false" type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
-                {{ i18n.__('Functions') }}
-              </button>
-              <ul class="dropdown-menu" role="menu">
-                <li><a href="#">max</a></li>
-                <li><a href="#">min</a></li>
-                <li><a href="#">abs</a></li>
-              </ul>
-            </div>
+            <!-- TerraMA² Buttons -->
+            <terrama2-analysis-helpers target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
 
             <button class="btn btn-default pull-right" style="width: 75px;" ng-click="ctrl.onScriptValidation();">
               <span class="loading" ng-show="ctrl.testingScript">

@@ -120,7 +120,10 @@ namespace terrama2
           \exception DataProviderException Raised if the Filter date result in an empty time range.
         */
         virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const Filter& filter, std::shared_ptr<FileRemover> remover) const;
+        virtual std::unordered_map<DataSetPtr,DataSetSeries > getSeries(const std::map<DataSetId, std::string> uriMap, const Filter& filter, std::shared_ptr<FileRemover> remover) const;
 
+        std::map<DataSetId, std::string> getFiles(const Filter& filter, std::shared_ptr<FileRemover> remover) const;
+        
         //! Utility function for converting string to double in the te::da::DataSet contruction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
@@ -158,6 +161,13 @@ namespace terrama2
           the semantics has priority.
         */
         virtual std::string getGeometryPropertyName(DataSetPtr dataSet) const;
+
+        /*!
+          \brief Get name of the output geometry property
+
+          The name of the output property come from the semantics metadata or the dataset format.
+        */
+        virtual std::string getOutputGeometryPropertyName(DataSetPtr dataSet) const;
 
         //! Recover timezone information from dataset
         virtual std::string getTimeZone(DataSetPtr dataSet, bool logErrors = true) const;

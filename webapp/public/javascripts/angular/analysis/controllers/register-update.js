@@ -1,24 +1,5 @@
-(function() {
+define([], function() {
   'use strict';
-
-  angular.module('terrama2.analysis.controller.registerupdate', [
-    'terrama2',
-    'terrama2.services',
-    'terrama2.analysis.services',
-    'terrama2.dataproviders.services',
-    'terrama2.administration.services.iservices',
-    'terrama2.dataseries.services',
-    'terrama2.components.messagebox',
-    'terrama2.components.messagebox.services',
-    'terrama2.datetimepicker',
-    'terrama2.ace',
-    'terrama2.components.geo',
-    'schemaForm',
-    'terrama2.schedule',
-    'treeControl'
-  ])
-
-  .controller('RegisterUpdateController', RegisterUpdateController);
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
@@ -301,7 +282,7 @@
              * @type {string}
              */
             var dummy = analysisInstance.output_grid.interpolation_dummy;
-            if (dummy) {
+            if (dummy !== undefined || dummy !== null) {
               self.analysis.grid.interpolation_dummy = Number(dummy);
             }
             var resolutionDS = analysisInstance.output_grid.resolution_data_series_id;
@@ -452,8 +433,10 @@
             });
           }
 
-          self.dataSeriesGroups[0].children = self.buffers.static;
-          self.dataSeriesGroups[1].children = self.buffers.dynamic;
+          // sort data series by name
+          self.dataSeriesGroups[0].children = self.buffers.static.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+          // sort data series by name
+          self.dataSeriesGroups[1].children = self.buffers.dynamic.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
         };
 
         /**
@@ -463,10 +446,20 @@
          * @returns {boolean}
          */
         self.hasDcp = function() {
-          return self.selectedDataSeriesList
-            .find(function(element) {
-              return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
-            });
+          var found = self.selectedDataSeriesList.find(function(element) {
+                        return element.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.DCP;
+                      });
+          if (self.analysisHelperRestriction) {
+            if (found) {
+              self.analysisHelperRestriction.type.$in.push("DCP");
+            } else {
+              var dcpIndex = self.analysisHelperRestriction.type.$in.indexOf("DCP");
+              if (dcpIndex !== -1) {
+                self.analysisHelperRestriction.type.$in.splice(dcpIndex, 1);
+              }
+            }
+          }
+          return found;
         };
 
         /**
@@ -506,6 +499,12 @@
               return;
           }
 
+          self.analysisHelperRestriction = {
+            "type": {
+              "$in": [dataseriesFilterType]
+            }
+          };
+
           // re-fill data series
           self._processBuffers();
 
@@ -537,11 +536,11 @@
               params: params
             });
 
-            httpRequest.success(function(data) {
-              self.columnsList = data.data.map(function(item, index){
+            httpRequest.then(function(response) {
+              self.columnsList = response.data.data.map(function(item, index){
                 return item.column_name;
               });
-              result.resolve(data);
+              result.resolve(response.data.data);
             });
 
             httpRequest.error(function(err) {
@@ -624,7 +623,7 @@
 
             DataProviderService.list().forEach(function(dataProvider) {
               self.currentSemantics.metadata.demand.forEach(function(demand) {
-                if (dataProvider.data_provider_type.name == demand) {
+                if (demand != globals.enums.DataProviderType.FTP.name && dataProvider.data_provider_type.name == demand) {
                   self.dataProviders.push(dataProvider);
                 }
               });
@@ -823,7 +822,7 @@
 
           var hasScriptError = function(expression, message) {
             var output = false;
-            if (self.analysis.script.indexOf(expression) < 0) {
+            if (!self.analysis.script || self.analysis.script.indexOf(expression) < 0) {
               self.analysis_script_error = true;
               self.analysis_script_error_message = i18n.__("Analysis will not able to generate a output data. ") + message;
               output = true;
@@ -1002,7 +1001,7 @@
         $log.log("Could not load analysis interface due " + err.toString() + "\nPlease refresh this page (F5)");
       });
   }
-  // Injecting angular dependencies in controller
+
   RegisterUpdateController.$inject = [
     '$scope',
     '$q',
@@ -1019,4 +1018,6 @@
     'Polygon',
     '$http'
   ];
-} ());
+
+  return RegisterUpdateController;
+});

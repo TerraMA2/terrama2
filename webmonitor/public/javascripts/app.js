@@ -31,6 +31,44 @@ $.TerraMAMonitor.pushMenu = {
     }
 }
 
+$.TerraMAMonitor.tree = function (menu) {
+var _this = this;
+$(document).off('click', menu + ' li span')
+    .on('click', menu + ' li span', function (e) {
+        //Get the clicked link and the next element
+        var $this = $(this);
+        var checkElement = $this.next();
+
+        //Check if the next element is a menu and is visible
+        if ((checkElement.is('.treeview-menu')) && (checkElement.is(':visible')) && (!$('body').hasClass('sidebar-collapse'))) {
+            //Close the menu
+            checkElement.slideUp(500, function () {
+                checkElement.removeClass('menu-open');
+            });
+            checkElement.parent("li").removeClass("active");
+        }
+        //If the menu is not visible
+        else if ((checkElement.is('.treeview-menu')) && (!checkElement.is(':visible'))) {
+            //Get the parent menu
+            var parent = $this.parents('ul').first();
+            //Get the parent li
+            var parent_li = $this.parent("li");
+
+            //Open the target menu and add the menu-open class
+            checkElement.slideDown(500, function () {
+                //Add the class active to the parent li
+                checkElement.addClass('menu-open');
+                parent.find('li.active').removeClass('active');
+                parent_li.addClass('active');
+            });
+        }
+        //if this isn't a link, prevent the page from being redirected
+        if (checkElement.is('.treeview-menu')) {
+            e.preventDefault();
+        }
+    });
+};
+
 $('#mini-toggle').click(function(){
     TerraMA2WebComponents.MapDisplay.updateMapSize();
 });
@@ -54,6 +92,7 @@ $(function () {
     var o = $.TerraMAMonitor.options;
 
     $.TerraMAMonitor.pushMenu.activate(o.sidebarToggleSelector);
+    $.TerraMAMonitor.tree('.sidebar');
     $(".terrama2-map").height("100%");
     $(".terrama2-map").width("auto");
     $(".content").css({'height':($(".content-wrapper").height())+'px'});

@@ -1,9 +1,8 @@
-(function() {
+define([
+  "TerraMA2WebApp/common/services/index"
+], function(commonServiceApp) {
   'use strict';
-
-  angular.module('terrama2.dataproviders.services', ['terrama2'])
-    .service('DataProviderService', DataProviderService);
-  
+ 
   /**
    * TerraMA² Data Provider DAO
    * 
@@ -33,9 +32,9 @@
     var self = this;
     this.BaseService
       .$request(this.url, "GET", {params: restriction})
-      .then(function(data) {
-        self.model = data;
-        return defer.resolve(data);
+      .then(function(response) {
+        self.model = response.data;
+        return defer.resolve(response.data);
       })
       .catch(function(err) {
         return defer.reject(err);
@@ -52,4 +51,13 @@
   DataProviderService.prototype.list = function(restriction) {
     return this.BaseService.$list(this.model, restriction);
   };
-} ());
+
+  DataProviderService.$inject = ["BaseService"];
+
+  var moduleName = "terrama2.providers.services";
+
+  angular.module(moduleName, [commonServiceApp])
+    .service('DataProviderService', DataProviderService);
+
+  return moduleName;
+});

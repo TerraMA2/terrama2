@@ -154,8 +154,10 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
       {
 
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
+        terrama2::core::Filter filter;
+        filter.lastValue = true;
 
-        context->addDCPDataSeries(dataSeries, "", "", true);
+        context->addDCPDataSeries(dataSeries, filter);
 
         // For DCP operator count returns the number of DCP that influence the monitored object
         uint32_t influenceCount = 0;
@@ -171,7 +173,7 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
               found = true;
 
               // recover dataset from context
-              dcpContextDataSeries = context->getContextDataset(dataset->id);
+              dcpContextDataSeries = context->getContextDataset(dataset->id, filter);
 
               ++influenceCount;
 

@@ -585,5 +585,7 @@
 	"Band": "Band",
 	"Close": "Close",
 	"is not active": "is not active",
-	". The process was started successfully": ". The process was started successfully"
+	". The process was started successfully": ". The process was started successfully",
+	"DCP error": "DCP error",
+	"Project Status": "Project Status"
 }

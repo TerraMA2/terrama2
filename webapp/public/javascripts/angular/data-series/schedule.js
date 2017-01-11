@@ -1,6 +1,10 @@
+define([], function() {
+
 'use strict';
 
-angular.module("terrama2.schedule", ['terrama2'])
+var moduleName = "terrama2.schedule";
+
+angular.module(moduleName, [])
   .directive("terrama2Schedule", function() {
     return {
       restrict: 'E',
@@ -90,6 +94,19 @@ angular.module("terrama2.schedule", ['terrama2'])
               $scope.model.frequency_start_time = null;
               $scope.isFrequency = false;
               $scope.isSchedule = true;
+            } else if (i == 0) {
+              $scope.model.schedule = null;
+              $scope.model.schedule_retry = null;
+              $scope.model.schedule_retry_unit = null;
+              $scope.model.schedule_timeout = null;
+              $scope.model.schedule_time = null;
+              $scope.model.schedule_unit = null;
+              $scope.model.schedule_timeout_unit = null;
+              $scope.model.frequency = null;
+              $scope.model.frequency_unit = null;
+              $scope.model.frequency_start_time = null;
+              $scope.isFrequency = false;
+              $scope.isSchedule = false;
             }
           };
 
@@ -119,9 +136,13 @@ angular.module("terrama2.schedule", ['terrama2'])
             default:
               $scope.minSchedule = 0;
               $scope.maxSchedule = 0;
+              resetHelper(0);
               break;
           }
         };
       }]
     };
   });
+
+  return moduleName;
+});

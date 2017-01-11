@@ -14,163 +14,22 @@
       AnalysisType: {[ Enums.AnalysisType|json|safe ]},
       ServiceType: {[ Enums.ServiceType|json|safe ]}
     }
-  }
-</script>
-<!-- Socket.io -->
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  };
 
-<script src="/javascripts/angular/services.js"></script>
-<script src="/javascripts/angular/services/services.js"></script>
-<script src="/javascripts/angular/table/table.js"></script>
-<script src="/javascripts/angular/alert-box/directives.js"></script>
-
-<script>
-
-  angular.module('terrama2.analysis', ['terrama2', 'terrama2.services', 'terrama2.table', 'terrama2.components.messagebox', 'terrama2.administration.services.iservices'])
-    .controller("ListController", ['$scope', '$http', 'AnalysisFactory', 'Socket', 'i18n', '$log', 'Service',
-    function($scope, $http, AnalysisFactory, Socket, i18n, $log, Service) {
-      $scope.model = [];
-      $scope.i18n = i18n;
-      $scope.disabledButtons = {};
-
-      var serviceCache = {};
-
-      Service.init();
-
-      Socket.on('errorResponse', function(response){
-        $scope.display = true;
-        $scope.alertLevel = "alert-danger";
-        $scope.alertBox.message = response.message;
-      });
-
-      Socket.on('runResponse', function(response){
-        $scope.display = true;
-        $scope.alertLevel = "alert-success";
-        $scope.alertBox.message = i18n.__("The process was started successfully");
-      })
-
-      Socket.on('statusResponse', function(response) {
-        if(response.checking === undefined || (!response.checking && response.status == 400)) {
-          if(response.online) {
-            Socket.emit('run', serviceCache[response.service].process_ids);
-          } else {
-            $scope.display = true;
-            $scope.alertLevel = "alert-error";
-
-            if(serviceCache[response.service] != undefined) {
-              var service = Service.get(serviceCache[response.service].process_ids.service_instance);
-
-              if(service != null) {
-                $scope.alertBox.message = i18n.__("Service") + " '" + service.name + "' " + i18n.__("is not active");
-              } else {
-                $scope.alertBox.message = i18n.__("Service not active");
-              }
-            } else {
-              $scope.alertBox.message = i18n.__("Service not active");
-            }
-          }
-
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];
-          delete serviceCache[response.service];
-        }
-      });
-
-      var restriction = {
-        project_id: "{[ activeProject.id ]}"
-      }
-
-      $scope.iconProperties = {
-        type: "img"
-      };
-
-      $scope.fields = [
-        {key: "name", as: i18n.__("Name")},
-        {key: "type.name", as: i18n.__("Type")}
-      ];
-
-      $scope.linkToAdd = "/configuration/analysis/new";
-
-      $scope.link = function(object) {
-        return "/configuration/analysis/" + object.id + "/edit";
-      };
-
-      $scope.alertLevel = "alert-success";
-      $scope.alertBox = {
-        title: i18n.__("Analysis"),
-        message: "{[ message ]}"
-      };
-      $scope.display = $scope.alertBox.message !== "";
-
-      $scope.extra = {
-        removeOperationCallback: function(err, data) {
-          $scope.display = true;
-          if (err) {
-            $scope.alertLevel = "alert-danger";
-            $scope.alertBox.message = err.message;
-            return;
-          }
-
-          $scope.alertLevel = "alert-success";
-          $scope.alertBox.message = data.name + " removed";
-        },
-        showRunButton: true,
-        canRun: function(object){
-          return true;
-        },
-        run: function(object){
-          serviceCache[object.service_instance_id] = {
-            "process_ids": {
-              "ids":[object.id],
-              "service_instance": object.service_instance_id
-            },
-            "service_id": object.id,
-            "service_name": object.name
-          };
-
-          $scope.disabledButtons[object.id] = true;
-
-          Socket.emit('status', {service: object.service_instance_id});
-        },
-        disabledButtons: function(object){
-          return $scope.disabledButtons[object.id];
-        }
-      };
-
-      $scope.remove = function(object) {
-        return "/api/Analysis/" + object.id + "/delete";
-      };
-
-      $scope.icon = function(object) {
-        switch(object.type.id) {
-          case globals.enums.AnalysisType.MONITORED:
-            return "/images/monitored-object.png";
-            break;
-          case globals.enums.AnalysisType.GRID:
-            return "/images/grid-small.png";
-            break;
-          default:
-            return "/images/map-pin.png";
-        }
-      };
-
-      AnalysisFactory.get(restriction).success(function(analysis) {
-        $scope.model = analysis;
-      }).error(function(err) {
-        $log.info("Err in retrieving Analysis " + err);
-      }).finally(function() {
-        $scope.loading = false;
-      });
-    }]);
+  var configuration = {
+    message: "{[ message ]}",
+    projectId: "{[ activeProject.id ]}"
+  };
 </script>
 
 {% endblock %}
 
 {% block content %}
 
-<div ng-controller="ListController">
+<div ng-controller="AnalysisListController">
   <terrama2-box title="i18n.__('Analysis')">
     <div class="col-md-12">
-      <terrama2-alert-box alert-level="alertLevel" title="alertBox.title" message="alertBox.message" close="resetState()" display-handler="display"></terrama2-alert-box>
+      <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
     </div>
 
     <terrama2-table fields="fields" model="model" link="link" icon="icon" icon-properties="iconProperties" 

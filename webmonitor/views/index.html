@@ -24,6 +24,9 @@
 
 {% block content %}
 
+{% set webadminHostInfo = webadminHostInfo || {} %}
+{% set webmonitorHostInfo = webmonitorHostInfo || {} %}
+
 <div id="terrama2-map" class="terrama2-map"></div>
 
 <!-- Alert message -->
@@ -67,30 +70,48 @@
 <script src="/javascripts/utils/calendar.js"></script>
 <script src="/javascripts/utils/slider.js"></script>
 <script>
+    var webadminHostInfo = {[webadminHostInfo|json|safe]};
+    var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
     var allLayers = [];
     var visibleLayers = [];
+    var capabilities;
+    var sliderCapabilities = [];
 
     TerraMA2WebComponents.LayerExplorer.init();
     TerraMA2WebComponents.MapDisplay.init();
 
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "Custom", "terrama2-layerexplorer"))
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "unsortable", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
         allLayers.push({id: "custom", name: "Custom"});
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Template", "terrama2-layerexplorer"))
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "unsortable", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "treeview unsortable", null);
         allLayers.push({id: "template", name: "Template"});
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static Data", "terrama2-layerexplorer"))
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "unsortable", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "treeview unsortable", null);
         allLayers.push({id: "static", name: "Static Data"});
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic Data", "terrama2-layerexplorer"))
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "unsortable", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "treeview unsortable", null);
         allLayers.push({id: "dynamic", name: "Dynamic Data"});
     if (TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer"))
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "unsortable", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         allLayers.push({id: "analysis", name: "Analysis"});
 
-    var socket = io.connect(':3001');
-    var wepappsocket = io.connect(':36000');
+    addTreeviewMenuClass();
+
+    var socket;
+    if (webmonitorHostInfo && webmonitorHostInfo.port){
+        socket = io.connect(":" + webmonitorHostInfo.port);
+    } else {
+        socket = io.connect(":36001");
+    }
+
+    var wepappsocket;
+    if (webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port){
+        wepappsocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port);
+    } else {
+        wepappsocket = io.connect(":36000");
+    }
+    
     wepappsocket.emit('viewRequest');
     wepappsocket.on("viewResponse", function (data){
         for (i in data){
@@ -106,7 +127,7 @@
                     continue;
                 }
                 if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
-                    TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable terrama2-truncate-text", null);
+                    TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
                     allLayers.push({id: layerId, name: layerName});
 
                     var span = "";
@@ -136,7 +157,7 @@
                     continue;
                 }
                 if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", {version: "1.1.0"})){
-                    TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "unsortable terrama2-truncate-text", null);
+                    TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, data[i].type, null, "treeview unsortable terrama2-truncate-text", null);
                     allLayers.push({id: layerId, name: layerName});
                     if (data[i].type == 'analysis' || data[i].type == 'dynamic'){
                         var url = uriGeoServer + '/' + workspace + '/' + data[i].layers[0] + '/wms?service=WMS&version=1.1.0&request=GetCapabilities';
@@ -179,6 +200,7 @@
             $(li).append(sliderDiv);
 
             if (layerCapabilities[layerIndex].extent instanceof Array) {
+                sliderCapabilities.push(layerCapabilities[layerIndex]);
                 span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-sliders'></i></span>";
             } else if (layerCapabilities[layerIndex].extent instanceof Object) {
                 span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'>" + makeHelperDatePicker(layerCapabilities[layerIndex]) + "<i class='fa fa-calendar'></i></span>";
@@ -346,7 +368,7 @@
                         continue;
                     }
                     if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(capabilities[i].name, capabilities[i].title, capabilities[i].title, geoUrl, "geoserver", false, false, "terrama2-layerexplorer", {version: "1.1.0"})) {
-                        TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "unsortable terrama2-truncate-text", null);
+                        TerraMA2WebComponents.LayerExplorer.addLayersFromMap(capabilities[i].name, "custom", true, "treeview unsortable terrama2-truncate-text", null);
                         allLayers.push({id: capabilities[i].name, name: capabilities[i].title, extent: capabilities[i].extent});
                         addLayerToSort(capabilities[i].name, capabilities[i].title);
 
@@ -460,6 +482,14 @@
         }
         var liHtml = '<li id="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide">' + layerName + '</li>';
         $('#terrama2-sortlayers').children('ul').prepend(liHtml);
+    }
+
+    // function to add class treeview-menu to work lte admin css behavior when sidebar is mini
+    function addTreeviewMenuClass(){
+        var customParentLi = $(".parent_li").children('ul');
+        for (i = 0; i < customParentLi.length; i++){
+            customParentLi[i].className += ' treeview-menu';
+        }
     }
 
 </script>

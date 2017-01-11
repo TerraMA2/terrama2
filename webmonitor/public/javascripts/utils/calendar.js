@@ -63,7 +63,7 @@ $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
     $(calendar).on("apply.daterangepicker", function(ev, picker) {
       //  DO REQUEST
       var layerId = $(parentLi).attr("data-layerid");
-      var timeFormat = "YYYY-MM-DDThh:mm:ss";
+      var timeFormat = "YYYY-MM-DDTHH:mm:ss";
       var pickerStartDate = picker.startDate.format(timeFormat);
       var pickerEndDate = picker.endDate.format(timeFormat);
 

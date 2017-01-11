@@ -52,14 +52,15 @@
 
 // STL
 #include <utility>
+#include <type_traits>
 
-terrama2::core::ProcessLogger::ProcessLogger(const ProcessLogger& other)
+void terrama2::core::ProcessLogger::internalClone(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy) const
 {
-  schema_ = other.schema_;
-  tableName_ = other.tableName_;
-  messagesTableName_ = other.messagesTableName_;
+  loggerCopy->schema_ = schema_;
+  loggerCopy->tableName_ = tableName_;
+  loggerCopy->messagesTableName_ = messagesTableName_;
 
-  setConnectionInfo(other.dataSource_->getConnectionInfo());
+  loggerCopy->setConnectionInfo(dataSource_->getConnectionInfo());
 }
 
 
