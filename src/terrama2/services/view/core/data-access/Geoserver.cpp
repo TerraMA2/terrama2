@@ -585,20 +585,50 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
 
 void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name, const std::string &style) const
 {
-  QTemporaryFile file;
+  std::string validName = QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "/")).toStdString();
 
-  if(!file.open())
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriPost(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles?name="
+                        + validName
+                        + "&raw=true");
+
+  if(!uriPost.isValid())
   {
-    QString errMsg = QObject::tr("Could not create the XML file!");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw Exception() << ErrorDescription(errMsg);
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
   }
 
-  file.write(style.c_str());
-  file.flush();
+  // Register style
+  cURLwrapper.post(uriPost, style, "Content-Type: application/vnd.ogc.sld+xml");
 
-  // Upload Style file
-  registerStyleFile(name, file.fileName().toStdString());
+  if(cURLwrapper.responseCode() == 403)
+  {
+    te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + validName +"?raw=true");
+
+    if(!uriPut.isValid())
+    {
+      QString errMsg = QObject::tr("Invalid URI.");
+      TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    }
+
+    cURLwrapper.customRequest(uriPut, "PUT", style, "Content-Type: application/vnd.ogc.sld+xml");
+
+    if(cURLwrapper.responseCode() != 200)
+    {
+      QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+      TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    }
+  }
+  else if(cURLwrapper.responseCode() != 201)
+  {
+    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -689,7 +719,7 @@ void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& s
   te::ws::core::CurlWrapper cURLwrapper;
 
   te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/"
-                          + QString(QUrl::toPercentEncoding(QString::fromStdString(styleName), "", "/")).toStdString());
+                          + QString(QUrl::toPercentEncoding(QString::fromStdString(styleName), "", "/")).toStdString() + "?purge=true");
 
   if(!uriDelete.isValid())
   {
@@ -699,6 +729,17 @@ void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& s
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at delete style. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
