@@ -355,24 +355,6 @@
           self.analysis.data_provider_id = analysisInstance.dataSeries.data_provider_id;
         }
 
-        /**
-         * Called when click to validate script. It prepares a script, wrapping it with dummy function (def) in order to validate correctly.
-         * 
-         * @emit #checkPythonScriptRequest
-         * @returns {void}
-         */
-        self.onScriptValidation = function() {
-          self.testingScript = true;
-          var split = self.analysis.script.split("\n");
-          var wrapScript = "def dummy():\n";
-          split.forEach(function(element) {
-            if (element) {
-              wrapScript += "    " + element + "\n";
-            }
-          })
-          socket.emit('checkPythonScriptRequest', {script: wrapScript || ""});
-        };
-
         // define dataseries selected in modal
         self.nodesDataSeries = [];
 
@@ -484,11 +466,11 @@
          */
         Socket.on("processValidated", function(resp) {
           self.validating = false;
-          self.errorMessages = [];
           if (resp.valid) {
-            MessageBoxService.success(i18n.__("Analysis"), i18n.__("OK"));
+            MessageBoxService.success(i18n.__("Analysis Validation"), i18n.__("The Analysis seems valid"));
+            self.errorMessages = [];
           } else {
-            MessageBoxService.danger(i18n.__("Analysis"), "");
+            MessageBoxService.danger(i18n.__("Analysis Validation"), i18n.__('The following errors occurred while attempting to validate the analysis') + ":");
             self.errorMessages = resp.messages;
           }
         });

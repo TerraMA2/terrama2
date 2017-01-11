@@ -152,18 +152,14 @@
                            close="ctrl.close()">
         <button type="button" class="close" ng-click="ctrl.MessageBoxService.reset()">×</button>
         <h4><i class="icon fa" ng-class="ctrl.MessageBoxService.getIcon()"></i> {{ ctrl.MessageBoxService.alertBox.title }}</h4>
-        <div class="col-md-12" ng-bind="ctrl.MessageBoxService.alertBox.message"></div>
-
-        <div ng-show="ctrl.errorMessages.length !== 0">
+        <div>
           <ul class="nav nav-list" terrama2-collapse>
             <li class="terrama2-list-error">
-              <i class="fa fa-caret-right"></i> <label ng-bind="i18n.__('Analysis Validation')" class="tree-toogler nav-header"></label>
-
-              <span ng-if="" class="glyphicon glyphicon-remove"></span>
+              <i class="fa fa-caret-right" ng-show="ctrl.errorMessages.length > 0"></i> <label ng-bind="ctrl.MessageBoxService.alertBox.message" class="tree-toogler nav-header"></label>
 
               <ul class="nav nav-list tree">
                 <li ng-repeat="message in ctrl.errorMessages">
-                  <span ng-bind="message"></span>
+                  <i class="fa fa-circle" style="font-size: 5px;"></i> <span ng-bind="message"></span>
                 </li>
               </ul>
             </li>
@@ -743,13 +739,6 @@
                 <li><a href="#">abs</a></li>
               </ul>
             </div>
-
-            <button class="btn btn-default pull-right" style="width: 75px;" ng-click="ctrl.onScriptValidation();">
-              <span class="loading" ng-show="ctrl.testingScript">
-                <i class="fa fa-refresh fa-spin"></i>
-              </span>
-              <span class="text" ng-show="!ctrl.testingScript" ng-disabled="ctrl.testingScript" ng-bind="i18n.__('Validate')"></span>
-            </button>
           </div>
         </div>
       </div>
