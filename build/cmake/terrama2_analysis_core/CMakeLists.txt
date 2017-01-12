@@ -70,8 +70,11 @@ file(GLOB TERRAMA2_GRID_ZONAL_FORECAST_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/s
 file(GLOB TERRAMA2_GRID_ZONAL_FORECAST_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/forecast/interval/*.cpp)
 file(GLOB TERRAMA2_GRID_ZONAL_FORECAST_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/forecast/interval/*.hpp)
 
-file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/accum/*.cpp)
-file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_RATIO_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/accum/*.hpp)
+file(GLOB TERRAMA2_GRID_ZONAL_FORECAST_ACCUM_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/forecast/accum/*.cpp)
+file(GLOB TERRAMA2_GRID_ZONAL_FORECAST_ACCUM_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/forecast/accum/*.hpp)
+
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/accum/*.cpp)
+file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/accum/*.hpp)
 
 file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/prec/*.cpp)
 file(GLOB TERRAMA2_GRID_ZONAL_HISTORY_PREC_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/zonal/history/prec/*.hpp)
@@ -118,8 +121,10 @@ source_group("Source Files\\grid\\zonal\\forecast"  FILES ${TERRAMA2_GRID_ZONAL_
 source_group("Header Files\\grid\\zonal\\forecast"  FILES ${TERRAMA2_GRID_ZONAL_FORECAST_HDR_FILES})
 source_group("Source Files\\grid\\zonal\\forecast\\interval"  FILES ${TERRAMA2_GRID_ZONAL_FORECAST_INTERVAL_SRC_FILES})
 source_group("Header Files\\grid\\zonal\\forecast\\interval"  FILES ${TERRAMA2_GRID_ZONAL_FORECAST_INTERVAL_HDR_FILES})
-source_group("Source Files\\grid\\zonal\\history\\ratio"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES})
-source_group("Header Files\\grid\\zonal\\history\\ratio"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES})
+source_group("Source Files\\grid\\zonal\\forecast\\accum"  FILES ${TERRAMA2_GRID_ZONAL_FORECAST_ACCUM_SRC_FILES})
+source_group("Header Files\\grid\\zonal\\forecast\\accum"  FILES ${TERRAMA2_GRID_ZONAL_FORECAST_ACCUM_HDR_FILES})
+source_group("Source Files\\grid\\zonal\\history\\accum"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_SRC_FILES})
+source_group("Header Files\\grid\\zonal\\history\\accum"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_SRC_FILES})
 source_group("Source Files\\grid\\zonal\\history\\prec"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES})
 source_group("Header Files\\grid\\zonal\\history\\prec"  FILES ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES})
 source_group("Source Files\\grid\\history"  FILES ${TERRAMA2_GRID_HISTORY_SRC_FILES})
@@ -170,10 +175,12 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_GRID_ZONAL_HISTORY_HDR_FILES}
                                           ${TERRAMA2_GRID_ZONAL_FORECAST_SRC_FILES}
                                           ${TERRAMA2_GRID_ZONAL_FORECAST_HDR_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_FORECAST_ACCUM_SRC_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_FORECAST_ACCUM_HDR_FILES}
                                           ${TERRAMA2_GRID_ZONAL_FORECAST_INTERVAL_SRC_FILES}
                                           ${TERRAMA2_GRID_ZONAL_FORECAST_INTERVAL_HDR_FILES}
-                                          ${TERRAMA2_GRID_ZONAL_HISTORY_RATIO_SRC_FILES}
-                                          ${TERRAMA2_GRID_ZONAL_HISTORY_RATIO_HDR_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_SRC_FILES}
+                                          ${TERRAMA2_GRID_ZONAL_HISTORY_ACCUM_HDR_FILES}
                                           ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_SRC_FILES}
                                           ${TERRAMA2_GRID_ZONAL_HISTORY_PREC_HDR_FILES}
                                           ${TERRAMA2_GRID_HISTORY_SRC_FILES}

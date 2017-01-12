@@ -30,8 +30,8 @@
 
 
 #include "Operator.hpp"
-#include "../prec/Operator.hpp"
 #include "../../Operator.hpp"
+#include "../../Utils.hpp"
 #include "../../../../utility/Utils.hpp"
 #include "../../../../utility/Verify.hpp"
 #include "../../../../python/PythonInterpreter.hpp"
@@ -98,8 +98,10 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
   try
   {
     // In case an error has already occurred, there is nothing to be done
-    if(!context->getErrors().empty())
+    if(!contextManager.getMessages(cache.analysisHashCode, BaseContext::MessageType::ERROR_MESSAGE).empty())
+    {
       return NAN;
+    }
 
     bool hasData = false;
 
@@ -137,10 +139,14 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
     //map of sum of values for each pixel
     std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > > valuesMap;
 
+    terrama2::core::Filter filter;
+    filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
+    filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
+
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)
     {
-      auto rasterList = context->getRasterList(dataSeries, dataset->id, dateDiscardBefore, dateDiscardAfter);
+      auto rasterList = context->getRasterList(dataSeries, dataset->id, filter);
       //sanity check, if no date range only the last raster should be returned
       if(dateDiscardBefore.empty() && rasterList.size() > 1)
       {
@@ -161,7 +167,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
         continue;
 
       geomResult->transform(firstRaster->getSRID());
-      prec::appendValues(rasterList, band, geomResult.get() , valuesMap);
+      auto valuesMap = utils::getAccumulatedMap(dataSeriesName, dateDiscardBefore, dateDiscardAfter, band, buffer, context, cache);
 
       if(!valuesMap.empty())
       {
@@ -169,9 +175,6 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
         break;
       }
     }
-
-    if(exceptionOccurred)
-      return NAN;
 
     if(!hasData && statisticOperation != StatisticOperation::COUNT)
     {
@@ -188,18 +191,18 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
   }
   catch(const terrama2::Exception& e)
   {
-    context->addError(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     return NAN;
   }
   catch(const std::exception& e)
   {
-    context->addError(e.what());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
     return NAN;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    context->addError(errMsg.toStdString());
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     return NAN;
   }
 }

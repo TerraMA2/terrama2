@@ -96,6 +96,103 @@ namespace terrama2
                                    const size_t band,
                                    std::map<std::pair<int, int>, T>& valuesMap);
 
+              inline std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > >
+              getAccumulatedMap(const std::string &dataSeriesName, const std::string &dateDiscardBefore,
+                                const std::string &dateDiscardAfter, const size_t band,
+                                terrama2::services::analysis::core::Buffer buffer,
+                                terrama2::services::analysis::core::MonitoredObjectContextPtr context,
+                                terrama2::services::analysis::core::OperatorCache cache)
+              {
+
+                auto dataManagerPtr = context->getDataManager().lock();
+                if(!dataManagerPtr)
+                {
+                  QString errMsg(QObject::tr("Invalid data manager."));
+                  throw terrama2::core::InvalidDataManagerException() << terrama2::ErrorDescription(errMsg);
+                }
+
+                std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries(dataManagerPtr);
+                if(!moDsContext)
+                {
+                  QString errMsg(QObject::tr("Could not recover monitored object data series."));
+                  throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+                }
+
+                if(moDsContext->series.syncDataSet->size() == 0)
+                {
+                  QString errMsg(QObject::tr("Could not recover monitored object data series."));
+                  throw InvalidDataSeriesException() << terrama2::ErrorDescription(errMsg);
+                }
+
+                auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
+                if(!moGeom.get())
+                {
+                  QString errMsg(QObject::tr("Could not recover monitored object geometry."));
+                  throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
+                }
+                auto geomResult = createBuffer(buffer, moGeom);
+
+                auto dataSeries = context->findDataSeries(dataSeriesName);
+
+                /////////////////////////////////////////////////////////////////
+                //map of sum of values for each pixel
+                std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > > valuesMap;
+
+                terrama2::core::Filter filter;
+                filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
+                filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
+
+                auto datasets = dataSeries->datasetList;
+                for(const auto& dataset : datasets)
+                {
+                  auto rasterList = context->getRasterList(dataSeries, dataset->id, filter);
+                  //sanity check, if no date range only the last raster should be returned
+                  if(!filter.discardBefore && rasterList.size() > 1)
+                  {
+                    QString errMsg(QObject::tr("Invalid list of raster for dataset: %1").arg(dataset->id));
+                    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+                  }
+
+                  if(rasterList.empty())
+                  {
+                    QString errMsg(QObject::tr("Invalid raster for dataset: %1").arg(dataset->id));
+                    throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+                  }
+
+                  auto firstRaster = rasterList.front();
+
+                  //no intersection between the raster and the object geometry
+                  if(!firstRaster->getExtent()->intersects(*geomResult->getMBR()))
+                    continue;
+
+                  geomResult->transform(firstRaster->getSRID());
+                  for(auto raster : rasterList)
+                  {
+                    std::map<std::pair<int, int>, double> tempValuesMap;
+                    utils::getRasterValues<double>(geomResult.get(), raster, band, tempValuesMap);
+
+                    for_each(tempValuesMap.cbegin(), tempValuesMap.cend(), [&valuesMap](const std::pair<std::pair<int, int>, double>& val)
+                    {
+                      try
+                      {
+                        auto& it = valuesMap.at(val.first);
+                        it.first += val.second;
+                        it.second++;
+                      }
+                      catch (...)
+                      {
+                        valuesMap[val.first] = std::make_pair(val.second, 1);
+                      }
+                    });
+                  }
+
+                  if(!valuesMap.empty())
+                    break;
+                }
+
+                return valuesMap;
+
+              }
             } /* utils */
           }
         }
@@ -238,6 +335,5 @@ void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues(
     valuesMap[key] = rasterIt[band];
   }
 }
-
 
 #endif //__TERRAMA2_SERVICES_ANALYSIS_CORE_GRID_ZONAL_UTILS_HPP__
