@@ -297,6 +297,15 @@ define([], function() {
         }
       };
 
+      $scope.countObjectProperties = function(object) {
+        var count = 0;
+
+        if(object !== undefined && object !== null && typeof object === "object")
+          for(key in object) if(object.hasOwnProperty(key)) count++;
+
+        return count;
+      };
+
       $scope.$on('storagerFormatChange', function(event, args) {
         $scope.formatSelected = args.format;
         // todo: fix it. It is hard code
@@ -415,7 +424,7 @@ define([], function() {
             if(args.dcps) {
               var _callDcpsStorage = function() {
                 setTimeout(function() {
-                  if(countObjectProperties($scope.dcpsStoragerObject) === args.dcps.length) {
+                  if($scope.countObjectProperties($scope.dcpsStoragerObject) === args.dcps.length) {
                     $scope.storageDcpsStore();
                   } else {
                     _callDcpsStorage();
@@ -1180,6 +1189,13 @@ define([], function() {
       $scope.formStorager = [];
       $scope.modelStorager = {};
       $scope.schemaStorager = {};
+
+      $scope.objectToArray = function(object) {
+        return $.map(object, function(value, index) {
+          return [value];
+        });
+      };
+
       $scope.onStoragerFormatChange = function() {
         $scope.showStoragerForm = true;
 
@@ -1643,7 +1659,7 @@ define([], function() {
         return true;
       }
 
-      var countObjectProperties = function(object) {
+      $scope.countObjectProperties = function(object) {
         var count = 0;
         
         if(object !== undefined && object !== null && typeof object === "object")
@@ -1667,8 +1683,8 @@ define([], function() {
       }, true);
 
       $scope.$watch("dcpsObject", function(newVal, oldVal) {
-        var newValLength = countObjectProperties(newVal);
-        var oldValLength = countObjectProperties(oldVal);
+        var newValLength = $scope.countObjectProperties(newVal);
+        var oldValLength = $scope.countObjectProperties(oldVal);
 
         if(newVal && newValLength > 0) {
           //checking if is editing
