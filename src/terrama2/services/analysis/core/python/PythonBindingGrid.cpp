@@ -428,13 +428,13 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalHistoryP
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::min, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::max, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::mean, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::median, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::standardDeviation, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::variance, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastSum_overloads, terrama2::services::analysis::core::grid::zonal::forecast::sum, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::min, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::max, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::mean, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::median, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::standardDeviation, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::variance, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastSum_overloads, terrama2::services::analysis::core::grid::zonal::forecast::sum, 2, 3)
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
 
@@ -478,13 +478,13 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalForecast
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::min, 3, 5)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::max, 3, 5)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::mean, 3, 5)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::median, 3, 5)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::standardDeviation, 3, 5)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::variance, 3, 5)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalSum_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::sum, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::min, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::max, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::mean, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::median, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::standardDeviation, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::variance, 3, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastIntervalSum_overloads, terrama2::services::analysis::core::grid::zonal::forecast::interval::sum, 3, 4)
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
 
@@ -528,13 +528,13 @@ void terrama2::services::analysis::core::python::Grid::registerGridZonalForecast
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::min, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::max, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::mean, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::median, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::standardDeviation, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::variance, 2, 4)
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumSum_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::sum, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMin_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::min, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMax_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::max, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMean_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::mean, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumMedian_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::median, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumStandardDeviation_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::standardDeviation, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumVariance_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::variance, 2, 3)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridZonalForecastAccumSum_overloads, terrama2::services::analysis::core::grid::zonal::forecast::accum::sum, 2, 3)
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
 
