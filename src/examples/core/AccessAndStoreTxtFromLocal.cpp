@@ -1,24 +1,32 @@
 
+// TerraMA2
+#include <terrama2/Config.hpp>
 #include <terrama2/core/Shared.hpp>
-#include <terrama2/core/utility/Utils.hpp>
-#include <terrama2/core/utility/TerraMA2Init.hpp>
-#include <terrama2/core/utility/SemanticsManager.hpp>
+#include <terrama2/core/data-access/DcpSeries.hpp>
 #include <terrama2/core/data-model/DataProvider.hpp>
 #include <terrama2/core/data-model/DataSeries.hpp>
 #include <terrama2/core/data-model/DataSetDcp.hpp>
-#include <terrama2/impl/DataAccessorDcpInpe.hpp>
+#include <terrama2/core/utility/Utils.hpp>
+#include <terrama2/core/utility/TerraMA2Init.hpp>
+#include <terrama2/core/utility/FileRemover.hpp>
+#include <terrama2/core/utility/SemanticsManager.hpp>
+#include <terrama2/core/utility/DataAccessorFactory.hpp>
+#include <terrama2/core/utility/DataStoragerFactory.hpp>
 #include <terrama2/impl/DataStoragerPostGIS.hpp>
-
-#include <terrama2/Config.hpp>
-
-#include <iostream>
+#include <terrama2/impl/DataAccessorTxtFile.hpp>
+#include <terrama2/impl/Utils.hpp>
 
 //QT
 #include <QUrl>
 
+// STL
+#include <iostream>
+
+
 int main(int argc, char* argv[])
 {
-terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  terrama2::core::TerraMA2Init terramaRaii("example", 0);
+  terrama2::core::registerFactories();
 
   //DataProvider information
   terrama2::core::DataProvider* dataProvider = new terrama2::core::DataProvider();
@@ -35,12 +43,12 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::DataSeries* dataSeries = new terrama2::core::DataSeries();
   terrama2::core::DataSeriesPtr dataSeriesPtr(dataSeries);
   auto& semanticsManager = terrama2::core::SemanticsManager::getInstance();
-  dataSeries->semantics = semanticsManager.getSemantics("DCP-inpe");
+  dataSeries->semantics = semanticsManager.getSemantics("CSV-generic");
 
 
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
-  dataSet->format.emplace("mask", "30885.txt");
+  dataSet->format.emplace("mask", "testeCSV.txt");
   dataSet->format.emplace("timezone", "+00");
 
   dataSeries->datasetList.emplace_back(dataSet);
@@ -49,9 +57,14 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::Filter filter;
 
   //accessing data
-  terrama2::core::DataAccessorDcpInpe accessor(dataProviderPtr, dataSeriesPtr);
+  auto accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProviderPtr, dataSeriesPtr);
   auto remover = std::make_shared<terrama2::core::FileRemover>();
-  terrama2::core::DcpSeriesPtr dcpSeries = accessor.getDcpSeries(filter, remover);
+  auto uriMap = accessor->getFiles(filter, remover);
+
+  auto dataMap = accessor->getSeries(uriMap, filter, remover);
+
+  terrama2::core::DcpSeriesPtr dcpSeries = std::make_shared<terrama2::core::DcpSeries>();
+  dcpSeries->addDcpSeries(dataMap);
 
   assert(dcpSeries->dcpSeriesMap().size() == 1);
 
@@ -81,13 +94,14 @@ terrama2::core::TerraMA2Init terramaRaii("example", 0);
   terrama2::core::DataSetPtr dataSetOutputPtr(dataSetOutput);
   dataSetOutput->active = true;
   dataSetOutput->format.emplace("table_name", "inpe");
-  dataSetOutput->format.emplace("timestamp_column", "datetime");
+  dataSetOutput->format.emplace("timestamp_column", "DateTime");
 
-  terrama2::core::DataStoragerPostGIS dataStorager(dataProviderPostGISPtr);
+  auto dataStorager = terrama2::core::DataStoragerFactory::getInstance().make(outputDataSeriesPtr->semantics.dataFormat, dataProviderPostGISPtr);
 
-  dataStorager.store( (*dcpSeries->dcpSeriesMap().begin()).second, dataSetOutputPtr);
-
-
+  for(auto& item : dataMap)
+  {
+    dataStorager->store( item.second, dataSetOutputPtr);
+  }
 
   return 0;
 }

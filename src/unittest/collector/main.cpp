@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     try
     {
       IntRasterTs intRasterTs;
-      // ret += QTest::qExec(&intRasterTs, argc, argv);
+      ret += QTest::qExec(&intRasterTs, argc, argv);
     }
     catch(...)
     {
