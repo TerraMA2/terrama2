@@ -6,7 +6,6 @@ define([], function() {
       $scope.tableFieldsStorager = [];
       $scope.tableFieldsStoragerDataTable = [];
       $scope.formatSelected = {};
-      $scope.dcpsStorager = [];
       $scope.dcpsStoragerObject = {};
       $scope.inputDataSets = [];
       $scope.storage = {};
@@ -44,24 +43,31 @@ define([], function() {
       };
 
       $scope.removePcdStorager = function(dcpItem) {
-        $scope.dcpsStorager.some(function(dcp, pcdIndex, array) {
-          // todo: which fields should compare to remove?
-          if (parseInt(dcp._id) === parseInt(dcpItem._id)) {
-            array.splice(pcdIndex, 1);
-            return true;
+        for(var property in $scope.dcpsStoragerObject) {
+          if($scope.dcpsStoragerObject.hasOwnProperty(property)) {
+            if(parseInt($scope.dcpsStoragerObject[property].viewId) === parseInt(dcpItem.viewId)) {
+              delete $scope.dcpsStoragerObject[property];
+              return true;
+            }
           }
-        });
+        }
       };
 
-      $scope.editDcpStorager = function(dcpItem){
-        $scope.dcpsStorager.some(function(dcp, dcpIndex, array){
-          if (parseInt(dcp._id) === parseInt(dcpItem._id)){
-            var table_name = dcp.table_name;
-            array[dcpIndex] = dcpItem;
-            array[dcpIndex].table_name = table_name;
-            return true;
+      $scope.editDcpStorager = function(dcpItem) {
+        for(var property in $scope.dcpsStoragerObject) {
+          if($scope.dcpsStoragerObject.hasOwnProperty(property)) {
+            if(parseInt($scope.dcpsStoragerObject[property].viewId) === parseInt(dcpItem.viewId)) {
+              var table_name = $scope.dcpsStoragerObject[property].table_name;
+              var table_name_html = $scope.dcpsStoragerObject[property].table_name_html;
+
+              $scope.dcpsStoragerObject[dcpItem.viewId] = dcpItem;
+              $scope.dcpsStoragerObject[dcpItem.viewId].table_name = table_name;
+              $scope.dcpsStoragerObject[dcpItem.viewId].table_name_html = table_name_html;
+
+              return true;
+            }
           }
-        });
+        }
       }
 
       $scope.addDcpStorager = function() {
@@ -71,7 +77,7 @@ define([], function() {
         if (form.$valid && inputDataSetForm.$valid) {
           $scope.model['inputDataSet'] = $scope.storage.inputDataSet.mask;
           $scope.dcpsStorager.push(Object.assign({}, $scope.model));
-          //$scope.dcpsStoragerObject[]
+
           $scope.model = {};
 
           // remove it from input list
@@ -141,6 +147,12 @@ define([], function() {
         }, 200);
       };
 
+      $scope.objectToArray = function(object) {
+        return $.map(object, function(value, index) {
+          return [value];
+        });
+      };
+
       $scope.$on("requestStorageValues", function() {
         // apply a validation
         $scope.$broadcast('schemaFormValidate');
@@ -150,7 +162,7 @@ define([], function() {
           switch ($scope.formatSelected.data_series_type_name) {
             case "DCP":
               $scope.$emit("storageValuesReceive", {
-                data: $scope.dcpsStorager,
+                data: $scope.objectToArray($scope.dcpsStoragerObject),
                 data_provider: $scope['storager_data_provider_id'],
                 service: $scope["storager_service"],
                 type: $scope.formatSelected.data_series_type_name,
@@ -189,8 +201,9 @@ define([], function() {
           // todo: remove it from list
           removeInput(args.dcp.mask);
         } else if(args.action === "add") {
+          var dcpToAdd = args.dcp;
+
           if($scope.storager.format && $scope.storager.format.data_format_name === globals.enums.DataSeriesFormat.POSTGIS) {
-            // postgis
             var copyFormat = angular.merge({}, $scope.dataSeries.semantics.metadata.metadata);
             angular.merge(copyFormat, args.dcp);
 
@@ -199,28 +212,26 @@ define([], function() {
             obj.table_name = obj.alias;
             obj.table_name_html = "<span editable-text=\"dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name']\">{{ dcpsStoragerObject['" + obj.viewId.toString() + "']['table_name'] }}</span>";
 
-            for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
-              var key = $scope.dataSeries.semantics.metadata.form[j].key;
-
-              if($scope.isBoolean(obj[key])) {
-                obj[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsStoragerObject['" + obj.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
-              } else {
-                obj[key + '_html'] = "<span ng-bind=\"dcpsStoragerObject['" + obj.viewId.toString() + "']['" + key + "']\"></span>";
-              }
-            }
-
-            $scope.dcpsStorager.push(obj);
-            $scope.dcpsStoragerObject[obj.viewId] = obj;
-          } else {
-            $scope.dcpsStorager.push(args.dcp);
+            dcpToAdd = obj;
           }
+
+          for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+            var key = $scope.dataSeries.semantics.metadata.form[j].key;
+
+            if($scope.isBoolean(dcpToAdd[key]))
+              dcpToAdd[key + '_html'] = "<span><input type=\"checkbox\" ng-model=\"dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\" ng-disabled=\"true\"></span>";
+            else
+              dcpToAdd[key + '_html'] = "<span ng-bind=\"dcpsStoragerObject['" + dcpToAdd.viewId.toString() + "']['" + key + "']\"></span>";
+          }
+
+          $scope.dcpsStoragerObject[dcpToAdd.viewId] = dcpToAdd;
         } else if(args.action === "edit") {
           $scope.editDcpStorager(args.dcp);
         }
       });
 
       $scope.$on("resetStoragerDataSets", function(event) {
-        $scope.dcpsStorager = [];
+        $scope.dcpsStoragerObject = {};
       });
 
       $scope.$on("clearStoreForm", function(event){
@@ -229,7 +240,7 @@ define([], function() {
         $scope.schemaStorager = {};
         $scope.storager.format = null;
         $scope.storager_service = undefined;
-        $scope.dcpsStorager = [];
+        $scope.dcpsStoragerObject = {};
         $scope.storager_data_provider_id = undefined;
         $scope.$broadcast("clearSchedule");
       });
@@ -269,15 +280,9 @@ define([], function() {
       }
 
       $scope.storageDcpsStore = function() {
-        var dcps = $scope.dcpsStoragerObject;
-
-        dcps = $.map(dcps, function(value, index) {
-          return [value];
-        });
-
         $http.post("/configuration/dynamic/dataseries/storeDcpsStore", {
           key: storedDcpsKey,
-          dcps: dcps
+          dcps: $scope.objectToArray($scope.dcpsStoragerObject)
         }).success(function(result) {
           reloadDataStore();
         }).error(function(err) {
@@ -301,7 +306,7 @@ define([], function() {
         var dataSeriesSemantics = DataSeriesSemanticsService.get({code: args.format.code});
 
         $scope.dataProvidersStorager = [];
-        $scope.dcpsStorager = [];
+        $scope.dcpsStoragerObject = {};
         $scope.dataProvidersList.forEach(function(dataProvider) {
           dataSeriesSemantics.data_providers_semantics.forEach(function(demand) {
             if (dataProvider.data_provider_type.id == demand.data_provider_type_id){
@@ -326,7 +331,7 @@ define([], function() {
         var metadata = dataSeriesSemantics.metadata;
         var properties = metadata.schema.properties;
 
-	$scope.createDataTableStore(properties);
+	      $scope.createDataTableStore(properties);
 
         if ($scope.isUpdating) {
           if ($scope.formatSelected.data_series_type_name === globals.enums.DataSeriesType.DCP) {
@@ -396,7 +401,7 @@ define([], function() {
             $scope.tableFieldsStoragerDataTable.push(property);
           }
 
-	  $scope.tableFieldsStoragerDataTable.push('ID');
+	        $scope.tableFieldsStoragerDataTable.push('ID');
 
           if ($scope.hasCollector) {
             outputDataseries.dataSets.forEach(function(dataset) {
@@ -407,21 +412,21 @@ define([], function() {
               $scope._addDcpStorager(Object.assign({}, dataSetDcp));
             });
 
-	    if(args.dcps) {
-	      var _callDcpsStorage = function() {
-	        setTimeout(function() {
-	          if($scope.dcpsStorager.length === args.dcps.length) {
-	            $scope.storageDcpsStore();
-	          } else {
-	            _callDcpsStorage();
-	          }
-	        }, 1000);
-	      };
+            if(args.dcps) {
+              var _callDcpsStorage = function() {
+                setTimeout(function() {
+                  if(countObjectProperties($scope.dcpsStoragerObject) === args.dcps.length) {
+                    $scope.storageDcpsStore();
+                  } else {
+                    _callDcpsStorage();
+                  }
+                }, 1000);
+              };
 
-	      _callDcpsStorage();
-	    } else {
-	      $scope.storageDcpsStore();
-	    }
+              _callDcpsStorage();
+            } else {
+              $scope.storageDcpsStore();
+            }
           }
 
           $scope.modelStorager = {};
@@ -710,7 +715,7 @@ define([], function() {
           }
 
         $scope.tableFields = [];
-	$scope.tableFieldsDataTable = ['ID'];
+	      $scope.tableFieldsDataTable = ['ID'];
         // building table fields. Check if form is for all ('*')
         if (dataSeriesSemantics.metadata.form.indexOf('*') != -1) {
           // ignore form and make it from properties
@@ -723,17 +728,17 @@ define([], function() {
           }
         } else {
           // form is mapped
-	  for(var i = 0, formLength = dataSeriesSemantics.metadata.form.length; i < formLength; i++) {
+	        for(var i = 0, formLength = dataSeriesSemantics.metadata.form.length; i < formLength; i++) {
             $scope.tableFields.push(dataSeriesSemantics.metadata.form[i].key);
             $scope.tableFieldsDataTable.push(dataSeriesSemantics.metadata.form[i].key);
           }
         }
 
-	$scope.tableFieldsDataTable.push('');
+        $scope.tableFieldsDataTable.push('');
 
-	if($scope.tableFields.length > 0) {
-	  $scope.createDataTable();
-	}
+        if($scope.tableFields.length > 0) {
+          $scope.createDataTable();
+        }
 
         // fill out
         if ($scope.isUpdating) {
@@ -742,7 +747,6 @@ define([], function() {
           $scope.wizard.general.error = false;
           if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
             // TODO: prepare format as dcp item
-            $scope.dcps = [];
             $scope.dcpsObject = {};
             inputDataSeries.dataSets.forEach(function(dataset) {
               if (dataset.position) {
@@ -1180,7 +1184,7 @@ define([], function() {
         $scope.showStoragerForm = true;
 
         $timeout(function() {
-          $scope.$broadcast('storagerFormatChange', {format: $scope.storager.format, dcps: $scope.dcps});
+          $scope.$broadcast('storagerFormatChange', { format: $scope.storager.format, dcps: $scope.objectToArray($scope.dcpsObject) });
         });
       };
 
@@ -1639,6 +1643,15 @@ define([], function() {
         return true;
       }
 
+      var countObjectProperties = function(object) {
+        var count = 0;
+        
+        if(object !== undefined && object !== null && typeof object === "object")
+          for(key in object) if(object.hasOwnProperty(key)) count++;
+
+        return count;
+      };
+
       // watch dcps model to update dcpStorager
       $scope.$watch("dcps", function(newVal, oldVal){
         if (newVal && newVal.length > 0){
@@ -1647,6 +1660,24 @@ define([], function() {
             for (i = 0; i < newVal.length; i++){
               if (!Object.equals(newVal[i], oldVal[i])){
                 $scope.$broadcast("dcpOperation", {action: "edit", dcp: newVal[i]});
+              }
+            }
+          }
+        }
+      }, true);
+
+      $scope.$watch("dcpsObject", function(newVal, oldVal) {
+        var newValLength = countObjectProperties(newVal);
+        var oldValLength = countObjectProperties(oldVal);
+
+        if(newVal && newValLength > 0) {
+          //checking if is editing
+          if(newValLength === oldValLength) {
+            for(var property in newVal) {
+              if(newVal.hasOwnProperty(property) && oldVal.hasOwnProperty(property)) {
+                if(!Object.equals(newVal[property], oldVal[property])) {
+                  $scope.$broadcast("dcpOperation", { action: "edit", dcp: newVal[property] });
+                }
               }
             }
           }
