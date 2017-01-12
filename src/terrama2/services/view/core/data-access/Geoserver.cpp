@@ -38,11 +38,14 @@
 #include "../../../../impl/DataAccessorFile.hpp"
 #include "../../../../impl/DataAccessorPostGIS.hpp"
 #include "../../../../core/data-model/DataProvider.hpp"
+#include "../../../../core/utility/Raii.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/DataAccessorFactory.hpp"
 
 
 // TerraLib
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/ws/core/CurlWrapper.h>
 #include <terralib/ws/ogc/wms/client/WMSClient.h>
 #include <terralib/geometry/Envelope.h>
@@ -890,9 +893,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
           if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
           {
             const auto& id = dataset->format.find("monitored_object_id");
-            const auto& foreing = dataset->format.find("monitored_object_pk");
 
-            if(id == dataset->format.end() || foreing == dataset->format.end())
+            if(id == dataset->format.end())
             {
               logger->log(ViewLogger::ERROR_MESSAGE, "Data to join not informed.", logId);
               TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
@@ -928,11 +930,28 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             std::shared_ptr< terrama2::core::DataAccessorPostGIS > dataAccessorAnalysisPostGIS =
                 std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGIS>(monitoredObjectDataAccessor);
 
-            std::string joinTableName = dataAccessorAnalysisPostGIS->getDataSetTableName(monitoredObjectDataset);
+            std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS", monitoredObjectProvider->uri));
 
-            joinSQL = "SELECT * from " + tableName + " as t1 , " + joinTableName + " as t2 ";
+            terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
 
-            joinSQL += "WHERE t1.geom_id = t2." + foreing->second;
+            if(!datasource->isOpened())
+            {
+              QString errMsg = QObject::tr("DataProvider could not be opened.");
+              logger->log(ViewLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              continue;
+            }
+
+            std::string monitoredObjectTableName = dataAccessorAnalysisPostGIS->getDataSetTableName(monitoredObjectDataset);
+
+            std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType(monitoredObjectTableName);
+
+            std::string pk = dataSetType->getPrimaryKey()->getProperties().at(0)->getName();
+
+            joinSQL = "SELECT t1.execution_date, t1.res, t2.* "
+                      "from " + tableName + " as t1 , " + monitoredObjectTableName + " as t2 ";
+
+            joinSQL += "WHERE t1." + pk + " = t2." + pk;
 
             // Change the layer name
             layerName = viewPtr->viewName;
@@ -949,7 +968,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
           layer.insert("layer", QString::fromStdString(layerName));
           layersArray.push_back(layer);
         }
-
       }
     }
     else
