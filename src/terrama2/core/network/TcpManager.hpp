@@ -113,7 +113,7 @@ namespace terrama2
         //! Emitted when the service should be terminated.
         void stopSignal();
         void closeApp();
-        //! Emmited when a process should be started immediately.
+        //! Emitted when a process should be started immediately.
         void startProcess(uint32_t, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
       private slots:
