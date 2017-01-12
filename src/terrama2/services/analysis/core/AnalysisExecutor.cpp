@@ -33,6 +33,7 @@
 #include "python/PythonInterpreter.hpp"
 #include "DataManager.hpp"
 #include "ContextManager.hpp"
+#include "utility/Verify.hpp"
 #include "../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
 #include "../../../core/utility/Utils.hpp"
@@ -97,7 +98,15 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 
     logId = logger->start(analysis->id);
 
-    verifyInactiveDataSeries(dataManager, analysis, logger, logId);
+    verify::inactiveDataSeries(dataManager, analysis);
+    std::vector<std::string> messages = verify::inactiveDataSeries(dataManager, analysis);
+    if(!messages.empty())
+    {
+      for(std::string message : messages)
+      {
+        logger->log(AnalysisLogger::WARNING_MESSAGE, message, analysis->id);
+      }
+    }
 
     switch(analysis->type)
     {
@@ -884,16 +893,48 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGridAnalysisResu
   }
 }
 
-void terrama2::services::analysis::core::AnalysisExecutor::verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<AnalysisLogger> logger, RegisterId logId)
+
+terrama2::services::analysis::core::ValidateResult terrama2::services::analysis::core::AnalysisExecutor::validateAnalysis(DataManagerPtr dataManager,
+                                                                           AnalysisPtr analysis)
 {
-  for(auto& analysisDataSeries : analysis->analysisDataSeriesList)
+  ValidateResult validateResult;
+  validateResult.analysisId = analysis->id;
+
+  verify::validateAnalysis(dataManager, analysis, validateResult);
+
+  if(analysis->scriptLanguage == ScriptLanguage::PYTHON)
   {
-    auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
-    if(!dataSeries->active)
+    try
     {
-      QString errMsg = QObject::tr("Analysis is using an inactive data series (%1).").arg(dataSeries->id);
-      logger->log(AnalysisLogger::WARNING_MESSAGE, errMsg.toStdString(), logId);
-      TERRAMA2_LOG_WARNING() << errMsg;
+      python::validateAnalysisScript(analysis, validateResult);
+    }
+    catch(const terrama2::Exception& e)
+    {
+      validateResult.messages.push_back(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    }
+    catch(const boost::python::error_already_set&)
+    {
+      std::string errMsg = python::extractException();
+      validateResult.messages.push_back(errMsg);
+    }
+    catch(const std::exception& e)
+    {
+      validateResult.messages.push_back(e.what());
+    }
+    catch(...)
+    {
+      QString errMsg = QObject::tr("An unknown exception occurred.");
+      validateResult.messages.push_back(errMsg.toStdString());
     }
   }
+  else
+  {
+    QString errMsg = QObject::tr("VALIDATION FOR LUA SCRIPT NOT IMPLEMENTED YET.");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    validateResult.messages.push_back(errMsg.toStdString());
+  }
+
+  validateResult.valid = validateResult.messages.empty();
+
+  return validateResult;
 }

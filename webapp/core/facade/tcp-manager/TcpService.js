@@ -142,6 +142,7 @@ TcpService.prototype.init = function(shouldConnect) {
           TcpManager.on("tcpError", onError);
           TcpManager.on("processFinished", onProcessFinished);
           TcpManager.on("serviceVersion", onServiceVersionReceived);
+          TcpManager.on("processValidated", onProcessValidated);
 
           self.$loaded = true;
           instances.forEach(function(instance) {
@@ -152,7 +153,7 @@ TcpService.prototype.init = function(shouldConnect) {
           });
         }
 
-        return Promise.all(promises)
+        return PromiseClass.all(promises)
           .then(function() {
             return resolve();
           })
@@ -180,6 +181,7 @@ TcpService.prototype.finalize = function() {
       TcpManager.removeListener("tcpError", onError);
       TcpManager.removeListener("processFinished", onProcessFinished);
       TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
+      TcpManager.removeListener("processValidated", onProcessValidated);
       self.$loaded = false;
     }
     // resetting cache
@@ -210,7 +212,7 @@ TcpService.prototype.start = function(json) {
         self.emit("serviceStarting", {service: instance.id});
 
         // spreading all promises in order to retrieve service instance and promise result in two vars
-        return Promise.all([instance, TcpManager.startService(instance)]);
+        return PromiseClass.all([instance, TcpManager.startService(instance)]);
       })
       // on sucess, pass the service and code execution value
       .spread(function(service, exitCode) {
@@ -549,6 +551,20 @@ TcpService.prototype.log = function(json) {
 }; // end log listener
 
 /**
+ * It performs TerraMA² validate process in C++ services
+ * 
+ * @param {Object} data - A data to send via Tcp
+ * @param {number} serviceId - TerraMA² Service identifier
+ * @return {Promise}
+ */
+TcpService.prototype.validateProcess = function(data, serviceId) {
+  return DataManager.getServiceInstance({id: serviceId})
+    .then(function(service) {
+      return TcpManager.validateProcess(service, data);
+    });
+};
+
+/**
  * It destroys opened sockets
  */
 TcpService.prototype.disconnect = function() {
@@ -596,6 +612,22 @@ function onStatusReceived(service, response) {
 }
 
 /**
+ * It handles TerraMA² Process validation retrieved from C++ Services. Once received, it notifies all TcpService listeners.
+ * It must not broadcast everyone in TcpSocket, since it is independent of each user
+ * 
+ * Listener for handling TerraMA² TcpManager Service Status
+ * 
+ * @emits #serviceStatus When TerraMA² C++ Service is already loaded
+ * @emits #statusService When TerraMA² C++ Service is not loaded yet
+ * @param {Service} service - TerraMA² service
+ * @param {Object} response - Response object. TODO: doc it
+ */
+function onProcessValidated(service, response) {
+  // TODO: emits only the necessary and not everything
+  tcpService.emit("processValidated", response || service);
+}
+
+/**
  * It handles service version retrieved during TerraMA² C++ service initialization. It emits #serviceVersion with service and response
  * 
  * @param {Service} service - TerraMA² service
@@ -615,7 +647,7 @@ function onServiceVersionReceived(service, response) {
  * It emits a signal depending Process. 
  * If service is View, it emits #viewReceived with the registered view object.
  * 
- * @param {Object|RegisteredView} resp - any object
+ * @param {RegisteredView|Object} resp - any object
  * @returns {void}
  */
 function onProcessFinished(resp) {

@@ -145,6 +145,29 @@ void terrama2::core::TcpManager::addData(const QByteArray& bytearray)
   }
 }
 
+
+void terrama2::core::TcpManager::validateData(const QByteArray& bytearray)
+{
+  TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
+  TERRAMA2_LOG_DEBUG() << QString(bytearray);
+  QJsonParseError error;
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
+
+  if(error.error != QJsonParseError::NoError)
+    TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+  else
+  {
+    std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
+    if(jsonDoc.isObject())
+    {
+      auto obj = jsonDoc.object();
+      dataManager->validateJSon(obj);
+    }
+    else
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson is not an object.\n");
+  }
+}
+
 void terrama2::core::TcpManager::removeData(const QByteArray& bytearray)
 {
   TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
@@ -192,7 +215,7 @@ QJsonObject terrama2::core::TcpManager::logToJson(const terrama2::core::ProcessL
   return obj;
 }
 
-bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket* tcpSocket)
+void terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket* tcpSocket)
 {
   QJsonParseError error;
   QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
@@ -200,7 +223,7 @@ bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket
   if(error.error != QJsonParseError::NoError)
   {
     TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
-    return false;
+    return;
   }
   else
   {
@@ -231,50 +254,10 @@ bool terrama2::core::TcpManager::sendLog(const QByteArray& bytearray, QTcpSocket
     }
 
     QJsonDocument doc(logList);
-
-    QByteArray logArray;
-    QDataStream out(&logArray, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_2);
-
-    out << static_cast<uint32_t>(0);
-    out << static_cast<uint32_t>(TcpSignal::LOG_SIGNAL);
-
-    out << doc.toJson(QJsonDocument::Compact);
-    logArray.remove(8, 4);//Remove QByteArray header
-    out.device()->seek(0);
-    out << static_cast<uint32_t>(logArray.size() - sizeof(uint32_t));
-
-    // wait while sending message
-    qint64 written = tcpSocket->write(logArray);
-    if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
-    {
-      // couldn't write to socket
-      return false;
-    }
-    else
-      return true;
+    sendSignalSlot(TcpSignal::LOG_SIGNAL, doc);
   }
 }
 
-void terrama2::core::TcpManager::sendTerminateSignal(QTcpSocket* tcpSocket)
-{
-  TERRAMA2_LOG_DEBUG() << "sending TERMINATE_SERVICE_SIGNAL";
-  QByteArray bytearray;
-  QDataStream out(&bytearray, QIODevice::WriteOnly);
-
-  out << static_cast<uint32_t>(0);
-  out << static_cast<uint32_t>(TcpSignal::TERMINATE_SERVICE_SIGNAL);
-  out.device()->seek(0);
-  out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
-
-  // wait while sending message
-  qint64 written = tcpSocket->write(bytearray);
-  if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
-    TERRAMA2_LOG_WARNING()
-        << QObject::tr("Unable to establish connection with server.");
-
-  return;
-}
 
 void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
 {
@@ -336,7 +319,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
 
           emit stopSignal();
 
-          sendTerminateSignal(tcpSocket);
+          sendSignalSlot(TcpSignal::TERMINATE_SERVICE_SIGNAL);
 
           emit closeApp();
 
@@ -348,6 +331,14 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
           QByteArray bytearray = tcpSocket->read(blockSize_);
 
           addData(bytearray);
+          break;
+        }
+        case TcpSignal::VALIDATE_PROCESS_SIGNAL:
+        {
+          TERRAMA2_LOG_DEBUG() << "VALIDATE_PROCESS_SIGNAL";
+          QByteArray bytearray = tcpSocket->read(blockSize_);
+
+          validateData(bytearray);
           break;
         }
         case TcpSignal::REMOVE_DATA_SIGNAL:
@@ -368,25 +359,10 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         }
         case TcpSignal::STATUS_SIGNAL:
         {
-          TERRAMA2_LOG_DEBUG() << "STATUS_SIGNAL";
-          QByteArray bytearray;
-          QDataStream out(&bytearray, QIODevice::WriteOnly);
-
           auto jsonObj = ServiceManager::getInstance().status();
+          jsonObj.insert("instance_id", static_cast<int>(serviceManager_->instanceId()));
           QJsonDocument doc(jsonObj);
-
-          out << static_cast<uint32_t>(0);
-          out << static_cast<uint32_t>(TcpSignal::STATUS_SIGNAL);
-          out << doc.toJson(QJsonDocument::Compact);
-          bytearray.remove(8, 4);//Remove QByteArray header
-          out.device()->seek(0);
-          out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
-
-          // wait while sending message
-          qint64 written = tcpSocket->write(bytearray);
-          if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
-            TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
-
+          sendSignalSlot(TcpSignal::STATUS_SIGNAL, doc);
           break;
         }
         case TcpSignal::LOG_SIGNAL:
@@ -437,19 +413,36 @@ void terrama2::core::TcpManager::receiveConnection() noexcept
   return;
 }
 
-void terrama2::core::TcpManager::processFinishedSlot(QJsonObject answer) noexcept
+void terrama2::core::TcpManager::sendProcessFinishedSlot(QJsonObject answer) noexcept
 {
-  TERRAMA2_LOG_INFO() << QObject::tr("Sending process finished information...");
-
   answer.insert("instance_id", static_cast<int>(serviceManager_->instanceId()));
   QJsonDocument doc(answer);
+  sendSignalSlot(TcpSignal::PROCESS_FINISHED_SIGNAL, doc);
+}
+
+void terrama2::core::TcpManager::sendValidateProcessSlot(QJsonObject answer) noexcept
+{
+  answer.insert("instance_id", static_cast<int>(serviceManager_->instanceId()));
+  QJsonDocument doc(answer);
+  sendSignalSlot(TcpSignal::VALIDATE_PROCESS_SIGNAL, doc);
+}
+
+void terrama2::core::TcpManager::sendSignalSlot(TcpSignal signal, QJsonDocument answer) noexcept
+{
+  TERRAMA2_LOG_DEBUG() << QObject::tr("Sending signal information...");
+
 
   QByteArray bytearray;
   QDataStream out(&bytearray, QIODevice::WriteOnly);
 
   out << static_cast<uint32_t>(0);
-  out << static_cast<uint32_t>(TcpSignal::PROCESS_FINISHED_SIGNAL);
-  out << doc.toJson(QJsonDocument::Compact);
+  out << static_cast<uint32_t>(signal);
+
+  if(!answer.isEmpty())
+  {
+    out << answer.toJson(QJsonDocument::Compact);
+  }
+
   bytearray.remove(8, 4);//Remove QByteArray header
   out.device()->seek(0);
   out << static_cast<uint32_t>(bytearray.size() - sizeof(uint32_t));
@@ -458,6 +451,4 @@ void terrama2::core::TcpManager::processFinishedSlot(QJsonObject answer) noexcep
   qint64 written = tcpSocket_->write(bytearray);
   if(written == -1 || !tcpSocket_->waitForBytesWritten(30000))
     TERRAMA2_LOG_WARNING() << QObject::tr("Unable to establish connection with server.");
-
-  return;
 }

@@ -55,7 +55,7 @@ double terrama2::services::analysis::core::grid::forecast::operatorImpl(terrama2
   auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
   try
   {
-    terrama2::core::verify::analysisGrid(analysis);
+    verify::analysisGrid(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
