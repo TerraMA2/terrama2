@@ -1134,7 +1134,7 @@ define([], function() {
                 target.selected = true;
 
                 if (canAddAttribute(target.data_series, element.attribute, target.attributes)) {
-                  target.attributes.push(element.attribute);
+                  target.attributes.push({value: element.attribute, alias: element.alias});
                 }
 
                 return true;
