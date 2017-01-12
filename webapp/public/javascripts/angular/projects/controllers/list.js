@@ -4,7 +4,7 @@ define(function() {
    * 
    * @class ListController
    */
-  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisFactory) {
+  function ListController($scope, $http, Socket, FileDialog, SaveAs, $log, i18n, $window, MessageBoxService, AnalysisService) {
     $scope.model = [];
     var config = $window.configuration;
     var socket = Socket;
@@ -31,13 +31,6 @@ define(function() {
     $scope.hasCollect = false;
     $scope.hasAnalysis = false;
     $scope.hasView = false;
-
-    var setError = function(err) {
-      $scope.display = true;
-      $scope.alertLevel = "alert-danger";
-      $scope.alertBox.message = err.toString();
-      $scope.extra.isImporting = false;
-    };
 
     $scope.remove = function(object) {
       return "/api/Project/" + object.id + "/delete";
@@ -96,7 +89,7 @@ define(function() {
         return;
       }
 
-      SaveAs(result.data, result.data.Projects[0].name + ".terrama2");
+      SaveAs(result.data, result.projectName + ".terrama2");
     });
 
     socket.on("importResponse", function(result) {
@@ -156,6 +149,7 @@ define(function() {
         if(!element) return;
 
         $scope.currentProjectId = element.id;
+        $scope.currentProjectName = element.name;
         $('#exportModal').modal('show');
       },
 
@@ -219,6 +213,7 @@ define(function() {
 
         $scope.extra.isExporting = true;
         $scope.exportData['currentProjectId'] = $scope.currentProjectId;
+        $scope.exportData['currentProjectName'] = $scope.currentProjectName;
         socket.emit("export", $scope.exportData);
 
         $scope.exportData = {
@@ -234,14 +229,11 @@ define(function() {
       },
 
       import: function() {
-        $scope.alertBox.title = i18n.__("Data Import");
-        $scope.display = false;
         $scope.extra.isImporting = false;
 
         FileDialog.openFile(function(err, input) {
           if (err) {
-            $scope.display = true;
-            $scope.alertBox.message = err.toString();
+            MessageBoxService.danger("Data Import", err.toString());
             return;
           }
 
@@ -250,12 +242,10 @@ define(function() {
             // applying angular scope..
             $scope.$apply(function() {
               $scope.extra.isImporting = true;
-              if (error) {
-                setError(error);
+              if(error) {
+                MessageBoxService.danger("Data Import", error);
                 console.log(error);
                 return;
-              } else {
-                $scope.display = false;
               }
 
               if (!json.hasOwnProperty("Projects") &&
@@ -264,7 +254,7 @@ define(function() {
                   !json.hasOwnProperty("Analysis") &&
                   !json.hasOwnProperty("Collectors") &&
                   !json.hasOwnProperty("Views")) {
-                setError(new Error("Invalid configuration file"));
+                MessageBoxService.danger("Data Import", new Error("Invalid configuration file"));
                 return;
               }
 
@@ -283,13 +273,13 @@ define(function() {
                 if(json.Views !== undefined && json.Views.length > 0) $scope.hasView = true; 
 
                 if($scope.model === undefined || $scope.model.length === 0) {
-                  setError(new Error("To import this file you need to have at least one project"));
+                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one project"));
                 } else if(json.Collectors !== undefined && json.Collectors.length > 0 && $scope.services.COLLECT.length === 0) {
-                  setError(new Error("To import this file you need to have at least one collector service"));
+                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one collector service"));
                 } else if(json.Analysis !== undefined && json.Analysis.length > 0 && $scope.services.ANALYSIS.length === 0) {
-                  setError(new Error("To import this file you need to have at least one analysis service"));
+                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one analysis service"));
                 } else if(json.Views !== undefined && json.Views.length > 0 && $scope.services.VIEW.length === 0) {
-                  setError(new Error("To import this file you need to have at least one view service"));
+                  MessageBoxService.danger("Data Import", new Error("To import this file you need to have at least one view service"));
                 } else {
                   $('#importModal').modal('show');
                 }
@@ -301,7 +291,7 @@ define(function() {
 
       finalizeImportation: function() {
         if($scope.projectRadio === null) {
-          setError(new Error("Select a project"));
+          MessageBoxService.danger("Data Import", new Error("Select a project"));
           $('#importModal').modal('hide');
         } else {
           $scope.extra.isImporting = true;
@@ -339,7 +329,7 @@ define(function() {
         VIEW: []
       };
 
-      projects.map(function(project, index) {
+      response.data.map(function(project, index) {
         if($scope.projectsCheckboxes[project.id] == undefined)
           $scope.projectsCheckboxes[project.id] = {
             project: false
@@ -354,7 +344,7 @@ define(function() {
           for(var j = 0, dataProvidersLength = dataProviders.length; j < dataProvidersLength; j++) {
             $scope.projectsCheckboxes[project.id].dataProviders[dataProviders[j].id] = false;
           }
-        }).error(function(err) {
+        }).catch(function(err) {
           console.log("Err in retrieving data providers");
         }).finally(function() {
           $scope.loading = false;
@@ -385,7 +375,7 @@ define(function() {
           $scope.loading = false;
         });
 
-        AnalysisFactory.get({ project_id: project.id }).success(function(analysis) {
+        AnalysisService.init({ project_id: project.id }).then(function(analysis) {
           $scope.analysis[project.id] = analysis;
 
           if($scope.projectsCheckboxes[project.id].analysis == undefined)
@@ -394,7 +384,7 @@ define(function() {
           for(var j = 0, analysisLength = analysis.length; j < analysisLength; j++) {
             $scope.projectsCheckboxes[project.id].analysis[analysis[j].id] = false;
           }
-        }).error(function(err) {
+        }).catch(function(err) {
           $log.info("Err in retrieving Analysis " + err);
         }).finally(function() {
           $scope.loading = false;
@@ -409,7 +399,7 @@ define(function() {
           for(var j = 0, viewsLength = views.length; j < viewsLength; j++) {
             $scope.projectsCheckboxes[project.id].views[views[j].id] = false;
           }
-        }).error(function(err) {
+        }).catch(function(err) {
           console.log("Err in retrieving views");
         }).finally(function() {
           $scope.loading = false;
@@ -417,7 +407,7 @@ define(function() {
 
         $http.get("/api/Collector/project/" + project.id, {}).success(function(collectors) {
           $scope.collectors[project.id] = collectors;
-        }).error(function(err) {
+        }).catch(function(err) {
           console.log("Err in retrieving collectors");
         }).finally(function() {
           $scope.loading = false;
@@ -439,7 +429,7 @@ define(function() {
                 break;
             }
           }
-        }).error(function(err) {
+        }).catch(function(err) {
           console.log("Err in retrieving services");
         }).finally(function() {
           $scope.loading = false;
@@ -452,7 +442,7 @@ define(function() {
     });
   }
 
-  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService", "AnalysisFactory"];
+  ListController.$inject = ["$scope", "$http", "Socket", "FileDialog", "SaveAs", "$log", "i18n", "$window", "MessageBoxService", "AnalysisService"];
 
   return ListController;
 })

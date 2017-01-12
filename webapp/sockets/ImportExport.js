@@ -575,7 +575,7 @@ var ImportExport = function(io) {
         if(output.Analysis.length === 0) delete output.Analysis;
         if(output.Views.length === 0) delete output.Views;
 
-        client.emit("exportResponse", { status: 200, data: output });
+        client.emit("exportResponse", { status: 200, data: output, projectName: json.currentProjectName });
       }).catch(_emitError);
     });
   });
