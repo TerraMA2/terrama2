@@ -116,9 +116,8 @@
                       <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
                         <td style="width: 42%;">{{ att.value }}</td>
                         <td style="width: 41%;">
-                          <span editable-text="att.alias">
-                            {{ att.alias }}
-                          </span>
+                          <input type="text" ng-model="att.alias" value="att.alias">
+                          </input>
                         </td>
                         <td>
                           <button class="btn btn-sm btn-danger pull-right"
