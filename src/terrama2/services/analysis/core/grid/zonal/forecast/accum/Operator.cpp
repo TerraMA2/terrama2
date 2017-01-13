@@ -64,41 +64,41 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::getAbsT
 
 double terrama2::services::analysis::core::grid::zonal::forecast::accum::count(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return zonal::forecast::operatorImpl(StatisticOperation::COUNT, dataSeriesName, dateFilter, "", buffer);
+  return zonal::forecast::operatorImpl(StatisticOperation::COUNT, dataSeriesName, "", dateFilter, buffer);
 }
 
 
 double terrama2::services::analysis::core::grid::zonal::forecast::accum::min(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return zonal::forecast::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateFilter, "", buffer);
+  return zonal::forecast::operatorImpl(StatisticOperation::MIN, dataSeriesName, "", dateFilter, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::accum::max(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return zonal::forecast::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateFilter, "", buffer);
+  return zonal::forecast::operatorImpl(StatisticOperation::MAX, dataSeriesName, "", dateFilter, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::accum::mean(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return zonal::forecast::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateFilter, "", buffer);
+  return zonal::forecast::operatorImpl(StatisticOperation::MEAN, dataSeriesName, "", dateFilter, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::accum::median(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return zonal::forecast::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateFilter, "", buffer);
+  return zonal::forecast::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, "", dateFilter, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::accum::standardDeviation(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return zonal::forecast::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateFilter, "", buffer);
+  return zonal::forecast::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, "", dateFilter, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::accum::variance(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return zonal::forecast::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateFilter, "", buffer);
+  return zonal::forecast::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, "", dateFilter, buffer);
 }
 
 double terrama2::services::analysis::core::grid::zonal::forecast::accum::sum(const std::string& dataSeriesName, const std::string& dateFilter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return zonal::forecast::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateFilter, "", buffer);
+  return zonal::forecast::operatorImpl(StatisticOperation::SUM, dataSeriesName, "", dateFilter, buffer);
 }

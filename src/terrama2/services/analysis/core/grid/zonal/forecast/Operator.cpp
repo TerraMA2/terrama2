@@ -157,7 +157,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         std::tie(bandBegin, bandEnd) = terrama2::services::analysis::core::getBandInterval(dataset, secondsPassed, dateDiscardBefore, dateDiscardAfter);
 
         // - the band 0 is always blank
-        // - The begining should be before the end
+        // - The beginning should be before the end
         if(bandBegin == 0 || bandBegin > bandEnd)
         {
           QString errMsg{QObject::tr("Invalid value of band index.")};
