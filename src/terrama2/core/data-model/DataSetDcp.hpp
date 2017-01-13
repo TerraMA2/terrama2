@@ -65,8 +65,18 @@ namespace terrama2
     */
     struct DataSetDcp : public DataSet
     {
+      struct Field
+      {
+        int number = 0;
+        std::string alias = "";
+        std::string type = "";
+      };
+
       //! DCP position
       std::shared_ptr<te::gm::Point> position;//TODO: A posição é sempre um ponto? pode ser uma região? delete?
+      //! DCP Fields
+      std::vector<Field> fields;
+
     };
   } // end namespace core
 } // end namespace terrama2

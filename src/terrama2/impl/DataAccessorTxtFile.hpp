@@ -63,7 +63,9 @@ namespace terrama2
         static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
 
       protected:
-        QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile) const;
+        QFileInfo filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, DataSetPtr dataSet) const;
+
+        virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
     };
   }
 }

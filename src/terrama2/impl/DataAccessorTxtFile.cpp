@@ -29,6 +29,10 @@
 
 // TerraMA2
 #include "DataAccessorTxtFile.hpp"
+#include "../core/data-model/DataSetDcp.hpp"
+
+// TerraLib
+#include <terralib/datatype/DateTimeProperty.h>
 
 //QT
 #include <QUrl>
@@ -46,28 +50,48 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::DataAccessorTxtFile::read
 
   if(!tempFile.open())
   {
-    // throw
+    // TODO: throw
   }
 
-  QFileInfo filteredFileInfo = filterTxt(fileInfo, tempFile);
+  QFileInfo filteredFileInfo = filterTxt(fileInfo, tempFile, dataSet);
 
   return DataAccessorFile::readFile(series, completeDataset, converter, filteredFileInfo, mask, dataSet);
 }
 
-QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile) const
+QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QTemporaryFile& tempFile, terrama2::core::DataSetPtr dataSet) const
 {
   std::ifstream file(fileInfo.absoluteFilePath().toStdString());
 
   if(!file.is_open())
   {
-    // throw
+    // TODO: throw
   }
 
   std::ofstream outputFile(tempFile.fileName().toStdString());
 
   if(!outputFile.is_open())
   {
-    // throw
+    // TODO: throw
+  }
+
+  std::vector<int> linesSkip;
+
+  std::stringstream ss(dataSet->format.at("lines_skip"));
+
+  std::string skipLineNumber;
+
+  while(std::getline(ss, skipLineNumber, ','))
+  {
+    linesSkip.push_back(std::stoi(skipLineNumber));
+  }
+
+  auto dataSetDCP = std::dynamic_pointer_cast<const terrama2::core::DataSetDcp>(dataSet);
+
+  std::vector<int> validColumns;
+
+  for(auto& field : dataSetDCP->fields)
+  {
+    validColumns.push_back(field.number);
   }
 
   std::string line = "";
@@ -75,6 +99,12 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
 
   while(std::getline(file, line))
   {
+    if(linesSkip.end() != std::find(linesSkip.begin(), linesSkip.end(), lineNumber))
+    {
+      lineNumber++;
+      continue;
+    }
+
     std::string newLine = "";
     std::stringstream strm(line);
 
@@ -82,7 +112,30 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
     int columnNumber = 0;
     while (std::getline(strm, field, ','))
     {
-      newLine += (columnNumber == 0 ? field : "," + field);
+      if(validColumns.end() == std::find(validColumns.begin(), validColumns.end(), columnNumber))
+      {
+        columnNumber++;
+        continue;
+      }
+
+      if(lineNumber == 0)
+      {
+        // Header line
+        for(auto& DCPfield : dataSetDCP->fields)
+        {
+          if(DCPfield.number == columnNumber)
+          {
+            // use alias as column name
+            newLine += (newLine.empty() ? "" : "," ) + DCPfield.alias;
+            break;
+          }
+        }
+      }
+      else
+      {
+        newLine += (newLine.empty() ? "" : ",") + field;
+      }
+
       columnNumber++;
     }
 
@@ -91,7 +144,7 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
 
     if(outputFile.fail())
     {
-      // throw
+      // TODO: throw
     }
 
     lineNumber++;
@@ -106,4 +159,22 @@ QFileInfo terrama2::core::DataAccessorTxtFile::filterTxt(QFileInfo& fileInfo, QT
 terrama2::core::DataAccessorPtr terrama2::core::DataAccessorTxtFile::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
 {
   return std::make_shared<DataAccessorTxtFile>(dataProvider, dataSeries);
+}
+
+void terrama2::core::DataAccessorTxtFile::adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const
+{
+  //Find the rigth column to adapt
+  std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
+  for(size_t i = 0, size = properties.size(); i < size; ++i)
+  {
+    te::dt::Property* property = properties.at(i);
+
+    if(property->getName() == getTimestampPropertyName(dataset))
+    {/*
+      te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty("DateTime", te::dt::TIME_INSTANT_TZ);
+      // datetime column found
+      converter->add(i, dtProperty, boost::bind(&terrama2::core::DataAccessorDcpToa5::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataset)));
+      continue;*/
+    }
+  }
 }
