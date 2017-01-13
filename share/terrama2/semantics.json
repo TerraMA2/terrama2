@@ -787,8 +787,7 @@
         },
         {
           "key": "bytes_before",
-          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item",
-          "condition": "model['number_of_bands'] > 1"
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item"
         },
         {
           "key": "bytes_after",
