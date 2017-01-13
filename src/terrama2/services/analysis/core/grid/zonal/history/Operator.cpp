@@ -15,7 +15,7 @@
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with TerraMA2. See LICENSE. If not, write to
+  along with TerraMA2. See LICENSE. If not, write to3
   TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 */
 
