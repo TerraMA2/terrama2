@@ -33,7 +33,6 @@ int main(int argc, char* argv[])
   terrama2::core::DataProviderPtr dataProviderPtr(dataProvider);
   dataProvider->uri = "file://";
   dataProvider->uri+=TERRAMA2_DATA_DIR;
-  dataProvider->uri+="/PCD_serrmar_INPE";
 
   dataProvider->intent = terrama2::core::DataProviderIntent::COLLECTOR_INTENT;
   dataProvider->dataProviderType = "FILE";
@@ -48,6 +47,7 @@ int main(int argc, char* argv[])
 
   terrama2::core::DataSetDcp* dataSet = new terrama2::core::DataSetDcp();
   dataSet->active = true;
+  dataSet->format.emplace("folder", "/PCD_serrmar_INPE/");
   dataSet->format.emplace("mask", "testeCSV.txt");
   dataSet->format.emplace("timezone", "+00");
 

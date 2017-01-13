@@ -356,6 +356,71 @@
     },
     "collector": true,
     "gui": {
+        "schema": {
+            "properties": {
+                "folder": {
+                  "type": "string",
+                  "title": "Folder",
+                  "pattern": "^[^?#!$&'()*+,;=^§]+$"
+                },
+                "mask": {
+                  "type": "string",
+                  "title": "Mask",
+                  "pattern": "^([a-zA-Z*._]|%YYYY|%YY|%MM|%DD|%hh|%mm|%ss)+$"
+                },
+                "timezone": {
+                  "type": "string",
+                  "title": "Timezone"
+                },
+                "columns": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "column_number": {
+                                "type": "number",
+                                "title": "Column Number"
+                            },
+                            "column_alias": {
+                                "type": "string",
+                                "title": "Column Alias"
+                            },
+                            "column_type": {
+                                "type": "string",
+                                "title": "Column Type"
+                            }
+                        }
+                    }
+                },
+                "lines_skip":{
+                    "type": "string",
+                    "title": "Lines to skip",
+                    "pattern": "^[0-9]+(,[0-9]+)*$"
+                },
+                "data_format" : {
+                    "type": "string",
+                    "title": "Data Format"
+                },
+                "latitude": {
+                  "type": "number",
+                  "title": "Latitude"
+                },
+                "longitude": {
+                  "type": "number",
+                  "title": "Longitude"
+                },
+                "projection": {
+                  "type": "number",
+                  "title": "SRID"
+                },
+                "active": {
+                  "type": "boolean",
+                  "title": "Active",
+                  "default": true
+                },
+                "required": ["mask", "timezone", "latitude", "longitude", "projection"]
+            }
+        }
     }
   },
   {
