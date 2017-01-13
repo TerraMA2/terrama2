@@ -989,9 +989,18 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
             std::string pk = dataSetType->getPrimaryKey()->getProperties().at(0)->getName();
 
-            joinSQL = "SELECT t1.execution_date, t1.res, t2.* "
-                      "from " + tableName + " as t1 , " + monitoredObjectTableName + " as t2 ";
+            auto& propertiesVector = dataSetType->getProperties();
 
+             joinSQL = "SELECT ";
+
+            for(auto& property : propertiesVector)
+            {
+              const std::string& propertyName = property->getName();
+              joinSQL += "t1." + propertyName + " as OMonitored_" + propertyName + ", ";
+            }
+
+            joinSQL += "t2.* ";
+            joinSQL += "FROM " + monitoredObjectTableName + " as t1 , " + tableName + " as t2 ";
             joinSQL += "WHERE t1." + pk + " = t2." + pk;
 
             // Change the layer name
