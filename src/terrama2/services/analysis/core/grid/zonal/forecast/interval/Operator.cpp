@@ -30,37 +30,37 @@
 #include "Operator.hpp"
 #include "../Operator.hpp"
 
-double terrama2::services::analysis::core::grid::zonal::forecast::interval::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t var, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::forecast::interval::min(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, dateDiscardAfter, var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MIN, dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::forecast::interval::max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t var, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::forecast::interval::max(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateDiscardBefore, dateDiscardAfter, var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MAX, dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::forecast::interval::mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t var, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::forecast::interval::mean(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateDiscardBefore, dateDiscardAfter, var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MEAN, dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::forecast::interval::median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t var, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::forecast::interval::median(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateDiscardBefore, dateDiscardAfter, var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::MEDIAN, dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::forecast::interval::standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t var, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::forecast::interval::standardDeviation(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateDiscardBefore, dateDiscardAfter, var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::STANDARD_DEVIATION, dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::forecast::interval::variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t var, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::forecast::interval::variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateDiscardBefore, dateDiscardAfter, var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::VARIANCE, dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
 }
 
-double terrama2::services::analysis::core::grid::zonal::forecast::interval::sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, const size_t var, terrama2::services::analysis::core::Buffer buffer)
+double terrama2::services::analysis::core::grid::zonal::forecast::interval::sum(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const std::string& dateDiscardAfter, terrama2::services::analysis::core::Buffer buffer)
 {
-  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateDiscardBefore, dateDiscardAfter, var, buffer);
+  return terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl(StatisticOperation::SUM, dataSeriesName, dateDiscardBefore, dateDiscardAfter, buffer);
 }

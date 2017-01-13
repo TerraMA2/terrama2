@@ -52,6 +52,7 @@ namespace terrama2
             void registerGridForecastIntervalFunctions();
             void registerGridZonalFunctions();
             void registerGridZonalForecastFunctions();
+            void registerGridZonalForecastAccumFunctions();
             void registerGridZonalForecastIntervalFunctions();
             void registerGridZonalHistoryFunctions();
             void registergridZonalHistoryAccumFunctions();
