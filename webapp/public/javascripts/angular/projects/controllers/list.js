@@ -56,6 +56,13 @@ define(function() {
           }
         }
 
+        if($scope.projectsCheckboxes[element.id].dataSeriesStatic != undefined) {
+          for(var property in $scope.projectsCheckboxes[element.id].dataSeriesStatic) {
+            if($scope.projectsCheckboxes[element.id].dataSeriesStatic.hasOwnProperty(property))
+              $scope.projectsCheckboxes[element.id].dataSeriesStatic[property] = true;
+          }
+        }
+
         if($scope.projectsCheckboxes[element.id].analysis != undefined) {
           for(var property in $scope.projectsCheckboxes[element.id].analysis) {
             if($scope.projectsCheckboxes[element.id].analysis.hasOwnProperty(property))
@@ -180,6 +187,21 @@ define(function() {
 
                   for(var x = 0, collectorsLength = $scope.collectors[element.id].length; x < collectorsLength; x++) {
                     if($scope.collectors[element.id][x].output_data_series === $scope.dataSeries[element.id][j].id) {
+                      $scope.exportData.Collectors.push($scope.collectors[element.id][x]);
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+
+            if($scope.projectsCheckboxes[element.id].dataSeriesStatic != undefined) {
+              for(var j = 0, dataSeriesStaticLength = $scope.dataSeriesStatic[element.id].length; j < dataSeriesStaticLength; j++) {
+                if($scope.projectsCheckboxes[element.id].dataSeriesStatic[$scope.dataSeriesStatic[element.id][j].id]) {
+                  $scope.exportData.DataSeries.push($scope.dataSeriesStatic[element.id][j]);
+
+                  for(var x = 0, collectorsLength = $scope.collectors[element.id].length; x < collectorsLength; x++) {
+                    if($scope.collectors[element.id][x].output_data_series === $scope.dataSeriesStatic[element.id][j].id) {
                       $scope.exportData.Collectors.push($scope.collectors[element.id][x]);
                       break;
                     }
@@ -320,6 +342,7 @@ define(function() {
       $scope.model = response.data;
       $scope.dataProviders = {};
       $scope.dataSeries = {};
+      $scope.dataSeriesStatic = {};
       $scope.analysis = {};
       $scope.views = {};
       $scope.collectors = {};
@@ -370,6 +393,30 @@ define(function() {
             }
           }, function(err) {
             console.log("Err in retrieving data series");
+          }
+        ).finally(function() {
+          $scope.loading = false;
+        });
+
+        $http({
+          url: "/api/DataSeries/project/" + project.id,
+          method: "GET",
+          params: {
+            type: "static",
+            ignoreAnalysisOutputDataSeries: true
+          }
+        }).then(
+          function(dataSeries) {
+            $scope.dataSeriesStatic[project.id] = dataSeries.data;
+
+            if($scope.projectsCheckboxes[project.id].dataSeriesStatic == undefined)
+              $scope.projectsCheckboxes[project.id].dataSeriesStatic = {};
+
+            for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
+              $scope.projectsCheckboxes[project.id].dataSeriesStatic[dataSeries.data[j].id] = true;
+            }
+          }, function(err) {
+            console.log("Err in retrieving data series static");
           }
         ).finally(function() {
           $scope.loading = false;

@@ -66,7 +66,7 @@
             </div>
             <div class="box collapsed-box" ng-show="dataSeries[element.id].length > 0">
               <div class="box-header with-border">
-                <span class="box-title" style="font-size: 14px;">Data Series</span>
+                <span class="box-title" style="font-size: 14px;">Data Series ({{ i18n.__('Dynamic Data') }})</span>
                 <div class="box-tools pull-right">
                   <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
                 </div>
@@ -75,6 +75,21 @@
                 <ul style="list-style-type: none; padding-left: 0 !important;">
                   <li ng-repeat="dataSerie in dataSeries[element.id]">
                     <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].dataSeries[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="box collapsed-box" ng-show="dataSeriesStatic[element.id].length > 0">
+              <div class="box-header with-border">
+                <span class="box-title" style="font-size: 14px;">Data Series ({{ i18n.__('Static Data') }})</span>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+              <div class="box-body" style="display: none;">
+                <ul style="list-style-type: none; padding-left: 0 !important;">
+                  <li ng-repeat="dataSerie in dataSeriesStatic[element.id]">
+                    <input type="checkbox" value="{{ dataSerie.id }}" ng-model="projectsCheckboxes[element.id].dataSeriesStatic[dataSerie.id]" ng-disabled="projectsCheckboxes[element.id].project"/><div style="margin-top: -23px; margin-left: 18px;">{{ dataSerie.name }}</div>
                   </li>
                 </ul>
               </div>
