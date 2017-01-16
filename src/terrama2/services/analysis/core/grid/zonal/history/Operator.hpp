@@ -108,7 +108,7 @@ namespace terrama2
                 \param dataSeriesName DataSeries name.
                 \param attribute Which DCP attribute will be used.
                 \param dcpId Identifier of DCP dataset.
-                \param buffer = Buffer() buffer = Buffer() to be used in the monitored object.
+                \param buffer Buffer to be used in the monitored object.
 
 
                 \return A double value with the result.

@@ -95,8 +95,13 @@ CURLcode terrama2::core::CurlPtr::verifyURL(std::string url)
 std::vector<std::string> terrama2::core::CurlPtr::getFtpList(const std::string& url,
                                                                size_t(*write_vector)(void *ptr, size_t size, size_t nmemb, void *data)) const
 {
+  // An url for a directory must have '/' in the last character, otherwise it won't list the files.
+  std::string completeUrl = url;
+  if(url.back() != '/')
+    completeUrl += "/";
+
   std::vector<std::string> vectorFiles;
-  curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl_, CURLOPT_URL, completeUrl.c_str());
   curl_easy_setopt(curl_, CURLOPT_DIRLISTONLY, 0);
   curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, write_vector);
 
