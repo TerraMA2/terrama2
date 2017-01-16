@@ -313,14 +313,12 @@ te::da::DataSetType* terrama2::services::collector::core::createDataSetType(te::
   {
     te::dt::Property* prop = collectedDSProperties[i]->clone();
     outputDt->add(prop);
-    std::cout << prop->getName() << std::endl;
   }
 
   for(size_t i = 0; i < intersectionDSProperties.size(); ++i)
   {
     te::dt::Property* prop = intersectionDSProperties[i]->clone();
     outputDt->add(prop);
-    std::cout << prop->getName() << std::endl;
   }
 
   return outputDt;
