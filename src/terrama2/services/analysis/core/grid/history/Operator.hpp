@@ -55,7 +55,7 @@ namespace terrama2
                                        const std::string& dataSeriesName,
                                        const std::string& dateFilterBegin,
                                        const std::string& dateFilterEnd,
-                                       const size_t band);
+                                       const size_t band = 0);
 
             /*!
               \brief Implementation of grid history operator.
@@ -72,7 +72,7 @@ namespace terrama2
                                 const std::string& dataSeriesName,
                                 const std::string& dateFilterBegin,
                                 const std::string& dateFilterEnd,
-                                const size_t band);
+                                const size_t band = 0);
 
             /*!
               \brief Calculates the sum of historic grid data.

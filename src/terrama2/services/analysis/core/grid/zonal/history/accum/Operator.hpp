@@ -130,7 +130,7 @@ namespace terrama2
                   \param dataSeriesName DataSeries name.
                   \param attribute Which DCP attribute will be used.
                   \param dcpId Identifier of DCP dataset.
-                  \param buffer = Buffer() buffer = Buffer() to be used in the monitored object.
+                  \param buffer Buffer to be used in the monitored object.
 
 
                   \return A double value with the result.
@@ -171,14 +171,6 @@ namespace terrama2
                 */
                 double variance(const std::string& dataSeriesName, const std::string& dateDiscardBefore, const size_t band = 0, terrama2::services::analysis::core::Buffer buffer = Buffer());
 
-                std::unordered_map<std::pair<int, int>, std::pair<double, int>, boost::hash<std::pair<int, int> > >
-                 getAccumulatedMap(const std::string& dataSeriesName,
-                                   const std::string& dateDiscardBefore,
-                                   const std::string& dateDiscardAfter,
-                                   const size_t band,
-                                   terrama2::services::analysis::core::Buffer buffer,
-                                   terrama2::services::analysis::core::MonitoredObjectContextPtr context,
-                                   OperatorCache cache);
               } /* ratio */
             }
           } /* zonal */

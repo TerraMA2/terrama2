@@ -307,6 +307,22 @@ bootstrap-decorator span {
   background-color: #367fa9 !important;
 }
 
+.terrama2-list-error {
+  margin-bottom: 10px;
+}
+
+.terrama2-list-error * {
+  padding-left: 10px;
+}
+
+.terrama2-list-error span[class~="glyphicon"] {
+  padding: 0;
+}
+
+.terrama2-list-error i {
+  padding: 0;
+}
+
 .grads-form-item {
   margin-bottom: 25px !important;
 }

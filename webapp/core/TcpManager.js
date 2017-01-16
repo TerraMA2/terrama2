@@ -34,6 +34,7 @@ var TcpManager = module.exports = function() {
   this.on('statusService', this.statusService);
   this.on('updateService', this.updateService);
   this.on('connect', this.connect);
+  this.on("validateProcess", this.validateProcess);
 
   this.registered = false;
 };
@@ -254,10 +255,19 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
  * This method sends a UPDATE_SERVICE_SIGNAL with service instance values to tcp socket.
  * 
  * @param {ServiceInstance} serviceInstance - a terrama2 service instance
- * @return {PromiseClass} a bluebird PromiseClass
  */
 TcpManager.prototype.updateService = function(serviceInstance) {
   this.$send(serviceInstance, serviceInstance.toObject(), Signals.UPDATE_SERVICE_SIGNAL);
+};
+
+/**
+ * This method sends a VALIDATE_PROCESS_SIGNAL to specific service in order to validate Process value
+ * 
+ * @param {Service} serviceInstance - TerraMA² Service
+ * @param {Object} data - Process object to send
+ */
+TcpManager.prototype.validateProcess = function(serviceInstance, data) {
+  this.$send(serviceInstance, data, Signals.VALIDATE_PROCESS_SIGNAL);
 };
 
 /**
@@ -446,6 +456,16 @@ TcpManager.prototype.initialize = function(client) {
     }
   };
 
+  /**
+   * It listens when C++ TcpService finishes the process validation
+   * 
+   * @param {Object} response - Response object (TODO: fill all param types here)
+   */
+  var onValidateProcess = function(response) {
+    logger.debug(Utils.format("Service %s <ValidateProcess> received %s", client.service.name, response));
+    self.emit("processValidated", client.service, response);
+  };
+
   var onStop = function(response) {
     self.emit('stop', client.service, response);
   };
@@ -459,6 +479,7 @@ TcpManager.prototype.initialize = function(client) {
   };
 
   client.on('status', onStatus);
+  client.on("validateProcess", onValidateProcess);
 
   client.on('log', onLog);
 
@@ -476,7 +497,7 @@ TcpManager.prototype.initialize = function(client) {
   // remove listener
   self.on('removeListeners', function() {
     logger.debug("Removing listener from " + client.service.name);
-
+    client.removeListener('validateProcess', onValidateProcess);
     client.removeListener('status', onStatus);
     client.removeListener('log', onLog);
     client.removeListener('stop', onStop);

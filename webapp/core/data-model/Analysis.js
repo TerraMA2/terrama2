@@ -4,6 +4,7 @@
 var BaseClass = require("./AbstractData");
 var Schedule = require("./Schedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
+var AnalysisDataSeries = require("./AnalysisDataSeries");
 var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
 var Utils = require("./../Utils");
 
@@ -49,7 +50,7 @@ var Analysis = module.exports = function(params) {
   if (params.AnalysisType) {
     this.type = params.AnalysisType.get();
   } else {
-    this.type = params.type || {};
+    this.type = params.type || {id: Utils.isString(params.type_id) ? parseInt(params.type_id) : params.type_id};
   }
 
   /**
@@ -84,11 +85,7 @@ var Analysis = module.exports = function(params) {
    */
   this.analysis_dataseries_list = [];
 
-  if (params.Schedule) {
-    this.schedule = new Schedule(params.Schedule.get() || {});
-  } else {
-    this.schedule = params.schedule;
-  }
+  this.schedule = new Schedule(params.Schedule? params.Schedule.get() : params.schedule || {});
 
   /**
    * @name Analysis#instance_id
@@ -114,7 +111,7 @@ var Analysis = module.exports = function(params) {
   if (params.ReprocessingHistoricalDatum) {
     this.setHistoricalData(params.ReprocessingHistoricalDatum);
   } else {
-    this.setHistoricalData(params.historicalData);
+    this.setHistoricalData(params.historicalData || params.historical);
   }
 };
 
@@ -127,7 +124,11 @@ Analysis.prototype.constructor = Analysis;
  * @param {AnalysisDataSeries} analysisDataSeries - An analysis data series object
  */
 Analysis.prototype.addAnalysisDataSeries = function(analysisDataSeries) {
-  this.analysis_dataseries_list.push(analysisDataSeries);
+  if (analysisDataSeries instanceof BaseClass) {
+    this.analysis_dataseries_list.push(analysisDataSeries);
+  } else {
+    this.analysis_dataseries_list.push(new AnalysisDataSeries(analysisDataSeries));
+  }
 };
 
 Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
@@ -222,7 +223,7 @@ Analysis.prototype.toObject = function() {
     script_language: this.script_language.id,
     type: this.type.id,
     name: this.name,
-    description: this.description,
+    description: this.description || null,
     active: this.active,
     output_dataseries_id: this.dataSeries.id,
     output_dataset_id: this.dataset_output,

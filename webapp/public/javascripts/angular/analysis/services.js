@@ -53,9 +53,11 @@ define([
      * @type {AnalysisType}
      */
     this.types = AnalysisType;
-
+    /**
+     * It defines a TerraMA² base dao
+     * @type {BaseService}
+     */
     this.BaseService = BaseService;
-
     /**
      * It initializes Analysis DAO service, retrieving analysis instances and caching them
      * 
@@ -73,6 +75,15 @@ define([
 
       return defer.promise;
     };
+   /**
+    * It sends a built analysis in order to validate in backend
+    * 
+    * @param {Object} analysisObject - A javascript object with analysis values
+    * @returns {angular.IPromise<any>} Response object with status code to identify state mode
+    */
+    this.validate = function(analysisObject) {
+		  return this.BaseService.$request(this.url + "/validate", "POST", {data: analysisObject});
+		};
 
     /**
      * It retrives cached analysis. You can filter given query restriction.

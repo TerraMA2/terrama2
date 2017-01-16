@@ -11,6 +11,8 @@ var PromiseClass = require("./../Promise");
 var AnalysisError = require("./../Exceptions").AnalysisError;
 var Utils = require("./../Utils");
 var TcpService = require("../../core/facade/tcp-manager/TcpService");
+// TerraMA² Analysis Simulator that generates a dummy analysis
+var AnalysisBuilder = require("./builder/AnalysisBuilder");
 
 /**
  * It handles a Analysis Registration concept.
@@ -199,5 +201,50 @@ Analysis.delete = function(analysisId, projectId) {
     }).catch(function(err) {
       return reject(err);
     });
+  });
+};
+
+/**
+ * It handles a Analysis Validation. It emits a dummy analysis to C++ services in order to check if 
+ * it will able to generate a result 
+ * 
+ * @param {Object} analysisObject - An analysis object structure
+ * @param {Object} storager - A storager object
+ * @param {Object} scheduleObject - An schedule object structure
+ * @param {number} projectId - A current project id 
+ * @return {Promise<Analysis>} A promise with analysis sent
+ */
+Analysis.validate = function(analysisObject, storagerObject, scheduleObject, projectId) {
+  return new PromiseClass(function(resolve, reject) {
+    analysisObject.schedule = scheduleObject;
+    analysisObject.project_id = projectId;
+    // Todo: remove it
+    analysisObject.script_language_id = 1;
+
+    var promiseWKT = null;
+    if (analysisObject.grid && analysisObject.grid.area_of_interest_box) {
+      promiseWKT = DataManager.getWKT(analysisObject.grid.area_of_interest_box);
+    }
+
+    return PromiseClass.all([
+        analysisObject,
+        storagerObject,
+        DataManager.getScriptLanguage({id: analysisObject.script_language_id}),
+        promiseWKT
+      ])
+      .spread(function(analysis, storager, scriptLanguage, areaOfInterestWKT) {
+        if (areaOfInterestWKT) {
+          analysis.grid.interest_box = areaOfInterestWKT;
+        }
+        var dummyAnalysis = AnalysisBuilder(analysis, storager, scriptLanguage, {
+          historical: analysis.historicalData || {}
+        });
+
+        return resolve(dummyAnalysis);
+      })
+      
+      .catch(function(err) {
+        return reject(err);
+      });
   });
 };

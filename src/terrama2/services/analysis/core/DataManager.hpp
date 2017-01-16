@@ -75,6 +75,13 @@ namespace terrama2
             */
             virtual void addJSon(const QJsonObject& obj) override;
 
+            /*!
+              \brief Parsers the QJsonObject in order to validate data before being inserted.
+            */
+            virtual void validateJSon(const QJsonObject& obj) override;
+
+
+
             //! Needed for overloading add method.
             using terrama2::core::DataManager::add;
 
@@ -170,14 +177,17 @@ namespace terrama2
 
           signals:
 
-            //! Signal to notify that a provider has been added.
+            //! Signal to notify that a analysis has been added.
             void analysisAdded(AnalysisPtr);
 
-            //! Signal to notify that a provider has been removed.
+            //! Signal to notify that a analysis has been removed.
             void analysisRemoved(AnalysisId);
 
-            //! Signal to notify that a provider has been updated.
+            //! Signal to notify that a analysis has been updated.
             void analysisUpdated(AnalysisPtr);
+
+            //! Signal to notify that a analysis need to be validated.
+            void validateAnalysis(AnalysisPtr);
 
 
           protected:

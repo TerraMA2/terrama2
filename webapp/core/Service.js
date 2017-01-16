@@ -89,8 +89,9 @@ var Service = module.exports = function(serviceInstance) {
 
   self.socket.on('data', function(byteArray) {
     self.answered = true;
-    logger.debug("client received: ", byteArray);
-    logger.debug("client " + self.service.name +" received: ", byteArray.toString());
+    var formatMessage = "Socket %s received %s";
+    logger.debug(Utils.format(formatMessage, self.service.name, byteArray));
+    logger.debug(Utils.format(formatMessage, self.service.name, byteArray.toString()));
 
     try  {
       var parsed = parseByteArray(byteArray);
@@ -115,13 +116,16 @@ var Service = module.exports = function(serviceInstance) {
            */
           self.emit("processFinished", parsed.message);
           break;
+        case Signals.VALIDATE_PROCESS_SIGNAL:
+          self.emit("validateProcess", parsed.message);
+          break;
       }
 
       if (callbackSuccess) {
         callbackSuccess(parsed);
       }
     } catch (e) {
-      logger.debug("Error parsing bytearray: ", e);
+      logger.debug(Utils.format("Error parsing bytearray received from %s. %s", self.service.name, e.toString()));
       self.emit("serviceError", e);
       if (callbackError) {
         callbackError(e);
@@ -136,7 +140,7 @@ var Service = module.exports = function(serviceInstance) {
 
   self.socket.on('close', function(byteArray) {
     self.emit('close', byteArray);
-    logger.debug("client closed: ", byteArray);
+    logger.debug(Utils.format("Socket %s closed: %s", self.service.name, byteArray));
   });
 
   self.socket.on('error', function(err) {
@@ -150,7 +154,7 @@ var Service = module.exports = function(serviceInstance) {
       default:
         errMessage = err.toString();
     }
-    logger.debug("client error: ", new Error(errMessage).toString());
+    logger.debug(Utils.format("Socket %s error: %s", self.service.name, new Error(errMessage).toString()));
   });
 
   self.isOpen = function() {

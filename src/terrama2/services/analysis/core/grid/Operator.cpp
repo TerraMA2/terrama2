@@ -68,7 +68,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
 
   try
   {
-    terrama2::core::verify::analysisGrid(analysis);
+    terrama2::services::analysis::core::verify::analysisGrid(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
