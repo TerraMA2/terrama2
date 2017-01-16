@@ -308,6 +308,7 @@ var DataManager = module.exports = {
             semanticsObject.forEach(function(semanticsElement) {
               semanticsWithProviders[semanticsElement.code] = semanticsElement.providers_type_list;
               promises.push(self.addDataSeriesSemantics({
+                id: semanticsElement.id,
                 temporality: semanticsElement.temporality,
                 code: semanticsElement.code,
                 name: semanticsElement.name,
