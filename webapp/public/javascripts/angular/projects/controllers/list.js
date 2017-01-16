@@ -332,7 +332,7 @@ define(function() {
       response.data.map(function(project, index) {
         if($scope.projectsCheckboxes[project.id] == undefined)
           $scope.projectsCheckboxes[project.id] = {
-            project: false
+            project: true
           };
 
         $http.get("/api/DataProvider/project/" + project.id, {}).success(function(dataProviders) {
@@ -342,7 +342,7 @@ define(function() {
             $scope.projectsCheckboxes[project.id].dataProviders = {};
 
           for(var j = 0, dataProvidersLength = dataProviders.length; j < dataProvidersLength; j++) {
-            $scope.projectsCheckboxes[project.id].dataProviders[dataProviders[j].id] = false;
+            $scope.projectsCheckboxes[project.id].dataProviders[dataProviders[j].id] = true;
           }
         }).catch(function(err) {
           console.log("Err in retrieving data providers");
@@ -366,7 +366,7 @@ define(function() {
               $scope.projectsCheckboxes[project.id].dataSeries = {};
 
             for(var j = 0, dataSeriesLength = dataSeries.data.length; j < dataSeriesLength; j++) {
-              $scope.projectsCheckboxes[project.id].dataSeries[dataSeries.data[j].id] = false;
+              $scope.projectsCheckboxes[project.id].dataSeries[dataSeries.data[j].id] = true;
             }
           }, function(err) {
             console.log("Err in retrieving data series");
@@ -382,7 +382,7 @@ define(function() {
             $scope.projectsCheckboxes[project.id].analysis = {};
 
           for(var j = 0, analysisLength = analysis.length; j < analysisLength; j++) {
-            $scope.projectsCheckboxes[project.id].analysis[analysis[j].id] = false;
+            $scope.projectsCheckboxes[project.id].analysis[analysis[j].id] = true;
           }
         }).catch(function(err) {
           $log.info("Err in retrieving Analysis " + err);
@@ -397,7 +397,7 @@ define(function() {
             $scope.projectsCheckboxes[project.id].views = {};
 
           for(var j = 0, viewsLength = views.length; j < viewsLength; j++) {
-            $scope.projectsCheckboxes[project.id].views[views[j].id] = false;
+            $scope.projectsCheckboxes[project.id].views[views[j].id] = true;
           }
         }).catch(function(err) {
           console.log("Err in retrieving views");
