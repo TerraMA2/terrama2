@@ -234,6 +234,7 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
       else
       {
         waitQueue_[analysisId].push(startTime);
+        logger_->result(AnalysisLogger::ON_QUEUE, nullptr, analysisId);
       }
     }
 
