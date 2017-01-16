@@ -40,6 +40,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace te
 {
@@ -95,14 +96,14 @@ namespace terrama2
          \param dataManager Smart pointer to the data manager.
          \param intersection Intersection configuration for the collected DataSeries.
          \param collectedDataSetSeries DataSetSeries of the collected data.
-         \paran vecAttributes List of attributes to be added to the collected DataSeries.
+         \param vecAttributes List of attributes to be added to the collected DataSeries.
          \param intersectionDataSeries DataSet to be used in the intersection.
          \return The new DataSetSeries with added columns from intersection.
          */
         terrama2::core::DataSetSeries processVectorIntersection(DataManagerPtr dataManager,
                                                                   core::IntersectionPtr intersection,
                                                                   terrama2::core::DataSetSeries collectedDataSetSeries,
-                                                                  std::vector<std::string>& vecAttributes,
+                                                                  std::vector<IntersectionAttribute>& vecAttributes,
                                                                   terrama2::core::DataSeriesPtr intersectionDataSeries);
 
         /*!
@@ -111,19 +112,20 @@ namespace terrama2
          \param dataManager Smart pointer to the data manager.
          \param intersection Intersection configuration for the collected DataSeries.
          \param collectedDataSetSeries DataSetSeries of the collected data.
+         \param vecAttributes List of attributes to be added to the collected DataSeries.
          \param intersectionDataSeries DataSet to be used in the intersection.
          \return The new DataSetSeries with added columns from intersection.
          */
         terrama2::core::DataSetSeries processGridIntersection(DataManagerPtr dataManager,
                                                                   core::IntersectionPtr intersection,
                                                                   terrama2::core::DataSetSeries collectedDataSetSeries,
-                                                                  std::vector<std::string> vecAttr,
+                                                                  std::vector<IntersectionAttribute>& vecAttributes,
                                                                   terrama2::core::DataSeriesPtr intersectionDataSeries);
 
         /*!
           \brief Get list of bands to be intersected.
         */
-        std::vector<int> getBands(std::vector<std::string> vecAttr);
+        std::vector<int> getBands(std::vector<IntersectionAttribute>& vecAttributes);
       } // end namespace core
     }   // end namespace collector
   }     // end namespace services
