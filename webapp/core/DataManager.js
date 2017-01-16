@@ -3813,5 +3813,50 @@ var DataManager = module.exports = {
             Utils.format("Could not update or insert layer due %s", err.toString())));
         });
     });
+  },
+  /**
+   * It retrieves all available script languages from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<any[]>}
+   */
+  listScriptLanguages: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ScriptLanguage.findAll(Utils.extend({where: restriction}, options))
+        .then(function(scriptLanguages) {
+          return resolve(scriptLanguages.map(function(language) {
+            return language.get();
+          }));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not list script languages %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It gets a script language from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<any>}
+   */
+  getScriptLanguage: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.listScriptLanguages(restriction, Utils.extend(options, {limit: 1}))
+        .then(function(scriptLanguageArray) {
+          if (scriptLanguageArray.length === 0) {
+            return reject(new Error("No script language found"));
+          }
+          return resolve(scriptLanguageArray[0]);
+        })
+
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
   }
 };

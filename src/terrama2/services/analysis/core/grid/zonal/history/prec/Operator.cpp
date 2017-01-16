@@ -67,7 +67,7 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
 
   try
   {
-    terrama2::core::verify::analysisMonitoredObject(analysis);
+    terrama2::services::analysis::core::verify::analysisMonitoredObject(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
@@ -93,7 +93,8 @@ double terrama2::services::analysis::core::grid::zonal::history::prec::operatorI
     if(context->hasError())
       return std::nan("");
 
-    auto valuesMap = accum::getAccumulatedMap(dataSeriesName, dateDiscardBefore, dateDiscardAfter, band, buffer, context, cache);
+    auto valuesMap = utils::getAccumulatedMap(dataSeriesName, dateDiscardBefore, dateDiscardAfter, band, buffer,
+                                              context, cache);
 
     if(exceptionOccurred)
       return std::nan("");

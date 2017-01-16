@@ -1,7 +1,6 @@
 "use strict";
 
 var logger = require("./../../core/Logger");
-var DataManager = require("../../core/DataManager.js");
 var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
 var AnalysisError = require("./../../core/Exceptions").AnalysisError;
@@ -74,6 +73,21 @@ module.exports = function(app) {
       } else {
         Utils.handleRequestError(response, new AnalysisError("Missing analysis id"), 400);
       }
+    },
+
+    validate: function(request, response) {
+      var analysisObject = request.body.analysis;
+      var storager = request.body.storager;
+      var scheduleObject = request.body.schedule;
+      return AnalysisFacade.validate(analysisObject, storager, scheduleObject, app.locals.activeProject.id)
+        .then(function(builtAnalysis) {
+          return response.json({status: 200});
+        })
+
+        .catch(function(err) {
+          logger.error(Utils.format("Error while validating analysis %s", err.toString()));
+          return Utils.handleRequestError(response, err, 400);
+        });
     }
   };
 };

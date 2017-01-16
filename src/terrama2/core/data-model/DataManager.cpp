@@ -330,3 +330,8 @@ void terrama2::core::DataManager::removeJSon(const QJsonObject& obj)
     removeDataProvider(dataId);
   }
 }
+
+void terrama2::core::DataManager::validateJSon(const QJsonObject& obj)
+{
+  // should be override by subclass.
+}

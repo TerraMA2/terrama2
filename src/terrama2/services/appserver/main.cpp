@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
       auto tcpManager = std::make_shared<terrama2::core::TcpManager>(dataManager, logger);
       if(!tcpManager->listen(QHostAddress::Any, serviceManager.listeningPort()))
       {
-        std::cerr << QObject::tr("\nUnable to listen to port: ").toStdString() << serviceManager.listeningPort() << "\n" << std::endl;
+        TERRAMA2_LOG_ERROR() <<  QObject::tr("Unable to listen to port: %1").arg(serviceManager.listeningPort());
 
         exit(TCP_SERVER_ERROR);
       }
@@ -219,7 +219,12 @@ int main(int argc, char* argv[])
 
       QObject::connect(&serviceManager, &terrama2::core::ServiceManager::logConnectionInfoUpdated, logger.get(), &terrama2::core::ProcessLogger::setConnectionInfo);
 
-      QObject::connect(service.get(), &terrama2::core::Service::processFinishedSignal, tcpManager.get(), &terrama2::core::TcpManager::processFinishedSlot);
+      QObject::connect(service.get(), &terrama2::core::Service::processFinishedSignal, tcpManager.get(),
+                       &terrama2::core::TcpManager::sendProcessFinishedSlot);
+
+      QObject::connect(service.get(), &terrama2::core::Service::validateProcessSignal, tcpManager.get(),
+                       &terrama2::core::TcpManager::sendValidateProcessSlot);
+
       QObject::connect(tcpManager.get(), &terrama2::core::TcpManager::stopSignal, service.get(), &terrama2::core::Service::stopService);
       QObject::connect(service.get(), &terrama2::core::Service::serviceFinishedSignal, &app, &QCoreApplication::quit);
 

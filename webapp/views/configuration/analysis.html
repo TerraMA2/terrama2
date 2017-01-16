@@ -29,6 +29,12 @@
     .without-border {
       border: none !important;
     }
+
+    ul.list-group .list-group {
+      max-height: 330px !important;
+      overflow-y: auto !important;
+      margin-top: 15px !important;
+    }
   </style>
 {% endblock %}
 
@@ -51,8 +57,9 @@
   };
 
   var configuration = {
-    analysis: {[ analysis|json|safe ]} || {}
-  }
+    analysis: {[ analysis|json|safe ]} || {},
+    projectId: {[ projectId ]}
+  };
 </script>
 
 <!-- Moment Datetime JS -->
@@ -114,6 +121,21 @@
     <div class="col-md-12">
       <terrama2-alert-box2 handler="ctrl.MessageBoxService.alertBox"
                            close="ctrl.close()">
+        <button type="button" class="close" ng-click="ctrl.MessageBoxService.reset()">×</button>
+        <h4><i class="icon fa" ng-class="ctrl.MessageBoxService.getIcon()"></i> {{ ctrl.MessageBoxService.alertBox.title }}</h4>
+        <div>
+          <ul class="nav nav-list" terrama2-collapse>
+            <li class="terrama2-list-error">
+              <i class="fa fa-caret-right" ng-show="ctrl.errorMessages.length > 0"></i> <label ng-bind="ctrl.MessageBoxService.alertBox.message" class="tree-toogler nav-header"></label>
+
+              <ul class="nav nav-list tree">
+                <li ng-repeat="message in ctrl.errorMessages">
+                  <i class="fa fa-circle" style="font-size: 5px;"></i> <span ng-bind="message"></span>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
       </terrama2-alert-box2>
     </div>
     <terrama2-box title="i18n.__('General Data')" css="ctrl.css">
@@ -680,13 +702,6 @@
           <div class="col-md-12">
             <!-- TerraMA² Buttons -->
             <terrama2-analysis-helpers target="ctrl.analysis.script" restriction="ctrl.analysisHelperRestriction"></terrama2-analysis-helpers>
-
-            <button class="btn btn-default pull-right" style="width: 75px;" ng-click="ctrl.onScriptValidation();">
-              <span class="loading" ng-show="ctrl.testingScript">
-                <i class="fa fa-refresh fa-spin"></i>
-              </span>
-              <span class="text" ng-show="!ctrl.testingScript" ng-disabled="ctrl.testingScript" ng-bind="i18n.__('Validate')"></span>
-            </button>
           </div>
         </div>
       </div>
@@ -706,6 +721,19 @@
           <li><a href="javascript::void();" ng-show="ctrl.schedule.frequency_start_time" ng-bind="i18n.__('Save and Run')" data-ng-click="ctrl.save(true);"></a></li>
         </ul>
       </div>
+      <button type="button" 
+              class="btn btn-primary pull-right"
+              style="margin-left: 10px;"
+              data-toggle="tooltip"
+              data-placement="top"
+              title="{{ i18n.__('It performs Analysis Validation in order to check if it will able to generate a valid data series') }}"
+              ng-click="ctrl.validate()"
+              ng-disabled="ctrl.validating">
+        <span class="loading" ng-show="ctrl.validating">
+          <i class="fa fa-refresh fa-spin"></i>
+        </span>
+        <span ng-bind="i18n.__('Validate')" ng-show="!ctrl.validating"></span>
+      </button>
       <!--<button class="btn btn-primary pull-right" style="margin-left: 10px;" data-ng-click="ctrl.save();" id="analysisSaveButton">{{ i18n.__('OK') }}</button>-->
       <a href="/configuration/analysis/" class="btn btn-primary pull-right" id="analysisCancelButton" style="margin-left: 10px;">{{ i18n.__('Cancel') }}</a>
     </div>

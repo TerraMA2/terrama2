@@ -149,13 +149,12 @@ namespace terrama2
             void storeGridAnalysisResult(terrama2::core::StoragerManagerPtr storagerManager, terrama2::services::analysis::core::GridContextPtr context);
 
             /*!
-              \brief Verifies if the given analysis in using a inactive data series.
-              \note In case there is a inactive data series, this information must be logged but the analysis will be executed normally.
+              \brief Validates the parameters of an analysis.
               \param dataManager A smart pointer to the data manager.
-              \param logger Analysis process logger.
-              \param analysis The analysis to be executed.
+              \param dataManager The analysis configuration.
+              \return The validation result.
             */
-            void verifyInactiveDataSeries(DataManagerPtr dataManager, AnalysisPtr analysis, std::shared_ptr<AnalysisLogger> logger, RegisterId logId);
+            ValidateResult validateAnalysis(DataManagerPtr dataManager, AnalysisPtr analysis);
 
           signals:
             //! Signal to notify that a analysis execution has finished.

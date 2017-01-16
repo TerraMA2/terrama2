@@ -117,6 +117,12 @@ namespace terrama2
        */
         void processFinishedSignal(QJsonObject answer);
 
+        /*!
+        * \brief Signal emitted with the result of the validation of a process information.
+        * \param answer A JSON with the valitadion result.
+        */
+        void validateProcessSignal(QJsonObject answer);
+
       public slots:
 
         virtual void addToQueue(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept = 0;

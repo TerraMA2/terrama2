@@ -141,9 +141,16 @@ namespace terrama2
 
           /*!
             \brief Insert the analysis script in a function.
-            \param analysisHashCode Analysis hashcode.
+            \param analysis Pointer to the analysis object.
           */
-          std::string prepareScript(terrama2::services::analysis::core::BaseContextPtr context);
+          std::string prepareScript(AnalysisPtr analysis);
+
+          /*!
+            \brief Validates an analysis script
+            \param analysis Pointer to the analysis object.
+            \param validateResult Reference to the object containing the result of all validations.
+          */
+          void validateAnalysisScript(AnalysisPtr analysis, ValidateResult& validateResult);
 
         } // end namespace python
       }   // end namespace core

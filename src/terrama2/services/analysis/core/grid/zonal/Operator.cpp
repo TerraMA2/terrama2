@@ -62,7 +62,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
 
   try
   {
-    terrama2::core::verify::analysisMonitoredObject(analysis);
+    terrama2::services::analysis::core::verify::analysisMonitoredObject(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {

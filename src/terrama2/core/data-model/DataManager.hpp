@@ -102,17 +102,17 @@ namespace terrama2
           This method is necessary to ensure data consistency when many calls are made.
 
           When using this method you'll receive a std::unique_lock to the DataManger,
-          if using in a small context you'll probably have no problem beacause
+          if using in a small context you'll probably have no problem because
           on the destruction of the std::unique_lock the lock is released.
 
-          In the other hand you can release the lock yourself, this is usefull when you have a
+          In the other hand you can release the lock yourself, this is useful when you have a
           long context or an intensive process, all you need to do is call std::unique_lock::unlock()
           after your use of the DataManger.
 
           \code{.cpp}
             auto lock = dataManager->getLock();
 
-            // serie of DataManager calls
+            // series of DataManager calls
 
             lock.unlock();
 
@@ -132,7 +132,7 @@ namespace terrama2
             - "dataproviders"
             - "dataseries"
 
-          For json syntaxe check the doc of the class.
+          For json syntax check the doc of the class.
 
           \pre The QJsonObject must have a list of json-converted DataProvider and DataSeries
         */
@@ -149,6 +149,12 @@ namespace terrama2
           \pre The QJsonObject must have a list of DataProviderId and DataSeriesId
         */
         virtual void removeJSon(const QJsonObject& obj);
+
+        /*!
+          \brief Parsers the QJsonObject in order to validate data before being inserted.
+        */
+        virtual void validateJSon(const QJsonObject& obj);
+
 
         /*!
           \brief Register a DataProvider in the manager.
@@ -315,6 +321,7 @@ namespace terrama2
 
         //! Signal to notify that a dataseries has been updated.
         void dataSeriesUpdated(DataSeriesPtr);
+
 
       protected:
         std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from DataProviderId to DataProvider.

@@ -55,7 +55,7 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
   auto analysis = contextManager.getAnalysis(cache.analysisHashCode);
   try
   {
-    terrama2::core::verify::analysisGrid(analysis);
+    terrama2::services::analysis::core::verify::analysisGrid(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
@@ -175,7 +175,7 @@ double terrama2::services::analysis::core::grid::history::operatorImpl(terrama2:
 
   try
   {
-    terrama2::core::verify::analysisGrid(analysis);
+    terrama2::services::analysis::core::verify::analysisGrid(analysis);
   }
   catch (const terrama2::core::VerifyException&)
   {
