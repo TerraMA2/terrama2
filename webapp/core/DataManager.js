@@ -3216,6 +3216,28 @@ var DataManager = module.exports = {
       });
     });
   },
+
+  /**
+   * It retrieves all analysis data series in database from given restriction
+   * 
+   * @param {Object} restriction - An analysis data series restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  listAnalysisDataSeries: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.AnalysisDataSeries.findAll(Utils.extend({
+        where: restriction || {}
+      }, options)).then(function(analysisDataSeriesResult){
+        return resolve(analysisDataSeriesResult.map(function(analysisDataSeries){
+          return new DataModel.AnalysisDataSeries(analysisDataSeries.get());
+        }));
+      })
+    })
+  },
+
   /**
    * It retrieves all analysis in database from given restriction
    * 

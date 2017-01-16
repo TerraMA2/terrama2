@@ -394,45 +394,68 @@ module.exports = function(app) {
 
     delete: function(request, response) {
       var id = request.params.id;
-
       if (id) {
-        return DataManager.getDataSeries({id: id})
-          .then(function(dataSeriesResult) {
-            return DataManager.getCollector({data_series_output: id})
-              .then(function(collectorResult) {
-                return PromiseClass.all([
-                    DataManager.removeDataSerie({id: id}),
-                    DataManager.removeDataSerie({id: collectorResult.data_series_input}),
-                    DataManager.removeSchedule({id: collectorResult.schedule.id})
-                  ])
-                  .then(function() {
-                    var objectToSend = {
-                      "Collectors": [collectorResult.id],
-                      "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
-                      "Schedule": [collectorResult.schedule.id]
-                    };
+        DataManager.listAnalysisDataSeries({data_series_id: id})
+          .then(function(analysisDataSeriesList){
+            if (analysisDataSeriesList.length > 0) {
+              var analysisIds = [];
+              analysisDataSeriesList.forEach(function(analysisDataSeries){
+                analysisIds.push(analysisDataSeries.analysis_id);
+              });
+              DataManager.listAnalysis({id: {$in: analysisIds}}).then(function(analysisList){
+                var analysisName = [];
+                analysisList.forEach(function(analysis){
+                  analysisName.push(analysis.name);
+                });
+                Utils.handleRequestError(response, { message: "Could not remove data series, using in " + analysisName.join(", ")}, 400);
+                
+              }).catch(function(error){
+                Utils.handleRequestError(response, error, 400);
+              });
+            }
+            else {
+              return DataManager.getDataSeries({id: id})
+                .then(function(dataSeriesResult) {
+                  return DataManager.getCollector({data_series_output: id})
+                    .then(function(collectorResult) {
+                      return PromiseClass.all([
+                          DataManager.removeDataSerie({id: id}),
+                          DataManager.removeDataSerie({id: collectorResult.data_series_input}),
+                          DataManager.removeSchedule({id: collectorResult.schedule.id})
+                        ])
+                        .then(function() {
+                          var objectToSend = {
+                            "Collectors": [collectorResult.id],
+                            "DataSeries": [collectorResult.data_series_input, collectorResult.data_series_output],
+                            "Schedule": [collectorResult.schedule.id]
+                          };
 
-                    TcpService.remove(objectToSend);
+                          TcpService.remove(objectToSend);
 
-                    return response.json({status: 200, name: dataSeriesResult.name});
-                  });
-              })
+                          return response.json({status: 200, name: dataSeriesResult.name});
+                        });
+                    })
 
-              .catch(function(err) {
-                // if not find collector, it is processing data series or analysis data series
-                return DataManager.removeDataSerie({id: id})
-                  .then(function() {
-                    var objectToSend = {
-                      "DataSeries": [id]
-                    };
+                    .catch(function(err) {
+                      // if not find collector, it is processing data series or analysis data series
+                      return DataManager.removeDataSerie({id: id})
+                        .then(function() {
+                          var objectToSend = {
+                            "DataSeries": [id]
+                          };
 
-                    TcpService.remove(objectToSend);
+                          TcpService.remove(objectToSend);
 
-                    return response.json({status: 200, name: dataSeriesResult.name});
-                  });
-              })
+                          return response.json({status: 200, name: dataSeriesResult.name});
+                        });
+                    })
+                })
+                .catch(function(error) {
+                  Utils.handleRequestError(response, error, 400);
+                });
+            }
           })
-          .catch(function(error) {
+          .catch(function(error){
             Utils.handleRequestError(response, error, 400);
           });
       } else {
