@@ -105,18 +105,22 @@ terrama2::services::collector::core::IntersectionPtr terrama2::services::collect
   intersection->collectorId = json["collector_id"].toInt();
 
   QJsonObject attributeMapJson = json["attribute_map"].toObject();
-  std::map<DataSeriesId, std::vector<std::string> > attributeMap;
+  std::map<DataSeriesId, std::vector<IntersectionAttribute> > attributeMap;
   for(auto it = attributeMapJson.begin(); it != attributeMapJson.end(); ++it)
   {
     QJsonArray attrListJson = it.value().toArray();
 
-    std::vector<std::string> attrList;
-    for (const QJsonValue & value: attrListJson)
+    std::vector<IntersectionAttribute> vecAttributes;
+    for(int index = 0; index < attrListJson.size(); ++index)
     {
-      attrList.push_back(value.toString().toStdString());
+      QJsonObject value = attrListJson[index].toObject();
+      IntersectionAttribute intersectionAttribute;
+      intersectionAttribute.attribute = value["attribute"].toString().toStdString();
+      intersectionAttribute.alias = value["alias"].toString().toStdString();
+      vecAttributes.push_back(intersectionAttribute);
     }
 
-    attributeMap[it.key().toInt()] = attrList;
+    attributeMap[it.key().toInt()] = vecAttributes;
   }
   intersection->attributeMap = attributeMap;
 
@@ -163,9 +167,12 @@ QJsonObject terrama2::services::collector::core::toJson(IntersectionPtr intersec
   for(auto it = intersection->attributeMap.begin(); it != intersection->attributeMap.end(); ++it)
   {
     QJsonArray attrList;
-    for(auto attr : it->second)
+    for(auto& intersectionAttribute : it->second)
     {
-      attrList.append(QString(attr.c_str()));
+      QJsonObject value;
+      value["attribute"] = (QString(intersectionAttribute.attribute.c_str()));
+      value["alias"] = (QString(intersectionAttribute.alias.c_str()));
+      attrList.push_back(value);
     }
     attributeMapJson[QString(it->first)] = attrList;
   }
