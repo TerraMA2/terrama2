@@ -58,6 +58,16 @@ namespace terrama2
   namespace core
   {
     /*!
+    \brief Contains information about the execution of a process.
+     */
+    struct ExecutionPackage
+    {
+      RegisterId registerId;
+      ProcessId processId;
+      std::shared_ptr<te::dt::TimeInstantTZ> executionDate;
+    };
+
+    /*!
       \brief The Service provides thread and time management for processes.
 
       This class is used to manage thread sync and timer listening for derived TerraMA2 services.
@@ -157,7 +167,7 @@ namespace terrama2
            \brief Returns true if the main loop should continue.
            \return True if there is data to be tasked.
          */
-        virtual bool hasDataOnQueue() = 0;
+        virtual bool hasDataOnQueue() noexcept;
 
         /*!
            \brief Watches for data that needs to be processed.
@@ -167,7 +177,9 @@ namespace terrama2
           \brief Add next task to the processing queue.
           \return True if there is more data to be processed.
          */
-        virtual bool processNextData() = 0;
+        bool processNextData();
+
+        virtual void prepareTask(const ExecutionPackage& executionPackage) = 0;
 
         //! Process a queued task.
         void processingTaskThread() noexcept;
@@ -178,12 +190,18 @@ namespace terrama2
         //! Sends the process finished signal
         void sendProcessFinishedSignal(const ProcessId processId, const bool success, QJsonObject jsonAnswer = QJsonObject());
 
+        /*!
+          \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
+        */
+        void notifyWaitQueue(ProcessId processId);
+
         bool stop_;
         std::mutex  mutex_; //!< Mutex for thread safety
         std::future<void> mainLoopThread_; //!< Thread that holds the loop of processing queued dataset.
         std::condition_variable mainLoopCondition_; //!< Wait condition for the loop thread. Wakes when new data is available or the service is stopped.
-        std::map<ProcessId, std::queue<std::shared_ptr<te::dt::TimeInstantTZ> > > waitQueue_; //!< Wait queue to store que process that are already being processed.
+        std::map<ProcessId, std::queue<ExecutionPackage> > waitQueue_; //!< Wait queue to store que process that are already being processed.
         std::vector<ProcessId> processingQueue_; //!< Queue with process currently being processed.
+        std::vector<ExecutionPackage> processQueue_;
         std::queue<std::packaged_task<void()> > taskQueue_; //!< Queue for tasks.
         std::vector<std::future<void> > processingThreadPool_; //!< Pool of processing threads
         std::condition_variable processingThreadCondition_; //!< Wait condition for the processing thread. Wakes when new tasks are available or the service is stopped.

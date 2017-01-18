@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_ALERT_CORE_RUN_ALERT_HPP__
 
 #include "../../../core/Shared.hpp"
+#include "../../../core/utility/Service.hpp"
 #include "../../../core/data-model/DataSeriesRisk.hpp"
 #include "Typedef.hpp"
 #include "AlertLogger.hpp"
@@ -56,7 +57,7 @@ namespace terrama2
         /*!
           \brief Method to execute the alert.
         */
-        void runAlert(std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> > alertInfo,
+        void runAlert(terrama2::core::ExecutionPackage executionPackage,
                       std::shared_ptr< AlertLogger > logger,
                       std::weak_ptr<DataManager> weakDataManager);
 
