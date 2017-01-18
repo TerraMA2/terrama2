@@ -516,7 +516,7 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
     if (pCompiledFn == NULL)
     {
       QString errMsg(QObject::tr("Invalid script."));
-      validateResult.messages.push_back(errMsg.toStdString());
+      validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
       return;
     }
 
@@ -525,7 +525,7 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
     if (pModule == NULL)
     {
       QString errMsg(QObject::tr("Could not register the analysis function."));
-      validateResult.messages.push_back(errMsg.toStdString());
+      validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
       return;
     }
 
@@ -535,16 +535,16 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
   catch (const error_already_set &)
   {
     std::string errMsg = extractException();
-    validateResult.messages.push_back(errMsg);
+    validateResult.messages.insert(validateResult.messages.end(), errMsg);
   }
   catch(const std::exception& e)
   {
-    validateResult.messages.push_back(e.what());
+    validateResult.messages.insert(validateResult.messages.end(), e.what());
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
-    validateResult.messages.push_back(errMsg.toStdString());
+    validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
   }
 }
 
