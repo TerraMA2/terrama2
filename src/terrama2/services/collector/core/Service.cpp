@@ -106,7 +106,7 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
     else
     {
       waitQueue_[collectorId].push(executionPackage);
-      logger_->result(CollectorLogger::ON_QUEUE, nullptr, collectorId);
+      logger_->result(CollectorLogger::ON_QUEUE, nullptr, executionPackage.registerId);
       TERRAMA2_LOG_DEBUG() << tr("Collector %1 added to wait queue.").arg(collectorId);
     }
 

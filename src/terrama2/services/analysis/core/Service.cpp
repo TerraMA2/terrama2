@@ -217,7 +217,8 @@ void terrama2::services::analysis::core::Service::addToQueue(AnalysisId analysis
       else
       {
         waitQueue_[analysisId].push(executionPackage);
-        logger_->result(AnalysisLogger::ON_QUEUE, nullptr, analysisId);
+        logger_->result(AnalysisLogger::ON_QUEUE, nullptr, executionPackage.registerId);
+        TERRAMA2_LOG_DEBUG() << tr("Analysis %1 added to wait queue.").arg(analysisId);
       }
     }
 
