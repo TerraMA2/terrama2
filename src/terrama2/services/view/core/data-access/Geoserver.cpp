@@ -38,11 +38,15 @@
 #include "../../../../impl/DataAccessorFile.hpp"
 #include "../../../../impl/DataAccessorPostGIS.hpp"
 #include "../../../../core/data-model/DataProvider.hpp"
+#include "../../../../core/utility/Raii.hpp"
 #include "../../../../core/utility/Logger.hpp"
 #include "../../../../core/utility/DataAccessorFactory.hpp"
 
 
 // TerraLib
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/ws/core/CurlWrapper.h>
 #include <terralib/ws/ogc/wms/client/WMSClient.h>
 #include <terralib/geometry/Envelope.h>
@@ -259,7 +263,10 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
                                                                      const std::string& tableName,
                                                                      const std::string& title,
                                                                      const std::string& timestampPropertyName,
-                                                                     const std::string& sql) const
+                                                                     const std::string& sql,
+                                                                     const std::string& geomName,
+                                                                     const te::gm::GeomType& geomType,
+                                                                     const std::string& srid) const
 {
   try
   {
@@ -291,15 +298,15 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
     metadataTime = "<entry key=\"time\">"
                    "<dimensionInfo>"
                    "<enabled>true</enabled>"
-                   "<attribute>"+timestampPropertyName+"</attribute>"
-                                                       "<presentation>CONTINUOUS_INTERVAL</presentation>"
-                                                       "<units>ISO8601</units>"
-                                                       "<defaultValue>"
-                                                       "<strategy>MAXIMUM</strategy>"
-                                                       "</defaultValue>"
-                                                       "</dimensionInfo>"
-                                                       "</entry>"
-                                                       "<entry key=\"cachingEnabled\">false</entry>";
+                   "<attribute>"+timestampPropertyName+"</attribute>"+
+                   "<presentation>CONTINUOUS_INTERVAL</presentation>"
+                   "<units>ISO8601</units>"
+                   "<defaultValue>"
+                   "<strategy>MAXIMUM</strategy>"
+                   "</defaultValue>"
+                   "</dimensionInfo>"
+                   "</entry>"
+                   "<entry key=\"cachingEnabled\">false</entry>";
 
   }
 
@@ -307,11 +314,16 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   {
     metadataSQL = "<entry key=\"JDBC_VIRTUAL_TABLE\">"
                   "<virtualTable>"
-                  "<name>"+title+"</name>"
-                                 "<sql>"+sql+"</sql>"
-                                             "<escapeSql>false</escapeSql>"
-                                             "</virtualTable>"
-                                             "</entry>";
+                  "<name>"+title+"</name>" +
+                  "<sql>"+sql+"</sql>" +
+                  "<escapeSql>false</escapeSql>"
+                  "<geometry>"
+                  "<name>"+geomName+"</name>"
+                  "<type>"+getGeomTypeString(geomType)+"</type>"
+                  "<srid>"+srid+"</srid>"
+                  "</geometry>"
+                  "</virtualTable>"
+                  "</entry>";
   }
 
   if(!metadataTime.empty() || !metadataSQL.empty())
@@ -327,6 +339,13 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
 
   te::core::URI uriPostLayer(uri);
   cURLwrapper.post(uriPostLayer, xml, "Content-Type: text/xml");
+
+  if(cURLwrapper.responseCode() != 201)
+  {
+    QString errMsg = QObject::tr("Error at register PostGis Table. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPostLayer.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -582,20 +601,50 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string 
 
 void terrama2::services::view::core::GeoServer::registerStyle(const std::string& name, const std::string &style) const
 {
-  QTemporaryFile file;
+  std::string validName = QString(QUrl::toPercentEncoding(QString::fromStdString(name), "", "/")).toStdString();
 
-  if(!file.open())
+  te::ws::core::CurlWrapper cURLwrapper;
+
+  te::core::URI uriPost(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles?name="
+                        + validName
+                        + "&raw=true");
+
+  if(!uriPost.isValid())
   {
-    QString errMsg = QObject::tr("Could not create the XML file!");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw Exception() << ErrorDescription(errMsg);
+    QString errMsg = QObject::tr("Invalid URI.");
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPost.uri()));
   }
 
-  file.write(style.c_str());
-  file.flush();
+  // Register style
+  cURLwrapper.post(uriPost, style, "Content-Type: application/vnd.ogc.sld+xml");
 
-  // Upload Style file
-  registerStyleFile(name, file.fileName().toStdString());
+  if(cURLwrapper.responseCode() == 403)
+  {
+    te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + validName +"?raw=true");
+
+    if(!uriPut.isValid())
+    {
+      QString errMsg = QObject::tr("Invalid URI.");
+      TERRAMA2_LOG_ERROR() << errMsg << uriPut.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
+    }
+
+    cURLwrapper.customRequest(uriPut, "PUT", style, "Content-Type: application/vnd.ogc.sld+xml");
+
+    if(cURLwrapper.responseCode() != 200)
+    {
+      QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+      TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+      throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+    }
+  }
+  else if(cURLwrapper.responseCode() != 201)
+  {
+    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
+    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -686,7 +735,7 @@ void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& s
   te::ws::core::CurlWrapper cURLwrapper;
 
   te::core::URI uriDelete(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/"
-                          + QString(QUrl::toPercentEncoding(QString::fromStdString(styleName), "", "/")).toStdString());
+                          + QString(QUrl::toPercentEncoding(QString::fromStdString(styleName), "", "/")).toStdString() + "?purge=true");
 
   if(!uriDelete.isValid())
   {
@@ -696,6 +745,17 @@ void terrama2::services::view::core::GeoServer::deleteStyle(const std::string& s
   }
 
   cURLwrapper.customRequest(uriDelete, "delete");
+
+  if(cURLwrapper.responseCode() == 404)
+  {
+    throw NotFoundGeoserverException() << ErrorDescription(QString::fromStdString(cURLwrapper.response()));
+  }
+  else if(cURLwrapper.responseCode() != 200)
+  {
+    QString errMsg = QObject::tr("Error at delete style. ");
+    TERRAMA2_LOG_ERROR() << errMsg << uriDelete.uri();
+    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
+  }
 }
 
 
@@ -877,6 +937,9 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
           std::string layerName = tableName;
           std::string timestampPropertyName;
           std::string joinSQL;
+          std::string geomName = "";
+          te::gm::GeomType geomType;
+          std::string SRID = "";
 
           try
           {
@@ -890,9 +953,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
           if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
           {
             const auto& id = dataset->format.find("monitored_object_id");
-            const auto& foreing = dataset->format.find("monitored_object_pk");
 
-            if(id == dataset->format.end() || foreing == dataset->format.end())
+            if(id == dataset->format.end())
             {
               logger->log(ViewLogger::ERROR_MESSAGE, "Data to join not informed.", logId);
               TERRAMA2_LOG_ERROR() << QObject::tr("Cannot join data from a different DB source!");
@@ -928,14 +990,48 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
             std::shared_ptr< terrama2::core::DataAccessorPostGIS > dataAccessorAnalysisPostGIS =
                 std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGIS>(monitoredObjectDataAccessor);
 
-            std::string joinTableName = dataAccessorAnalysisPostGIS->getDataSetTableName(monitoredObjectDataset);
+            std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS", monitoredObjectProvider->uri));
 
-            joinSQL = "SELECT * from " + tableName + " as t1 , " + joinTableName + " as t2 ";
+            terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
 
-            joinSQL += "WHERE t1.geom_id = t2." + foreing->second;
+            if(!datasource->isOpened())
+            {
+              QString errMsg = QObject::tr("DataProvider could not be opened.");
+              logger->log(ViewLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              continue;
+            }
+
+            std::string monitoredObjectTableName = dataAccessorAnalysisPostGIS->getDataSetTableName(monitoredObjectDataset);
+
+            std::unique_ptr< te::da::DataSetType > monitoredObjectdataSetType = datasource->getDataSetType(monitoredObjectTableName);
+
+            std::string pk = monitoredObjectdataSetType->getPrimaryKey()->getProperties().at(0)->getName();
+
+            auto& propertiesVector = monitoredObjectdataSetType->getProperties();
+
+             joinSQL = "SELECT ";
+
+            for(auto& property : propertiesVector)
+            {
+              const std::string& propertyName = property->getName();
+              joinSQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
+            }
+
+            joinSQL += "t2.* ";
+            joinSQL += "FROM " + monitoredObjectTableName + " as t1 , " + tableName + " as t2 ";
+            joinSQL += "WHERE t1." + pk + " = t2." + pk;
 
             // Change the layer name
             layerName = viewPtr->viewName;
+
+            if(monitoredObjectdataSetType->hasGeom())
+            {
+              auto geomProperty = te::da::GetFirstGeomProperty(monitoredObjectdataSetType.get());
+              geomName = "monitored_" + geomProperty->getName();
+              geomType = geomProperty->getGeometryType();
+              SRID = std::to_string(geomProperty->getSRID());
+            }
           }
 
           registerPostgisTable(inputDataProvider->name,
@@ -943,13 +1039,15 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
                                layerName,
                                viewPtr->viewName,
                                timestampPropertyName,
-                               joinSQL);
+                               joinSQL,
+                               geomName,
+                               geomType,
+                               SRID);
 
           QJsonObject layer;
           layer.insert("layer", QString::fromStdString(layerName));
           layersArray.push_back(layer);
         }
-
       }
     }
     else
@@ -971,4 +1069,52 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 terrama2::services::view::core::MapsServerPtr terrama2::services::view::core::GeoServer::make(te::core::URI uri)
 {
   return std::make_shared<GeoServer>(uri);
+}
+
+std::string terrama2::services::view::core::GeoServer::getGeomTypeString(const te::gm::GeomType& geomType) const
+{
+  switch(geomType)
+  {
+    case te::gm::GeomType::MultiPolygonType :
+    case te::gm::GeomType::MultiPolygonZType :
+    case te::gm::GeomType::MultiPolygonMType :
+    case te::gm::GeomType::MultiPolygonZMType :
+      return "MultiPolygon";
+    case te::gm::GeomType::GeometryType :
+    case te::gm::GeomType::GeometryZType :
+    case te::gm::GeomType::GeometryMType :
+    case te::gm::GeomType::GeometryZMType :
+      return "Geometry";
+    case te::gm::GeomType::PointType :
+    case te::gm::GeomType::PointZType :
+    case te::gm::GeomType::PointMType :
+    case te::gm::GeomType::PointZMType :
+    case te::gm::GeomType::PointKdType :
+      return "Point";
+    case te::gm::GeomType::MultiPointType :
+    case te::gm::GeomType::MultiPointZType :
+    case te::gm::GeomType::MultiPointMType :
+    case te::gm::GeomType::MultiPointZMType :
+      return "MultiPoint";
+    case te::gm::GeomType::LineStringType :
+    case te::gm::GeomType::LineStringZType :
+    case te::gm::GeomType::LineStringMType :
+    case te::gm::GeomType::LineStringZMType :
+      return "LineString";
+    case te::gm::GeomType::MultiLineStringType :
+    case te::gm::GeomType::MultiLineStringZType :
+    case te::gm::GeomType::MultiLineStringMType :
+    case te::gm::GeomType::MultiLineStringZMType :
+      return "MultiLineString";
+    case te::gm::GeomType::PolygonType :
+    case te::gm::GeomType::PolygonZType :
+    case te::gm::GeomType::PolygonMType :
+    case te::gm::GeomType::PolygonZMType :
+      return "Polygon";
+    default:
+      QString errMsg = QObject::tr("Error at register PostGis Table, unknow geometry type. ");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw ViewGeoserverException() << ErrorDescription(errMsg);
+      break;
+  }
 }

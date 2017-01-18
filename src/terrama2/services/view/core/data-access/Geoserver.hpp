@@ -122,7 +122,10 @@ namespace terrama2
                                       const std::string& tableName,
                                       const std::string& title,
                                       const std::string& timestampPropertyName = "",
-                                      const std::string& sql = "") const;
+                                      const std::string& sql = "",
+                                      const std::string& geomName = "",
+                                      const te::gm::GeomType& geomType = te::gm::GeomType::UnknownGeometryType,
+                                      const std::string& srid = "") const;
 
             /*!
              * \brief Method to upload a .zip with the vector files from out of the server to the GeoServer
@@ -287,6 +290,7 @@ namespace terrama2
                                                std::shared_ptr<ViewLogger> logger,
                                                const RegisterId logId);
 
+            std::string getGeomTypeString(const te::gm::GeomType& geomType) const;
 
           private:
 

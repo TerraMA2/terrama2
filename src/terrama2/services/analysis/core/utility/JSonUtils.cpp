@@ -67,7 +67,6 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
        && json.contains("schedule")
        && json.contains("service_instance_id")
        && json.contains("output_grid")))
-      //  && json.contains("reprocessing_historical_data")))
   {
     QString errMsg(QObject::tr("Invalid Analysis JSON object."));
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -357,6 +356,22 @@ QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analy
     std::string endDate = terrama2::core::TimeUtils::boostLocalTimeToString(reprocessingHistoricalDataPtr->endDate->getTimeInstantTZ(), terrama2::core::TimeUtils::webgui_timefacet);
     obj.insert("end_date", QString::fromStdString(endDate));
   }
+
+  return obj;
+}
+
+QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analysis::core::ValidateResult result)
+{
+  QJsonObject obj;
+  obj.insert("id", static_cast<qint32>(result.analysisId));
+  obj.insert("valid", result.valid);
+
+  QJsonArray messages;
+  for(std::string& message : result.messages)
+  {
+    messages.append(QJsonValue(QString::fromStdString(message)));
+  }
+  obj.insert("messages", messages);
 
   return obj;
 }

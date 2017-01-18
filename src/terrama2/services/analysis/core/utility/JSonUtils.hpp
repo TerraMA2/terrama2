@@ -78,6 +78,11 @@ namespace terrama2
         */
         QJsonObject toJson(ReprocessingHistoricalDataPtr reprocessingHistoricalDataPtr);
 
+        /*!
+          \brief Creates a QJsonObject from ValidateResult struct.
+        */
+        QJsonObject toJson(terrama2::services::analysis::core::ValidateResult result);
+
 
       } // end namespace core
     }   // end namespace analysis

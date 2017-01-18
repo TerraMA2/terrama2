@@ -203,3 +203,13 @@ bool terrama2::services::analysis::core::DataManager::hasAnalysis(const Analysis
   const auto& it = analysis_.find(analysisId);
   return it != analysis_.cend();
 }
+
+void terrama2::services::analysis::core::DataManager::validateJSon(const QJsonObject& obj)
+{
+  auto analysisArray = obj["Analysis"].toArray();
+  for(auto json : analysisArray)
+  {
+    auto analysisPtr = terrama2::services::analysis::core::fromAnalysisJson(json.toObject());
+    emit validateAnalysis(analysisPtr);
+  }
+}

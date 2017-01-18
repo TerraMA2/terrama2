@@ -312,6 +312,7 @@ var DataManager = module.exports = {
             semanticsObject.forEach(function(semanticsElement) {
               semanticsWithProviders[semanticsElement.code] = semanticsElement.providers_type_list;
               promises.push(self.addDataSeriesSemantics({
+                id: semanticsElement.id,
                 temporality: semanticsElement.temporality,
                 code: semanticsElement.code,
                 name: semanticsElement.name,
@@ -1379,9 +1380,14 @@ var DataManager = module.exports = {
       if (restriction.hasOwnProperty("schema")) {
         if (restriction.schema === "all") {
           self.listDataSeries({"Collector": restriction}).then(function(data) {
-            return self.listDataSeries({
+            var staticRestriction = {
               data_series_semantics: { temporality: Enums.TemporalityType.STATIC }
-            }, options).then(function(staticData) {
+            };
+
+            if(restriction.dataProvider !== undefined)
+              staticRestriction['dataProvider'] = restriction.dataProvider;
+
+            return self.listDataSeries(staticRestriction, options).then(function(staticData) {
               var output = [];
               data.forEach(function(d) {
                 output.push(d);
@@ -1407,6 +1413,10 @@ var DataManager = module.exports = {
           });
 
           var copyRestriction = Utils.makeCopy(restriction, null);
+
+          if(copyRestriction.Collector.dataProvider !== undefined)
+            copyRestriction.dataProvider = copyRestriction.Collector.dataProvider;
+
           delete copyRestriction.Collector;
           // collect output and processing
           return resolve(Utils.filter(output, copyRestriction));
@@ -3220,6 +3230,28 @@ var DataManager = module.exports = {
       });
     });
   },
+
+  /**
+   * It retrieves all analysis data series in database from given restriction
+   * 
+   * @param {Object} restriction - An analysis data series restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise}
+   */
+  listAnalysisDataSeries: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return models.db.AnalysisDataSeries.findAll(Utils.extend({
+        where: restriction || {}
+      }, options)).then(function(analysisDataSeriesResult){
+        return resolve(analysisDataSeriesResult.map(function(analysisDataSeries){
+          return new DataModel.AnalysisDataSeries(analysisDataSeries.get());
+        }));
+      })
+    })
+  },
+
   /**
    * It retrieves all analysis in database from given restriction
    * 
@@ -4023,6 +4055,51 @@ var DataManager = module.exports = {
         .catch(function(err) {
           return reject(new exceptions.RegisteredViewError(
             Utils.format("Could not update or insert layer due %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It retrieves all available script languages from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<any[]>}
+   */
+  listScriptLanguages: function(restriction, options) {
+    return new Promise(function(resolve, reject) {
+      return models.db.ScriptLanguage.findAll(Utils.extend({where: restriction}, options))
+        .then(function(scriptLanguages) {
+          return resolve(scriptLanguages.map(function(language) {
+            return language.get();
+          }));
+        })
+        .catch(function(err) {
+          return reject(new Error(Utils.format("Could not list script languages %s", err.toString())));
+        });
+    });
+  },
+  /**
+   * It gets a script language from given restriction
+   * 
+   * @param {Object} restriction - A query restriction
+   * @param {Object?} options - An ORM query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @return {Promise<any>}
+   */
+  getScriptLanguage: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      return self.listScriptLanguages(restriction, Utils.extend(options, {limit: 1}))
+        .then(function(scriptLanguageArray) {
+          if (scriptLanguageArray.length === 0) {
+            return reject(new Error("No script language found"));
+          }
+          return resolve(scriptLanguageArray[0]);
+        })
+
+        .catch(function(err) {
+          return reject(err);
         });
     });
   }

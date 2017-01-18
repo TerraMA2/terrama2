@@ -20,11 +20,11 @@ var TcpSocket = function(io) {
   // TerraMA2 Enums
   var ServiceType = require('./../core/Enums').ServiceType;
 
-  // DataManager
-  var DataManager = require('./../core/DataManager');
-
   // common TcpService module
   var TcpService = require("./../core/facade/tcp-manager/TcpService");
+
+  // TODO: remove it, since It also include TcpService. It must be changed
+  var AnalysisFacade = require("./../core/facade/Analysis");
 
   /**
    * It describes when service is ready to start and notify all listeners
@@ -32,7 +32,7 @@ var TcpSocket = function(io) {
    * @param {Object} resp - Response object
    * @param {number} resp.service - TerraMA² Service ID
    */
-  TcpService.on("serviceStarting", (resp) => {
+  TcpService.on("serviceStarting", function(resp) {
     iosocket.emit("statusResponse", {
       status: 200,
       loading: true,
@@ -124,6 +124,13 @@ var TcpSocket = function(io) {
   // Socket connection event
   iosocket.on('connection', function(client) {
     /**
+     * Listener for handling Analysis Validation from TerraMA² services (front)
+     */
+    function onProcessValidated(resp) {
+      client.emit("processValidated", resp);
+    }
+
+    /**
      * Listener for handling Process Run from TerraMA² TcpService.
      * 
      * @todo It will emits serviceError in order to notify user that service is not running.
@@ -134,11 +141,45 @@ var TcpSocket = function(io) {
       client.emit("runResponse", resp);
     }
 
+    /**
+     * Listener for handling Analysis Validation from Front-User user. It emits signal to C++ TcpService in order to validate
+     * 
+     * @param {Object} json - TerraMA² Api request
+     * @param {Object} json.analysis - TerraMA² Analysis Instance Values
+     * @param {Object} json.storager - TerraMA² Analysis Storager
+     * @param {Object} json.schedule - TerraMA² Schedule Values
+     * @param {number} json.projectId - TerraMA² current project id
+     */
+    function onValidateAnalysisRequest(json) {
+      var analysis = json.analysis;
+      var storager = json.storager;
+      var schedule = json.schedule;
+      var projectId = json.projectId;
+      return AnalysisFacade.validate(analysis, storager, schedule, projectId)
+        .then(function(dummyAnalysis) {
+          TcpService.validateProcess({
+            "Analysis": [dummyAnalysis.toObject()],
+            "DataSeries": [dummyAnalysis.dataSeries.toObject()]
+          }, dummyAnalysis.instance_id);
+        })
+        .catch(function(err) {
+          return client.emit("processValidatedError", {
+            error: err.toString()
+          });
+        });
+    }
+
     /** 
      * Register the process run listener. It is the only one listener registered on each user, since it does not need to notify all
      * It must be removed on socket disconnection
      */
     TcpService.on("processRun", onProcessRun);
+
+    /** 
+     * Register the analysis validation listener.
+     * It must be removed on socket disconnection
+     */
+    TcpService.on("processValidated", onProcessValidated);
 
     /**
      * It just define on front-end socket disconnection. It remove a process run listener due it is the only one registered each one user
@@ -146,7 +187,8 @@ var TcpSocket = function(io) {
      * @returns {void}
      */
     function onDisconnect() {
-      TcpService.removeListener ("processRun", onProcessRun);
+      TcpService.removeListener("processRun", onProcessRun);
+      TcpService.removeListener("processValidated", onProcessValidated);
     }
 
     /**
@@ -215,6 +257,8 @@ var TcpSocket = function(io) {
     client.on("stop", onStopRequest);
     client.on("log", onLogRequest);
     client.on("disconnect", onDisconnect);
+    client.on("validateAnalysis", onValidateAnalysisRequest);
+
   });
 };
 

@@ -12,7 +12,7 @@ function ReprocessingHistoricalData(params) {
   /**
    * @type {number}
    */
-  this.id = params.id;
+  this.id = params.id || 0;
   /**
    * @type {Date}
    */

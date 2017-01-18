@@ -62,15 +62,15 @@ AnalysisOutputGrid.prototype.toObject = function() {
     id: this.id,
     interpolation_dummy: this.interpolationDummy ? Number(this.interpolationDummy) : this.interpolationDummy,
     interpolation_method: this.interpolationMethod,
-    srid: this.srid,
+    srid: (this.srid || Utils.isNumber(this.srid)) ? this.srid : null,
     analysis_id: this.analysis.id,
-    area_of_interest_type: this.areaOfInterestType,
-    area_of_interest_data_series_id: this.areaOfInterestDataSeries.id,
-    area_of_interest_box: this.areaOfInterestBoxWKT || this.areaOfInterestBox,
-    resolution_x: this.resolutionX,
-    resolution_y: this.resolutionY,
-    resolution_type: this.resolutionType,
-    resolution_data_series_id: this.resolutionDataSeries.id
+    area_of_interest_type: (this.areaOfInterestType || Utils.isNumber(this.areaOfInterestType)) ? this.areaOfInterestType : null,
+    area_of_interest_data_series_id: this.areaOfInterestDataSeries.id || null,
+    area_of_interest_box: this.areaOfInterestBoxWKT || this.areaOfInterestBox || null,
+    resolution_x: (this.resolutionX || Utils.isNumber(this.resolutionX)) ? this.resolutionX : null,
+    resolution_y: (this.resolutionY || Utils.isNumber(this.resolutionY)) ? this.resolutionY : null,
+    resolution_type: this.resolutionType || null,
+    resolution_data_series_id: this.resolutionDataSeries.id || null
   });
 };
 

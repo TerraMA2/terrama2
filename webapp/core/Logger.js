@@ -76,13 +76,25 @@
     if (stackInfo) {
       // get file path relative to project root
       var calleeStr = '(' + stackInfo.relativePath + ':' + stackInfo.line + ')';
-
+      
       if (typeof (args[0]) === 'string') {
         args[0] = calleeStr + ' ' + args[0];
       } else if (args[0] instanceof Error) {
         args[0] = calleeStr + ' ' + args[0].toString()
+      } else if (args[0] instanceof Object) {
+        args[0] = calleeStr + ' ' + JSON.stringify(args[0]);
       } else {
         args.unshift(calleeStr);
+      }
+
+      for(var i = 1; i < args.length; ++i) {
+        if (args[0] instanceof Error) {
+          args[i] = args[i].toString();
+        }
+
+        if (args[i] instanceof Object) {
+          args[i] = JSON.stringify(args[i]);
+        }
       }
     }
 

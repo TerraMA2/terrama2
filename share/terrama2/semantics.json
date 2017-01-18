@@ -1,5 +1,6 @@
 [
   {
+	"id": 1,
     "name": "PostGIS occurrence",
     "code": "OCCURRENCE-postgis",
     "type": "OCCURRENCE",
@@ -20,6 +21,7 @@
     }
   },
   {
+	"id": 2,
     "name": "INPE's Wildland Fire Program",
     "code": "OCCURRENCE-wfp",
     "type": "OCCURRENCE",
@@ -71,6 +73,7 @@
     }
   },
   {
+	"id": 3,
     "name": "Lightning occurrence",
     "code": "OCCURRENCE-lightning",
     "type": "OCCURRENCE",
@@ -121,6 +124,7 @@
     }
   },
   {
+	"id": 4,
     "name": "OGR static data file",
     "code": "STATIC_DATA-ogr",
     "type": "GEOMETRIC_OBJECT",
@@ -158,6 +162,7 @@
     }
   },
   {
+	"id": 5,
     "name": "PostGIS static data",
     "code": "STATIC_DATA-postgis",
     "type": "GEOMETRIC_OBJECT",
@@ -178,6 +183,7 @@
     }
   },
   {
+	"id": 6,
     "name": "Static GeoTIFF grid",
     "code": "GRID-static_geotiff",
     "type": "GRID",
@@ -218,6 +224,7 @@
     }
   },
   {
+	"id": 7,
     "name": "INPE's DCP data format",
     "code": "DCP-inpe",
     "type": "DCP",
@@ -345,6 +352,7 @@
     }
   },
   {
+	"id": 8,
     "name": "TOA5 DCP format",
     "code": "DCP-toa5",
     "type": "DCP",
@@ -476,6 +484,7 @@
     }
   },
   {
+	"id": 9,
     "name": "DCP PostGIS",
     "code": "DCP-postgis",
     "type": "DCP",
@@ -548,6 +557,7 @@
     }
   },
   {
+	"id": 10,
     "name": "Monitored object analysis result",
     "code": "ANALYSIS_MONITORED_OBJECT-postgis",
     "type": "ANALYSIS_MONITORED_OBJECT",
@@ -568,6 +578,7 @@
     }
   },
   {
+	"id": 11,
     "name": "GeoTIFF grid",
     "code": "GRID-geotiff",
     "type": "GRID",
@@ -645,6 +656,7 @@
     }
   },
   {
+	"id": 12,
     "name": "GrADS",
     "code": "GRID-grads",
     "type": "GRID",
@@ -787,8 +799,7 @@
         },
         {
           "key": "bytes_before",
-          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item",
-          "condition": "model['number_of_bands'] > 1"
+          "htmlClass": "col-md-3 terrama2-schema-form grads-form-item"
         },
         {
           "key": "bytes_after",

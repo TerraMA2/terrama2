@@ -3,11 +3,13 @@ define([], function() {
   
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
                                     DataSeriesSemanticsService, AnalysisService, DataProviderService, 
-                                    Socket, DateParser, MessageBoxService, Polygon, $http) {
+                                    Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout) {
     var self = this;
     $scope.i18n = i18n;
 
-    var config = configuration;
+    var config = $window.configuration;
+
+    var Globals = $window.globals;
     /**
      * It defines a style for TerraMA² box directive
      * @type {Object}
@@ -87,6 +89,12 @@ define([], function() {
       self.MessageBoxService.reset();
     };
 
+    /**
+     * It handles Analysis Validation. It is important disable/enable button
+     * @type {boolean}
+     */
+    self.validating = false;
+
     // initializing async services
     $q
       .all([
@@ -161,9 +169,9 @@ define([], function() {
          * It defines enums used to handling DCP and Grid
          * @todo Angular EnumService
          */
-        self.interpolationMethods = globals.enums.InterpolationMethod;
-        self.interestAreaTypes = globals.enums.InterestAreaType;
-        self.resolutionTypes = globals.enums.ResolutionType;
+        self.interpolationMethods = Globals.enums.InterpolationMethod;
+        self.interestAreaTypes = Globals.enums.InterestAreaType;
+        self.resolutionTypes = Globals.enums.ResolutionType;
 
         /**
          * It defines a target data series that should be monitored/grid or even DCP
@@ -249,7 +257,7 @@ define([], function() {
           analysisInstance.analysis_dataseries_list.forEach(function(analysisDs) {
             var ds = analysisDs.dataSeries;
 
-            if (analysisDs.type === globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
+            if (analysisDs.type === Globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
               self.selectedDataSeriesList.push(ds);
             } else {
               self.filteredDataSeries.some(function(filteredDs) {
@@ -270,7 +278,7 @@ define([], function() {
             self.metadata[ds.name] = Object.assign({id: analysisDs.id, alias: analysisDs.alias}, analysisDs.metadata);
           });
 
-          if (analysisInstance.type.id === globals.enums.AnalysisType.GRID) {
+          if (analysisInstance.type.id === Globals.enums.AnalysisType.GRID) {
             // fill interpolation
             self.analysis.grid = {
               interpolation_method: analysisInstance.output_grid.interpolation_method,
@@ -327,24 +335,6 @@ define([], function() {
 
           self.analysis.data_provider_id = analysisInstance.dataSeries.data_provider_id;
         }
-
-        /**
-         * Called when click to validate script. It prepares a script, wrapping it with dummy function (def) in order to validate correctly.
-         * 
-         * @emit #checkPythonScriptRequest
-         * @returns {void}
-         */
-        self.onScriptValidation = function() {
-          self.testingScript = true;
-          var split = self.analysis.script.split("\n");
-          var wrapScript = "def dummy():\n";
-          split.forEach(function(element) {
-            if (element) {
-              wrapScript += "    " + element + "\n";
-            }
-          })
-          socket.emit('checkPythonScriptRequest', {script: wrapScript || ""});
-        };
 
         // define dataseries selected in modal
         self.nodesDataSeries = [];
@@ -463,6 +453,32 @@ define([], function() {
         };
 
         /**
+         * It handles analysis validation signal. Once received, it tries to notify the user with callback state
+         * 
+         * @param {Object} resp - Service response
+         */
+        Socket.on("processValidated", function(resp) {
+          self.validating = false;
+          if (resp.valid) {
+            MessageBoxService.success(i18n.__("Analysis Validation"), i18n.__("The Analysis seems valid"));
+            self.errorMessages = [];
+          } else {
+            MessageBoxService.danger(i18n.__("Analysis Validation"), i18n.__('The following errors occurred while attempting to validate the analysis') + ":");
+            self.errorMessages = resp.messages;
+          }
+        });
+
+        /**
+         * It handles validate analysis error
+         * 
+         * @param {Object} resp - Response Object
+         * @param {string} resp.message - Error Message
+         */
+        Socket.on("processValidatedError", function(resp) {
+          MessageBoxService.danger(i18n.__("Analysis"), resp.message);
+        });
+
+        /**
          * It handles when an analysis type has been changed. It will redraw and re-populate storager formats depending analysis type.
          * It also will display correctly all fields required for analysis.
          */
@@ -543,7 +559,7 @@ define([], function() {
               result.resolve(response.data.data);
             });
 
-            httpRequest.error(function(err) {
+            httpRequest.catch(function(err) {
               result.reject(err);
             });
 
@@ -791,16 +807,25 @@ define([], function() {
         };
 
         /**
-         * It performs a save operation, applying all validation processes and then calling angular service AnalysisService
+         * It prepares analysis object to send via API
          * 
-         * @param {boolean?} shouldRun - Defines if should save and run the analysis after save process. Default: false
+         * @throws Error when there invalid values
+         * @returns {Analysis} Front-end Analysis to send
          */
-        self.save = function(shouldRun) {
-          // Emitting broadcast to colorize fields based on valid state
+        self.$prepare = function(shouldRun) {
+          // resetting alert box messages
+          self.errorMessages = [];
           $scope.$broadcast('formFieldValidation');
 
           self.analysis_script_error = false;
           // TODO: emit a signal to validate form like $scope.$broadcast('scheduleFormValidate')
+
+          /**
+           * Defines a common message for empty fields
+           * @type {string}
+           */
+          var errMessageEmptyFields = i18n.__("There are invalid fields on form");
+
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
           if ($scope.forms.generalDataForm.$invalid ||
               $scope.forms.storagerDataForm.$invalid ||
@@ -808,8 +833,7 @@ define([], function() {
               scheduleForm.$invalid ||
               $scope.forms.targetDataSeriesForm.$invalid ||
               $scope.forms.scriptForm.$invalid) {
-            MessageBoxService.danger(i18n.__("Analysis"), i18n.__("There are invalid fields on form"));
-            return;
+            throw new Error(errMessageEmptyFields);
           }
 
           // checking script form if there any "add_value"
@@ -844,7 +868,7 @@ define([], function() {
             message = "Please fill at least a add_value() in script field.";
           }
           if (hasScriptError(expression, i18n.__(message))) {
-            return;
+            throw new Error(self.analysis_script_error_message);
           }
 
           // checking dataseries analysis
@@ -857,20 +881,18 @@ define([], function() {
           });
 
           if (hasError) {
-            MessageBoxService.danger(i18n.__("Analysis"), 
-                                     i18n.__("Invalid data series. Please fill out alias in ") + dataSeriesError.name);
-            return;
+            throw new Error(i18n.__("Invalid data series. Please fill out alias in ") + dataSeriesError.name);
           }
 
           // cheking influence form: DCP and influence form valid
           if (self.analysis.type_id == 1) {
             var form = $scope.forms.influenceForm;
             if (form.$invalid) {
-              return;
+              throw new Error(errMessageEmptyFields);
             }
-          } else if (self.analysis.type_id == globals.enums.AnalysisType.GRID) {
+          } else if (self.analysis.type_id == Globals.enums.AnalysisType.GRID) {
             if ($scope.forms.gridForm.$invalid) {
-              return;
+              throw new Error(errMessageEmptyFields);
             }
           }
 
@@ -900,14 +922,14 @@ define([], function() {
           // target data series
           var analysisTypeId;
           switch(typeId) {
-            case globals.enums.AnalysisType.DCP:
-              analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
+            case Globals.enums.AnalysisType.DCP:
+              analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE;
               break;
-            case globals.enums.AnalysisType.GRID:
-              analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
+            case Globals.enums.AnalysisType.GRID:
+              analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
               break;
-            case globals.enums.AnalysisType.MONITORED:
-              analysisTypeId = globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
+            case Globals.enums.AnalysisType.MONITORED:
+              analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
               self.metadata[self.targetDataSeries.name]['identifier'] = self.identifier;
               // setting monitored object id in output data series format
               self.modelStorager.monitored_object_id = self.targetDataSeries.id;
@@ -919,7 +941,7 @@ define([], function() {
           var analysisToSend = Object.assign({}, self.analysis);
 
           // setting target data series metadata (monitored object, dcp..)
-          if (typeId !== globals.enums.AnalysisType.GRID) {
+          if (typeId !== Globals.enums.AnalysisType.GRID) {
             analysisDataSeriesArray.push(_makeAnalysisDataSeries(self.targetDataSeries, analysisTypeId));
           } else {
             // checking geojson
@@ -928,7 +950,7 @@ define([], function() {
 
               var boundedForm = (angular.element('form[name="boundedForm"]').scope() || {boundedForm: {}}).boundedForm;
               if (boundedForm.$invalid) {
-                return;
+                throw new Error(errMessageEmptyFields);
               }
 
               var bounded = self.analysis.grid.area_of_interest_bounded;
@@ -940,7 +962,7 @@ define([], function() {
           // preparing analysis data series
           self.selectedDataSeriesList.forEach(function(selectedDS) {
             // additional data
-            var analysisDataSeries = _makeAnalysisDataSeries(selectedDS, globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE);
+            var analysisDataSeries = _makeAnalysisDataSeries(selectedDS, Globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE);
             analysisDataSeriesArray.push(analysisDataSeries);
           });
 
@@ -970,30 +992,61 @@ define([], function() {
               break;
           }
 
-          // sending post operation
-          var objectToSend = {
+          return {
             analysis: analysisToSend,
             storager: storager,
             schedule: scheduleValues,
             run: shouldRun
           };
-          /**
-           * Target object request (update/insert)
-           * @type {angular.IPromise<any>}
-           */
-          var request;
+        };
 
-          if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
-          else { request = AnalysisService.create(objectToSend); }
+        /**
+         * It retrieves built analysis and send to Remove host in order to validate. Before build, it performs same
+         * validation etep as in save operation
+         */
+        self.validate = function() {
+          self.validating = true;
+          try {
+            var buildAnalysis = self.$prepare(false);
+            angular.merge(buildAnalysis, {projectId: config.projectId});
 
-          return request
-            .then(function(data) {
-              window.location = "/configuration/analysis?token=" + (data.token || (data.data || {}).token);
-            })
-            .catch(function(err) {
-              $log.log(err);
-              MessageBoxService.danger(i18n.__("Analysis"), err.message);
-            });
+            Socket.emit("validateAnalysis", buildAnalysis);
+
+            $timeout(function() {
+              self.validating = false;
+            }, 2000);
+            
+          } catch(err) {
+            self.validating = false;
+            MessageBoxService.danger(i18n.__("Analysis"), err.toString());
+          }
+        };
+
+        // save function
+        self.save = function(shouldRun) {
+          try {
+            var objectToSend = self.$prepare(shouldRun);
+
+            /**
+             * Target object request (update/insert)
+             * @type {angular.IPromise<any>}
+             */
+            var request;
+
+            if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
+            else { request = AnalysisService.create(objectToSend); }
+
+            return request
+              .then(function(data) {
+                window.location = "/configuration/analysis?token=" + (data.token || (data.data || {}).token);
+              })
+              .catch(function(err) {
+                MessageBoxService.danger(i18n.__("Analysis"), err.message);
+              });
+          } catch (e) {
+            MessageBoxService.danger(i18n.__("Analysis"), (err || {}).message);
+            return;
+          }
         };
       })
 
@@ -1001,7 +1054,7 @@ define([], function() {
         $log.log("Could not load analysis interface due " + err.toString() + "\nPlease refresh this page (F5)");
       });
   }
-
+  // Injecting angular dependencies in controller
   RegisterUpdateController.$inject = [
     '$scope',
     '$q',
@@ -1016,7 +1069,9 @@ define([], function() {
     'DateParser',
     'MessageBoxService',
     'Polygon',
-    '$http'
+    '$http',
+    '$window',
+    '$timeout'
   ];
 
   return RegisterUpdateController;
