@@ -64,7 +64,7 @@ namespace terrama2
           START       = 2, /*!< The process started */
           DOWNLOADED  = 3, /*!< The data was downloaded */
           DONE        = 4,  /*!< Process finished */
-          ON_QUEUE    = 5  /*!< When the process in on the waiting queue */
+          ON_QUEUE    = 5  /*!< When the process is added to the waiting queue */
         };
 
         /*!
