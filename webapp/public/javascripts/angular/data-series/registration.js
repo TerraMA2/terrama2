@@ -483,10 +483,6 @@ define([], function() {
       }
     };
 
-    $scope.$watch("hasCollector", function(value){
-      console.log(value);
-    });
-
     // initializing async modules
     $q.all([
       DataSeriesSemanticsService.init(queryParameters),
