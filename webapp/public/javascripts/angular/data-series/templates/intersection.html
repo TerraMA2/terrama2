@@ -85,15 +85,40 @@
                   </div>
                 </div>
 
-                <div class="col-md-12">
+                <div ng-if="selectedIntersection.isGrid" class="col-md-12">
                   <table class="table table-bordered terrama2-table">
                     <tbody class="terrama2-tbody">
                       <tr class="terrama2-tr">
-                        <th colspan="2">{{ !selectedIntersection.isGrid ? i18n.__('Attribute') : i18n.__('Band') }}</th>
+                        <th colspan="2">{{ i18n.__('Bands') }}</th>
                       </tr>
 
                       <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
-                        <td style="width: 83%;">{{ att }}</td>
+                        <td style="width: 83%;">{{ att.value }}</td>
+                        <td>
+                          <button class="btn btn-sm btn-danger pull-right"
+                                  ng-click="removeAttribute(selectedIntersection, att)">
+                            {{ i18n.__('Remove') }}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div ng-if="!selectedIntersection.isGrid" class="col-md-12">
+                  <table class="table table-bordered terrama2-table">
+                    <tbody class="terrama2-tbody">
+                      <tr class="terrama2-tr">
+                        <th style="width: 42%;">{{ i18n.__('Attributes') }}</th>
+                        <th colspan="2">{{ i18n.__('Alias') }}</th>
+                      </tr>
+
+                      <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
+                        <td style="width: 42%;">{{ att.value }}</td>
+                        <td style="width: 41%;">
+                          <input type="text" ng-model="att.alias" value="att.alias">
+                          </input>
+                        </td>
                         <td>
                           <button class="btn btn-sm btn-danger pull-right"
                                   ng-click="removeAttribute(selectedIntersection, att)">

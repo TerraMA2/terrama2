@@ -178,7 +178,7 @@ void terrama2::core::ProcessLogger::addValue(const std::string& tag, const std::
 
   if(tableName_.empty())
   {
-    QString errMsg = QObject::tr("Can not find log table name. Is it setted?");
+    QString errMsg = QObject::tr("Can not find log table name.");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw terrama2::core::LogException() << ErrorDescription(errMsg);
   }
