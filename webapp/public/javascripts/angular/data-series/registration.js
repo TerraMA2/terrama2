@@ -393,11 +393,13 @@ define([], function() {
     };
 
     var openIntersectionForm = function(){
-      $scope.advanced.intersection.disabled = false;
-      var enableIntersection = angular.element('#intersection-collapse');
-      // set disabled to false, to open form
-      enableIntersection.attr("disabled", false);
-      enableIntersection.click();
+      if ($scope.dataSeries.access != 'PROCESSING'){
+        $scope.advanced.intersection.disabled = false;
+        var enableIntersection = angular.element('#intersection-collapse');
+        // set disabled to false, to open form
+        enableIntersection.attr("disabled", false);
+        enableIntersection.click();
+      }
     };
 
     // advanced global properties
@@ -418,7 +420,8 @@ define([], function() {
         disabled: true,
         clearForm: clearIntersectionForm,
         openForm: openIntersectionForm,
-        optional: true
+        optional: true,
+        message: i18n.__("Must have a valid store values to create an intersection") 
       }
     };
 
@@ -1225,7 +1228,9 @@ define([], function() {
           if ((val && Object.keys(val).length == 0) || val == null) {
             $scope.dataSeries.access = 'PROCESSING';
             $scope.wizard.intersection.message = i18n.__("Must have a valid store values to create an intersection");
+            $scope.advanced.intersection.message = i18n.__("Must have a valid store values to create an intersection");
           } else {
+            $scope.advanced.intersection.message = i18n.__("Add intersection configuration");
             $scope.wizard.intersection.message = i18n.__("Add intersection configuration");
             $scope.dataSeries.access = 'COLLECT';
           }
