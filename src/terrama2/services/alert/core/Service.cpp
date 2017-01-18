@@ -54,35 +54,12 @@ terrama2::services::alert::core::Service::Service(std::weak_ptr<terrama2::servic
   connectDataManager();
 }
 
-bool terrama2::services::alert::core::Service::hasDataOnQueue() noexcept
-{
-  return !alertQueue_.empty();
-}
 
-bool terrama2::services::alert::core::Service::processNextData()
-{
-  // check if there is data to collect
-  if(alertQueue_.empty())
-    return false;
-
-  // get first data
-  const auto& alertInfo = alertQueue_.front();
-
-  // prepare task for collecting
-  prepareTask(alertInfo);
-
-  // remove from queue
-  alertQueue_.pop_front();
-
-  // is there more data to process?
-  return !alertQueue_.empty();
-}
-
-void terrama2::services::alert::core::Service::prepareTask(std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> > alertInfo)
+void terrama2::services::alert::core::Service::prepareTask(const terrama2::core::ExecutionPackage& executionPackage)
 {
   try
   {
-    taskQueue_.emplace(std::bind(&runAlert, alertInfo, logger_, dataManager_));
+    taskQueue_.emplace(std::bind(&runAlert, executionPackage, logger_, dataManager_));
   }
   catch(std::exception& e)
   {
@@ -107,12 +84,19 @@ void terrama2::services::alert::core::Service::addToQueue(AlertId alertId, std::
     if(alert->serviceInstanceId != serviceInstanceId)
       return;
 
+
+    RegisterId registerId = logger_->start(alertId);
+
+    terrama2::core::ExecutionPackage executionPackage;
+    executionPackage.processId = alertId;
+    executionPackage.executionDate = startTime;
+    executionPackage.registerId = registerId;
+
     // if this alert id is already being processed put it on the wait queue.
     auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), alertId);
     if(pqIt == processingQueue_.end())
     {
-      auto pair = std::make_pair(alertId, terrama2::core::TimeUtils::nowUTC());
-      alertQueue_.push_back(pair);
+      processQueue_.push_back(executionPackage);
       processingQueue_.push_back(alertId);
 
       //wake loop thread
@@ -120,7 +104,8 @@ void terrama2::services::alert::core::Service::addToQueue(AlertId alertId, std::
     }
     else
     {
-      waitQueue_[alertId].push(startTime);
+      waitQueue_[alertId].push(executionPackage);
+      logger_->result(AlertLogger::ON_QUEUE, nullptr, alertId);
     }
   }
   catch(...)
@@ -208,9 +193,12 @@ void terrama2::services::alert::core::Service::removeAlert(AlertId alertId) noex
     }
 
     // remove from queue
-    alertQueue_.erase(std::remove_if(alertQueue_.begin(), alertQueue_.end(),
-                                    [alertId](const std::pair<AlertId, std::shared_ptr<te::dt::TimeInstantTZ> >& alertInfo)
-                                                { return alertId == alertInfo.first; }), alertQueue_.end());
+    processQueue_.erase(std::remove_if(processQueue_.begin(), processQueue_.end(),
+                                    [alertId](const terrama2::core::ExecutionPackage& executionPackage)
+                                                { return alertId == executionPackage.processId; }), processQueue_.end());
+
+    auto itWaitQueue = waitQueue_.find(alertId);
+    waitQueue_.erase(itWaitQueue);
 
 
     TERRAMA2_LOG_INFO() << tr("Alert %1 removed successfully.").arg(alertId);

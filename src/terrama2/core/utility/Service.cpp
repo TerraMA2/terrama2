@@ -329,3 +329,50 @@ void terrama2::core::Service::Service::setLogger(std::shared_ptr<ProcessLogger> 
 {
   logger_ = logger;
 }
+
+bool terrama2::core::Service::hasDataOnQueue() noexcept
+{
+  return !processQueue_.empty();
+}
+
+
+bool terrama2::core::Service::processNextData()
+{
+  //check if there is data to collect
+  if(processQueue_.empty())
+    return false;
+
+  auto executionPackage = processQueue_.front();
+
+  //prepare task for collecting
+  prepareTask(executionPackage);
+
+  //remove from queue
+  processQueue_.erase(processQueue_.begin());
+
+  //is there more data to process?
+  return !processQueue_.empty();
+}
+
+
+void terrama2::core::Service::notifyWaitQueue(ProcessId processId)
+{
+  // Remove from processing queue
+  auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), processId);
+  if(pqIt != processingQueue_.end())
+    processingQueue_.erase(pqIt);
+
+  // Verify if the there is an process waiting for the same collector id
+  if(!waitQueue_[processId].empty())
+  {
+    auto executionPackage = waitQueue_[processId].front();
+    waitQueue_[processId].pop();
+
+    // Adds to the processing queue
+    processingQueue_.push_back(processId);
+    processQueue_.push_back(executionPackage);
+
+    //wake loop thread
+    mainLoopCondition_.notify_one();
+  }
+}
