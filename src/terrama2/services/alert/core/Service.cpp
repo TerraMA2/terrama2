@@ -106,7 +106,7 @@ void terrama2::services::alert::core::Service::addToQueue(AlertId alertId, std::
     {
       waitQueue_[alertId].push(executionPackage);
       logger_->result(AlertLogger::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_DEBUG() << tr("Alert %1 added to wait queue.").arg(alertId);
+      TERRAMA2_LOG_INFO() << tr("Alert %1 added to wait queue.").arg(alertId);
     }
   }
   catch(...)

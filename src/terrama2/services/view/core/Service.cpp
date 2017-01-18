@@ -115,7 +115,7 @@ void terrama2::services::view::core::Service::addToQueue(ViewId viewId, std::sha
     {
       waitQueue_[viewId].push(executionPackage);
       logger_->result(ViewLogger::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_DEBUG() << tr("View %1 added to wait queue.").arg(viewId);
+      TERRAMA2_LOG_INFO() << tr("View %1 added to wait queue.").arg(viewId);
     }
 
   }

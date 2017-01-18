@@ -98,7 +98,6 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
     {
       processQueue_.push_back(executionPackage);
       processingQueue_.push_back(collectorId);
-      TERRAMA2_LOG_DEBUG() << tr("Collector %1 added to processing queue.").arg(collectorId);
 
       //wake loop thread
       mainLoopCondition_.notify_one();
@@ -107,7 +106,7 @@ void terrama2::services::collector::core::Service::addToQueue(CollectorId collec
     {
       waitQueue_[collectorId].push(executionPackage);
       logger_->result(CollectorLogger::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_DEBUG() << tr("Collector %1 added to wait queue.").arg(collectorId);
+      TERRAMA2_LOG_INFO() << tr("Collector %1 added to wait queue.").arg(collectorId);
     }
 
 
