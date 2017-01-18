@@ -18,6 +18,8 @@ define(function() {
     ];
 
     $scope.projectsCheckboxes = {};
+    $scope.dependencies = {};
+
     $scope.projectRadio = null;
     $scope.exportData = {
       "Projects": [],
@@ -79,6 +81,41 @@ define(function() {
       }
     };
 
+    $scope.itemCheck = function(projectId, objectId, objectType) {
+      if($scope.projectsCheckboxes[projectId][objectType][objectId]) {
+        socket.emit("getDependenciesResponse", {
+          objectType: objectType,
+          id: objectId,
+          projectId: projectId
+        });
+      } else {
+        if($scope.dependencies[projectId][objectId] !== undefined) {
+          delete $scope.dependencies[projectId][objectId];
+        }
+
+
+        if($scope.dependencies[projectId][objectId] !== undefined) {
+          if($scope.dependencies[projectId][objectId].DataProviders !== undefined) {
+            for(var i = 0, dataProvidersLength = $scope.dependencies[projectId][objectId].DataProviders.length; i < dataProvidersLength; i++) {
+              $scope.projectsCheckboxes[result.projectId].dataProviders[result.data.DataProviders[i]] = true;
+            }
+          }
+
+          if($scope.dependencies[projectId][objectId].DataSeries !== undefined) {
+            for(var i = 0, dataSeriesLength = result.data.DataSeries.length; i < dataSeriesLength; i++) {
+              $scope.projectsCheckboxes[result.projectId].dataSeries[result.data.DataSeries[i]] = true;
+            }
+          }
+
+          if($scope.dependencies[projectId][objectId].DataSeriesStatic !== undefined) {
+            for(var i = 0, dataSeriesStaticLength = result.data.DataSeriesStatic.length; i < dataSeriesStaticLength; i++) {
+              $scope.projectsCheckboxes[result.projectId].dataSeriesStatic[result.data.DataSeriesStatic[i]] = true;
+            }
+          }
+        }
+      }
+    };
+
     $scope.iconProperties = {};
 
     $scope.loading = true;
@@ -97,6 +134,31 @@ define(function() {
       }
 
       SaveAs(result.data, result.projectName + ".terrama2");
+    });
+
+    socket.on("getDependenciesResponse", function(result) {
+      if(result.err) {
+        MessageBoxService.danger(title, result.err);
+        return;
+      }
+
+      if(result.data.DataProviders !== undefined) {
+        for(var i = 0, dataProvidersLength = result.data.DataProviders.length; i < dataProvidersLength; i++) {
+          $scope.projectsCheckboxes[result.projectId].dataProviders[result.data.DataProviders[i]] = true;
+        }
+      }
+
+      if(result.data.DataSeries !== undefined) {
+        for(var i = 0, dataSeriesLength = result.data.DataSeries.length; i < dataSeriesLength; i++) {
+          $scope.projectsCheckboxes[result.projectId].dataSeries[result.data.DataSeries[i]] = true;
+        }
+      }
+
+      if(result.data.DataSeriesStatic !== undefined) {
+        for(var i = 0, dataSeriesStaticLength = result.data.DataSeriesStatic.length; i < dataSeriesStaticLength; i++) {
+          $scope.projectsCheckboxes[result.projectId].dataSeriesStatic[result.data.DataSeriesStatic[i]] = true;
+        }
+      }
     });
 
     socket.on("importResponse", function(result) {

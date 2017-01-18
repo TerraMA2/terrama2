@@ -578,6 +578,135 @@ var ImportExport = function(io) {
         client.emit("exportResponse", { status: 200, data: output, projectName: json.currentProjectName });
       }).catch(_emitError);
     });
+
+    /**
+     * TerraMA2 Dependencies List Listener.
+     * @param {Object} json - A javascript object containing the object id to list its dependencies.
+     */
+    client.on("getDependencies", function(json) {
+      var output = {};
+
+      var _emitError = function(err) {
+        client.emit("getDependenciesResponse", {
+          err: err.toString(),
+          status: 400
+        });
+      };
+
+      var isInArray = function(id, array) {
+        for(var i = 0, arrayLength = array.length; i < arrayLength; i++) {
+          if(array[i] == id) return true;
+        }
+
+        return false;
+      };
+
+      var getDataSeriesDependencies = function(id) {
+        return DataManager.getDataSeries({id: id}).then(function(dataSeries) {
+          return DataManager.getDataProvider({id: dataSeries.data_provider_id});
+        }).then(function(dataProvider) {
+          if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
+            if(output[id] === undefined) output[id] = {};
+            if(output[id].DataProviders === undefined) output[id].DataProviders = [];
+
+            output[id].DataProviders.push(dataProvider.id);
+          }
+
+          return DataManager.getCollector({data_series_output: id});
+        }).then(function(collector) {
+          var collectorDataSeriesInput = collector.data_series_input;
+
+          var dataSeriesPromises = [
+            DataManager.getDataSeries({id: collectorDataSeriesInput}).then(function(dataSeries) {
+              if(!isInArray(dataSeries.id, output.DataSeries)) {
+                if(output[id] === undefined) output[id] = {};
+                if(output[id].DataSeries === undefined) output[id].DataSeries = [];
+
+                output[id].DataSeries.push(dataSeries.id);
+                return DataManager.getDataProvider({id: dataSeries.data_provider_id});
+              }
+            }).then(function(dataProvider) {
+              if(dataProvider !== undefined && !isInArray(dataProvider.id, output.DataProviders)) {
+                if(output[collectorDataSeriesInput] === undefined) output[collectorDataSeriesInput] = {};
+                if(output[collectorDataSeriesInput].DataProviders === undefined) output[collectorDataSeriesInput].DataProviders = [];
+
+                output[collectorDataSeriesInput].DataProviders.push(dataProvider.id);
+              }
+            })
+          ];
+
+          for(var j = 0, intersectionsLength = collector.intersection.length; j < intersectionsLength; j++) {
+            if(output[id] === undefined) output[id] = {};
+            if(output[id].DataSeries === undefined) output[id].DataSeries = [];
+
+            output[id].DataSeries.push(collector.intersection[j].dataseries_id);
+
+            dataSeriesPromises.push(
+              getDataSeriesDependencies(collector.intersection[j].dataseries_id)
+            );
+          }
+
+          return Promise.all(dataSeriesPromises).catch(_emitError);
+        }).catch(function(err) {
+          return Promise.resolve();
+        })
+      };
+
+      var promises = [];
+
+      if(json.objectType == "dataSeries" || json.objectType == "dataSeriesStatic") {
+        promises.push(
+          getDataSeriesDependencies(json.id)
+        );
+      } else if(json.objectType == "analysis") {
+        promises.push(
+          DataManager.getAnalysis({id: json.id}, null, true).then(function(analysis) {
+            if(analysis.dataSeries.id !== undefined && !isInArray(analysis.dataSeries.id, output.DataSeries)) {
+              if(output[json.id] === undefined) output[json.id] = {};
+              if(output[json.id].DataSeries === undefined) output[json.id].DataSeries = [];
+
+              output[json.id].DataSeries.push(analysis.dataSeries.id);
+
+              var analysisDataseriesListPromises = [getDataSeriesDependencies(analysis.dataSeries.id)];
+            } else {
+              var analysisDataseriesListPromises = [];
+            }
+
+            for(var j = 0, analysisDSLength = analysis.analysis_dataseries_list.length; j < analysisDSLength; j++) {
+              if(output[json.id] === undefined) output[json.id] = {};
+              if(output[json.id].DataSeries === undefined) output[json.id].DataSeries = [];
+
+              output[json.id].DataSeries.push(analysis.analysis_dataseries_list[j].data_series_id);
+
+              analysisDataseriesListPromises.push(
+                getDataSeriesDependencies(analysis.analysis_dataseries_list[j].data_series_id)
+              );
+            }
+
+            return Promise.all(analysisDataseriesListPromises).catch(_emitError);
+          })
+        );
+      } else if(json.objectType == "views") {
+        promises.push(
+          DataManager.getView({id: json.id}).then(function(view) {
+            if(output[json.id] === undefined) output[json.id] = {};
+            if(output[json.id].DataSeries === undefined) output[json.id].DataSeries = [];
+
+            output[json.id].DataSeries.push(view.dataSeries);
+
+            return getDataSeriesDependencies(view.dataSeries);
+          })
+        );
+      }
+
+      Promise.all(promises).then(function() {
+        if(output.DataProviders.length === 0) delete output.DataProviders;
+        if(output.DataSeries.length === 0) delete output.DataSeries;
+        if(output.DataSeriesStatic.length === 0) delete output.DataSeriesStatic;
+
+        client.emit("getDependenciesResponse", { status: 200, data: output, projectId: json.projectId });
+      }).catch(_emitError);
+    });
   });
 };
 
