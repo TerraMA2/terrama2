@@ -145,13 +145,14 @@ define([], function() {
     self.generateColors = function() {
       var colorsArr = ColorFactory.generateColor(self.view.beginColor, self.view.endColor, self.view.bands + 1).reverse();
       for(var i = 1; i < colorsArr.length; ++i) {
-        colorsArr[i] = {title: i18n.__("Color") + " " + i, color: colorsArr[i], isDefault: false};
+        colorsArr[i] = {title: i18n.__("Color") + " " + i, color: colorsArr[i], value: i, isDefault: false};
       }
       var firstColor = colorsArr[0];
       colorsArr[0] = {
         title: i18n.__("Default"),
         color: firstColor,
-        isDefault: true
+        isDefault: true,
+        value: 0
       };
 
       self.colors = colorsArr;

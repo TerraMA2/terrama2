@@ -667,7 +667,7 @@ var DataManager = module.exports = {
         })
         .catch(function(err) {
           return reject(new exceptions.UserError(Utils.format("Could not save user due %s", err.toString())));
-        })
+        });
     });
   },
   /**
@@ -1087,7 +1087,7 @@ var DataManager = module.exports = {
                           key: k,
                           value: semanticsMetadata[k],
                           data_series_semantics_id: dataSeriesSemantics.id
-                        })
+                        });
                       }
                     }
                     return models.db.SemanticsMetadata.bulkCreate(semanticsMetadataArr)
@@ -3248,8 +3248,8 @@ var DataManager = module.exports = {
         return resolve(analysisDataSeriesResult.map(function(analysisDataSeries){
           return new DataModel.AnalysisDataSeries(analysisDataSeries.get());
         }));
-      })
-    })
+      });
+    });
   },
 
   /**
@@ -3596,7 +3596,7 @@ var DataManager = module.exports = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @returns {Promise}
    */
-  upsertViewStyleColor: function(styleColorObject, options) {
+  upsertViewStyleColor: function(restriction, styleColorObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleColor.findOne(Utils.extend({where: restriction}, options))
@@ -3604,7 +3604,7 @@ var DataManager = module.exports = {
           if (colorResult) {
             // update
             return models.db.ViewStyleColor.update(styleColorObject, Utils.extend({
-              fields: ["title", "color"],
+              fields: ["title", "color", "value"],
               where: {
                 id: colorResult.id
               }
