@@ -62,8 +62,8 @@ namespace terrama2
      */
     struct ExecutionPackage
     {
-      RegisterId registerId;
-      ProcessId processId;
+      RegisterId registerId = 0;
+      ProcessId processId = 0;
       std::shared_ptr<te::dt::TimeInstantTZ> executionDate;
     };
 

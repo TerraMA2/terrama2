@@ -195,7 +195,11 @@ int main(int argc, char* argv[])
 
     auto now = terrama2::core::TimeUtils::nowUTC();
 
-    terrama2::services::alert::core::runAlert(std::make_pair(alert->id, now), nullptr, dataManager);
+    terrama2::core::ExecutionPackage executionPackage;
+    executionPackage.processId = alert->id;
+    executionPackage.executionDate = now;
+
+    terrama2::services::alert::core::runAlert(executionPackage, nullptr, dataManager);
   }
 
   
