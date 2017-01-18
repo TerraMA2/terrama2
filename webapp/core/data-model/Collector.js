@@ -118,7 +118,7 @@ Collector.prototype.toObject = function() {
       intersectionOutput.attribute_map[intersectionInstance.dataseries_id] = [];
 
     if (intersectionInstance.attribute)
-      intersectionOutput.attribute_map[intersectionInstance.dataseries_id].push(intersectionInstance.attribute);
+      intersectionOutput.attribute_map[intersectionInstance.dataseries_id].push({attribute: intersectionInstance.attribute, alias: intersectionInstance.alias});
   });
 
   if (Object.keys(intersectionOutput).length > 0) {

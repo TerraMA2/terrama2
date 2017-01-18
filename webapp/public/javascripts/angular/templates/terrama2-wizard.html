@@ -18,15 +18,15 @@
           <span ng-if="step.wzData.optional && step.wzData.disabled"
               ng-class="terrama2-font-black"
               class="button pull-right enable-button-click"
-              ng-click="step.wzData.disabled = false"
-              data-toggle="tooltip" title="Add configuration">
+              ng-click="step.wzData.enableForm()"
+              data-toggle="tooltip" title="{{step.wzData.message}}">
             <i class="fa fa-plus-circle"></i>
           </span>
           <span ng-if="step.wzData.optional && !step.wzData.disabled"
               ng-class="terrama2-font-black"
               class="button pull-right enable-button-click"
               ng-click="step.wzData.disabled = true; goTo(getEnabledSteps()[0]); step.wzData.clearForm()"
-              data-toggle="tooltip" title="Remove configuration">
+              data-toggle="tooltip" title="{{step.wzData.message}}">
             <i class="fa fa-minus-circle"></i>
           </span>
         </a>
