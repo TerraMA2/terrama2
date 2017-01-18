@@ -1376,9 +1376,14 @@ var DataManager = module.exports = {
       if (restriction.hasOwnProperty("schema")) {
         if (restriction.schema === "all") {
           self.listDataSeries({"Collector": restriction}).then(function(data) {
-            return self.listDataSeries({
+            var staticRestriction = {
               data_series_semantics: { temporality: Enums.TemporalityType.STATIC }
-            }, options).then(function(staticData) {
+            };
+
+            if(restriction.dataProvider !== undefined)
+              staticRestriction['dataProvider'] = restriction.dataProvider;
+
+            return self.listDataSeries(staticRestriction, options).then(function(staticData) {
               var output = [];
               data.forEach(function(d) {
                 output.push(d);
@@ -1404,6 +1409,10 @@ var DataManager = module.exports = {
           });
 
           var copyRestriction = Utils.makeCopy(restriction, null);
+
+          if(copyRestriction.Collector.dataProvider !== undefined)
+            copyRestriction.dataProvider = copyRestriction.Collector.dataProvider;
+
           delete copyRestriction.Collector;
           // collect output and processing
           return resolve(Utils.filter(output, copyRestriction));
