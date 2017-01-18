@@ -240,6 +240,7 @@ define([], function() {
           var filter = collector.filter || {};
 
           if (filter.discard_before || filter.discard_after || filter.region){
+            $scope.wizard.filter.message = i18n.__("Remove filter configuration");;
             $scope.advanced.filter.disabled = false;
             $scope.wizard.filter.disabled = false;
             $scope.wizard.filter.error = false;
@@ -326,12 +327,17 @@ define([], function() {
     };
     $scope.dataSeries = {};
     $scope.dataSeriesSemantics = [];
+
+    // Functions to enable and disable forms
     // clear optional forms
     var clearStoreForm = function(){
+      clearIntersectionForm();
       $scope.showStoragerForm = false;
       $scope.schedule = {};
       $scope.scheduleOptions = {};
       $scope.advanced.store.disabled = true;
+      $scope.wizard.intersection.message = i18n.__("Must have a valid store values to create an intersection");
+      $scope.wizard.store.message = i18n.__("Add store configuration");
       $scope.$broadcast('clearStoreForm');
       var enableStore = angular.element('#store-collapse');
       var storebox = angular.element('#store-box');
@@ -347,6 +353,7 @@ define([], function() {
       $scope.filter.date = {};
       $scope.filter.filterArea = "1";
       $scope.advanced.filter.disabled = true;
+      $scope.wizard.filter.message = i18n.__("Add filter configuration");
       var enableFilter = angular.element('#filter-collapse');
       var filterbox = angular.element('#filter-box');
       if (!filterbox.hasClass('collapsed-box')){
@@ -358,7 +365,9 @@ define([], function() {
       for (var key in $scope.intersection) {
         $scope.removeDataSeries(key);
       }
-      $scope.advanced.intersection.disabled = true;
+      $scope.advanced.intersection.disabled = true; 
+      $scope.wizard.intersection.disabled = true;
+      $scope.wizard.intersection.message = i18n.__("Add intersection configuration");
       var enableIntersection = angular.element('#intersection-collapse');
       var intersectionbox = angular.element('#intersection-box');
       if (!intersectionbox.hasClass('collapsed-box')){
@@ -366,7 +375,7 @@ define([], function() {
       }
     };
 
-    // open optional form in advanced mode
+    // open optional forms in advanced mode
     var openStoreForm = function(){
       $scope.advanced.store.disabled = false;
       var enableStore = angular.element('#store-collapse');
@@ -384,11 +393,13 @@ define([], function() {
     };
 
     var openIntersectionForm = function(){
-      $scope.advanced.intersection.disabled = false;
-      var enableIntersection = angular.element('#intersection-collapse');
-      // set disabled to false, to open form
-      enableIntersection.attr("disabled", false);
-      enableIntersection.click();
+      if ($scope.dataSeries.access != 'PROCESSING'){
+        $scope.advanced.intersection.disabled = false;
+        var enableIntersection = angular.element('#intersection-collapse');
+        // set disabled to false, to open form
+        enableIntersection.attr("disabled", false);
+        enableIntersection.click();
+      }
     };
 
     // advanced global properties
@@ -409,10 +420,28 @@ define([], function() {
         disabled: true,
         clearForm: clearIntersectionForm,
         openForm: openIntersectionForm,
-        optional: true
+        optional: true,
+        message: i18n.__("Must have a valid store values to create an intersection") 
       }
     };
 
+    // Function to enable optional forms on wizard mode
+    var enableStoreForm = function(){
+      $scope.wizard.store.disabled = false;
+      $scope.wizard.store.message = i18n.__("Remove store configuration");
+    }
+
+    var enableFilterForm = function(){
+      $scope.wizard.filter.disabled = false;
+      $scope.wizard.filter.message = i18n.__("Remove filter configuration");
+    }
+
+    var enableIntersectionForm = function(){
+      if ($scope.dataSeries.access != 'PROCESSING'){
+        $scope.wizard.intersection.disabled = false;
+        $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
+      }
+    }
     // wizard global properties
     $scope.wizard = {
       general: {
@@ -430,23 +459,30 @@ define([], function() {
         secondForm: 'storagerDataForm',
         disabled: true,
         optional: true,
-        clearForm: clearStoreForm
+        enableForm: enableStoreForm,
+        clearForm: clearStoreForm,
+        message: i18n.__("Add store configuration")
       },
       filter: {
         required: false,
         formName: 'filterForm',
         disabled: true,
         optional: true,
-        clearForm: clearFilterForm
+        enableForm: enableFilterForm,
+        clearForm: clearFilterForm,
+        message: i18n.__("Add filter configuration")
       },
       intersection: {
         required: false,
         formName: 'intersectionForm',
         disabled: true,
         optional: true,
-        clearForm: clearIntersectionForm
+        enableForm: enableIntersectionForm,
+        clearForm: clearIntersectionForm,
+        message: i18n.__("Must have a valid store values to create an intersection")
       }
     };
+
     // initializing async modules
     $q.all([
       DataSeriesSemanticsService.init(queryParameters),
@@ -504,7 +540,9 @@ define([], function() {
         $scope.storagerFormats = [];
         $scope.showStoragerForm = false;
         delete $scope.wizard.store.error;
-        clearStoreForm();
+        if (!$scope.isUpdating){
+          clearStoreForm();
+        }
 
         if ($scope.dataSeries.semantics.allow_direct_access === false){
           $scope.wizard.store.required = true;
@@ -604,6 +642,7 @@ define([], function() {
           }
 
           if ($scope.hasCollector) {
+            $scope.wizard.store.message = i18n.__("Remove store configuration");
             $scope.wizard.store.disabled = false;
             $scope.wizard.store.error = false;
             $scope.advanced.store.disabled = false;
@@ -616,6 +655,7 @@ define([], function() {
             });
           }
           if (Object.keys($scope.intersection).length > 0) {
+            $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
             $scope.wizard.intersection.disabled = false;
             $scope.advanced.intersection.disabled = false;
           }
@@ -1183,7 +1223,11 @@ define([], function() {
         } else {
           if ((val && Object.keys(val).length == 0) || val == null) {
             $scope.dataSeries.access = 'PROCESSING';
+            $scope.wizard.intersection.message = i18n.__("Must have a valid store values to create an intersection");
+            $scope.advanced.intersection.message = i18n.__("Must have a valid store values to create an intersection");
           } else {
+            $scope.advanced.intersection.message = i18n.__("Add intersection configuration");
+            $scope.wizard.intersection.message = i18n.__("Add intersection configuration");
             $scope.dataSeries.access = 'COLLECT';
           }
         }
