@@ -90,9 +90,9 @@ int main(int argc, char** argv)
                                                   {"PG_CLIENT_ENCODING", "UTF-8"}
                                                 };
 
-    geoserver.registerPostgisTable("ashapepostgis", connInfo, "muni", "muni");
+//    geoserver.registerPostgisTable("ashapepostgis", connInfo, "muni", "muni");
 
-    geoserver.registerPostgisTable("aviewpostgis", connInfo, "view_muni", "view_muni", "", "SELECT * FROM muni WHERE gid = 558");
+//    geoserver.registerPostgisTable("aviewpostgis", connInfo, "view_muni", "view_muni", "", "SELECT * FROM muni WHERE gid = 558");
 
     // Registering a style
     geoserver.registerStyle("astyle", "style");

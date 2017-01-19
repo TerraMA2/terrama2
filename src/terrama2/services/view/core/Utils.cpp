@@ -56,6 +56,14 @@
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/geometry/Utils.h>
 
+#include <terralib/se/RasterSymbolizer.h>
+#include <terralib/se/PolygonSymbolizer.h>
+#include <terralib/se/LineSymbolizer.h>
+#include <terralib/se/PointSymbolizer.h>
+#include <terralib/se/Stroke.h>
+#include <terralib/se/Fill.h>
+
+
 
 // Qt
 #include <QFile>
@@ -219,63 +227,148 @@ void terrama2::services::view::core::createGeoserverPropertiesFile(const std::st
   outputFile.close();
 }
 
-QFileInfoList terrama2::services::view::core::dataSeriesFileList(const std::vector<terrama2::core::DataSetPtr> datasets,
-                                                                 const terrama2::core::DataProviderPtr inputDataProvider,
-                                                                 const terrama2::core::Filter filter,
-                                                                 const std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                                 const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor)
+
+te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const std::unique_ptr<te::da::DataSetType>& dataSetType,
+                                                                  const std::string& color) noexcept
 {
-  QFileInfoList fileInfoList;
-
-  for(auto& dataset : datasets)
+  if(dataSetType->hasGeom())
   {
-    // TODO: mask in folder
-    QUrl url;
+    auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
+    auto geomType = geomProperty->getGeometryType();
 
-    url = QUrl(QString::fromStdString(inputDataProvider->uri));
-
-    //get timezone of the dataset
-    std::string timezone;
-    try
+    switch(geomType)
     {
-      timezone = dataAccessor->getTimeZone(dataset);
-    }
-    catch(const terrama2::core::UndefinedTagException& /*e*/)
-    {
-      //if timezone is not defined
-      timezone = "UTC+00";
-    }
-
-    QFileInfoList baseUriList, foldersList;
-
-    baseUriList.append(url.toString(QUrl::RemoveScheme));
-
-    try
-    {
-      foldersList = dataAccessor->getFoldersList(baseUriList, terrama2::core::getFolderMask(dataset, nullptr));
-    }
-    catch(const terrama2::core::UndefinedTagException& /*e*/)
-    {
-      foldersList = baseUriList;
-    }
-
-    for(auto& folderURI : foldersList)
-    {
-      QFileInfoList tempFileInfoList = dataAccessor->getDataFileInfoList(folderURI.absoluteFilePath().toStdString(),
-                                                                         dataAccessor->getMask(dataset),
-                                                                         timezone,
-                                                                         filter,
-                                                                         remover);
-
-      if(tempFileInfoList.empty())
+      case te::gm::PolygonType:
+      case te::gm::PolygonMType:
+      case te::gm::PolygonZType:
+      case te::gm::PolygonZMType:
+      case te::gm::MultiPolygonType:
+      case te::gm::MultiPolygonMType:
+      case te::gm::MultiPolygonZType:
+      case te::gm::MultiPolygonZMType:
+      case te::gm::MultiSurfaceType:
+      case te::gm::MultiSurfaceMType:
+      case te::gm::MultiSurfaceZType:
+      case te::gm::MultiSurfaceZMType:
       {
-        TERRAMA2_LOG_WARNING() << QObject::tr("No data in folder: %1").arg(folderURI.absoluteFilePath());
-        continue;
+        te::se::Fill* fill = CreateFill(color, "0.8");
+        te::se::Stroke* stroke = CreateStroke("#000000", "1", "", "", "", "");
+
+        te::se::PolygonSymbolizer* symbolizer(new te::se::PolygonSymbolizer);
+
+        symbolizer->setFill(fill);
+        symbolizer->setStroke(stroke);
+
+        return symbolizer;
       }
 
-      fileInfoList.append(tempFileInfoList);
+      case te::gm::LineStringType:
+      case te::gm::LineStringMType:
+      case te::gm::LineStringZType:
+      case te::gm::LineStringZMType:
+      case te::gm::MultiLineStringType:
+      case te::gm::MultiLineStringMType:
+      case te::gm::MultiLineStringZType:
+      case te::gm::MultiLineStringZMType:
+      {
+        te::se::Stroke* stroke = CreateStroke(color, "1", "", "", "", "");
+
+        te::se::LineSymbolizer* symbolizer(new te::se::LineSymbolizer);
+
+        symbolizer->setStroke(stroke);
+
+        return symbolizer;
+      }
+
+      case te::gm::PointType:
+      case te::gm::PointMType:
+      case te::gm::PointZType:
+      case te::gm::PointZMType:
+      case te::gm::MultiPointType:
+      case te::gm::MultiPointMType:
+      case te::gm::MultiPointZType:
+      case te::gm::MultiPointZMType:
+      {
+        te::se::Fill* markFill = CreateFill(color, "1.0");
+        te::se::Stroke* markStroke = CreateStroke("#000000", "1", "", "", "", "");
+        te::se::Mark* mark = te::se::CreateMark("circle", markStroke, markFill);
+
+        te::se::Graphic* graphic = te::se::CreateGraphic(mark, "16", "", "");;
+
+        te::se::PointSymbolizer* symbolizer(new te::se::PointSymbolizer);
+
+        symbolizer->setGraphic(graphic);
+
+        return symbolizer;
+      }
+      default:
+        return nullptr;
     }
+
+  }
+  else if(dataSetType->hasRaster())
+  {
+    return new te::se::RasterSymbolizer();
   }
 
-  return fileInfoList;
+  return nullptr;
+}
+
+
+te::se::Stroke* buildStroke(te::se::Graphic* graphicFill,
+                            const std::string& width,
+                            const std::string& opacity,
+                            const std::string& dasharray,
+                            const std::string& linecap,
+                            const std::string& linejoin)
+{
+  te::se::Stroke* stroke = new te::se::Stroke;
+
+  if(graphicFill)
+    stroke->setGraphicFill(graphicFill);
+
+  if(!width.empty())
+    stroke->setWidth(width);
+
+  if(!opacity.empty())
+    stroke->setOpacity(opacity);
+
+  if(!dasharray.empty())
+    stroke->setDashArray(dasharray);
+
+  if(!linecap.empty())
+    stroke->setLineCap(linecap);
+
+  if(!linejoin.empty())
+    stroke->setLineJoin(linecap);
+
+  return stroke;
+}
+
+te::se::Stroke* terrama2::services::view::core::CreateStroke(const std::string& color,
+                                                             const std::string& width,
+                                                             const std::string& opacity,
+                                                             const std::string& dasharray,
+                                                             const std::string& linecap,
+                                                             const std::string& linejoin)
+{
+  te::se::Stroke* stroke = buildStroke(nullptr, width, opacity, dasharray, linecap, linejoin);
+
+  if(!color.empty())
+    stroke->setColor(color);
+
+  return stroke;
+}
+
+te::se::Fill* terrama2::services::view::core::CreateFill(const std::string& color, const std::string& opacity)
+{
+  te::se::Fill* fill = new te::se::Fill;
+
+  if(!color.empty())
+    fill->setColor(color);
+
+  if(!opacity.empty())
+    fill->setOpacity(opacity);
+
+  return fill;
 }

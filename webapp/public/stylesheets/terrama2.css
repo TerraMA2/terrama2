@@ -334,7 +334,7 @@ bootstrap-decorator span {
 .terrama2-link-disabled {
   cursor: not-allowed;
 }
-
+/*
 .color-picker-wrapper .input-group .color-picker-input-swatch {
   display: none !important;
 }

@@ -36,6 +36,9 @@
 #include "../../../core/utility/FileRemover.hpp"
 #include "../../../impl/DataAccessorFile.hpp"
 
+// TerraLib
+#include <terralib/se/Symbolizer.h>
+
 // STD
 #include <memory>
 
@@ -63,11 +66,18 @@ namespace terrama2
 
         void createGeoserverPropertiesFile(const std::string& outputFolder, const std::string& exhibitionName, DataSeriesId dataSeriesId);
 
-        QFileInfoList dataSeriesFileList(const std::vector< terrama2::core::DataSetPtr > datasets,
-                                         const terrama2::core::DataProviderPtr inputDataProvider,
-                                         const terrama2::core::Filter filter,
-                                         const std::shared_ptr<terrama2::core::FileRemover> remover,
-                                         const std::shared_ptr<terrama2::core::DataAccessorFile> dataAccessor);
+        te::se::Symbolizer* getSymbolizer(const std::unique_ptr<te::da::DataSetType>& dataSetType,
+                                          const std::string& color) noexcept;
+
+        te::se::Stroke* CreateStroke(const std::string& color,
+                                     const std::string& width,
+                                     const std::string& opacity,
+                                     const std::string& dasharray,
+                                     const std::string& linecap,
+                                     const std::string& linejoin);
+
+        te::se::Fill* CreateFill(const std::string& color,
+                                 const std::string& opacity);
 
       } // end namespace core
     }   // end namespace view

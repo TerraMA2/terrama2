@@ -67,16 +67,18 @@ namespace terrama2
         {
             struct Legend
             {
-                struct Colors
+                struct Rule
                 {
                     std::string title = "";
+                    std::string value = "";
                     std::string color = "";
                     bool isDefault = false;
                 };
 
-                  int bands = 0;
-                  std::string column = "";
-                  std::vector< Colors > colors;
+                std::string ruleType = "";
+                int bands = 0;
+                std::string column = "";
+                std::vector< Rule > rules;
             };
 
           std::string viewName = "";

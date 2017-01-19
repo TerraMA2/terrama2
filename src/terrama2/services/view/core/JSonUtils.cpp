@@ -155,13 +155,13 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
   {
     auto obj = color.toObject();
 
-    View::Legend::Colors c;
+    View::Legend::Rule c;
 
     c.color = obj["color"].toString().toStdString();
     c.title = obj["title"].toString().toStdString();
     c.isDefault = obj["isDefault"].toBool();
 
-    legend.colors.push_back(c);
+    legend.rules.push_back(c);
   }
 
   return legend;
