@@ -43,6 +43,7 @@
 #include "GridContext.hpp"
 #include "MonitoredObjectContext.hpp"
 
+
 // STL
 #include <thread>
 #include <future>
@@ -79,14 +80,16 @@ terrama2::services::analysis::core::AnalysisExecutor::AnalysisExecutor()
 void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManagerPtr dataManager,
                                                                        terrama2::core::StoragerManagerPtr storagerManager,
                                                                        std::shared_ptr<AnalysisLogger> logger,
-                                                                       std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                                       const terrama2::core::ExecutionPackage& executionPackage,
                                                                        AnalysisPtr analysis, ThreadPoolPtr threadPool,
                                                                        PyThreadState* mainThreadState)
 {
-  RegisterId logId = 0;
-  AnalysisHashCode analysisHashCode = analysis->hashCode(startTime);
+  AnalysisHashCode analysisHashCode = analysis->hashCode(executionPackage.executionDate);
 
-  if(!startTime)
+  auto logId = executionPackage.registerId;
+  auto startTime = executionPackage.executionDate;
+
+  if(!executionPackage.executionDate)
   {
     ContextManager::getInstance().addError(analysisHashCode, QObject::tr("Invalid start time").toStdString());
     return;
@@ -95,8 +98,6 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
   try
   {
     TERRAMA2_LOG_INFO() << QObject::tr("Starting analysis %1 execution: %2").arg(analysis->id).arg(startTime->toString().c_str());
-
-    logId = logger->start(analysis->id);
 
     verify::inactiveDataSeries(dataManager, analysis);
     std::set<std::string> messages = verify::inactiveDataSeries(dataManager, analysis);

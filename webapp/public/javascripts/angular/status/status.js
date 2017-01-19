@@ -192,6 +192,10 @@ define([
                   dummyMessage.description = "Error";
                   dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
                   break;
+                case Globals.enums.StatusLog.ON_QUEUE:
+                  dummyMessage.description = "On queue";
+                  dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
+                  break;
               }
               out.message = dummyMessage.description;
               out.messages = [dummyMessage];
