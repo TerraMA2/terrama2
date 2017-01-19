@@ -691,14 +691,23 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
     style.reset(new te::se::CoverageStyle());
   }
 
-  for(auto& legendRule : legend.rules)
+  if(legend.ruleType == View::Legend::VALUE)
   {
-    te::se::Symbolizer* symbolizer(getSymbolizer(dataSetType, legendRule.color));
+    std::vector<te::se::Rule*> rules;
+    te::se::Rule* ruleDefault;
 
-    if(legend.ruleType == "value")
+    for(auto& legendRule : legend.rules)
     {
+      te::se::Symbolizer* symbolizer(getSymbolizer(dataSetType, legendRule.color));
+
       te::se::Rule* rule = new te::se::Rule;
       rule->push_back(symbolizer);
+
+      if(legendRule.isDefault)
+      {
+        ruleDefault = rule;
+        continue;
+      }
 
       te::fe::PropertyName* propertyName = new te::fe::PropertyName(legend.column);
       te::fe::Literal* value = new te::fe::Literal(legendRule.value);
@@ -709,6 +718,13 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 
       rule->setFilter(filter);
 
+      rules.push_back(rule);
+    }
+
+    style->push_back(ruleDefault);
+
+    for(auto& rule : rules)
+    {
       style->push_back(rule);
     }
   }

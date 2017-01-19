@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 
     terrama2::services::view::core::View::Legend legend;
 
-    legend.ruleType = "value";
+    legend.ruleType = terrama2::services::view::core::View::Legend::VALUE;
     legend.bands = 0;
     legend.column = "id";
 

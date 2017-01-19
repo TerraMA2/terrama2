@@ -137,7 +137,8 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
     throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
   }
 
-  if(!json.contains("bands")
+  if(!json.contains("type_id")
+     || !json.contains("bands")
      || !json.contains("column")
      || !json.contains("colors"))
   {
@@ -148,7 +149,8 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
 
   View::Legend legend;
 
-  legend.bands = json["bands"].toInt();
+  legend.ruleType = View::Legend::OperationType(json["type_id"].toInt());
+  legend.bands = static_cast<uint32_t>(json["bands"].toInt());
   legend.column = json["column"].toString().toStdString();
 
   for(auto color : json["colors"].toArray())
@@ -157,8 +159,9 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
 
     View::Legend::Rule c;
 
-    c.color = obj["color"].toString().toStdString();
     c.title = obj["title"].toString().toStdString();
+    c.value = obj["value"].toString().toStdString();
+    c.color = obj["color"].toString().toStdString();
     c.isDefault = obj["isDefault"].toBool();
 
     legend.rules.push_back(c);

@@ -399,7 +399,7 @@ tbody td:last-child, thead th:last-child {
   border-right: none !important;
 }
 /* end scroll table */
-
+/*
 .color-picker-wrapper .input-group .color-picker-input-swatch {
   display: none !important;
 }
@@ -411,7 +411,7 @@ tbody td:last-child, thead th:last-child {
 
 .color-picker-wrapper .input-group .input-group-addon:first-child {
   border-right-width: thin;
-}
+}*/
 /*
   Scrollable table
 */

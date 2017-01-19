@@ -67,6 +67,13 @@ namespace terrama2
         {
             struct Legend
             {
+                enum OperationType
+                {
+                  EQUAL_STEPS = 1,
+                  QUANTILE = 2,
+                  VALUE = 3
+                };
+
                 struct Rule
                 {
                     std::string title = "";
@@ -75,7 +82,7 @@ namespace terrama2
                     bool isDefault = false;
                 };
 
-                std::string ruleType = "";
+                OperationType ruleType;
                 int bands = 0;
                 std::string column = "";
                 std::vector< Rule > rules;
