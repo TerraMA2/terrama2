@@ -107,6 +107,14 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   try
   {
     AnalysisPtr analysis = context->getAnalysis();
+    AnalysisHashCode analysisHashCode = analysis->hashCode(context->getStartTime());
+
+    auto& contextManager = ContextManager::getInstance();
+    // In case an error has already occurred, there is nothing to be done
+    if(!contextManager.getMessages(analysisHashCode, BaseContext::MessageType::ERROR_MESSAGE).empty())
+    {
+      return;
+    }
 
     std::string script = prepareScript(analysis);
 
@@ -131,7 +139,6 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
 
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
-    AnalysisHashCode analysisHashCode = analysis->hashCode(context->getStartTime());
 
     auto pValueAnalysis = PyInt_FromLong(analysisHashCode);
     auto isHashSet = PyDict_SetItemString(state->dict, "analysisHashCode", pValueAnalysis);
