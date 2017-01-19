@@ -134,7 +134,6 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
   try
   {
-    TERRAMA2_LOG_DEBUG() << tr("Starting collector");
 
 
     //////////////////////////////////////////////////////////
@@ -146,6 +145,9 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     // input data
     auto inputDataSeries = dataManager->findDataSeries(collectorPtr->inputDataSeries);
     auto inputDataProvider = dataManager->findDataProvider(inputDataSeries->dataProviderId);
+
+
+    TERRAMA2_LOG_DEBUG() << tr("Starting collection for data series '%1'").arg(inputDataSeries->name.c_str());
 
     // output data
     auto outputDataSeries = dataManager->findDataSeries(collectorPtr->outputDataSeries);

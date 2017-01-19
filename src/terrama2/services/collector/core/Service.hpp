@@ -108,8 +108,6 @@ namespace terrama2
             void connectDataManager();
 
             std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
-
-            std::deque<terrama2::core::ExecutionPackage> processQueue_;//!< Collector queue
         };
 
       } // end namespace core
