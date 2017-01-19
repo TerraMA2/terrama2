@@ -36,7 +36,7 @@
                       ng-required="filter.filterArea == filterTypes.STATIC_DATA.value"
                       ng-options="v.id as v.name for (k, v) in staticDataSeriesList">
               </select>
-              <span class='help-block' ng-show='formStaticDataSeries.dataSeriesId.$dirty && formStaticDataSeries.dataSeriesId.$error.required'>
+              <span class='help-block' ng-show='staticDataSeriesForm.dataSeriesId.$dirty && staticDataSeriesForm.dataSeriesId.$error.required'>
                 {{ i18n.__('Data series is required') }}
               </span>
             </div>

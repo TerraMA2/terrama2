@@ -1668,7 +1668,12 @@ define([], function() {
         }
 
         if ($scope.filter.filterArea == $scope.filterTypes.STATIC_DATA.value) {
-          var staticDataSeriesForm = angular.element('form[name="staticDataSeriesForm"]').scope()['staticDataSeriesForm'];
+          var staticDataSeriesForm;
+          if ($scope.isWizard){
+            staticDataSeriesForm = angular.element('form[name="staticDataSeriesForm"]').scope()['staticDataSeriesForm'];
+          } else {
+            staticDataSeriesForm = angular.element('form[name="filterForm"]').scope()['filterForm'];
+          }
           if (staticDataSeriesForm.$invalid){
             MessageBoxService.danger("Data Registration", "Invalid filter data series");
             return;
