@@ -3641,7 +3641,7 @@ var DataManager = module.exports = {
    * It performs update view legend in database. Once updated, it does not retrieves the row affected in order to keep integrity.
    * 
    * @param {Object} restriction - A query restriction
-   * @param {Object} styleLegendObject         - A type object to save
+   * @param {ViewStyleLegend} styleLegendObject         - A type object to save
    * @param {string} styleLegendObject.type_id - View Style Type identifier
    * @param {string} styleLegendObject.view_id - View identifier
    * @param {string} styleLegendObject.column  - Target column name
@@ -3654,11 +3654,10 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
-          fields: ["column", "bands", "type_id"],
+          fields: ["column", "type_id"],
           where: restriction
         }))
         .then(function() {
-          
           return resolve();
         })
         .catch(function(err) {
@@ -3702,14 +3701,15 @@ var DataManager = module.exports = {
       models.db.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
-          if (viewObject.typeId) {
+          if (viewObject.legend && viewObject.legend.typeId) {
             return models.db.ViewStyleType.findOne(Utils.extend({where: {id: viewObject.typeId}}, options))
               .then(function(viewType) {
+                var legend = viewObject.legend;
                 var legendObject = {
                   type_id: viewType.id,
-                  column: viewObject.column,
-                  colors: viewObject.colors,
-                  bands: viewObject.bands,
+                  column: legend.column,
+                  colors: legend.colors,
+                  bands: legend.bands,
                   view_id: view.id
                 };
                 return self.addViewStyleLegend(legendObject, options);

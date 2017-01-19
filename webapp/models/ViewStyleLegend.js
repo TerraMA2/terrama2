@@ -26,11 +26,6 @@
         type: DataTypes.STRING,
         allowNull: true,
         comment: "Target column to generate legend"
-      },
-      bands: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        comment: "Number of legend item"
       }
     }, {
       underscored: true,

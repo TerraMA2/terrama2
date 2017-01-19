@@ -102,29 +102,52 @@ define([], function() {
      */
     self.colors = [];
     /**
-     * It tries to sets begin and end color based in table row selection
+     * It contains all forms. It must be appended on scope instance due schema form support;
+     * @type {Object}
      */
-    self.handleColor = function() {
-      var initial = self.colors[0];
-      var final = self.colors[self.colors.length - 1];
-      self.view.beginColor = initial.color;
-      self.view.endColor = final.color;
+    $scope.forms = {};
+    /**
+     * It represents a terrama2 box styles
+     * @type {Object}
+     */
+    self.css = {
+      boxType: "box-solid"
     };
     /**
-     * It defines a event listeners for color handling
+     * It contains view instance values
+     * @type {Object}
      */
-    self.events = {
-      onChange: function(api, color, $event) {
-        handleColor();
-      }
-    };
+    self.view = config.view || {};
+    // setting default band value
+    self.view.bands = 5;
+    /**
+     * It stores a legend values (Geometric, Grid, etc)
+     */
+    self.legend = {};
+    /**
+     * It defines a selected View DataSeries object
+     * @type {DataSeries}
+     */
+    self.viewDataSeries = {};
+
+    // function initializer
+    self.onDataSeriesChanged = onDataSeriesChanged;
+    self.initActive = initActive;
+    self.populateColumns = populateColumns; 
+    // Setting view service dao
+    self.ViewService = ViewService;
+    // setting message box close fn
+    self.close = closeDialog;
+    // Setting Save operation attached into submit button
+    self.save = saveOperation;
+
     /**
      * It builds a style from data series semantics
      * 
      * @param {DataSeriesService.DataSeriesType} semanticsTypeName
      * @returns {string}
      */
-    var makeStyle = function(semanticsTypeName) {
+    function makeStyle(semanticsTypeName) {
       var targetStyle = "";
       switch(semanticsTypeName) {
         case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
@@ -138,26 +161,7 @@ define([], function() {
           targetStyle = StyleConstants.COMMON;
       }
       return targetStyle;
-    };
-    /**
-     * It performs a colors generation based in band selected and color. It starts from white color ("#000000").
-     */
-    self.generateColors = function() {
-      var colorsArr = ColorFactory.generateColor(self.view.beginColor, self.view.endColor, self.view.bands + 1).reverse();
-      for(var i = 1; i < colorsArr.length; ++i) {
-        colorsArr[i] = {title: i18n.__("Color") + " " + i, color: colorsArr[i], value: i, isDefault: false};
-      }
-      var firstColor = colorsArr[0];
-      colorsArr[0] = {
-        title: i18n.__("Default"),
-        color: firstColor,
-        isDefault: true,
-        value: 0
-      };
-
-      self.colors = colorsArr;
-      // self.colors = ColorFactory.generateColor("#000000", self.view.colorBand, self.view.bands);
-    };
+    }
 
     /**
      * It retrieves all data provider type to get HTTP fields
@@ -206,11 +210,11 @@ define([], function() {
                 break;
               case self.DataSeriesType.GEOMETRIC_OBJECT:
                 var legend = config.view.legend;
-                self.view.typeId = legend.type_id;
-                self.view.bands = legend.bands || 5;
-                self.view.column = legend.column;
-                self.colors = legend.colors;
-                self.handleColor();
+                self.legend.typeId = legend.type_id;
+                self.legend.column = legend.column;
+                self.legend.colors = legend.colors;
+                self.legend.bands = legend.colors.length - 1;
+                $scope.$broadcast("updateStyleColor");
                 break;
             }
           }
@@ -248,21 +252,19 @@ define([], function() {
       self.MessageBoxService.danger(i18n.__("View"), err);
     });
 
-    // Setting view service dao
-    self.ViewService = ViewService;
     /**
      * It is used on ng-init active view. It will wait for angular ready condition and set active view checkbox
      * 
      * @returns {void}
-     */
-    self.initActive = function() {
+     */    
+    function initActive() {
       // wait angular digest cycle
       $timeout(function() {
         self.view.active = (config.view.active === false || config.view.active) ? config.view.active : true;
       });
-    };
+    }
 
-    self.populateColumns = function(type) {
+    function populateColumns(type) {
       if (type === undefined || type === "") {
         self.columns = [];
         return;
@@ -272,13 +274,13 @@ define([], function() {
         .then(function(columns) {
           self.columns = columns;
         });
-    };
+    }
 
     /**
      * It handles Data Series combobox change. If it is GRID data series, there is a default style script
      * @param {DataSeries}
-     */
-    self.onDataSeriesChanged = function(dataSeriesId) {
+     */    
+    function onDataSeriesChanged(dataSeriesId) {
       self.dataSeries.some(function(dSeries) {
         if (dSeries.id === dataSeriesId) {
           // setting view data series
@@ -297,47 +299,17 @@ define([], function() {
       });
     }
     /**
-     * It contains all forms. It must be appended on scope instance due schema form support;
-     * @type {Object}
-     */
-    $scope.forms = {};
-    /**
-     * It represents a terrama2 box styles
-     * @type {Object}
-     */
-    self.css = {
-      boxType: "box-solid"
-    };
-    /**
-     * It contains view instance values
-     * @type {Object}
-     */
-    self.view = config.view || {};
-    // setting default band value
-    self.view.bands = 5;
-    /**
-     * It defines a selected View DataSeries object
-     * @type {DataSeries}
-     */
-    self.viewDataSeries = {};
-    /**
      * Helper to reset alert box instance
      */
-    self.close = function() {
+    function closeDialog() {
       self.MessageBoxService.reset();
-    };
-    /**
-     * It handles file upload to retrieve xml style
-     */
-    self.onFileUploadClick = function() {
-      
-    };
+    }
     /**
      * It performs a save operation. It applies a form validation and try to save
      * @param {boolean} shouldRun - Determines if service should auto-run after save process
      * @returns {void}
      */
-    self.save = function(shouldRun) {
+    function saveOperation(shouldRun) {
       // broadcasting each one terrama2 field directive validation 
       $scope.$broadcast("formFieldValidation");
       // broadcasting schema form validation
@@ -401,18 +373,19 @@ define([], function() {
            * @type {Object}
            */
           var mergedView = angular.merge(self.view, {run: shouldRun});
+          mergedView.legend = self.legend;
           // tries to save
           var operation = self.isUpdating ? self.ViewService.update(self.view.id, self.view) : self.ViewService.create(self.view);
           operation.then(function(response) {
             $log.info(response);
-            $window.location.href = "/configuration/views?token=" + response.token
+            $window.location.href = "/configuration/views?token=" + response.token;
           }).catch(function(err) {
             $log.info(err);
             self.MessageBoxService.danger(i18n.__("View"), err);
           });
         });
       });
-    };
+    }
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window", 

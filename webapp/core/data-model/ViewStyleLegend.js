@@ -13,26 +13,25 @@
     AbstractClass.call(this, {'class': 'ViewStyleLegend'});
     /**
      * ViewStyleLegend identifier
+     * @name ViewStyleLegend#name
      * @type {number}
      */
     this.id = params.id;
     /**
      * ViewStyleLegend Type identifier
+     * @name ViewStyleLegend#typeId
      * @type {number}
      */
     this.typeId = params.type_id || params.typeId;
     /**
      * ViewStyleLegend column
+     * @name ViewStyleLegend#column
      * @type {string}
      */
     this.column = params.column;
     /**
-     * ViewStyleLegend bands
-     * @type {string}
-     */
-    this.bands = params.bands;
-    /**
      * It defines the ViewStyleLegend colors used
+     * @name ViewStyleLegend#colors
      * @type {any}
      */
     this.colors = params.colors || [];
@@ -62,8 +61,7 @@
       id: this.id,
       column: this.column,
       type_id: this.typeId,
-      colors: this.colors,
-      bands: this.bands
+      colors: this.colors
     });
   };
 

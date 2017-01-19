@@ -166,17 +166,17 @@
           })
 
           .then(function() {
-            return DataManager.updateView({id: viewId}, viewObject, options)
+            return DataManager.updateView({id: viewId}, viewObject, options);
           })
 
           .then(function() {
-            if (viewObject.typeId) {
+            if (viewObject.legend && viewObject.legend.typeId) {
               // if there is no legend before, insert a new one
               var legend = {
-                column: viewObject.column,
-                bands: viewObject.bands,
-                type_id: viewObject.typeId,
-                colors: viewObject.colors,
+                column: viewObject.legend.column,
+                bands: viewObject.legend.bands,
+                type_id: viewObject.legend.typeId,
+                colors: viewObject.legend.colors,
                 view_id: viewId
               };
               if (!view.legend) {
@@ -186,19 +186,19 @@
                 // TODO: remove it. It should just performs upSert operation instead remove and insert. This implementation was necessary due color generation in 
                 // front end does not keep ID
                 // remove all colors and insert again
-                return DataManager.removeViewStyleColor({view_style_id: viewObject.legend.id}, options)
+                return DataManager.removeViewStyleColor({view_style_id: view.legend.id}, options)
                   .then(function() {
                     // update
                     var promises = [];
                     for(var i = 0; i < legend.colors.length; ++i) {
                       var color = legend.colors[i];
                       delete color.id; // if there is
-                      color.view_style_id = viewObject.legend.id;
+                      color.view_style_id = view.legend.id;
                       promises.push(DataManager.addViewStyleColor(color, options));
                     }
-                    return Promise.all(promises)
+                    return PromiseClass.all(promises)
                       .then(function() {
-                        return DataManager.updateViewStyleLegend({id: viewObject.legend.id}, legend, options);
+                        return DataManager.updateViewStyleLegend({id: view.legend.id}, legend, options);
                       });
                   });
               }
