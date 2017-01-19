@@ -3571,11 +3571,19 @@ var DataManager = module.exports = {
             color.view_style_id = legendResult.id;
             promises.push(self.addViewStyleColor(color, options));
           }
+<<<<<<< HEAD
 
           return Promise.all(promises)
             .then(function(colors) {
               var output = new DataModel.ViewStyleLegend(Utils.extend(legendResult.get(), {colors: colors}));
 
+=======
+
+          return Promise.all(promises)
+            .then(function(colors) {
+              var output = new DataModel.ViewStyleLegend(Utils.extend(legendResult.get(), {colors: colors}));
+
+>>>>>>> 24f98bb1ea3196999b587792b95dd7ee98b1ef71
               return resolve(output);
             });
         })
@@ -3596,7 +3604,11 @@ var DataManager = module.exports = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @returns {Promise}
    */
+<<<<<<< HEAD
+  upsertViewStyleColor: function(styleColorObject, options) {
+=======
   upsertViewStyleColor: function(restriction, styleColorObject, options) {
+>>>>>>> 24f98bb1ea3196999b587792b95dd7ee98b1ef71
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.ViewStyleColor.findOne(Utils.extend({where: restriction}, options))
@@ -3604,7 +3616,11 @@ var DataManager = module.exports = {
           if (colorResult) {
             // update
             return models.db.ViewStyleColor.update(styleColorObject, Utils.extend({
+<<<<<<< HEAD
+              fields: ["title", "color"],
+=======
               fields: ["title", "color", "value"],
+>>>>>>> 24f98bb1ea3196999b587792b95dd7ee98b1ef71
               where: {
                 id: colorResult.id
               }

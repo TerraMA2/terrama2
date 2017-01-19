@@ -310,7 +310,7 @@ module.exports = function(app) {
                             return collector.output;
                           } else {
                             intersection.forEach(function(intersect) {
-                              intersect.collector_id = collector.id;
+                              intersect.collector_id = collectorResult.id;
                             });
                             return DataManager.addIntersection(intersection, options).then(function(bulkIntersectionResult){
                               collectorResult.setIntersection(bulkIntersectionResult);

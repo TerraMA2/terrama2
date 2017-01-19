@@ -9,6 +9,9 @@ module.exports = function(sequelize, DataTypes) {
       },
       attribute: {
         type: DataTypes.STRING
+      },
+      alias: {
+        type: DataTypes.STRING
       }
     },
     {

@@ -37,11 +37,14 @@
         type: DataTypes.STRING,
         comment: "Style Color Hex"
       },
+<<<<<<< HEAD
+=======
       value: {
         type: DataTypes.STRING,
         allowNull: true,
         comment: "Style value"
       },
+>>>>>>> 24f98bb1ea3196999b587792b95dd7ee98b1ef71
       isDefault: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
