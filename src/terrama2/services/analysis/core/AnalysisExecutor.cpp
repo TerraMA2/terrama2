@@ -99,7 +99,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     logId = logger->start(analysis->id);
 
     verify::inactiveDataSeries(dataManager, analysis);
-    std::vector<std::string> messages = verify::inactiveDataSeries(dataManager, analysis);
+    std::set<std::string> messages = verify::inactiveDataSeries(dataManager, analysis);
     if(!messages.empty())
     {
       for(std::string message : messages)
@@ -910,28 +910,28 @@ terrama2::services::analysis::core::ValidateResult terrama2::services::analysis:
     }
     catch(const terrama2::Exception& e)
     {
-      validateResult.messages.push_back(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+      validateResult.messages.insert(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
     }
     catch(const boost::python::error_already_set&)
     {
       std::string errMsg = python::extractException();
-      validateResult.messages.push_back(errMsg);
+      validateResult.messages.insert(errMsg);
     }
     catch(const std::exception& e)
     {
-      validateResult.messages.push_back(e.what());
+      validateResult.messages.insert(e.what());
     }
     catch(...)
     {
       QString errMsg = QObject::tr("An unknown exception occurred.");
-      validateResult.messages.push_back(errMsg.toStdString());
+      validateResult.messages.insert(errMsg.toStdString());
     }
   }
   else
   {
     QString errMsg = QObject::tr("VALIDATION FOR LUA SCRIPT NOT IMPLEMENTED YET.");
     TERRAMA2_LOG_WARNING() << errMsg;
-    validateResult.messages.push_back(errMsg.toStdString());
+    validateResult.messages.insert(errMsg.toStdString());
   }
 
   validateResult.valid = validateResult.messages.empty();

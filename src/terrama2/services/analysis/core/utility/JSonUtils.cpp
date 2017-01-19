@@ -367,7 +367,7 @@ QJsonObject terrama2::services::analysis::core::toJson(terrama2::services::analy
   obj.insert("valid", result.valid);
 
   QJsonArray messages;
-  for(std::string& message : result.messages)
+  for(const std::string& message : result.messages)
   {
     messages.append(QJsonValue(QString::fromStdString(message)));
   }
