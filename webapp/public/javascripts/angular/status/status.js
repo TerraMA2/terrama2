@@ -17,15 +17,22 @@ define([
       $scope.MessageBoxService = MessageBoxService;
       var title = i18n.__("Status");
       var cachedIcons = {};
-      cachedIcons[Globals.enums.StatusLog.DONE] = "/images/check.png";
-      cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/error.png";
+      cachedIcons[Globals.enums.StatusLog.DONE] = "/images/green.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.DONE] = "/images/green_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.ERROR] = "/images/red.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.ERROR] = "/images/red_anime.gif";
       cachedIcons[Globals.enums.StatusLog.DOWNLOADED] = "/images/download.png";
-      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/warning.png";
+      cachedIcons["message_" +Globals.enums.MessageType.WARNING_MESSAGE] = "/images/yellow.png";
+      cachedIcons["start_warning"] = "/images/yellow_anime.png";
+      cachedIcons[Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
+      cachedIcons["start_" + Globals.enums.StatusLog.START] = "/images/grey_anime.gif";
+      cachedIcons[Globals.enums.StatusLog.ON_QUEUE] = "/images/clock.gif";
 
       // injecting socket in angular scope
       $scope.socket = Socket;
 
       $scope.model = [];
+      $scope.groupedModel = {};
 
       $scope.fields = [
         {
@@ -62,18 +69,48 @@ define([
         width: 24,
         height: 24
       };
-
+      
       $scope.iconFn = function(object) {
-        var iconPath = cachedIcons[object.status];
-        if (iconPath) {
-          // if warning
-          if (object.messageType === Globals.enums.MessageType.WARNING_MESSAGE) {
-            return cachedIcons["message_" + Globals.enums.MessageType.WARNING_MESSAGE];
+        if (object.status !== Globals.enums.StatusLog.START){
+          var iconPath = cachedIcons[object.status];
+          if (iconPath) {
+            // if warning
+            if (object.messageType === Globals.enums.MessageType.WARNING_MESSAGE && object.status !== Globals.enums.StatusLog.ERROR) {
+              return cachedIcons["message_" + Globals.enums.MessageType.WARNING_MESSAGE];
+            }
+            return iconPath;
           }
-          return iconPath;
+          return;
+        } else {
+          var lastStatus = getStatusKey(object);
+          return cachedIcons[lastStatus];
         }
-        return;
       };
+
+      // Function to get key icon of cached icons based in last service execution
+      var getStatusKey = function(statusObject) {
+        if ($scope.groupedModel[statusObject.name].length > 1){
+          var lastObjectStatus = getLastValidStatus($scope.groupedModel[statusObject.name]); 
+          if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE && object.status !== Globals.enums.StatusLog.ERROR){
+            return "start_warning";
+          } else {
+            return "start_" + lastObjectStatus.status;
+          }
+        } else {
+          return statusObject.status;
+        }
+      }
+
+      // Function to get the last status that is not Start
+      var getLastValidStatus = function(statusObjectList){
+        var lastValidStatus = statusObjectList[1];
+        if (statusObjectList.length > 2){
+          if (statusObjectList[1].status === Globals.enums.StatusLog.START){
+            lastValidStatus = statusObjectList[2];
+          }
+        }
+        return lastValidStatus;
+      }
 
       $scope.loading = true;
 
@@ -194,7 +231,7 @@ define([
                   break;
                 case Globals.enums.StatusLog.ON_QUEUE:
                   dummyMessage.description = "On queue";
-                  dummyMessage.messageType = Globals.enums.MessageType.ERROR_MESSAGE;
+                  dummyMessage.messageType = Globals.enums.MessageType.INFO_MESSAGE;
                   break;
               }
               out.message = dummyMessage.description;
@@ -202,8 +239,17 @@ define([
             }
 
             $scope.model.push(out);
+            if ($scope.groupedModel.hasOwnProperty(out.name)){
+              $scope.groupedModel[out.name].push(out);
+            }
+            else {
+              $scope.groupedModel[out.name] = [out];
+            }
           });
         });
+        for (var key in $scope.groupedModel){
+          $scope.groupedModel[key] =  $scope.groupedModel[key].sort(function(a,b) {return (a.date > b.date) ? -1 : ((b.date > a.date) ? 1 : 0);} );
+        }
       });
 
       $scope.socket.emit('log', {
