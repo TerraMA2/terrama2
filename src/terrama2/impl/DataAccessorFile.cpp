@@ -54,6 +54,8 @@
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/memory/DataSetItem.h>
+#include <terralib/geometry/Utils.h>
+#include <terralib/geometry/GeometryProperty.h>
 
 
 std::string terrama2::core::DataAccessorFile::getMask(DataSetPtr dataSet) const
@@ -115,6 +117,23 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
   size_t geomColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::GEOMETRY_TYPE);
   size_t rasterColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::RASTER_TYPE);
 
+  std::unordered_map<terrama2::core::DataSetPtr, terrama2::core::DataSetSeries > seriesStaticData;
+  // Apply filter by static data
+  if(filter.dataProvider && filter.dataSeries)
+  {
+    auto dataAccesor = DataAccessorFactory::getInstance().make(filter.dataProvider, filter.dataSeries);
+
+    terrama2::core::Filter emptyFilter;
+    seriesStaticData = dataAccesor->getSeries(emptyFilter, nullptr);
+
+    if(seriesStaticData.empty())
+    {
+      QString errMsg = QObject::tr("No data available for data series '%1'.").arg(filter.dataSeries->name.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+  }
+
   size_t size = completeDataSet->size();
   size_t i = 0;
 
@@ -122,7 +141,7 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
   {
     completeDataSet->move(i);
     if(!isValidTimestamp(completeDataSet, filter, dateColumn)
-        || !isValidGeometry(completeDataSet, filter, geomColumn)
+        || !isValidGeometry(completeDataSet, filter, geomColumn, seriesStaticData)
         || !isValidRaster(completeDataSet, filter, rasterColumn))
     {
       completeDataSet->remove();
@@ -227,7 +246,7 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
   return true;
 }
 
-bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn) const
+bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn, std::unordered_map<DataSetPtr, DataSetSeries>& seriesStaticData) const
 {
   if(dataSet->isNull(geomColumn))
   {
@@ -243,37 +262,34 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
     return false;
 
 
-  // Apply filter by static data
-  if(filter.dataProvider && filter.dataSeries)
+  if(!seriesStaticData.empty())
   {
-    auto dataAccesor = DataAccessorFactory::getInstance().make(filter.dataProvider, filter.dataSeries);
-
-    terrama2::core::Filter emptyFilter;
-    auto series = dataAccesor->getSeries(emptyFilter, nullptr);
-
-    if(series.empty())
-    {
-      QString errMsg = QObject::tr("No data available for data series '%1'.").arg(filter.dataSeries->name.c_str());
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-    }
-
-
-    for(auto it : series)
+    for(auto it : seriesStaticData)
     {
       auto syncDs = it.second.syncDataSet;
       std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
-      for(unsigned int j = 0; j < syncDs->size(); ++j)
+      te::gm::GeometryProperty* property = dynamic_cast<te::gm::GeometryProperty*>(it.second.teDataSetType->getProperty(geomPropertyPosition));
+
+      auto extentDs = syncDs->getExtent(geomPropertyPosition);
+      std::shared_ptr<te::gm::Geometry> envelopeGeom(te::gm::GetGeomFromEnvelope(extentDs.get(), property->getSRID()));
+      if(region->intersects(envelopeGeom.get()))
       {
-        auto geom = syncDs->getGeometry(j, geomPropertyPosition);
-        if(region->intersects(geom.get()))
-          return true;
+        for(unsigned int j = 0; j < syncDs->size(); ++j)
+        {
+          auto geom = syncDs->getGeometry(j, geomPropertyPosition);
+          if(region->intersects(geom->getEnvelope()))
+          {
+            if (region->intersects(geom.get()))
+            {
+              return true;
+            }
+          }
+        }
       }
     }
 
     return false;
   }
-
   return true;
 
 }
