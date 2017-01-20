@@ -82,11 +82,6 @@ namespace terrama2
           void removeView(ViewId viewId) noexcept;
 
           /*!
-            \brief Verifies if there is job to be done in the waiting queue and add it to the processing queue.
-          */
-          void notifyWaitQueue(ViewId viewId);
-
-          /*!
            * \brief Receive a jSon and update service information with it
            * \param obj jSon with additional information for service
            */
@@ -94,30 +89,23 @@ namespace terrama2
 
         protected:
 
-          // comments on base class
-          virtual bool hasDataOnQueue() noexcept override;
-
-          // comments on base class
-          virtual bool processNextData() override;
-
           //*! Create a process task and add to taskQueue_
-          virtual void prepareTask(ViewId viewId);
+          virtual void prepareTask(const terrama2::core::ExecutionPackage& executionPackage) override;
 
           //! Connects signals from DataManager
           void connectDataManager();
 
           /*!
            * \brief viewJob
-           * \param viewId
+           * \param executionPackage Process execution information.
            * \param logger A copy of a logger object, to avoid errors if it changes during the job
            * \param weakDataManager
            */
-          void viewJob(ViewId viewId,
+          void viewJob(const terrama2::core::ExecutionPackage& executionPackage,
                        std::shared_ptr<ViewLogger> logger,
                        std::weak_ptr<DataManager> weakDataManager);
 
           std::weak_ptr<DataManager> dataManager_; //!< Weak pointer to the DataManager
-          std::deque<ViewId> viewQueue_;//!< View queue
           te::core::URI mapsServerUri_;
         };
 

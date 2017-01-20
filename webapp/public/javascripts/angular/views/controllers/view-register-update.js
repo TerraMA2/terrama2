@@ -154,7 +154,8 @@ define([], function() {
          * Retrieve all data series
          */
         return DataSeriesService.init({schema: "all"}).then(function(dataSeries) {
-          self.dataSeries = dataSeries;
+          //Filter data series to not show dcp - remove when back implements dcp creation view
+          self.dataSeries = dataSeries.filter(function(dS){return dS.data_series_semantics.data_series_type_name !== "DCP"});
 
           var styleCache = config.view.style;
 
