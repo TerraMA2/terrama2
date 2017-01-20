@@ -306,6 +306,9 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json, DataMana
     {
       auto dataSeries = dataManager->findDataSeries(dataSeriesId);
       filter.dataSeries = dataSeries;
+
+      auto dataProvider = dataManager->findDataProvider(dataSeries->dataProviderId);
+      filter.dataProvider = dataProvider;
     }
   }
 

@@ -35,6 +35,7 @@
 #include "../core/utility/Utils.hpp"
 #include "../core/utility/Unpack.hpp"
 #include "../core/utility/Verify.hpp"
+#include "../core/utility/DataAccessorFactory.hpp"
 
 //STL
 #include <algorithm>
@@ -228,9 +229,6 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<te::mem:
 
 bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::DataSet> dataSet, const Filter& filter, size_t geomColumn) const
 {
-  if(!isValidColumn(geomColumn) || !filter.region.get())
-    return true;
-
   if(dataSet->isNull(geomColumn))
   {
     QString errMsg = QObject::tr("Null geometry attribute.");
@@ -240,10 +238,44 @@ bool terrama2::core::DataAccessorFile::isValidGeometry(std::shared_ptr<te::mem::
 
   std::shared_ptr< te::gm::Geometry > region(dataSet->getGeometry(geomColumn));
 
-  if(!region->intersects(filter.region.get()))
+  // Apply filter by area
+  if(isValidColumn(geomColumn) && filter.region.get() && !region->intersects(filter.region.get()))
     return false;
 
+
+  // Apply filter by static data
+  if(filter.dataProvider && filter.dataSeries)
+  {
+    auto dataAccesor = DataAccessorFactory::getInstance().make(filter.dataProvider, filter.dataSeries);
+
+    terrama2::core::Filter emptyFilter;
+    auto series = dataAccesor->getSeries(emptyFilter, nullptr);
+
+    if(series.empty())
+    {
+      QString errMsg = QObject::tr("No data available for data series '%1'.").arg(filter.dataSeries->name.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
+
+    for(auto it : series)
+    {
+      auto syncDs = it.second.syncDataSet;
+      std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(syncDs->dataset().get(), te::dt::GEOMETRY_TYPE);
+      for(unsigned int j = 0; j < syncDs->size(); ++j)
+      {
+        auto geom = syncDs->getGeometry(j, geomPropertyPosition);
+        if(region->intersects(geom.get()))
+          return true;
+      }
+    }
+
+    return false;
+  }
+
   return true;
+
 }
 
 bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<te::mem::DataSet> dataSet, const Filter&  filter, size_t rasterColumn) const
