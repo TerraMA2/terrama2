@@ -2411,6 +2411,7 @@ var DataManager = module.exports = {
               "by_value",
               "crop_raster",
               "collector_id",
+              "data_series_id",
               [orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'],
               [orm.fn('ST_AsGeoJSON', orm.col('region'), 0, 2), 'region']
             ]
