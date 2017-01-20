@@ -772,7 +772,11 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
   //fill file list
   for(auto& folderPath : basePathList)
   {
-    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(), mask, timezone, filter, remover));
+    newFileInfoList.append(getDataFileInfoList(folderPath.absoluteFilePath().toStdString(),
+                                               mask,
+                                               timezone,
+                                               filter,
+                                               remover));
   }
 
   return newFileInfoList;

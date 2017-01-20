@@ -65,11 +65,35 @@ namespace terrama2
         */
         struct View : public terrama2::core::Process
         {
+            struct Legend
+            {
+                enum OperationType
+                {
+                  EQUAL_STEPS = 1,
+                  QUANTILE = 2,
+                  VALUE = 3
+                };
+
+                struct Rule
+                {
+                    std::string title = "";
+                    std::string value = "";
+                    std::string color = "";
+                    bool isDefault = false;
+                };
+
+                OperationType ruleType;
+                int bands = 0;
+                std::string column = "";
+                std::vector< Rule > rules;
+            };
+
           std::string viewName = "";
 
           std::vector< DataSeriesId > dataSeriesList; //!< Ordened list of DataSeries ID that compose this view
           std::unordered_map< DataSeriesId, terrama2::core::Filter > filtersPerDataSeries; //!< List of filters by DataSeries ID
           std::unordered_map< DataSeriesId, std::string > stylesPerDataSeries; //!< List of base styles by DataSeries ID.
+          std::unordered_map< DataSeriesId, Legend > legendPerDataSeries;
 
           // Parameters to generate a image
           std::string imageName = "";

@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_CORE_GEOSERVER_HPP__
 
 // TerraMA2
+#include "../View.hpp"
 #include "../MapsServer.hpp"
 #include "../Shared.hpp"
 #include "../Typedef.hpp"
@@ -121,11 +122,9 @@ namespace terrama2
                                       std::map<std::string, std::string> connInfo,
                                       const std::string& tableName,
                                       const std::string& title,
+                                      const std::unique_ptr<te::da::DataSetType>& dataSetType,
                                       const std::string& timestampPropertyName = "",
-                                      const std::string& sql = "",
-                                      const std::string& geomName = "",
-                                      const te::gm::GeomType& geomType = te::gm::GeomType::UnknownGeometryType,
-                                      const std::string& srid = "") const;
+                                      const std::string& sql = "") const;
 
             /*!
              * \brief Method to upload a .zip with the vector files from out of the server to the GeoServer
@@ -183,13 +182,16 @@ namespace terrama2
                                       const std::string& coverageFilePath,
                                       const std::string& coverageName,
                                       const std::string& extension,
-                                      const std::string& style = "") const;
+                                      const std::string& styleName = "") const;
 
             void registerMosaicCoverage(const std::string& coverageStoreName,
                                         const std::string& mosaicPath,
                                         const std::string& coverageName,
                                         const int srid,
                                         const std::string& style = "") const;
+
+            std::unique_ptr<te::se::Style> generateStyle(const View::Legend& legend,
+                                                         const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
 
             /*!
              * \brief Method to register a style in the GeoServer from a text file
@@ -211,6 +213,11 @@ namespace terrama2
              * \param style The style XML
              */
             void registerStyle(const std::string& name, const std::string &style) const;
+
+
+            void registerStyle(const std::string& name,
+                               const View::Legend& legend,
+                               const std::unique_ptr<te::da::DataSetType>& dataSetType) const;
 
             /*!
              * \brief Method to delete a workspace in Geoserver

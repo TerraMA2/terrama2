@@ -393,6 +393,7 @@ module.exports = function(app) {
 
     delete: function(request, response) {
       var id = request.params.id;
+
       if (id) {
         DataManager.listAnalysisDataSeries({data_series_id: id})
           .then(function(analysisDataSeriesList){

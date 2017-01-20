@@ -91,7 +91,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("service_instance_id")
      || !json.contains("active")
      || !json.contains("dataseries_id")
-     || !json.contains("style")
+     || !json.contains("legend")
      || !json.contains("schedule"))
   {
     QString errMsg = QObject::tr("Invalid View JSON object.");
@@ -114,6 +114,8 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
 
   view->stylesPerDataSeries.emplace(dataseriesID, json["style"].toString().toStdString());
 
+  view->legendPerDataSeries.emplace(dataseriesID, fromLegendJson(json["legend"].toObject()));
+
   view->schedule = terrama2::core::fromScheduleJson(json["schedule"].toObject());
 
   view->imageName = json["imageName"].toString().toStdString();
@@ -123,4 +125,46 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   view->srid = static_cast<uint32_t>(json["srid"].toInt());
 
   return viewPtr;
+}
+
+terrama2::services::view::core::View::Legend terrama2::services::view::core::fromLegendJson(QJsonObject json)
+{
+  if(json["class"].toString() != "ViewStyleLegend")
+  {
+    QString errMsg = QObject::tr("Invalid View Legend JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  if(!json.contains("type_id")
+     || !json.contains("band_number")
+     || !json.contains("column")
+     || !json.contains("colors"))
+  {
+    QString errMsg = QObject::tr("Invalid View Legend JSON object.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::JSonParserException() << ErrorDescription(errMsg);
+  }
+
+  View::Legend legend;
+
+  legend.ruleType = View::Legend::OperationType(json["type_id"].toInt());
+//  legend.bands = static_cast<uint32_t>(json["bands"].toInt());
+  legend.column = json["column"].toString().toStdString();
+
+  for(auto color : json["colors"].toArray())
+  {
+    auto obj = color.toObject();
+
+    View::Legend::Rule c;
+
+    c.title = obj["title"].toString().toStdString();
+    c.value = obj["value"].toString().toStdString();
+    c.color = obj["color"].toString().toStdString();
+    c.isDefault = obj["isDefault"].toBool();
+
+    legend.rules.push_back(c);
+  }
+
+  return legend;
 }
