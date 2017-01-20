@@ -297,6 +297,11 @@ terrama2::core::Filter terrama2::core::fromFilterJson(QJsonObject json)
     filter.lastValue = json["last_value"].toBool();
   }
 
+  if(json.contains("data_series_id") && !json.value("data_series_id").isNull())
+  {
+    filter.dataSeriesId = json["data_series_id"].toInt();
+  }
+
   return filter;
 }
 
@@ -402,6 +407,8 @@ QJsonObject terrama2::core::toJson(const terrama2::core::Filter& filter)
   }
 
   obj.insert("last_value", filter.lastValue);
+
+  obj.insert("data_series_id", static_cast<int32_t>(filter.dataSeriesId));
 
   //TODO: filter by value to json
 

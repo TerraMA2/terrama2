@@ -124,10 +124,10 @@ namespace terrama2
 
         std::map<DataSetId, std::string> getFiles(const Filter& filter, std::shared_ptr<FileRemover> remover) const;
         
-        //! Utility function for converting string to double in the te::da::DataSet contruction.
+        //! Utility function for converting string to double in the te::da::DataSet construction.
         te::dt::AbstractData* stringToDouble(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
-        //! Utility function for converting string to int32 in the te::da::DataSet contruction.
+        //! Utility function for converting string to int32 in the te::da::DataSet construction.
         te::dt::AbstractData* stringToInt(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/) const;
 
         //! Recover projection information from dataset
@@ -184,10 +184,10 @@ namespace terrama2
         DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
 
         /*!
-           \brief Prefix especification for drivers.
+           \brief Prefix specification for drivers.
 
-           Some drivers may need especification to access a datasource,
-           GDal, for example, need 'CSV:' befor the uri for csv files with //txt// extension.
+           Some drivers may need specification to access a datasource,
+           GDal, for example, need 'CSV:' before the uri for csv files with //txt// extension.
 
          */
         virtual std::string typePrefix() const { return ""; }
@@ -198,10 +198,10 @@ namespace terrama2
         virtual std::string dataSourceType() const = 0;
 
         /*!
-           \brief Creates a converter to make the necessary convertions of data type.
+           \brief Creates a converter to make the necessary transformation of data type.
 
            This converter will convert strings to Data/Time formats or double,
-           create coordinate point classe from lat long string and other cases
+           create coordinate point class from lat long string and other cases
 
            \param dataSet Raw dataset
            \param datasetType DataSetType from dataSet
@@ -210,19 +210,19 @@ namespace terrama2
         virtual std::shared_ptr<te::da::DataSetTypeConverter> getConverter(DataSetPtr dataSet, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
 
         /*!
-           \brief Add original attributes to the converter without convertion
+           \brief Add original attributes to the converter without converting
          */
         virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const;
 
         /*!
-           \brief Add addapted attributes to the converter
+           \brief Add adapted attributes to the converter
          */
         virtual void adapt(DataSetPtr dataSet, std::shared_ptr<te::da::DataSetTypeConverter> converter) const { }
 
         /*!
            \brief Retrieve data from server.
 
-           Retrieved data is subjetc to filter.
+           Retrieved data is subject to filter.
 
          */
         virtual std::string retrieveData(const DataRetrieverPtr dataRetriever, DataSetPtr dataSet, const Filter& filter, std::shared_ptr<FileRemover> remover) const = 0;
@@ -243,8 +243,8 @@ namespace terrama2
         */
         virtual bool intersects(DataSetPtr dataset, const Filter& filter) const { return true; }
 
-        DataProviderPtr dataProvider_;//!< DataProvider with iformation of the server where the data is stored.
-        DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data iformation.
+        DataProviderPtr dataProvider_;//!< DataProvider with information of the server where the data is stored.
+        DataSeriesPtr dataSeries_;//!< DataSeries with the DataSet list with data information.
 
         std::shared_ptr< te::dt::TimeInstantTZ > lastDateTime_;//!< Last data Date/Time
     };
