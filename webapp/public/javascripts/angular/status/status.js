@@ -75,7 +75,7 @@ define([
           var iconPath = cachedIcons[object.status];
           if (iconPath) {
             // if warning
-            if (object.messageType === Globals.enums.MessageType.WARNING_MESSAGE) {
+            if (object.messageType === Globals.enums.MessageType.WARNING_MESSAGE && object.status !== Globals.enums.StatusLog.ERROR) {
               return cachedIcons["message_" + Globals.enums.MessageType.WARNING_MESSAGE];
             }
             return iconPath;
@@ -91,7 +91,7 @@ define([
       var getStatusKey = function(statusObject) {
         if ($scope.groupedModel[statusObject.name].length > 1){
           var lastObjectStatus = getLastValidStatus($scope.groupedModel[statusObject.name]); 
-          if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE){
+          if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE && object.status !== Globals.enums.StatusLog.ERROR){
             return "start_warning";
           } else {
             return "start_" + lastObjectStatus.status;
