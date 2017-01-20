@@ -254,7 +254,8 @@ module.exports = {
     ERROR: 1,
     START: 2,
     DOWNLOADED: 3,
-    DONE: 4
+    DONE: 4,
+    ON_QUEUE: 5
   },
 
   /**

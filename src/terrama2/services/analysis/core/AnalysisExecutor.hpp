@@ -35,6 +35,7 @@
 #include "Shared.hpp"
 #include "AnalysisLogger.hpp"
 #include "GridContext.hpp"
+#include "../../../core/utility/Service.hpp"
 
 // STL
 #include <vector>
@@ -90,7 +91,7 @@ namespace terrama2
             void runAnalysis(DataManagerPtr dataManager,
                              terrama2::core::StoragerManagerPtr storagerManager,
                              std::shared_ptr<AnalysisLogger> logger,
-                             std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                             const terrama2::core::ExecutionPackage& executionPackage,
                              AnalysisPtr analysis,
                              ThreadPoolPtr threadPool,
                              PyThreadState* mainThreadState);

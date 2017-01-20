@@ -45,6 +45,7 @@
 // STL
 #include <string>
 #include <vector>
+#include <set>
 
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
@@ -294,7 +295,7 @@ namespace terrama2
         {
           AnalysisId analysisId = 0;
           bool valid = true;
-          std::vector<std::string> messages;
+          std::set<std::string> messages;
         };
 
 
