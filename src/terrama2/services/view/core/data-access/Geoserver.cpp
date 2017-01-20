@@ -31,6 +31,7 @@
 // TerraMA2
 #include "Geoserver.hpp"
 #include "Exception.hpp"
+#include "DataAccess.hpp"
 #include "../Utils.hpp"
 #include "../DataManager.hpp"
 #include "../serialization/Serialization.hpp"
@@ -286,7 +287,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const std::
   te::gm::GeomType geomType;
   std::string srid;
 
-  if(dataSetType->hasGeom())
+  if(dataSetType && dataSetType->hasGeom())
   {
     auto geomProperty = te::da::GetFirstGeomProperty(dataSetType.get());
     geomName = geomProperty->getName();
@@ -702,6 +703,7 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
 
       te::se::Rule* rule = new te::se::Rule;
       rule->push_back(symbolizer);
+      rule->setName(new std::string(legendRule.title));
 
       if(legendRule.isDefault)
       {
@@ -727,6 +729,14 @@ std::unique_ptr<te::se::Style> terrama2::services::view::core::GeoServer::genera
     {
       style->push_back(rule);
     }
+  }
+  else if(legend.ruleType == View::Legend::EQUAL_STEPS)
+  {
+
+  }
+  else if(legend.ruleType == View::Legend::QUANTIL)
+  {
+
   }
 
   return style;
@@ -928,20 +938,19 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
     registerWorkspace();
 
-    // Register style
     std::string styleName = "";
-    auto itStyle = viewPtr->stylesPerDataSeries.find(inputDataSeries->id);
-
-    if(itStyle != viewPtr->stylesPerDataSeries.end())
     {
-      styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
-      registerStyle(styleName, itStyle->second);
+      // Register style
+      auto itStyle = viewPtr->stylesPerDataSeries.find(inputDataSeries->id);
+
+      if(itStyle != viewPtr->stylesPerDataSeries.end())
+      {
+        styleName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
+        registerStyle(styleName, itStyle->second);
+      }
     }
 
     QJsonArray layersArray;
-
-    terrama2::core::DataAccessorPtr dataAccessor =
-        terrama2::core::DataAccessorFactory::getInstance().make(inputDataProvider, inputDataSeries);
 
     terrama2::core::Filter filter;
 
@@ -951,8 +960,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
     {
       filter = terrama2::core::Filter(it->second);
     }
-
-    auto remover = std::make_shared<terrama2::core::FileRemover>();
 
     if(inputDataSeries->datasetList.empty())
     {
@@ -966,29 +973,10 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
     if(dataProviderType == "FILE")
     {
-      std::shared_ptr< terrama2::core::DataAccessorFile > dataAccessorFile =
-          std::dynamic_pointer_cast<terrama2::core::DataAccessorFile>(dataAccessor);
-
       for(auto& dataset : inputDataSeries->datasetList)
       {
-        std::string timezone;
-        try
-        {
-          timezone = dataAccessorFile->getTimeZone(dataset);
-        }
-        catch(const terrama2::core::UndefinedTagException& /*e*/)
-        {
-          //if timezone is not defined
-          timezone = "UTC+00";
-        }
-
         // Get the list of layers to register
-        auto fileInfoList = dataAccessorFile->getFilesList(inputDataProvider->uri,
-                                                           dataAccessorFile->getMask(dataset),
-                                                           filter,
-                                                           timezone,
-                                                           dataset,
-                                                           remover);
+        auto fileInfoList = DataAccess::getFilesList(dataSeriesProvider, dataset, filter);
 
         if(fileInfoList.empty())
         {
@@ -1002,20 +990,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
         {
           if(!modelDataSetType)
           {
-            std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("OGR",
-                                                                                           "file://"+fileInfo.absolutePath().toStdString()));
-
-            terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
-
-            if(!datasource->isOpened())
-            {
-              QString errMsg = QObject::tr("DataProvider could not be opened.");
-              logger->log(ViewLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
-              TERRAMA2_LOG_ERROR() << errMsg;
-              continue;
-            }
-
-            modelDataSetType = std::move(datasource->getDataSetType(fileInfo.baseName().toStdString()));
+            modelDataSetType.reset(DataAccess::getFileDataSetType(fileInfo));
           }
 
           if(dataFormat == "OGR")
@@ -1053,46 +1028,19 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
         {"PG_CLIENT_ENCODING", "UTF-8"}
       };
 
-      std::shared_ptr< terrama2::core::DataAccessorPostGIS > dataAccessorPostGis =
-          std::dynamic_pointer_cast<terrama2::core::DataAccessorPostGIS>(dataAccessor);
-
       for(auto& dataset : inputDataSeries->datasetList)
       {
-        std::string tableName = dataAccessorPostGis->getDataSetTableName(dataset);
-        std::string layerName = viewPtr->viewName + "_"  + tableName;
-        std::string timestampPropertyName;
-        std::string joinSQL;
+        TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataSeriesProvider, dataset);
 
-        try
-        {
-          timestampPropertyName = dataAccessorPostGis->getTimestampPropertyName(dataset);
-        }
-        catch (...)
-        {
+        std::string tableName = tableInfo.tableName;
+        std::string layerName = viewPtr->viewName + "_"  + tableInfo.tableName;
+        std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
-        }
+        modelDataSetType = std::move(tableInfo.dataSetType);
 
-        std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS",
-                                                                                       inputDataProvider->uri));
+        std::string SQL = "";
 
-        terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(datasource);
-
-        if(!datasource->isOpened())
-        {
-          QString errMsg = QObject::tr("DataProvider could not be opened.");
-          logger->log(ViewLogger::ERROR_MESSAGE, errMsg.toStdString(), logId);
-          TERRAMA2_LOG_ERROR() << errMsg;
-          continue;
-        }
-
-        if(inputDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
-        {
-          if(!modelDataSetType)
-          {
-            modelDataSetType = std::move(datasource->getDataSetType(tableName));
-          }
-        }
-        else
+        if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
         {
           const auto& id = dataset->format.find("monitored_object_id");
 
@@ -1126,30 +1074,27 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
 
           const terrama2::core::DataSetPtr monitoredObjectDataset = monitoredObjectDataSeries->datasetList.at(0);
 
-          std::string monitoredObjectTableName = dataAccessorPostGis->getDataSetTableName(monitoredObjectDataset);
+          TableInfo monitoredObjectTableInfo = DataAccess::getPostgisTableInfo(std::make_pair(monitoredObjectDataSeries, monitoredObjectProvider),
+                                                                               monitoredObjectDataset);
 
-          std::unique_ptr< te::da::DataSetType > dataSetType = datasource->getDataSetType(monitoredObjectTableName);
+          std::string pk = monitoredObjectTableInfo.dataSetType->getPrimaryKey()->getProperties().at(0)->getName();
 
-          std::string pk = dataSetType->getPrimaryKey()->getProperties().at(0)->getName();
+          auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
 
-          auto& propertiesVector = dataSetType->getProperties();
-
-          joinSQL = "SELECT ";
+          SQL = "SELECT ";
 
           for(auto& property : propertiesVector)
           {
             const std::string& propertyName = property->getName();
-            joinSQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
+            SQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
           }
 
-          joinSQL += "t2.* ";
-          joinSQL += "FROM " + monitoredObjectTableName + " as t1 , " + tableName + " as t2 ";
-          joinSQL += "WHERE t1." + pk + " = t2." + pk;
+          SQL += "t2.* ";
+          SQL += "FROM " + monitoredObjectTableInfo.tableName;
+          SQL += " as t1 , " + tableName + " as t2 ";
+          SQL += "WHERE t1." + pk + " = t2." + pk;
 
-          if(!modelDataSetType)
-          {
-            modelDataSetType.reset(dataSetType.release());
-          }
+          modelDataSetType.reset(monitoredObjectTableInfo.dataSetType.release());
         }
 
         registerPostgisTable(inputDataProvider->name,
@@ -1158,7 +1103,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
                              viewPtr->viewName,
                              modelDataSetType,
                              timestampPropertyName,
-                             joinSQL);
+                             SQL);
 
         QJsonObject layer;
         layer.insert("layer", QString::fromStdString(layerName));
@@ -1166,14 +1111,14 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayers(const View
       }
     }
 
-    // Register style
-    auto legend = viewPtr->legendPerDataSeries.find(inputDataSeries->id);
+      // Register style
+      auto legend = viewPtr->legendPerDataSeries.find(inputDataSeries->id);
 
-    if(legend != viewPtr->legendPerDataSeries.end())
-    {
-      std::string legendName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
-      registerStyle(legendName, legend->second, modelDataSetType);
-    }
+      if(legend != viewPtr->legendPerDataSeries.end())
+      {
+        std::string legendName = viewPtr->viewName + "style" + std::to_string(inputDataSeries->id);
+        registerStyle(legendName, legend->second, modelDataSetType);
+      }
 
     // TODO: assuming that only has one dataseries, overwriting answer
     jsonAnswer.insert("workspace", QString::fromStdString(workspace()));

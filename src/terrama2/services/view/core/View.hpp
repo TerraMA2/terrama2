@@ -70,7 +70,7 @@ namespace terrama2
                 enum OperationType
                 {
                   EQUAL_STEPS = 1,
-                  QUANTILE = 2,
+                  QUANTIL = 2,
                   VALUE = 3
                 };
 
