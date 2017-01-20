@@ -83,7 +83,7 @@ namespace terrama2
                 };
 
                 OperationType ruleType;
-                int bands = 0;
+                int band_number = 0;
                 std::string column = "";
                 std::vector< Rule > rules;
             };

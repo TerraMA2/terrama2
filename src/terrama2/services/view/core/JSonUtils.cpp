@@ -149,7 +149,8 @@ terrama2::services::view::core::View::Legend terrama2::services::view::core::fro
   View::Legend legend;
 
   legend.ruleType = View::Legend::OperationType(json["type_id"].toInt());
-//  legend.bands = static_cast<uint32_t>(json["bands"].toInt());
+
+  legend.band_number = static_cast<uint32_t>(json["band_number"].toInt());
   legend.column = json["column"].toString().toStdString();
 
   for(auto color : json["colors"].toArray())
